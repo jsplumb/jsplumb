@@ -443,16 +443,24 @@ var testSuite = function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17"), d18 = support.addDiv("d18");
 
         var c = _jsPlumb.connect({source: d16, target: d17, endpoint: "Rectangle"});
-        equal(c.sourceId, "d16");
-        equal(c.targetId, "d17");
+        equal(c.source.id, "d16");
+        equal(c.target.id, "d17");
+
+        ok(_jsPlumb.hasClass(d16, "jtk-connected"), "d16 has jtk-connected class");
+        ok(_jsPlumb.hasClass(d17, "jtk-connected"), "d17 has jtk-connected class");
+        ok(!_jsPlumb.hasClass(d18, "jtk-connected"), "d18 does not have jtk-connected class");
 
         equal(c.endpoints[0].endpoint.getType(), "Rectangle", "endpoint is type Rectangle");
         equal(c.endpoints[0].connections.length, 1, "endpoint has one connection");
 
         _jsPlumb.setSource(c, d18);
-        equal(c.sourceId, "d18", "source is now d18");
+        equal(c.source.id, "d18", "source is now d18");
         equal(c.endpoints[0].endpoint.getType(), "Rectangle", "endpoint is still type Rectangle");
         equal(c.endpoints[0].connections.length, 1, "endpoint has one connection");
+
+        ok(_jsPlumb.hasClass(d18, "jtk-connected"), "d18 has jtk-connected class");
+        ok(_jsPlumb.hasClass(d17, "jtk-connected"), "d17 has jtk-connected class");
+        ok(!_jsPlumb.hasClass(d16, "jtk-connected"), "d16 does not have jtk-connected class");
 
         equal(sc, true, "connectionMoved event fired");
 
@@ -467,11 +475,11 @@ var testSuite = function () {
         var ep = _jsPlumb.addEndpoint(d18), ep2 = _jsPlumb.addEndpoint(d18);
 
         var c = _jsPlumb.connect({source: d16, target: d17});
-        equal(c.sourceId, "d16");
-        equal(c.targetId, "d17");
+        equal(c.source.id, "d16");
+        equal(c.target.id, "d17");
 
         _jsPlumb.setSource(c, ep);
-        equal(c.sourceId, "d18", "source is now d18");
+        equal(c.source.id, "d18", "source is now d18");
 
         // test that new endpoint is set (different from the case that an element or element id was given)
         c.endpoints[0].original = true;
@@ -487,11 +495,11 @@ var testSuite = function () {
         });
 
         var c = _jsPlumb.connect({source: d16, target: d17});
-        equal(c.sourceId, "d16");
-        equal(c.targetId, "d17");
+        equal(c.source.id, "d16");
+        equal(c.target.id, "d17");
 
         _jsPlumb.setSource(c, d18);
-        equal(c.sourceId, "d18", "source is now d18");
+        equal(c.source.id, "d18", "source is now d18");
         equal(c.endpoints[0].endpoint.getType(), "Rectangle", "endpoint is type Rectangle");
 
         // test we dont overwrite if the source is already the element
@@ -511,13 +519,13 @@ var testSuite = function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17"), d18 = support.addDiv("d18");
 
         var c = _jsPlumb.connect({source: d16, target: d17, endpoint: "Rectangle"});
-        equal(c.sourceId, "d16");
-        equal(c.targetId, "d17");
+        equal(c.source.id, "d16");
+        equal(c.target.id, "d17");
 
         equal(c.endpoints[1].endpoint.getType(), "Rectangle", "endpoint is type Rectangle");
 
         _jsPlumb.setTarget(c, d18);
-        equal(c.targetId, "d18", "source is now d18");
+        equal(c.target.id, "d18", "source is now d18");
         equal(c.endpoints[1].endpoint.getType(), "Rectangle", "endpoint is still type Rectangle");
 
         equal(sc, true, "connectionMoved event fired");
@@ -538,11 +546,11 @@ var testSuite = function () {
         var ep = _jsPlumb.addEndpoint(d18), ep2 = _jsPlumb.addEndpoint(d18);
 
         var c = _jsPlumb.connect({source: d16, target: d17});
-        equal(c.sourceId, "d16");
-        equal(c.targetId, "d17");
+        equal(c.source.id, "d16");
+        equal(c.target.id, "d17");
 
         _jsPlumb.setTarget(c, ep);
-        equal(c.targetId, "d18", "source is now d18");
+        equal(c.target.id, "d18", "source is now d18");
 
         equal(sc, true, "connectionMoved event fired");
 
@@ -565,11 +573,11 @@ var testSuite = function () {
         });
 
         var c = _jsPlumb.connect({source: d16, target: d17});
-        equal(c.sourceId, "d16");
-        equal(c.targetId, "d17");
+        equal(c.source.id, "d16");
+        equal(c.target.id, "d17");
 
         _jsPlumb.setTarget(c, d18);
-        equal(c.targetId, "d18", "source is now d18");
+        equal(c.target.id, "d18", "source is now d18");
         equal(c.endpoints[1].endpoint.getType(), "Rectangle", "endpoint is type Rectangle");
         ok(_jsPlumb.hasClass(c.endpoints[1].endpoint.canvas, "CHANGED"), "endpoint CSS class has 'CHANGED'");
 

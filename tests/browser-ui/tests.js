@@ -85,7 +85,7 @@ var testSuite = function () {
 
     test(': getId', function () {
         var d10 = support.addDiv('d10');
-        equal(_jsPlumb.getId(_jsPlumb.getElement(d10)), "d10");
+        equal(_jsPlumb.getId(_jsPlumb.getElement(d10)), d10.getAttribute("jtk-id"));
     });
 
     test(': create a simple endpoint', function () {
@@ -438,14 +438,14 @@ var testSuite = function () {
     });
 
     // issue 81
-    test(': delete should fire only one detach event (pass source and targets as strings as arguments in params object)', function () {
+    test(': delete should fire only one detach event (pass source and targets as elements as arguments in params object)', function () {
         var d5 = support.addDiv("d5"), d6 = support.addDiv("d6");
         var conn = _jsPlumb.connect({source: d5, target: d6});
         var eventCount = 0;
         _jsPlumb.bind("connectionDetached", function (c) {
             eventCount++;
         });
-        _jsPlumb.select({source: "d5", target: "d6"}).deleteAll();
+        _jsPlumb.select({source: d5, target: d6}).deleteAll();
         equal(eventCount, 1);
     });
 
@@ -497,7 +497,7 @@ var testSuite = function () {
         _jsPlumb.connect({source: d6, target: d7});
         var c = _jsPlumb.getConnections();  // will get all connections
         equal(c.length, 2, "there are two connections initially");
-        _jsPlumb.select({source: 'd5', target: 'd6'}).deleteAll();
+        _jsPlumb.select({source: d5, target: d6}).deleteAll();
         c = _jsPlumb.getConnections();  // will get all connections
         equal(c.length, 1, "after detaching one, there is now one connection.");
     });
@@ -508,7 +508,7 @@ var testSuite = function () {
         _jsPlumb.connect({source: d6, target: d7});
         var c = _jsPlumb.getConnections();  // will get all connections
         equal(c.length, 2, "there are two connections initially");
-        _jsPlumb.select({source: "d5", target: "d6"}).deleteAll();
+        _jsPlumb.select({source: d5, target: d6}).deleteAll();
         c = _jsPlumb.getConnections();  // will get all connections
         equal(c.length, 1, "after detaching one, there is now one connection.");
     });
@@ -672,8 +672,8 @@ var testSuite = function () {
         var c = _jsPlumb.connect({source: e1, target: e2});
         var beforeDetachCount = 0;
         _jsPlumb.bind("beforeDetach", function (connection) {
-            ok(connection.sourceId === "d1", "connection is provided and configured with correct source");
-            ok(connection.targetId === "d2", "connection is provided and configured with correct target");
+            ok(connection.source.id === "d1", "connection is provided and configured with correct source");
+            ok(connection.target.id === "d2", "connection is provided and configured with correct target");
             beforeDetachCount++;
             return false;
         });
@@ -689,8 +689,8 @@ var testSuite = function () {
             e2 = _jsPlumb.addEndpoint(d2, { isTarget: true });
         var c = _jsPlumb.connect({source: e1, target: e2});
         _jsPlumb.bind("beforeDetach", function (connection) {
-            ok(connection.sourceId === "d1", "connection is provided and configured with correct source");
-            ok(connection.targetId === "d2", "connection is provided and configured with correct target");
+            ok(connection.source.id === "d1", "connection is provided and configured with correct source");
+            ok(connection.target.id === "d2", "connection is provided and configured with correct target");
             return true;
         });
         equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
@@ -1024,8 +1024,8 @@ var testSuite = function () {
         _jsPlumb.connect({source: d5, target: d6, scope: 'testScope'});
         var c = _jsPlumb.getConnections("testScope");  // will get all connections in testScope	
         equal(c.length, 1, "there is one connection");
-        equal(c[0].sourceId, 'd5', "the connection's source is d5");
-        equal(c[0].targetId, 'd6', "the connection's source is d6");
+        equal(c[0].source.id, 'd5', "the connection's source is d5");
+        equal(c[0].target.id, 'd6', "the connection's source is d6");
         c = _jsPlumb.getConnections();  // will get all connections in default scope; should be none.
         equal(c.length, 0, "there are no connections in the default scope");
     });
@@ -1048,7 +1048,7 @@ var testSuite = function () {
         _jsPlumb.connect({source: d8, target: d9, scope: 'testScope'});
         _jsPlumb.connect({source: d9, target: d8, scope: 'testScope'});
         _jsPlumb.connect({source: d9, target: d10}); // default scope
-        var c = _jsPlumb.getConnections({scope: 'testScope', source: 'd8'});  // will get all connections with sourceId 'd8'	
+        var c = _jsPlumb.getConnections({scope: 'testScope', source: d8});  // will get all connections with sourceId 'd8'
         equal(c.length, 1, "there is one connection in 'testScope' from d8");
     });
 
@@ -1057,7 +1057,7 @@ var testSuite = function () {
         _jsPlumb.connect({source: d11, target: d12, scope: 'testScope'});
         _jsPlumb.connect({source: d12, target: d13, scope: 'testScope'});
         _jsPlumb.connect({source: d11, target: d13, scope: 'testScope'});
-        var c = _jsPlumb.getConnections({scope: 'testScope', source: 'd11', target: 'd13'});
+        var c = _jsPlumb.getConnections({scope: 'testScope', source: d11, target: d13});
         equal(c.length, 1, "there is one connection from d11 to d13");
     });
 
@@ -1078,7 +1078,7 @@ var testSuite = function () {
         _jsPlumb.connect({source: d13, target: d12, scope: 'testScope'});
         _jsPlumb.connect({source: d12, target: d13, scope: 'testScope2'});
         _jsPlumb.connect({source: d11, target: d13, scope: 'testScope3'});
-        var c = _jsPlumb.getConnections({scope: ['testScope', 'testScope3'], source: ['d11']});
+        var c = _jsPlumb.getConnections({scope: ['testScope', 'testScope3'], source: [d11]});
         equal(c['testScope'].length, 1, 'there is one connection in testScope');
         equal(c['testScope3'].length, 1, 'there is one connection in testScope3');
         equal(c['testScope2'], null, 'there are no connections in testScope2');
@@ -1093,7 +1093,7 @@ var testSuite = function () {
         _jsPlumb.connect({source: d11, target: d15, scope: 'testScope'});
         _jsPlumb.connect({source: d12, target: d13, scope: 'testScope2'});
         _jsPlumb.connect({source: d11, target: d13, scope: 'testScope3'});
-        var c = _jsPlumb.getConnections({scope: ['testScope', 'testScope3'], source: ['d11'], target: ['d14', 'd15']});
+        var c = _jsPlumb.getConnections({scope: ['testScope', 'testScope3'], source: [d11], target: [d14, d15]});
         equal(c['testScope'].length, 2, 'there are two connections in testScope');
         equal(c['testScope3'], null, 'there are no connections in testScope3');
         equal(c['testScope2'], null, 'there are no connections in testScope2');
@@ -1164,8 +1164,8 @@ var testSuite = function () {
         var c = _jsPlumb.connect({source: d1, target: d2});
         ok(returnedParams != null, "new connection listener event was fired");
         ok(returnedParams.connection != null, 'connection is set');
-        equal(returnedParams.sourceId, "d1", 'sourceid is set');
-        equal(returnedParams.targetId, "d2", 'targetid is set');
+        equal(returnedParams.source.id, "d1", 'sourceid is set');
+        equal(returnedParams.target.id, "d2", 'targetid is set');
         equal(returnedParams.source.getAttribute("id"), "d1", 'source is set');
         equal(returnedParams.target.getAttribute("id"), "d2", 'target is set');
         ok(returnedParams.sourceEndpoint != null, "source endpoint is not null");
@@ -1196,7 +1196,7 @@ var testSuite = function () {
             returnedParams = Object.assign({}, params);
         });
         _jsPlumb.connect({source: d1, target: d2});
-        _jsPlumb.select({source: "d1", target: "d2"}).deleteAll();
+        _jsPlumb.select({source: d1, target: d2}).deleteAll();
         ok(returnedParams != null, "removed connection listener event was fired");
     });
 
@@ -3081,7 +3081,7 @@ var testSuite = function () {
         assertConnectionCount(e3, 1);
         assertConnectionCount(e4, 1);
 
-        _jsPlumb.select({source: "d1", target: "d2"}).deleteAll();
+        _jsPlumb.select({source: d1, target: d2}).deleteAll();
 
         assertConnectionCount(e1, 0);
         assertConnectionCount(e2, 0);
@@ -3881,14 +3881,14 @@ var testSuite = function () {
             support2 = jsPlumbTestSupport.getInstance(_jsp2),
             d2 = support2.addDiv("d2");
 
-        d1.removeAttribute("id");
-        d2.removeAttribute("id");
+        d1.removeAttribute("jtk-id");
+        d2.removeAttribute("jtk-id");
 
         _jsPlumb.addEndpoint(d1);
         _jsp2.addEndpoint(d2);
 
-        var id1 = d1.getAttribute("id"),
-            id2 = d2.getAttribute("id");
+        var id1 = d1.getAttribute("jtk-id"),
+            id2 = d2.getAttribute("jtk-id");
 
         var idx = id1.indexOf("-"), idx2 = id1.lastIndexOf("-"), v1 = id1.substring(idx, idx2);
         var idx3 = id2.indexOf("-"), idx4 = id2.lastIndexOf("-"), v2 = id2.substring(idx3, idx4);
@@ -3971,315 +3971,315 @@ var testSuite = function () {
 
 // setId function
 
-    test(" setId, taking two strings, only default scope", function () {
-        var d1 = support.addDiv("d1", null, null, 50, 50, 100, 100);
-        var d2 = support.addDiv("d2", null, null, 250, 250, 100, 100);
-
-        _jsPlumb.Defaults.maxConnections = -1;
-        var e1 = _jsPlumb.addEndpoint(d1),
-            e2 = _jsPlumb.addEndpoint(d2),
-            e3 = _jsPlumb.addEndpoint(d1);
-
-        support.assertEndpointCount(d1, 2, _jsPlumb);
-        equal(e1.elementId, "d1", "endpoint has correct element id");
-        equal(e3.elementId, "d1", "endpoint has correct element id");
-        equal(e1.anchor.elementId, "d1", "anchor has correct element id");
-        equal(e3.anchor.elementId, "d1", "anchor has correct element id");
-
-        var c = _jsPlumb.connect({source: e1, target: e2}),
-            c2 = _jsPlumb.connect({source: e2, target: e1});
-
-        _jsPlumb.setId("d1", "d3");
-        // the endpoint count hasnt changed, and this illustrates why setId is now pointless.
-        support.assertEndpointCount(d1, 2, _jsPlumb);
-        //support.assertEndpointCount(d1, 0, _jsPlumb);
-
-        equal(e1.elementId, "d3", "endpoint has correct element id");
-        equal(e3.elementId, "d3", "endpoint has correct element id");
-        equal(e1.anchor.elementId, "d3", "anchor has correct element id");
-        equal(e3.anchor.elementId, "d3", "anchor has correct element id");
-
-        equal(c.sourceId, "d3", "connection's sourceId has changed");
-        equal(c.source.getAttribute("id"), "d3", "connection's source has changed");
-        equal(c2.targetId, "d3", "connection's targetId has changed");
-        equal(c2.target.getAttribute("id"), "d3", "connection's target has changed");
-    });
-
-
-
-    test(" setId, taking a DOM element and a string, only default scope", function () {
-        var d1 = support.addDiv("d1", null, null, 50, 50, 100, 100);
-        var d2 = support.addDiv("d2", null, null, 250, 250, 100, 100);
-
-        _jsPlumb.Defaults.maxConnections = -1;
-        var e1 = _jsPlumb.addEndpoint(d1),
-            e2 = _jsPlumb.addEndpoint(d2),
-            e3 = _jsPlumb.addEndpoint(d1);
-
-        support.assertEndpointCount(d1, 2, _jsPlumb);
-        equal(e1.elementId, "d1", "endpoint has correct element id");
-        equal(e3.elementId, "d1", "endpoint has correct element id");
-        equal(e1.anchor.elementId, "d1", "anchor has correct element id");
-        equal(e3.anchor.elementId, "d1", "anchor has correct element id");
-
-        var c = _jsPlumb.connect({source: e1, target: e2}),
-            c2 = _jsPlumb.connect({source: e2, target: e1});
-
-        _jsPlumb.setId(document.getElementById("d1"), "d3");
-        //support.assertEndpointCount(d3, 2, _jsPlumb);
-        support.assertEndpointCount(d1, 2, _jsPlumb);
-
-        equal(e1.elementId, "d3", "endpoint has correct element id");
-        equal(e3.elementId, "d3", "endpoint has correct element id");
-        equal(e1.anchor.elementId, "d3", "anchor has correct element id");
-        equal(e3.anchor.elementId, "d3", "anchor has correct element id");
-
-        equal(c.sourceId, "d3", "connection's sourceId has changed");
-        equal(c.source.getAttribute("id"), "d3", "connection's source has changed");
-        equal(c2.targetId, "d3", "connection's targetId has changed");
-        equal(c2.target.getAttribute("id"), "d3", "connection's target has changed");
-    });
-
-    test(" setId, taking two strings, mix of scopes", function () {
-        var d1 =  support.addDiv("d1", null, null, 50, 50, 100, 100);
-        var d2 = support.addDiv("d2", null, null, 250, 250, 100, 100);
-
-        _jsPlumb.Defaults.maxConnections = -1;
-        var e1 = _jsPlumb.addEndpoint(d1),
-            e2 = _jsPlumb.addEndpoint(d2),
-            e3 = _jsPlumb.addEndpoint(d1);
-
-        support.assertEndpointCount(d1, 2, _jsPlumb);
-        equal(e1.elementId, "d1", "endpoint has correct element id");
-        equal(e3.elementId, "d1", "endpoint has correct element id");
-        equal(e1.anchor.elementId, "d1", "anchor has correct element id");
-        equal(e3.anchor.elementId, "d1", "anchor has correct element id");
-
-        var c = _jsPlumb.connect({source: e1, target: e2, scope: "FOO"}),
-            c2 = _jsPlumb.connect({source: e2, target: e1});
-
-        _jsPlumb.setId("d1", "d3");
-        support.assertEndpointCount(d1, 2, _jsPlumb);
-        //support.assertEndpointCount(d1, 0, _jsPlumb);
-
-        equal(e1.elementId, "d3", "endpoint has correct element id");
-        equal(e3.elementId, "d3", "endpoint has correct element id");
-        equal(e1.anchor.elementId, "d3", "anchor has correct element id");
-        equal(e3.anchor.elementId, "d3", "anchor has correct element id");
-
-        equal(c.sourceId, "d3", "connection's sourceId has changed");
-        equal(c.source.getAttribute("id"), "d3", "connection's source has changed");
-        equal(c2.targetId, "d3", "connection's targetId has changed");
-        equal(c2.target.getAttribute("id"), "d3", "connection's target has changed");
-    });
-
-    test(" setId, taking a DOM element and a string, mix of scopes", function () {
-        var d1 = support.addDiv("d1", null, null, 50, 50, 100, 100);
-        var d2 = support.addDiv("d2", null, null, 250, 250, 100, 100);
-
-        _jsPlumb.Defaults.maxConnections = -1;
-        var e1 = _jsPlumb.addEndpoint(d1),
-            e2 = _jsPlumb.addEndpoint(d2),
-            e3 = _jsPlumb.addEndpoint(d1);
-
-        support.assertEndpointCount(d1, 2, _jsPlumb);
-        equal(e1.elementId, "d1", "endpoint has correct element id");
-        equal(e3.elementId, "d1", "endpoint has correct element id");
-        equal(e1.anchor.elementId, "d1", "anchor has correct element id");
-        equal(e3.anchor.elementId, "d1", "anchor has correct element id");
-
-        var c = _jsPlumb.connect({source: e1, target: e2, scope: "FOO"}),
-            c2 = _jsPlumb.connect({source: e2, target: e1});
-
-        _jsPlumb.setId(_jsPlumb.getSelector("#d1")[0], "d3");
-        support.assertEndpointCount(d1, 2, _jsPlumb);
-        //support.assertEndpointCount(d1, 0, _jsPlumb);
-
-        equal(e1.elementId, "d3", "endpoint has correct element id");
-        equal(e3.elementId, "d3", "endpoint has correct element id");
-        equal(e1.anchor.elementId, "d3", "anchor has correct element id");
-        equal(e3.anchor.elementId, "d3", "anchor has correct element id");
-
-        equal(c.sourceId, "d3", "connection's sourceId has changed");
-        equal(c.source.getAttribute("id"), "d3", "connection's source has changed");
-        equal(c2.targetId, "d3", "connection's targetId has changed");
-        equal(c2.target.getAttribute("id"), "d3", "connection's target has changed");
-    });
-
-    test(" setIdChanged, ", function () {
-        var d1 = support.addDiv("d1", null, null, 50, 50, 100, 100);
-        var d2 = support.addDiv("d2", null, null, 250, 250, 100, 100);
-
-        _jsPlumb.Defaults.maxConnections = -1;
-        var e1 = _jsPlumb.addEndpoint(d1),
-            e2 = _jsPlumb.addEndpoint(d2),
-            e3 = _jsPlumb.addEndpoint(d1);
-
-        support.assertEndpointCount(d1, 2, _jsPlumb);
-        equal(e1.elementId, "d1", "endpoint has correct element id");
-        equal(e3.elementId, "d1", "endpoint has correct element id");
-        equal(e1.anchor.elementId, "d1", "anchor has correct element id");
-        equal(e3.anchor.elementId, "d1", "anchor has correct element id");
-
-        var c = _jsPlumb.connect({source: e1, target: e2}),
-            c2 = _jsPlumb.connect({source: e2, target: e1});
-
-        document.getElementById("d1").setAttribute("id", "d3");
-
-        _jsPlumb.setIdChanged("d1", "d3");
-
-        support.assertEndpointCount(d1, 2, _jsPlumb);
-        //support.assertEndpointCount(d1, 0, _jsPlumb);
-
-        equal(e1.elementId, "d3", "endpoint has correct element id");
-        equal(e3.elementId, "d3", "endpoint has correct element id");
-        equal(e1.anchor.elementId, "d3", "anchor has correct element id");
-        equal(e3.anchor.elementId, "d3", "anchor has correct element id");
-
-        equal(c.sourceId, "d3", "connection's sourceId has changed");
-        equal(c.source.getAttribute("id"), "d3", "connection's source has changed");
-        equal(c2.targetId, "d3", "connection's targetId has changed");
-        equal(c2.target.getAttribute("id"), "d3", "connection's target has changed");
-    });
-
-    // TODO this test is pointless soon.
-    test(" setId, taking two strings, testing makeSource/makeTarget", function () {
-        var d1 = support.addDiv("d1", null, null, 50, 50, 100, 100);
-        var d2 = support.addDiv("d2", null, null, 250, 250, 100, 100);
-
-        // setup d1 as a source
-        _jsPlumb.makeSource(d1, {
-            endpoint:"Rectangle",
-            parameters:{
-                foo:"foo"
-            }
-        });
-        // and d2 as a target
-        _jsPlumb.makeTarget(d2, {
-            endpoint:"Rectangle"
-        });
-
-        // connect them, and check that the endpoints are of tyoe Rectangle, per the makeSource/makeTarget
-        // directives
-        var c = _jsPlumb.connect({source: d1, target: d2});
-        equal(c.endpoints[0].endpoint.getType(), "Rectangle", "source endpoint is rectangle");
-        equal(c.endpoints[1].endpoint.getType(), "Rectangle", "target endpoint is rectangle");
-
-        // now change the id of d1 and connect the new id, and check again that the source endpoint is Rectangle
-        // _jsPlumb.setId(d1, "foo");
-        // _jsPlumb.setId(d2, "bar");
-        // var c2 = _jsPlumb.connect({source: foo, target: d2});
-        // equal(c2.endpoints[0].endpoint.getType(), "Rectangle", "source endpoint is rectangle");
-        // equal(c2.endpoints[1].endpoint.getType(), "Rectangle", "target endpoint is rectangle");
-
-    });
-
-    test(" setId, taking two strings, testing makeSource/makeTarget with the mouse", function () {
-        var d1 = support.addDiv("d1", null, null, 50, 50, 100, 100);
-        var d2 = support.addDiv("d2", null, null, 250, 250, 100, 100);
-
-        // setup d1 as a source
-        _jsPlumb.makeSource(d1, {
-            endpoint:"Rectangle",
-            parameters:{
-                foo:"foo"
-            }
-        });
-        // and d2 as a target
-        _jsPlumb.makeTarget(d2, {
-            endpoint:"Rectangle"
-        });
-
-        support.dragConnection(d1, d2);
-
-        equal(1, _jsPlumb.select().length, "1 connection in instance.");
-
-        // now change the id of d1 and connect the new id, and check again that the source endpoint is Rectangle
-        _jsPlumb.setId("d1", "foo");
-
-        support.dragConnection(d1, d2);
-
-        equal(2, _jsPlumb.select().length, "2 connections in instance.");
-
-        _jsPlumb.setId("d2", "bar");
-
-        support.dragConnection(d1, d2);
-
-        equal(3, _jsPlumb.select().length, "3 connections in instance.");
-
-    });
-
-    test(" setId, taking an element and a string, testing makeSource/makeTarget with the mouse", function () {
-        var d1 = support.addDiv("d1", null, null, 50,50,100,100);
-        var d2 = support.addDiv("d2",null, null, 250,250,100,100);
-
-        // setup d1 as a source
-        _jsPlumb.makeSource(d1, {
-            endpoint:"Rectangle",
-            parameters:{
-                foo:"foo"
-            }
-        });
-        // and d2 as a target
-        _jsPlumb.makeTarget(d2, {
-            endpoint:"Rectangle"
-        });
-
-        support.dragConnection(d1, d2);
-
-        equal(1, _jsPlumb.select().length, "1 connection in instance.");
-
-        // now change the id of d1 and connect the new id, and check again that the source endpoint is Rectangle
-        _jsPlumb.setId(d1, "foo");
-
-        support.dragConnection(d1, d2);
-
-        equal(2, _jsPlumb.select().length, "2 connections in instance.");
-
-        _jsPlumb.setId(d2, "bar");
-
-        support.dragConnection(d1, d2);
-
-        equal(3, _jsPlumb.select().length, "3 connections in instance.");
-
-    });
-
-    test(" setIdChanged testing makeSource/makeTarget with the mouse", function () {
-        var d1 = support.addDiv("d1", null, null, 50,50,100,100);
-        var d2 = support.addDiv("d2",null, null, 250,250,100,100);
-
-        // setup d1 as a source
-        _jsPlumb.makeSource(d1, {
-            endpoint:"Rectangle",
-            parameters:{
-                foo:"foo"
-            }
-        });
-        // and d2 as a target
-        _jsPlumb.makeTarget(d2, {
-            endpoint:"Rectangle"
-        });
-
-        support.dragConnection(d1, d2);
-
-        equal(1, _jsPlumb.select().length, "1 connection in instance.");
-
-        // now change the id of d1 and connect the new id, and check again that the source endpoint is Rectangle
-        d1.setAttribute("id", "foo");
-        _jsPlumb.setIdChanged("d1", "foo");
-
-        support.dragConnection(d1, d2);
-
-        equal(2, _jsPlumb.select().length, "2 connections in instance.");
-
-        d2.setAttribute("id", "bar");
-        _jsPlumb.setIdChanged("d2", "bar");
-
-        support.dragConnection(d1, d2);
-
-        equal(3, _jsPlumb.select().length, "3 connections in instance.");
-
-    });
+    // test(" setId, taking two strings, only default scope", function () {
+    //     var d1 = support.addDiv("d1", null, null, 50, 50, 100, 100);
+    //     var d2 = support.addDiv("d2", null, null, 250, 250, 100, 100);
+    //
+    //     _jsPlumb.Defaults.maxConnections = -1;
+    //     var e1 = _jsPlumb.addEndpoint(d1),
+    //         e2 = _jsPlumb.addEndpoint(d2),
+    //         e3 = _jsPlumb.addEndpoint(d1);
+    //
+    //     support.assertEndpointCount(d1, 2, _jsPlumb);
+    //     equal(e1.elementId, "d1", "endpoint has correct element id");
+    //     equal(e3.elementId, "d1", "endpoint has correct element id");
+    //     equal(e1.anchor.elementId, "d1", "anchor has correct element id");
+    //     equal(e3.anchor.elementId, "d1", "anchor has correct element id");
+    //
+    //     var c = _jsPlumb.connect({source: e1, target: e2}),
+    //         c2 = _jsPlumb.connect({source: e2, target: e1});
+    //
+    //     _jsPlumb.setId("d1", "d3");
+    //     // the endpoint count hasnt changed, and this illustrates why setId is now pointless.
+    //     support.assertEndpointCount(d1, 2, _jsPlumb);
+    //     //support.assertEndpointCount(d1, 0, _jsPlumb);
+    //
+    //     equal(e1.elementId, "d3", "endpoint has correct element id");
+    //     equal(e3.elementId, "d3", "endpoint has correct element id");
+    //     equal(e1.anchor.elementId, "d3", "anchor has correct element id");
+    //     equal(e3.anchor.elementId, "d3", "anchor has correct element id");
+    //
+    //     equal(c.sourceId, "d3", "connection's sourceId has changed");
+    //     equal(c.source.getAttribute("id"), "d3", "connection's source has changed");
+    //     equal(c2.targetId, "d3", "connection's targetId has changed");
+    //     equal(c2.target.getAttribute("id"), "d3", "connection's target has changed");
+    // });
+    //
+    //
+    //
+    // test(" setId, taking a DOM element and a string, only default scope", function () {
+    //     var d1 = support.addDiv("d1", null, null, 50, 50, 100, 100);
+    //     var d2 = support.addDiv("d2", null, null, 250, 250, 100, 100);
+    //
+    //     _jsPlumb.Defaults.maxConnections = -1;
+    //     var e1 = _jsPlumb.addEndpoint(d1),
+    //         e2 = _jsPlumb.addEndpoint(d2),
+    //         e3 = _jsPlumb.addEndpoint(d1);
+    //
+    //     support.assertEndpointCount(d1, 2, _jsPlumb);
+    //     equal(e1.elementId, "d1", "endpoint has correct element id");
+    //     equal(e3.elementId, "d1", "endpoint has correct element id");
+    //     equal(e1.anchor.elementId, "d1", "anchor has correct element id");
+    //     equal(e3.anchor.elementId, "d1", "anchor has correct element id");
+    //
+    //     var c = _jsPlumb.connect({source: e1, target: e2}),
+    //         c2 = _jsPlumb.connect({source: e2, target: e1});
+    //
+    //     _jsPlumb.setId(document.getElementById("d1"), "d3");
+    //     //support.assertEndpointCount(d3, 2, _jsPlumb);
+    //     support.assertEndpointCount(d1, 2, _jsPlumb);
+    //
+    //     equal(e1.elementId, "d3", "endpoint has correct element id");
+    //     equal(e3.elementId, "d3", "endpoint has correct element id");
+    //     equal(e1.anchor.elementId, "d3", "anchor has correct element id");
+    //     equal(e3.anchor.elementId, "d3", "anchor has correct element id");
+    //
+    //     equal(c.sourceId, "d3", "connection's sourceId has changed");
+    //     equal(c.source.getAttribute("id"), "d3", "connection's source has changed");
+    //     equal(c2.targetId, "d3", "connection's targetId has changed");
+    //     equal(c2.target.getAttribute("id"), "d3", "connection's target has changed");
+    // });
+    //
+    // test(" setId, taking two strings, mix of scopes", function () {
+    //     var d1 =  support.addDiv("d1", null, null, 50, 50, 100, 100);
+    //     var d2 = support.addDiv("d2", null, null, 250, 250, 100, 100);
+    //
+    //     _jsPlumb.Defaults.maxConnections = -1;
+    //     var e1 = _jsPlumb.addEndpoint(d1),
+    //         e2 = _jsPlumb.addEndpoint(d2),
+    //         e3 = _jsPlumb.addEndpoint(d1);
+    //
+    //     support.assertEndpointCount(d1, 2, _jsPlumb);
+    //     equal(e1.elementId, "d1", "endpoint has correct element id");
+    //     equal(e3.elementId, "d1", "endpoint has correct element id");
+    //     equal(e1.anchor.elementId, "d1", "anchor has correct element id");
+    //     equal(e3.anchor.elementId, "d1", "anchor has correct element id");
+    //
+    //     var c = _jsPlumb.connect({source: e1, target: e2, scope: "FOO"}),
+    //         c2 = _jsPlumb.connect({source: e2, target: e1});
+    //
+    //     _jsPlumb.setId("d1", "d3");
+    //     support.assertEndpointCount(d1, 2, _jsPlumb);
+    //     //support.assertEndpointCount(d1, 0, _jsPlumb);
+    //
+    //     equal(e1.elementId, "d3", "endpoint has correct element id");
+    //     equal(e3.elementId, "d3", "endpoint has correct element id");
+    //     equal(e1.anchor.elementId, "d3", "anchor has correct element id");
+    //     equal(e3.anchor.elementId, "d3", "anchor has correct element id");
+    //
+    //     equal(c.sourceId, "d3", "connection's sourceId has changed");
+    //     equal(c.source.getAttribute("id"), "d3", "connection's source has changed");
+    //     equal(c2.targetId, "d3", "connection's targetId has changed");
+    //     equal(c2.target.getAttribute("id"), "d3", "connection's target has changed");
+    // });
+    //
+    // test(" setId, taking a DOM element and a string, mix of scopes", function () {
+    //     var d1 = support.addDiv("d1", null, null, 50, 50, 100, 100);
+    //     var d2 = support.addDiv("d2", null, null, 250, 250, 100, 100);
+    //
+    //     _jsPlumb.Defaults.maxConnections = -1;
+    //     var e1 = _jsPlumb.addEndpoint(d1),
+    //         e2 = _jsPlumb.addEndpoint(d2),
+    //         e3 = _jsPlumb.addEndpoint(d1);
+    //
+    //     support.assertEndpointCount(d1, 2, _jsPlumb);
+    //     equal(e1.elementId, "d1", "endpoint has correct element id");
+    //     equal(e3.elementId, "d1", "endpoint has correct element id");
+    //     equal(e1.anchor.elementId, "d1", "anchor has correct element id");
+    //     equal(e3.anchor.elementId, "d1", "anchor has correct element id");
+    //
+    //     var c = _jsPlumb.connect({source: e1, target: e2, scope: "FOO"}),
+    //         c2 = _jsPlumb.connect({source: e2, target: e1});
+    //
+    //     _jsPlumb.setId(_jsPlumb.getSelector("#d1")[0], "d3");
+    //     support.assertEndpointCount(d1, 2, _jsPlumb);
+    //     //support.assertEndpointCount(d1, 0, _jsPlumb);
+    //
+    //     equal(e1.elementId, "d3", "endpoint has correct element id");
+    //     equal(e3.elementId, "d3", "endpoint has correct element id");
+    //     equal(e1.anchor.elementId, "d3", "anchor has correct element id");
+    //     equal(e3.anchor.elementId, "d3", "anchor has correct element id");
+    //
+    //     equal(c.sourceId, "d3", "connection's sourceId has changed");
+    //     equal(c.source.getAttribute("id"), "d3", "connection's source has changed");
+    //     equal(c2.targetId, "d3", "connection's targetId has changed");
+    //     equal(c2.target.getAttribute("id"), "d3", "connection's target has changed");
+    // });
+    //
+    // test(" setIdChanged, ", function () {
+    //     var d1 = support.addDiv("d1", null, null, 50, 50, 100, 100);
+    //     var d2 = support.addDiv("d2", null, null, 250, 250, 100, 100);
+    //
+    //     _jsPlumb.Defaults.maxConnections = -1;
+    //     var e1 = _jsPlumb.addEndpoint(d1),
+    //         e2 = _jsPlumb.addEndpoint(d2),
+    //         e3 = _jsPlumb.addEndpoint(d1);
+    //
+    //     support.assertEndpointCount(d1, 2, _jsPlumb);
+    //     equal(e1.elementId, "d1", "endpoint has correct element id");
+    //     equal(e3.elementId, "d1", "endpoint has correct element id");
+    //     equal(e1.anchor.elementId, "d1", "anchor has correct element id");
+    //     equal(e3.anchor.elementId, "d1", "anchor has correct element id");
+    //
+    //     var c = _jsPlumb.connect({source: e1, target: e2}),
+    //         c2 = _jsPlumb.connect({source: e2, target: e1});
+    //
+    //     document.getElementById("d1").setAttribute("id", "d3");
+    //
+    //     _jsPlumb.setIdChanged("d1", "d3");
+    //
+    //     support.assertEndpointCount(d1, 2, _jsPlumb);
+    //     //support.assertEndpointCount(d1, 0, _jsPlumb);
+    //
+    //     equal(e1.elementId, "d3", "endpoint has correct element id");
+    //     equal(e3.elementId, "d3", "endpoint has correct element id");
+    //     equal(e1.anchor.elementId, "d3", "anchor has correct element id");
+    //     equal(e3.anchor.elementId, "d3", "anchor has correct element id");
+    //
+    //     equal(c.sourceId, "d3", "connection's sourceId has changed");
+    //     equal(c.source.getAttribute("id"), "d3", "connection's source has changed");
+    //     equal(c2.targetId, "d3", "connection's targetId has changed");
+    //     equal(c2.target.getAttribute("id"), "d3", "connection's target has changed");
+    // });
+    //
+    // // TODO this test is pointless soon.
+    // test(" setId, taking two strings, testing makeSource/makeTarget", function () {
+    //     var d1 = support.addDiv("d1", null, null, 50, 50, 100, 100);
+    //     var d2 = support.addDiv("d2", null, null, 250, 250, 100, 100);
+    //
+    //     // setup d1 as a source
+    //     _jsPlumb.makeSource(d1, {
+    //         endpoint:"Rectangle",
+    //         parameters:{
+    //             foo:"foo"
+    //         }
+    //     });
+    //     // and d2 as a target
+    //     _jsPlumb.makeTarget(d2, {
+    //         endpoint:"Rectangle"
+    //     });
+    //
+    //     // connect them, and check that the endpoints are of tyoe Rectangle, per the makeSource/makeTarget
+    //     // directives
+    //     var c = _jsPlumb.connect({source: d1, target: d2});
+    //     equal(c.endpoints[0].endpoint.getType(), "Rectangle", "source endpoint is rectangle");
+    //     equal(c.endpoints[1].endpoint.getType(), "Rectangle", "target endpoint is rectangle");
+    //
+    //     // now change the id of d1 and connect the new id, and check again that the source endpoint is Rectangle
+    //     // _jsPlumb.setId(d1, "foo");
+    //     // _jsPlumb.setId(d2, "bar");
+    //     // var c2 = _jsPlumb.connect({source: foo, target: d2});
+    //     // equal(c2.endpoints[0].endpoint.getType(), "Rectangle", "source endpoint is rectangle");
+    //     // equal(c2.endpoints[1].endpoint.getType(), "Rectangle", "target endpoint is rectangle");
+    //
+    // });
+    //
+    // test(" setId, taking two strings, testing makeSource/makeTarget with the mouse", function () {
+    //     var d1 = support.addDiv("d1", null, null, 50, 50, 100, 100);
+    //     var d2 = support.addDiv("d2", null, null, 250, 250, 100, 100);
+    //
+    //     // setup d1 as a source
+    //     _jsPlumb.makeSource(d1, {
+    //         endpoint:"Rectangle",
+    //         parameters:{
+    //             foo:"foo"
+    //         }
+    //     });
+    //     // and d2 as a target
+    //     _jsPlumb.makeTarget(d2, {
+    //         endpoint:"Rectangle"
+    //     });
+    //
+    //     support.dragConnection(d1, d2);
+    //
+    //     equal(1, _jsPlumb.select().length, "1 connection in instance.");
+    //
+    //     // now change the id of d1 and connect the new id, and check again that the source endpoint is Rectangle
+    //     _jsPlumb.setId("d1", "foo");
+    //
+    //     support.dragConnection(d1, d2);
+    //
+    //     equal(2, _jsPlumb.select().length, "2 connections in instance.");
+    //
+    //     _jsPlumb.setId("d2", "bar");
+    //
+    //     support.dragConnection(d1, d2);
+    //
+    //     equal(3, _jsPlumb.select().length, "3 connections in instance.");
+    //
+    // });
+    //
+    // test(" setId, taking an element and a string, testing makeSource/makeTarget with the mouse", function () {
+    //     var d1 = support.addDiv("d1", null, null, 50,50,100,100);
+    //     var d2 = support.addDiv("d2",null, null, 250,250,100,100);
+    //
+    //     // setup d1 as a source
+    //     _jsPlumb.makeSource(d1, {
+    //         endpoint:"Rectangle",
+    //         parameters:{
+    //             foo:"foo"
+    //         }
+    //     });
+    //     // and d2 as a target
+    //     _jsPlumb.makeTarget(d2, {
+    //         endpoint:"Rectangle"
+    //     });
+    //
+    //     support.dragConnection(d1, d2);
+    //
+    //     equal(1, _jsPlumb.select().length, "1 connection in instance.");
+    //
+    //     // now change the id of d1 and connect the new id, and check again that the source endpoint is Rectangle
+    //     _jsPlumb.setId(d1, "foo");
+    //
+    //     support.dragConnection(d1, d2);
+    //
+    //     equal(2, _jsPlumb.select().length, "2 connections in instance.");
+    //
+    //     _jsPlumb.setId(d2, "bar");
+    //
+    //     support.dragConnection(d1, d2);
+    //
+    //     equal(3, _jsPlumb.select().length, "3 connections in instance.");
+    //
+    // });
+    //
+    // test(" setIdChanged testing makeSource/makeTarget with the mouse", function () {
+    //     var d1 = support.addDiv("d1", null, null, 50,50,100,100);
+    //     var d2 = support.addDiv("d2",null, null, 250,250,100,100);
+    //
+    //     // setup d1 as a source
+    //     _jsPlumb.makeSource(d1, {
+    //         endpoint:"Rectangle",
+    //         parameters:{
+    //             foo:"foo"
+    //         }
+    //     });
+    //     // and d2 as a target
+    //     _jsPlumb.makeTarget(d2, {
+    //         endpoint:"Rectangle"
+    //     });
+    //
+    //     support.dragConnection(d1, d2);
+    //
+    //     equal(1, _jsPlumb.select().length, "1 connection in instance.");
+    //
+    //     // now change the id of d1 and connect the new id, and check again that the source endpoint is Rectangle
+    //     d1.setAttribute("id", "foo");
+    //     _jsPlumb.setIdChanged("d1", "foo");
+    //
+    //     support.dragConnection(d1, d2);
+    //
+    //     equal(2, _jsPlumb.select().length, "2 connections in instance.");
+    //
+    //     d2.setAttribute("id", "bar");
+    //     _jsPlumb.setIdChanged("d2", "bar");
+    //
+    //     support.dragConnection(d1, d2);
+    //
+    //     equal(3, _jsPlumb.select().length, "3 connections in instance.");
+    //
+    // });
 
     test(" endpoint hide/show should hide/show overlays", function () {
         var d1 = support.addDiv("d1");
@@ -4314,10 +4314,10 @@ var testSuite = function () {
         var d1 = support.addDiv("d1");
         var d2 = support.addDiv("d2");
         var c = _jsPlumb.connect({source: d1, target: d2}),
-            s = _jsPlumb.select({source: "d1"});
+            s = _jsPlumb.select({source: d1});
 
         equal(s.length, 1, "one connection selected");
-        equal(s.get(0).sourceId, "d1", "d1 is connection source");
+        equal(s.get(0).source.id, "d1", "d1 is connection source");
 
         s.setHover(true);
         ok(isHover(s.get(0)), "connection has had hover set to true");
@@ -4330,10 +4330,10 @@ var testSuite = function () {
         var d2 = support.addDiv("d2");
         var c = _jsPlumb.connect({source: d1, target: d2, scope: "FOO"}),
             c2 = _jsPlumb.connect({source: d1, target: d2, scope: "BAR"}),
-            s = _jsPlumb.select({source: "d1"});
+            s = _jsPlumb.select({source: d1});
 
         equal(s.length, 2, "two connections selected");
-        equal(s.get(0).sourceId, "d1", "d1 is connection source");
+        equal(s.get(0).source.id, "d1", "d1 is connection source");
 
         s.setHover(true);
         ok(isHover(s.get(0)), "connection has had hover set to true");
@@ -4346,10 +4346,10 @@ var testSuite = function () {
         support.addDiv("d2");
         var c = _jsPlumb.connect({source: d1, target: d2, scope: "FOO"}),
             c2 = _jsPlumb.connect({source: d1, target: d2, scope: "BAR"}),
-            s = _jsPlumb.select({source: "d1", scope: "FOO"});
+            s = _jsPlumb.select({source: d1, scope: "FOO"});
 
         equal(s.length, 1, "one connection selected");
-        equal(s.get(0).sourceId, "d1", "d1 is connection source");
+        equal(s.get(0).source.id, "d1", "d1 is connection source");
 
         s.setHover(true);
         ok(isHover(s.get(0)), "connection has had hover set to true");
@@ -4363,10 +4363,10 @@ var testSuite = function () {
         var c = _jsPlumb.connect({source: d1, target: d2, scope: "FOO"}),
             c2 = _jsPlumb.connect({source: d1, target: d2, scope: "BAR"}),
             c3 = _jsPlumb.connect({source: d1, target: d2, scope: "BAZ"}),
-            s = _jsPlumb.select({source: "d1", scope: ["FOO", "BAR"]});
+            s = _jsPlumb.select({source: d1, scope: ["FOO", "BAR"]});
 
         equal(s.length, 2, "two connections selected");
-        equal(s.get(0).sourceId, "d1", "d1 is connection source");
+        equal(s.get(0).source.id, "d1", "d1 is connection source");
 
         s.setHover(true);
         ok(isHover(s.get(0)), "connection has had hover set to true");
@@ -4381,10 +4381,10 @@ var testSuite = function () {
             c2 = _jsPlumb.connect({source: d1, target: d2, scope: "BAR"}),
             c3 = _jsPlumb.connect({source: d1, target: d2, scope: "BAZ"}),
             c4 = _jsPlumb.connect({source: d2, target: d1, scope: "BOZ"}),
-            s = _jsPlumb.select({source: "d1"});
+            s = _jsPlumb.select({source: d1});
 
         equal(s.length, 3, "three connections selected");
-        equal(s.get(0).sourceId, "d1", "d1 is connection source");
+        equal(s.get(0).source.id, "d1", "d1 is connection source");
 
         s.setHover(true);
         ok(isHover(s.get(0)), "connection has had hover set to true");
@@ -4399,10 +4399,10 @@ var testSuite = function () {
             c2 = _jsPlumb.connect({source: d1, target: d2, scope: "BAR"}),
             c3 = _jsPlumb.connect({source: d1, target: d2, scope: "BAZ"}),
             c4 = _jsPlumb.connect({source: d2, target: d1, scope: "BOZ"}),
-            s = _jsPlumb.select({source: "d1", scope: ["FOO", "BAR", "BOZ"]});
+            s = _jsPlumb.select({source: d1, scope: ["FOO", "BAR", "BOZ"]});
 
         equal(s.length, 2, "two connections selected");
-        equal(s.get(0).sourceId, "d1", "d1 is connection source");
+        equal(s.get(0).source.id, "d1", "d1 is connection source");
 
         s.setHover(true);
         ok(isHover(s.get(0)), "connection has had hover set to true");
@@ -4417,7 +4417,7 @@ var testSuite = function () {
             c2 = _jsPlumb.connect({source: d1, target: d2, scope: "BAR"}),
             c3 = _jsPlumb.connect({source: d1, target: d2, scope: "BAZ"}),
             c4 = _jsPlumb.connect({source: d2, target: d1, scope: "BOZ"}),
-            s = _jsPlumb.select({source: "d1", scope: ["FOO", "BAR", "BOZ"]});
+            s = _jsPlumb.select({source: d1, scope: ["FOO", "BAR", "BOZ"]});
 
         _jsPlumb.hoverSuspended = true;
         s.setHover(true);
@@ -4435,7 +4435,7 @@ var testSuite = function () {
             s = _jsPlumb.select({ scope: "FOO" });
 
         equal(s.length, 1, "two connections selected");
-        equal(s.get(0).sourceId, "d1", "d1 is connection source");
+        equal(s.get(0).source.id, "d1", "d1 is connection source");
 
         s.setHover(true);
         ok(isHover(s.get(0)), "connection has had hover set to true");
@@ -4451,7 +4451,7 @@ var testSuite = function () {
             s = _jsPlumb.select({ scope: "FOO" });
 
         equal(s.length, 1, "two connections selected");
-        equal(s.get(0).sourceId, "d1", "d1 is connection source");
+        equal(s.get(0).source.id, "d1", "d1 is connection source");
 
         s.setHover(true);
         ok(isHover(s.get(0)), "connection has had hover set to true");
@@ -4476,7 +4476,7 @@ var testSuite = function () {
                     ["Label", {id: "l"}]
                 ]
             }),
-            s = _jsPlumb.select({source: "d1"});
+            s = _jsPlumb.select({source: d1});
 
         equal(s.length, 2, "two connections selected");
         ok(s.get(0).getOverlay("l") != null, "connection has overlay");
@@ -4493,7 +4493,7 @@ var testSuite = function () {
                 ["Label", {id: "l"}]
             ]
         }),
-        s = _jsPlumb.select({source: "d1"});
+        s = _jsPlumb.select({source: d1});
 
         s.setHover(false).hideOverlay("l");
 
@@ -4625,20 +4625,20 @@ var testSuite = function () {
             e2 = _jsPlumb.addEndpoint(d1);
 
         equal(_jsPlumb.selectEndpoints().length, 2, "there are two endpoints");
-        equal(_jsPlumb.selectEndpoints({element: "d1"}).length, 2, "there are two endpoints on d1");
-        equal(_jsPlumb.selectEndpoints({element: "d2"}).length, 0, "there are 0 endpoints on d2");
+        equal(_jsPlumb.selectEndpoints({element: d1}).length, 2, "there are two endpoints on d1");
+        equal(_jsPlumb.selectEndpoints({element: d2}).length, 0, "there are 0 endpoints on d2");
 
-        equal(_jsPlumb.selectEndpoints({source: "d1"}).length, 0, "there are zero source endpoints on d1");
-        equal(_jsPlumb.selectEndpoints({target: "d1"}).length, 0, "there are zero target endpoints on d1");
-        equal(_jsPlumb.selectEndpoints({source: "d2"}).length, 0, "there are zero source endpoints on d2");
-        equal(_jsPlumb.selectEndpoints({target: "d2"}).length, 0, "there are zero target endpoints on d2");
+        equal(_jsPlumb.selectEndpoints({source: d1}).length, 0, "there are zero source endpoints on d1");
+        equal(_jsPlumb.selectEndpoints({target: d1}).length, 0, "there are zero target endpoints on d1");
+        equal(_jsPlumb.selectEndpoints({source: d2}).length, 0, "there are zero source endpoints on d2");
+        equal(_jsPlumb.selectEndpoints({target: d2}).length, 0, "there are zero target endpoints on d2");
 
-        equal(_jsPlumb.selectEndpoints({source: "d1", scope: "FOO"}).length, 0, "there are zero source endpoints on d1 with scope FOO");
+        equal(_jsPlumb.selectEndpoints({source: d1, scope: "FOO"}).length, 0, "there are zero source endpoints on d1 with scope FOO");
 
         _jsPlumb.addEndpoint(d2, { scope: "FOO", isSource: true });
-        equal(_jsPlumb.selectEndpoints({source: "d2", scope: "FOO"}).length, 1, "there is one source endpoint on d2 with scope FOO");
+        equal(_jsPlumb.selectEndpoints({source: d2, scope: "FOO"}).length, 1, "there is one source endpoint on d2 with scope FOO");
 
-        equal(_jsPlumb.selectEndpoints({element: ["d2", "d1"]}).length, 3, "there are three endpoints between d2 and d1");
+        equal(_jsPlumb.selectEndpoints({element: [d2, d1]}).length, 3, "there are three endpoints between d2 and d1");
     });
 
     test(" selectEndpoints, basic tests, various input argument formats", function () {
@@ -4646,7 +4646,7 @@ var testSuite = function () {
             e1 = _jsPlumb.addEndpoint(d1),
             e2 = _jsPlumb.addEndpoint(d1);
 
-        equal(_jsPlumb.selectEndpoints({element: "d1"}).length, 2, "using id, there are two endpoints on d1");
+        equal(_jsPlumb.selectEndpoints({element: d1}).length, 2, "using id, there are two endpoints on d1");
         equal(_jsPlumb.selectEndpoints({element: d1}).length, 2, "using dom element, there are two endpoints on d1");
         equal(_jsPlumb.selectEndpoints({element: _jsPlumb.getSelector("#d1")}).length, 2, "using selector, there are two endpoints on d1");
         equal(_jsPlumb.selectEndpoints({element: _jsPlumb.getSelector(d1)}).length, 2, "using selector with dom element, there are two endpoints on d1");
@@ -4658,11 +4658,11 @@ var testSuite = function () {
             e1 = _jsPlumb.addEndpoint(d1, {scope: "FOO"}),
             e2 = _jsPlumb.addEndpoint(d1);
 
-        equal(_jsPlumb.selectEndpoints({element: "d1"}).length, 2, "using id, there are two endpoints on d1");
-        equal(_jsPlumb.selectEndpoints({element: "d1", scope: "FOO"}).length, 1, "using id, there is one endpoint on d1 with scope 'FOO'");
+        equal(_jsPlumb.selectEndpoints({element: d1}).length, 2, "using id, there are two endpoints on d1");
+        equal(_jsPlumb.selectEndpoints({element: d1, scope: "FOO"}).length, 1, "using id, there is one endpoint on d1 with scope 'FOO'");
         _jsPlumb.addEndpoint(d1, {scope: "BAR"}),
-            equal(_jsPlumb.selectEndpoints({element: "d1", scope: "FOO"}).length, 1, "using id, there is one endpoint on d1 with scope 'BAR'");
-        equal(_jsPlumb.selectEndpoints({element: "d1", scope: ["BAR", "FOO"]}).length, 2, "using id, there are two endpoints on d1 with scope 'BAR' or 'FOO'");
+            equal(_jsPlumb.selectEndpoints({element: d1, scope: "FOO"}).length, 1, "using id, there is one endpoint on d1 with scope 'BAR'");
+        equal(_jsPlumb.selectEndpoints({element: d1, scope: ["BAR", "FOO"]}).length, 2, "using id, there are two endpoints on d1 with scope 'BAR' or 'FOO'");
     });
 
     test(" selectEndpoints, isSource tests", function () {
@@ -4671,12 +4671,12 @@ var testSuite = function () {
             e2 = _jsPlumb.addEndpoint(d1),
             e3 = _jsPlumb.addEndpoint(d2, {isSource: true});
 
-        equal(_jsPlumb.selectEndpoints({source: "d1"}).length, 1, "there is one source endpoint on d1");
-        equal(_jsPlumb.selectEndpoints({target: "d1"}).length, 0, "there are zero target endpoints on d1");
+        equal(_jsPlumb.selectEndpoints({source: d1}).length, 1, "there is one source endpoint on d1");
+        equal(_jsPlumb.selectEndpoints({target: d1}).length, 0, "there are zero target endpoints on d1");
 
-        equal(_jsPlumb.selectEndpoints({source: "d2"}).length, 1, "there is one source endpoint on d2");
+        equal(_jsPlumb.selectEndpoints({source: d2}).length, 1, "there is one source endpoint on d2");
 
-        equal(_jsPlumb.selectEndpoints({source: ["d2", "d1"]}).length, 2, "there are two source endpoints between d1 and d2");
+        equal(_jsPlumb.selectEndpoints({source: [d2, d1]}).length, 2, "there are two source endpoints between d1 and d2");
     });
 
     test(" selectEndpoints, isTarget tests", function () {
@@ -4685,12 +4685,12 @@ var testSuite = function () {
             e2 = _jsPlumb.addEndpoint(d1),
             e3 = _jsPlumb.addEndpoint(d2, {isTarget: true});
 
-        equal(_jsPlumb.selectEndpoints({target: "d1"}).length, 1, "there is one target endpoint on d1");
-        equal(_jsPlumb.selectEndpoints({source: "d1"}).length, 0, "there are zero source endpoints on d1");
+        equal(_jsPlumb.selectEndpoints({target: d1}).length, 1, "there is one target endpoint on d1");
+        equal(_jsPlumb.selectEndpoints({source: d1}).length, 0, "there are zero source endpoints on d1");
 
-        equal(_jsPlumb.selectEndpoints({target: "d2"}).length, 1, "there is one target endpoint on d2");
+        equal(_jsPlumb.selectEndpoints({target: d2}).length, 1, "there is one target endpoint on d2");
 
-        equal(_jsPlumb.selectEndpoints({target: ["d2", "d1"]}).length, 2, "there are two target endpoints between d1 and d2");
+        equal(_jsPlumb.selectEndpoints({target: [d2, d1]}).length, 2, "there are two target endpoints between d1 and d2");
     });
 
     test(" selectEndpoints, isSource + isTarget tests", function () {
@@ -4700,12 +4700,12 @@ var testSuite = function () {
             e3 = _jsPlumb.addEndpoint(d1, {isSource: true}),
             e4 = _jsPlumb.addEndpoint(d1, {isTarget: true});
 
-        equal(_jsPlumb.selectEndpoints({source: "d1"}).length, 2, "there are two source endpoints on d1");
-        equal(_jsPlumb.selectEndpoints({target: "d1"}).length, 2, "there are two target endpoints on d1");
+        equal(_jsPlumb.selectEndpoints({source:d1}).length, 2, "there are two source endpoints on d1");
+        equal(_jsPlumb.selectEndpoints({target: d1}).length, 2, "there are two target endpoints on d1");
 
-        equal(_jsPlumb.selectEndpoints({target: "d1", source: "d1"}).length, 1, "there is one source and target endpoint on d1");
+        equal(_jsPlumb.selectEndpoints({target: d1, source: d1}).length, 1, "there is one source and target endpoint on d1");
 
-        equal(_jsPlumb.selectEndpoints({element: "d1"}).length, 4, "there are four endpoints on d1");
+        equal(_jsPlumb.selectEndpoints({element: d1}).length, 4, "there are four endpoints on d1");
 
     });
 
@@ -4713,9 +4713,9 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), _d2 = support.addDiv("d2"),
             e1 = _jsPlumb.addEndpoint(d1, {isSource: true, isTarget: true});
 
-        equal(_jsPlumb.selectEndpoints({element: "d1"}).length, 1, "there is one endpoint on d1");
-        _jsPlumb.selectEndpoints({source: "d1"}).deleteAll();
-        equal(_jsPlumb.selectEndpoints({element: "d1"}).length, 0, "there are zero endpoints on d1");
+        equal(_jsPlumb.selectEndpoints({element: d1}).length, 1, "there is one endpoint on d1");
+        _jsPlumb.selectEndpoints({source: d1}).deleteAll();
+        equal(_jsPlumb.selectEndpoints({element: d1}).length, 0, "there are zero endpoints on d1");
     });
 
     test(" selectEndpoints, detach connections", function () {
@@ -4728,7 +4728,7 @@ var testSuite = function () {
         equal(e1.connections.length, 1, "there is one connection on d1's endpoint");
         equal(e2.connections.length, 1, "there is one connection on d2's endpoint");
 
-        _jsPlumb.selectEndpoints({source: "d1"}).deleteEveryConnection();
+        _jsPlumb.selectEndpoints({source: d1}).deleteEveryConnection();
 
         equal(e1.connections.length, 0, "there are zero connections on d1's endpoint");
         equal(e2.connections.length, 0, "there are zero connections on d2's endpoint");
@@ -4739,9 +4739,9 @@ var testSuite = function () {
             e1 = _jsPlumb.addEndpoint(d1, {isSource: true, isTarget: true});
 
         equal(e1.isHover(), false, "hover not set");
-        _jsPlumb.selectEndpoints({source: "d1"}).setHover(true);
+        _jsPlumb.selectEndpoints({source: d1}).setHover(true);
         equal(e1.isHover(), true, "hover set");
-        _jsPlumb.selectEndpoints({source: "d1"}).setHover(false);
+        _jsPlumb.selectEndpoints({source: d1}).setHover(false);
         equal(e1.isHover(), false, "hover no longer set");
     });
 
@@ -4750,7 +4750,7 @@ var testSuite = function () {
             e1 = _jsPlumb.addEndpoint(d1, {isSource: true, isTarget: true});
 
         equal(e1.enabled, true, "endpoint is enabled");
-        _jsPlumb.selectEndpoints({source: "d1"}).setEnabled(false);
+        _jsPlumb.selectEndpoints({source: d1}).setEnabled(false);
         equal(e1.enabled, false, "endpoint not enabled");
     });
 
@@ -5337,7 +5337,8 @@ var testSuite = function () {
     test("offset cache cleared", function() {
        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         _jsPlumb.connect({source:d1, target:d2});
-        var cd = _jsPlumb.getCachedData("d1");
+        var id = d1.getAttribute("jtk-id")
+        var cd = _jsPlumb.getCachedData(id);
        ok(cd != null, "d1 is cached");
 
         // reset and then move d1. get cached data and offset should have been updated.
@@ -5347,7 +5348,7 @@ var testSuite = function () {
         var cd2 = _jsPlumb.getCachedData("d1");
         ok(cd2 == null, "cache data cleared");
         _jsPlumb.connect({source:d1, target:d2});
-        var cd3 = _jsPlumb.getCachedData("d1");
+        var cd3 = _jsPlumb.getCachedData(id);
         ok(cd3 != null, "d1 is cached");
 
 

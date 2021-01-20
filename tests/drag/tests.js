@@ -242,11 +242,11 @@ var testSuite = function () {
         equal(_jsPlumb.select().length, 2, "one connection after drag");
 
         support.relocateSource(d2d1, d1);
-        equal(d2d1.endpoints[0].elementId, "d1", "source endpoint is on d1 now");
+        equal(d2d1.endpoints[0].element.id, "d1", "source endpoint is on d1 now");
         equal(_jsPlumb.selectEndpoints().length, 4, "four endpoints after relocations");
 
         support.relocateSource(d2d1, d2);
-        equal(d2d1.endpoints[0].elementId, "d2", "source endpoint is on d2 now");
+        equal(d2d1.endpoints[0].element.id, "d2", "source endpoint is on d2 now");
         ok(support.getEndpointCanvas(d2d1.endpoints[1]).parentNode != null, "target canvas put back into DOM");
     });
 
@@ -273,13 +273,13 @@ var testSuite = function () {
         equal(_jsPlumb.select().length, 1, "one connection after drag");
 
         support.relocateSource(d2d1, d1);
-        equal(d2d1.endpoints[0].elementId, "d1", "source endpoint is on d1 now");
+        equal(d2d1.endpoints[0].element.id, "d1", "source endpoint is on d1 now");
         // NOTE in this test we are not using Continuous anchors so we do not expect the target to have been
         // removed. the next test uses Continuous anchors and it checks the target has been removed.
         //ok(d2d1.endpoints[1].canvas.parentNode == null, "target canvas removed from DOM");
 
         support.relocateSource(d2d1, d2);
-        equal(d2d1.endpoints[0].elementId, "d2", "source endpoint is on d2 now");
+        equal(d2d1.endpoints[0].element.id, "d2", "source endpoint is on d2 now");
         ok(support.getEndpointCanvas(d2d1.endpoints[1]).parentNode != null, "target canvas put back into DOM");
     });
 
@@ -587,12 +587,12 @@ var testSuite = function () {
         support.dragConnection(d1, d2);
         equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
         var c = _jsPlumb.select().get(0);
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse connect");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse connect");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
 
         _detachThisConnection(c);
-        equal(_jsPlumb.select({source:"d1"}).length, 0, "0 connections registered for d1 after mouse detach");
-        equal(_jsPlumb.select({target:"d2"}).length, 0, "0 connections registered for d2 after mouse detach");
+        equal(_jsPlumb.select({source:d1}).length, 0, "0 connections registered for d1 after mouse detach");
+        equal(_jsPlumb.select({target:d2}).length, 0, "0 connections registered for d2 after mouse detach");
       //  equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
         equal(_jsPlumb.select().length, 0, "0 connections in jsplumb instance.");
 
@@ -630,12 +630,12 @@ var testSuite = function () {
         support.dragConnection(d1, d2);
         equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
         var c = _jsPlumb.select().get(0);
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse connect");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse connect");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
 
         _detachThisConnection(c);
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "still 1 connection registered for d1 after attempted mouse detach");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "still 1 connection registered for d2 after attempted mouse detach");
+        equal(_jsPlumb.select({source:d1}).length, 1, "still 1 connection registered for d1 after attempted mouse detach");
+        equal(_jsPlumb.select({target:d2}).length, 1, "still 1 connection registered for d2 after attempted mouse detach");
         //equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
         equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
 
@@ -650,12 +650,12 @@ var testSuite = function () {
         equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
         var c = _jsPlumb.select().get(0);
         c.setReattach(true);
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse connect");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse connect");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
 
         _detachThisConnection(c);
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "still 1 connection registered for d1 after attempted mouse detach");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "still 1 connection registered for d2 after attempted mouse detach");
+        equal(_jsPlumb.select({source:d1}).length, 1, "still 1 connection registered for d1 after attempted mouse detach");
+        equal(_jsPlumb.select({target:d2}).length, 1, "still 1 connection registered for d2 after attempted mouse detach");
         //equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
         equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
 
@@ -667,16 +667,16 @@ var testSuite = function () {
         [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
 
         var c = _jsPlumb.connect({source: d1, target: d2});
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse connect");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse connect");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
 
         support.relocateTarget(c, d3);
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse move");
-        equal(_jsPlumb.select({target:"d2"}).length, 0, "0 connections registered for d2 after mouse move");
-        equal(_jsPlumb.select({target:"d3"}).length, 1, "1 connection registered for d3 after mouse move");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse move");
+        equal(_jsPlumb.select({target:d2}).length, 0, "0 connections registered for d2 after mouse move");
+        equal(_jsPlumb.select({target:d3}).length, 1, "1 connection registered for d3 after mouse move");
        // equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
 
-        if (_jsPlumb.select({source:"d1"}).length !== 1) {
+        if (_jsPlumb.select({source:d1}).length !== 1) {
             debugger;
         }
 
@@ -690,14 +690,14 @@ var testSuite = function () {
         [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
 
         var c = _jsPlumb.connect({source: d1, target: d2});
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse connect");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse connect");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
 
         support.relocateSource(c, d3);
-        equal(_jsPlumb.select({source:"d1"}).length, 0, "0 connections registered for d1 after mouse move");
+        equal(_jsPlumb.select({source:d1}).length, 0, "0 connections registered for d1 after mouse move");
         equal(_jsPlumb.selectEndpoints().length, 2, "two endpoints; there is one connection");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse move");
-        equal(_jsPlumb.select({source:"d3"}).length, 1, "1 connection registered for d3 after mouse move");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse move");
+        equal(_jsPlumb.select({source:d3}).length, 1, "1 connection registered for d3 after mouse move");
        // equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
 
     });
@@ -709,14 +709,14 @@ var testSuite = function () {
         [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
 
         var c = _jsPlumb.connect({source: d1, target: d2});
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse connect");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse connect");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
 
         support.relocateSource(c, d3);
         equal(_jsPlumb.selectEndpoints().length, 2, "two endpoints; there is one connection");
-        equal(_jsPlumb.select({source:"d1"}).length, 0, "0 connections registered for d1 after mouse move");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse move");
-        equal(_jsPlumb.select({source:"d3"}).length, 1, "1 connection registered for d3 after mouse move");
+        equal(_jsPlumb.select({source:d1}).length, 0, "0 connections registered for d1 after mouse move");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse move");
+        equal(_jsPlumb.select({source:d3}).length, 1, "1 connection registered for d3 after mouse move");
       //  equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
 
     });
@@ -728,13 +728,13 @@ var testSuite = function () {
         [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
 
         var c = _jsPlumb.connect({source: d1, target: d2});
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse connect");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse connect");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
 
         support.relocateTarget(c, d3);
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connections registered for d1 after aborted mouse move");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connections registered for d2 after aborted mouse move");
-        equal(_jsPlumb.select({target:"d3"}).length, 0, "0 connections registered for d3 after aborted mouse move");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connections registered for d1 after aborted mouse move");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connections registered for d2 after aborted mouse move");
+        equal(_jsPlumb.select({target:d3}).length, 0, "0 connections registered for d3 after aborted mouse move");
       //  equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
     });
 
@@ -745,12 +745,12 @@ var testSuite = function () {
     //     _jsPlumb.makeTarget([d1, d2, d3], { });
     //
     //     var c = _jsPlumb.connect({source: d1, target: d2});
-    //     equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse connect");
-    //     equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse connect");
+    //     equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+    //     equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
     //
     //     support.relocateTarget(c, d3);
-    //     equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connections registered for d1 after aborted mouse move");
-    //     equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connections registered for d2 after aborted mouse move");
+    //     equal(_jsPlumb.select({source:d1}).length, 1, "1 connections registered for d1 after aborted mouse move");
+    //     equal(_jsPlumb.select({target:d2}).length, 1, "1 connections registered for d2 after aborted mouse move");
     //     equal(_jsPlumb.select({target:"d3"}).length, 0, "0 connections registered for d3 after aborted mouse move");
     //     equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
     // });
@@ -762,13 +762,13 @@ var testSuite = function () {
         [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
 
         var c = _jsPlumb.connect({source: d1, target: d2});
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse connect");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse connect");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
 
         support.relocateSource(c, d3);
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after aborted mouse move");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after aborted mouse move");
-        equal(_jsPlumb.select({target:"d3"}).length, 0, "0 connections registered for d3 after aborted mouse move");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after aborted mouse move");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after aborted mouse move");
+        equal(_jsPlumb.select({target:d3}).length, 0, "0 connections registered for d3 after aborted mouse move");
     });
 
     test("connection dragging, simple move case, connection reattach=true aborts the move", function() {
@@ -778,13 +778,13 @@ var testSuite = function () {
 
         var c = _jsPlumb.connect({source: d1, target: d2});
         c.setReattach(true);
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse connect");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse connect");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
 
         _detachThisConnection(c);
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after aborted mouse move");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after aborted mouse move");
-        equal(_jsPlumb.select({target:"d3"}).length, 0, "0 connections registered for d3 after aborted mouse move");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after aborted mouse move");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after aborted mouse move");
+        equal(_jsPlumb.select({target:d3}).length, 0, "0 connections registered for d3 after aborted mouse move");
        // equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
     });
 
@@ -799,12 +799,12 @@ var testSuite = function () {
         [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
 
         var c = _jsPlumb.connect({source: d1, target: d2});
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse connect");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse connect");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
 
         support.relocateTarget(c, d2);
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse move");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse move");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse move");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse move");
        // equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
     });
 
@@ -818,12 +818,12 @@ var testSuite = function () {
         [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
 
         var c = _jsPlumb.connect({source: d1, target: d2});
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse connect");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse connect");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
 
         support.relocateSource(c, d1);
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse move");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse move");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse move");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse move");
        // equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
     });
 
@@ -838,14 +838,14 @@ var testSuite = function () {
         [d1,d2,d3,d4].forEach((el) => _jsPlumb.makeTarget(el, { }));
 
         var c = _jsPlumb.connect({source: d1, target: d2});
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse connect");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse connect");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
 
         support.relocateSource(c, d4);
-        equal(_jsPlumb.select({source:"d1"}).length, 0, "0 connections registered for d1 after mouse move");
+        equal(_jsPlumb.select({source:d1}).length, 0, "0 connections registered for d1 after mouse move");
         equal(_jsPlumb.selectEndpoints().length, 0, "zero endpoints; there are no connections");
-        equal(_jsPlumb.select({target:"d2"}).length, 0, "0 connections registered for d2 after mouse move");
-        equal(_jsPlumb.select({target:"d3"}).length, 0, "0 connections registered for d3 after mouse move");
+        equal(_jsPlumb.select({target:d2}).length, 0, "0 connections registered for d2 after mouse move");
+        equal(_jsPlumb.select({target:d3}).length, 0, "0 connections registered for d3 after mouse move");
        // equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
     });
 
@@ -861,14 +861,14 @@ var testSuite = function () {
         [d1,d2,d3,d4].forEach((el) => _jsPlumb.makeTarget(el, { }));
 
         var c = _jsPlumb.connect({source: d1, target: d2});
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse connect");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse connect");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
 
         support.relocateSource(c, d4);
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse move");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse move");
         equal(_jsPlumb.selectEndpoints().length, 2, "2 endpoints; there is 1 connection");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse move");
-        equal(_jsPlumb.select({source:"d4"}).length, 0, "0 connection registered for d4 after mouse move");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse move");
+        equal(_jsPlumb.select({source:d4}).length, 0, "0 connection registered for d4 after mouse move");
     });
 
     // DRAG SOURCE TO ELEMENT NOT CONFIGURED AS SOURCE BUT BEFORE DROP SAYS NO SO ITS IRRELEVANT
@@ -883,14 +883,14 @@ var testSuite = function () {
         [d1,d2,d3,d4].forEach((el) => _jsPlumb.makeTarget(el, { }));
 
         var c = _jsPlumb.connect({source: d1, target: d2});
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse connect");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse connect");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
 
         support.relocateSource(c, d4);
-        equal(_jsPlumb.select({source:"d1"}).length, 0, "0 connections registered for d1 after mouse move");
+        equal(_jsPlumb.select({source:d1}).length, 0, "0 connections registered for d1 after mouse move");
         equal(_jsPlumb.selectEndpoints().length, 0, "0 endpoints; there are no connections");
-        equal(_jsPlumb.select({target:"d2"}).length, 0, "0 connections registered for d2 after mouse move");
-        equal(_jsPlumb.select({source:"d4"}).length, 0, "0 connections registered for d4 after mouse move");
+        equal(_jsPlumb.select({target:d2}).length, 0, "0 connections registered for d2 after mouse move");
+        equal(_jsPlumb.select({source:d4}).length, 0, "0 connections registered for d4 after mouse move");
     });
 
     // DRAG TARGET TO ANOTHER SOURCE (BUT NOT A TARGET); SHOULD DETACH
@@ -904,19 +904,19 @@ var testSuite = function () {
         [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
 
         var c = _jsPlumb.connect({source: d1, target: d2});
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse connect");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse connect");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
 
         equal(_jsPlumb.selectEndpoints().length, 2, "two endpoints found after connection established");
 
         support.relocateTarget(c, d4);
-        equal(_jsPlumb.select({source:"d1"}).length, 0, "0 connections registered for d1 in anchor manager after mouse move");
+        equal(_jsPlumb.select({source:d1}).length, 0, "0 connections registered for d1 in anchor manager after mouse move");
         equal(_jsPlumb.selectEndpoints().length, 0, "zero endpoints found");
-        equal(_jsPlumb.select({target:"d2"}).length, 0, "0 connections registered for d2 after mouse move");
-        equal(_jsPlumb.select({target:"d3"}).length, 0, "0 connections registered for d3 after mouse move");
+        equal(_jsPlumb.select({target:d2}).length, 0, "0 connections registered for d2 after mouse move");
+        equal(_jsPlumb.select({target:d3}).length, 0, "0 connections registered for d3 after mouse move");
        // equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
 
-        if (_jsPlumb.select({source:"d1"}).length !== 0) {
+        if (_jsPlumb.select({source:d1}).length !== 0) {
             debugger;
         }
     });
@@ -934,14 +934,14 @@ var testSuite = function () {
         [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
 
         var c = _jsPlumb.connect({source: d1, target: d2});
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse connect");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse connect");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
 
         support.relocateTarget(c, d4);
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse move");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse move");
         equal(_jsPlumb.selectEndpoints().length, 2, "2 endpoints; there is 1 connection");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse move");
-        equal(_jsPlumb.select({target:"d4"}).length, 0, "0 connection registered for d4 after mouse move");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse move");
+        equal(_jsPlumb.select({target:d4}).length, 0, "0 connection registered for d4 after mouse move");
       //  equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
     });
 
@@ -1081,52 +1081,52 @@ var testSuite = function () {
         [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
         /*
          var c = _jsPlumb.connect({source:d1, target:d2});
-         equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after programmatic connect");
-         equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after programmatic connect");
+         equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after programmatic connect");
+         equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after programmatic connect");
 
          _jsPlumb.detach(c);
-         equal(_jsPlumb.select({source:"d1"}).length, 0, "0 connections registered for d1 after programmatic detach");
-         equal(_jsPlumb.select({target:"d2"}).length, 0, "0 connections registered for d2 after programmatic detach");
+         equal(_jsPlumb.select({source:d1}).length, 0, "0 connections registered for d1 after programmatic detach");
+         equal(_jsPlumb.select({target:d2}).length, 0, "0 connections registered for d2 after programmatic detach");
 
          c = _jsPlumb.connect({source:d1, target:d2});
-         equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse connect" );
-         equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse connect");
+         equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect" );
+         equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
 
          _detachThisConnection(c);
-         equal(_jsPlumb.select({source:"d1"}).length, 0, "0 connections registered for d1 after mouse detach");
-         equal(_jsPlumb.select({target:"d2"}).length, 0, "0 connections registered for d2 after mouse detach");
+         equal(_jsPlumb.select({source:d1}).length, 0, "0 connections registered for d1 after mouse detach");
+         equal(_jsPlumb.select({target:d2}).length, 0, "0 connections registered for d2 after mouse detach");
          equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
 
          // reconnect, check
          support.dragConnection(d1, d2);
-         equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse connect");
-         equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse connect");
+         equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+         equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
          c = _jsPlumb.select().get(0);
 
          // move the target to d3, check
          support.relocateTarget(c, d3);
-         equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse relocate");
-         equal(_jsPlumb.select({target:"d2"}).length, 0, "0 connections registered for d2 after mouse relocate");
+         equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse relocate");
+         equal(_jsPlumb.select({target:d2}).length, 0, "0 connections registered for d2 after mouse relocate");
          equal(_jsPlumb.select({target:"d3"}).length, 1, "1 connection registered for d3 after mouse relocate");
 
          // toss it away again, check
          _detachThisConnection(c);
-         equal(_jsPlumb.select({source:"d1"}).length, 0, "0 connections registered for d1 after mouse detach");
-         equal(_jsPlumb.select({target:"d2"}).length, 0, "0 connections registered for d2 after mouse detach");
+         equal(_jsPlumb.select({source:d1}).length, 0, "0 connections registered for d1 after mouse detach");
+         equal(_jsPlumb.select({target:d2}).length, 0, "0 connections registered for d2 after mouse detach");
          equal(_jsPlumb.select({target:"d3"}).length, 0, "0 connections registered for d3 after mouse detach");
          equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
          */
         // reconnect, check
         support.dragConnection(d1, d2);
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse connect");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse connect");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
         var c = _jsPlumb.select().get(0);
       //  equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse connect");
         equal(1, _jsPlumb.select().length, "1 connection");
 
         //support.relocateSource(c, d3);
-        //equal(_jsPlumb.select({source:"d1"}).length, 0, "0 connections registered for d1 after source relocate");
-        //equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after source relocate");
+        //equal(_jsPlumb.select({source:d1}).length, 0, "0 connections registered for d1 after source relocate");
+        //equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after source relocate");
         //equal(_jsPlumb.select({target:"d3"}).length, 1, "1 connection registered for d3 after source relocate");
         //equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
     });
@@ -1332,7 +1332,7 @@ var testSuite = function () {
         ok(!_jsPlumb.hasClass(d1, "jtk-drag-selected"), "selected class removed from element");
     });
 
-    // ----------------------- draggables and posses ----------------------------------------------------
+    // ----------------------- draggables and drag groups ----------------------------------------------------
 
     test("dragging works", function() {
         var d = _addDiv("d1");
@@ -1559,10 +1559,10 @@ var testSuite = function () {
     //     equal(parseInt(d.style.top, 10), 85);
     // });
 
-/* ------------------------------------ POSSES --------------------------------------------- */
+/* ------------------------------------ DRAG GROUPS --------------------------------------------- */
 
     //*
-    test("dragging a posse works, elements as argument", function() {
+    test("dragging a drag group works, elements as argument", function() {
 
         var d = _addDiv("d1");
         d.style.position = "absolute";
@@ -1578,7 +1578,7 @@ var testSuite = function () {
         _jsPlumb.manage(d);
         _jsPlumb.manage(d2);
 
-        _jsPlumb.addToPosse("posse", d, d2);
+        _jsPlumb.addToDragGroup("DragGroup", d, d2);
 
         support.dragNodeBy(d, 100, 100, {
             beforeMouseUp:function() {
@@ -1595,7 +1595,7 @@ var testSuite = function () {
         equal(550, parseInt(d2.style.left, 10), "d2 has moved left by 100");
         equal(550, parseInt(d2.style.top, 10), "d2 has moved top by 100");
 
-        _jsPlumb.removeFromPosse(d2);
+        _jsPlumb.removeFromDragGroup(d2);
         support.dragNodeBy(d, -100, -100);
 
         equal(50, parseInt(d.style.left, 10));
@@ -1605,7 +1605,7 @@ var testSuite = function () {
         equal(550, parseInt(d2.style.top, 10));
     });
 
-    test("dragging a posse works, then set element passive, dragging disabled.", function() {
+    test("dragging a DragGroup works, then set element passive, dragging disabled.", function() {
 
         var d = _addDiv("d1");
         d.style.position = "absolute";
@@ -1621,7 +1621,7 @@ var testSuite = function () {
         _jsPlumb.manage(d);
         _jsPlumb.manage(d2);
 
-        _jsPlumb.addToPosse("posse", d, d2);
+        _jsPlumb.addToDragGroup("dragGroup", d, d2);
 
         support.dragNodeBy(d, 100, 100, {
             beforeMouseUp:function() {
@@ -1638,7 +1638,7 @@ var testSuite = function () {
         equal(550, parseInt(d2.style.left, 10), "d2 has moved left by 100");
         equal(550, parseInt(d2.style.top, 10), "d2 has moved top by 100");
 
-        _jsPlumb.setPosseState(false, d);
+        _jsPlumb.setDragGroupState(false, d);
         support.dragNodeBy(d, 100, 100);
         equal(250, parseInt(d.style.left, 10), "d has moved further left by 100");
         equal(250, parseInt(d.style.top, 10), "d has moved further top by 100");
@@ -1646,7 +1646,7 @@ var testSuite = function () {
         equal(550, parseInt(d2.style.left, 10), "d2 has not moved this time");
         equal(550, parseInt(d2.style.top, 10), "d2 has not moved this time");
 
-        _jsPlumb.setPosseState(true, d);
+        _jsPlumb.setDragGroupState(true, d);
         support.dragNodeBy(d, 100, 100);
         equal(350, parseInt(d.style.left, 10), "d has moved further left by 100");
         equal(350, parseInt(d.style.top, 10), "d has moved further top by 100");
@@ -1657,7 +1657,7 @@ var testSuite = function () {
     });
 
 
-    test("dragging a posse works, elements as argument", function() {
+    test("dragging a drag group works, elements as argument", function() {
         var d = _addDiv("d1");
         d.style.position = "absolute";
         d.style.left = "50px";
@@ -1669,7 +1669,7 @@ var testSuite = function () {
         d2.style.top = "450px";
 
         _jsPlumb.manage(d,d2);
-        _jsPlumb.addToPosse("posse", d1, d2);
+        _jsPlumb.addToDragGroup("dragGroup", d1, d2);
 
         support.dragNodeBy(d, 100, 100, {
             beforeMouseUp:function() {
@@ -1686,7 +1686,7 @@ var testSuite = function () {
         equal(550, parseInt(d2.style.left, 10));
         equal(550, parseInt(d2.style.top, 10));
 
-        _jsPlumb.removeFromPosse(d2);
+        _jsPlumb.removeFromDragGroup(d2);
         support.dragNodeBy(d, -100, -100);
 
         equal(50, parseInt(d.style.left, 10));
@@ -1702,12 +1702,12 @@ var testSuite = function () {
         var e2 = _jsPlumb.addEndpoint(d2, { isTarget:true });
 
         var c = _jsPlumb.connect({source: e1, target: e2});
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse connect");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse connect");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
 
         support.relocateTarget(c, e2);
-        equal(_jsPlumb.select({source:"d1"}).length, 1, "1 connection registered for d1 after mouse connect");
-        equal(_jsPlumb.select({target:"d2"}).length, 1, "1 connection registered for d2 after mouse connect");
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
 
     });
 
