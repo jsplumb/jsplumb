@@ -1,7 +1,7 @@
 {
   "name": "@jsplumb/browser-ui",
-  "version": "4.0.0-RC33",
-  "description": "Visual connectivity for webapps. This is the renderer for browsers that connects DOM elements to each other.",
+  "version": "4.0.0-RC34",
+  "description": "jsPlumb renderer for browsers that connects DOM/SVG elements to each other with individual SVG elements",
   "main": "js/jsplumb.browser-ui.cjs.js",
   "module": "js/jsplumb.browser-ui.es.js",
   "directories": {
