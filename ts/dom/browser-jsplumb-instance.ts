@@ -54,7 +54,7 @@ import {
     STATIC, PROPERTY_POSITION, UNDEFINED,
     PaintStyle, OverlayCapableComponent,
     Segment, BezierSegment, ArcSegment, isArrowOverlay, isPlainArrowOverlay, LabelOverlay, isLabelOverlay, isDiamondOverlay, Connection, EndpointRepresentation,
-    Component, RepaintOptions,
+    Component,
     CustomOverlay, isCustomOverlay
 } from '@jsplumb/community-core'
 
@@ -169,7 +169,7 @@ export interface jsPlumbDOMElement extends HTMLElement, jsPlumbElement {
     _jspContext?:any
 }
 
-export type PosseSpec = string | { id:string, active:boolean }
+export type DragGroupSpec = string | { id:string, active:boolean }
 
 function _genLoc (prefix:string, e?:Event):PointArray {
     if (e == null) {
@@ -755,37 +755,37 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         return this.elementDragHandler.getDragSelection()
     }
 
-    // ------------ posses
+    // ------------ drag groups
 
     /**
-     * Adds the given element(s) to the given posse.
-     * @param spec Either the ID of some posse, in which case the elements are all added as 'active', or an object of the form
+     * Adds the given element(s) to the given drag group.
+     * @param spec Either the ID of some drag group, in which case the elements are all added as 'active', or an object of the form
      * { id:"someId", active:boolean }. In the latter case, `active`, if true, which is the default, indicates whether
-     * dragging the given element(s) should cause all the elements in the posse to be dragged. If `active` is false it means the
-     * given element(s) is "passive" and should only move when an active member of the posse is dragged.
-     * @param els Elements to add to the posse.
+     * dragging the given element(s) should cause all the elements in the drag group to be dragged. If `active` is false it means the
+     * given element(s) is "passive" and should only move when an active member of the drag group is dragged.
+     * @param els Elements to add to the drag group.
      */
-    addToPosse(spec:PosseSpec, ...els:Array<jsPlumbDOMElement>) {
-        this.elementDragHandler.addToPosse(spec, ...els)
+    addToDragGroup(spec:DragGroupSpec, ...els:Array<jsPlumbDOMElement>) {
+        this.elementDragHandler.addToDragGroup(spec, ...els)
     }
 
     /**
-     * Removes the given element(s) from any posse they may be in. You don't need to supply the posse id, as elements
-     * can only be in one posse anyway.
-     * @param els Elements to remove from posses.
+     * Removes the given element(s) from any drag group they may be in. You don't need to supply the drag group id, as elements
+     * can only be in one drag group anyway.
+     * @param els Elements to remove from drag groups.
      */
-    removeFromPosse(...els:Array<jsPlumbDOMElement>) {
-        this.elementDragHandler.removeFromPosse(...els)
+    removeFromDragGroup(...els:Array<jsPlumbDOMElement>) {
+        this.elementDragHandler.removeFromDragGroup(...els)
     }
 
     /**
-     * Sets the active/passive state for the given element(s).You don't need to supply the posse id, as elements
-     * can only be in one posse anyway.
+     * Sets the active/passive state for the given element(s).You don't need to supply the drag group id, as elements
+     * can only be in one drag group anyway.
      * @param state true for active, false for passive.
      * @param els
      */
-    setPosseState (state:boolean, ...els:Array<jsPlumbDOMElement>) {
-        this.elementDragHandler.setPosseState(state, ...els)
+    setDragGroupState (state:boolean, ...els:Array<jsPlumbDOMElement>) {
+        this.elementDragHandler.setDragGroupState(state, ...els)
     }
 
     /**
