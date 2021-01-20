@@ -4119,6 +4119,7 @@ var EVENT_ENDPOINT_CLICK = "endpointClick";
 var EVENT_ENDPOINT_DBL_CLICK = "endpointDblClick";
 var EVENT_ENDPOINT_MOUSEOUT = "endpointMouseOut";
 var EVENT_ENDPOINT_MOUSEOVER = "endpointMouseOver";
+var EVENT_ENDPOINT_REPLACED = "endpointReplaced";
 var EVENT_FOCUS = "focus";
 var EVENT_INTERNAL_CONNECTION_DETACHED = "internal.connectionDetached";
 var EVENT_MOUSEDOWN = "mousedown";
@@ -6165,24 +6166,6 @@ _curryContinuousAnchor("ContinuousLeftRight", ["left", "right"]);
 
 _curryContinuousAnchor("ContinuousTopBottom", ["top", "bottom"]);
 
-function _updateConnectedClass(conn, element, remove) {
-  if (element != null) {
-    element._jsPlumbConnections = element._jsPlumbConnections || {};
-
-    if (remove) {
-      delete element._jsPlumbConnections[conn.id];
-    } else {
-      element._jsPlumbConnections[conn.id] = true;
-    }
-
-    if (isEmpty(element._jsPlumbConnections)) {
-      conn.instance.removeClass(element, conn.instance.connectedClass);
-    } else {
-      conn.instance.addClass(element, conn.instance.connectedClass);
-    }
-  }
-}
-
 var Connection =
 /*#__PURE__*/
 function (_OverlayCapableCompon) {
@@ -6205,6 +6188,25 @@ function (_OverlayCapableCompon) {
         x: this.connector.x,
         y: this.connector.y
       };
+    }
+  }], [{
+    key: "updateConnectedClass",
+    value: function updateConnectedClass(instance, conn, element, isRemoval) {
+      if (element != null) {
+        element._jsPlumbConnections = element._jsPlumbConnections || {};
+
+        if (isRemoval) {
+          delete element._jsPlumbConnections[conn.id];
+        } else {
+          element._jsPlumbConnections[conn.id] = true;
+        }
+
+        if (isEmpty(element._jsPlumbConnections)) {
+          instance.removeClass(element, conn.instance.connectedClass);
+        } else {
+          instance.addClass(element, conn.instance.connectedClass);
+        }
+      }
     }
   }]);
 
@@ -6441,7 +6443,7 @@ function (_OverlayCapableCompon) {
       _this.addType(_types, params.data, true);
     }
 
-    _this.updateConnectedClass();
+    _this.updateConnectedClass(false);
 
     return _this;
   }
@@ -6606,10 +6608,9 @@ function (_OverlayCapableCompon) {
     }
   }, {
     key: "updateConnectedClass",
-    value: function updateConnectedClass(remove) {
-      _updateConnectedClass(this, this.source, remove);
-
-      _updateConnectedClass(this, this.target, remove);
+    value: function updateConnectedClass(isRemoval) {
+      Connection.updateConnectedClass(this.instance, this, this.source, isRemoval);
+      Connection.updateConnectedClass(this.instance, this, this.target, isRemoval);
     }
   }, {
     key: "getUuids",
@@ -6860,11 +6861,11 @@ function (_OverlayCapableCompon) {
       ebe.splice(_idx, 1, _new);
       current.detachFromConnection(this);
       this.instance.deleteEndpoint(current);
-      this.instance.fire("endpointReplaced", {
+      this.instance.fire(EVENT_ENDPOINT_REPLACED, {
         previous: current,
         current: _new
       });
-      this.updateConnectedClass();
+      this.updateConnectedClass(false);
     }
   }]);
 
@@ -10227,6 +10228,14 @@ function _scopeMatch(e1, e2) {
 function prepareList(instance, input, doNotGetIds) {
   var r = [];
 
+  var _resolveId = function _resolveId(i) {
+    if (isString(i)) {
+      return i;
+    } else {
+      return instance.getId(i);
+    }
+  };
+
   if (input) {
     if (typeof input === 'string') {
       if (input === "*") {
@@ -10239,11 +10248,11 @@ function prepareList(instance, input, doNotGetIds) {
         r = input;
       } else {
         if (input.length != null) {
-          for (var i = 0, j = input.length; i < j; i++) {
-            r.push(instance.info(input[i]).id);
-          }
+          var _r;
+
+          (_r = r).push.apply(_r, _toConsumableArray(_toConsumableArray(input).map(_resolveId)));
         } else {
-          r.push(instance.info(input).id);
+          r.push(_resolveId(input));
         }
       }
     }
@@ -10252,6 +10261,7 @@ function prepareList(instance, input, doNotGetIds) {
   return r;
 }
 
+var ID_ATTRIBUTE = "jtk-id";
 var JsPlumbInstance =
 /*#__PURE__*/
 function (_EventGenerator) {
@@ -10423,26 +10433,6 @@ function (_EventGenerator) {
       return this._zoom;
     }
   }, {
-    key: "info",
-    value: function info(el) {
-      if (el == null) {
-        return null;
-      } // this is DOM specific, we dont want this in this class.
-      else if (el.nodeType === 3 || el.nodeType === 8) {
-          return {
-            el: el,
-            text: true
-          };
-        } else {
-          var _el = this.getElement(el);
-
-          return {
-            el: _el,
-            id: isString(el) && _el == null ? el : this.getId(_el)
-          };
-        }
-    }
-  }, {
     key: "_idstamp",
     value: function _idstamp() {
       return "" + this._curIdStamp++;
@@ -10484,14 +10474,11 @@ function (_EventGenerator) {
   }, {
     key: "getId",
     value: function getId(element, uuid) {
-      // if (isString(element)) {
-      //     return element as string
-      // }
       if (element == null) {
         return null;
       }
 
-      var id = this.getAttribute(element, "id");
+      var id = this.getAttribute(element, ID_ATTRIBUTE);
 
       if (!id || id === "undefined") {
         // check if fixed uuid parameter is given
@@ -10501,82 +10488,10 @@ function (_EventGenerator) {
           id = "jsplumb-" + this._instanceIndex + "-" + this._idstamp();
         }
 
-        this.setAttribute(element, "id", id);
+        this.setAttribute(element, ID_ATTRIBUTE, id);
       }
 
       return id;
-    }
-    /**
-     * Set the id of the given element. Changes all the refs etc.  TODO: this method should not be necessary, at least not as
-     * part of the public API for the community edition, when we no longer key anything off each element's DOM id.
-     * The Toolkit edition may still need to advise the Community edition an id was changed, in some circumstances - needs verification.
-     * @param el
-     * @param newId
-     * @param doNotSetAttribute
-     */
-
-  }, {
-    key: "setId",
-    value: function setId(el, newId, doNotSetAttribute) {
-      //
-      var id, _el;
-
-      if (isString(el)) {
-        id = el;
-      } else {
-        _el = this.getElement(el);
-        id = this.getId(_el);
-      }
-
-      var sConns = this.getConnections({
-        source: id,
-        scope: '*'
-      }, true),
-          tConns = this.getConnections({
-        target: id,
-        scope: '*'
-      }, true);
-      newId = "" + newId;
-
-      if (!doNotSetAttribute) {
-        _el = this.getElement(id);
-        this.setAttribute(_el, "id", newId);
-      } else {
-        _el = this.getElement(newId);
-      }
-
-      this.endpointsByElement[newId] = this.endpointsByElement[id] || [];
-
-      for (var i = 0, ii = this.endpointsByElement[newId].length; i < ii; i++) {
-        this.endpointsByElement[newId][i].setElementId(newId);
-        this.endpointsByElement[newId][i].setReferenceElement(_el);
-      }
-
-      delete this.endpointsByElement[id];
-      this._managedElements[newId] = this._managedElements[id];
-      delete this._managedElements[id];
-
-      var _conns = function _conns(list, epIdx, type) {
-        for (var _i = 0, _ii = list.length; _i < _ii; _i++) {
-          list[_i].endpoints[epIdx].setElementId(newId);
-
-          list[_i].endpoints[epIdx].setReferenceElement(_el);
-
-          list[_i][type + "Id"] = newId;
-          list[_i][type] = _el;
-        }
-      };
-
-      _conns(sConns, 0, SOURCE);
-
-      _conns(tConns, 1, TARGET);
-
-      this.repaint(_el);
-    }
-  }, {
-    key: "setIdChanged",
-    value: function setIdChanged(oldId, newId) {
-      this.setId(oldId, newId, true);
     }
   }, {
     key: "getCachedData",
@@ -10645,11 +10560,11 @@ function (_EventGenerator) {
     key: "selectEndpoints",
     value: function selectEndpoints(params) {
       params = params || {};
-      params.scope = params.scope || "*";
+      params.scope = params.scope || WILDCARD;
       var noElementFilters = !params.element && !params.source && !params.target,
-          elements = noElementFilters ? "*" : prepareList(this, params.element),
-          sources = noElementFilters ? "*" : prepareList(this, params.source),
-          targets = noElementFilters ? "*" : prepareList(this, params.target),
+          elements = noElementFilters ? WILDCARD : prepareList(this, params.element),
+          sources = noElementFilters ? WILDCARD : prepareList(this, params.source),
+          targets = noElementFilters ? WILDCARD : prepareList(this, params.target),
           scopes = prepareList(this, params.scope, true);
       var ep = [];
 
@@ -10710,6 +10625,8 @@ function (_EventGenerator) {
           oldEndpoint = c.endpoints[idx];
       var evtParams = {
         index: idx,
+        originalSource: c.source,
+        originalTarget: c.target,
         originalSourceId: idx === 0 ? cId : c.sourceId,
         newSourceId: c.sourceId,
         originalTargetId: idx === 1 ? cId : c.targetId,
@@ -10765,14 +10682,16 @@ function (_EventGenerator) {
     value: function setSource(connection, el, doNotRepaint) {
       var p = this._set(connection, el, 0, doNotRepaint);
 
-      this.sourceOrTargetChanged(p.originalSourceId, p.newSourceId, connection, p.el, 0);
+      Connection.updateConnectedClass(this, connection, p.originalSource, true);
+      this.sourceOrTargetChanged(p.originalSourceId, p.newSourceId, connection, p.element, 0);
     }
   }, {
     key: "setTarget",
     value: function setTarget(connection, el, doNotRepaint) {
       var p = this._set(connection, el, 1, doNotRepaint);
 
-      connection.updateConnectedClass();
+      Connection.updateConnectedClass(this, connection, p.originalTarget, true);
+      connection.updateConnectedClass(false);
     }
     /**
      * Returns whether or not hover is currently suspended.
@@ -11299,8 +11218,8 @@ function (_EventGenerator) {
               }));
             }
           } else {
-            for (var _i2 = 0; _i2 < repaintEls.length; _i2++) {
-              var reId = this.getId(repaintEls[_i2]);
+            for (var _i = 0; _i < repaintEls.length; _i++) {
+              var reId = this.getId(repaintEls[_i]);
               repaintOffsets.push(this.viewport.getPosition(reId));
             }
           }
@@ -12604,4 +12523,4 @@ register$3();
 register$4();
 register$6();
 
-export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, AnchorManager, Anchors, ArcSegment, ArrowOverlay, BEFORE_DETACH, BLOCK, BezierSegment, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_DRAG, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, GROUP_KEY, GroupManager, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JTK_ID, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PROPERTY_POSITION, PlainArrowOverlay, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, extend, fastTrim, filterList, findWithFunction, functionChain, getsert, gradientAtPoint, gradientAtPointAlongPathFrom, isArray, isArrowOverlay, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, jsPlumbGeometry, lineIntersection, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, optional, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, populate, register, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, rotatePointXY, sortHelper, suggest, uuid, wrap };
+export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, AnchorManager, Anchors, ArcSegment, ArrowOverlay, BEFORE_DETACH, BLOCK, BezierSegment, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_DRAG, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, GROUP_KEY, GroupManager, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JTK_ID, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PROPERTY_POSITION, PlainArrowOverlay, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, extend, fastTrim, filterList, findWithFunction, functionChain, getsert, gradientAtPoint, gradientAtPointAlongPathFrom, isArray, isArrowOverlay, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, jsPlumbGeometry, lineIntersection, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, optional, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, populate, register, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, rotatePointXY, sortHelper, suggest, uuid, wrap };

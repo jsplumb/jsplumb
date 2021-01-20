@@ -16,6 +16,7 @@ export interface jsPlumbElement {
     _jsPlumbGroup: UIGroup;
     _jsPlumbParentGroup: UIGroup;
     _jspContext?: any;
+    _jsPlumbConnections: Dictionary<boolean>;
 }
 export interface ConnectParams {
     uuids?: [UUID, UUID];

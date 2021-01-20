@@ -1,5 +1,5 @@
 import { PaintStyle } from "../styles";
-import { Dictionary, Timestamp, TypeDescriptor, PointXY } from '../common';
+import { Dictionary, TypeDescriptor, PointXY } from '../common';
 import { JsPlumbInstance } from "../core";
 import { EventGenerator } from "../event-generator";
 import { Connection } from "../connector/connection-impl";
@@ -8,10 +8,6 @@ import { OverlaySpec } from "../overlay/overlay";
 export declare type ComponentParameters = Record<string, any>;
 export declare function _removeTypeCssHelper<E>(component: Component, typeIndex: number): void;
 export declare function _updateHoverStyle<E>(component: Component): void;
-export declare type RepaintOptions = {
-    timestamp?: Timestamp;
-    recalc?: boolean;
-};
 export interface ComponentOptions extends Record<string, any> {
     _jsPlumb?: JsPlumbInstance;
     parameters?: any;

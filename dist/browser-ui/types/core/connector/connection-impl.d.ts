@@ -90,6 +90,7 @@ export declare class Connection extends OverlayCapableComponent {
     floatingEndpoint: Endpoint;
     floatingId: string;
     floatingElement: any;
+    static updateConnectedClass<E>(instance: JsPlumbInstance, conn: Connection, element: jsPlumbElement, isRemoval: boolean): void;
     constructor(instance: JsPlumbInstance, params: ConnectionParams);
     makeEndpoint(isSource: boolean, el: any, elId: string, ep?: Endpoint): Endpoint;
     getTypeDescriptor(): string;
@@ -103,7 +104,7 @@ export declare class Connection extends OverlayCapableComponent {
     removeClass(c: string, informEndpoints?: boolean): void;
     setVisible(v: boolean): void;
     destroy(force?: boolean): void;
-    updateConnectedClass(remove?: boolean): void;
+    updateConnectedClass(isRemoval: boolean): void;
     getUuids(): [string, string];
     getCost(): number;
     setCost(c: number): void;

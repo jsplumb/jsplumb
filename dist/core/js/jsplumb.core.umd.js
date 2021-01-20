@@ -4125,6 +4125,7 @@
   var EVENT_ENDPOINT_DBL_CLICK = "endpointDblClick";
   var EVENT_ENDPOINT_MOUSEOUT = "endpointMouseOut";
   var EVENT_ENDPOINT_MOUSEOVER = "endpointMouseOver";
+  var EVENT_ENDPOINT_REPLACED = "endpointReplaced";
   var EVENT_FOCUS = "focus";
   var EVENT_INTERNAL_CONNECTION_DETACHED = "internal.connectionDetached";
   var EVENT_MOUSEDOWN = "mousedown";
@@ -6171,24 +6172,6 @@
 
   _curryContinuousAnchor("ContinuousTopBottom", ["top", "bottom"]);
 
-  function _updateConnectedClass(conn, element, remove) {
-    if (element != null) {
-      element._jsPlumbConnections = element._jsPlumbConnections || {};
-
-      if (remove) {
-        delete element._jsPlumbConnections[conn.id];
-      } else {
-        element._jsPlumbConnections[conn.id] = true;
-      }
-
-      if (isEmpty(element._jsPlumbConnections)) {
-        conn.instance.removeClass(element, conn.instance.connectedClass);
-      } else {
-        conn.instance.addClass(element, conn.instance.connectedClass);
-      }
-    }
-  }
-
   var Connection =
   /*#__PURE__*/
   function (_OverlayCapableCompon) {
@@ -6211,6 +6194,25 @@
           x: this.connector.x,
           y: this.connector.y
         };
+      }
+    }], [{
+      key: "updateConnectedClass",
+      value: function updateConnectedClass(instance, conn, element, isRemoval) {
+        if (element != null) {
+          element._jsPlumbConnections = element._jsPlumbConnections || {};
+
+          if (isRemoval) {
+            delete element._jsPlumbConnections[conn.id];
+          } else {
+            element._jsPlumbConnections[conn.id] = true;
+          }
+
+          if (isEmpty(element._jsPlumbConnections)) {
+            instance.removeClass(element, conn.instance.connectedClass);
+          } else {
+            instance.addClass(element, conn.instance.connectedClass);
+          }
+        }
       }
     }]);
 
@@ -6447,7 +6449,7 @@
         _this.addType(_types, params.data, true);
       }
 
-      _this.updateConnectedClass();
+      _this.updateConnectedClass(false);
 
       return _this;
     }
@@ -6612,10 +6614,9 @@
       }
     }, {
       key: "updateConnectedClass",
-      value: function updateConnectedClass(remove) {
-        _updateConnectedClass(this, this.source, remove);
-
-        _updateConnectedClass(this, this.target, remove);
+      value: function updateConnectedClass(isRemoval) {
+        Connection.updateConnectedClass(this.instance, this, this.source, isRemoval);
+        Connection.updateConnectedClass(this.instance, this, this.target, isRemoval);
       }
     }, {
       key: "getUuids",
@@ -6866,11 +6867,11 @@
         ebe.splice(_idx, 1, _new);
         current.detachFromConnection(this);
         this.instance.deleteEndpoint(current);
-        this.instance.fire("endpointReplaced", {
+        this.instance.fire(EVENT_ENDPOINT_REPLACED, {
           previous: current,
           current: _new
         });
-        this.updateConnectedClass();
+        this.updateConnectedClass(false);
       }
     }]);
 
@@ -10233,6 +10234,14 @@
   function prepareList(instance, input, doNotGetIds) {
     var r = [];
 
+    var _resolveId = function _resolveId(i) {
+      if (isString(i)) {
+        return i;
+      } else {
+        return instance.getId(i);
+      }
+    };
+
     if (input) {
       if (typeof input === 'string') {
         if (input === "*") {
@@ -10245,11 +10254,11 @@
           r = input;
         } else {
           if (input.length != null) {
-            for (var i = 0, j = input.length; i < j; i++) {
-              r.push(instance.info(input[i]).id);
-            }
+            var _r;
+
+            (_r = r).push.apply(_r, _toConsumableArray(_toConsumableArray(input).map(_resolveId)));
           } else {
-            r.push(instance.info(input).id);
+            r.push(_resolveId(input));
           }
         }
       }
@@ -10258,6 +10267,7 @@
     return r;
   }
 
+  var ID_ATTRIBUTE = "jtk-id";
   var JsPlumbInstance =
   /*#__PURE__*/
   function (_EventGenerator) {
@@ -10429,26 +10439,6 @@
         return this._zoom;
       }
     }, {
-      key: "info",
-      value: function info(el) {
-        if (el == null) {
-          return null;
-        } // this is DOM specific, we dont want this in this class.
-        else if (el.nodeType === 3 || el.nodeType === 8) {
-            return {
-              el: el,
-              text: true
-            };
-          } else {
-            var _el = this.getElement(el);
-
-            return {
-              el: _el,
-              id: isString(el) && _el == null ? el : this.getId(_el)
-            };
-          }
-      }
-    }, {
       key: "_idstamp",
       value: function _idstamp() {
         return "" + this._curIdStamp++;
@@ -10490,14 +10480,11 @@
     }, {
       key: "getId",
       value: function getId(element, uuid) {
-        // if (isString(element)) {
-        //     return element as string
-        // }
         if (element == null) {
           return null;
         }
 
-        var id = this.getAttribute(element, "id");
+        var id = this.getAttribute(element, ID_ATTRIBUTE);
 
         if (!id || id === "undefined") {
           // check if fixed uuid parameter is given
@@ -10507,82 +10494,10 @@
             id = "jsplumb-" + this._instanceIndex + "-" + this._idstamp();
           }
 
-          this.setAttribute(element, "id", id);
+          this.setAttribute(element, ID_ATTRIBUTE, id);
         }
 
         return id;
-      }
-      /**
-       * Set the id of the given element. Changes all the refs etc.  TODO: this method should not be necessary, at least not as
-       * part of the public API for the community edition, when we no longer key anything off each element's DOM id.
-       * The Toolkit edition may still need to advise the Community edition an id was changed, in some circumstances - needs verification.
-       * @param el
-       * @param newId
-       * @param doNotSetAttribute
-       */
-
-    }, {
-      key: "setId",
-      value: function setId(el, newId, doNotSetAttribute) {
-        //
-        var id, _el;
-
-        if (isString(el)) {
-          id = el;
-        } else {
-          _el = this.getElement(el);
-          id = this.getId(_el);
-        }
-
-        var sConns = this.getConnections({
-          source: id,
-          scope: '*'
-        }, true),
-            tConns = this.getConnections({
-          target: id,
-          scope: '*'
-        }, true);
-        newId = "" + newId;
-
-        if (!doNotSetAttribute) {
-          _el = this.getElement(id);
-          this.setAttribute(_el, "id", newId);
-        } else {
-          _el = this.getElement(newId);
-        }
-
-        this.endpointsByElement[newId] = this.endpointsByElement[id] || [];
-
-        for (var i = 0, ii = this.endpointsByElement[newId].length; i < ii; i++) {
-          this.endpointsByElement[newId][i].setElementId(newId);
-          this.endpointsByElement[newId][i].setReferenceElement(_el);
-        }
-
-        delete this.endpointsByElement[id];
-        this._managedElements[newId] = this._managedElements[id];
-        delete this._managedElements[id];
-
-        var _conns = function _conns(list, epIdx, type) {
-          for (var _i = 0, _ii = list.length; _i < _ii; _i++) {
-            list[_i].endpoints[epIdx].setElementId(newId);
-
-            list[_i].endpoints[epIdx].setReferenceElement(_el);
-
-            list[_i][type + "Id"] = newId;
-            list[_i][type] = _el;
-          }
-        };
-
-        _conns(sConns, 0, SOURCE);
-
-        _conns(tConns, 1, TARGET);
-
-        this.repaint(_el);
-      }
-    }, {
-      key: "setIdChanged",
-      value: function setIdChanged(oldId, newId) {
-        this.setId(oldId, newId, true);
       }
     }, {
       key: "getCachedData",
@@ -10651,11 +10566,11 @@
       key: "selectEndpoints",
       value: function selectEndpoints(params) {
         params = params || {};
-        params.scope = params.scope || "*";
+        params.scope = params.scope || WILDCARD;
         var noElementFilters = !params.element && !params.source && !params.target,
-            elements = noElementFilters ? "*" : prepareList(this, params.element),
-            sources = noElementFilters ? "*" : prepareList(this, params.source),
-            targets = noElementFilters ? "*" : prepareList(this, params.target),
+            elements = noElementFilters ? WILDCARD : prepareList(this, params.element),
+            sources = noElementFilters ? WILDCARD : prepareList(this, params.source),
+            targets = noElementFilters ? WILDCARD : prepareList(this, params.target),
             scopes = prepareList(this, params.scope, true);
         var ep = [];
 
@@ -10716,6 +10631,8 @@
             oldEndpoint = c.endpoints[idx];
         var evtParams = {
           index: idx,
+          originalSource: c.source,
+          originalTarget: c.target,
           originalSourceId: idx === 0 ? cId : c.sourceId,
           newSourceId: c.sourceId,
           originalTargetId: idx === 1 ? cId : c.targetId,
@@ -10771,14 +10688,16 @@
       value: function setSource(connection, el, doNotRepaint) {
         var p = this._set(connection, el, 0, doNotRepaint);
 
-        this.sourceOrTargetChanged(p.originalSourceId, p.newSourceId, connection, p.el, 0);
+        Connection.updateConnectedClass(this, connection, p.originalSource, true);
+        this.sourceOrTargetChanged(p.originalSourceId, p.newSourceId, connection, p.element, 0);
       }
     }, {
       key: "setTarget",
       value: function setTarget(connection, el, doNotRepaint) {
         var p = this._set(connection, el, 1, doNotRepaint);
 
-        connection.updateConnectedClass();
+        Connection.updateConnectedClass(this, connection, p.originalTarget, true);
+        connection.updateConnectedClass(false);
       }
       /**
        * Returns whether or not hover is currently suspended.
@@ -11305,8 +11224,8 @@
                 }));
               }
             } else {
-              for (var _i2 = 0; _i2 < repaintEls.length; _i2++) {
-                var reId = this.getId(repaintEls[_i2]);
+              for (var _i = 0; _i < repaintEls.length; _i++) {
+                var reId = this.getId(repaintEls[_i]);
                 repaintOffsets.push(this.viewport.getPosition(reId));
               }
             }
@@ -12671,6 +12590,7 @@
   exports.EVENT_ENDPOINT_DBL_CLICK = EVENT_ENDPOINT_DBL_CLICK;
   exports.EVENT_ENDPOINT_MOUSEOUT = EVENT_ENDPOINT_MOUSEOUT;
   exports.EVENT_ENDPOINT_MOUSEOVER = EVENT_ENDPOINT_MOUSEOVER;
+  exports.EVENT_ENDPOINT_REPLACED = EVENT_ENDPOINT_REPLACED;
   exports.EVENT_EXPAND = EVENT_EXPAND;
   exports.EVENT_FOCUS = EVENT_FOCUS;
   exports.EVENT_GROUP_ADDED = EVENT_GROUP_ADDED;

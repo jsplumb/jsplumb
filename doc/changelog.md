@@ -1,3 +1,21 @@
+## 4.0.0-RC34
+
+- Internally, jsPlumb no longer uses the `id` attribute of the elements it is connecting; it now uses `jtk-id` instead.
+
+### Breaking
+
+- The `setId` and `setIdChanged` methods were removed from `JsPlumbInstance`. This is due to change in tracking attribute described above.
+- The concept of `Posse` was renamed to `DragGroup`. All associated types/interfaces and methods were renamed accordingly, eg `addToPosse` is now `addToDragGroup`; `PosseMemberSpec` is now `DragGroupMemberSpec`, etc.
+
+## 4.0.0-RC33
+
+19th January 2021
+
+The focus of this release was the internal separation of the core code from the code that renders to elements in a browser. The Community edition is now published as two packages - `@jsplumb/community-core`, which contains the core code and no renderer, and `@jsplumb/browser-ui`, which is the renderer that connects individual DOM elements with individual SVG elements. This latter package declares `@jsplumb/community-core` as a dependency.
+
+For the time being, `@jsplumb/community` is still being published, which is a build that contains both `community-core` and `browser-ui`. In the future, though, this package will cease to be published.
+
+
 ## 4.0.0-RC32
 
 16th January 2021

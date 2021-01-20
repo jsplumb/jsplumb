@@ -73,7 +73,7 @@ export interface jsPlumbDOMElement extends HTMLElement, jsPlumbElement {
     _katavorioDrag?: Drag;
     _jspContext?: any;
 }
-export declare type PosseSpec = string | {
+export declare type DragGroupSpec = string | {
     id: string;
     active: boolean;
 };
@@ -159,27 +159,27 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance {
     toggleDragSelection(...el: Array<string | jsPlumbDOMElement>): void;
     getDragSelection(): Array<jsPlumbDOMElement>;
     /**
-     * Adds the given element(s) to the given posse.
-     * @param spec Either the ID of some posse, in which case the elements are all added as 'active', or an object of the form
+     * Adds the given element(s) to the given drag group.
+     * @param spec Either the ID of some drag group, in which case the elements are all added as 'active', or an object of the form
      * { id:"someId", active:boolean }. In the latter case, `active`, if true, which is the default, indicates whether
-     * dragging the given element(s) should cause all the elements in the posse to be dragged. If `active` is false it means the
-     * given element(s) is "passive" and should only move when an active member of the posse is dragged.
-     * @param els Elements to add to the posse.
+     * dragging the given element(s) should cause all the elements in the drag group to be dragged. If `active` is false it means the
+     * given element(s) is "passive" and should only move when an active member of the drag group is dragged.
+     * @param els Elements to add to the drag group.
      */
-    addToPosse(spec: PosseSpec, ...els: Array<jsPlumbDOMElement>): void;
+    addToDragGroup(spec: DragGroupSpec, ...els: Array<jsPlumbDOMElement>): void;
     /**
-     * Removes the given element(s) from any posse they may be in. You don't need to supply the posse id, as elements
-     * can only be in one posse anyway.
-     * @param els Elements to remove from posses.
+     * Removes the given element(s) from any drag group they may be in. You don't need to supply the drag group id, as elements
+     * can only be in one drag group anyway.
+     * @param els Elements to remove from drag groups.
      */
-    removeFromPosse(...els: Array<jsPlumbDOMElement>): void;
+    removeFromDragGroup(...els: Array<jsPlumbDOMElement>): void;
     /**
-     * Sets the active/passive state for the given element(s).You don't need to supply the posse id, as elements
-     * can only be in one posse anyway.
+     * Sets the active/passive state for the given element(s).You don't need to supply the drag group id, as elements
+     * can only be in one drag group anyway.
      * @param state true for active, false for passive.
      * @param els
      */
-    setPosseState(state: boolean, ...els: Array<jsPlumbDOMElement>): void;
+    setDragGroupState(state: boolean, ...els: Array<jsPlumbDOMElement>): void;
     /**
      * Consumes the given event.
      * @param e

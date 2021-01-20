@@ -1,5 +1,5 @@
 import { DragEventParams, DragHandler, DragStopEventParams } from "./drag-manager";
-import { BrowserJsPlumbInstance, jsPlumbDOMElement, PosseSpec } from "./browser-jsplumb-instance";
+import { BrowserJsPlumbInstance, DragGroupSpec, jsPlumbDOMElement } from "./browser-jsplumb-instance";
 import { Drag } from "./collicat";
 import { Offset, PointArray, RedrawResult } from "@jsplumb/community-core";
 export interface DragStopPayload {
@@ -15,11 +15,11 @@ export declare class ElementDragHandler implements DragHandler {
     private _groupLocations;
     private _intersectingGroups;
     private _currentDragParentGroup;
-    private _posseByElementIdMap;
-    private _posseMap;
-    private _currentPosse;
-    private _currentPosseOffsets;
-    private _currentPosseSizes;
+    private _dragGroupByElementIdMap;
+    private _dragGroupMap;
+    private _currentDragGroup;
+    private _currentDragGroupOffsets;
+    private _currentDragGroupSizes;
     private _dragSelection;
     private _dragSelectionOffsets;
     private _dragSizes;
@@ -43,9 +43,9 @@ export declare class ElementDragHandler implements DragHandler {
     removeFromDragSelection(el: string | HTMLElement): void;
     toggleDragSelection(el: string | jsPlumbDOMElement): void;
     getDragSelection(): Array<jsPlumbDOMElement>;
-    private static decodePosseSpec;
-    addToPosse(spec: PosseSpec, ...els: Array<jsPlumbDOMElement>): void;
-    removeFromPosse(...els: Array<jsPlumbDOMElement>): void;
-    setPosseState(state: boolean, ...els: Array<jsPlumbDOMElement>): void;
-    private isActivePosseMember;
+    private static decodeDragGroupSpec;
+    addToDragGroup(spec: DragGroupSpec, ...els: Array<jsPlumbDOMElement>): void;
+    removeFromDragGroup(...els: Array<jsPlumbDOMElement>): void;
+    setDragGroupState(state: boolean, ...els: Array<jsPlumbDOMElement>): void;
+    private isActiveDragGroupMember;
 }

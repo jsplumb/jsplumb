@@ -21,16 +21,18 @@ import { LabelOverlay } from '../core/overlay/label-overlay';
 import { AbstractConnector } from '../core/connector/abstract-connector';
 import { OverlayCapableComponent } from '../core/component/overlay-capable-component';
 import { PaintStyle } from '../core/styles';
+export declare type ElementSelectionSpecifier = jsPlumbElement | Array<jsPlumbElement> | '*';
+export declare type SelectionList = '*' | Array<string>;
 export interface AbstractSelectOptions {
-    scope?: string;
-    source?: string | any | Array<string | any>;
-    target?: string | any | Array<string | any>;
+    scope?: SelectionList;
+    source?: ElementSelectionSpecifier;
+    target?: ElementSelectionSpecifier;
 }
 export interface SelectOptions extends AbstractSelectOptions {
     connections?: Array<Connection>;
 }
 export interface SelectEndpointOptions extends AbstractSelectOptions {
-    element?: string | any | Array<string | any>;
+    element?: ElementSelectionSpecifier;
 }
 /**
  * Optional parameters to the `DeleteConnection` method.
@@ -105,33 +107,18 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     getContainer(): any;
     setZoom(z: number, repaintEverything?: boolean): boolean;
     getZoom(): number;
-    info(el: string | any): {
-        el: jsPlumbElement;
-        text?: boolean;
-        id?: string;
-    };
     _idstamp(): string;
     convertToFullOverlaySpec(spec: string | OverlaySpec): FullOverlaySpec;
     checkCondition(conditionName: string, args?: any): boolean;
     getId(element: jsPlumbElement, uuid?: string): string;
-    /**
-     * Set the id of the given element. Changes all the refs etc.  TODO: this method should not be necessary, at least not as
-     * part of the public API for the community edition, when we no longer key anything off each element's DOM id.
-     * The Toolkit edition may still need to advise the Community edition an id was changed, in some circumstances - needs verification.
-     * @param el
-     * @param newId
-     * @param doNotSetAttribute
-     */
-    setId(el: any, newId: string, doNotSetAttribute?: boolean): void;
-    setIdChanged(oldId: string, newId: string): void;
     getCachedData(elId: string): ViewportElement;
     getConnections(options?: SelectOptions, flat?: boolean): Dictionary<Connection> | Array<Connection>;
     select(params?: SelectOptions): ConnectionSelection;
     selectEndpoints(params?: SelectEndpointOptions): EndpointSelection;
     setContainer(c: string | jsPlumbElement): void;
     private _set;
-    setSource(connection: Connection, el: any | Endpoint, doNotRepaint?: boolean): void;
-    setTarget(connection: Connection, el: any | Endpoint, doNotRepaint?: boolean): void;
+    setSource(connection: Connection, el: jsPlumbElement | Endpoint, doNotRepaint?: boolean): void;
+    setTarget(connection: Connection, el: jsPlumbElement | Endpoint, doNotRepaint?: boolean): void;
     /**
      * Returns whether or not hover is currently suspended.
      */

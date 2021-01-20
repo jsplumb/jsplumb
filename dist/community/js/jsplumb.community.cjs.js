@@ -3974,6 +3974,7 @@ var EVENT_ENDPOINT_CLICK = "endpointClick";
 var EVENT_ENDPOINT_DBL_CLICK = "endpointDblClick";
 var EVENT_ENDPOINT_MOUSEOUT = "endpointMouseOut";
 var EVENT_ENDPOINT_MOUSEOVER = "endpointMouseOver";
+var EVENT_ENDPOINT_REPLACED = "endpointReplaced";
 var EVENT_FOCUS = "focus";
 var EVENT_INTERNAL_CONNECTION_DETACHED = "internal.connectionDetached";
 var EVENT_MOUSEDOWN = "mousedown";
@@ -5998,24 +5999,6 @@ _curryContinuousAnchor("ContinuousLeftRight", ["left", "right"]);
 
 _curryContinuousAnchor("ContinuousTopBottom", ["top", "bottom"]);
 
-function _updateConnectedClass(conn, element, remove) {
-  if (element != null) {
-    element._jsPlumbConnections = element._jsPlumbConnections || {};
-
-    if (remove) {
-      delete element._jsPlumbConnections[conn.id];
-    } else {
-      element._jsPlumbConnections[conn.id] = true;
-    }
-
-    if (isEmpty(element._jsPlumbConnections)) {
-      conn.instance.removeClass(element, conn.instance.connectedClass);
-    } else {
-      conn.instance.addClass(element, conn.instance.connectedClass);
-    }
-  }
-}
-
 var Connection =
 /*#__PURE__*/
 function (_OverlayCapableCompon) {
@@ -6038,6 +6021,25 @@ function (_OverlayCapableCompon) {
         x: this.connector.x,
         y: this.connector.y
       };
+    }
+  }], [{
+    key: "updateConnectedClass",
+    value: function updateConnectedClass(instance, conn, element, isRemoval) {
+      if (element != null) {
+        element._jsPlumbConnections = element._jsPlumbConnections || {};
+
+        if (isRemoval) {
+          delete element._jsPlumbConnections[conn.id];
+        } else {
+          element._jsPlumbConnections[conn.id] = true;
+        }
+
+        if (isEmpty(element._jsPlumbConnections)) {
+          instance.removeClass(element, conn.instance.connectedClass);
+        } else {
+          instance.addClass(element, conn.instance.connectedClass);
+        }
+      }
     }
   }]);
 
@@ -6274,7 +6276,7 @@ function (_OverlayCapableCompon) {
       _this.addType(_types, params.data, true);
     }
 
-    _this.updateConnectedClass();
+    _this.updateConnectedClass(false);
 
     return _this;
   }
@@ -6439,10 +6441,9 @@ function (_OverlayCapableCompon) {
     }
   }, {
     key: "updateConnectedClass",
-    value: function updateConnectedClass(remove) {
-      _updateConnectedClass(this, this.source, remove);
-
-      _updateConnectedClass(this, this.target, remove);
+    value: function updateConnectedClass(isRemoval) {
+      Connection.updateConnectedClass(this.instance, this, this.source, isRemoval);
+      Connection.updateConnectedClass(this.instance, this, this.target, isRemoval);
     }
   }, {
     key: "getUuids",
@@ -6693,11 +6694,11 @@ function (_OverlayCapableCompon) {
       ebe.splice(_idx, 1, _new);
       current.detachFromConnection(this);
       this.instance.deleteEndpoint(current);
-      this.instance.fire("endpointReplaced", {
+      this.instance.fire(EVENT_ENDPOINT_REPLACED, {
         previous: current,
         current: _new
       });
-      this.updateConnectedClass();
+      this.updateConnectedClass(false);
     }
   }]);
 
@@ -10060,6 +10061,14 @@ function _scopeMatch(e1, e2) {
 function prepareList(instance, input, doNotGetIds) {
   var r = [];
 
+  var _resolveId = function _resolveId(i) {
+    if (isString(i)) {
+      return i;
+    } else {
+      return instance.getId(i);
+    }
+  };
+
   if (input) {
     if (typeof input === 'string') {
       if (input === "*") {
@@ -10072,11 +10081,11 @@ function prepareList(instance, input, doNotGetIds) {
         r = input;
       } else {
         if (input.length != null) {
-          for (var i = 0, j = input.length; i < j; i++) {
-            r.push(instance.info(input[i]).id);
-          }
+          var _r;
+
+          (_r = r).push.apply(_r, _toConsumableArray(_toConsumableArray(input).map(_resolveId)));
         } else {
-          r.push(instance.info(input).id);
+          r.push(_resolveId(input));
         }
       }
     }
@@ -10085,6 +10094,7 @@ function prepareList(instance, input, doNotGetIds) {
   return r;
 }
 
+var ID_ATTRIBUTE = "jtk-id";
 var JsPlumbInstance =
 /*#__PURE__*/
 function (_EventGenerator) {
@@ -10256,26 +10266,6 @@ function (_EventGenerator) {
       return this._zoom;
     }
   }, {
-    key: "info",
-    value: function info(el) {
-      if (el == null) {
-        return null;
-      } // this is DOM specific, we dont want this in this class.
-      else if (el.nodeType === 3 || el.nodeType === 8) {
-          return {
-            el: el,
-            text: true
-          };
-        } else {
-          var _el = this.getElement(el);
-
-          return {
-            el: _el,
-            id: isString(el) && _el == null ? el : this.getId(_el)
-          };
-        }
-    }
-  }, {
     key: "_idstamp",
     value: function _idstamp() {
       return "" + this._curIdStamp++;
@@ -10317,14 +10307,11 @@ function (_EventGenerator) {
   }, {
     key: "getId",
     value: function getId(element, uuid) {
-      // if (isString(element)) {
-      //     return element as string
-      // }
       if (element == null) {
         return null;
       }
 
-      var id = this.getAttribute(element, "id");
+      var id = this.getAttribute(element, ID_ATTRIBUTE);
 
       if (!id || id === "undefined") {
         // check if fixed uuid parameter is given
@@ -10334,82 +10321,10 @@ function (_EventGenerator) {
           id = "jsplumb-" + this._instanceIndex + "-" + this._idstamp();
         }
 
-        this.setAttribute(element, "id", id);
+        this.setAttribute(element, ID_ATTRIBUTE, id);
       }
 
       return id;
-    }
-    /**
-     * Set the id of the given element. Changes all the refs etc.  TODO: this method should not be necessary, at least not as
-     * part of the public API for the community edition, when we no longer key anything off each element's DOM id.
-     * The Toolkit edition may still need to advise the Community edition an id was changed, in some circumstances - needs verification.
-     * @param el
-     * @param newId
-     * @param doNotSetAttribute
-     */
-
-  }, {
-    key: "setId",
-    value: function setId(el, newId, doNotSetAttribute) {
-      //
-      var id, _el;
-
-      if (isString(el)) {
-        id = el;
-      } else {
-        _el = this.getElement(el);
-        id = this.getId(_el);
-      }
-
-      var sConns = this.getConnections({
-        source: id,
-        scope: '*'
-      }, true),
-          tConns = this.getConnections({
-        target: id,
-        scope: '*'
-      }, true);
-      newId = "" + newId;
-
-      if (!doNotSetAttribute) {
-        _el = this.getElement(id);
-        this.setAttribute(_el, "id", newId);
-      } else {
-        _el = this.getElement(newId);
-      }
-
-      this.endpointsByElement[newId] = this.endpointsByElement[id] || [];
-
-      for (var i = 0, ii = this.endpointsByElement[newId].length; i < ii; i++) {
-        this.endpointsByElement[newId][i].setElementId(newId);
-        this.endpointsByElement[newId][i].setReferenceElement(_el);
-      }
-
-      delete this.endpointsByElement[id];
-      this._managedElements[newId] = this._managedElements[id];
-      delete this._managedElements[id];
-
-      var _conns = function _conns(list, epIdx, type) {
-        for (var _i = 0, _ii = list.length; _i < _ii; _i++) {
-          list[_i].endpoints[epIdx].setElementId(newId);
-
-          list[_i].endpoints[epIdx].setReferenceElement(_el);
-
-          list[_i][type + "Id"] = newId;
-          list[_i][type] = _el;
-        }
-      };
-
-      _conns(sConns, 0, SOURCE);
-
-      _conns(tConns, 1, TARGET);
-
-      this.repaint(_el);
-    }
-  }, {
-    key: "setIdChanged",
-    value: function setIdChanged(oldId, newId) {
-      this.setId(oldId, newId, true);
     }
   }, {
     key: "getCachedData",
@@ -10478,11 +10393,11 @@ function (_EventGenerator) {
     key: "selectEndpoints",
     value: function selectEndpoints(params) {
       params = params || {};
-      params.scope = params.scope || "*";
+      params.scope = params.scope || WILDCARD;
       var noElementFilters = !params.element && !params.source && !params.target,
-          elements = noElementFilters ? "*" : prepareList(this, params.element),
-          sources = noElementFilters ? "*" : prepareList(this, params.source),
-          targets = noElementFilters ? "*" : prepareList(this, params.target),
+          elements = noElementFilters ? WILDCARD : prepareList(this, params.element),
+          sources = noElementFilters ? WILDCARD : prepareList(this, params.source),
+          targets = noElementFilters ? WILDCARD : prepareList(this, params.target),
           scopes = prepareList(this, params.scope, true);
       var ep = [];
 
@@ -10543,6 +10458,8 @@ function (_EventGenerator) {
           oldEndpoint = c.endpoints[idx];
       var evtParams = {
         index: idx,
+        originalSource: c.source,
+        originalTarget: c.target,
         originalSourceId: idx === 0 ? cId : c.sourceId,
         newSourceId: c.sourceId,
         originalTargetId: idx === 1 ? cId : c.targetId,
@@ -10598,14 +10515,16 @@ function (_EventGenerator) {
     value: function setSource(connection, el, doNotRepaint) {
       var p = this._set(connection, el, 0, doNotRepaint);
 
-      this.sourceOrTargetChanged(p.originalSourceId, p.newSourceId, connection, p.el, 0);
+      Connection.updateConnectedClass(this, connection, p.originalSource, true);
+      this.sourceOrTargetChanged(p.originalSourceId, p.newSourceId, connection, p.element, 0);
     }
   }, {
     key: "setTarget",
     value: function setTarget(connection, el, doNotRepaint) {
       var p = this._set(connection, el, 1, doNotRepaint);
 
-      connection.updateConnectedClass();
+      Connection.updateConnectedClass(this, connection, p.originalTarget, true);
+      connection.updateConnectedClass(false);
     }
     /**
      * Returns whether or not hover is currently suspended.
@@ -11132,8 +11051,8 @@ function (_EventGenerator) {
               }));
             }
           } else {
-            for (var _i2 = 0; _i2 < repaintEls.length; _i2++) {
-              var reId = this.getId(repaintEls[_i2]);
+            for (var _i = 0; _i < repaintEls.length; _i++) {
+              var reId = this.getId(repaintEls[_i]);
               repaintOffsets.push(this.viewport.getPosition(reId));
             }
           }
@@ -12901,15 +12820,15 @@ function () {
 
     _defineProperty(this, "_currentDragParentGroup", null);
 
-    _defineProperty(this, "_posseByElementIdMap", {});
+    _defineProperty(this, "_dragGroupByElementIdMap", {});
 
-    _defineProperty(this, "_posseMap", {});
+    _defineProperty(this, "_dragGroupMap", {});
 
-    _defineProperty(this, "_currentPosse", null);
+    _defineProperty(this, "_currentDragGroup", null);
 
-    _defineProperty(this, "_currentPosseOffsets", new Map());
+    _defineProperty(this, "_currentDragGroupOffsets", new Map());
 
-    _defineProperty(this, "_currentPosseSizes", new Map());
+    _defineProperty(this, "_currentDragGroupSizes", new Map());
 
     _defineProperty(this, "_dragSelection", []);
 
@@ -13014,11 +12933,11 @@ function () {
 
       this._dragSizes.clear();
 
-      this._currentPosseOffsets.clear();
+      this._currentDragGroupOffsets.clear();
 
-      this._currentPosseSizes.clear();
+      this._currentDragGroupSizes.clear();
 
-      this._currentPosse = null;
+      this._currentDragGroup = null;
     }
   }, {
     key: "reset",
@@ -13114,8 +13033,8 @@ function () {
         _one(v[1], _b, params.e);
       });
 
-      this._currentPosseOffsets.forEach(function (v, k) {
-        var s = _this3._currentPosseSizes.get(k);
+      this._currentDragGroupOffsets.forEach(function (v, k) {
+        var s = _this3._currentDragGroupSizes.get(k);
 
         var _b = {
           x: elBounds.x + v[0].left,
@@ -13241,11 +13160,11 @@ function () {
         };
 
         var elId = this.instance.getId(el);
-        this._currentPosse = this._posseByElementIdMap[elId];
+        this._currentDragGroup = this._dragGroupByElementIdMap[elId];
 
-        if (this._currentPosse && !this.isActivePosseMember(this._currentPosse, el)) {
-          // clear the current posse if this element is not an active member, ie. cannot instigate a drag for all members.
-          this._currentPosse = null;
+        if (this._currentDragGroup && !this.isActiveDragGroupMember(this._currentDragGroup, el)) {
+          // clear the current dragGroup if this element is not an active member, ie. cannot instigate a drag for all members.
+          this._currentDragGroup = null;
         }
 
         var dragStartReturn = _one(el); // process the original drag element.
@@ -13257,20 +13176,20 @@ function () {
           return false;
         }
 
-        if (this._currentPosse != null) {
-          this._currentPosseOffsets.clear();
+        if (this._currentDragGroup != null) {
+          this._currentDragGroupOffsets.clear();
 
-          this._currentPosseSizes.clear();
+          this._currentDragGroupSizes.clear();
 
-          this._currentPosse.members.forEach(function (jel) {
+          this._currentDragGroup.members.forEach(function (jel) {
             var off = _this4.instance.getOffset(jel.el);
 
-            _this4._currentPosseOffsets.set(jel.elId, [{
+            _this4._currentDragGroupOffsets.set(jel.elId, [{
               left: off.left - elOffset.left,
               top: off.top - elOffset.top
             }, jel.el]);
 
-            _this4._currentPosseSizes.set(jel.elId, _this4.instance.getSize(jel.el));
+            _this4._currentDragGroupSizes.set(jel.elId, _this4.instance.getSize(jel.el));
 
             _one(jel.el);
           });
@@ -13335,39 +13254,40 @@ function () {
       return this._dragSelection;
     }
   }, {
-    key: "addToPosse",
-    value: function addToPosse(spec) {
+    key: "addToDragGroup",
+    value: function addToDragGroup(spec) {
       var _this7 = this;
 
-      var details = ElementDragHandler.decodePosseSpec(spec);
-      var posse = this._posseMap[details.id];
+      var details = ElementDragHandler.decodeDragGroupSpec(this.instance, spec);
+      var dragGroup = this._dragGroupMap[details.id];
 
-      if (posse == null) {
-        posse = {
+      if (dragGroup == null) {
+        dragGroup = {
           id: details.id,
           members: new Set()
         };
-        this._posseMap[details.id] = posse;
+        this._dragGroupMap[details.id] = dragGroup;
       }
 
       for (var _len = arguments.length, els = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
         els[_key - 1] = arguments[_key];
       }
 
-      this.removeFromPosse.apply(this, els);
+      this.removeFromDragGroup.apply(this, els);
       els.forEach(function (el) {
-        var elId = el.getAttribute("id");
-        posse.members.add({
+        var elId = _this7.instance.getId(el);
+
+        dragGroup.members.add({
           elId: elId,
           el: el,
           active: details.active
         });
-        _this7._posseByElementIdMap[elId] = posse;
+        _this7._dragGroupByElementIdMap[elId] = dragGroup;
       });
     }
   }, {
-    key: "removeFromPosse",
-    value: function removeFromPosse() {
+    key: "removeFromDragGroup",
+    value: function removeFromDragGroup() {
       var _this8 = this;
 
       for (var _len2 = arguments.length, els = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
@@ -13377,12 +13297,12 @@ function () {
       els.forEach(function (el) {
         var id = _this8.instance.getId(el);
 
-        var posse = _this8._posseByElementIdMap[id];
+        var dragGroup = _this8._dragGroupByElementIdMap[id];
 
-        if (posse != null) {
+        if (dragGroup != null) {
           var s = new Set();
           var p;
-          var e = posse.members.values();
+          var e = dragGroup.members.values();
 
           while (!(p = e.next()).done) {
             if (p.value.el !== el) {
@@ -13390,14 +13310,14 @@ function () {
             }
           }
 
-          posse.members = s;
-          delete _this8._posseByElementIdMap[id];
+          dragGroup.members = s;
+          delete _this8._dragGroupByElementIdMap[id];
         }
       });
     }
   }, {
-    key: "setPosseState",
-    value: function setPosseState(state) {
+    key: "setDragGroupState",
+    value: function setDragGroupState(state) {
       var _this9 = this;
 
       for (var _len3 = arguments.length, els = new Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
@@ -13405,11 +13325,11 @@ function () {
       }
 
       var elementIds = els.map(function (el) {
-        return el.getAttribute("id");
+        return _this9.instance.getId(el);
       });
       elementIds.forEach(function (id) {
-        optional(_this9._posseByElementIdMap[id]).map(function (posse) {
-          optional(Array.from(posse.members).find(function (m) {
+        optional(_this9._dragGroupByElementIdMap[id]).map(function (dragGroup) {
+          optional(Array.from(dragGroup.members).find(function (m) {
             return m.elId === id;
           })).map(function (member) {
             member.active = state;
@@ -13418,9 +13338,9 @@ function () {
       });
     }
   }, {
-    key: "isActivePosseMember",
-    value: function isActivePosseMember(posse, el) {
-      var details = Array.from(posse.members).find(function (m) {
+    key: "isActiveDragGroupMember",
+    value: function isActiveDragGroupMember(dragGroup, el) {
+      var details = Array.from(dragGroup.members).find(function (m) {
         return m.el === el;
       });
 
@@ -13431,8 +13351,8 @@ function () {
       }
     }
   }], [{
-    key: "decodePosseSpec",
-    value: function decodePosseSpec(spec) {
+    key: "decodeDragGroupSpec",
+    value: function decodeDragGroupSpec(instance, spec) {
       if (isString(spec)) {
         return {
           id: spec,
@@ -13440,7 +13360,7 @@ function () {
         };
       } else {
         return {
-          id: spec.id,
+          id: instance.getId(spec),
           active: spec.active
         };
       }
@@ -13671,7 +13591,7 @@ function () {
         def = sourceDef.def; // if maxConnections reached
 
         var sourceCount = this.instance.select({
-          source: elid
+          source: targetEl
         }).length;
 
         if (sourceDef.maxConnections >= 0 && sourceCount >= sourceDef.maxConnections) {
@@ -14623,7 +14543,7 @@ function () {
       }
 
       if (idx === 1) {
-        this.jpc.updateConnectedClass();
+        this.jpc.updateConnectedClass(false);
       } else {
         this.instance.sourceOrTargetChanged(this.jpc.floatingId, this.jpc.sourceId, this.jpc, this.jpc.source, 0);
       } // when makeSource has uniqueEndpoint:true, we want to create connections with new endpoints
@@ -17868,58 +17788,58 @@ function (_JsPlumbInstance) {
     key: "getDragSelection",
     value: function getDragSelection() {
       return this.elementDragHandler.getDragSelection();
-    } // ------------ posses
+    } // ------------ drag groups
 
     /**
-     * Adds the given element(s) to the given posse.
-     * @param spec Either the ID of some posse, in which case the elements are all added as 'active', or an object of the form
+     * Adds the given element(s) to the given drag group.
+     * @param spec Either the ID of some drag group, in which case the elements are all added as 'active', or an object of the form
      * { id:"someId", active:boolean }. In the latter case, `active`, if true, which is the default, indicates whether
-     * dragging the given element(s) should cause all the elements in the posse to be dragged. If `active` is false it means the
-     * given element(s) is "passive" and should only move when an active member of the posse is dragged.
-     * @param els Elements to add to the posse.
+     * dragging the given element(s) should cause all the elements in the drag group to be dragged. If `active` is false it means the
+     * given element(s) is "passive" and should only move when an active member of the drag group is dragged.
+     * @param els Elements to add to the drag group.
      */
 
   }, {
-    key: "addToPosse",
-    value: function addToPosse(spec) {
+    key: "addToDragGroup",
+    value: function addToDragGroup(spec) {
       var _this$elementDragHand;
 
       for (var _len4 = arguments.length, els = new Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1; _key4 < _len4; _key4++) {
         els[_key4 - 1] = arguments[_key4];
       }
 
-      (_this$elementDragHand = this.elementDragHandler).addToPosse.apply(_this$elementDragHand, [spec].concat(els));
+      (_this$elementDragHand = this.elementDragHandler).addToDragGroup.apply(_this$elementDragHand, [spec].concat(els));
     }
     /**
-     * Removes the given element(s) from any posse they may be in. You don't need to supply the posse id, as elements
-     * can only be in one posse anyway.
-     * @param els Elements to remove from posses.
+     * Removes the given element(s) from any drag group they may be in. You don't need to supply the drag group id, as elements
+     * can only be in one drag group anyway.
+     * @param els Elements to remove from drag groups.
      */
 
   }, {
-    key: "removeFromPosse",
-    value: function removeFromPosse() {
+    key: "removeFromDragGroup",
+    value: function removeFromDragGroup() {
       var _this$elementDragHand2;
 
-      (_this$elementDragHand2 = this.elementDragHandler).removeFromPosse.apply(_this$elementDragHand2, arguments);
+      (_this$elementDragHand2 = this.elementDragHandler).removeFromDragGroup.apply(_this$elementDragHand2, arguments);
     }
     /**
-     * Sets the active/passive state for the given element(s).You don't need to supply the posse id, as elements
-     * can only be in one posse anyway.
+     * Sets the active/passive state for the given element(s).You don't need to supply the drag group id, as elements
+     * can only be in one drag group anyway.
      * @param state true for active, false for passive.
      * @param els
      */
 
   }, {
-    key: "setPosseState",
-    value: function setPosseState(state) {
+    key: "setDragGroupState",
+    value: function setDragGroupState(state) {
       var _this$elementDragHand3;
 
       for (var _len5 = arguments.length, els = new Array(_len5 > 1 ? _len5 - 1 : 0), _key5 = 1; _key5 < _len5; _key5++) {
         els[_key5 - 1] = arguments[_key5];
       }
 
-      (_this$elementDragHand3 = this.elementDragHandler).setPosseState.apply(_this$elementDragHand3, [state].concat(els));
+      (_this$elementDragHand3 = this.elementDragHandler).setDragGroupState.apply(_this$elementDragHand3, [state].concat(els));
     }
     /**
      * Consumes the given event.

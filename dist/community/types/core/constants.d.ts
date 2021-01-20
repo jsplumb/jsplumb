@@ -58,6 +58,7 @@ export declare const EVENT_ENDPOINT_CLICK = "endpointClick";
 export declare const EVENT_ENDPOINT_DBL_CLICK = "endpointDblClick";
 export declare const EVENT_ENDPOINT_MOUSEOUT = "endpointMouseOut";
 export declare const EVENT_ENDPOINT_MOUSEOVER = "endpointMouseOver";
+export declare const EVENT_ENDPOINT_REPLACED = "endpointReplaced";
 export declare const EVENT_FOCUS = "focus";
 export declare const EVENT_INTERNAL_CONNECTION_DETACHED = "internal.connectionDetached";
 export declare const EVENT_MOUSEDOWN = "mousedown";
