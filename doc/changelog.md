@@ -1,11 +1,14 @@
 ## 4.0.0-RC34
 
-- Internally, jsPlumb no longer uses the `id` attribute of the elements it is connecting; it now uses `jtk-id` instead.
+20th January 2021
+
+- Internally, jsPlumb no longer uses the `id` attribute of the elements it is connecting; it now uses `jtk-id` instead. 
 
 ### Breaking
 
 - The `setId` and `setIdChanged` methods were removed from `JsPlumbInstance`. This is due to change in tracking attribute described above.
 - The concept of `Posse` was renamed to `DragGroup`. All associated types/interfaces and methods were renamed accordingly, eg `addToPosse` is now `addToDragGroup`; `PosseMemberSpec` is now `DragGroupMemberSpec`, etc.
+- The `rotate` method takes elements as argument now, not element ids.
 
 ## 4.0.0-RC33
 
