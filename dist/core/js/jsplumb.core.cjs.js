@@ -11059,13 +11059,15 @@ function (_EventGenerator) {
     }
   }, {
     key: "rotate",
-    value: function rotate(elementId, rotation, doNotRepaint) {
+    value: function rotate(element, rotation, doNotRepaint) {
+      var elementId = this.getId(element);
+
       if (this._managedElements[elementId]) {
         this._managedElements[elementId].rotation = rotation;
         this.viewport.rotateElement(elementId, rotation);
 
         if (doNotRepaint !== true) {
-          return this.revalidate(this._managedElements[elementId].el);
+          return this.revalidate(element);
         }
       }
 

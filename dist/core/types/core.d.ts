@@ -177,7 +177,7 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
      * @param el Element, or ID of the element to stop managing.
      */
     unmanage(el: jsPlumbElement, removeElement?: boolean): void;
-    rotate(elementId: string, rotation: number, doNotRepaint?: boolean): RedrawResult;
+    rotate(element: jsPlumbElement, rotation: number, doNotRepaint?: boolean): RedrawResult;
     getRotation(elementId: string): number;
     newEndpoint(params: EndpointOptions, id?: string): Endpoint;
     deriveEndpointAndAnchorSpec(type: string, dontPrependDefault?: boolean): any;

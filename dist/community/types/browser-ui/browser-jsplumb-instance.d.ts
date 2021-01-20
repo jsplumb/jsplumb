@@ -193,7 +193,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance {
      * @param options
      */
     createDragManager(options: CollicatOptions): Collicat;
-    rotate(elementId: string, rotation: number, doNotRepaint?: boolean): RedrawResult;
+    rotate(element: jsPlumbElement, rotation: number, doNotRepaint?: boolean): RedrawResult;
     svg: {
         node: (name: string, attributes?: ElementAttributes) => jsPlumbDOMElement;
         attr: (node: SVGElement, attributes: ElementAttributes) => void;

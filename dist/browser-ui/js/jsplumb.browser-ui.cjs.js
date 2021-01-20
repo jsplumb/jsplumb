@@ -5708,11 +5708,13 @@ function (_JsPlumbInstance) {
     }
   }, {
     key: "rotate",
-    value: function rotate(elementId, rotation, doNotRepaint) {
+    value: function rotate(element, rotation, doNotRepaint) {
+      var elementId = this.getId(element);
+
       if (this._managedElements[elementId]) {
         this._managedElements[elementId].el.style.transform = "rotate(" + rotation + "deg)";
         this._managedElements[elementId].el.style.transformOrigin = "center center";
-        return _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "rotate", this).call(this, elementId, rotation, doNotRepaint);
+        return _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "rotate", this).call(this, element, rotation, doNotRepaint);
       }
 
       return {
