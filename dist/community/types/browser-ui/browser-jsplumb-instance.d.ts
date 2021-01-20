@@ -123,7 +123,8 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance {
     getElementById(elId: string): HTMLElement;
     removeElement(element: any): void;
     appendElement(el: HTMLElement, parent: HTMLElement): void;
-    _getAssociatedElements(el: HTMLElement): Array<HTMLElement>;
+    getChildElements(el: jsPlumbElement): Array<jsPlumbElement>;
+    _getAssociatedElements(el: jsPlumbDOMElement): Array<jsPlumbElement>;
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
     getClass(el: HTMLElement): string;
     addClass(el: HTMLElement, clazz: string): void;

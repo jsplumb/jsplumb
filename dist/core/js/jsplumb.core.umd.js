@@ -10954,7 +10954,7 @@
       }
       /**
        * Manage a group of elements.
-       * @param elements Array-like object of strings or DOM elements.
+       * @param elements Array-like object of strings or elements.
        * @param recalc Maybe recalculate offsets for the element also.
        */
 
@@ -10967,16 +10967,17 @@
       }
       /**
        * Manage an element.
-       * @param element String, or DOM element.
+       * @param element String, or element.
+       * @param internalId Optional ID for jsPlumb to use internally.
        * @param recalc Maybe recalculate offsets for the element also.
        */
 
     }, {
       key: "manage",
       value: function manage(element, internalId, recalc) {
-        if (this.getAttribute(element, "jsplumb-id") == null) {
+        if (this.getAttribute(element, ID_ATTRIBUTE) == null) {
           internalId = internalId || uuid();
-          this.setAttribute(element, "jsplumb-id", internalId);
+          this.setAttribute(element, ID_ATTRIBUTE, internalId);
         }
 
         var elId = this.getId(element);
@@ -11013,6 +11014,7 @@
       /**
        * Stops managing the given element.
        * @param el Element, or ID of the element to stop managing.
+       * @param removeElement If true, also remove the element from the renderer.
        */
 
     }, {
@@ -11054,7 +11056,7 @@
 
         for (var ae = 1; ae < affectedElements.length; ae++) {
           _one(affectedElements[ae]);
-        } // and always remove the requested one from the dom.
+        } // and always remove the requested one from the renderer.
 
 
         _one(el);
@@ -11668,14 +11670,10 @@
             }
           }
 
-          delete _this7.endpointsByElement[id]; // TODO DOM specific
+          delete _this7.endpointsByElement[id];
 
           if (recurse) {
-            if (_el && _el.nodeType !== 3 && _el.nodeType !== 8) {
-              for (i = 0, ii = _el.childNodes.length; i < ii; i++) {
-                if (_el.childNodes[i].nodeType !== 3 && _el.childNodes[i].nodeType !== 8) _one(_el.childNodes[i]);
-              }
-            }
+            _this7.getChildElements(_el).map(_one);
           }
         };
 
@@ -11856,8 +11854,7 @@
         for (var i = 0; i < scopes.length; i++) {
           this.setAttribute(el, "jtk-scope-" + scopes[i], "");
         }
-      } // TODO knows about the DOM (? does it?)
-
+      }
     }, {
       key: "makeSource",
       value: function makeSource(el, params, referenceParams) {

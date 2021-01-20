@@ -162,19 +162,21 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     fireMoveEvent(params?: any, evt?: Event): void;
     /**
      * Manage a group of elements.
-     * @param elements Array-like object of strings or DOM elements.
+     * @param elements Array-like object of strings or elements.
      * @param recalc Maybe recalculate offsets for the element also.
      */
     manageAll(elements: Array<jsPlumbElement>, recalc?: boolean): void;
     /**
      * Manage an element.
-     * @param element String, or DOM element.
+     * @param element String, or element.
+     * @param internalId Optional ID for jsPlumb to use internally.
      * @param recalc Maybe recalculate offsets for the element also.
      */
     manage(element: jsPlumbElement, internalId?: string, recalc?: boolean): ManagedElement;
     /**
      * Stops managing the given element.
      * @param el Element, or ID of the element to stop managing.
+     * @param removeElement If true, also remove the element from the renderer.
      */
     unmanage(el: jsPlumbElement, removeElement?: boolean): void;
     rotate(element: jsPlumbElement, rotation: number, doNotRepaint?: boolean): RedrawResult;
@@ -191,7 +193,7 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
      * @param el
      * @private
      */
-    abstract _getAssociatedElements(el: any): Array<any>;
+    abstract _getAssociatedElements(el: jsPlumbElement): Array<any>;
     _draw(el: jsPlumbElement, ui?: any, timestamp?: string, offsetsWereJustCalculated?: boolean): RedrawResult;
     unregisterEndpoint(endpoint: Endpoint): void;
     maybePruneEndpoint(endpoint: Endpoint): boolean;
@@ -272,6 +274,7 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     abstract getElementById(el: string): any;
     abstract removeElement(el: any): void;
     abstract appendElement(el: any, parent: any): void;
+    abstract getChildElements(el: jsPlumbElement): Array<jsPlumbElement>;
     abstract removeClass(el: any, clazz: string): void;
     abstract addClass(el: any, clazz: string): void;
     abstract toggleClass(el: any, clazz: string): void;

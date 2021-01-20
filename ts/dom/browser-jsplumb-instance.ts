@@ -434,9 +434,20 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         }
     }
 
-    _getAssociatedElements(el: HTMLElement): Array<HTMLElement> {
+    getChildElements(el: jsPlumbElement): Array<jsPlumbElement> {
+        const out:Array<jsPlumbElement> = []
+        if (el && (<any>el).nodeType !== 3 && (<any>el).nodeType !== 8) {
+            for (let i = 0, ii = (<any>el).childNodes.length; i < ii; i++) {
+                if ((<any>el).childNodes[i].nodeType !== 3 && (<any>el).childNodes[i].nodeType !== 8)
+                out.push((<any>el).childNodes[i])
+            }
+        }
+        return out
+    }
+
+    _getAssociatedElements(el: jsPlumbDOMElement): Array<jsPlumbElement> {
         let els = el.querySelectorAll(SELECTOR_MANAGED_ELEMENT)
-        let a:Array<HTMLElement> = []
+        let a:Array<jsPlumbDOMElement> = []
         Array.prototype.push.apply(a, els)
         return a
     }
@@ -595,7 +606,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         return [ x, y ]
     }
 
-    setDraggable(element:HTMLElement, draggable:boolean) {
+    setDraggable(element:jsPlumbDOMElement, draggable:boolean) {
         if (draggable) {
             this.removeAttribute(element, ATTRIBUTE_NOT_DRAGGABLE)
         } else {
@@ -603,7 +614,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         }
     }
 
-    isDraggable(el:HTMLElement):boolean {
+    isDraggable(el:jsPlumbDOMElement):boolean {
         let d = this.getAttribute(el, ATTRIBUTE_NOT_DRAGGABLE)
         return d == null || d === FALSE
     }
@@ -612,7 +623,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
      * toggles the draggable state of the given element(s).
      * el is either an id, or an element object, or a list of ids/element objects.
      */
-    toggleDraggable (el:HTMLElement):boolean {
+    toggleDraggable (el:jsPlumbDOMElement):boolean {
         let state = this.isDraggable(el)
         this.setDraggable(el, !state)
         return !state
