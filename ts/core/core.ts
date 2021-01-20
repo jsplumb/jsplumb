@@ -746,7 +746,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
     /**
      * Manage a group of elements.
-     * @param elements Array-like object of strings or DOM elements.
+     * @param elements Array-like object of strings or elements.
      * @param recalc Maybe recalculate offsets for the element also.
      */
     manageAll (elements:Array<jsPlumbElement>, recalc?:boolean):void {
@@ -757,14 +757,15 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
     /**
      * Manage an element.
-     * @param element String, or DOM element.
+     * @param element String, or element.
+     * @param internalId Optional ID for jsPlumb to use internally.
      * @param recalc Maybe recalculate offsets for the element also.
      */
     manage (element:jsPlumbElement, internalId?:string, recalc?:boolean):ManagedElement {
 
-        if (this.getAttribute(element, "jsplumb-id") == null) {
+        if (this.getAttribute(element, ID_ATTRIBUTE) == null) {
             internalId = internalId || uuid()
-            this.setAttribute(element, "jsplumb-id", internalId)
+            this.setAttribute(element, ID_ATTRIBUTE, internalId)
         }
 
         const elId = this.getId(element)
@@ -799,6 +800,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
     /**
      * Stops managing the given element.
      * @param el Element, or ID of the element to stop managing.
+     * @param removeElement If true, also remove the element from the renderer.
      */
     unmanage (el:jsPlumbElement, removeElement?:boolean):void {
 
@@ -837,7 +839,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
             _one(affectedElements[ae])
         }
 
-        // and always remove the requested one from the dom.
+        // and always remove the requested one from the renderer.
         _one(el)
     }
 
@@ -927,7 +929,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
      * @param el
      * @private
      */
-    abstract _getAssociatedElements(el:any):Array<any>
+    abstract _getAssociatedElements(el:jsPlumbElement):Array<any>
 
     _draw(el:jsPlumbElement, ui?:any, timestamp?:string, offsetsWereJustCalculated?:boolean):RedrawResult {
 
@@ -1364,14 +1366,8 @@ export abstract class JsPlumbInstance extends EventGenerator {
             }
             delete this.endpointsByElement[id]
 
-            // TODO DOM specific
             if (recurse) {
-                if (_el && (<any>_el).nodeType !== 3 && (<any>_el).nodeType !== 8) {
-                    for (i = 0, ii = (<any>_el).childNodes.length; i < ii; i++) {
-                        if ((<any>_el).childNodes[i].nodeType !== 3 && (<any>_el).childNodes[i].nodeType !== 8)
-                        _one((<any>_el).childNodes[i])
-                    }
-                }
+                this.getChildElements(_el).map(_one)
             }
 
         }
@@ -1526,7 +1522,6 @@ export abstract class JsPlumbInstance extends EventGenerator {
         }
     }
 
-    // TODO knows about the DOM (? does it?)
     makeSource(el:jsPlumbElement, params?:BehaviouralTypeDescriptor, referenceParams?:any):JsPlumbInstance {
         let p = extend({_jsPlumb: this}, referenceParams)
         extend(p, params)
@@ -1911,6 +1906,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
     abstract getElementById(el:string):any
     abstract removeElement(el:any):void
     abstract appendElement (el:any, parent:any):void
+    abstract getChildElements(el:jsPlumbElement):Array<jsPlumbElement>
 
     abstract removeClass(el:any, clazz:string):void
     abstract addClass(el:any, clazz:string):void
