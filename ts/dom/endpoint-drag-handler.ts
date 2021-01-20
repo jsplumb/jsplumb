@@ -133,7 +133,7 @@ export class EndpointDragHandler implements DragHandler {
 
             def = sourceDef.def
             // if maxConnections reached
-            let sourceCount = this.instance.select({source: elid}).length
+            let sourceCount = this.instance.select({source: targetEl}).length
             if (sourceDef.maxConnections >= 0 && (sourceCount >= sourceDef.maxConnections)) {
                 consume(e)
                 // TODO this is incorrect - "self"
@@ -1078,7 +1078,7 @@ export class EndpointDragHandler implements DragHandler {
         }
 
         if (idx === 1) {
-            this.jpc.updateConnectedClass()
+            this.jpc.updateConnectedClass(false)
         }
         else {
             this.instance.sourceOrTargetChanged(this.jpc.floatingId, this.jpc.sourceId, this.jpc, this.jpc.source, 0)
