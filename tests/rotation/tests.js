@@ -71,7 +71,7 @@ var testSuite = function () {
         equal(e17.anchor.getOrientation()[1], -1, "e17 y orientation is correct initially");
 
         // now rotate e16 by 90 degrees
-        _jsPlumb.rotate("d16", 90);
+        _jsPlumb.rotate(d16, 90);
 
         e16Loc = e16.anchor.lastReturnValue.slice();
         e17Loc = e17.anchor.lastReturnValue.slice();
@@ -94,7 +94,7 @@ var testSuite = function () {
         equal(e17Loc2[1], 250, "e17 y position is unchanged after rotation of d16");
 
         // rotate d17 by 90 degrees
-        _jsPlumb.rotate("d17", 90);
+        _jsPlumb.rotate(d17, 90);
 
         var e16Loc3 = e16.anchor.lastReturnValue.slice();
         var e17Loc3 = e17.anchor.lastReturnValue.slice();
@@ -129,7 +129,7 @@ var testSuite = function () {
         equal(e17.anchor.getOrientation()[1], 0, "e17 y orientation is correct initially");
 
         // now rotate e16 by 90 degrees
-        _jsPlumb.rotate("d16", 90);
+        _jsPlumb.rotate(d16, 90);
 
         var e16Loc2 = e16.anchor.lastReturnValue.slice();
         var e17Loc2 = e17.anchor.lastReturnValue.slice();
@@ -144,7 +144,7 @@ var testSuite = function () {
         equal(e17Loc2[1], 325, "e17 y position is unchanged after rotation of d16");
 
         // rotate d17 by 90 degrees
-        _jsPlumb.rotate("d17", 90);
+        _jsPlumb.rotate(d17, 90);
 
         var e16Loc3 = e16.anchor.lastReturnValue.slice();
         var e17Loc3 = e17.anchor.lastReturnValue.slice();
@@ -168,13 +168,13 @@ var testSuite = function () {
         equal(e17.anchor.getCurrentFace(), "top", "e17's anchor face is 'top'");
 
         // now rotate e16 by 90 degrees
-        _jsPlumb.rotate("d16", 180);
+        _jsPlumb.rotate(d16, 180);
 
         equal(e16.anchor.getCurrentFace(), "left", "e16's anchor face is 'left'") ;
         equal(e17.anchor.getCurrentFace(), "top", "e17's anchor face is 'top'");
 
         // rotate d17 by 90 degrees
-        _jsPlumb.rotate("d17", 90);
+        _jsPlumb.rotate(d17, 90);
 
         equal(e16.anchor.getCurrentFace(), "top", "e16's anchor face is 'top'") ;
         equal(e17.anchor.getCurrentFace(), "bottom", "e17's anchor face is 'bottom'");
@@ -196,11 +196,9 @@ var testSuite = function () {
         _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" });
         var e16Loc = e16.anchor.lastReturnValue.slice();//[600, 700, 0.5, 1]
 
-        _jsPlumb.rotate("d16", 90);
+        _jsPlumb.rotate(d16, 90);
 
         var e16LocRotated = e16.anchor.lastReturnValue.slice();
-
-        console.log("hey")
 
     });
 
@@ -223,14 +221,12 @@ var testSuite = function () {
         var e16Loc = e16.anchor.lastReturnValue.slice();//[600, 700, 0.5, 1]
         console.log(e16Loc);
 
-        _jsPlumb.rotate("g1", 90);
+        _jsPlumb.rotate(g1.el, 90);
 
         var e16LocRotated = e16.anchor.lastReturnValue.slice();
         console.log(e16LocRotated);
 
         // the anchor value should be different.
-
-        console.log("hey")
 
 
     });
