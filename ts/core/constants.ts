@@ -77,6 +77,7 @@ export const EVENT_ENDPOINT_CLICK = "endpointClick"
 export const EVENT_ENDPOINT_DBL_CLICK = "endpointDblClick"
 export const EVENT_ENDPOINT_MOUSEOUT = "endpointMouseOut"
 export const EVENT_ENDPOINT_MOUSEOVER = "endpointMouseOver"
+export const EVENT_ENDPOINT_REPLACED = "endpointReplaced"
 export const EVENT_FOCUS = "focus"
 export const EVENT_INTERNAL_CONNECTION_DETACHED = "internal.connectionDetached"
 export const EVENT_MOUSEDOWN = "mousedown"
@@ -101,7 +102,7 @@ export const EVENT_ZOOM = "zoom"
 export const IS_DETACH_ALLOWED = "isDetachAllowed"
 export const IS_GROUP_KEY = "_isJsPlumbGroup"
 
-export const JTK_ID = "jtk-id";
+export const JTK_ID = "jtk-id"
 
 export const PROPERTY_POSITION = "position"
 
