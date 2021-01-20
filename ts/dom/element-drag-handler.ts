@@ -8,14 +8,14 @@ import {
     EVT_DRAG_STOP, DragStopEventParams
 } from "./drag-manager"
 
-import {BrowserJsPlumbInstance, jsPlumbDOMElement, PosseSpec} from "./browser-jsplumb-instance"
+import {BrowserJsPlumbInstance, DragGroupSpec, jsPlumbDOMElement} from "./browser-jsplumb-instance"
 
 
 import {Drag} from "./collicat"
 import {
     BoundingBox,
     Dictionary,
-    GROUP_KEY, isString,
+    GROUP_KEY, isString, JsPlumbInstance,
     Offset, optional,
     PARENT_GROUP_KEY,
     PointArray,
@@ -35,8 +35,8 @@ type GroupLocation = {
     group: UIGroup
 }
 
-type PosseMemberSpec = { el:HTMLElement, elId:string, active:boolean }
-type Posse = { id:string, members:Set<PosseMemberSpec>}
+type DragGroupMemberSpec = { el:HTMLElement, elId:string, active:boolean }
+type DragGroup = { id:string, members:Set<DragGroupMemberSpec>}
 
 export interface DragStopPayload {
     el:jsPlumbDOMElement
@@ -53,12 +53,12 @@ export class ElementDragHandler implements DragHandler {
     private _intersectingGroups:Array<IntersectingGroup> = []
     private _currentDragParentGroup:UIGroup = null
 
-    private _posseByElementIdMap:Dictionary<Posse> = {}
-    private _posseMap:Dictionary<Posse> = {}
+    private _dragGroupByElementIdMap:Dictionary<DragGroup> = {}
+    private _dragGroupMap:Dictionary<DragGroup> = {}
 
-    private _currentPosse:Posse = null
-    private _currentPosseOffsets:Map<string, [Offset, jsPlumbDOMElement]> = new Map()
-    private _currentPosseSizes:Map<string, [number, number]> = new Map()
+    private _currentDragGroup:DragGroup = null
+    private _currentDragGroupOffsets:Map<string, [Offset, jsPlumbDOMElement]> = new Map()
+    private _currentDragGroupSizes:Map<string, [number, number]> = new Map()
 
     private _dragSelection: Array<jsPlumbDOMElement> = []
     private _dragSelectionOffsets:Map<string, [Offset, jsPlumbDOMElement]> = new Map()
@@ -141,10 +141,10 @@ export class ElementDragHandler implements DragHandler {
         this._dragSelectionOffsets.clear()
         this._dragSizes.clear()
 
-        this._currentPosseOffsets.clear()
-        this._currentPosseSizes.clear()
+        this._currentDragGroupOffsets.clear()
+        this._currentDragGroupSizes.clear()
 
-        this._currentPosse = null
+        this._currentDragGroup = null
     }
 
     reset() { }
@@ -217,8 +217,8 @@ export class ElementDragHandler implements DragHandler {
             _one(v[1], _b, params.e)
         })
 
-        this._currentPosseOffsets.forEach((v:[Offset, jsPlumbDOMElement], k:string) => {
-            const s = this._currentPosseSizes.get(k)
+        this._currentDragGroupOffsets.forEach((v:[Offset, jsPlumbDOMElement], k:string) => {
+            const s = this._currentDragGroupSizes.get(k)
             let _b:BoundingBox = {x:elBounds.x + v[0].left, y:elBounds.y + v[0].top, w:s[0], h:s[1]}
             v[1].style.left = _b.x + "px"
             v[1].style.top = _b.y + "px"
@@ -319,10 +319,10 @@ export class ElementDragHandler implements DragHandler {
             }
 
             const elId = this.instance.getId(el)
-            this._currentPosse = this._posseByElementIdMap[elId]
-            if (this._currentPosse && !this.isActivePosseMember(this._currentPosse, el)) {
-                // clear the current posse if this element is not an active member, ie. cannot instigate a drag for all members.
-                this._currentPosse = null
+            this._currentDragGroup = this._dragGroupByElementIdMap[elId]
+            if (this._currentDragGroup && !this.isActiveDragGroupMember(this._currentDragGroup, el)) {
+                // clear the current dragGroup if this element is not an active member, ie. cannot instigate a drag for all members.
+                this._currentDragGroup = null
             }
 
             const dragStartReturn = _one(el);      // process the original drag element.
@@ -331,13 +331,13 @@ export class ElementDragHandler implements DragHandler {
                 return false
             }
 
-            if (this._currentPosse != null) {
-                this._currentPosseOffsets.clear()
-                this._currentPosseSizes.clear()
-                this._currentPosse.members.forEach((jel) => {
+            if (this._currentDragGroup != null) {
+                this._currentDragGroupOffsets.clear()
+                this._currentDragGroupSizes.clear()
+                this._currentDragGroup.members.forEach((jel) => {
                     let off = this.instance.getOffset(jel.el)
-                    this._currentPosseOffsets.set(jel.elId, [ { left:off.left - elOffset.left, top:off.top - elOffset.top }, jel.el as jsPlumbDOMElement])
-                    this._currentPosseSizes.set(jel.elId, this.instance.getSize(jel.el))
+                    this._currentDragGroupOffsets.set(jel.elId, [ { left:off.left - elOffset.left, top:off.top - elOffset.top }, jel.el as jsPlumbDOMElement])
+                    this._currentDragGroupSizes.set(jel.elId, this.instance.getSize(jel.el))
                     _one(jel.el)
                 })
             }
@@ -384,70 +384,69 @@ export class ElementDragHandler implements DragHandler {
         return this._dragSelection
     }
 
-    private static decodePosseSpec(spec:PosseSpec):{id:string, active:boolean} {
+    private static decodeDragGroupSpec(instance:JsPlumbInstance, spec:DragGroupSpec):{id:string, active:boolean} {
 
         if (isString(spec)) {
             return { id:spec as string, active:true }
         } else {
             return {
-                id:(spec as any).id,
+                id:instance.getId(spec as any),
                 active:(spec as any).active
             }
         }
     }
 
-    addToPosse(spec:PosseSpec, ...els:Array<jsPlumbDOMElement>) {
+    addToDragGroup(spec:DragGroupSpec, ...els:Array<jsPlumbDOMElement>) {
 
-        const details = ElementDragHandler.decodePosseSpec(spec)
-        let posse = this._posseMap[details.id]
-        if (posse == null) {
-            posse = { id: details.id, members: new Set<PosseMemberSpec>()}
-            this._posseMap[details.id] = posse
+        const details = ElementDragHandler.decodeDragGroupSpec(this.instance, spec)
+        let dragGroup = this._dragGroupMap[details.id]
+        if (dragGroup == null) {
+            dragGroup = { id: details.id, members: new Set<DragGroupMemberSpec>()}
+            this._dragGroupMap[details.id] = dragGroup
         }
 
-        this.removeFromPosse(...els)
+        this.removeFromDragGroup(...els)
 
-        els.forEach((el:HTMLElement) => {
-            const elId = el.getAttribute("id")
-
-            posse.members.add({elId:elId, el:el, active:details.active})
-            this._posseByElementIdMap[elId] = posse
+        els.forEach((el:jsPlumbDOMElement) => {
+            const elId = this.instance.getId(el)
+            dragGroup.members.add({elId:elId, el:el, active:details.active})
+            this._dragGroupByElementIdMap[elId] = dragGroup
         })
     }
 
-    removeFromPosse(...els:Array<jsPlumbDOMElement>) {
+    removeFromDragGroup(...els:Array<jsPlumbDOMElement>) {
         els.forEach((el:jsPlumbDOMElement) => {
             const id = this.instance.getId(el)
-            const posse = this._posseByElementIdMap[id]
-            if (posse != null) {
-                const s = new Set<PosseMemberSpec>()
-                let p:IteratorResult<PosseMemberSpec>
-                let e = posse.members.values()
+            const dragGroup = this._dragGroupByElementIdMap[id]
+            if (dragGroup != null) {
+                const s = new Set<DragGroupMemberSpec>()
+                let p:IteratorResult<DragGroupMemberSpec>
+                let e = dragGroup.members.values()
                 while (!(p = e.next()).done) {
                     if (p.value.el !== el) {
                         s.add(p.value)
                     }
                 }
-                posse.members = s
+                dragGroup.members = s
 
-                delete this._posseByElementIdMap[id]
+                delete this._dragGroupByElementIdMap[id]
             }
         })
     }
 
-    setPosseState (state:boolean, ...els:Array<jsPlumbDOMElement>) {
-        const elementIds = els.map(el => el.getAttribute("id"))
+    setDragGroupState (state:boolean, ...els:Array<jsPlumbDOMElement>) {
+        const elementIds = els.map(el => this.instance.getId(el))
         elementIds.forEach((id:string) => {
-            optional<Posse>(this._posseByElementIdMap[id]).map(posse => {
-                optional(Array.from(posse.members).find((m:any) => m.elId === id)).map ( member => {
+            optional<DragGroup>(this._dragGroupByElementIdMap[id]).map(dragGroup => {
+                optional(Array.from(dragGroup.members).find((m:any) => m.elId === id)).map ( member => {
                     member.active = state
                 })
             })
         })
     }
 
-    private isActivePosseMember(posse:Posse, el:any): boolean {
-        const details = Array.from(posse.members).find((m:any) => m.el === el)
+    private isActiveDragGroupMember(dragGroup:DragGroup, el:any): boolean {
+        const details = Array.from(dragGroup.members).find((m:any) => m.el === el)
         if (details !== null) {
             return details.active === true
         } else {
