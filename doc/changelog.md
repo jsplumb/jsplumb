@@ -1,3 +1,14 @@
+## 4.0.0-RC35
+
+
+### Breaking
+
+- `getAllConnections()` is no longer a method on `JsPlumbInstance`. Use the `connections` property instead.
+- `connector-pointer-events` is not supported in EndpointOptions. Use `connectorClass` and CSS if you need to specify pointer events.
+- `getZoom()` method on `JsPlumbInstance` replaced with `currentZoom` property.
+- `getDefaultScope()` method on `JsPlumbInstance` replaced with `defaultScope` property
+
+ 
 ## 4.0.0-RC34
 
 20th January 2021
