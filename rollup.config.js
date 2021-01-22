@@ -1,6 +1,7 @@
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import babel from '@rollup/plugin-babel';
+import cleanup from 'rollup-plugin-cleanup';
 
 const extensions = [
     '.ts'
@@ -44,7 +45,8 @@ export default [
         plugins: [
             resolve({ extensions }),
             commonjs(),
-            babel({ extensions, include: ['ts/core/**/*'] })
+            babel({ extensions, include: ['ts/core/**/*'] }),
+            cleanup({ extensions:['ts', 'js']})
         ],
         onwarn:ON_WARN
     },
@@ -72,7 +74,8 @@ export default [
         plugins: [
             resolve({ extensions }),
             commonjs(),
-            babel({ extensions, include: ['ts/**/*'] })
+            babel({ extensions, include: ['ts/**/*'] }),
+            cleanup({ extensions:['ts', 'js']})
         ],
         onwarn:ON_WARN
     },
@@ -100,7 +103,8 @@ export default [
         plugins: [
             resolve({ extensions }),
             commonjs(),
-            babel({ extensions, include: ['ts/**/*'] })
+            babel({ extensions, include: ['ts/**/*'] }),
+            cleanup({ extensions:['ts', 'js']})
         ],
         onwarn:ON_WARN
     }
