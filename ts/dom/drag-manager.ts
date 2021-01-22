@@ -21,14 +21,14 @@ export const CLASS_DRAG_ACTIVE = "jtk-drag-active"
 export const CLASS_DRAGGED = "jtk-dragged"
 export const CLASS_DRAG_HOVER = "jtk-drag-hover"
 export const ATTR_NOT_DRAGGABLE = "jtk-not-draggable"
-export const EVT_DRAG_MOVE = "drag:move"
-export const EVT_DRAG_STOP = "drag:stop"
-export const EVT_DRAG_START = "drag:start"
-export const EVT_MOUSEDOWN = "mousedown"
-export const EVT_MOUSEMOVE = "mousemove"
-export const EVT_MOUSEUP= "mouseup"
-export const EVT_REVERT = "revert"
-export const EVT_ZOOM = "zoom"
+export const EVENT_DRAG_MOVE = "drag:move"
+export const EVENT_DRAG_STOP = "drag:stop"
+export const EVENT_DRAG_START = "drag:start"
+export const EVENT_MOUSEDOWN = "mousedown"
+export const EVENT_MOUSEMOVE = "mousemove"
+export const EVENT_MOUSEUP= "mouseup"
+export const EVENT_REVERT = "revert"
+export const EVENT_ZOOM = "zoom"
 
 export const EVT_CONNECTION_DRAG = "connectionDrag"
 
@@ -90,7 +90,7 @@ export class DragManager {
 
         // create a delegated drag handler
         this.collicat = this.instance.createDragManager({
-            zoom:this.instance.getZoom(),
+            zoom:this.instance.currentZoom,
             css: {
                 noSelect: this.instance.dragSelectClass,
                 delegatedDraggable: "jtk-delegated-draggable",
@@ -109,7 +109,7 @@ export class DragManager {
             }
         })
 
-        this.instance.bind(EVT_ZOOM, (z:number) => {
+        this.instance.bind(EVENT_ZOOM, (z:number) => {
             this.collicat.setZoom(z)
         })
     }
@@ -135,7 +135,7 @@ export class DragManager {
             this.drag = this.collicat.draggable(this.instance.getContainer(), o)
             this._filtersToAdd.forEach((filterToAdd) => this.drag.addFilter(filterToAdd[0], filterToAdd[1]))
 
-            this.drag.on(EVT_REVERT, (el:jsPlumbDOMElement) => {
+            this.drag.on(EVENT_REVERT, (el:jsPlumbDOMElement) => {
                 this.instance.revalidate(el)
             })
 
