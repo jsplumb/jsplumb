@@ -29,10 +29,6 @@ export class DefaultRouter implements Router {
         this.anchorManager.reset()
     }
 
-    changeId (oldId:string, newId:string):void {
-        this.anchorManager.changeId(oldId, newId)
-    }
-
     newConnection (conn:Connection):void {
         this.anchorManager.newConnection(conn)
     }
