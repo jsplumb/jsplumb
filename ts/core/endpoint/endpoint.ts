@@ -13,6 +13,11 @@ export type UserDefinedEndpointId = string
 export type EndpointParams = any
 export type EndpointSpec = EndpointId | [EndpointId, EndpointParams]
 
+
+export interface InternalEndpointOptions extends EndpointOptions {
+    isTemporarySource?:boolean
+}
+
 export interface EndpointOptions extends ComponentOptions {
     anchor?: AnchorSpec | Anchor
     anchors?:[ AnchorSpec, AnchorSpec ]
@@ -29,10 +34,10 @@ export interface EndpointOptions extends ComponentOptions {
     connectorOverlays?: Array<OverlaySpec>
     connectorClass?: string
     connectorHoverClass?: string
-    connectionsDetachable?: boolean;//= true
-    isSource?: boolean;//= false
-    isTarget?: boolean;//= false
-    reattach?: boolean;//= false
+    connectionsDetachable?: boolean//= true
+    isSource?: boolean//= false
+    isTarget?: boolean//= false
+    reattach?: boolean//= false
     parameters?: object
 
     data?:any
@@ -52,8 +57,6 @@ export interface EndpointOptions extends ComponentOptions {
     source?:jsPlumbElement
 
     connections?:Array<Connection>
-
-    "connector-pointer-events"?:string
 
     detachable?:boolean
     dragAllowedWhenFull?:boolean
