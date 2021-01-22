@@ -4,8 +4,8 @@ import {
     CLASS_DRAG_HOVER, CLASS_DRAG_SELECTED,
     CLASS_DRAGGED, DragEventParams,
     DragHandler,
-    EVT_DRAG_MOVE, EVT_DRAG_START,
-    EVT_DRAG_STOP, DragStopEventParams
+    EVENT_DRAG_MOVE, EVENT_DRAG_START,
+    EVENT_DRAG_STOP, DragStopEventParams
 } from "./drag-manager"
 
 import {BrowserJsPlumbInstance, DragGroupSpec, jsPlumbDOMElement} from "./browser-jsplumb-instance"
@@ -26,16 +26,16 @@ import {
 type IntersectingGroup = {
     group:UIGroup
     d:number
-    intersectingElement:HTMLElement
+    intersectingElement:jsPlumbDOMElement
 }
 
 type GroupLocation = {
-    el:HTMLElement
+    el:jsPlumbDOMElement
     r: BoundingBox
     group: UIGroup
 }
 
-type DragGroupMemberSpec = { el:HTMLElement, elId:string, active:boolean }
+type DragGroupMemberSpec = { el:jsPlumbDOMElement, elId:string, active:boolean }
 type DragGroup = { id:string, members:Set<DragGroupMemberSpec>}
 
 export interface DragStopPayload {
@@ -79,7 +79,7 @@ export class ElementDragHandler implements DragHandler {
 
             const redrawResult = this.instance._draw(_el, pos)
 
-            this.instance.fire<DragStopPayload>(EVT_DRAG_STOP, {
+            this.instance.fire<DragStopPayload>(EVENT_DRAG_STOP, {
                 el:_el,
                 e:params.e,
                 pos:pos,
@@ -110,7 +110,7 @@ export class ElementDragHandler implements DragHandler {
         if (this._intersectingGroups.length > 0) {
             // we only support one for the time being
             let targetGroup = this._intersectingGroups[0].group
-            let intersectingElement = this._intersectingGroups[0].intersectingElement
+            let intersectingElement = this._intersectingGroups[0].intersectingElement as jsPlumbDOMElement
 
             let currentGroup = (<any>intersectingElement)[PARENT_GROUP_KEY]
 
@@ -120,7 +120,7 @@ export class ElementDragHandler implements DragHandler {
                         return
                     }
                 }
-                this.instance.groupManager.addToGroup(targetGroup, intersectingElement, false)
+                this.instance.groupManager.addToGroup(targetGroup, false, intersectingElement)
             }
         }
 
@@ -199,7 +199,7 @@ export class ElementDragHandler implements DragHandler {
 
             this.instance._draw(el, {left:bounds.x,top:bounds.y}, null)
 
-            this.instance.fire(EVT_DRAG_MOVE, {
+            this.instance.fire(EVENT_DRAG_MOVE, {
                 el:el,
                 e:params.e,
                 pos:{left:bounds.x,top:bounds.y}
@@ -312,7 +312,7 @@ export class ElementDragHandler implements DragHandler {
 
                 // if this event listener returns false it will be piped all the way back to the drag manager and cause
                 // the drag to be aborted.
-                return this.instance.fire(EVT_DRAG_START, {
+                return this.instance.fire(EVENT_DRAG_START, {
                     el:_el,
                     e:params.e
                 })

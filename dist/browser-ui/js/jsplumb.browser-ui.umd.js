@@ -493,13 +493,13 @@
   var CLASS_DRAGGED = "jtk-dragged";
   var CLASS_DRAG_HOVER = "jtk-drag-hover";
   var ATTR_NOT_DRAGGABLE = "jtk-not-draggable";
-  var EVT_DRAG_MOVE = "drag:move";
-  var EVT_DRAG_STOP = "drag:stop";
-  var EVT_DRAG_START = "drag:start";
-  var EVT_MOUSEDOWN = "mousedown";
-  var EVT_MOUSEUP = "mouseup";
-  var EVT_REVERT = "revert";
-  var EVT_ZOOM = "zoom";
+  var EVENT_DRAG_MOVE = "drag:move";
+  var EVENT_DRAG_STOP = "drag:stop";
+  var EVENT_DRAG_START = "drag:start";
+  var EVENT_MOUSEDOWN = "mousedown";
+  var EVENT_MOUSEUP = "mouseup";
+  var EVENT_REVERT = "revert";
+  var EVENT_ZOOM = "zoom";
   var DragManager =
   /*#__PURE__*/
   function () {
@@ -529,7 +529,7 @@
 
       // create a delegated drag handler
       this.collicat = this.instance.createDragManager({
-        zoom: this.instance.getZoom(),
+        zoom: this.instance.currentZoom,
         css: {
           noSelect: this.instance.dragSelectClass,
           delegatedDraggable: "jtk-delegated-draggable",
@@ -547,7 +547,7 @@
           return _el.parentNode != null && _el[communityCore.PARENT_GROUP_KEY] && _el[communityCore.PARENT_GROUP_KEY].revert ? !_isInsideParent(_this.instance, _el, pos) : false;
         }
       });
-      this.instance.bind(EVT_ZOOM, function (z) {
+      this.instance.bind(EVENT_ZOOM, function (z) {
         _this.collicat.setZoom(z);
       });
     }
@@ -593,7 +593,7 @@
             return _this2.drag.addFilter(filterToAdd[0], filterToAdd[1]);
           });
 
-          this.drag.on(EVT_REVERT, function (el) {
+          this.drag.on(EVENT_REVERT, function (el) {
             _this2.instance.revalidate(el);
           });
         } else {
@@ -691,7 +691,7 @@
         var _one = function _one(_el, pos) {
           var redrawResult = _this.instance._draw(_el, pos);
 
-          _this.instance.fire(EVT_DRAG_STOP, {
+          _this.instance.fire(EVENT_DRAG_STOP, {
             el: _el,
             e: params.e,
             pos: pos,
@@ -741,7 +741,7 @@
               }
             }
 
-            this.instance.groupManager.addToGroup(targetGroup, intersectingElement, false);
+            this.instance.groupManager.addToGroup(targetGroup, false, intersectingElement);
           }
         }
 
@@ -833,7 +833,7 @@
             top: bounds.y
           }, null);
 
-          _this3.instance.fire(EVT_DRAG_MOVE, {
+          _this3.instance.fire(EVENT_DRAG_MOVE, {
             el: el,
             e: params.e,
             pos: {
@@ -987,7 +987,7 @@
             // the drag to be aborted.
 
 
-            return _this4.instance.fire(EVT_DRAG_START, {
+            return _this4.instance.fire(EVENT_DRAG_START, {
               el: _el,
               e: params.e
             });
@@ -1396,8 +1396,8 @@
       var container = instance.getContainer();
       this.mousedownHandler = this._mousedownHandler.bind(this);
       this.mouseupHandler = this._mouseupHandler.bind(this);
-      instance.on(container, EVT_MOUSEDOWN, "[jtk-source]", this.mousedownHandler);
-      instance.on(container, "mouseup", "[jtk-source]", this.mouseupHandler);
+      instance.on(container, EVENT_MOUSEDOWN, "[jtk-source]", this.mousedownHandler);
+      instance.on(container, EVENT_MOUSEUP, "[jtk-source]", this.mouseupHandler);
     }
 
     _createClass(EndpointDragHandler, [{
@@ -1444,7 +1444,7 @@
           // will be located.
 
 
-          var elxy = BrowserJsPlumbInstance.getPositionOnElement(e, targetEl, this.instance.getZoom()); // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
+          var elxy = BrowserJsPlumbInstance.getPositionOnElement(e, targetEl, this.instance.currentZoom); // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
           // the params passed in, because after a connection is established we're going to reset the endpoint
           // to have the anchor we were given.
 
@@ -1498,7 +1498,7 @@
           // a new connection from this endpoint. The entry point is the `onStart` method in this class.
 
 
-          this.instance.trigger(this.ep.endpoint.canvas, EVT_MOUSEDOWN, e, payload);
+          this.instance.trigger(this.ep.endpoint.canvas, EVENT_MOUSEDOWN, e, payload);
         }
       } //
       // cleans up any endpoints added from a mousedown on a source that did not result in a connection drag
@@ -1579,8 +1579,8 @@
       key: "reset",
       value: function reset() {
         var c = this.instance.getContainer();
-        this.instance.off(c, EVT_MOUSEUP, this.mouseupHandler);
-        this.instance.off(c, EVT_MOUSEDOWN, this.mousedownHandler);
+        this.instance.off(c, EVENT_MOUSEUP, this.mouseupHandler);
+        this.instance.off(c, EVENT_MOUSEDOWN, this.mousedownHandler);
       }
     }, {
       key: "init",
@@ -2456,7 +2456,7 @@
     _createClass(GroupDragHandler, [{
       key: "reset",
       value: function reset() {
-        this.drag.off(EVT_REVERT, this.doRevalidate);
+        this.drag.off(EVENT_REVERT, this.doRevalidate);
       }
     }, {
       key: "_revalidate",
@@ -2467,7 +2467,7 @@
       key: "init",
       value: function init(drag) {
         this.drag = drag;
-        drag.on(EVT_REVERT, this.doRevalidate);
+        drag.on(EVENT_REVERT, this.doRevalidate);
       }
     }, {
       key: "useGhostProxy",
@@ -2627,10 +2627,6 @@
     return false;
   }
 
-  function _gel(el) {
-    return typeof el == "string" || el.constructor === String ? document.getElementById(el) : el;
-  }
-
   function _t(e) {
     return e.srcElement || e.target;
   } //
@@ -2750,9 +2746,7 @@
 
     if (fn == null) return;
 
-    _each(obj, function (el) {
-      var _el = _gel(el);
-
+    _each(obj, function (_el) {
       _unstore(_el, type, fn); // it has been bound if there is a tauid. otherwise it was not bound and we can ignore it.
 
 
@@ -3124,9 +3118,7 @@
 
         if (fn == null) return;
 
-        _each(obj, function (el) {
-          var _el = _gel(el);
-
+        _each(obj, function (_el) {
           if (_this2.smartClicks && evt === communityCore.EVENT_CLICK) SmartClickHandler(_el, evt, fn, children);else if (evt === communityCore.EVENT_TAP || evt === communityCore.EVENT_DBL_TAP || evt === communityCore.EVENT_CONTEXTMENU) {
             _this2.tapHandler(_el, evt, fn, children);
           } else if (evt === communityCore.EVENT_MOUSEENTER || evt == communityCore.EVENT_MOUSEEXIT) _this2.mouseEnterExitHandler(_el, evt, fn, children);else DefaultHandler(_el, evt, fn, children);
@@ -3161,9 +3153,7 @@
             sl = _screenLocation(originalEvent),
             cl = _clientLocation(originalEvent);
 
-        _each(el, function (__el) {
-          var _el = _gel(__el);
-
+        _each(el, function (_el) {
           var evt;
           originalEvent = originalEvent || {
             screenX: sl[0],
@@ -5249,7 +5239,7 @@
           return null;
         }
 
-        return typeof el === "string" ? document.getElementById(el) : el;
+        return typeof el === "string" ? document.querySelector("[jtk-id='" + el + "'") : el;
       }
     }, {
       key: "getElementById",
@@ -5527,7 +5517,7 @@
           this.dragManager.reset();
         }
 
-        var newContainer = this.getElement(c);
+        var newContainer = communityCore.isString(c) ? this.getElementById(c) : c;
         this.setAttribute(newContainer, communityCore.ATTRIBUTE_CONTAINER, communityCore.uuid().replace("-", "")); // move all endpoints, connectors, and managed elements
 
         var currentContainer = this.getContainer();
@@ -6282,10 +6272,27 @@
   exports.BrowserJsPlumbInstance = BrowserJsPlumbInstance;
   exports.Collicat = Collicat;
   exports.Drag = Drag;
+  exports.EVENT_DRAG_MOVE = EVENT_DRAG_MOVE;
+  exports.EVENT_DRAG_START = EVENT_DRAG_START;
+  exports.EVENT_DRAG_STOP = EVENT_DRAG_STOP;
   exports.EventManager = EventManager;
+  exports.addClass = addClass;
+  exports.consume = consume;
+  exports.createElement = createElement;
+  exports.createElementNS = createElementNS;
+  exports.findParent = findParent;
+  exports.getClass = getClass;
+  exports.getEventSource = getEventSource;
+  exports.hasClass = hasClass;
+  exports.matchesSelector = matchesSelector;
   exports.newInstance = newInstance;
+  exports.offsetRelativeToRoot = offsetRelativeToRoot;
+  exports.pageLocation = pageLocation;
   exports.ready = ready;
   exports.registerEndpointRenderer = registerEndpointRenderer;
+  exports.removeClass = removeClass;
+  exports.sizeElement = sizeElement;
+  exports.toggleClass = toggleClass;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 

@@ -182,7 +182,7 @@ export abstract class Component extends EventGenerator {
         this._defaultType = {
             overlays:oo,
             parameters: params.parameters || {},
-            scope: params.scope || this.instance.getDefaultScope()
+            scope: params.scope || this.instance.defaultScope
         }
 
         if (params.events) {

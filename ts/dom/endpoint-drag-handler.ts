@@ -2,8 +2,8 @@ import {
     CLASS_DRAG_ACTIVE,
     CLASS_DRAG_HOVER, DragEventParams,
     DragHandler, DragStartEventParams,
-    EVT_MOUSEDOWN,
-    EVT_MOUSEUP,
+    EVENT_MOUSEDOWN,
+    EVENT_MOUSEUP,
     DragStopEventParams
 } from "./drag-manager"
 import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance"
@@ -51,7 +51,7 @@ function _makeFloatingEndpoint (paintStyle:PaintStyle, referenceAnchor:Anchor, e
     return ep
 }
 
-function selectorFilter (evt:Event, _el:HTMLElement, selector:string, _instance:BrowserJsPlumbInstance, negate?:boolean):boolean {
+function selectorFilter (evt:Event, _el:jsPlumbDOMElement, selector:string, _instance:BrowserJsPlumbInstance, negate?:boolean):boolean {
     let t = evt.target || evt.srcElement,
         ok = false,
         sel = _instance.getSelector(_el, selector)
@@ -101,8 +101,8 @@ export class EndpointDragHandler implements DragHandler {
         this.mousedownHandler = this._mousedownHandler.bind(this)
         this.mouseupHandler = this._mouseupHandler.bind(this)
 
-        instance.on(container , EVT_MOUSEDOWN, "[jtk-source]", this.mousedownHandler)
-        instance.on(container, "mouseup", "[jtk-source]", this.mouseupHandler)
+        instance.on(container , EVENT_MOUSEDOWN, "[jtk-source]", this.mousedownHandler)
+        instance.on(container, EVENT_MOUSEUP, "[jtk-source]", this.mouseupHandler)
 
     }
 
@@ -112,7 +112,7 @@ export class EndpointDragHandler implements DragHandler {
             return
         }
 
-        let targetEl:any = findParent((e.target || e.srcElement) as HTMLElement, "[jtk-managed]", this.instance.getContainer())
+        let targetEl:any = findParent((e.target || e.srcElement) as jsPlumbDOMElement, "[jtk-managed]", this.instance.getContainer())
 
         if (targetEl == null) {
             return
@@ -149,7 +149,7 @@ export class EndpointDragHandler implements DragHandler {
 
             // find the position on the element at which the mouse was pressed; this is where the endpoint
             // will be located.
-            let elxy = BrowserJsPlumbInstance.getPositionOnElement(e, targetEl, this.instance.getZoom())
+            let elxy = BrowserJsPlumbInstance.getPositionOnElement(e, targetEl, this.instance.currentZoom)
 
             // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
             // the params passed in, because after a connection is established we're going to reset the endpoint
@@ -203,7 +203,7 @@ export class EndpointDragHandler implements DragHandler {
 
             // and then trigger its mousedown event, which will kick off a drag, which will start dragging
             // a new connection from this endpoint. The entry point is the `onStart` method in this class.
-            this.instance.trigger((this.ep.endpoint as any).canvas, EVT_MOUSEDOWN, e, payload)
+            this.instance.trigger((this.ep.endpoint as any).canvas, EVENT_MOUSEDOWN, e, payload)
         }
     }
 
@@ -273,8 +273,8 @@ export class EndpointDragHandler implements DragHandler {
 
     reset() {
         const c = this.instance.getContainer()
-        this.instance.off(c, EVT_MOUSEUP, this.mouseupHandler)
-        this.instance.off(c, EVT_MOUSEDOWN, this.mousedownHandler)
+        this.instance.off(c, EVENT_MOUSEUP, this.mouseupHandler)
+        this.instance.off(c, EVENT_MOUSEDOWN, this.mousedownHandler)
     }
 
     init(drag:Drag) {}
@@ -373,7 +373,7 @@ export class EndpointDragHandler implements DragHandler {
         
         // ----------------    make the element we will drag around, and position it -----------------------------
         
-        const canvasElement = (<unknown>(this.endpointRepresentation as any).canvas) as HTMLElement
+        const canvasElement = (<unknown>(this.endpointRepresentation as any).canvas) as jsPlumbDOMElement
         
         // store the id of the dragging div and the source element. the drop function will pick these up.
         this.instance.setAttributes(canvasElement, {
@@ -683,7 +683,7 @@ export class EndpointDragHandler implements DragHandler {
 
         const classesToRemove = classList(CLASS_DRAG_HOVER, CLASS_DRAG_ACTIVE)
 
-        this.instance.getContainer().querySelectorAll(DRAG_ACTIVE_OR_HOVER_SELECTOR).forEach((el:HTMLElement) => {
+        this.instance.getContainer().querySelectorAll(DRAG_ACTIVE_OR_HOVER_SELECTOR).forEach((el:jsPlumbDOMElement) => {
             this.instance.removeClass(el, classesToRemove)
         })
 

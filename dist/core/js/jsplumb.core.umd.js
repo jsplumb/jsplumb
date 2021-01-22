@@ -4155,6 +4155,7 @@
   var SELECTOR_GROUP_CONTAINER = "[jtk-group-content]";
   var SELECTOR_MANAGED_ELEMENT = "[jtk-managed]";
   var SELECTOR_OVERLAY = cls(CLASS_OVERLAY);
+  var SCOPE_PREFIX = "jtk-scope-";
 
   var EventGenerator =
   /*#__PURE__*/
@@ -4507,7 +4508,7 @@
       _this._defaultType = {
         overlays: oo,
         parameters: params.parameters || {},
-        scope: params.scope || _this.instance.getDefaultScope()
+        scope: params.scope || _this.instance.defaultScope
       };
 
       if (params.events) {
@@ -6934,8 +6935,6 @@
 
       _defineProperty(_assertThisInitialized(_this), "connections", []);
 
-      _defineProperty(_assertThisInitialized(_this), "connectorPointerEvents", void 0);
-
       _defineProperty(_assertThisInitialized(_this), "anchor", void 0);
 
       _defineProperty(_assertThisInitialized(_this), "endpoint", void 0);
@@ -7021,15 +7020,10 @@
 
       _this.enabled = !(params.enabled === false);
       _this.visible = true;
-      _this.element = _this.instance.getElement(params.source);
+      _this.element = params.source;
       _this.uuid = params.uuid;
       _this.portId = params.portId;
       _this.floatingEndpoint = null;
-
-      if (_this.uuid) {
-        _this.instance.endpointsByUUID[_this.uuid] = _assertThisInitialized(_this);
-      }
-
       _this.elementId = params.elementId;
       _this.dragProxy = params.dragProxy;
       _this.connectionCost = params.connectionCost == null ? 1 : params.connectionCost;
@@ -7058,8 +7052,7 @@
       _this.isTemporarySource = params.isTemporarySource || false;
       _this.isTarget = params.isTarget || false;
       _this.connections = params.connections || [];
-      _this.connectorPointerEvents = params["connector-pointer-events"];
-      _this.scope = params.scope || instance.getDefaultScope();
+      _this.scope = params.scope || instance.defaultScope;
       _this.timestamp = null;
       _this.reattachConnections = params.reattach || instance.Defaults.reattachConnections;
       _this.connectionsDetachable = instance.Defaults.connectionsDetachable;
@@ -7977,7 +7970,7 @@
       }
     }, {
       key: "removeGroup",
-      value: function removeGroup(group, deleteMembers, manipulateDOM, doNotFireEvent) {
+      value: function removeGroup(group, deleteMembers, manipulateView, doNotFireEvent) {
         var _this2 = this;
 
         var actualGroup = this.getGroup(group);
@@ -7988,10 +7981,10 @@
         if (deleteMembers) {
           // remove all child groups
           actualGroup.childGroups.forEach(function (cg) {
-            return _this2.removeGroup(cg, deleteMembers, manipulateDOM);
+            return _this2.removeGroup(cg, deleteMembers, manipulateView);
           }); // remove all child nodes
 
-          actualGroup.removeAll(manipulateDOM, doNotFireEvent);
+          actualGroup.removeAll(manipulateView, doNotFireEvent);
         } else {
           // if we want to retain the child nodes then we need to test if there is a group that the parent of actualGroup.
           // if so, transfer the nodes to that group
@@ -8421,7 +8414,7 @@
       }
     }, {
       key: "addToGroup",
-      value: function addToGroup(group, el, doNotFireEvent) {
+      value: function addToGroup(group, doNotFireEvent) {
         var _this8 = this;
 
         var actualGroup = this.getGroup(group);
@@ -8507,45 +8500,57 @@
             }
           };
 
-          this.instance.each(el, _one);
+          for (var _len = arguments.length, el = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+            el[_key - 2] = arguments[_key];
+          }
+
+          el.forEach(_one);
         }
       }
     }, {
       key: "removeFromGroup",
-      value: function removeFromGroup(group, el, doNotFireEvent) {
+      value: function removeFromGroup(group, doNotFireEvent) {
         var _this9 = this;
 
         var actualGroup = this.getGroup(group);
 
         if (actualGroup) {
-          // if this group is currently collapsed then any proxied connections for the given el (or its descendants) need
-          // to be put back on their original element, and unproxied
-          if (actualGroup.collapsed) {
-            var _expandSet = function _expandSet(conns, index) {
-              for (var i = 0; i < conns.length; i++) {
-                var c = conns[i];
+          var _one = function _one(_el) {
+            // if this group is currently collapsed then any proxied connections for the given el (or its descendants) need
+            // to be put back on their original element, and unproxied
+            if (actualGroup.collapsed) {
+              var _expandSet = function _expandSet(conns, index) {
+                for (var i = 0; i < conns.length; i++) {
+                  var c = conns[i];
 
-                if (c.proxies) {
-                  for (var j = 0; j < c.proxies.length; j++) {
-                    if (c.proxies[j] != null) {
-                      var proxiedElement = c.proxies[j].originalEp.element;
+                  if (c.proxies) {
+                    for (var j = 0; j < c.proxies.length; j++) {
+                      if (c.proxies[j] != null) {
+                        var proxiedElement = c.proxies[j].originalEp.element;
 
-                      if (proxiedElement === el || _this9.isElementDescendant(proxiedElement, el)) {
-                        _this9._expandConnection(c, index, actualGroup);
+                        if (proxiedElement === _el || _this9.isElementDescendant(proxiedElement, _el)) {
+                          _this9._expandConnection(c, index, actualGroup);
+                        }
                       }
                     }
                   }
                 }
-              }
-            }; // setup proxies for sources and targets
+              }; // setup proxies for sources and targets
 
 
-            _expandSet(actualGroup.connections.source.slice(), 0);
+              _expandSet(actualGroup.connections.source.slice(), 0);
 
-            _expandSet(actualGroup.connections.target.slice(), 1);
+              _expandSet(actualGroup.connections.target.slice(), 1);
+            }
+
+            actualGroup.remove(_el, null, doNotFireEvent);
+          };
+
+          for (var _len2 = arguments.length, el = new Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
+            el[_key2 - 2] = arguments[_key2];
           }
 
-          actualGroup.remove(el, null, doNotFireEvent);
+          el.forEach(_one);
         }
       }
     }, {
@@ -9379,6 +9384,10 @@
       key: "addEndpoint",
       value: function addEndpoint(endpoint, elementId) {
         this.anchorManager.addEndpoint(endpoint, elementId);
+      }
+    }, {
+      key: "elementRemoved",
+      value: function elementRemoved(id) {// here we'd cleanup the anchor manager, ideally. there's a lot of shared responsibility between DefaultRouter and AnchorManager currently.
       }
     }, {
       key: "computePath",
@@ -10267,11 +10276,23 @@
     return r;
   }
 
-  var ID_ATTRIBUTE = "jtk-id";
+  var ID_ATTRIBUTE = JTK_ID;
   var JsPlumbInstance =
   /*#__PURE__*/
   function (_EventGenerator) {
     _inherits(JsPlumbInstance, _EventGenerator);
+
+    _createClass(JsPlumbInstance, [{
+      key: "defaultScope",
+      get: function get() {
+        return this.DEFAULT_SCOPE;
+      }
+    }, {
+      key: "currentZoom",
+      get: function get() {
+        return this._zoom;
+      }
+    }]);
 
     function JsPlumbInstance(_instanceIndex, defaults, helpers) {
       var _this;
@@ -10319,7 +10340,7 @@
 
       _defineProperty(_assertThisInitialized(_this), "endpointsByElement", {});
 
-      _defineProperty(_assertThisInitialized(_this), "endpointsByUUID", {});
+      _defineProperty(_assertThisInitialized(_this), "endpointsByUUID", new Map());
 
       _defineProperty(_assertThisInitialized(_this), "allowNestedGroups", void 0);
 
@@ -10335,15 +10356,13 @@
 
       _defineProperty(_assertThisInitialized(_this), "groupManager", void 0);
 
-      _defineProperty(_assertThisInitialized(_this), "_connectionTypes", {});
+      _defineProperty(_assertThisInitialized(_this), "_connectionTypes", new Map());
 
-      _defineProperty(_assertThisInitialized(_this), "_endpointTypes", {});
+      _defineProperty(_assertThisInitialized(_this), "_endpointTypes", new Map());
 
       _defineProperty(_assertThisInitialized(_this), "_container", void 0);
 
       _defineProperty(_assertThisInitialized(_this), "_managedElements", {});
-
-      _defineProperty(_assertThisInitialized(_this), "_floatingConnections", {});
 
       _defineProperty(_assertThisInitialized(_this), "DEFAULT_SCOPE", void 0);
 
@@ -10434,11 +10453,6 @@
         return true;
       }
     }, {
-      key: "getZoom",
-      value: function getZoom() {
-        return this._zoom;
-      }
-    }, {
       key: "_idstamp",
       value: function _idstamp() {
         return "" + this._curIdStamp++;
@@ -10524,7 +10538,7 @@
           };
         }
 
-        var scope = options.scope || this.getDefaultScope(),
+        var scope = options.scope || this.defaultScope,
             scopes = prepareList(this, scope, true),
             sources = prepareList(this, options.source),
             targets = prepareList(this, options.target),
@@ -10736,14 +10750,13 @@
       key: "computeAnchorLoc",
       value: function computeAnchorLoc(endpoint, timestamp) {
         var myOffset = this._managedElements[endpoint.elementId].info;
-        var anchorLoc = endpoint.anchor.compute({
+        return endpoint.anchor.compute({
           xy: [myOffset.x, myOffset.y],
           wh: [myOffset.w, myOffset.h],
           element: endpoint,
           timestamp: timestamp || this._suspendedAt,
           rotation: this._managedElements[endpoint.elementId].rotation
         });
-        return anchorLoc;
       } // return time for when drawing was suspended.
 
     }, {
@@ -10771,11 +10784,6 @@
         if (!_wasSuspended) {
           this.setSuspendDrawing(false, !doNotRepaintAfterwards);
         }
-      }
-    }, {
-      key: "getDefaultScope",
-      value: function getDefaultScope() {
-        return this.DEFAULT_SCOPE;
       }
       /**
        * Execute the given function for each of the given elements.
@@ -11028,6 +11036,8 @@
         var _one = function _one(_el) {
           var id = _this3.getId(_el);
 
+          _this3.router.elementRemoved(id);
+
           _this3.anchorManager.clearFor(id);
 
           _this3.anchorManager.removeFloatingConnection(id);
@@ -11040,7 +11050,7 @@
             _this3.unmakeTarget(_el);
           }
 
-          delete _this3._floatingConnections[id];
+          _this3.removeAttribute(_el, ID_ATTRIBUTE);
 
           _this3.removeAttribute(_el, ATTRIBUTE_MANAGED);
 
@@ -11085,6 +11095,13 @@
       value: function getRotation(elementId) {
         return this._managedElements[elementId] ? this._managedElements[elementId].rotation || 0 : 0;
       }
+      /**
+       * Internal method to create an Endpoint from the given options, perhaps with the given id. Do not use this method
+       * as a consumer of the API. If you wish to add an Endpoint to some element, use `addEndpoint` instead.
+       * @param params Options for the Endpoint.
+       * @param id Optional ID for the Endpoint.
+       */
+
     }, {
       key: "newEndpoint",
       value: function newEndpoint(params, id) {
@@ -11094,6 +11111,11 @@
         var ep = new Endpoint(this, _p);
         ep.id = "ep_" + this._idstamp();
         this.manage(_p.source);
+
+        if (params.uuid) {
+          this.endpointsByUUID.set(params.uuid, ep);
+        }
+
         return ep;
       }
     }, {
@@ -11131,12 +11153,10 @@
           endpoints: eps ? eps : [ep, ep],
           anchors: as ? as : [a, a]
         };
-      }
-    }, {
-      key: "getAllConnections",
-      value: function getAllConnections() {
-        return this.connections;
-      } // repaint some element's endpoints and connections
+      } // getAllConnections ():Array<Connection> {
+      //     return this.connections
+      // }
+      // repaint some element's endpoints and connections
 
     }, {
       key: "repaint",
@@ -11252,7 +11272,7 @@
         var uuid = endpoint.getUuid();
 
         if (uuid) {
-          delete this.endpointsByUUID[uuid];
+          this.endpointsByUUID["delete"](uuid);
         }
 
         this.router.deleteEndpoint(endpoint); // TODO at least replace this with a removeWithFunction call.
@@ -11292,7 +11312,7 @@
       value: function deleteEndpoint(object) {
         var _this4 = this;
 
-        var endpoint = typeof object === "string" ? this.endpointsByUUID[object] : object;
+        var endpoint = typeof object === "string" ? this.endpointsByUUID.get(object) : object;
 
         if (endpoint) {
           // find all connections for the endpoint
@@ -11330,13 +11350,11 @@
         }, p);
 
         var id = this.getId(_p.source);
-        var mel = this.manage(el, null, !this._suspendDrawing);
+        this.manage(el, null, !this._suspendDrawing);
         var e = this.newEndpoint(_p, id);
         addToList(this.endpointsByElement, id, e);
 
         if (!this._suspendDrawing) {
-          // why not just a full renderer.paintEndpoint method here?
-          //this.renderer.paintEndpoint()  // but why does this method expect a paintStyle?
           var anchorLoc = this.computeAnchorLoc(e);
           e.paint({
             anchorLoc: anchorLoc,
@@ -11367,7 +11385,8 @@
         this.silently(function () {
           _this5.endpointsByElement = {};
           _this5._managedElements = {};
-          _this5.endpointsByUUID = {};
+
+          _this5.endpointsByUUID.clear();
 
           _this5.viewport.reset();
 
@@ -11377,8 +11396,10 @@
 
           _this5.groupManager.reset();
 
-          _this5._connectionTypes = {};
-          _this5._endpointTypes = {};
+          _this5._connectionTypes.clear();
+
+          _this5._endpointTypes.clear();
+
           _this5.connections.length = 0;
         });
       } // ------ these are exposed for library packages to use; it allows them to be built without needing to include the utils --------
@@ -11414,7 +11435,7 @@
     }, {
       key: "getEndpoint",
       value: function getEndpoint(id) {
-        return this.endpointsByUUID[id];
+        return this.endpointsByUUID.get(id);
       }
     }, {
       key: "connect",
@@ -11506,11 +11527,6 @@
 
         if (_p.sourceEndpoint && _p.sourceEndpoint.scope) {
           _p.scope = _p.sourceEndpoint.scope;
-        } // pointer events
-
-
-        if (!_p["pointer-events"] && _p.sourceEndpoint && _p.sourceEndpoint.connectorPointerEvents) {
-          _p["pointer-events"] = _p.sourceEndpoint.connectorPointerEvents;
         }
 
         var _addEndpoint = function _addEndpoint(el, def, idx) {
@@ -11852,7 +11868,7 @@
         var scopes = scope.split(/\s/);
 
         for (var i = 0; i < scopes.length; i++) {
-          this.setAttribute(el, "jtk-scope-" + scopes[i], "");
+          this.setAttribute(el, SCOPE_PREFIX + scopes[i], "");
         }
       }
     }, {
@@ -12074,7 +12090,7 @@
     }, {
       key: "registerConnectionType",
       value: function registerConnectionType(id, type) {
-        this._connectionTypes[id] = extend({}, type);
+        this._connectionTypes.set(id, extend({}, type));
 
         if (type.overlays) {
           var to = {};
@@ -12084,10 +12100,9 @@
             // also assign an id.
             var fo = this.convertToFullOverlaySpec(type.overlays[i]);
             to[fo[1].id] = fo;
-          } //this._connectionTypes[id].overlayMap = to
+          }
 
-
-          this._connectionTypes[id].overlays = to;
+          this._connectionTypes.get(id).overlays = to;
         }
       }
     }, {
@@ -12100,7 +12115,7 @@
     }, {
       key: "registerEndpointType",
       value: function registerEndpointType(id, type) {
-        this._endpointTypes[id] = extend({}, type);
+        this._endpointTypes.set(id, extend({}, type));
 
         if (type.overlays) {
           var to = {};
@@ -12112,7 +12127,7 @@
             to[fo[1].id] = fo;
           }
 
-          this._endpointTypes[id].overlays = to;
+          this._endpointTypes.get(id).overlays = to;
         }
       }
     }, {
@@ -12125,7 +12140,7 @@
     }, {
       key: "getType",
       value: function getType(id, typeDescriptor) {
-        return typeDescriptor === "connection" ? this._connectionTypes[id] : this._endpointTypes[id];
+        return typeDescriptor === "connection" ? this._connectionTypes.get(id) : this._endpointTypes.get(id);
       }
     }, {
       key: "importDefaults",
@@ -12264,8 +12279,14 @@
       }
     }, {
       key: "addToGroup",
-      value: function addToGroup(group, el, doNotFireEvent) {
-        return this.groupManager.addToGroup(group, el, doNotFireEvent);
+      value: function addToGroup(group) {
+        var _this$groupManager;
+
+        for (var _len = arguments.length, el = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+          el[_key - 1] = arguments[_key];
+        }
+
+        return (_this$groupManager = this.groupManager).addToGroup.apply(_this$groupManager, [group, false].concat(el));
       }
     }, {
       key: "collapseGroup",
@@ -12284,22 +12305,33 @@
       }
     }, {
       key: "removeGroup",
-      value: function removeGroup(group, deleteMembers, manipulateDOM, doNotFireEvent) {
-        this.groupManager.removeGroup(group, deleteMembers, manipulateDOM, doNotFireEvent);
+      value: function removeGroup(group, deleteMembers, manipulateView, doNotFireEvent) {
+        this.groupManager.removeGroup(group, deleteMembers, manipulateView, doNotFireEvent);
       }
     }, {
       key: "removeAllGroups",
-      value: function removeAllGroups(deleteMembers, manipulateDOM, doNotFireEvent) {
-        this.groupManager.removeAllGroups(deleteMembers, manipulateDOM, doNotFireEvent);
+      value: function removeAllGroups(deleteMembers, manipulateView) {
+        this.groupManager.removeAllGroups(deleteMembers, manipulateView, false);
       }
     }, {
       key: "removeFromGroup",
-      value: function removeFromGroup(group, el, doNotFireEvent) {
-        this.groupManager.removeFromGroup(group, el, doNotFireEvent);
-        this.appendElement(el, this.getContainer());
-        this.updateOffset({
-          recalc: true,
-          elId: this.getId(el)
+      value: function removeFromGroup(group) {
+        var _this$groupManager2,
+            _this9 = this;
+
+        for (var _len2 = arguments.length, el = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+          el[_key2 - 1] = arguments[_key2];
+        }
+
+        (_this$groupManager2 = this.groupManager).removeFromGroup.apply(_this$groupManager2, [group, false].concat(el));
+
+        el.forEach(function (_el) {
+          _this9.appendElement(_el, _this9.getContainer());
+
+          _this9.updateOffset({
+            recalc: true,
+            elId: _this9.getId(_el)
+          });
         });
       }
     }]);
@@ -12633,6 +12665,7 @@
   exports.PARENT_GROUP_KEY = PARENT_GROUP_KEY;
   exports.PROPERTY_POSITION = PROPERTY_POSITION;
   exports.PlainArrowOverlay = PlainArrowOverlay;
+  exports.SCOPE_PREFIX = SCOPE_PREFIX;
   exports.SELECTOR_CONNECTOR = SELECTOR_CONNECTOR;
   exports.SELECTOR_ENDPOINT = SELECTOR_ENDPOINT;
   exports.SELECTOR_GROUP_CONTAINER = SELECTOR_GROUP_CONTAINER;

@@ -4149,6 +4149,7 @@ var SELECTOR_ENDPOINT = cls(CLASS_ENDPOINT);
 var SELECTOR_GROUP_CONTAINER = "[jtk-group-content]";
 var SELECTOR_MANAGED_ELEMENT = "[jtk-managed]";
 var SELECTOR_OVERLAY = cls(CLASS_OVERLAY);
+var SCOPE_PREFIX = "jtk-scope-";
 
 var EventGenerator =
 /*#__PURE__*/
@@ -4501,7 +4502,7 @@ function (_EventGenerator) {
     _this._defaultType = {
       overlays: oo,
       parameters: params.parameters || {},
-      scope: params.scope || _this.instance.getDefaultScope()
+      scope: params.scope || _this.instance.defaultScope
     };
 
     if (params.events) {
@@ -6928,8 +6929,6 @@ function (_OverlayCapableCompon) {
 
     _defineProperty(_assertThisInitialized(_this), "connections", []);
 
-    _defineProperty(_assertThisInitialized(_this), "connectorPointerEvents", void 0);
-
     _defineProperty(_assertThisInitialized(_this), "anchor", void 0);
 
     _defineProperty(_assertThisInitialized(_this), "endpoint", void 0);
@@ -7015,15 +7014,10 @@ function (_OverlayCapableCompon) {
 
     _this.enabled = !(params.enabled === false);
     _this.visible = true;
-    _this.element = _this.instance.getElement(params.source);
+    _this.element = params.source;
     _this.uuid = params.uuid;
     _this.portId = params.portId;
     _this.floatingEndpoint = null;
-
-    if (_this.uuid) {
-      _this.instance.endpointsByUUID[_this.uuid] = _assertThisInitialized(_this);
-    }
-
     _this.elementId = params.elementId;
     _this.dragProxy = params.dragProxy;
     _this.connectionCost = params.connectionCost == null ? 1 : params.connectionCost;
@@ -7052,8 +7046,7 @@ function (_OverlayCapableCompon) {
     _this.isTemporarySource = params.isTemporarySource || false;
     _this.isTarget = params.isTarget || false;
     _this.connections = params.connections || [];
-    _this.connectorPointerEvents = params["connector-pointer-events"];
-    _this.scope = params.scope || instance.getDefaultScope();
+    _this.scope = params.scope || instance.defaultScope;
     _this.timestamp = null;
     _this.reattachConnections = params.reattach || instance.Defaults.reattachConnections;
     _this.connectionsDetachable = instance.Defaults.connectionsDetachable;
@@ -7971,7 +7964,7 @@ function () {
     }
   }, {
     key: "removeGroup",
-    value: function removeGroup(group, deleteMembers, manipulateDOM, doNotFireEvent) {
+    value: function removeGroup(group, deleteMembers, manipulateView, doNotFireEvent) {
       var _this2 = this;
 
       var actualGroup = this.getGroup(group);
@@ -7982,10 +7975,10 @@ function () {
       if (deleteMembers) {
         // remove all child groups
         actualGroup.childGroups.forEach(function (cg) {
-          return _this2.removeGroup(cg, deleteMembers, manipulateDOM);
+          return _this2.removeGroup(cg, deleteMembers, manipulateView);
         }); // remove all child nodes
 
-        actualGroup.removeAll(manipulateDOM, doNotFireEvent);
+        actualGroup.removeAll(manipulateView, doNotFireEvent);
       } else {
         // if we want to retain the child nodes then we need to test if there is a group that the parent of actualGroup.
         // if so, transfer the nodes to that group
@@ -8415,7 +8408,7 @@ function () {
     }
   }, {
     key: "addToGroup",
-    value: function addToGroup(group, el, doNotFireEvent) {
+    value: function addToGroup(group, doNotFireEvent) {
       var _this8 = this;
 
       var actualGroup = this.getGroup(group);
@@ -8501,45 +8494,57 @@ function () {
           }
         };
 
-        this.instance.each(el, _one);
+        for (var _len = arguments.length, el = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+          el[_key - 2] = arguments[_key];
+        }
+
+        el.forEach(_one);
       }
     }
   }, {
     key: "removeFromGroup",
-    value: function removeFromGroup(group, el, doNotFireEvent) {
+    value: function removeFromGroup(group, doNotFireEvent) {
       var _this9 = this;
 
       var actualGroup = this.getGroup(group);
 
       if (actualGroup) {
-        // if this group is currently collapsed then any proxied connections for the given el (or its descendants) need
-        // to be put back on their original element, and unproxied
-        if (actualGroup.collapsed) {
-          var _expandSet = function _expandSet(conns, index) {
-            for (var i = 0; i < conns.length; i++) {
-              var c = conns[i];
+        var _one = function _one(_el) {
+          // if this group is currently collapsed then any proxied connections for the given el (or its descendants) need
+          // to be put back on their original element, and unproxied
+          if (actualGroup.collapsed) {
+            var _expandSet = function _expandSet(conns, index) {
+              for (var i = 0; i < conns.length; i++) {
+                var c = conns[i];
 
-              if (c.proxies) {
-                for (var j = 0; j < c.proxies.length; j++) {
-                  if (c.proxies[j] != null) {
-                    var proxiedElement = c.proxies[j].originalEp.element;
+                if (c.proxies) {
+                  for (var j = 0; j < c.proxies.length; j++) {
+                    if (c.proxies[j] != null) {
+                      var proxiedElement = c.proxies[j].originalEp.element;
 
-                    if (proxiedElement === el || _this9.isElementDescendant(proxiedElement, el)) {
-                      _this9._expandConnection(c, index, actualGroup);
+                      if (proxiedElement === _el || _this9.isElementDescendant(proxiedElement, _el)) {
+                        _this9._expandConnection(c, index, actualGroup);
+                      }
                     }
                   }
                 }
               }
-            }
-          }; // setup proxies for sources and targets
+            }; // setup proxies for sources and targets
 
 
-          _expandSet(actualGroup.connections.source.slice(), 0);
+            _expandSet(actualGroup.connections.source.slice(), 0);
 
-          _expandSet(actualGroup.connections.target.slice(), 1);
+            _expandSet(actualGroup.connections.target.slice(), 1);
+          }
+
+          actualGroup.remove(_el, null, doNotFireEvent);
+        };
+
+        for (var _len2 = arguments.length, el = new Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
+          el[_key2 - 2] = arguments[_key2];
         }
 
-        actualGroup.remove(el, null, doNotFireEvent);
+        el.forEach(_one);
       }
     }
   }, {
@@ -9373,6 +9378,10 @@ function () {
     key: "addEndpoint",
     value: function addEndpoint(endpoint, elementId) {
       this.anchorManager.addEndpoint(endpoint, elementId);
+    }
+  }, {
+    key: "elementRemoved",
+    value: function elementRemoved(id) {// here we'd cleanup the anchor manager, ideally. there's a lot of shared responsibility between DefaultRouter and AnchorManager currently.
     }
   }, {
     key: "computePath",
@@ -10261,11 +10270,23 @@ function prepareList(instance, input, doNotGetIds) {
   return r;
 }
 
-var ID_ATTRIBUTE = "jtk-id";
+var ID_ATTRIBUTE = JTK_ID;
 var JsPlumbInstance =
 /*#__PURE__*/
 function (_EventGenerator) {
   _inherits(JsPlumbInstance, _EventGenerator);
+
+  _createClass(JsPlumbInstance, [{
+    key: "defaultScope",
+    get: function get() {
+      return this.DEFAULT_SCOPE;
+    }
+  }, {
+    key: "currentZoom",
+    get: function get() {
+      return this._zoom;
+    }
+  }]);
 
   function JsPlumbInstance(_instanceIndex, defaults, helpers) {
     var _this;
@@ -10313,7 +10334,7 @@ function (_EventGenerator) {
 
     _defineProperty(_assertThisInitialized(_this), "endpointsByElement", {});
 
-    _defineProperty(_assertThisInitialized(_this), "endpointsByUUID", {});
+    _defineProperty(_assertThisInitialized(_this), "endpointsByUUID", new Map());
 
     _defineProperty(_assertThisInitialized(_this), "allowNestedGroups", void 0);
 
@@ -10329,15 +10350,13 @@ function (_EventGenerator) {
 
     _defineProperty(_assertThisInitialized(_this), "groupManager", void 0);
 
-    _defineProperty(_assertThisInitialized(_this), "_connectionTypes", {});
+    _defineProperty(_assertThisInitialized(_this), "_connectionTypes", new Map());
 
-    _defineProperty(_assertThisInitialized(_this), "_endpointTypes", {});
+    _defineProperty(_assertThisInitialized(_this), "_endpointTypes", new Map());
 
     _defineProperty(_assertThisInitialized(_this), "_container", void 0);
 
     _defineProperty(_assertThisInitialized(_this), "_managedElements", {});
-
-    _defineProperty(_assertThisInitialized(_this), "_floatingConnections", {});
 
     _defineProperty(_assertThisInitialized(_this), "DEFAULT_SCOPE", void 0);
 
@@ -10428,11 +10447,6 @@ function (_EventGenerator) {
       return true;
     }
   }, {
-    key: "getZoom",
-    value: function getZoom() {
-      return this._zoom;
-    }
-  }, {
     key: "_idstamp",
     value: function _idstamp() {
       return "" + this._curIdStamp++;
@@ -10518,7 +10532,7 @@ function (_EventGenerator) {
         };
       }
 
-      var scope = options.scope || this.getDefaultScope(),
+      var scope = options.scope || this.defaultScope,
           scopes = prepareList(this, scope, true),
           sources = prepareList(this, options.source),
           targets = prepareList(this, options.target),
@@ -10730,14 +10744,13 @@ function (_EventGenerator) {
     key: "computeAnchorLoc",
     value: function computeAnchorLoc(endpoint, timestamp) {
       var myOffset = this._managedElements[endpoint.elementId].info;
-      var anchorLoc = endpoint.anchor.compute({
+      return endpoint.anchor.compute({
         xy: [myOffset.x, myOffset.y],
         wh: [myOffset.w, myOffset.h],
         element: endpoint,
         timestamp: timestamp || this._suspendedAt,
         rotation: this._managedElements[endpoint.elementId].rotation
       });
-      return anchorLoc;
     } // return time for when drawing was suspended.
 
   }, {
@@ -10765,11 +10778,6 @@ function (_EventGenerator) {
       if (!_wasSuspended) {
         this.setSuspendDrawing(false, !doNotRepaintAfterwards);
       }
-    }
-  }, {
-    key: "getDefaultScope",
-    value: function getDefaultScope() {
-      return this.DEFAULT_SCOPE;
     }
     /**
      * Execute the given function for each of the given elements.
@@ -11022,6 +11030,8 @@ function (_EventGenerator) {
       var _one = function _one(_el) {
         var id = _this3.getId(_el);
 
+        _this3.router.elementRemoved(id);
+
         _this3.anchorManager.clearFor(id);
 
         _this3.anchorManager.removeFloatingConnection(id);
@@ -11034,7 +11044,7 @@ function (_EventGenerator) {
           _this3.unmakeTarget(_el);
         }
 
-        delete _this3._floatingConnections[id];
+        _this3.removeAttribute(_el, ID_ATTRIBUTE);
 
         _this3.removeAttribute(_el, ATTRIBUTE_MANAGED);
 
@@ -11079,6 +11089,13 @@ function (_EventGenerator) {
     value: function getRotation(elementId) {
       return this._managedElements[elementId] ? this._managedElements[elementId].rotation || 0 : 0;
     }
+    /**
+     * Internal method to create an Endpoint from the given options, perhaps with the given id. Do not use this method
+     * as a consumer of the API. If you wish to add an Endpoint to some element, use `addEndpoint` instead.
+     * @param params Options for the Endpoint.
+     * @param id Optional ID for the Endpoint.
+     */
+
   }, {
     key: "newEndpoint",
     value: function newEndpoint(params, id) {
@@ -11088,6 +11105,11 @@ function (_EventGenerator) {
       var ep = new Endpoint(this, _p);
       ep.id = "ep_" + this._idstamp();
       this.manage(_p.source);
+
+      if (params.uuid) {
+        this.endpointsByUUID.set(params.uuid, ep);
+      }
+
       return ep;
     }
   }, {
@@ -11125,12 +11147,10 @@ function (_EventGenerator) {
         endpoints: eps ? eps : [ep, ep],
         anchors: as ? as : [a, a]
       };
-    }
-  }, {
-    key: "getAllConnections",
-    value: function getAllConnections() {
-      return this.connections;
-    } // repaint some element's endpoints and connections
+    } // getAllConnections ():Array<Connection> {
+    //     return this.connections
+    // }
+    // repaint some element's endpoints and connections
 
   }, {
     key: "repaint",
@@ -11246,7 +11266,7 @@ function (_EventGenerator) {
       var uuid = endpoint.getUuid();
 
       if (uuid) {
-        delete this.endpointsByUUID[uuid];
+        this.endpointsByUUID["delete"](uuid);
       }
 
       this.router.deleteEndpoint(endpoint); // TODO at least replace this with a removeWithFunction call.
@@ -11286,7 +11306,7 @@ function (_EventGenerator) {
     value: function deleteEndpoint(object) {
       var _this4 = this;
 
-      var endpoint = typeof object === "string" ? this.endpointsByUUID[object] : object;
+      var endpoint = typeof object === "string" ? this.endpointsByUUID.get(object) : object;
 
       if (endpoint) {
         // find all connections for the endpoint
@@ -11324,13 +11344,11 @@ function (_EventGenerator) {
       }, p);
 
       var id = this.getId(_p.source);
-      var mel = this.manage(el, null, !this._suspendDrawing);
+      this.manage(el, null, !this._suspendDrawing);
       var e = this.newEndpoint(_p, id);
       addToList(this.endpointsByElement, id, e);
 
       if (!this._suspendDrawing) {
-        // why not just a full renderer.paintEndpoint method here?
-        //this.renderer.paintEndpoint()  // but why does this method expect a paintStyle?
         var anchorLoc = this.computeAnchorLoc(e);
         e.paint({
           anchorLoc: anchorLoc,
@@ -11361,7 +11379,8 @@ function (_EventGenerator) {
       this.silently(function () {
         _this5.endpointsByElement = {};
         _this5._managedElements = {};
-        _this5.endpointsByUUID = {};
+
+        _this5.endpointsByUUID.clear();
 
         _this5.viewport.reset();
 
@@ -11371,8 +11390,10 @@ function (_EventGenerator) {
 
         _this5.groupManager.reset();
 
-        _this5._connectionTypes = {};
-        _this5._endpointTypes = {};
+        _this5._connectionTypes.clear();
+
+        _this5._endpointTypes.clear();
+
         _this5.connections.length = 0;
       });
     } // ------ these are exposed for library packages to use; it allows them to be built without needing to include the utils --------
@@ -11408,7 +11429,7 @@ function (_EventGenerator) {
   }, {
     key: "getEndpoint",
     value: function getEndpoint(id) {
-      return this.endpointsByUUID[id];
+      return this.endpointsByUUID.get(id);
     }
   }, {
     key: "connect",
@@ -11500,11 +11521,6 @@ function (_EventGenerator) {
 
       if (_p.sourceEndpoint && _p.sourceEndpoint.scope) {
         _p.scope = _p.sourceEndpoint.scope;
-      } // pointer events
-
-
-      if (!_p["pointer-events"] && _p.sourceEndpoint && _p.sourceEndpoint.connectorPointerEvents) {
-        _p["pointer-events"] = _p.sourceEndpoint.connectorPointerEvents;
       }
 
       var _addEndpoint = function _addEndpoint(el, def, idx) {
@@ -11846,7 +11862,7 @@ function (_EventGenerator) {
       var scopes = scope.split(/\s/);
 
       for (var i = 0; i < scopes.length; i++) {
-        this.setAttribute(el, "jtk-scope-" + scopes[i], "");
+        this.setAttribute(el, SCOPE_PREFIX + scopes[i], "");
       }
     }
   }, {
@@ -12068,7 +12084,7 @@ function (_EventGenerator) {
   }, {
     key: "registerConnectionType",
     value: function registerConnectionType(id, type) {
-      this._connectionTypes[id] = extend({}, type);
+      this._connectionTypes.set(id, extend({}, type));
 
       if (type.overlays) {
         var to = {};
@@ -12078,10 +12094,9 @@ function (_EventGenerator) {
           // also assign an id.
           var fo = this.convertToFullOverlaySpec(type.overlays[i]);
           to[fo[1].id] = fo;
-        } //this._connectionTypes[id].overlayMap = to
+        }
 
-
-        this._connectionTypes[id].overlays = to;
+        this._connectionTypes.get(id).overlays = to;
       }
     }
   }, {
@@ -12094,7 +12109,7 @@ function (_EventGenerator) {
   }, {
     key: "registerEndpointType",
     value: function registerEndpointType(id, type) {
-      this._endpointTypes[id] = extend({}, type);
+      this._endpointTypes.set(id, extend({}, type));
 
       if (type.overlays) {
         var to = {};
@@ -12106,7 +12121,7 @@ function (_EventGenerator) {
           to[fo[1].id] = fo;
         }
 
-        this._endpointTypes[id].overlays = to;
+        this._endpointTypes.get(id).overlays = to;
       }
     }
   }, {
@@ -12119,7 +12134,7 @@ function (_EventGenerator) {
   }, {
     key: "getType",
     value: function getType(id, typeDescriptor) {
-      return typeDescriptor === "connection" ? this._connectionTypes[id] : this._endpointTypes[id];
+      return typeDescriptor === "connection" ? this._connectionTypes.get(id) : this._endpointTypes.get(id);
     }
   }, {
     key: "importDefaults",
@@ -12258,8 +12273,14 @@ function (_EventGenerator) {
     }
   }, {
     key: "addToGroup",
-    value: function addToGroup(group, el, doNotFireEvent) {
-      return this.groupManager.addToGroup(group, el, doNotFireEvent);
+    value: function addToGroup(group) {
+      var _this$groupManager;
+
+      for (var _len = arguments.length, el = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        el[_key - 1] = arguments[_key];
+      }
+
+      return (_this$groupManager = this.groupManager).addToGroup.apply(_this$groupManager, [group, false].concat(el));
     }
   }, {
     key: "collapseGroup",
@@ -12278,22 +12299,33 @@ function (_EventGenerator) {
     }
   }, {
     key: "removeGroup",
-    value: function removeGroup(group, deleteMembers, manipulateDOM, doNotFireEvent) {
-      this.groupManager.removeGroup(group, deleteMembers, manipulateDOM, doNotFireEvent);
+    value: function removeGroup(group, deleteMembers, manipulateView, doNotFireEvent) {
+      this.groupManager.removeGroup(group, deleteMembers, manipulateView, doNotFireEvent);
     }
   }, {
     key: "removeAllGroups",
-    value: function removeAllGroups(deleteMembers, manipulateDOM, doNotFireEvent) {
-      this.groupManager.removeAllGroups(deleteMembers, manipulateDOM, doNotFireEvent);
+    value: function removeAllGroups(deleteMembers, manipulateView) {
+      this.groupManager.removeAllGroups(deleteMembers, manipulateView, false);
     }
   }, {
     key: "removeFromGroup",
-    value: function removeFromGroup(group, el, doNotFireEvent) {
-      this.groupManager.removeFromGroup(group, el, doNotFireEvent);
-      this.appendElement(el, this.getContainer());
-      this.updateOffset({
-        recalc: true,
-        elId: this.getId(el)
+    value: function removeFromGroup(group) {
+      var _this$groupManager2,
+          _this9 = this;
+
+      for (var _len2 = arguments.length, el = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+        el[_key2 - 1] = arguments[_key2];
+      }
+
+      (_this$groupManager2 = this.groupManager).removeFromGroup.apply(_this$groupManager2, [group, false].concat(el));
+
+      el.forEach(function (_el) {
+        _this9.appendElement(_el, _this9.getContainer());
+
+        _this9.updateOffset({
+          recalc: true,
+          elId: _this9.getId(_el)
+        });
       });
     }
   }]);
@@ -12522,4 +12554,4 @@ register$3();
 register$4();
 register$6();
 
-export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, AnchorManager, Anchors, ArcSegment, ArrowOverlay, BEFORE_DETACH, BLOCK, BezierSegment, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_DRAG, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, GROUP_KEY, GroupManager, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JTK_ID, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PROPERTY_POSITION, PlainArrowOverlay, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, extend, fastTrim, filterList, findWithFunction, functionChain, getsert, gradientAtPoint, gradientAtPointAlongPathFrom, isArray, isArrowOverlay, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, jsPlumbGeometry, lineIntersection, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, optional, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, populate, register, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, rotatePointXY, sortHelper, suggest, uuid, wrap };
+export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, AnchorManager, Anchors, ArcSegment, ArrowOverlay, BEFORE_DETACH, BLOCK, BezierSegment, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_DRAG, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, GROUP_KEY, GroupManager, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JTK_ID, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PROPERTY_POSITION, PlainArrowOverlay, SCOPE_PREFIX, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, extend, fastTrim, filterList, findWithFunction, functionChain, getsert, gradientAtPoint, gradientAtPointAlongPathFrom, isArray, isArrowOverlay, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, jsPlumbGeometry, lineIntersection, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, optional, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, populate, register, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, rotatePointXY, sortHelper, suggest, uuid, wrap };

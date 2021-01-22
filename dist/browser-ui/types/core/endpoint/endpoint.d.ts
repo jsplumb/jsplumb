@@ -11,6 +11,9 @@ export declare type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndp
 export declare type UserDefinedEndpointId = string;
 export declare type EndpointParams = any;
 export declare type EndpointSpec = EndpointId | [EndpointId, EndpointParams];
+export interface InternalEndpointOptions extends EndpointOptions {
+    isTemporarySource?: boolean;
+}
 export interface EndpointOptions extends ComponentOptions {
     anchor?: AnchorSpec | Anchor;
     anchors?: [AnchorSpec, AnchorSpec];
@@ -45,7 +48,6 @@ export interface EndpointOptions extends ComponentOptions {
     uuid?: string;
     source?: jsPlumbElement;
     connections?: Array<Connection>;
-    "connector-pointer-events"?: string;
     detachable?: boolean;
     dragAllowedWhenFull?: boolean;
     onMaxConnections?: Function;

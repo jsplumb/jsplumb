@@ -25,7 +25,7 @@ declare abstract class Base {
     removeScope(scopes: string): void;
     toggleScope(scopes: string): void;
 }
-export declare type GhostProxyGenerator = (el: HTMLElement) => HTMLElement;
+export declare type GhostProxyGenerator = (el: jsPlumbDOMElement) => jsPlumbDOMElement;
 export interface DragHandlerOptions {
     selector?: string;
     start?: (p: DragEventCallbackOptions) => any;
@@ -37,7 +37,7 @@ export interface DragHandlerOptions {
     ghostProxy?: GhostProxyGenerator | boolean;
     makeGhostProxy?: GhostProxyGenerator;
     useGhostProxy?: (container: any, dragEl: any) => boolean;
-    ghostProxyParent?: HTMLElement;
+    ghostProxyParent?: jsPlumbDOMElement;
     constrain?: ConstrainFunction | boolean;
     revert?: RevertFunction;
     filter?: string;
@@ -80,7 +80,7 @@ export declare class Drag extends Base {
     private _ghostProxyOffsets;
     private _ghostDx;
     private _ghostDy;
-    _ghostProxyParent: HTMLElement;
+    _ghostProxyParent: jsPlumbDOMElement;
     _isConstrained: boolean;
     _useGhostProxy: Function;
     _activeSelectorParams: DragParams;

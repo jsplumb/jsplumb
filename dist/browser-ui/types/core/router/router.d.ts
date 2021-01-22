@@ -13,4 +13,5 @@ export interface Router {
     rehomeEndpoint(ep: Endpoint, currentId: string, element: any): void;
     addEndpoint(endpoint: Endpoint, elementId: string): void;
     computePath(connection: Connection, timestamp: string): void;
+    elementRemoved(id: string): void;
 }

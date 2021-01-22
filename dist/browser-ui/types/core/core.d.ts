@@ -82,31 +82,31 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     endpointDropForbiddenClass: string;
     endpointAnchorClassPrefix: string;
     overlayClass: string;
-    connections: Array<Connection>;
+    readonly connections: Array<Connection>;
     endpointsByElement: Dictionary<Array<Endpoint>>;
-    endpointsByUUID: Dictionary<Endpoint>;
+    private readonly endpointsByUUID;
     allowNestedGroups: boolean;
     private _curIdStamp;
     private _offsetTimestamps;
     readonly viewport: Viewport;
-    router: Router;
-    anchorManager: AnchorManager;
-    groupManager: GroupManager;
+    readonly router: Router;
+    readonly anchorManager: AnchorManager;
+    readonly groupManager: GroupManager;
     private _connectionTypes;
     private _endpointTypes;
     private _container;
     protected _managedElements: Dictionary<ManagedElement>;
-    private _floatingConnections;
-    DEFAULT_SCOPE: string;
+    private DEFAULT_SCOPE;
+    get defaultScope(): string;
     private _helpers;
     geometry: jsPlumbGeometryHelpers;
     private _zoom;
+    get currentZoom(): number;
     constructor(_instanceIndex: number, defaults?: jsPlumbDefaults, helpers?: jsPlumbHelperFunctions);
     getSize(el: any): Size;
     getOffset(el: any | string, relativeToRoot?: boolean): Offset;
     getContainer(): any;
     setZoom(z: number, repaintEverything?: boolean): boolean;
-    getZoom(): number;
     _idstamp(): string;
     convertToFullOverlaySpec(spec: string | OverlaySpec): FullOverlaySpec;
     checkCondition(conditionName: string, args?: any): boolean;
@@ -137,7 +137,6 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
      * @param doNotRepaintAfterwards Whether or not to repaint everything after drawing is re-enabled.
      */
     batch(fn: Function, doNotRepaintAfterwards?: boolean): void;
-    getDefaultScope(): string;
     /**
      * Execute the given function for each of the given elements.
      * @param spec An Element, or an element id, or an array of elements/element ids.
@@ -181,9 +180,14 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     unmanage(el: jsPlumbElement, removeElement?: boolean): void;
     rotate(element: jsPlumbElement, rotation: number, doNotRepaint?: boolean): RedrawResult;
     getRotation(elementId: string): number;
+    /**
+     * Internal method to create an Endpoint from the given options, perhaps with the given id. Do not use this method
+     * as a consumer of the API. If you wish to add an Endpoint to some element, use `addEndpoint` instead.
+     * @param params Options for the Endpoint.
+     * @param id Optional ID for the Endpoint.
+     */
     newEndpoint(params: EndpointOptions, id?: string): Endpoint;
     deriveEndpointAndAnchorSpec(type: string, dontPrependDefault?: boolean): any;
-    getAllConnections(): Array<Connection>;
     repaint(el: jsPlumbElement, ui?: any, timestamp?: string): RedrawResult;
     revalidate(el: jsPlumbElement, timestamp?: string): RedrawResult;
     repaintEverything(): JsPlumbInstance;
@@ -263,13 +267,13 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     getGroup(groupId: string): UIGroup;
     getGroupFor(el: jsPlumbElement): UIGroup;
     addGroup(params: AddGroupOptions): UIGroup;
-    addToGroup(group: string | UIGroup, el: any | Array<any>, doNotFireEvent?: boolean): void;
+    addToGroup(group: string | UIGroup, ...el: Array<jsPlumbElement>): void;
     collapseGroup(group: string | UIGroup): void;
     expandGroup(group: string | UIGroup): void;
     toggleGroup(group: string | UIGroup): void;
-    removeGroup(group: string | UIGroup, deleteMembers?: boolean, manipulateDOM?: boolean, doNotFireEvent?: boolean): void;
-    removeAllGroups(deleteMembers?: boolean, manipulateDOM?: boolean, doNotFireEvent?: boolean): void;
-    removeFromGroup(group: string | UIGroup, el: any, doNotFireEvent?: boolean): void;
+    removeGroup(group: string | UIGroup, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): void;
+    removeAllGroups(deleteMembers?: boolean, manipulateView?: boolean): void;
+    removeFromGroup(group: string | UIGroup, ...el: Array<jsPlumbElement>): void;
     abstract getElement(el: any | string): any;
     abstract getElementById(el: string): any;
     abstract removeElement(el: any): void;

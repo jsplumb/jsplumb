@@ -17,7 +17,7 @@ export declare class GroupManager {
     getGroup(groupId: string | UIGroup): UIGroup;
     getGroupFor(el: jsPlumbElement): UIGroup;
     getGroups(): Array<UIGroup>;
-    removeGroup(group: string | UIGroup, deleteMembers?: boolean, manipulateDOM?: boolean, doNotFireEvent?: boolean): Dictionary<Offset>;
+    removeGroup(group: string | UIGroup, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): Dictionary<Offset>;
     removeAllGroups(deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): void;
     forEach(f: (g: UIGroup) => any): void;
     orphan(_el: any): [string, Offset];
@@ -43,8 +43,8 @@ export declare class GroupManager {
     cascadeExpand(expandedGroup: UIGroup, targetGroup: UIGroup): void;
     toggleGroup(group: string | UIGroup): void;
     repaintGroup(group: string | UIGroup): void;
-    addToGroup(group: string | UIGroup, el: any | Array<any>, doNotFireEvent?: boolean): void;
-    removeFromGroup(group: string | UIGroup, el: any, doNotFireEvent?: boolean): void;
+    addToGroup(group: string | UIGroup, doNotFireEvent: boolean, ...el: Array<jsPlumbElement>): void;
+    removeFromGroup(group: string | UIGroup, doNotFireEvent: boolean, ...el: Array<jsPlumbElement>): void;
     getAncestors(group: UIGroup): Array<UIGroup>;
     isAncestor(group: UIGroup, possibleAncestor: UIGroup): boolean;
     getDescendants(group: UIGroup): Array<UIGroup>;

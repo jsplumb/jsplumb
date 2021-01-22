@@ -7,7 +7,7 @@ import { Endpoint } from '../endpoint/endpoint-impl';
 import { ViewportElement } from "../viewport";
 export declare class DefaultRouter implements Router {
     instance: JsPlumbInstance;
-    anchorManager: AnchorManager;
+    readonly anchorManager: AnchorManager;
     constructor(instance: JsPlumbInstance);
     reset(): void;
     changeId(oldId: string, newId: string): void;
@@ -17,5 +17,6 @@ export declare class DefaultRouter implements Router {
     deleteEndpoint(endpoint: Endpoint): void;
     rehomeEndpoint(ep: Endpoint, currentId: string, element: any): void;
     addEndpoint(endpoint: Endpoint, elementId: string): void;
+    elementRemoved(id: string): void;
     computePath(connection: Connection, timestamp: string): void;
 }

@@ -1,4 +1,4 @@
-import { fastTrim, isArray, log, NONE, extend, wrap, PARENT_GROUP_KEY, isString, optional, GROUP_KEY, Anchor, cls, each, makeAnchorFromSpec, findWithFunction, IS_GROUP_KEY, EVENT_CONNECTION_DRAG, SOURCE, TARGET, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, BEFORE_DETACH, IS, addToList, EVENT_CONTEXTMENU, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_CLICK, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, EVENT_MOUSEDOWN, EVENT_MOUSEUP, uuid, Connection, Endpoint, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, UNDEFINED, SELECTOR_MANAGED_ELEMENT, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, ATTRIBUTE_NOT_DRAGGABLE, TRUE as TRUE$1, FALSE as FALSE$1, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, LabelOverlay, CustomOverlay, EndpointRepresentation, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/community-core';
+import { fastTrim, isArray, log, NONE, extend, wrap, PARENT_GROUP_KEY, isString, optional, GROUP_KEY, Anchor, cls, each, makeAnchorFromSpec, findWithFunction, IS_GROUP_KEY, EVENT_CONNECTION_DRAG, SOURCE, TARGET, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, BEFORE_DETACH, IS, addToList, EVENT_CONTEXTMENU, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_CLICK, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, uuid, Connection, Endpoint, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, UNDEFINED, SELECTOR_MANAGED_ELEMENT, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, ATTRIBUTE_NOT_DRAGGABLE, TRUE as TRUE$1, FALSE as FALSE$1, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, LabelOverlay, CustomOverlay, EndpointRepresentation, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/community-core';
 
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -489,13 +489,13 @@ var CLASS_DRAG_ACTIVE = "jtk-drag-active";
 var CLASS_DRAGGED = "jtk-dragged";
 var CLASS_DRAG_HOVER = "jtk-drag-hover";
 var ATTR_NOT_DRAGGABLE = "jtk-not-draggable";
-var EVT_DRAG_MOVE = "drag:move";
-var EVT_DRAG_STOP = "drag:stop";
-var EVT_DRAG_START = "drag:start";
-var EVT_MOUSEDOWN = "mousedown";
-var EVT_MOUSEUP = "mouseup";
-var EVT_REVERT = "revert";
-var EVT_ZOOM = "zoom";
+var EVENT_DRAG_MOVE = "drag:move";
+var EVENT_DRAG_STOP = "drag:stop";
+var EVENT_DRAG_START = "drag:start";
+var EVENT_MOUSEDOWN = "mousedown";
+var EVENT_MOUSEUP = "mouseup";
+var EVENT_REVERT = "revert";
+var EVENT_ZOOM = "zoom";
 var DragManager =
 /*#__PURE__*/
 function () {
@@ -525,7 +525,7 @@ function () {
 
     // create a delegated drag handler
     this.collicat = this.instance.createDragManager({
-      zoom: this.instance.getZoom(),
+      zoom: this.instance.currentZoom,
       css: {
         noSelect: this.instance.dragSelectClass,
         delegatedDraggable: "jtk-delegated-draggable",
@@ -543,7 +543,7 @@ function () {
         return _el.parentNode != null && _el[PARENT_GROUP_KEY] && _el[PARENT_GROUP_KEY].revert ? !_isInsideParent(_this.instance, _el, pos) : false;
       }
     });
-    this.instance.bind(EVT_ZOOM, function (z) {
+    this.instance.bind(EVENT_ZOOM, function (z) {
       _this.collicat.setZoom(z);
     });
   }
@@ -589,7 +589,7 @@ function () {
           return _this2.drag.addFilter(filterToAdd[0], filterToAdd[1]);
         });
 
-        this.drag.on(EVT_REVERT, function (el) {
+        this.drag.on(EVENT_REVERT, function (el) {
           _this2.instance.revalidate(el);
         });
       } else {
@@ -687,7 +687,7 @@ function () {
       var _one = function _one(_el, pos) {
         var redrawResult = _this.instance._draw(_el, pos);
 
-        _this.instance.fire(EVT_DRAG_STOP, {
+        _this.instance.fire(EVENT_DRAG_STOP, {
           el: _el,
           e: params.e,
           pos: pos,
@@ -737,7 +737,7 @@ function () {
             }
           }
 
-          this.instance.groupManager.addToGroup(targetGroup, intersectingElement, false);
+          this.instance.groupManager.addToGroup(targetGroup, false, intersectingElement);
         }
       }
 
@@ -829,7 +829,7 @@ function () {
           top: bounds.y
         }, null);
 
-        _this3.instance.fire(EVT_DRAG_MOVE, {
+        _this3.instance.fire(EVENT_DRAG_MOVE, {
           el: el,
           e: params.e,
           pos: {
@@ -983,7 +983,7 @@ function () {
           // the drag to be aborted.
 
 
-          return _this4.instance.fire(EVT_DRAG_START, {
+          return _this4.instance.fire(EVENT_DRAG_START, {
             el: _el,
             e: params.e
           });
@@ -1392,8 +1392,8 @@ function () {
     var container = instance.getContainer();
     this.mousedownHandler = this._mousedownHandler.bind(this);
     this.mouseupHandler = this._mouseupHandler.bind(this);
-    instance.on(container, EVT_MOUSEDOWN, "[jtk-source]", this.mousedownHandler);
-    instance.on(container, "mouseup", "[jtk-source]", this.mouseupHandler);
+    instance.on(container, EVENT_MOUSEDOWN, "[jtk-source]", this.mousedownHandler);
+    instance.on(container, EVENT_MOUSEUP, "[jtk-source]", this.mouseupHandler);
   }
 
   _createClass(EndpointDragHandler, [{
@@ -1440,7 +1440,7 @@ function () {
         // will be located.
 
 
-        var elxy = BrowserJsPlumbInstance.getPositionOnElement(e, targetEl, this.instance.getZoom()); // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
+        var elxy = BrowserJsPlumbInstance.getPositionOnElement(e, targetEl, this.instance.currentZoom); // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
         // the params passed in, because after a connection is established we're going to reset the endpoint
         // to have the anchor we were given.
 
@@ -1494,7 +1494,7 @@ function () {
         // a new connection from this endpoint. The entry point is the `onStart` method in this class.
 
 
-        this.instance.trigger(this.ep.endpoint.canvas, EVT_MOUSEDOWN, e, payload);
+        this.instance.trigger(this.ep.endpoint.canvas, EVENT_MOUSEDOWN, e, payload);
       }
     } //
     // cleans up any endpoints added from a mousedown on a source that did not result in a connection drag
@@ -1575,8 +1575,8 @@ function () {
     key: "reset",
     value: function reset() {
       var c = this.instance.getContainer();
-      this.instance.off(c, EVT_MOUSEUP, this.mouseupHandler);
-      this.instance.off(c, EVT_MOUSEDOWN, this.mousedownHandler);
+      this.instance.off(c, EVENT_MOUSEUP, this.mouseupHandler);
+      this.instance.off(c, EVENT_MOUSEDOWN, this.mousedownHandler);
     }
   }, {
     key: "init",
@@ -2452,7 +2452,7 @@ function (_ElementDragHandler) {
   _createClass(GroupDragHandler, [{
     key: "reset",
     value: function reset() {
-      this.drag.off(EVT_REVERT, this.doRevalidate);
+      this.drag.off(EVENT_REVERT, this.doRevalidate);
     }
   }, {
     key: "_revalidate",
@@ -2463,7 +2463,7 @@ function (_ElementDragHandler) {
     key: "init",
     value: function init(drag) {
       this.drag = drag;
-      drag.on(EVT_REVERT, this.doRevalidate);
+      drag.on(EVENT_REVERT, this.doRevalidate);
     }
   }, {
     key: "useGhostProxy",
@@ -2623,10 +2623,6 @@ function matchesSelector$1(el, selector, ctx) {
   return false;
 }
 
-function _gel(el) {
-  return typeof el == "string" || el.constructor === String ? document.getElementById(el) : el;
-}
-
 function _t(e) {
   return e.srcElement || e.target;
 } //
@@ -2746,9 +2742,7 @@ function _unbind(obj, type, fn) {
 
   if (fn == null) return;
 
-  _each(obj, function (el) {
-    var _el = _gel(el);
-
+  _each(obj, function (_el) {
     _unstore(_el, type, fn); // it has been bound if there is a tauid. otherwise it was not bound and we can ignore it.
 
 
@@ -2877,8 +2871,8 @@ var SmartClickHandler = function SmartClickHandler(obj, evt, fn, children) {
       }
     };
 
-    DefaultHandler(obj, EVENT_MOUSEDOWN, down, children);
-    DefaultHandler(obj, EVENT_MOUSEUP, up, children);
+    DefaultHandler(obj, EVENT_MOUSEDOWN$1, down, children);
+    DefaultHandler(obj, EVENT_MOUSEUP$1, up, children);
     DefaultHandler(obj, EVENT_CLICK, click, children);
     obj.__taSmartClicks = [];
   } // store in the list of callbacks
@@ -3120,9 +3114,7 @@ function () {
 
       if (fn == null) return;
 
-      _each(obj, function (el) {
-        var _el = _gel(el);
-
+      _each(obj, function (_el) {
         if (_this2.smartClicks && evt === EVENT_CLICK) SmartClickHandler(_el, evt, fn, children);else if (evt === EVENT_TAP || evt === EVENT_DBL_TAP || evt === EVENT_CONTEXTMENU) {
           _this2.tapHandler(_el, evt, fn, children);
         } else if (evt === EVENT_MOUSEENTER || evt == EVENT_MOUSEEXIT) _this2.mouseEnterExitHandler(_el, evt, fn, children);else DefaultHandler(_el, evt, fn, children);
@@ -3157,9 +3149,7 @@ function () {
           sl = _screenLocation(originalEvent),
           cl = _clientLocation(originalEvent);
 
-      _each(el, function (__el) {
-        var _el = _gel(__el);
-
+      _each(el, function (_el) {
         var evt;
         originalEvent = originalEvent || {
           screenX: sl[0],
@@ -5245,7 +5235,7 @@ function (_JsPlumbInstance) {
         return null;
       }
 
-      return typeof el === "string" ? document.getElementById(el) : el;
+      return typeof el === "string" ? document.querySelector("[jtk-id='" + el + "'") : el;
     }
   }, {
     key: "getElementById",
@@ -5523,7 +5513,7 @@ function (_JsPlumbInstance) {
         this.dragManager.reset();
       }
 
-      var newContainer = this.getElement(c);
+      var newContainer = isString(c) ? this.getElementById(c) : c;
       this.setAttribute(newContainer, ATTRIBUTE_CONTAINER, uuid().replace("-", "")); // move all endpoints, connectors, and managed elements
 
       var currentContainer = this.getContainer();
@@ -6275,4 +6265,4 @@ function ready(f) {
   _do();
 }
 
-export { BrowserJsPlumbInstance, Collicat, Drag, EventManager, newInstance, ready, registerEndpointRenderer };
+export { BrowserJsPlumbInstance, Collicat, Drag, EVENT_DRAG_MOVE, EVENT_DRAG_START, EVENT_DRAG_STOP, EventManager, addClass, consume, createElement, createElementNS, findParent, getClass, getEventSource, hasClass, matchesSelector, newInstance, offsetRelativeToRoot, pageLocation, ready, registerEndpointRenderer, removeClass, sizeElement, toggleClass };

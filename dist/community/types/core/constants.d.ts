@@ -88,3 +88,4 @@ export declare const SELECTOR_ENDPOINT: string;
 export declare const SELECTOR_GROUP_CONTAINER = "[jtk-group-content]";
 export declare const SELECTOR_MANAGED_ELEMENT = "[jtk-managed]";
 export declare const SELECTOR_OVERLAY: string;
+export declare const SCOPE_PREFIX = "jtk-scope-";
