@@ -807,7 +807,6 @@ export abstract class JsPlumbInstance extends EventGenerator {
             this.router.elementRemoved(id)
 
             this.anchorManager.clearFor(id)
-            this.anchorManager.removeFloatingConnection(id)
 
             if (this.isSource(_el)) {
                 this.unmakeSource(_el)
