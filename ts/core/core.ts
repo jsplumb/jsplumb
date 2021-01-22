@@ -9,7 +9,6 @@ import {
     addToList,
     findWithFunction,
     functionChain,
-    IS,
     isString,
     log,
     removeWithFunction, rotateAnchorOrientation, rotatePoint,
@@ -36,7 +35,7 @@ import {
 
 import { EventGenerator } from "./event-generator"
 import * as Constants from "./constants"
-import {EndpointOptions} from "./endpoint/endpoint"
+import {EndpointOptions, InternalEndpointOptions} from "./endpoint/endpoint"
 import {AddGroupOptions, GroupManager} from "./group/group-manager"
 import {UIGroup} from "./group/group"
 import {jsPlumbGeometry, jsPlumbGeometryHelpers} from "./geom"
@@ -151,7 +150,7 @@ export type ManagedElement = {
     rotation?:number
 }
 
-const ID_ATTRIBUTE = "jtk-id"
+const ID_ATTRIBUTE = Constants.JTK_ID
 
 export abstract class JsPlumbInstance extends EventGenerator {
 
@@ -175,9 +174,9 @@ export abstract class JsPlumbInstance extends EventGenerator {
     endpointAnchorClassPrefix = "jtk-endpoint-anchor"
     overlayClass = "jtk-overlay"
 
-    connections:Array<Connection> = []
+    readonly connections:Array<Connection> = []
     endpointsByElement:Dictionary<Array<Endpoint>> = {}
-    endpointsByUUID:Dictionary<Endpoint> = {}
+    private readonly endpointsByUUID:Map<string, Endpoint> = new Map()
 
     public allowNestedGroups:boolean
 
@@ -185,22 +184,24 @@ export abstract class JsPlumbInstance extends EventGenerator {
     private _offsetTimestamps:Dictionary<string> = {}
     readonly viewport:Viewport = new Viewport()
 
-    router: Router
-    anchorManager:AnchorManager
-    groupManager:GroupManager
-    private _connectionTypes:Dictionary<TypeDescriptor> = {}
-    private _endpointTypes:Dictionary<TypeDescriptor> = {}
+    readonly router: Router
+    readonly anchorManager:AnchorManager
+    readonly groupManager:GroupManager
+
+    private _connectionTypes:Map<string, TypeDescriptor> = new Map()
+    private _endpointTypes:Map<string, TypeDescriptor> = new Map()
     private _container:any
 
     protected _managedElements:Dictionary<ManagedElement> = {}
-    private _floatingConnections:Dictionary<Connection> = {}
 
-    DEFAULT_SCOPE:string
+    private DEFAULT_SCOPE:string
+    get defaultScope() { return this.DEFAULT_SCOPE }
 
     private _helpers:jsPlumbHelperFunctions
     public geometry:jsPlumbGeometryHelpers
 
     private _zoom:number = 1
+    get currentZoom() { return  this._zoom }
 
     constructor(public readonly _instanceIndex:number, defaults?:jsPlumbDefaults, helpers?:jsPlumbHelperFunctions) {
 
@@ -274,10 +275,6 @@ export abstract class JsPlumbInstance extends EventGenerator {
             this.repaintEverything()
         }
         return true
-    }
-
-    getZoom ():number {
-        return this._zoom
     }
 
     _idstamp ():string {
@@ -354,7 +351,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
         } else if (options.constructor === String) {
             options = { "scope": options } as SelectOptions
         }
-        let scope = options.scope || this.getDefaultScope(),
+        let scope = options.scope || this.defaultScope,
             scopes = prepareList(this, scope, true),
             sources = prepareList(this, options.source),
             targets = prepareList(this, options.target),
@@ -547,14 +544,13 @@ export abstract class JsPlumbInstance extends EventGenerator {
     computeAnchorLoc(endpoint:Endpoint, timestamp?:string):AnchorPlacement {
 
         const myOffset = this._managedElements[endpoint.elementId].info
-        const anchorLoc = endpoint.anchor.compute({
+        return endpoint.anchor.compute({
             xy: [ myOffset.x, myOffset.y ],
             wh : [myOffset.w, myOffset.h],
             element: endpoint,
             timestamp: timestamp || this._suspendedAt,
             rotation:this._managedElements[endpoint.elementId].rotation
         })
-        return anchorLoc
 
     }
 
@@ -577,10 +573,6 @@ export abstract class JsPlumbInstance extends EventGenerator {
         if (!_wasSuspended) {
             this.setSuspendDrawing(false, !doNotRepaintAfterwards)
         }
-    }
-
-    getDefaultScope ():string {
-        return this.DEFAULT_SCOPE
     }
 
     /**
@@ -812,6 +804,8 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
             let id = this.getId(_el)
 
+            this.router.elementRemoved(id)
+
             this.anchorManager.clearFor(id)
             this.anchorManager.removeFloatingConnection(id)
 
@@ -822,8 +816,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
                 this.unmakeTarget(_el)
             }
 
-            delete this._floatingConnections[id]
-
+            this.removeAttribute(_el, ID_ATTRIBUTE)
             this.removeAttribute(_el, Constants.ATTRIBUTE_MANAGED)
             delete this._managedElements[id]
 
@@ -860,13 +853,22 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return this._managedElements[elementId] ? (this._managedElements[elementId].rotation || 0) : 0
     }
 
+    /**
+     * Internal method to create an Endpoint from the given options, perhaps with the given id. Do not use this method
+     * as a consumer of the API. If you wish to add an Endpoint to some element, use `addEndpoint` instead.
+     * @param params Options for the Endpoint.
+     * @param id Optional ID for the Endpoint.
+     */
     newEndpoint(params:EndpointOptions, id?:string):Endpoint {
-        let _p = extend({}, params)
+        let _p:InternalEndpointOptions = extend({}, params)
         _p.elementId = id || this.getId(_p.source)
 
         let ep = new Endpoint(this, _p)
         ep.id = "ep_" + this._idstamp()
         this.manage(_p.source)
+        if (params.uuid) {
+            this.endpointsByUUID.set(params.uuid, ep)
+        }
 
         return ep
     }
@@ -893,9 +895,9 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return { endpoints: eps ? eps : [ ep, ep ], anchors: as ? as : [a, a ]}
     }
 
-    getAllConnections ():Array<Connection> {
-        return this.connections
-    }
+    // getAllConnections ():Array<Connection> {
+    //     return this.connections
+    // }
 
     // repaint some element's endpoints and connections
     repaint (el:jsPlumbElement, ui?:any, timestamp?:string):RedrawResult {
@@ -989,7 +991,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
     unregisterEndpoint(endpoint:Endpoint) {
         const uuid = endpoint.getUuid()
         if (uuid) {
-            delete this.endpointsByUUID[uuid]
+            this.endpointsByUUID.delete(uuid)
         }
         this.router.deleteEndpoint(endpoint)
 
@@ -1022,7 +1024,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
     }
 
     deleteEndpoint(object:string | Endpoint):JsPlumbInstance {
-        let endpoint = (typeof object === "string") ? this.endpointsByUUID[object as string] : object as Endpoint
+        let endpoint = (typeof object === "string") ? this.endpointsByUUID.get(object as string) : object as Endpoint
         if (endpoint) {
 
             // find all connections for the endpoint
@@ -1053,16 +1055,12 @@ export abstract class JsPlumbInstance extends EventGenerator {
         p.paintStyle = p.paintStyle || this.Defaults.endpointStyle
         let _p:EndpointOptions = extend({source:el}, p)
         let id = this.getId(_p.source)
-        const mel:ManagedElement = this.manage(el, null, !this._suspendDrawing)
+        this.manage(el, null, !this._suspendDrawing)
         let e = this.newEndpoint(_p, id)
 
         addToList(this.endpointsByElement, id, e)
 
         if (!this._suspendDrawing) {
-
-            // why not just a full renderer.paintEndpoint method here?
-
-            //this.renderer.paintEndpoint()  // but why does this method expect a paintStyle?
 
             const anchorLoc = this.computeAnchorLoc(e)
             e.paint({
@@ -1088,13 +1086,13 @@ export abstract class JsPlumbInstance extends EventGenerator {
         this.silently(() => {
             this.endpointsByElement = {}
             this._managedElements = {}
-            this.endpointsByUUID = {}
+            this.endpointsByUUID.clear()
             this.viewport.reset()
             this._offsetTimestamps = {}
             this.router.reset()
             this.groupManager.reset()
-            this._connectionTypes = {}
-            this._endpointTypes = {}
+            this._connectionTypes.clear()
+            this._endpointTypes.clear()
             this.connections.length = 0
         })
     }
@@ -1125,7 +1123,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
     }
 
     getEndpoint(id:string):Endpoint {
-        return this.endpointsByUUID[id]
+        return this.endpointsByUUID.get(id)
     }
 
     connect (params:ConnectParams, referenceParams?:ConnectParams):Connection {
@@ -1153,7 +1151,6 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
             this._finaliseConnection(jpc, _p)
         }
-
 
         return jpc
     }
@@ -1213,11 +1210,6 @@ export abstract class JsPlumbInstance extends EventGenerator {
         // scope
         if (_p.sourceEndpoint && _p.sourceEndpoint.scope) {
             _p.scope = _p.sourceEndpoint.scope
-        }
-
-        // pointer events
-        if (!_p["pointer-events"] && _p.sourceEndpoint && _p.sourceEndpoint.connectorPointerEvents) {
-            _p["pointer-events"] = _p.sourceEndpoint.connectorPointerEvents
         }
 
         let _addEndpoint = (el:any, def?:any, idx?:number):Endpoint | Array<Endpoint> => {
@@ -1518,7 +1510,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
     private _writeScopeAttribute (el:jsPlumbElement, scope:string):void {
         let scopes = scope.split(/\s/)
         for (let i = 0; i < scopes.length; i++) {
-            this.setAttribute(el, "jtk-scope-" + scopes[i], "")
+            this.setAttribute(el, Constants.SCOPE_PREFIX + scopes[i], "")
         }
     }
 
@@ -1712,7 +1704,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
     }
 
     registerConnectionType(id:string, type:TypeDescriptor):void {
-        this._connectionTypes[id] = extend({}, type)
+        this._connectionTypes.set(id, extend({}, type))
         if (type.overlays) {
             let to:Dictionary<FullOverlaySpec> = {}
             for (let i = 0; i < type.overlays.length; i++) {
@@ -1721,8 +1713,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
                 let fo = this.convertToFullOverlaySpec(type.overlays[i])
                 to[fo[1].id] = fo
             }
-            //this._connectionTypes[id].overlayMap = to
-            this._connectionTypes[id].overlays = to as any
+            this._connectionTypes.get(id).overlays = to as any
         }
     }
 
@@ -1733,7 +1724,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
     }
 
     registerEndpointType(id:string, type:TypeDescriptor) {
-        this._endpointTypes[id] = extend({}, type)
+        this._endpointTypes.set(id, extend({}, type))
         if (type.overlays) {
             let to:Dictionary<FullOverlaySpec> = {}
             for (let i = 0; i < type.overlays.length; i++) {
@@ -1742,7 +1733,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
                 let fo = this.convertToFullOverlaySpec(type.overlays[i])
                 to[fo[1].id] = fo
             }
-            this._endpointTypes[id].overlays = to as any
+            this._endpointTypes.get(id).overlays = to as any
         }
     }
 
@@ -1753,7 +1744,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
     }
 
     getType(id:string, typeDescriptor:string):TypeDescriptor {
-        return typeDescriptor === "connection" ? this._connectionTypes[id] : this._endpointTypes[id]
+        return typeDescriptor === "connection" ? this._connectionTypes.get(id) : this._endpointTypes.get(id)
     }
 
     importDefaults(d:jsPlumbDefaults):JsPlumbInstance {
@@ -1883,23 +1874,25 @@ export abstract class JsPlumbInstance extends EventGenerator {
     getGroup(groupId:string) { return this.groupManager.getGroup(groupId); }
     getGroupFor(el:jsPlumbElement) { return this.groupManager.getGroupFor(el); }
     addGroup(params:AddGroupOptions) { return this.groupManager.addGroup(params); }
-    addToGroup(group:string | UIGroup, el:any | Array<any>, doNotFireEvent?:boolean) { return this.groupManager.addToGroup(group, el, doNotFireEvent); }
+    addToGroup(group:string | UIGroup, ...el:Array<jsPlumbElement>) { return this.groupManager.addToGroup(group, false, ...el); }
 
     collapseGroup (group:string | UIGroup) { this.groupManager.collapseGroup(group); }
     expandGroup (group:string | UIGroup) { this.groupManager.expandGroup(group); }
     toggleGroup (group:string | UIGroup) { this.groupManager.toggleGroup(group); }
 
-    removeGroup(group:string | UIGroup, deleteMembers?:boolean, manipulateDOM?:boolean, doNotFireEvent?:boolean) {
-        this.groupManager.removeGroup(group, deleteMembers, manipulateDOM, doNotFireEvent)
+    removeGroup(group:string | UIGroup, deleteMembers?:boolean, manipulateView?:boolean, doNotFireEvent?:boolean) {
+        this.groupManager.removeGroup(group, deleteMembers, manipulateView, doNotFireEvent)
     }
 
-    removeAllGroups(deleteMembers?:boolean, manipulateDOM?:boolean, doNotFireEvent?:boolean) {
-        this.groupManager.removeAllGroups(deleteMembers, manipulateDOM, doNotFireEvent)
+    removeAllGroups(deleteMembers?:boolean, manipulateView?:boolean) {
+        this.groupManager.removeAllGroups(deleteMembers, manipulateView, false)
     }
-    removeFromGroup (group:string | UIGroup, el:any, doNotFireEvent?:boolean):void {
-        this.groupManager.removeFromGroup(group, el, doNotFireEvent)
-        this.appendElement(el, this.getContainer())
-        this.updateOffset({recalc:true, elId:this.getId(el)})
+    removeFromGroup (group:string | UIGroup, ...el:Array<jsPlumbElement>):void {
+        this.groupManager.removeFromGroup(group, false, ...el)
+        el.forEach((_el) => {
+            this.appendElement(_el, this.getContainer())
+            this.updateOffset({recalc:true, elId:this.getId(_el)})
+        })
     }
 
     abstract getElement(el:any|string):any
