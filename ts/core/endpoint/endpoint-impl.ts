@@ -1,4 +1,4 @@
-import {EndpointOptions, EndpointSpec} from "../endpoint/endpoint"
+import {EndpointSpec, InternalEndpointOptions} from "../endpoint/endpoint"
 import {jsPlumbElement, PointArray} from '../common'
 import { JsPlumbInstance } from "../core"
 import {makeAnchorFromSpec} from "../factory/anchor-factory"
@@ -44,7 +44,6 @@ export class Endpoint extends OverlayCapableComponent {
     }
 
     connections:Array<Connection> = []
-    connectorPointerEvents:string
     anchor:Anchor
     endpoint:EndpointRepresentation<any>
     element:jsPlumbElement
@@ -97,7 +96,7 @@ export class Endpoint extends OverlayCapableComponent {
     defaultLabelLocation = [ 0.5, 0.5 ] as [number, number]
     getDefaultOverlayKey () { return "endpointOverlays"; }
 
-    constructor(public instance:JsPlumbInstance, params:EndpointOptions) {
+    constructor(public instance:JsPlumbInstance, params:InternalEndpointOptions) {
         super(instance, params)
 
         this.appendToDefaultType({
@@ -116,15 +115,12 @@ export class Endpoint extends OverlayCapableComponent {
 
         this.enabled = !(params.enabled === false)
         this.visible = true
-        this.element = this.instance.getElement(params.source)
+        this.element = params.source
 
         this.uuid = params.uuid
 
         this.portId = params.portId
         this.floatingEndpoint = null
-        if (this.uuid) {
-            this.instance.endpointsByUUID[this.uuid] = this
-        }
         this.elementId = params.elementId
         this.dragProxy = params.dragProxy
 
@@ -158,9 +154,8 @@ export class Endpoint extends OverlayCapableComponent {
         this.isTarget = params.isTarget || false
 
         this.connections = params.connections || []
-        this.connectorPointerEvents = params["connector-pointer-events"]
 
-        this.scope = params.scope || instance.getDefaultScope()
+        this.scope = params.scope || instance.defaultScope
         this.timestamp = null
         this.reattachConnections = params.reattach || instance.Defaults.reattachConnections
         this.connectionsDetachable = instance.Defaults.connectionsDetachable
