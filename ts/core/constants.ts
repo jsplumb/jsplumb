@@ -112,4 +112,6 @@ export const SELECTOR_GROUP_CONTAINER = "[jtk-group-content]"
 export const SELECTOR_MANAGED_ELEMENT = "[jtk-managed]"
 export const SELECTOR_OVERLAY = cls(CLASS_OVERLAY)
 
+export const SCOPE_PREFIX = "jtk-scope-"
+
 
