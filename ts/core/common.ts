@@ -19,6 +19,7 @@ export interface jsPlumbElement {
     _jsPlumbParentGroup:UIGroup
     _jspContext?:any
     _jsPlumbConnections:Dictionary<boolean>
+    _jsPlumbProxies:Array<[Connection, number]>
 }
 
 export interface ConnectParams {
