@@ -211,11 +211,11 @@ function getEndpointCanvas<C>(ep:EndpointRepresentation<C>):any {
     return (ep as any).canvas
 }
 
-function getLabelElement(o:LabelOverlay):HTMLElement {
+function getLabelElement(o:LabelOverlay):jsPlumbDOMElement {
     return HTMLElementOverlay.getElement(o as any)
 }
 
-function getCustomElement(o:CustomOverlay):HTMLElement {
+function getCustomElement(o:CustomOverlay):jsPlumbDOMElement {
     return HTMLElementOverlay.getElement(o as any, o.component, (c:Component) => {
         const el = o.create(c)
         o.instance.addClass(el, o.instance.overlayClass)
@@ -412,16 +412,16 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         this.dragManager.removeFilter(filter)
     }
 
-    getElement(el:HTMLElement|string):HTMLElement {
+    getElement(el:HTMLElement|string):jsPlumbDOMElement {
         if (el == null) {
             return null
         }
 
-        return (typeof el === "string" ? document.getElementById(el) : el) as HTMLElement
+        return (typeof el === "string" ? document.querySelector("[jtk-id='" + el + "'") : el) as jsPlumbDOMElement
     }
 
-    getElementById(elId: string): HTMLElement {
-        return document.getElementById(elId)
+    getElementById(elId: string): jsPlumbDOMElement {
+        return document.getElementById(elId) as jsPlumbDOMElement
     }
 
     removeElement(element:any):void {
@@ -456,43 +456,43 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         return true
     }
 
-    getClass(el:HTMLElement):string { return getClass(el) }
+    getClass(el:jsPlumbDOMElement):string { return getClass(el) }
 
-    addClass(el:HTMLElement, clazz:string):void {
+    addClass(el:jsPlumbDOMElement, clazz:string):void {
         addClass(el, clazz)
     }
 
-    hasClass(el:HTMLElement, clazz:string):boolean {
+    hasClass(el:jsPlumbDOMElement, clazz:string):boolean {
         return hasClass(el, clazz)
     }
 
-    removeClass(el:HTMLElement, clazz:string):void {
+    removeClass(el:jsPlumbDOMElement, clazz:string):void {
         removeClass(el, clazz)
     }
 
-    toggleClass(el:HTMLElement, clazz:string):void {
+    toggleClass(el:jsPlumbDOMElement, clazz:string):void {
         toggleClass(el, clazz)
     }
 
-    setAttribute(el:HTMLElement, name:string, value:string):void {
+    setAttribute(el:jsPlumbDOMElement, name:string, value:string):void {
         el.setAttribute(name, value)
     }
 
-    getAttribute(el:HTMLElement, name:string):string {
+    getAttribute(el:jsPlumbDOMElement, name:string):string {
         return el.getAttribute(name)
     }
 
-    setAttributes(el:HTMLElement, atts:Dictionary<string>) {
+    setAttributes(el:jsPlumbDOMElement, atts:Dictionary<string>) {
         for (let i in atts) {
             el.setAttribute(i, atts[i])
         }
     }
 
-    removeAttribute(el:HTMLElement, attName:string) {
+    removeAttribute(el:jsPlumbDOMElement, attName:string) {
         el.removeAttribute && el.removeAttribute(attName)
     }
 
-    on (el:HTMLElement, event:string, callbackOrSelector:Function|string, callback?:Function) {
+    on (el:jsPlumbDOMElement, event:string, callbackOrSelector:Function|string, callback?:Function) {
         if (callback == null) {
             this.eventManager.on(el, event, callbackOrSelector)
         } else {
@@ -501,16 +501,16 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         return this
     }
 
-    off (el:HTMLElement, event:string, callback:Function) {
+    off (el:jsPlumbDOMElement, event:string, callback:Function) {
         this.eventManager.off(el, event, callback)
         return this
     }
 
-    trigger(el:HTMLElement, event:string, originalEvent?:Event, payload?:any) {
+    trigger(el:jsPlumbDOMElement, event:string, originalEvent?:Event, payload?:any) {
         this.eventManager.trigger(el, event, originalEvent, payload)
     }
 
-    _getOffsetRelativeToRoot(el:HTMLElement) {
+    _getOffsetRelativeToRoot(el:jsPlumbDOMElement) {
         return offsetRelativeToRoot(el)
     }
 
@@ -560,15 +560,15 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         }
     }
 
-    getSelector(ctx:string | HTMLElement, spec:string):NodeListOf<any> {
+    getSelector(ctx:string | jsPlumbDOMElement, spec:string):NodeListOf<jsPlumbDOMElement> {
 
-        let sel:NodeListOf<any> = null
+        let sel:NodeListOf<jsPlumbDOMElement> = null
         if (arguments.length === 1) {
             if (!isString(ctx)) {
 
                 let nodeList = document.createDocumentFragment()
-                nodeList.appendChild(ctx as HTMLElement)
-                return nodeList.childNodes
+                nodeList.appendChild(ctx as jsPlumbDOMElement)
+                return nodeList.childNodes as NodeListOf<jsPlumbDOMElement>
             }
 
             sel = document.querySelectorAll(<string>ctx)
@@ -689,7 +689,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
             this.dragManager.reset()
         }
 
-        const newContainer = this.getElement(c)
+        const newContainer = isString(c) ?  this.getElementById(c as string) as jsPlumbDOMElement : c as jsPlumbDOMElement
 
         this.setAttribute(newContainer, ATTRIBUTE_CONTAINER, uuid().replace("-", ""))
 
@@ -958,7 +958,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
     setOverlayHover(o: Overlay, hover: boolean): any {
 
         const method = hover ? "addClass" : "removeClass"
-        let canvas
+        let canvas:jsPlumbDOMElement
 
         if (isLabelOverlay(o)) {
             canvas = getLabelElement(o)
