@@ -1,4 +1,4 @@
-import {addToList, log, remove, uuid} from "./util"
+import {addToDictionary, log, remove, uuid} from "./util"
 import {Dictionary} from "./common"
 export abstract class EventGenerator {
 
@@ -93,7 +93,7 @@ export abstract class EventGenerator {
 
     bind(event: string | Array<String>, listener: Function, insertAtStart?: boolean): EventGenerator {
         const _one = (evt: string) => {
-            addToList(this._listeners, evt, listener, insertAtStart)
+            addToDictionary(this._listeners, evt, listener, insertAtStart)
             ;(<any>listener).__jsPlumb = (<any>listener).__jsPlumb || {}
             ;(<any>listener).__jsPlumb[uuid()] = evt
         }
