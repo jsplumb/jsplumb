@@ -1,4 +1,4 @@
-import { PointArray, PointXY, SortFunction } from './common'
+import {Dictionary, PointArray, PointXY, SortFunction} from './common'
 
 export function filterList (list:Array<any> | string, value:any, missingIsFalse?:boolean):boolean {
     if (list === "*") {
@@ -320,11 +320,21 @@ export function addWithFunction<T>(list: Array<T>, item: T, hashFunction: (_a: T
     }
 }
 
-export function addToList(map: any, key: string, value: any, insertAtStart?: boolean): Array<any> {
+export function addToDictionary<T>(map: Dictionary<Array<T>>, key: string, value: any, insertAtStart?: boolean): Array<any> {
     let l = map[key]
     if (l == null) {
         l = []
         map[key] = l
+    }
+    l[insertAtStart ? "unshift" : "push"](value)
+    return l
+}
+
+export function addToList<T>(map: Map<string, Array<T>>, key: string, value: any, insertAtStart?: boolean): Array<any> {
+    let l = map.get(key)
+    if (l == null) {
+        l = []
+        map.set(key, l)
     }
     l[insertAtStart ? "unshift" : "push"](value)
     return l
