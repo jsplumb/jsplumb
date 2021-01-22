@@ -59,8 +59,9 @@ var testSuite = function () {
         document.body.appendChild(e);
         var e2 = _jsPlumb.getElement(e);
         equal(e2.id, "FOO");
+        _jsPlumb.manage(e2)
 
-        var e3 = _jsPlumb.getElement("FOO");
+        var e3 = _jsPlumb.getElement(e2.getAttribute("jtk-id"));
         equal(e3.id, "FOO");
     });
 
