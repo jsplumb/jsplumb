@@ -20,6 +20,7 @@ import {
     uuid
 } from "@jsplumb/community-core"
 
+import { jsPlumbDOMElement } from './browser-jsplumb-instance'
 
 function _touch(target:any, pageX:number, pageY:number, screenX:number, screenY:number, clientX:number, clientY:number):Touch {
 
@@ -74,10 +75,6 @@ function matchesSelector(el:any, selector:string, ctx?:Element):boolean {
         }
     }
     return false
-}
-
-function _gel (el:Element|string):Element {
-    return (typeof el == "string" || el.constructor === String) ? document.getElementById(el as string) : el
 }
 
 function _t (e:Event):EventTarget {
@@ -177,8 +174,7 @@ function _bind (obj:any, type:string, fn:any, originalFn?:any) {
 
 function _unbind (obj:any, type:string, fn:any) {
     if (fn == null) return
-    _each(obj, (el:any) => {
-        const _el:any = _gel(el)
+    _each(obj, (_el:jsPlumbDOMElement) => {
         _unstore(_el, type, fn)
         // it has been bound if there is a tauid. otherwise it was not bound and we can ignore it.
         if (fn.__tauid != null) {
@@ -188,7 +184,7 @@ function _unbind (obj:any, type:string, fn:any) {
             }
             else if (this.detachEvent) {
                 const key = type + fn.__tauid
-                _el[key] && _el.detachEvent("on" + type, _el[key])
+                _el[key] && (_el as any).detachEvent("on" + type, _el[key])
                 _el[key] = null
                 _el["e" + key] = null
             }
@@ -486,8 +482,7 @@ export class EventManager {
 
     private _doBind (obj:any, evt:string, fn:any, children?:string) {
         if (fn == null) return
-        _each(obj,  (el:any) => {
-            const _el = _gel(el)
+        _each(obj,  (_el:jsPlumbDOMElement) => {
             if (this.smartClicks && evt === EVENT_CLICK)
                 SmartClickHandler(_el, evt, fn, children)
             else if (evt === EVENT_TAP || evt === EVENT_DBL_TAP || evt === EVENT_CONTEXTMENU) {
@@ -521,8 +516,7 @@ export class EventManager {
             bindingAMouseEvent = !(isTouchDevice && !isMouseDevice && touchMap[event])
 
         const pl = pageLocation(originalEvent), sl = _screenLocation(originalEvent), cl = _clientLocation(originalEvent)
-        _each(el, (__el:any) => {
-            const _el = _gel(__el)
+        _each(el, (_el:jsPlumbDOMElement) => {
             let evt
             originalEvent = originalEvent || {
                 screenX: sl[0],
