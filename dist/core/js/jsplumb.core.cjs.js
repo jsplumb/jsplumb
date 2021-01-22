@@ -8674,8 +8674,6 @@ function () {
     _defineProperty(this, "continuousAnchorOrientations", {});
 
     _defineProperty(this, "anchorLists", {});
-
-    _defineProperty(this, "floatingConnections", {});
   }
 
   _createClass(AnchorManager, [{
@@ -8727,16 +8725,6 @@ function () {
     key: "clearContinuousAnchorPlacement",
     value: function clearContinuousAnchorPlacement(endpointId) {
       delete this.continuousAnchorLocations[endpointId];
-    }
-  }, {
-    key: "addFloatingConnection",
-    value: function addFloatingConnection(key, conn) {
-      this.floatingConnections[key] = conn;
-    }
-  }, {
-    key: "removeFloatingConnection",
-    value: function removeFloatingConnection(key) {
-      delete this.floatingConnections[key];
     }
   }, {
     key: "newConnection",
@@ -8794,12 +8782,6 @@ function () {
     key: "addEndpoint",
     value: function addEndpoint(endpoint, elementId) {
       addToList(this._amEndpoints, elementId, endpoint);
-    }
-  }, {
-    key: "changeId",
-    value: function changeId(oldId, newId) {
-      this._amEndpoints[newId] = this._amEndpoints[oldId];
-      delete this._amEndpoints[oldId];
     }
   }, {
     key: "deleteEndpoint",
@@ -8921,13 +8903,13 @@ function () {
         } // valid for one paint cycle.
 
 
-        var myOffset = this.instance.updateOffset({
+        this.instance.updateOffset({
           elId: elementId,
           offset: offsetToUse,
           recalc: false,
           timestamp: timestamp
-        }),
-            orientationCache = {};
+        });
+        var orientationCache = {};
         var _iteratorNormalCompletion = true;
         var _didIteratorError = false;
         var _iteratorError = undefined;
@@ -9118,7 +9100,7 @@ function () {
               timestamp: timestamp,
               offset: cd
             });
-          } // paint current floating connection for this element, if there is one.
+          } // paint all the connections
 
         } catch (err) {
           _didIteratorError3 = true;
@@ -9134,17 +9116,6 @@ function () {
             }
           }
         }
-
-        var fc = this.floatingConnections[elementId];
-
-        if (fc) {
-          fc.paint({
-            timestamp: timestamp,
-            recalc: false,
-            elId: elementId
-          });
-        } // paint all the connections
-
 
         var _iteratorNormalCompletion4 = true;
         var _didIteratorError4 = false;
@@ -9347,11 +9318,6 @@ function () {
     key: "reset",
     value: function reset() {
       this.anchorManager.reset();
-    }
-  }, {
-    key: "changeId",
-    value: function changeId(oldId, newId) {
-      this.anchorManager.changeId(oldId, newId);
     }
   }, {
     key: "newConnection",
@@ -11037,8 +11003,6 @@ function (_EventGenerator) {
         _this3.router.elementRemoved(id);
 
         _this3.anchorManager.clearFor(id);
-
-        _this3.anchorManager.removeFloatingConnection(id);
 
         if (_this3.isSource(_el)) {
           _this3.unmakeSource(_el);

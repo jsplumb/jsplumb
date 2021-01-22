@@ -10,7 +10,6 @@ export declare class DefaultRouter implements Router {
     readonly anchorManager: AnchorManager;
     constructor(instance: JsPlumbInstance);
     reset(): void;
-    changeId(oldId: string, newId: string): void;
     newConnection(conn: Connection): void;
     connectionDetached(connInfo: any): void;
     redraw(elementId: string, ui?: ViewportElement, timestamp?: string, offsetToUI?: Offset): RedrawResult;

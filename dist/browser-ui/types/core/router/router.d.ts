@@ -5,7 +5,6 @@ import { ViewportElement } from "../viewport";
 import { RedrawResult } from "../anchor-manager";
 export interface Router {
     reset(): void;
-    changeId(oldId: string, newId: string): void;
     newConnection(conn: Connection): void;
     connectionDetached(connInfo: any): void;
     redraw(elementId: string, ui?: ViewportElement, timestamp?: string, offsetToUI?: Offset): RedrawResult;
