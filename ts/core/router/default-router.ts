@@ -19,7 +19,7 @@ import {ViewportElement} from "../viewport"
  * Dual licensed under the MIT and GPL2 licenses.
  */
 export class DefaultRouter implements Router {
-    anchorManager:AnchorManager;
+    readonly anchorManager:AnchorManager;
 
     constructor(public instance:JsPlumbInstance ) {
         this.anchorManager = new AnchorManager(this.instance)
@@ -55,6 +55,10 @@ export class DefaultRouter implements Router {
 
     addEndpoint (endpoint:Endpoint, elementId:string):void {
         this.anchorManager.addEndpoint(endpoint, elementId)
+    }
+
+    elementRemoved(id: string): void {
+        // here we'd cleanup the anchor manager, ideally. there's a lot of shared responsibility between DefaultRouter and AnchorManager currently.
     }
 
     computePath(connection: Connection, timestamp:string): void {
