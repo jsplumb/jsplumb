@@ -1,10 +1,11 @@
 
 import { _attr, _node, _appendAtIndex } from './svg-util'
 import {Connection, Endpoint, Overlay} from "@jsplumb/community-core"
+import {jsPlumbDOMElement} from "./browser-jsplumb-instance"
 
 export abstract class SVGElementOverlay {
 
-    static ensurePath(o:any):HTMLElement {
+    static ensurePath(o:any):jsPlumbDOMElement {
         if (o.path == null) {
             o.path = _node("path", {})
             let parent:SVGElement = null
