@@ -9,8 +9,6 @@ export interface Router {
 
     reset ():void
 
-    changeId (oldId:string, newId:string):void
-
     newConnection (conn:Connection):void
 
     connectionDetached (connInfo:any):void
