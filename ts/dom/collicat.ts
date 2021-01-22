@@ -8,21 +8,21 @@ import {EventManager, pageLocation} from "./event-manager"
 import {DragEventCallbackOptions, jsPlumbDOMElement} from "./browser-jsplumb-instance"
 
 
-function getOffsetRect (elem:HTMLElement):PointArray {
+function getOffsetRect (elem:jsPlumbDOMElement):PointArray {
     const o = offsetRelativeToRoot(elem)
     return [ o.left, o.top ]
 }
 
-function findDelegateElement(parentElement:HTMLElement, childElement:HTMLElement, selector:string) {
+function findDelegateElement(parentElement:jsPlumbDOMElement, childElement:jsPlumbDOMElement, selector:string) {
     if (matchesSelector(childElement, selector, parentElement)) {
         return childElement
     } else {
-        let currentParent = childElement.parentNode as HTMLElement
+        let currentParent = childElement.parentNode as jsPlumbDOMElement
         while (currentParent != null && currentParent !== parentElement) {
             if (matchesSelector(currentParent, selector, parentElement)) {
                 return currentParent
             } else {
-                currentParent = currentParent.parentNode as HTMLElement
+                currentParent = currentParent.parentNode as jsPlumbDOMElement
             }
         }
     }
@@ -64,7 +64,7 @@ export interface DragSelector {
  * @param childElement
  * @returns {*}
  */
-function findMatchingSelector(availableSelectors:Array<DragParams>, parentElement:HTMLElement, childElement:HTMLElement):[DragParams, HTMLElement] {
+function findMatchingSelector(availableSelectors:Array<DragParams>, parentElement:jsPlumbDOMElement, childElement:jsPlumbDOMElement):[DragParams, HTMLElement] {
     let el = null
     let draggableId = parentElement.getAttribute("katavorio-draggable"),
         prefix = draggableId != null ? "[katavorio-draggable='" + draggableId + "'] " : ""
@@ -120,7 +120,7 @@ const _each = function(obj:any, fn:any) {
 // Collicat has a default list of these.
 //
 const _inputFilter = function(e:Event, el:any, collicat:Collicat) {
-    const t = (e.srcElement || e.target) as HTMLElement
+    const t = (e.srcElement || e.target) as jsPlumbDOMElement
     return !matchesSelector(t, collicat.getInputFilterSelector(), el)
 }
 
@@ -180,9 +180,9 @@ abstract class Base {
     }
 }
 
-export type GhostProxyGenerator = (el:HTMLElement) => HTMLElement
+export type GhostProxyGenerator = (el:jsPlumbDOMElement) => jsPlumbDOMElement
 
-function getConstrainingRectangle(el:HTMLElement):PointArray {
+function getConstrainingRectangle(el:jsPlumbDOMElement):PointArray {
     return [(<any>el.parentNode).scrollWidth, (<any>el.parentNode).scrollHeight]
 }
 
@@ -197,7 +197,7 @@ export interface DragHandlerOptions {
     ghostProxy?:GhostProxyGenerator | boolean
     makeGhostProxy?:GhostProxyGenerator
     useGhostProxy?:(container:any, dragEl:any) => boolean
-    ghostProxyParent?:HTMLElement
+    ghostProxyParent?:jsPlumbDOMElement
     constrain?:ConstrainFunction | boolean
     revert?:RevertFunction
     filter?:string
@@ -251,7 +251,7 @@ export class Drag extends Base {
     private _ghostDx:number
     private _ghostDy:number
 
-    _ghostProxyParent:HTMLElement
+    _ghostProxyParent:jsPlumbDOMElement
     _isConstrained: boolean = false
     _useGhostProxy:Function
     _activeSelectorParams:DragParams
