@@ -199,15 +199,15 @@ export class GroupManager {
         return g
     }
 
-    removeGroup(group:string | UIGroup, deleteMembers?:boolean, manipulateDOM?:boolean, doNotFireEvent?:boolean):Dictionary<Offset> {
+    removeGroup(group:string | UIGroup, deleteMembers?:boolean, manipulateView?:boolean, doNotFireEvent?:boolean):Dictionary<Offset> {
         let actualGroup = this.getGroup(group)
         this.expandGroup(actualGroup, true); // this reinstates any original connections and removes all proxies, but does not fire an event.
         let newPositions:Dictionary<Offset> = {}
         if (deleteMembers) {
             // remove all child groups
-            actualGroup.childGroups.forEach((cg:UIGroup) => this.removeGroup(cg, deleteMembers, manipulateDOM))
+            actualGroup.childGroups.forEach((cg:UIGroup) => this.removeGroup(cg, deleteMembers, manipulateView))
             // remove all child nodes
-            actualGroup.removeAll(manipulateDOM, doNotFireEvent)
+            actualGroup.removeAll(manipulateView, doNotFireEvent)
         } else {
             // if we want to retain the child nodes then we need to test if there is a group that the parent of actualGroup.
             // if so, transfer the nodes to that group
@@ -591,7 +591,7 @@ export class GroupManager {
         }
     }
 
-    addToGroup(group:string | UIGroup, el:any | Array<any>, doNotFireEvent?:boolean) {
+    addToGroup(group:string | UIGroup, doNotFireEvent:boolean, ...el:Array<jsPlumbElement>) {
         let actualGroup = this.getGroup(group)
         if (actualGroup) {
             let groupEl = actualGroup.el
@@ -659,41 +659,44 @@ export class GroupManager {
                 }
             }
 
-            this.instance.each(el, _one)
+            el.forEach(_one)
 
         }
     }
 
-    removeFromGroup (group:string | UIGroup, el:any, doNotFireEvent?:boolean):void {
+    removeFromGroup (group:string | UIGroup, doNotFireEvent:boolean, ...el:Array<jsPlumbElement>):void {
         let actualGroup = this.getGroup(group)
         if (actualGroup) {
 
-
-            // if this group is currently collapsed then any proxied connections for the given el (or its descendants) need
-            // to be put back on their original element, and unproxied
-            if (actualGroup.collapsed) {
-                const _expandSet =  (conns:Array<Connection>, index:number) => {
-                    for (let i = 0; i < conns.length; i++) {
-                        const c = conns[i]
-                        if (c.proxies) {
-                            for(let j = 0; j < c.proxies.length; j++) {
-                                if (c.proxies[j] != null) {
-                                    const proxiedElement = c.proxies[j].originalEp.element
-                                    if (proxiedElement === el || this.isElementDescendant(proxiedElement, el)) {
-                                        this._expandConnection(c, index, actualGroup)
+            const _one = (_el:jsPlumbElement) => {
+                // if this group is currently collapsed then any proxied connections for the given el (or its descendants) need
+                // to be put back on their original element, and unproxied
+                if (actualGroup.collapsed) {
+                    const _expandSet = (conns: Array<Connection>, index: number) => {
+                        for (let i = 0; i < conns.length; i++) {
+                            const c = conns[i]
+                            if (c.proxies) {
+                                for (let j = 0; j < c.proxies.length; j++) {
+                                    if (c.proxies[j] != null) {
+                                        const proxiedElement = c.proxies[j].originalEp.element
+                                        if (proxiedElement === _el || this.isElementDescendant(proxiedElement, _el)) {
+                                            this._expandConnection(c, index, actualGroup)
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+
+                    // setup proxies for sources and targets
+                    _expandSet(actualGroup.connections.source.slice(), 0)
+                    _expandSet(actualGroup.connections.target.slice(), 1)
                 }
 
-                // setup proxies for sources and targets
-                _expandSet(actualGroup.connections.source.slice(), 0)
-                _expandSet(actualGroup.connections.target.slice(), 1)
-            }
+                actualGroup.remove(_el, null, doNotFireEvent)
+            };
 
-            actualGroup.remove(el, null, doNotFireEvent)
+            el.forEach(_one)
         }
     }
 
