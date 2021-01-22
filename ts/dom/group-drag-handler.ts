@@ -1,6 +1,6 @@
 
 import {ElementDragHandler} from "./element-drag-handler"
-import {DragEventParams, EVT_REVERT, GhostProxyingDragHandler, DragStopEventParams} from "./drag-manager"
+import {DragEventParams, EVENT_REVERT, GhostProxyingDragHandler, DragStopEventParams} from "./drag-manager"
 import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance"
 import {Drag} from "./collicat"
 import {PARENT_GROUP_KEY, PointArray, UIGroup} from "@jsplumb/community-core"
@@ -19,7 +19,7 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
     }
 
     reset() {
-        this.drag.off(EVT_REVERT, this.doRevalidate)
+        this.drag.off(EVENT_REVERT, this.doRevalidate)
     }
 
     private _revalidate(el:any) {
@@ -28,7 +28,7 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
 
     init(drag:Drag) {
         this.drag = drag
-        drag.on(EVT_REVERT, this.doRevalidate)
+        drag.on(EVENT_REVERT, this.doRevalidate)
     }
 
     useGhostProxy(container:any, dragEl:jsPlumbDOMElement) {
