@@ -25,4 +25,6 @@ export interface Router {
 
     computePath(connection:Connection, timestamp:string):void
 
+    elementRemoved(id:string):void
+
 }
