@@ -1,7 +1,6 @@
 import {Endpoint} from "./endpoint/endpoint-impl"
 import {
     Dictionary,
-    ExtendedOffset,
     Offset,
     PointArray,
     PointXY,
@@ -18,7 +17,6 @@ import {ViewportElement} from "./viewport"
 
 export type AnchorPlacement = [ number, number, number, number ]
 export type ContinuousAnchorPlacement = [ number, number, number, number, Connection, Connection ]
-export type AnchorFace = "top" | "right" | "bottom" | "left"
 
 export interface RedrawResult {
     c:Set<Connection>
@@ -97,8 +95,6 @@ export class AnchorManager {
 
     private anchorLists:AnchorDictionary = {}
 
-    private floatingConnections:Dictionary<Connection> = {}
-
     constructor(private instance:JsPlumbInstance) { }
 
     reset () {
@@ -143,13 +139,6 @@ export class AnchorManager {
 
     clearContinuousAnchorPlacement(endpointId:string) {
         delete this.continuousAnchorLocations[endpointId]
-    }
-
-    addFloatingConnection (key:string, conn:Connection) {
-        this.floatingConnections[key] = conn
-    }
-    removeFloatingConnection (key:string) {
-        delete this.floatingConnections[key]
     }
 
     newConnection (conn:Connection):void {
@@ -197,11 +186,6 @@ export class AnchorManager {
 
     addEndpoint (endpoint:Endpoint, elementId:string) {
         addToList(this._amEndpoints, elementId, endpoint)
-    }
-
-    changeId (oldId:string, newId:string) {
-        this._amEndpoints[newId] = this._amEndpoints[oldId]
-        delete this._amEndpoints[oldId]
     }
 
     deleteEndpoint (endpoint:Endpoint) {
@@ -332,8 +316,8 @@ export class AnchorManager {
             }
 
             // valid for one paint cycle.
-            let myOffset = this.instance.updateOffset({ elId: elementId, offset: offsetToUse, recalc: false, timestamp: timestamp }),
-                orientationCache = {}
+            this.instance.updateOffset({ elId: elementId, offset: offsetToUse, recalc: false, timestamp: timestamp })
+            let orientationCache = {}
 
             for(let anEndpoint of ep) {
 
@@ -462,12 +446,6 @@ export class AnchorManager {
             for (let ep of endpointsToPaint) {
                 let cd = this.instance.getCachedData(ep.elementId)
                 ep.paint({ timestamp: timestamp, offset: cd })
-            }
-
-            // paint current floating connection for this element, if there is one.
-            let fc = this.floatingConnections[elementId]
-            if (fc) {
-                fc.paint({timestamp: timestamp, recalc: false, elId: elementId})
             }
 
             // paint all the connections
