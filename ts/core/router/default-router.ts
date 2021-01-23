@@ -11,7 +11,7 @@ import {ViewportElement} from "../viewport"
  * Currently this is a placeholder and acts as a facade to the pre-existing anchor manager. The Toolkit edition
  * will make use of concept to provide more advanced routing.
  *
- * Copyright (c) 2010 - 2020 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2021 jsPlumb (hello@jsplumbtoolkit.com)
  *
  * https://jsplumbtoolkit.com
  * https://github.com/jsplumb/jsplumb
@@ -19,6 +19,9 @@ import {ViewportElement} from "../viewport"
  * Dual licensed under the MIT and GPL2 licenses.
  */
 export class DefaultRouter implements Router {
+    // TODO we don't want to expose the anchor manager on the instance (and as of RC35 that's been done). but we dont want to expose it on Router, either.
+    // this cast would currently mean any alternative Router could fail (if it didn't expose an anchorManager).
+    // this is something that will need to be refactored before the Toolkit edition 4.x can be released.
     readonly anchorManager:AnchorManager;
 
     constructor(public instance:JsPlumbInstance ) {
@@ -29,28 +32,27 @@ export class DefaultRouter implements Router {
         this.anchorManager.reset()
     }
 
-    newConnection (conn:Connection):void {
-        this.anchorManager.newConnection(conn)
-    }
-
-    connectionDetached (connInfo:any):void {
-        this.anchorManager.connectionDetached(connInfo)
-    }
-
     redraw (elementId:string, ui?:ViewportElement, timestamp?:string, offsetToUI?:Offset):RedrawResult {
         return this.anchorManager.redraw(elementId, ui, timestamp, offsetToUI)
     }
 
-    deleteEndpoint (endpoint:Endpoint):void {
-        this.anchorManager.deleteEndpoint(endpoint)
+    // TODO we do not want to proxy this method. anchorManager should listen to some event instead.
+    clearContinuousAnchorPlacement(elementId:string):void {
+        this.anchorManager.clearContinuousAnchorPlacement(elementId)
     }
 
-    rehomeEndpoint (ep:Endpoint, currentId:string, element:any):void {
-        this.anchorManager.rehomeEndpoint(ep, currentId, element)
+    // TODO we dont want this in here either.
+    getContinuousAnchorLocation(elementId: string): [number, number, number, number] {
+        return this.anchorManager.continuousAnchorLocations[elementId] || [0, 0, 0, 0]
+    }
+
+    // TODO or this.
+    getContinuousAnchorOrientation(endpointId: string): [number, number] {
+        return this.anchorManager.continuousAnchorOrientations[endpointId] || [0, 0]
     }
 
     addEndpoint (endpoint:Endpoint, elementId:string):void {
-        this.anchorManager.addEndpoint(endpoint, elementId)
+        // no-op. method required?
     }
 
     elementRemoved(id: string): void {
