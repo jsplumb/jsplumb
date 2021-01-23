@@ -91,7 +91,7 @@ export abstract class EventGenerator {
         this.eventsSuspended = val
     }
 
-    bind(event: string | Array<String>, listener: Function, insertAtStart?: boolean): EventGenerator {
+    bind<T=any>(event: string | Array<String>, listener: (a:T, e?:any) => any, insertAtStart?: boolean): EventGenerator {
         const _one = (evt: string) => {
             addToDictionary(this._listeners, evt, listener, insertAtStart)
             ;(<any>listener).__jsPlumb = (<any>listener).__jsPlumb || {}
