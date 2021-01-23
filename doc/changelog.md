@@ -1,5 +1,6 @@
 ## 4.0.0-RC35
 
+23rd January 2021
 
 ### Breaking
 
@@ -11,6 +12,7 @@
 - The `connectionAborted` event is now `connection:abort`
 - The `connectionDrag` event is now `connection:drag`
 - The `connectionDetached` event is now `connection:detach`
+- The `connectionMoved` event is now `connection:move`
 
  
 ## 4.0.0-RC34
