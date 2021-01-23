@@ -330,14 +330,14 @@ var testSuite = function () {
         equal(_jsPlumb.select().length, 0, "zero connections after detach");
     });
 
-    test("connectionDetached event is fired when no beforeDrop is active", function() {
+    test("connection:detach event is fired when no beforeDrop is active", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var e1 = _jsPlumb.addEndpoint(d1, {
             isTarget:true
         });
         var e2 = _jsPlumb.addEndpoint(d2, {isSource:true});
         var evt = false, originalEvent, evtCount = 0;
-        _jsPlumb.bind('connectionDetached', function (info, oevt) {
+        _jsPlumb.bind('connection:detach', function (info, oevt) {
             evt = true;
             originalEvent = oevt;
             evtCount++;
@@ -354,7 +354,7 @@ var testSuite = function () {
         ok(originalEvent != null, "original event was provided in event callback");
     });
 
-    test("beforeDrop returning false prevents connectionDetached event", function() {
+    test("beforeDrop returning false prevents connection:detach event", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var e1 = _jsPlumb.addEndpoint(d1, {
             beforeDrop:function() {
@@ -364,37 +364,37 @@ var testSuite = function () {
         });
         var e2 = _jsPlumb.addEndpoint(d2, {isSource:true});
         var evt = false, abortEvent = false;
-        _jsPlumb.bind('connectionDetached', function (info) {
+        _jsPlumb.bind('connection:detach', function (info) {
             evt = true;
         });
-        _jsPlumb.bind('connectionAborted', function (info) {
+        _jsPlumb.bind('connection:abort', function (info) {
             abortEvent = true;
         });
 
         support.dragConnection(e2, e1);
         ok(evt === false, "event was not fired");
         equal(e1.connections.length, 0, "no connections");
-        ok(abortEvent === true, "connectionAborted event was fired");
+        ok(abortEvent === true, "connection:abort event was fired");
 
         equal(document.querySelectorAll(".jtk-connector").length, 0, "there are no connectors - it was cleaned up after beforeDrop returned false");
     });
 
-    test("connectionAborted event", function() {
+    test("connection:abort event", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 
         var e2 = _jsPlumb.addEndpoint(d2, {isSource:true});
         var evt = false, abortEvent = false;
-        _jsPlumb.bind('connectionDetached', function (info) {
+        _jsPlumb.bind('connection:detach', function (info) {
             evt = true;
         });
-        _jsPlumb.bind('connectionAborted', function (info) {
+        _jsPlumb.bind('connection:abort', function (info) {
             abortEvent = true;
         });
 
         support.dragAndAbortConnection(e2);
-        ok(evt === false, "connectionDetached event was not fired");
+        ok(evt === false, "connection:detach event was not fired");
         equal(e2.connections.length, 0, "no connections");
-        ok(abortEvent === true, "connectionAborted event was fired");
+        ok(abortEvent === true, "connection:abort event was fired");
     });
 
     test("endpoint: suspendedElement set correctly", function() {
@@ -1218,8 +1218,8 @@ var testSuite = function () {
         equal(e3canvas.offsetLeft, 500 - (e3canvas.offsetWidth/2), "endpoint 3 is at the right place");
         equal(e3canvas.offsetTop, 500 - (e3canvas.offsetHeight/2), "endpoint 3 is at the right place");
 
-        _jsPlumb.addToDragSelection("d1");
-        _jsPlumb.addToDragSelection("d3");
+        _jsPlumb.addToDragSelection(d1);
+        _jsPlumb.addToDragSelection(d3);
 
         // drag node 2 by 750,750. we expect its endpoint to have moved too
 
