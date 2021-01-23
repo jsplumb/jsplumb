@@ -100,7 +100,7 @@ export interface BehaviouralTypeDescriptor extends TypeDescriptor {
     filterExclude?:boolean
     extract?:Dictionary<string>
     uniqueEndpoint?:boolean
-    onMaxConnections?:Function
+    onMaxConnections?:(value:any, event?:any) => any
     connectionType?:string
     portId?:string
     allowLoopback?:boolean
