@@ -1,5 +1,6 @@
 import {Endpoint} from "./endpoint/endpoint-impl"
 import {
+    ConnectionDetachedParams,
     Dictionary,
     Offset,
     PointArray,
@@ -10,10 +11,10 @@ import { JsPlumbInstance } from "./core"
 import {Connection} from "./connector/connection-impl"
 import {Face, Orientation} from "./factory/anchor-factory"
 import { DynamicAnchor } from "./anchor/dynamic-anchor"
-import {addToList, findWithFunction, removeWithFunction, rotatePoint, rotatePointXY, sortHelper, uuid} from "./util"
+import {findWithFunction, removeWithFunction, rotatePoint, rotatePointXY, sortHelper, uuid} from "./util"
 import {ContinuousAnchor} from "./anchor/continuous-anchor"
-import {Anchor} from "./anchor/anchor"
 import {ViewportElement} from "./viewport"
+import * as Constants from './constants'
 
 export type AnchorPlacement = [ number, number, number, number ]
 export type ContinuousAnchorPlacement = [ number, number, number, number, Connection, Connection ]
@@ -88,17 +89,19 @@ type AnchorLists = { top: Array<AnchorListEntry>, right: Array<AnchorListEntry>,
 type AnchorDictionary = Dictionary<AnchorLists>
 
 export class AnchorManager {
-    _amEndpoints:Dictionary<Array<Endpoint>> = {}
 
     continuousAnchorLocations:Dictionary<[number, number, number, number]> = {}
     continuousAnchorOrientations:Dictionary<Orientation> = {}
 
     private anchorLists:AnchorDictionary = {}
 
-    constructor(private instance:JsPlumbInstance) { }
+    constructor(private instance:JsPlumbInstance) {
+        instance.bind<ConnectionDetachedParams>(Constants.EVENT_INTERNAL_CONNECTION_DETACHED, (p:ConnectionDetachedParams) => {
+            this.connectionDetached(p)
+        })
+    }
 
     reset () {
-        this._amEndpoints = {}
         this.anchorLists = {}
     }
 
@@ -141,25 +144,7 @@ export class AnchorManager {
         delete this.continuousAnchorLocations[endpointId]
     }
 
-    newConnection (conn:Connection):void {
-        let sourceId = conn.sourceId, targetId = conn.targetId,
-            ep = conn.endpoints,
-            doRegisterTarget = true,
-            registerConnection = (otherIndex:number, otherEndpoint:Endpoint, otherAnchor:Anchor) => {
-                if ((sourceId === targetId) && otherAnchor.isContinuous) {
-                    // remove the target endpoint's canvas.  we dont need it.
-                    this.instance.destroyEndpoint(ep[1])
-                    doRegisterTarget = false
-                }
-            }
-
-        registerConnection(0, ep[0], ep[0].anchor)
-        if (doRegisterTarget) {
-            registerConnection(1, ep[1], ep[1].anchor)
-        }
-    }
-
-    removeEndpointFromAnchorLists (endpoint:Endpoint):void {
+    private removeEndpointFromAnchorLists (endpoint:Endpoint):void {
         (function (list, eId) {
             if (list) {  // transient anchors dont get entries in this list.
                 let f = (e:AnchorListEntry) => {
@@ -173,32 +158,20 @@ export class AnchorManager {
         })(this.anchorLists[endpoint.elementId], endpoint.id)
     }
 
-    connectionDetached (connection:Connection) {
-
-        if (connection.floatingId) {
-            this.removeEndpointFromAnchorLists(connection.floatingEndpoint)
+    private connectionDetached (params:ConnectionDetachedParams) {
+        // TODO this is DOM specific. core should not know.
+        if (params.connection.floatingId) {
+            this.removeEndpointFromAnchorLists(params.connection.floatingEndpoint)
         }
-
         // remove from anchorLists
-        this.removeEndpointFromAnchorLists(connection.endpoints[0])
-        this.removeEndpointFromAnchorLists(connection.endpoints[1])
-    }
-
-    addEndpoint (endpoint:Endpoint, elementId:string) {
-        addToList(this._amEndpoints, elementId, endpoint)
+        this.removeEndpointFromAnchorLists(params.sourceEndpoint)
+        this.removeEndpointFromAnchorLists(params.targetEndpoint)
     }
 
     deleteEndpoint (endpoint:Endpoint) {
-        removeWithFunction(this._amEndpoints[endpoint.elementId], function (e) {
-            return e.id === endpoint.id
-        })
         this.removeEndpointFromAnchorLists(endpoint)
     }
 
-    clearFor (elementId:string) {
-        delete this._amEndpoints[elementId]
-        this._amEndpoints[elementId] = []
-    }
     // updates the given anchor list by either updating an existing anchor's info, or adding it. this function
     // also removes the anchor from its previous list, if the edge it is on has changed.
     // all connections found along the way (those that are connected to one of the faces this function
@@ -259,37 +232,6 @@ export class AnchorManager {
         (endpoint as any)._continuousAnchorEdge = edgeId
     }
 
-    //
-    // moves the given endpoint from `currentId` to `element`.
-    // This involves:
-    //
-    // 1. changing the key in _amEndpoints under which the endpoint is stored
-    // 2. changing the source or target values in all of the endpoint's connections
-    // 3. changing the array in connectionsByElementId in which the endpoint's connections
-    //    are stored (done by either sourceChanged or updateOtherEndpoint)
-    //
-    rehomeEndpoint (ep:Endpoint, currentId:string, element:any) {
-        let eps = this._amEndpoints[currentId] || [],
-            elementId = this.instance.getId(element)
-
-        if (elementId !== currentId) {
-            let idx = eps.indexOf(ep)
-            if (idx > -1) {
-                let _ep = eps.splice(idx, 1)[0]
-                this.addEndpoint(_ep, elementId)
-            }
-        }
-
-        for (let i = 0; i < ep.connections.length; i++) {
-            this.instance.sourceOrTargetChanged(currentId,
-                ep.elementId,
-                ep.connections[i],
-                ep.element,
-                ep.connections[i].sourceId === currentId ? 0 : 1
-            )
-        }
-    }
-
     redraw (elementId:string, ui?:ViewportElement, timestamp?:string, offsetToUI?:Offset):RedrawResult {
 
         let connectionsToPaint:Set<Connection> = new Set(),
@@ -299,7 +241,7 @@ export class AnchorManager {
         if (!this.instance._suspendDrawing) {
 
             // get all the endpoints for this element
-            let ep = this._amEndpoints[elementId] || []
+            let ep = this.instance.endpointsByElement[elementId] || []
 
             timestamp = timestamp || uuid()
             // offsetToUI are values that would have been calculated in the dragManager when registering
@@ -461,7 +403,7 @@ export class AnchorManager {
     }
 
 
-    calculateOrientation (sourceId:string, targetId:string,
+    private calculateOrientation (sourceId:string, targetId:string,
                           sd:ViewportElement, td:ViewportElement,
                           sourceAnchor:ContinuousAnchor,
                           targetAnchor:ContinuousAnchor,
