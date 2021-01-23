@@ -2,7 +2,9 @@ import {
     jsPlumbDefaults,
     jsPlumbHelperFunctions,
     Dictionary,
-    SourceDefinition, TargetDefinition, Offset,
+    SourceDefinition,
+    TargetDefinition,
+    Offset,
     PointArray,
     Size,
     BoundingBox,
@@ -51,11 +53,25 @@ import {
     FALSE,
     ABSOLUTE,
     FIXED,
-    STATIC, PROPERTY_POSITION, UNDEFINED,
-    PaintStyle, OverlayCapableComponent,
-    Segment, BezierSegment, ArcSegment, isArrowOverlay, isPlainArrowOverlay, LabelOverlay, isLabelOverlay, isDiamondOverlay, Connection, EndpointRepresentation,
+    STATIC,
+    PROPERTY_POSITION,
+    UNDEFINED,
+    PaintStyle,
+    OverlayCapableComponent,
+    Segment,
+    BezierSegment,
+    ArcSegment,
+    isArrowOverlay,
+    isPlainArrowOverlay,
+    LabelOverlay,
+    isLabelOverlay,
+    isDiamondOverlay,
+    Connection,
+    EndpointRepresentation,
     Component,
-    CustomOverlay, isCustomOverlay
+    CustomOverlay,
+    isCustomOverlay,
+    DeleteConnectionOptions
 } from '@jsplumb/community-core'
 
 import { _attr,
@@ -1237,7 +1253,17 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         }
     }
 
-    setEndpointVisible<C>(ep: Endpoint, v: boolean): void {
+    setEndpointVisible(ep: Endpoint, v: boolean): void {
         setVisible(ep.endpoint as any, v)
+    }
+
+    deleteConnection(connection: Connection, params?: DeleteConnectionOptions): boolean {
+        if (connection != null) {
+            this.setEndpointHover(connection.endpoints[0], false, true)
+            this.setEndpointHover(connection.endpoints[1], false, true)
+            return super.deleteConnection(connection, params)
+        } else {
+            return false
+        }
     }
 }
