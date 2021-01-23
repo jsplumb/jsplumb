@@ -130,17 +130,17 @@ export class ContinuousAnchor extends Anchor {
 
     // TODO Whoever calls this should be using the Router instead.
     compute (params:AnchorComputeParams):AnchorPlacement {
-        return this.instance.anchorManager.continuousAnchorLocations[params.element.id] || [0, 0, 0, 0]
+        return this.instance.router.getContinuousAnchorLocation(params.element.id)
     }
 
     // TODO Whoever calls this should be using the Router instead.
     getCurrentLocation (params:AnchorComputeParams):AnchorPlacement {
-        return this.instance.anchorManager.continuousAnchorLocations[params.element.id] || [0, 0, 0, 0]
+        return this.instance.router.getContinuousAnchorLocation(params.element.id)
     }
 
     // TODO Whoever calls this should be using the Router instead.
     getOrientation (endpoint?:Endpoint):Orientation {
-        return this.instance.anchorManager.continuousAnchorOrientations[endpoint.id] || [0, 0]
+        return this.instance.router.getContinuousAnchorOrientation(endpoint.id)
     }
 
     getCssClass ():string {
