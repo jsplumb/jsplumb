@@ -3,10 +3,9 @@ import {jsPlumbDefaults, jsPlumbHelperFunctions} from "./defaults"
 import {Connection} from "./connector/connection-impl"
 import {Endpoint} from "./endpoint/endpoint-impl"
 import {FullOverlaySpec, OverlayId, OverlaySpec} from "./overlay/overlay"
-import {AnchorManager, AnchorPlacement, RedrawResult} from "./anchor-manager"
+import {AnchorPlacement, RedrawResult} from "./anchor-manager"
 import {
     _mergeOverrides,
-    addToList,
     findWithFunction,
     functionChain,
     isString,
@@ -46,13 +45,13 @@ import {EndpointSelection} from "./selection/endpoint-selection"
 import {ConnectionSelection} from "./selection/connection-selection"
 import {Viewport, ViewportElement} from "./viewport"
 
-import { Component } from '../core/component/component'
-import { Segment } from '../core/connector/abstract-segment'
-import { Overlay } from '../core/overlay/overlay'
-import { LabelOverlay } from '../core/overlay/label-overlay'
-import { AbstractConnector } from '../core/connector/abstract-connector'
-import { OverlayCapableComponent } from '../core/component/overlay-capable-component'
-import { PaintStyle} from '../core/styles'
+import { Component } from './component/component'
+import { Segment } from './connector/abstract-segment'
+import { Overlay } from './overlay/overlay'
+import { LabelOverlay } from './overlay/label-overlay'
+import { AbstractConnector } from './connector/abstract-connector'
+import { OverlayCapableComponent } from './component/overlay-capable-component'
+import { PaintStyle} from './styles'
 
 function _scopeMatch(e1:Endpoint, e2:Endpoint):boolean {
     let s1 = e1.scope.split(/\s/), s2 = e2.scope.split(/\s/)
