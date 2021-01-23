@@ -1,3 +1,9 @@
+## 4.0.0-RC36
+
+23rd January 2021
+
+- Fixed some path issues with imports (that only manifest when importing the package and trying to build something against it)
+
 ## 4.0.0-RC35
 
 23rd January 2021
