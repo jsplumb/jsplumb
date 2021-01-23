@@ -61,7 +61,7 @@ export interface EndpointOptions extends ComponentOptions {
     detachable?:boolean
     dragAllowedWhenFull?:boolean
 
-    onMaxConnections?:Function
+    onMaxConnections?:(value:any, event?:any) => any
 
     connectionCost?:number
     connectionsDirected?:boolean
