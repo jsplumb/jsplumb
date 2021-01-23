@@ -122,7 +122,7 @@ export class SelectionBase<T extends OverlayCapableComponent>{
         return this
     }
 
-    bind(evt:string, handler:Function):SelectionBase<T> {
+    bind(evt:string, handler:(a:any, e?:any) => any):SelectionBase<T> {
         this.each((c:T) => c.bind(evt, handler))
         return this
     }
