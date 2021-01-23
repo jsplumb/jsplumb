@@ -436,7 +436,7 @@ var testSuite = function () {
     test(": _jsPlumb.setSource (element)", function () {
 
         var sc = false;
-        _jsPlumb.bind("connectionMoved", function () {
+        _jsPlumb.bind("connection:move", function () {
             sc = true;
         });
 
@@ -462,7 +462,7 @@ var testSuite = function () {
         ok(_jsPlumb.hasClass(d17, "jtk-connected"), "d17 has jtk-connected class");
         ok(!_jsPlumb.hasClass(d16, "jtk-connected"), "d16 does not have jtk-connected class");
 
-        equal(sc, true, "connectionMoved event fired");
+        equal(sc, true, "connection:move event fired");
 
         // test we dont overwrite if the source is already the element
         c.endpoints[0].original = true;
@@ -512,7 +512,7 @@ var testSuite = function () {
     test(": _jsPlumb.setTarget (element)", function () {
 
         var sc = false;
-        _jsPlumb.bind("connectionMoved", function () {
+        _jsPlumb.bind("connection:move", function () {
             sc = true;
         });
 
@@ -528,7 +528,7 @@ var testSuite = function () {
         equal(c.target.id, "d18", "source is now d18");
         equal(c.endpoints[1].endpoint.getType(), "Rectangle", "endpoint is still type Rectangle");
 
-        equal(sc, true, "connectionMoved event fired");
+        equal(sc, true, "connection:move event fired");
 
         // test we dont overwrite if the target is already the element
         c.endpoints[1].original = true;
@@ -538,7 +538,7 @@ var testSuite = function () {
 
     test(": _jsPlumb.setTarget (endpoint)", function () {
         var sc = false;
-        _jsPlumb.bind("connectionMoved", function () {
+        _jsPlumb.bind("connection:move", function () {
             sc = true;
         });
 
@@ -552,7 +552,7 @@ var testSuite = function () {
         _jsPlumb.setTarget(c, ep);
         equal(c.target.id, "d18", "source is now d18");
 
-        equal(sc, true, "connectionMoved event fired");
+        equal(sc, true, "connection:move event fired");
 
         // test that new endpoint is set (different from the case that an element or element id was given)
         c.endpoints[1].original = true;
@@ -562,7 +562,7 @@ var testSuite = function () {
 
     test(": _jsPlumb.setTarget (element, with makeSource)", function () {
         var sc = false;
-        _jsPlumb.bind("connectionMoved", function () {
+        _jsPlumb.bind("connection:move", function () {
             sc = true;
         });
 
@@ -581,7 +581,7 @@ var testSuite = function () {
         equal(c.endpoints[1].endpoint.getType(), "Rectangle", "endpoint is type Rectangle");
         ok(_jsPlumb.hasClass(c.endpoints[1].endpoint.canvas, "CHANGED"), "endpoint CSS class has 'CHANGED'");
 
-        equal(sc, true, "connectionMoved event fired");
+        equal(sc, true, "connection:move event fired");
 
         // test we dont overwrite if the target is already the element
         c.endpoints[1].original = true;
