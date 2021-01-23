@@ -4,6 +4,8 @@ import {
     DragHandler, DragStartEventParams,
     EVENT_MOUSEDOWN,
     EVENT_MOUSEUP,
+    EVENT_CONNECTION_ABORT,
+    EVENT_CONNECTION_DRAG,
     DragStopEventParams
 } from "./drag-manager"
 import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance"
@@ -13,7 +15,7 @@ import {consume, createElement, findParent} from "./browser-util"
 
 import {Drag} from "./collicat"
 import {
-    addToList,
+    addToDictionary,
     Anchor, BEFORE_DETACH,
     BoundingBox, CHECK_CONDITION,
     CHECK_DROP_ALLOWED, classList,
@@ -23,7 +25,7 @@ import {
     each,
     Endpoint,
     EndpointRepresentation,
-    EVENT_CONNECTION_DRAG, EVENT_MAX_CONNECTIONS,
+    EVENT_MAX_CONNECTIONS,
     extend,
     findWithFunction, functionChain, IS, IS_DETACH_ALLOWED,
     IS_GROUP_KEY, isString,
@@ -504,15 +506,7 @@ export class EndpointDragHandler implements DragHandler {
             this.floatingEndpoint.addClass(this.instance.draggingClass)
             this.floatingEndpoint.anchor = _savedAnchor
             // fire an event that informs that a connection is being dragged
-            this.instance.fire("connectionDrag", this.jpc)
-        
-            // register the new connection on the drag manager. This connection, at this point, is 'pending',
-            // and has as its target a temporary element (the 'placeholder'). If the connection subsequently
-            // becomes established, the anchor manager is informed that the target of the connection has
-            // changed.
-        
-            // TODO is this still necessary.
-            this.instance.router.newConnection(this.jpc)
+            this.instance.fire<Connection>(EVENT_CONNECTION_DRAG, this.jpc)
         
         } else {
         
@@ -531,7 +525,7 @@ export class EndpointDragHandler implements DragHandler {
         
             // fire an event that informs that a connection is being dragged. we do this before
             // replacing the original target with the floating element info.
-            this.instance.fire(EVENT_CONNECTION_DRAG, this.jpc)
+            this.instance.fire<Connection>(EVENT_CONNECTION_DRAG, this.jpc)
 
             // now we replace ourselves with the temporary div we created above
             this.instance.sourceOrTargetChanged(this.jpc.endpoints[anchorIdx].elementId, this.placeholderInfo.id, this.jpc, this.placeholderInfo.element, anchorIdx)
@@ -1008,10 +1002,10 @@ export class EndpointDragHandler implements DragHandler {
 
         } else {
 
-            this.instance.deleteEndpoint(this.jpc.endpoints[idx]);//, originalEvent:originalEvent})
+            this.instance.deleteEndpoint(this.jpc.endpoints[idx]);
 
             if (this.jpc.pending) {
-                this.instance.fire("connectionAborted", this.jpc, originalEvent)
+                this.instance.fire<Connection>(EVENT_CONNECTION_ABORT, this.jpc, originalEvent)
             }
         }
     }
@@ -1019,7 +1013,7 @@ export class EndpointDragHandler implements DragHandler {
     private _discard(idx:number, originalEvent?:Event) {
 
         if (this.jpc.pending) {
-            this.instance.fire("connectionAborted", this.jpc, originalEvent)
+            this.instance.fire<Connection>(EVENT_CONNECTION_ABORT, this.jpc, originalEvent)
         } else {
             if (idx === 0) {
                 this.jpc.source = this.jpc.suspendedEndpoint.element
@@ -1106,9 +1100,7 @@ export class EndpointDragHandler implements DragHandler {
             delete this.jpc.endpoints[0]._originalAnchor
         }
 
-        // finalise will inform the anchor manager and also add to
-        // connectionsByScope if necessary.
-        this.instance._finaliseConnection(this.jpc, null, originalEvent, false)
+        this.instance._finaliseConnection(this.jpc, null, originalEvent)
         this.instance.setHover(this.jpc, false)
 
         // SP continuous anchor flush
@@ -1119,7 +1111,7 @@ export class EndpointDragHandler implements DragHandler {
         this.floatingConnections[info.id] = conn
         // only register for the target endpoint; we will not be dragging the source at any time
         // before this connection is either discarded or made into a permanent connection.
-        addToList(this.instance.endpointsByElement, info.id, ep)
+        addToDictionary(this.instance.endpointsByElement, info.id, ep)
     }
 
     private getFloatingAnchorIndex(jpc:Connection):number {
