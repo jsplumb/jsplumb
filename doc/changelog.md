@@ -7,6 +7,10 @@
 - `connector-pointer-events` is not supported in EndpointOptions. Use `connectorClass` and CSS if you need to specify pointer events.
 - `getZoom()` method on `JsPlumbInstance` replaced with `currentZoom` property.
 - `getDefaultScope()` method on `JsPlumbInstance` replaced with `defaultScope` property
+- The `connectionDragStop` event is no longer fired. Its use cases are covered by `connection`, `connection:move` and `connection:abort`.
+- The `connectionAborted` event is now `connection:abort`
+- The `connectionDrag` event is now `connection:drag`
+- The `connectionDetached` event is now `connection:detach`
 
  
 ## 4.0.0-RC34
