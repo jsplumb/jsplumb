@@ -14,7 +14,7 @@ import {
     removeWithFunction, rotateAnchorOrientation, rotatePoint,
     uuid,
     extend,
-    filterList
+    filterList, addToDictionary
 } from "./util"
 
 import {
@@ -92,7 +92,7 @@ export type DeleteConnectionOptions = {
      */
     force?:boolean
     /**
-     * If false, an event won't be fired. Otherwise a `connectionDetached` event will be fired.
+     * If false, an event won't be fired. Otherwise a `connection:detach` event will be fired.
      */
     fireEvent?:boolean
     /**
@@ -185,7 +185,6 @@ export abstract class JsPlumbInstance extends EventGenerator {
     readonly viewport:Viewport = new Viewport()
 
     readonly router: Router
-    readonly anchorManager:AnchorManager
     readonly groupManager:GroupManager
 
     private _connectionTypes:Map<string, TypeDescriptor> = new Map()
@@ -245,10 +244,6 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
         this.router = new DefaultRouter(this)
 
-        // TODO we don't want to expose the anchor manager on the instance. we dont want to expose it on Router, either.
-        // this cast would currently mean any alternative Router could fail (if it didn't expose an anchorManager).
-        // this is something that will need to be refactored before the Toolkit edition 4.x can be released.
-        this.anchorManager = (this.router as DefaultRouter).anchorManager
         this.groupManager = new GroupManager(this)
 
         this.setContainer(this._initialDefaults.container)
@@ -728,8 +723,6 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
         // always fire this. used by internal jsplumb stuff.
         this.fire(Constants.EVENT_INTERNAL_CONNECTION_DETACHED, params, originalEvent)
-
-        this.router.connectionDetached(params.connection)
     }
 
     fireMoveEvent (params?:any, evt?:Event):void {
@@ -805,8 +798,6 @@ export abstract class JsPlumbInstance extends EventGenerator {
             let id = this.getId(_el)
 
             this.router.elementRemoved(id)
-
-            this.anchorManager.clearFor(id)
 
             if (this.isSource(_el)) {
                 this.unmakeSource(_el)
@@ -992,7 +983,6 @@ export abstract class JsPlumbInstance extends EventGenerator {
         if (uuid) {
             this.endpointsByUUID.delete(uuid)
         }
-        this.router.deleteEndpoint(endpoint)
 
         // TODO at least replace this with a removeWithFunction call.
         for (let e in this.endpointsByElement) {
@@ -1011,6 +1001,8 @@ export abstract class JsPlumbInstance extends EventGenerator {
                 delete this.endpointsByElement[e]
             }
         }
+
+        this.fire(Constants.EVENT_INTERNAL_ENDPOINT_UNREGISTERED, endpoint)
     }
 
     maybePruneEndpoint(endpoint:Endpoint):boolean {
@@ -1057,7 +1049,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
         this.manage(el, null, !this._suspendDrawing)
         let e = this.newEndpoint(_p, id)
 
-        addToList(this.endpointsByElement, id, e)
+        addToDictionary(this.endpointsByElement, id, e)
 
         if (!this._suspendDrawing) {
 
@@ -1304,7 +1296,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
     //
     // adds the connection to the backing model, fires an event if necessary and then redraws
     //
-    _finaliseConnection(jpc:Connection, params?:any, originalEvent?:Event, doInformAnchorManager?:boolean):void {
+    _finaliseConnection(jpc:Connection, params?:any, originalEvent?:Event):void {
 
         params = params || {}
         // add to list of connections (by scope).
@@ -1317,13 +1309,6 @@ export abstract class JsPlumbInstance extends EventGenerator {
         // turn off isTemporarySource on the source endpoint (only viable on first draw)
         jpc.endpoints[0].isTemporarySource = false
 
-        // always inform the anchor manager
-        // except that if jpc has a suspended endpoint it's not true to say the
-        // connection is new; it has just (possibly) moved. the question is whether
-        // to make that call here or in the anchor manager.  i think perhaps here.
-        if (doInformAnchorManager !== false) {
-            this.router.newConnection(jpc)
-        }
 
         // force a paint
         this._draw(jpc.source)
