@@ -383,7 +383,7 @@ var testSuite = function () {
         var d5 = support.addDiv("d5"), d6 = support.addDiv("d6");
         var conn = _jsPlumb.connect({source: d5, target: d6});
         var eventCount = 0;
-        _jsPlumb.bind("connectionDetached", function (c) {
+        _jsPlumb.bind("connection:detach", function (c) {
             eventCount++;
         });
         _jsPlumb.deleteConnection(conn);
@@ -395,7 +395,7 @@ var testSuite = function () {
         var d5 = support.addDiv("d5"), d6 = support.addDiv("d6");
         var conn = _jsPlumb.connect({source: d5, target: d6});
         var eventCount = 0;
-        _jsPlumb.bind("connectionDetached", function (c) {
+        _jsPlumb.bind("connection:detach", function (c) {
             eventCount++;
         });
         _jsPlumb.deleteConnection(conn);
@@ -407,7 +407,7 @@ var testSuite = function () {
         var d5 = support.addDiv("d5"), d6 = support.addDiv("d6");
         var conn = _jsPlumb.connect({source: d5, target: d6});
         var eventCount = 0;
-        _jsPlumb.bind("connectionDetached", function (c) {
+        _jsPlumb.bind("connection:detach", function (c) {
             eventCount++;
         });
         _jsPlumb.deleteConnection(conn, {fireEvent: false});
@@ -419,7 +419,7 @@ var testSuite = function () {
         var d5 = support.addDiv("d5"), d6 = support.addDiv("d6");
         var conn = _jsPlumb.connect({source: d5, target: d6});
         var eventCount = 0;
-        _jsPlumb.bind("connectionDetached", function (c) {
+        _jsPlumb.bind("connection:detach", function (c) {
             eventCount++;
         });
         _jsPlumb.deleteConnection(conn);
@@ -431,7 +431,7 @@ var testSuite = function () {
         var d5 = support.addDiv("d5"), d6 = support.addDiv("d6");
         var conn = _jsPlumb.connect({source: d5, target: d6});
         var eventCount = 0;
-        _jsPlumb.bind("connectionDetached", function (c) {
+        _jsPlumb.bind("connection:detach", function (c) {
             eventCount++;
         });
         _jsPlumb.deleteConnection(conn);
@@ -443,7 +443,7 @@ var testSuite = function () {
         var d5 = support.addDiv("d5"), d6 = support.addDiv("d6");
         var conn = _jsPlumb.connect({source: d5, target: d6});
         var eventCount = 0;
-        _jsPlumb.bind("connectionDetached", function (c) {
+        _jsPlumb.bind("connection:detach", function (c) {
             eventCount++;
         });
         _jsPlumb.select({source: d5, target: d6}).deleteAll();
@@ -455,7 +455,7 @@ var testSuite = function () {
         var d5 = support.addDiv("d5"), d6 = support.addDiv("d6");
         var conn = _jsPlumb.connect({source: d5, target: d6});
         var eventCount = 0;
-        _jsPlumb.bind("connectionDetached", function (c) {
+        _jsPlumb.bind("connection:detach", function (c) {
             eventCount++;
         });
         _jsPlumb.select({source: d5, target: d6}).deleteAll();
@@ -886,7 +886,7 @@ var testSuite = function () {
         _jsPlumb.bind("connection", function () {
             connCount++;
         });
-        _jsPlumb.bind("connectionDetached", function () {
+        _jsPlumb.bind("connection:detach", function () {
             connCount--;
         });
         _jsPlumb.connect({source: d1, target: d2});
@@ -902,7 +902,7 @@ var testSuite = function () {
         _jsPlumb.bind("connection", function () {
             connCount++;
         });
-        _jsPlumb.bind("connectionDetached", function () {
+        _jsPlumb.bind("connection:detach", function () {
             connCount--;
         });
         _jsPlumb.connect({source: d1, target: d2});
@@ -918,7 +918,7 @@ var testSuite = function () {
         _jsPlumb.bind("connection", function () {
             connCount++;
         });
-        _jsPlumb.bind("connectionDetached", function () {
+        _jsPlumb.bind("connection:detach", function () {
             connCount--;
         });
         _jsPlumb.connect({source: d1, target: d2});
@@ -934,7 +934,7 @@ var testSuite = function () {
         _jsPlumb.bind("connection", function () {
             connCount++;
         });
-        _jsPlumb.bind("connectionDetached", function () {
+        _jsPlumb.bind("connection:detach", function () {
             connCount--;
         });
         _jsPlumb.connect({source: d1, target: d2});
@@ -1171,7 +1171,7 @@ var testSuite = function () {
         equal(returnedParams.target.getAttribute("id"), "d2", 'target is set');
         ok(returnedParams.sourceEndpoint != null, "source endpoint is not null");
         ok(returnedParams.targetEndpoint != null, "target endpoint is not null");
-        _jsPlumb.bind("connectionDetached", function (params) {
+        _jsPlumb.bind("connection:detach", function (params) {
             returnedParams = Object.assign({}, params);
         });
         _jsPlumb.deleteConnection(c);
@@ -1181,7 +1181,7 @@ var testSuite = function () {
     test(': detach event listeners (detach by connection)', function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var returnedParams = null;
-        _jsPlumb.bind("connectionDetached", function (params) {
+        _jsPlumb.bind("connection:detach", function (params) {
             returnedParams = Object.assign({}, params);
         });
         var conn = _jsPlumb.connect({source: d1, target: d2});
@@ -1193,7 +1193,7 @@ var testSuite = function () {
     test(': detach event listeners (detach by element ids)', function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var returnedParams = null;
-        _jsPlumb.bind("connectionDetached", function (params) {
+        _jsPlumb.bind("connection:detach", function (params) {
             returnedParams = Object.assign({}, params);
         });
         _jsPlumb.connect({source: d1, target: d2});
@@ -1204,7 +1204,7 @@ var testSuite = function () {
     test(': detach event listeners (detach by elements)', function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var returnedParams = null;
-        _jsPlumb.bind("connectionDetached", function (params) {
+        _jsPlumb.bind("connection:detach", function (params) {
             returnedParams = Object.assign({}, params);
         });
         var conn = _jsPlumb.connect({source: d1, target: d2});
@@ -1217,7 +1217,7 @@ var testSuite = function () {
         var e1 = _jsPlumb.addEndpoint(d1, {});
         var e2 = _jsPlumb.addEndpoint(d2, {});
         var returnedParams = null;
-        _jsPlumb.bind("connectionDetached", function (params) {
+        _jsPlumb.bind("connection:detach", function (params) {
             returnedParams = Object.assign({}, params);
         });
         var conn = _jsPlumb.connect({sourceEndpoint: e1, targetEndpoint: e2});
@@ -1230,7 +1230,7 @@ var testSuite = function () {
         var e1 = _jsPlumb.addEndpoint(d1, {});
         var e2 = _jsPlumb.addEndpoint(d2, {});
         var returnedParams = null;
-        _jsPlumb.bind("connectionDetached", function (params) {
+        _jsPlumb.bind("connection:detach", function (params) {
             returnedParams = Object.assign({}, params);
         });
         _jsPlumb.connect({sourceEndpoint: e1, targetEndpoint: e2});
@@ -1243,7 +1243,7 @@ var testSuite = function () {
         var e1 = _jsPlumb.addEndpoint(d1, {});
         var e2 = _jsPlumb.addEndpoint(d2, {});
         var returnedParams = null;
-        _jsPlumb.bind("connectionDetached", function (params) {
+        _jsPlumb.bind("connection:detach", function (params) {
             returnedParams = Object.assign({}, params);
         });
         _jsPlumb.connect({sourceEndpoint: e1, targetEndpoint: e2});
@@ -1256,7 +1256,7 @@ var testSuite = function () {
         var e1 = _jsPlumb.addEndpoint(d1, {});
         var e2 = _jsPlumb.addEndpoint(d2, {});
         var returnedParams = null;
-        _jsPlumb.bind("connectionDetached", function (params) {
+        _jsPlumb.bind("connection:detach", function (params) {
             returnedParams = Object.assign({}, params);
         });
         _jsPlumb.connect({sourceEndpoint: e1, targetEndpoint: e2});
@@ -1267,7 +1267,7 @@ var testSuite = function () {
     test(': detach event listeners (ensure cleared by _jsPlumb.reset)', function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var returnedParams = null;
-        _jsPlumb.bind("connectionDetached", function (params) {
+        _jsPlumb.bind("connection:detach", function (params) {
             returnedParams = Object.assign({}, params);
         });
         var conn = _jsPlumb.connect({source: d1, target: d2});
@@ -1306,7 +1306,7 @@ var testSuite = function () {
         var c2 = _jsPlumb.connect({source: d1, target: d2});
         ok(count == 1, "still received only one event");
 
-        _jsPlumb.bind("connectionDetached", function (params) {
+        _jsPlumb.bind("connection:detach", function (params) {
             count--;
         });
         _jsPlumb.deleteConnection(c);
@@ -1324,12 +1324,12 @@ var testSuite = function () {
         var c2 = _jsPlumb.connect({source: d1, target: d2});
         ok(count == 2, "received two events");
 
-        _jsPlumb.bind("connectionDetached", function (params) {
+        _jsPlumb.bind("connection:detach", function (params) {
             count--;
         });
         _jsPlumb.deleteConnection(c);
         ok(count == 1, "count of events is now one");
-        _jsPlumb.unbind("connectionDetached");
+        _jsPlumb.unbind("connection:detach");
         _jsPlumb.deleteConnection(c2);
         ok(count == 1, "count of events is still one");
     });
@@ -1346,7 +1346,7 @@ var testSuite = function () {
 
         ok(count == 3, "received three events");
 
-        _jsPlumb.bind("connectionDetached", function (params) {
+        _jsPlumb.bind("connection:detach", function (params) {
             count--;
         });
         _jsPlumb.deleteConnection(c);
@@ -1685,35 +1685,35 @@ var testSuite = function () {
         expect(2);
     });
 
-    test("jsPlumb.remove fires connectionDetached events", function () {
+    test("jsPlumb.remove fires connection:detach events", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
 
         _jsPlumb.connect({source: d1, target: d2});
         _jsPlumb.connect({source: d1, target: d3});
 
         var o = 0;
-        _jsPlumb.bind("connectionDetached", function () {
+        _jsPlumb.bind("connection:detach", function () {
             o++;
         });
 
         _jsPlumb.unmanage(d1);
-        equal(o, 2, "connectionDetached event was fired twice.");
+        equal(o, 2, "connection:detach event was fired twice.");
 
     });
 
-    test("jsPlumb.removeAllEndpoints fires connectionDetached events", function () {
+    test("jsPlumb.removeAllEndpoints fires connection:detach events", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
 
         _jsPlumb.connect({source: d1, target: d2});
         _jsPlumb.connect({source: d1, target: d3});
 
         var o = 0;
-        _jsPlumb.bind("connectionDetached", function () {
+        _jsPlumb.bind("connection:detach", function () {
             o++;
         });
 
         _jsPlumb.removeAllEndpoints(d1);
-        equal(o, 2, "connectionDetached event was fired twice.");
+        equal(o, 2, "connection:detach event was fired twice.");
 
     });
 
@@ -2565,7 +2565,7 @@ var testSuite = function () {
         _jsPlumb.bind("connection", function (params) {
             connectCallback = Object.assign({}, params);
         });
-        _jsPlumb.bind("connectionDetached", function (params) {
+        _jsPlumb.bind("connection:detach", function (params) {
             detachCallback = Object.assign({}, params);
         });
         _jsPlumb.connect({source: d1, target: d2});                // auto connect with default endpoint and anchor set
