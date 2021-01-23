@@ -6,7 +6,7 @@ import {Endpoint} from "../endpoint/endpoint-impl"
 import {PaintStyle} from "../styles"
 import {Component} from "../component/component"
 import {OverlayCapableComponent} from "../component/overlay-capable-component"
-import {extend, addToList, isArray, isEmpty, IS, isString, merge, uuid} from "../util"
+import {extend, addToList, isArray, isEmpty, IS, isString, merge, uuid, addToDictionary} from "../util"
 import {Overlay, OverlaySpec} from "../overlay/overlay"
 import {Connectors} from "./connectors"
 import {AnchorSpec, makeAnchorFromSpec} from "../factory/anchor-factory"
@@ -200,10 +200,10 @@ export class Connection extends OverlayCapableComponent {
             eT = this.makeEndpoint(false, this.target, this.targetId, params.targetEndpoint)
 
         if (eS) {
-            addToList(instance.endpointsByElement, this.sourceId, eS)
+            addToDictionary(instance.endpointsByElement, this.sourceId, eS)
         }
         if (eT) {
-            addToList(instance.endpointsByElement, this.targetId, eT)
+            addToDictionary(instance.endpointsByElement, this.targetId, eT)
         }
 
         // if scope not set, set it to be the scope for the source endpoint.
