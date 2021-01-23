@@ -4,7 +4,7 @@ import { JsPlumbInstance } from "../core"
 import {makeAnchorFromSpec} from "../factory/anchor-factory"
 import {Anchor} from "../anchor/anchor"
 import {OverlayCapableComponent} from "../component/overlay-capable-component"
-import {addToList, isArray, isString, merge, removeWithFunction, extend} from "../util"
+import {isArray, isString, merge, extend } from "../util"
 import {AnchorComputeParams} from "../factory/anchor-factory"
 import {Connection} from "../connector/connection-impl"
 import {PaintStyle} from "../styles"
@@ -204,9 +204,9 @@ export class Endpoint extends OverlayCapableComponent {
         return a
     }
 
-    // TODO refactor, somehow, to take AnchorManager out of the equation.
+    // TODO refactor, somehow, to take AnchorManager out of the equation. update, rc35 - to take Router out of the equation.
     setPreparedAnchor (anchor:Anchor, doNotRepaint?:boolean):Endpoint {
-        this.instance.anchorManager.clearContinuousAnchorPlacement(this.elementId)
+        this.instance.router.clearContinuousAnchorPlacement(this.elementId)
         this.anchor = anchor
         this._updateAnchorClass()
 
@@ -374,20 +374,6 @@ export class Endpoint extends OverlayCapableComponent {
 
     getUuid():string {
         return this.uuid
-    }
-
-    setElement (el:any):Endpoint {
-        let parentId = this.instance.getId(el),
-            curId = this.elementId
-        // remove the endpoint from the list for the current endpoint's element
-        removeWithFunction(this.instance.endpointsByElement[this.elementId], (e:Endpoint) => {
-            return e.id === this.id
-        })
-        this.element = this.instance.getElement(el)
-        this.elementId = this.instance.getId(this.element)
-        this.instance.router.rehomeEndpoint(this, curId, this.element)
-        addToList(this.instance.endpointsByElement, parentId, this)
-        return this
     }
 
     connectorSelector ():Connection {
