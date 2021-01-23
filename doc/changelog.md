@@ -1,3 +1,9 @@
+## 4.0.0-RC37
+
+23rd January 2021
+
+- `@jsplumb/browser-ui` imports the `community-core` package with the corresponding version.
+
 ## 4.0.0-RC36
 
 23rd January 2021
