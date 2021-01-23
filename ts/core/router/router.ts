@@ -9,20 +9,21 @@ export interface Router {
 
     reset ():void
 
-    newConnection (conn:Connection):void
-
-    connectionDetached (connInfo:any):void
-
     redraw (elementId:string, ui?:ViewportElement, timestamp?:string, offsetToUI?:Offset):RedrawResult
-
-    deleteEndpoint (endpoint:Endpoint):void
-
-    rehomeEndpoint (ep:Endpoint, currentId:string, element:any):void
 
     addEndpoint (endpoint:Endpoint, elementId:string):void
 
     computePath(connection:Connection, timestamp:string):void
 
     elementRemoved(id:string):void
+
+    // TODO we dont want this method. it only delegates to anchorManager, which should listen to an event.
+    clearContinuousAnchorPlacement(elementId:string):void
+
+    // TODO we dont want this either.
+    getContinuousAnchorLocation(elementId:string):[number, number, number, number]
+
+    // TODO or this
+    getContinuousAnchorOrientation(endpointId:string):[number, number]
 
 }
