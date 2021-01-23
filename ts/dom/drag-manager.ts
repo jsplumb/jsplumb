@@ -26,11 +26,12 @@ export const EVENT_DRAG_STOP = "drag:stop"
 export const EVENT_DRAG_START = "drag:start"
 export const EVENT_MOUSEDOWN = "mousedown"
 export const EVENT_MOUSEMOVE = "mousemove"
-export const EVENT_MOUSEUP= "mouseup"
+export const EVENT_MOUSEUP = "mouseup"
 export const EVENT_REVERT = "revert"
 export const EVENT_ZOOM = "zoom"
 
-export const EVT_CONNECTION_DRAG = "connectionDrag"
+export const EVENT_CONNECTION_ABORT = "connection:abort"
+export const EVENT_CONNECTION_DRAG = "connection:drag"
 
 export interface DragHandler {
 
