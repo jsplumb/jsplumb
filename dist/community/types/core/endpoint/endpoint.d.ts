@@ -50,7 +50,7 @@ export interface EndpointOptions extends ComponentOptions {
     connections?: Array<Connection>;
     detachable?: boolean;
     dragAllowedWhenFull?: boolean;
-    onMaxConnections?: Function;
+    onMaxConnections?: (value: any, event?: any) => any;
     connectionCost?: number;
     connectionsDirected?: boolean;
     deleteOnEmpty?: boolean;

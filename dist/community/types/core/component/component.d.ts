@@ -15,7 +15,7 @@ export interface ComponentOptions extends Record<string, any> {
     beforeDrop?: Function;
     hoverClass?: string;
     overlays?: Array<OverlaySpec>;
-    events?: Dictionary<Function>;
+    events?: Dictionary<(value: any, event: any) => any>;
     scope?: string;
     cssClass?: string;
 }

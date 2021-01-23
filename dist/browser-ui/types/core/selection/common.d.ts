@@ -30,7 +30,7 @@ export declare class SelectionBase<T extends OverlayCapableComponent> {
     addType(name: string): SelectionBase<T>;
     toggleType(name: string): SelectionBase<T>;
     removeType(name: string): SelectionBase<T>;
-    bind(evt: string, handler: Function): SelectionBase<T>;
+    bind(evt: string, handler: (a: any, e?: any) => any): SelectionBase<T>;
     unbind(evt: string, handler: Function): SelectionBase<T>;
     setHover(h: boolean): SelectionBase<T>;
 }

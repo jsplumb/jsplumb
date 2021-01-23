@@ -5,12 +5,11 @@ import { ViewportElement } from "../viewport";
 import { RedrawResult } from "../anchor-manager";
 export interface Router {
     reset(): void;
-    newConnection(conn: Connection): void;
-    connectionDetached(connInfo: any): void;
     redraw(elementId: string, ui?: ViewportElement, timestamp?: string, offsetToUI?: Offset): RedrawResult;
-    deleteEndpoint(endpoint: Endpoint): void;
-    rehomeEndpoint(ep: Endpoint, currentId: string, element: any): void;
     addEndpoint(endpoint: Endpoint, elementId: string): void;
     computePath(connection: Connection, timestamp: string): void;
     elementRemoved(id: string): void;
+    clearContinuousAnchorPlacement(elementId: string): void;
+    getContinuousAnchorLocation(elementId: string): [number, number, number, number];
+    getContinuousAnchorOrientation(endpointId: string): [number, number];
 }

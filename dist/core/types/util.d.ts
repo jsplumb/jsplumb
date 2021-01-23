@@ -1,4 +1,4 @@
-import { PointArray, PointXY, SortFunction } from './common';
+import { Dictionary, PointArray, PointXY, SortFunction } from './common';
 export declare function filterList(list: Array<any> | string, value: any, missingIsFalse?: boolean): boolean;
 export declare function extend<T>(o1: T, o2: T, keys?: string[]): T;
 export declare function isArray(a: any): boolean;
@@ -37,7 +37,8 @@ export declare function findWithFunction<T>(a: Array<T>, f: (_a: T) => boolean):
 export declare function removeWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): boolean;
 export declare function remove<T>(l: Array<T>, v: T): boolean;
 export declare function addWithFunction<T>(list: Array<T>, item: T, hashFunction: (_a: T) => boolean): void;
-export declare function addToList(map: any, key: string, value: any, insertAtStart?: boolean): Array<any>;
+export declare function addToDictionary<T>(map: Dictionary<Array<T>>, key: string, value: any, insertAtStart?: boolean): Array<any>;
+export declare function addToList<T>(map: Map<string, Array<T>>, key: string, value: any, insertAtStart?: boolean): Array<any>;
 export declare function suggest(list: Array<any>, item: any, insertAtHead?: boolean): boolean;
 export declare function uuid(): string;
 export declare function rotatePoint(point: Array<number>, center: PointArray, rotation: number): [number, number, number, number];

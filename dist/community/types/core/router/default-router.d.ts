@@ -10,11 +10,10 @@ export declare class DefaultRouter implements Router {
     readonly anchorManager: AnchorManager;
     constructor(instance: JsPlumbInstance);
     reset(): void;
-    newConnection(conn: Connection): void;
-    connectionDetached(connInfo: any): void;
     redraw(elementId: string, ui?: ViewportElement, timestamp?: string, offsetToUI?: Offset): RedrawResult;
-    deleteEndpoint(endpoint: Endpoint): void;
-    rehomeEndpoint(ep: Endpoint, currentId: string, element: any): void;
+    clearContinuousAnchorPlacement(elementId: string): void;
+    getContinuousAnchorLocation(elementId: string): [number, number, number, number];
+    getContinuousAnchorOrientation(endpointId: string): [number, number];
     addEndpoint(endpoint: Endpoint, elementId: string): void;
     elementRemoved(id: string): void;
     computePath(connection: Connection, timestamp: string): void;

@@ -1,4 +1,4 @@
-import { jsPlumbDefaults, jsPlumbHelperFunctions, Dictionary, SourceDefinition, TargetDefinition, Offset, PointArray, Size, jsPlumbElement, TypeDescriptor, JsPlumbInstance, UIGroup, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, OverlayCapableComponent, Segment, LabelOverlay, Connection, Component } from '@jsplumb/community-core';
+import { jsPlumbDefaults, jsPlumbHelperFunctions, Dictionary, SourceDefinition, TargetDefinition, Offset, PointArray, Size, jsPlumbElement, TypeDescriptor, JsPlumbInstance, UIGroup, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, OverlayCapableComponent, Segment, LabelOverlay, Connection, Component, DeleteConnectionOptions } from '@jsplumb/community-core';
 import { ElementAttributes } from './svg-util';
 import { DragManager } from "./drag-manager";
 import { EventManager } from "./event-manager";
@@ -228,5 +228,6 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance {
     getEndpointClass(ep: Endpoint): string;
     refreshEndpoint(endpoint: Endpoint): void;
     setEndpointHover(endpoint: Endpoint, h: boolean, doNotCascade?: boolean): void;
-    setEndpointVisible<C>(ep: Endpoint, v: boolean): void;
+    setEndpointVisible(ep: Endpoint, v: boolean): void;
+    deleteConnection(connection: Connection, params?: DeleteConnectionOptions): boolean;
 }

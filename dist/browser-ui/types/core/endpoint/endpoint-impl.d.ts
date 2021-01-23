@@ -80,7 +80,6 @@ export declare class Endpoint extends OverlayCapableComponent {
     setDragAllowedWhenFull(allowed: boolean): void;
     equals(endpoint: Endpoint): boolean;
     getUuid(): string;
-    setElement(el: any): Endpoint;
     connectorSelector(): Connection;
     paint(params: {
         timestamp?: string;

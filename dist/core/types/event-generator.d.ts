@@ -12,7 +12,7 @@ export declare abstract class EventGenerator {
     getListener(forEvent: string): Array<any>;
     isSuspendEvents(): boolean;
     setSuspendEvents(val: boolean): void;
-    bind(event: string | Array<String>, listener: Function, insertAtStart?: boolean): EventGenerator;
+    bind<T = any>(event: string | Array<String>, listener: (a: T, e?: any) => any, insertAtStart?: boolean): EventGenerator;
     cleanupListeners(): void;
     silently(fn: Function): void;
 }

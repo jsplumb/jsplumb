@@ -2,7 +2,7 @@ import { jsPlumbDefaults, jsPlumbHelperFunctions } from "./defaults";
 import { Connection } from "./connector/connection-impl";
 import { Endpoint } from "./endpoint/endpoint-impl";
 import { FullOverlaySpec, OverlaySpec } from "./overlay/overlay";
-import { AnchorManager, AnchorPlacement, RedrawResult } from "./anchor-manager";
+import { AnchorPlacement, RedrawResult } from "./anchor-manager";
 import { Dictionary, UpdateOffsetOptions, Offset, Size, jsPlumbElement, PointArray, ConnectParams, // <--
 SourceDefinition, TargetDefinition, BehaviouralTypeDescriptor, TypeDescriptor } from './common';
 import { EventGenerator } from "./event-generator";
@@ -43,7 +43,7 @@ export declare type DeleteConnectionOptions = {
      */
     force?: boolean;
     /**
-     * If false, an event won't be fired. Otherwise a `connectionDetached` event will be fired.
+     * If false, an event won't be fired. Otherwise a `connection:detach` event will be fired.
      */
     fireEvent?: boolean;
     /**
@@ -90,7 +90,6 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     private _offsetTimestamps;
     readonly viewport: Viewport;
     readonly router: Router;
-    readonly anchorManager: AnchorManager;
     readonly groupManager: GroupManager;
     private _connectionTypes;
     private _endpointTypes;
@@ -214,7 +213,7 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     connect(params: ConnectParams, referenceParams?: ConnectParams): Connection;
     private _prepareConnectionParams;
     _newConnection(params: any): Connection;
-    _finaliseConnection(jpc: Connection, params?: any, originalEvent?: Event, doInformAnchorManager?: boolean): void;
+    _finaliseConnection(jpc: Connection, params?: any, originalEvent?: Event): void;
     removeAllEndpoints(el: jsPlumbElement, recurse?: boolean, affectedElements?: Array<jsPlumbElement>): JsPlumbInstance;
     private _setEnabled;
     toggleSourceEnabled(el: jsPlumbElement, connectionType?: string): any;

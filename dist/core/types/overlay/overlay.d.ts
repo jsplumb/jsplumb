@@ -8,7 +8,7 @@ export interface OverlayOptions extends Record<string, any> {
     cssClass?: string;
     location?: number;
     endpointLoc?: [number, number];
-    events?: Dictionary<Function>;
+    events?: Dictionary<(value: any, event?: any) => any>;
 }
 export interface ArrowOverlayOptions extends OverlayOptions {
     width?: number;
@@ -37,7 +37,7 @@ export declare abstract class Overlay extends EventGenerator {
     visible: boolean;
     location: number;
     endpointLocation: [number, number];
-    events?: Dictionary<Function>;
+    events?: Dictionary<(value: any, event?: any) => any>;
     constructor(instance: JsPlumbInstance, component: Component, p: OverlayOptions);
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
     setVisible(v: boolean): void;
