@@ -88,15 +88,15 @@ type AnchorListEntry = [ PointArray, Connection, boolean, string, string ]
 type AnchorLists = { top: Array<AnchorListEntry>, right: Array<AnchorListEntry>, bottom: Array<AnchorListEntry>, left: Array<AnchorListEntry> }
 type AnchorDictionary = Dictionary<AnchorLists>
 
-export class AnchorManager {
+export class AnchorManager<T extends {E:unknown} = any> {
 
     continuousAnchorLocations:Dictionary<[number, number, number, number]> = {}
     continuousAnchorOrientations:Dictionary<Orientation> = {}
 
     private anchorLists:AnchorDictionary = {}
 
-    constructor(private instance:JsPlumbInstance) {
-        instance.bind<ConnectionDetachedParams>(Constants.EVENT_INTERNAL_CONNECTION_DETACHED, (p:ConnectionDetachedParams) => {
+    constructor(private instance:JsPlumbInstance<T>) {
+        instance.bind<ConnectionDetachedParams<T["E"]>>(Constants.EVENT_INTERNAL_CONNECTION_DETACHED, (p:ConnectionDetachedParams<T["E"]>) => {
             this.connectionDetached(p)
         })
     }
@@ -158,7 +158,7 @@ export class AnchorManager {
         })(this.anchorLists[endpoint.elementId], endpoint.id)
     }
 
-    private connectionDetached (params:ConnectionDetachedParams) {
+    private connectionDetached (params:ConnectionDetachedParams<T["E"]>) {
         // TODO this is DOM specific. core should not know.
         if (params.connection.floatingId) {
             this.removeEndpointFromAnchorLists(params.connection.floatingEndpoint)
