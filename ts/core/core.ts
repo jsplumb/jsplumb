@@ -849,7 +849,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      * @param id Optional ID for the Endpoint.
      */
     newEndpoint(params:EndpointOptions<T["E"]>, id?:string):Endpoint {
-        let _p:InternalEndpointOptions = extend({}, params)
+        let _p:InternalEndpointOptions<T["E"]> = extend({}, params)
         _p.elementId = id || this.getId(_p.source)
 
         let ep = new Endpoint(this, _p)
