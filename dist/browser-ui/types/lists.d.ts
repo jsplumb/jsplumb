@@ -8,7 +8,7 @@ export interface jsPlumbListOptions {
     endpoint?: EndpointSpec;
     deriveEndpoint?: (edge: string, index: number, ep: Endpoint, conn: Connection) => Endpoint;
 }
-export declare class jsPlumbListManager<E> {
+export declare class jsPlumbListManager {
     private instance;
     options: ListManagerOptions;
     count: number;

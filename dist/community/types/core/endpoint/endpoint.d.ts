@@ -10,17 +10,13 @@ export declare type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndp
 export declare type UserDefinedEndpointId = string;
 export declare type EndpointParams = any;
 export declare type EndpointSpec = EndpointId | [EndpointId, EndpointParams];
-export interface InternalEndpointOptions<T extends {
-    E: unknown;
-} = any> extends EndpointOptions<T> {
+export interface InternalEndpointOptions<E> extends EndpointOptions<E> {
     isTemporarySource?: boolean;
 }
-export interface EndpointOptions<T extends {
-    E: unknown;
-} = any> extends ComponentOptions {
+export interface EndpointOptions<E> extends ComponentOptions {
     anchor?: AnchorSpec | Anchor;
     anchors?: [AnchorSpec, AnchorSpec];
-    endpoint?: EndpointSpec | Endpoint<T>;
+    endpoint?: EndpointSpec | Endpoint<E>;
     enabled?: boolean;
     paintStyle?: PaintStyle;
     hoverPaintStyle?: PaintStyle;
@@ -49,7 +45,7 @@ export interface EndpointOptions<T extends {
     connectorTooltip?: string;
     portId?: string;
     uuid?: string;
-    source?: T["E"];
+    source?: E;
     connections?: Array<Connection>;
     detachable?: boolean;
     dragAllowedWhenFull?: boolean;

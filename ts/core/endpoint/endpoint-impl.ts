@@ -31,7 +31,7 @@ function findConnectionToUseForDynamicAnchor<E>(ep:Endpoint, elementWithPreceden
 
 const typeParameters = [ "connectorStyle", "connectorHoverStyle", "connectorOverlays", "connector", "connectionType", "connectorClass", "connectorHoverClass" ]
 
-export class Endpoint extends OverlayCapableComponent {
+export class Endpoint<E = any> extends OverlayCapableComponent {
 
     getIdPrefix ():string { return  "_jsplumb_e"; }
 
@@ -46,10 +46,9 @@ export class Endpoint extends OverlayCapableComponent {
     connections:Array<Connection> = []
     anchor:Anchor
     endpoint:EndpointRepresentation<any>
-    element:jsPlumbElement
+    element:E
     elementId:string
     dragAllowedWhenFull:boolean = true
-    scope:string
     timestamp:string
 
     portId:string
@@ -93,10 +92,12 @@ export class Endpoint extends OverlayCapableComponent {
 
     private uuid:string
 
+    scope:string
+
     defaultLabelLocation = [ 0.5, 0.5 ] as [number, number]
     getDefaultOverlayKey () { return "endpointOverlays"; }
 
-    constructor(public instance:JsPlumbInstance, params:InternalEndpointOptions) {
+    constructor(public instance:JsPlumbInstance, params:InternalEndpointOptions<E>) {
         super(instance, params)
 
         this.appendToDefaultType({

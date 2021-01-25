@@ -29,7 +29,6 @@ import {
     extend,
     findWithFunction, functionChain, IS, IS_DETACH_ALLOWED,
     IS_GROUP_KEY, isString,
-    jsPlumbElement,
     makeAnchorFromSpec,
     PaintStyle, SOURCE,
     SourceDefinition,
@@ -74,7 +73,7 @@ export class EndpointDragHandler implements DragHandler {
     jpc:Connection
     existingJpc:boolean
 
-    ep:Endpoint
+    ep:Endpoint<Element>
     endpointRepresentation:EndpointRepresentation<any>
     private _activeDefinition:SourceOrTargetDefinition
 
@@ -120,8 +119,7 @@ export class EndpointDragHandler implements DragHandler {
             return
         }
 
-        let elid = this.instance.getId(targetEl),
-            sourceDef = this._getSourceDefinition(targetEl, e),
+        let sourceDef = this._getSourceDefinition(targetEl, e),
             sourceElement = e.currentTarget as jsPlumbDOMElement,
             def
 
@@ -228,16 +226,16 @@ export class EndpointDragHandler implements DragHandler {
      * element, that element will be the one used for dragging.
      * @param el The element that will be dragged unless we return something different.
      */
-    onDragInit(el:jsPlumbDOMElement):jsPlumbDOMElement {
+    onDragInit(el:Element):Element {
         const ipco = this.instance.getOffset(el), ips = this.instance.getSize(el)
 
         this._makeDraggablePlaceholder(ipco, ips)
 
-        this.placeholderInfo.element.jtk = el.jtk
+        this.placeholderInfo.element.jtk = (el as jsPlumbDOMElement).jtk
         return this.placeholderInfo.element
     }
 
-    onDragAbort(el:jsPlumbDOMElement):void {
+    onDragAbort(el:Element):void {
         this._cleanupDraggablePlaceholder()
     }
 
@@ -431,12 +429,12 @@ export class EndpointDragHandler implements DragHandler {
             let d: any = {el: candidate, r: boundingRect}
 
             // look for at least one target definition that is not disabled on the given element.
-            let targetDefinitionIdx = isSourceDrag ? -1 : findWithFunction((candidate  as jsPlumbElement)._jsPlumbTargetDefinitions, (tdef: TargetDefinition) => {
+            let targetDefinitionIdx = isSourceDrag ? -1 : findWithFunction((candidate as jsPlumbDOMElement)._jsPlumbTargetDefinitions, (tdef: TargetDefinition) => {
                 return tdef.enabled !== false && (tdef.def.allowLoopback !== false || candidate !== this.ep.element) && (this._activeDefinition == null || this._activeDefinition.def.allowLoopback !== false || candidate !== this.ep.element)
             })
 
             // look for at least one source definition that is not disabled on the given element.
-            let sourceDefinitionIdx = isSourceDrag ? findWithFunction((candidate  as jsPlumbElement)._jsPlumbSourceDefinitions, (sdef: SourceDefinition) => {
+            let sourceDefinitionIdx = isSourceDrag ? findWithFunction((candidate  as jsPlumbDOMElement)._jsPlumbSourceDefinitions, (sdef: SourceDefinition) => {
                 return sdef.enabled !== false  && (sdef.def.allowLoopback !== false || candidate !== this.ep.element) && (this._activeDefinition == null || this._activeDefinition.def.allowLoopback !== false || candidate !== this.ep.element)
             }) : -1
 

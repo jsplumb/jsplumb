@@ -36,9 +36,9 @@ export interface ConnectParams {
     endpointHoverStyle?: PaintStyle;
     ports?: [string, string];
 }
-export interface InternalConnectParams extends ConnectParams {
-    sourceEndpoint?: Endpoint;
-    targetEndpoint?: Endpoint;
+export interface InternalConnectParams<E> extends ConnectParams {
+    sourceEndpoint?: Endpoint<E>;
+    targetEndpoint?: Endpoint<E>;
     scope?: string;
     type?: string;
     newConnection?: (p: any) => Connection;

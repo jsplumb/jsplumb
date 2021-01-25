@@ -6,7 +6,7 @@ export declare class EndpointDragHandler implements DragHandler {
     protected instance: BrowserJsPlumbInstance;
     jpc: Connection;
     existingJpc: boolean;
-    ep: Endpoint;
+    ep: Endpoint<Element>;
     endpointRepresentation: EndpointRepresentation<any>;
     private _activeDefinition;
     placeholderInfo: {

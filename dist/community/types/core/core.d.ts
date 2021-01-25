@@ -21,26 +21,18 @@ import { LabelOverlay } from './overlay/label-overlay';
 import { AbstractConnector } from './connector/abstract-connector';
 import { OverlayCapableComponent } from './component/overlay-capable-component';
 import { PaintStyle } from './styles';
-export declare type ElementSelectionSpecifier<T extends {
-    E: unknown;
-}> = T["E"] | Array<T["E"]> | '*';
+export declare type ElementSelectionSpecifier<E> = E | Array<E> | '*';
 export declare type SelectionList = '*' | Array<string>;
-export interface AbstractSelectOptions<T extends {
-    E: unknown;
-}> {
+export interface AbstractSelectOptions<E> {
     scope?: SelectionList;
-    source?: ElementSelectionSpecifier<T>;
-    target?: ElementSelectionSpecifier<T>;
+    source?: ElementSelectionSpecifier<E>;
+    target?: ElementSelectionSpecifier<E>;
 }
-export interface SelectOptions<T extends {
-    E: unknown;
-}> extends AbstractSelectOptions<T> {
+export interface SelectOptions<E> extends AbstractSelectOptions<E> {
     connections?: Array<Connection>;
 }
-export interface SelectEndpointOptions<T extends {
-    E: unknown;
-}> extends AbstractSelectOptions<T> {
-    element?: ElementSelectionSpecifier<T>;
+export interface SelectEndpointOptions<E> extends AbstractSelectOptions<E> {
+    element?: ElementSelectionSpecifier<E>;
 }
 /**
  * Optional parameters to the `DeleteConnection` method.
@@ -121,9 +113,9 @@ export declare abstract class JsPlumbInstance<T extends {
     checkCondition(conditionName: string, args?: any): boolean;
     getId(element: T["E"], uuid?: string): string;
     getCachedData(elId: string): ViewportElement;
-    getConnections(options?: SelectOptions<T>, flat?: boolean): Dictionary<Connection> | Array<Connection>;
-    select(params?: SelectOptions<T>): ConnectionSelection;
-    selectEndpoints(params?: SelectEndpointOptions<T>): EndpointSelection;
+    getConnections(options?: SelectOptions<T["E"]>, flat?: boolean): Dictionary<Connection> | Array<Connection>;
+    select(params?: SelectOptions<T["E"]>): ConnectionSelection;
+    selectEndpoints(params?: SelectEndpointOptions<T["E"]>): EndpointSelection;
     setContainer(c: string | T["E"]): void;
     private _set;
     setSource(connection: Connection, el: T["E"] | Endpoint, doNotRepaint?: boolean): void;
@@ -195,7 +187,7 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param params Options for the Endpoint.
      * @param id Optional ID for the Endpoint.
      */
-    newEndpoint(params: EndpointOptions, id?: string): Endpoint;
+    newEndpoint(params: EndpointOptions<T["E"]>, id?: string): Endpoint;
     deriveEndpointAndAnchorSpec(type: string, dontPrependDefault?: boolean): any;
     repaint(el: T["E"], ui?: any, timestamp?: string): RedrawResult;
     revalidate(el: T["E"], timestamp?: string): RedrawResult;
@@ -211,8 +203,8 @@ export declare abstract class JsPlumbInstance<T extends {
     unregisterEndpoint(endpoint: Endpoint): void;
     maybePruneEndpoint(endpoint: Endpoint): boolean;
     deleteEndpoint(object: string | Endpoint): JsPlumbInstance;
-    addEndpoint(el: T["E"], params?: EndpointOptions, referenceParams?: EndpointOptions): Endpoint;
-    addEndpoints(el: T["E"], endpoints: Array<EndpointOptions>, referenceParams?: any): Array<Endpoint>;
+    addEndpoint(el: T["E"], params?: EndpointOptions<T["E"]>, referenceParams?: EndpointOptions<T["E"]>): Endpoint;
+    addEndpoints(el: T["E"], endpoints: Array<EndpointOptions<T["E"]>>, referenceParams?: any): Array<Endpoint>;
     reset(silently?: boolean): void;
     uuid(): string;
     rotatePoint(point: Array<number>, center: PointArray, rotation: number): [number, number, number, number];

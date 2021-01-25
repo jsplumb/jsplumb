@@ -99,9 +99,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     _elementMouseexit: Function;
     _elementMousemove: Function;
     eventManager: EventManager;
-    listManager: jsPlumbListManager<{
-        E: Element;
-    }>;
+    listManager: jsPlumbListManager;
     draggingClass: string;
     elementDraggingClass: string;
     hoverClass: string;

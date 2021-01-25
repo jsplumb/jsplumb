@@ -5240,7 +5240,6 @@
       _defineProperty(_assertThisInitialized(_this), "element", void 0);
       _defineProperty(_assertThisInitialized(_this), "elementId", void 0);
       _defineProperty(_assertThisInitialized(_this), "dragAllowedWhenFull", true);
-      _defineProperty(_assertThisInitialized(_this), "scope", void 0);
       _defineProperty(_assertThisInitialized(_this), "timestamp", void 0);
       _defineProperty(_assertThisInitialized(_this), "portId", void 0);
       _defineProperty(_assertThisInitialized(_this), "floatingEndpoint", void 0);
@@ -5268,6 +5267,7 @@
       _defineProperty(_assertThisInitialized(_this), "dragProxy", void 0);
       _defineProperty(_assertThisInitialized(_this), "deleteOnEmpty", void 0);
       _defineProperty(_assertThisInitialized(_this), "uuid", void 0);
+      _defineProperty(_assertThisInitialized(_this), "scope", void 0);
       _defineProperty(_assertThisInitialized(_this), "defaultLabelLocation", [0.5, 0.5]);
       _this.appendToDefaultType({
         connectionType: params.connectionType,
