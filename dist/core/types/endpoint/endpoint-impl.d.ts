@@ -1,5 +1,4 @@
 import { EndpointSpec, InternalEndpointOptions } from "../endpoint/endpoint";
-import { jsPlumbElement } from '../common';
 import { JsPlumbInstance } from "../core";
 import { Anchor } from "../anchor/anchor";
 import { OverlayCapableComponent } from "../component/overlay-capable-component";
@@ -10,7 +9,9 @@ import { EndpointRepresentation } from "./endpoints";
 import { AnchorPlacement } from "../anchor-manager";
 import { OverlaySpec } from '../overlay/overlay';
 import { ViewportElement } from "../viewport";
-export declare class Endpoint extends OverlayCapableComponent {
+export declare class Endpoint<T extends {
+    E: unknown;
+} = any> extends OverlayCapableComponent {
     instance: JsPlumbInstance;
     getIdPrefix(): string;
     getTypeDescriptor(): string;
@@ -21,7 +22,7 @@ export declare class Endpoint extends OverlayCapableComponent {
     connections: Array<Connection>;
     anchor: Anchor;
     endpoint: EndpointRepresentation<any>;
-    element: jsPlumbElement;
+    element: T["E"];
     elementId: string;
     dragAllowedWhenFull: boolean;
     scope: string;
@@ -54,7 +55,7 @@ export declare class Endpoint extends OverlayCapableComponent {
     private uuid;
     defaultLabelLocation: [number, number];
     getDefaultOverlayKey(): string;
-    constructor(instance: JsPlumbInstance, params: InternalEndpointOptions);
+    constructor(instance: JsPlumbInstance, params: InternalEndpointOptions<T>);
     private _updateAnchorClass;
     private prepareAnchor;
     setPreparedAnchor(anchor: Anchor, doNotRepaint?: boolean): Endpoint;

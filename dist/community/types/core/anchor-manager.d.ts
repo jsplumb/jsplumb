@@ -10,12 +10,14 @@ export interface RedrawResult {
     c: Set<Connection>;
     e: Set<Endpoint>;
 }
-export declare class AnchorManager {
+export declare class AnchorManager<T extends {
+    E: unknown;
+} = any> {
     private instance;
     continuousAnchorLocations: Dictionary<[number, number, number, number]>;
     continuousAnchorOrientations: Dictionary<Orientation>;
     private anchorLists;
-    constructor(instance: JsPlumbInstance);
+    constructor(instance: JsPlumbInstance<T>);
     reset(): void;
     private placeAnchors;
     clearContinuousAnchorPlacement(endpointId: string): void;

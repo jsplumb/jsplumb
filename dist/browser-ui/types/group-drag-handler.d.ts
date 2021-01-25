@@ -10,8 +10,8 @@ export declare class GroupDragHandler extends ElementDragHandler implements Ghos
     reset(): void;
     private _revalidate;
     init(drag: Drag): void;
-    useGhostProxy(container: any, dragEl: jsPlumbDOMElement): boolean;
-    makeGhostProxy(el: jsPlumbDOMElement): jsPlumbDOMElement;
+    useGhostProxy(container: any, dragEl: Element): boolean;
+    makeGhostProxy(el: Element): Element;
     onDrag(params: DragEventParams): void;
     onDragAbort(el: jsPlumbDOMElement): void;
     onStop(params: DragStopEventParams): void;

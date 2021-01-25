@@ -3,7 +3,7 @@ import { BrowserJsPlumbInstance, DragGroupSpec, jsPlumbDOMElement } from "./brow
 import { Drag } from "./collicat";
 import { Offset, PointArray, RedrawResult } from "@jsplumb/community-core";
 export interface DragStopPayload {
-    el: jsPlumbDOMElement;
+    el: Element;
     e: MouseEvent;
     pos: Offset;
     r: RedrawResult;
@@ -25,8 +25,8 @@ export declare class ElementDragHandler implements DragHandler {
     private _dragSizes;
     protected drag: Drag;
     constructor(instance: BrowserJsPlumbInstance);
-    onDragInit(el: jsPlumbDOMElement): jsPlumbDOMElement;
-    onDragAbort(el: jsPlumbDOMElement): void;
+    onDragInit(el: Element): Element;
+    onDragAbort(el: Element): void;
     onStop(params: DragStopEventParams): void;
     private _cleanup;
     reset(): void;
@@ -38,14 +38,14 @@ export declare class ElementDragHandler implements DragHandler {
         finalPos: PointArray;
         drag: Drag;
     }): boolean;
-    addToDragSelection(el: string | jsPlumbDOMElement): void;
+    addToDragSelection(el: Element): void;
     clearDragSelection(): void;
-    removeFromDragSelection(el: string | HTMLElement): void;
-    toggleDragSelection(el: string | jsPlumbDOMElement): void;
-    getDragSelection(): Array<jsPlumbDOMElement>;
+    removeFromDragSelection(el: Element): void;
+    toggleDragSelection(el: Element): void;
+    getDragSelection(): Array<Element>;
     private static decodeDragGroupSpec;
-    addToDragGroup(spec: DragGroupSpec, ...els: Array<jsPlumbDOMElement>): void;
-    removeFromDragGroup(...els: Array<jsPlumbDOMElement>): void;
-    setDragGroupState(state: boolean, ...els: Array<jsPlumbDOMElement>): void;
+    addToDragGroup(spec: DragGroupSpec, ...els: Array<Element>): void;
+    removeFromDragGroup(...els: Array<Element>): void;
+    setDragGroupState(state: boolean, ...els: Array<Element>): void;
     private isActiveDragGroupMember;
 }

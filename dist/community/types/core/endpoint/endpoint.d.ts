@@ -5,19 +5,22 @@ import { OverlaySpec } from "../overlay/overlay";
 import { ComponentOptions } from "../component/component";
 import { ConnectorSpec } from "../connector/abstract-connector";
 import { Connection } from "../connector/connection-impl";
-import { jsPlumbElement } from "../common";
 import { Endpoint } from "./endpoint-impl";
 export declare type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndpointId;
 export declare type UserDefinedEndpointId = string;
 export declare type EndpointParams = any;
 export declare type EndpointSpec = EndpointId | [EndpointId, EndpointParams];
-export interface InternalEndpointOptions extends EndpointOptions {
+export interface InternalEndpointOptions<T extends {
+    E: unknown;
+} = any> extends EndpointOptions<T> {
     isTemporarySource?: boolean;
 }
-export interface EndpointOptions extends ComponentOptions {
+export interface EndpointOptions<T extends {
+    E: unknown;
+} = any> extends ComponentOptions {
     anchor?: AnchorSpec | Anchor;
     anchors?: [AnchorSpec, AnchorSpec];
-    endpoint?: EndpointSpec | Endpoint;
+    endpoint?: EndpointSpec | Endpoint<T>;
     enabled?: boolean;
     paintStyle?: PaintStyle;
     hoverPaintStyle?: PaintStyle;
@@ -46,7 +49,7 @@ export interface EndpointOptions extends ComponentOptions {
     connectorTooltip?: string;
     portId?: string;
     uuid?: string;
-    source?: jsPlumbElement;
+    source?: T["E"];
     connections?: Array<Connection>;
     detachable?: boolean;
     dragAllowedWhenFull?: boolean;

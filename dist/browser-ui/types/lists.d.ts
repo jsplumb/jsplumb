@@ -1,4 +1,4 @@
-import { BrowserJsPlumbInstance, jsPlumbDOMElement } from "./browser-jsplumb-instance";
+import { BrowserJsPlumbInstance } from "./browser-jsplumb-instance";
 import { EndpointSpec, Endpoint, Connection, AnchorSpec, Anchor, Dictionary } from '@jsplumb/community-core';
 export interface ListManagerOptions {
 }
@@ -8,24 +8,25 @@ export interface jsPlumbListOptions {
     endpoint?: EndpointSpec;
     deriveEndpoint?: (edge: string, index: number, ep: Endpoint, conn: Connection) => Endpoint;
 }
-export declare class jsPlumbListManager {
+export declare class jsPlumbListManager<E> {
     private instance;
     options: ListManagerOptions;
     count: number;
     lists: Dictionary<jsPlumbList>;
     constructor(instance: BrowserJsPlumbInstance, params?: ListManagerOptions);
-    addList(el: jsPlumbDOMElement, options?: jsPlumbListOptions): jsPlumbList;
-    removeList(el: jsPlumbDOMElement): void;
-    _maybeUpdateParentList(el: jsPlumbDOMElement): void;
+    addList(el: Element, options?: jsPlumbListOptions): jsPlumbList;
+    removeList(el: Element): void;
+    private _maybeUpdateParentList;
 }
 export declare class jsPlumbList {
     private instance;
     private el;
     private options;
     _scrollHandler: Function;
-    constructor(instance: BrowserJsPlumbInstance, el: jsPlumbDOMElement, options: jsPlumbListOptions, id: string);
+    private readonly domElement;
+    constructor(instance: BrowserJsPlumbInstance, el: Element, options: jsPlumbListOptions, id: string);
     private deriveAnchor;
-    deriveEndpoint(edge: string, index: number, ep: Endpoint, conn: Connection): string | Endpoint | [string, any];
+    deriveEndpoint(edge: string, index: number, ep: Endpoint, conn: Connection): string | Endpoint<any> | [string, any];
     scrollHandler(): void;
     destroy(): void;
 }

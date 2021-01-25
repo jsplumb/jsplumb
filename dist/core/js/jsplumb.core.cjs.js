@@ -6124,18 +6124,19 @@ function () {
   }, {
     key: "getGroupFor",
     value: function getGroupFor(el) {
+      var jel = el;
       var c = this.instance.getContainer();
       var abort = false,
           g = null;
       while (!abort) {
-        if (el == null || el === c) {
+        if (jel == null || jel === c) {
           abort = true;
         } else {
-          if (el._jsPlumbParentGroup) {
-            g = el._jsPlumbParentGroup;
+          if (jel._jsPlumbParentGroup) {
+            g = jel._jsPlumbParentGroup;
             abort = true;
           } else {
-            el = el.parentNode;
+            jel = jel.parentNode;
           }
         }
       }
@@ -6197,22 +6198,23 @@ function () {
     }
   }, {
     key: "orphan",
-    value: function orphan(_el) {
-      if (_el._jsPlumbParentGroup) {
-        var group = _el._jsPlumbParentGroup;
-        var groupPos = this.instance.getOffset(_el);
-        var id = this.instance.getId(_el);
-        var pos = this.instance.getOffset(_el);
-        _el.parentNode.removeChild(_el);
+    value: function orphan(el) {
+      var jel = el;
+      if (jel._jsPlumbParentGroup) {
+        var group = jel._jsPlumbParentGroup;
+        var groupPos = this.instance.getOffset(jel);
+        var id = this.instance.getId(jel);
+        var pos = this.instance.getOffset(el);
+        jel.parentNode.removeChild(jel);
         if (group.group) {
           pos.left += groupPos.left;
           pos.top += groupPos.top;
-          group.group.getContentArea().appendChild(_el);
+          group.group.getContentArea().appendChild(el);
         } else {
-          this.instance.appendElement(_el, this.instance.getContainer());
+          this.instance.appendElement(el, this.instance.getContainer());
         }
-        this.instance.setPosition(_el, pos);
-        delete _el._jsPlumbParentGroup;
+        this.instance.setPosition(el, pos);
+        delete jel._jsPlumbParentGroup;
         return [id, pos];
       }
     }
@@ -8608,7 +8610,7 @@ function (_EventGenerator) {
         });
       };
       if (!this._suspendDrawing) {
-        var id = this.getId(el);
+        var _id = this.getId(el);
         if (el != null) {
           var repaintEls = this._getAssociatedElements(el),
               repaintOffsets = [];
@@ -8617,7 +8619,7 @@ function (_EventGenerator) {
           }
           if (!offsetsWereJustCalculated) {
             this.updateOffset({
-              elId: id,
+              elId: _id,
               offset: ui,
               recalc: false,
               timestamp: timestamp
@@ -8635,7 +8637,7 @@ function (_EventGenerator) {
               repaintOffsets.push(this.viewport.getPosition(reId));
             }
           }
-          _mergeRedraw(this.router.redraw(id, ui, timestamp, null));
+          _mergeRedraw(this.router.redraw(_id, ui, timestamp, null));
           if (repaintEls.length > 0) {
             for (var j = 0; j < repaintEls.length; j++) {
               _mergeRedraw(this.router.redraw(this.getId(repaintEls[j]), repaintOffsets[j], timestamp, null));
@@ -8969,8 +8971,9 @@ function (_EventGenerator) {
       var originalState = [],
           newState,
           os;
+      var jel = el;
       connectionType = connectionType || DEFAULT;
-      var defs = type === SOURCE ? el._jsPlumbSourceDefinitions : el._jsPlumbTargetDefinitions;
+      var defs = type === SOURCE ? jel._jsPlumbSourceDefinitions : jel._jsPlumbTargetDefinitions;
       if (defs) {
         defs.forEach(function (def) {
           if (def.def.connectionType == null || def.def.connectionType === connectionType) {
@@ -9204,6 +9207,7 @@ function (_EventGenerator) {
   }, {
     key: "makeTarget",
     value: function makeTarget(el, params, referenceParams) {
+      var jel = el;
       var p = extend({
         _jsPlumb: this
       }, referenceParams);
@@ -9215,8 +9219,8 @@ function (_EventGenerator) {
       this.setAttribute(el, ATTRIBUTE_TARGET, "");
       this._writeScopeAttribute(el, p.scope || this.Defaults.scope);
       this.setAttribute(el, [ATTRIBUTE_TARGET, p.connectionType].join("-"), "");
-      el._jsPlumbTargetDefinitions = el._jsPlumbTargetDefinitions || [];
-      if (el._jsPlumbGroup && dropOptions.rank == null) {
+      jel._jsPlumbTargetDefinitions = jel._jsPlumbTargetDefinitions || [];
+      if (jel._jsPlumbGroup && dropOptions.rank == null) {
         dropOptions.rank = -1;
       }
       var _def = {
@@ -9231,7 +9235,7 @@ function (_EventGenerator) {
         _def.endpoint = this.addEndpoint(el, _def.def);
         _def.endpoint.deleteOnEmpty = false;
       }
-      el._jsPlumbTargetDefinitions.push(_def);
+      jel._jsPlumbTargetDefinitions.push(_def);
       return this;
     }
   }, {

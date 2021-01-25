@@ -18,16 +18,16 @@ export interface GroupOptions {
     anchor?: AnchorSpec;
     endpoint?: EndpointSpec;
 }
-export declare class UINode {
+export declare class UINode<E> {
     instance: JsPlumbInstance;
     el: any;
-    group: UIGroup;
+    group: UIGroup<E>;
     constructor(instance: JsPlumbInstance, el: any);
 }
-export declare class UIGroup extends UINode {
+export declare class UIGroup<E = any> extends UINode<E> {
     instance: JsPlumbInstance;
     children: Array<any>;
-    childGroups: Array<UIGroup>;
+    childGroups: Array<UIGroup<E>>;
     collapsed: boolean;
     droppable: boolean;
     enabled: boolean;
@@ -45,20 +45,20 @@ export declare class UIGroup extends UINode {
         target: Array<Connection>;
         internal: Array<Connection>;
     };
-    groups: Array<UIGroup>;
-    manager: GroupManager;
+    groups: Array<UIGroup<E>>;
+    manager: GroupManager<E>;
     id: string;
     constructor(instance: JsPlumbInstance, el: any, options: GroupOptions);
-    overrideDrop(el: any, targetGroup: UIGroup): boolean;
+    overrideDrop(el: any, targetGroup: UIGroup<E>): boolean;
     getContentArea(): any;
     getAnchor(conn: Connection, endpointIndex: number): AnchorSpec;
     getEndpoint(conn: Connection, endpointIndex: number): EndpointSpec;
     add(_el: any, doNotFireEvent?: boolean): void;
-    remove(el: any | Array<any>, manipulateDOM?: boolean, doNotFireEvent?: boolean, doNotUpdateConnections?: boolean, targetGroup?: UIGroup): void;
+    remove(el: E | Array<E>, manipulateDOM?: boolean, doNotFireEvent?: boolean, doNotUpdateConnections?: boolean, targetGroup?: UIGroup<E>): void;
     removeAll(manipulateDOM?: boolean, doNotFireEvent?: boolean): void;
     orphanAll(): Dictionary<Offset>;
-    addGroup(group: UIGroup): boolean;
-    removeGroup(group: UIGroup): void;
-    getGroups(): Array<UIGroup>;
-    get collapseParent(): UIGroup;
+    addGroup(group: UIGroup<E>): boolean;
+    removeGroup(group: UIGroup<E>): void;
+    getGroups(): Array<UIGroup<E>>;
+    get collapseParent(): UIGroup<E>;
 }

@@ -9,10 +9,12 @@ import { OverlaySpec } from "../overlay/overlay";
 import { AnchorSpec } from "../factory/anchor-factory";
 import { ConnectorSpec } from "./abstract-connector";
 import { EndpointSpec } from "../endpoint/endpoint";
-export interface ConnectionParams {
+export interface ConnectionParams<T extends {
+    E: unknown;
+} = any> {
     id?: string;
-    source?: jsPlumbElement;
-    target?: jsPlumbElement;
+    source?: T["E"];
+    target?: T["E"];
     sourceEndpoint?: Endpoint;
     targetEndpoint?: Endpoint;
     scope?: string;
@@ -90,7 +92,7 @@ export declare class Connection extends OverlayCapableComponent {
     floatingEndpoint: Endpoint;
     floatingId: string;
     floatingElement: any;
-    static updateConnectedClass<E>(instance: JsPlumbInstance, conn: Connection, element: jsPlumbElement, isRemoval: boolean): void;
+    static updateConnectedClass<E>(instance: JsPlumbInstance, conn: Connection, element: jsPlumbElement<E>, isRemoval: boolean): void;
     constructor(instance: JsPlumbInstance, params: ConnectionParams);
     makeEndpoint(isSource: boolean, el: any, elId: string, ep?: Endpoint): Endpoint;
     getTypeDescriptor(): string;

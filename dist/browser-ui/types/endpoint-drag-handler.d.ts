@@ -38,8 +38,8 @@ export declare class EndpointDragHandler implements DragHandler {
      * element, that element will be the one used for dragging.
      * @param el The element that will be dragged unless we return something different.
      */
-    onDragInit(el: jsPlumbDOMElement): jsPlumbDOMElement;
-    onDragAbort(el: jsPlumbDOMElement): void;
+    onDragInit(el: Element): Element;
+    onDragAbort(el: Element): void;
     /**
      * Makes the element that is the placeholder for dragging. this element gets `managed` by the instance, and `unmanaged` when dragging
      * ends.

@@ -30,7 +30,7 @@ export interface AnchorOptions {
 export declare type AnchorId = "Assign" | "AutoDefault" | "Bottom" | "BottomCenter" | "BottomLeft" | "BottomRight" | "Center" | "Continuous" | "ContinuousBottom" | "ContinuousLeft" | "ContinuousRight" | "ContinuousTop" | "ContinuousLeftRight" | "ContinuousTopBottom" | "Left" | "LeftMiddle" | "Perimeter" | "Right" | "RightMiddle" | "Top" | "TopCenter" | "TopLeft" | "TopRight";
 export declare type AnchorSpec = AnchorId | [AnchorId, AnchorOptions] | AnchorPlacement;
 export declare const Anchors: {
-    get: (instance: JsPlumbInstance, name: string, args: any) => Anchor;
+    get: (instance: JsPlumbInstance<any>, name: string, args: any) => Anchor;
 };
 export declare function makeAnchorFromSpec(instance: JsPlumbInstance, spec: AnchorSpec, elementId?: string): Anchor;
 export declare type ShapeFunction = (anchorCount: number, p?: any) => Array<any>;

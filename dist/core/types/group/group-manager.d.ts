@@ -1,4 +1,4 @@
-import { Dictionary, jsPlumbElement, Offset } from '../common';
+import { Dictionary, Offset } from '../common';
 import { JsPlumbInstance } from "../core";
 import { UIGroup } from "./group";
 export interface AddGroupOptions {
@@ -6,48 +6,48 @@ export interface AddGroupOptions {
     el: any;
     collapsed?: boolean;
 }
-export declare class GroupManager {
+export declare class GroupManager<E> {
     instance: JsPlumbInstance;
-    groupMap: Dictionary<UIGroup>;
-    _connectionSourceMap: Dictionary<UIGroup>;
-    _connectionTargetMap: Dictionary<UIGroup>;
+    groupMap: Dictionary<UIGroup<E>>;
+    _connectionSourceMap: Dictionary<UIGroup<E>>;
+    _connectionTargetMap: Dictionary<UIGroup<E>>;
     constructor(instance: JsPlumbInstance);
     private _cleanupDetachedConnection;
-    addGroup(params: AddGroupOptions): UIGroup;
-    getGroup(groupId: string | UIGroup): UIGroup;
-    getGroupFor(el: jsPlumbElement): UIGroup;
-    getGroups(): Array<UIGroup>;
-    removeGroup(group: string | UIGroup, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): Dictionary<Offset>;
+    addGroup(params: AddGroupOptions): UIGroup<E>;
+    getGroup(groupId: string | UIGroup<E>): UIGroup<E>;
+    getGroupFor(el: E): UIGroup<E>;
+    getGroups(): Array<UIGroup<E>>;
+    removeGroup(group: string | UIGroup<E>, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): Dictionary<Offset>;
     removeAllGroups(deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): void;
-    forEach(f: (g: UIGroup) => any): void;
-    orphan(_el: any): [string, Offset];
+    forEach(f: (g: UIGroup<E>) => any): void;
+    orphan(el: E): [string, Offset];
     private _setGroupVisible;
-    _updateConnectionsForGroup(group: UIGroup): void;
+    _updateConnectionsForGroup(group: UIGroup<E>): void;
     private _collapseConnection;
     private _expandConnection;
     private isElementDescendant;
-    collapseGroup(group: string | UIGroup): void;
+    collapseGroup(group: string | UIGroup<E>): void;
     /**
      * Cascade a collapse from the given `collapsedGroup` into the given `targetGroup`.
      * @param collapsedGroup
      * @param targetGroup
      * @param collapsedIds Set of connection ids for already collapsed connections, which we can ignore.
      */
-    cascadeCollapse(collapsedGroup: UIGroup, targetGroup: UIGroup, collapsedIds: Set<string>): void;
-    expandGroup(group: string | UIGroup, doNotFireEvent?: boolean): void;
+    cascadeCollapse(collapsedGroup: UIGroup<E>, targetGroup: UIGroup<E>, collapsedIds: Set<string>): void;
+    expandGroup(group: string | UIGroup<E>, doNotFireEvent?: boolean): void;
     /**
      * Cascade an expand from the given `collapsedGroup` into the given `targetGroup`.
      * @param expandedGroup
      * @param targetGroup
      */
-    cascadeExpand(expandedGroup: UIGroup, targetGroup: UIGroup): void;
-    toggleGroup(group: string | UIGroup): void;
-    repaintGroup(group: string | UIGroup): void;
-    addToGroup(group: string | UIGroup, doNotFireEvent: boolean, ...el: Array<jsPlumbElement>): void;
-    removeFromGroup(group: string | UIGroup, doNotFireEvent: boolean, ...el: Array<jsPlumbElement>): void;
-    getAncestors(group: UIGroup): Array<UIGroup>;
-    isAncestor(group: UIGroup, possibleAncestor: UIGroup): boolean;
-    getDescendants(group: UIGroup): Array<UIGroup>;
-    isDescendant(possibleDescendant: UIGroup, ancestor: UIGroup): boolean;
+    cascadeExpand(expandedGroup: UIGroup<E>, targetGroup: UIGroup<E>): void;
+    toggleGroup(group: string | UIGroup<E>): void;
+    repaintGroup(group: string | UIGroup<E>): void;
+    addToGroup(group: string | UIGroup<E>, doNotFireEvent: boolean, ...el: Array<E>): void;
+    removeFromGroup(group: string | UIGroup<E>, doNotFireEvent: boolean, ...el: Array<E>): void;
+    getAncestors(group: UIGroup<E>): Array<UIGroup<E>>;
+    isAncestor(group: UIGroup<E>, possibleAncestor: UIGroup<E>): boolean;
+    getDescendants(group: UIGroup<E>): Array<UIGroup<E>>;
+    isDescendant(possibleDescendant: UIGroup<E>, ancestor: UIGroup<E>): boolean;
     reset(): void;
 }

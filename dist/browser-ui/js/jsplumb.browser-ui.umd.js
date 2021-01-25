@@ -845,10 +845,10 @@
     }, {
       key: "addToDragSelection",
       value: function addToDragSelection(el) {
-        var candidate = this.instance.getElement(el);
-        if (this._dragSelection.indexOf(candidate) === -1) {
-          this.instance.addClass(candidate, CLASS_DRAG_SELECTED);
-          this._dragSelection.push(candidate);
+        var domElement = el;
+        if (this._dragSelection.indexOf(domElement) === -1) {
+          this.instance.addClass(el, CLASS_DRAG_SELECTED);
+          this._dragSelection.push(domElement);
         }
       }
     }, {
@@ -864,7 +864,7 @@
       key: "removeFromDragSelection",
       value: function removeFromDragSelection(el) {
         var _this6 = this;
-        var domElement = this.instance.getElement(el);
+        var domElement = el;
         this._dragSelection = this._dragSelection.filter(function (e) {
           var out = e !== domElement;
           if (!out) {
@@ -876,12 +876,12 @@
     }, {
       key: "toggleDragSelection",
       value: function toggleDragSelection(el) {
-        var domElement = this.instance.getElement(el);
+        var domElement = el;
         var isInSelection = this._dragSelection.indexOf(domElement) !== -1;
         if (isInSelection) {
-          this.removeFromDragSelection(domElement);
+          this.removeFromDragSelection(el);
         } else {
-          this.addToDragSelection(domElement);
+          this.addToDragSelection(el);
         }
       }
     }, {
@@ -1124,8 +1124,7 @@
         if (targetEl == null) {
           return;
         }
-        var elid = this.instance.getId(targetEl),
-            sourceDef = this._getSourceDefinition(targetEl, e),
+        var sourceDef = this._getSourceDefinition(targetEl, e),
             sourceElement = e.currentTarget,
             def;
         if (sourceDef) {
@@ -1894,8 +1893,9 @@
     }, {
       key: "makeGhostProxy",
       value: function makeGhostProxy(el) {
-        var newEl = el.cloneNode(true);
-        newEl._jsPlumbParentGroup = el._jsPlumbParentGroup;
+        var jel = el;
+        var newEl = jel.cloneNode(true);
+        newEl._jsPlumbParentGroup = jel._jsPlumbParentGroup;
         return newEl;
       }
     }, {
@@ -1947,19 +1947,20 @@
     }, {
       key: "_pruneOrOrphan",
       value: function _pruneOrOrphan(params) {
+        var jel = params.el;
         var orphanedPosition = null;
-        if (!this._isInsideParent(params.el, params.pos)) {
+        if (!this._isInsideParent(jel, params.pos)) {
           var group = params.el[communityCore.PARENT_GROUP_KEY];
           if (group.prune) {
-            if (params.el._isJsPlumbGroup) {
-              this.instance.removeGroup(params.el._jsPlumbGroup);
+            if (jel._isJsPlumbGroup) {
+              this.instance.removeGroup(jel._jsPlumbGroup);
             } else {
               group.remove(params.el, true);
             }
           } else if (group.orphan) {
             orphanedPosition = this.instance.groupManager.orphan(params.el);
-            if (params.el._isJsPlumbGroup) {
-              group.removeGroup(params.el._jsPlumbGroup);
+            if (jel._isJsPlumbGroup) {
+              group.removeGroup(jel._jsPlumbGroup);
             } else {
               group.remove(params.el);
             }
@@ -3340,10 +3341,12 @@
       this.el = el;
       this.options = options;
       _defineProperty(this, "_scrollHandler", void 0);
-      el._jsPlumbList = id;
+      _defineProperty(this, "domElement", void 0);
+      this.domElement = el;
+      this.domElement._jsPlumbList = id;
       instance.setAttribute(el, "jtk-scrollable-list", "true");
       this._scrollHandler = this.scrollHandler.bind(this);
-      el._jsPlumbScrollHandler = this._scrollHandler;
+      this.domElement._jsPlumbScrollHandler = this._scrollHandler;
       instance.on(el, "scroll", this._scrollHandler);
       this._scrollHandler();
     }
@@ -3370,7 +3373,7 @@
               _this2.instance.select({
                 source: children[i]
               }).each(function (c) {
-                _this2.instance.proxyConnection(c, 0, _this2.el, elId, function () {
+                _this2.instance.proxyConnection(c, 0, _this2.domElement, elId, function () {
                   return _this2.deriveEndpoint("top", 0, c.endpoints[0], c);
                 }, function () {
                   return _this2.deriveAnchor("top", 0, c.endpoints[0], c);
@@ -3380,7 +3383,7 @@
               _this2.instance.select({
                 target: children[i]
               }).each(function (c) {
-                _this2.instance.proxyConnection(c, 1, _this2.el, elId, function () {
+                _this2.instance.proxyConnection(c, 1, _this2.domElement, elId, function () {
                   return _this2.deriveEndpoint("top", 1, c.endpoints[1], c);
                 }, function () {
                   return _this2.deriveAnchor("top", 1, c.endpoints[1], c);
@@ -3389,13 +3392,13 @@
               });
             }
           }
-          else if (children[i].offsetTop + children[i].offsetHeight > _this2.el.scrollTop + _this2.el.offsetHeight) {
+          else if (children[i].offsetTop + children[i].offsetHeight > _this2.el.scrollTop + _this2.domElement.offsetHeight) {
               if (!children[i]._jsPlumbProxies) {
                 children[i]._jsPlumbProxies = children[i]._jsPlumbProxies || [];
                 _this2.instance.select({
                   source: children[i]
                 }).each(function (c) {
-                  _this2.instance.proxyConnection(c, 0, _this2.el, elId, function () {
+                  _this2.instance.proxyConnection(c, 0, _this2.domElement, elId, function () {
                     return _this2.deriveEndpoint("bottom", 0, c.endpoints[0], c);
                   }, function () {
                     return _this2.deriveAnchor("bottom", 0, c.endpoints[0], c);
@@ -3405,7 +3408,7 @@
                 _this2.instance.select({
                   target: children[i]
                 }).each(function (c) {
-                  _this2.instance.proxyConnection(c, 1, _this2.el, elId, function () {
+                  _this2.instance.proxyConnection(c, 1, _this2.domElement, elId, function () {
                     return _this2.deriveEndpoint("bottom", 1, c.endpoints[1], c);
                   }, function () {
                     return _this2.deriveAnchor("bottom", 1, c.endpoints[1], c);
@@ -3429,7 +3432,7 @@
       key: "destroy",
       value: function destroy() {
         this.instance.off(this.el, "scroll", this._scrollHandler);
-        delete this.el._jsPlumbScrollHandler;
+        delete this.domElement._jsPlumbScrollHandler;
         var children = this.instance.getSelector(this.el, "[jtk-managed]");
         var elId = this.instance.getId(this.el);
         for (var i = 0; i < children.length; i++) {
@@ -4083,12 +4086,13 @@
     }, {
       key: "_getOffset",
       value: function _getOffset(el) {
+        var jel = el;
         var container = this.getContainer();
         var out = {
-          left: el.offsetLeft,
-          top: el.offsetTop
+          left: jel.offsetLeft,
+          top: jel.offsetTop
         },
-            op = el !== container && el.offsetParent !== container ? el.offsetParent : null,
+            op = el !== container && jel.offsetParent !== container ? jel.offsetParent : null,
             _maybeAdjustScroll = function _maybeAdjustScroll(offsetParent) {
           if (offsetParent != null && offsetParent !== document.body && (offsetParent.scrollTop > 0 || offsetParent.scrollLeft > 0)) {
             out.left -= offsetParent.scrollLeft;
@@ -4102,8 +4106,8 @@
           op = op.offsetParent === container ? null : op.offsetParent;
         }
         if (container != null && (container.scrollTop > 0 || container.scrollLeft > 0)) {
-          var pp = el.offsetParent != null ? this.getStyle(el.offsetParent, communityCore.PROPERTY_POSITION) : communityCore.STATIC,
-              p = this.getStyle(el, communityCore.PROPERTY_POSITION);
+          var pp = jel.offsetParent != null ? this.getStyle(jel.offsetParent, communityCore.PROPERTY_POSITION) : communityCore.STATIC,
+              p = this.getStyle(jel, communityCore.PROPERTY_POSITION);
           if (p !== communityCore.ABSOLUTE && p !== communityCore.FIXED && pp !== communityCore.ABSOLUTE && pp !== communityCore.FIXED) {
             out.left -= container.scrollLeft;
             out.top -= container.scrollTop;

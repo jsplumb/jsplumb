@@ -1,4 +1,4 @@
-import { BrowserJsPlumbInstance, jsPlumbDOMElement } from "./browser-jsplumb-instance";
+import { BrowserJsPlumbInstance } from "./browser-jsplumb-instance";
 import { Dictionary, PointArray } from '@jsplumb/community-core';
 import { Drag, DragHandlerOptions, GhostProxyGenerator } from "./collicat";
 export declare const CLASS_DRAG_SELECTED = "jtk-drag-selected";
@@ -21,19 +21,19 @@ export interface DragHandler {
     onStart: (params: DragStartEventParams) => boolean;
     onDrag: (params: DragEventParams) => void;
     onStop: (params: DragStopEventParams) => void;
-    onDragInit: (el: jsPlumbDOMElement) => jsPlumbDOMElement;
-    onDragAbort: (el: jsPlumbDOMElement) => void;
+    onDragInit: (el: Element) => Element;
+    onDragAbort: (el: Element) => void;
     reset: () => void;
     init: (drag: Drag) => void;
     onBeforeStart?: (beforeStartParams: any) => void;
 }
 export interface GhostProxyingDragHandler extends DragHandler {
-    useGhostProxy: (container: any, dragEl: jsPlumbDOMElement) => boolean;
+    useGhostProxy: (container: any, dragEl: Element) => boolean;
     makeGhostProxy?: GhostProxyGenerator;
 }
 export interface DragStartEventParams {
     e: MouseEvent;
-    el: jsPlumbDOMElement;
+    el: Element;
     finalPos?: PointArray;
     drag: Drag;
 }

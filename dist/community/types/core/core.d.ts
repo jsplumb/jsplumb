@@ -21,18 +21,26 @@ import { LabelOverlay } from './overlay/label-overlay';
 import { AbstractConnector } from './connector/abstract-connector';
 import { OverlayCapableComponent } from './component/overlay-capable-component';
 import { PaintStyle } from './styles';
-export declare type ElementSelectionSpecifier = jsPlumbElement | Array<jsPlumbElement> | '*';
+export declare type ElementSelectionSpecifier<T extends {
+    E: unknown;
+}> = T["E"] | Array<T["E"]> | '*';
 export declare type SelectionList = '*' | Array<string>;
-export interface AbstractSelectOptions {
+export interface AbstractSelectOptions<T extends {
+    E: unknown;
+}> {
     scope?: SelectionList;
-    source?: ElementSelectionSpecifier;
-    target?: ElementSelectionSpecifier;
+    source?: ElementSelectionSpecifier<T>;
+    target?: ElementSelectionSpecifier<T>;
 }
-export interface SelectOptions extends AbstractSelectOptions {
+export interface SelectOptions<T extends {
+    E: unknown;
+}> extends AbstractSelectOptions<T> {
     connections?: Array<Connection>;
 }
-export interface SelectEndpointOptions extends AbstractSelectOptions {
-    element?: ElementSelectionSpecifier;
+export interface SelectEndpointOptions<T extends {
+    E: unknown;
+}> extends AbstractSelectOptions<T> {
+    element?: ElementSelectionSpecifier<T>;
 }
 /**
  * Optional parameters to the `DeleteConnection` method.
@@ -56,14 +64,16 @@ export declare type DeleteConnectionOptions = {
      */
     endpointToIgnore?: Endpoint;
 };
-export declare type ManagedElement = {
-    el: jsPlumbElement;
+export declare type ManagedElement<E> = {
+    el: jsPlumbElement<E>;
     info?: ViewportElement;
     endpoints?: Array<Endpoint>;
     connections?: Array<Connection>;
     rotation?: number;
 };
-export declare abstract class JsPlumbInstance extends EventGenerator {
+export declare abstract class JsPlumbInstance<T extends {
+    E: unknown;
+} = any> extends EventGenerator {
     readonly _instanceIndex: number;
     Defaults: jsPlumbDefaults;
     private _initialDefaults;
@@ -90,11 +100,11 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     private _offsetTimestamps;
     readonly viewport: Viewport;
     readonly router: Router;
-    readonly groupManager: GroupManager;
+    readonly groupManager: GroupManager<T["E"]>;
     private _connectionTypes;
     private _endpointTypes;
     private _container;
-    protected _managedElements: Dictionary<ManagedElement>;
+    protected _managedElements: Dictionary<ManagedElement<T["E"]>>;
     private DEFAULT_SCOPE;
     get defaultScope(): string;
     private _helpers;
@@ -102,22 +112,22 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     private _zoom;
     get currentZoom(): number;
     constructor(_instanceIndex: number, defaults?: jsPlumbDefaults, helpers?: jsPlumbHelperFunctions);
-    getSize(el: any): Size;
-    getOffset(el: any | string, relativeToRoot?: boolean): Offset;
+    getSize(el: T["E"]): Size;
+    getOffset(el: T["E"], relativeToRoot?: boolean): Offset;
     getContainer(): any;
     setZoom(z: number, repaintEverything?: boolean): boolean;
     _idstamp(): string;
     convertToFullOverlaySpec(spec: string | OverlaySpec): FullOverlaySpec;
     checkCondition(conditionName: string, args?: any): boolean;
-    getId(element: jsPlumbElement, uuid?: string): string;
+    getId(element: T["E"], uuid?: string): string;
     getCachedData(elId: string): ViewportElement;
-    getConnections(options?: SelectOptions, flat?: boolean): Dictionary<Connection> | Array<Connection>;
-    select(params?: SelectOptions): ConnectionSelection;
-    selectEndpoints(params?: SelectEndpointOptions): EndpointSelection;
-    setContainer(c: string | jsPlumbElement): void;
+    getConnections(options?: SelectOptions<T>, flat?: boolean): Dictionary<Connection> | Array<Connection>;
+    select(params?: SelectOptions<T>): ConnectionSelection;
+    selectEndpoints(params?: SelectEndpointOptions<T>): EndpointSelection;
+    setContainer(c: string | T["E"]): void;
     private _set;
-    setSource(connection: Connection, el: jsPlumbElement | Endpoint, doNotRepaint?: boolean): void;
-    setTarget(connection: Connection, el: jsPlumbElement | Endpoint, doNotRepaint?: boolean): void;
+    setSource(connection: Connection, el: T["E"] | Endpoint, doNotRepaint?: boolean): void;
+    setTarget(connection: Connection, el: T["E"] | Endpoint, doNotRepaint?: boolean): void;
     /**
      * Returns whether or not hover is currently suspended.
      */
@@ -128,7 +138,7 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
      * @param repaintAfterwards If true, repaint everything afterwards.
      */
     setSuspendDrawing(val?: boolean, repaintAfterwards?: boolean): boolean;
-    computeAnchorLoc(endpoint: Endpoint, timestamp?: string): AnchorPlacement;
+    computeAnchorLoc(endpoint: Endpoint<T>, timestamp?: string): AnchorPlacement;
     getSuspendedAt(): string;
     /**
      * Suspend drawing, run the given function, and then re-enable drawing, optionally repainting everything.
@@ -141,7 +151,7 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
      * @param spec An Element, or an element id, or an array of elements/element ids.
      * @param fn The function to run on each element.
      */
-    each(spec: jsPlumbElement | Array<jsPlumbElement>, fn: (e: jsPlumbElement) => any): JsPlumbInstance;
+    each(spec: T["E"] | Array<T["E"]>, fn: (e: T["E"]) => any): JsPlumbInstance;
     /**
      * Update the cached offset information for some element.
      * @param params
@@ -155,7 +165,7 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
      */
     deleteConnection(connection: Connection, params?: DeleteConnectionOptions): boolean;
     deleteEveryConnection(params?: DeleteConnectionOptions): number;
-    deleteConnectionsForElement(el: jsPlumbElement, params?: DeleteConnectionOptions): JsPlumbInstance;
+    deleteConnectionsForElement(el: T["E"], params?: DeleteConnectionOptions): JsPlumbInstance;
     private fireDetachEvent;
     fireMoveEvent(params?: any, evt?: Event): void;
     /**
@@ -163,21 +173,21 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
      * @param elements Array-like object of strings or elements.
      * @param recalc Maybe recalculate offsets for the element also.
      */
-    manageAll(elements: Array<jsPlumbElement>, recalc?: boolean): void;
+    manageAll(elements: Array<Element>, recalc?: boolean): void;
     /**
      * Manage an element.
      * @param element String, or element.
      * @param internalId Optional ID for jsPlumb to use internally.
      * @param recalc Maybe recalculate offsets for the element also.
      */
-    manage(element: jsPlumbElement, internalId?: string, recalc?: boolean): ManagedElement;
+    manage(element: T["E"], internalId?: string, recalc?: boolean): ManagedElement<T["E"]>;
     /**
      * Stops managing the given element.
      * @param el Element, or ID of the element to stop managing.
      * @param removeElement If true, also remove the element from the renderer.
      */
-    unmanage(el: jsPlumbElement, removeElement?: boolean): void;
-    rotate(element: jsPlumbElement, rotation: number, doNotRepaint?: boolean): RedrawResult;
+    unmanage(el: T["E"], removeElement?: boolean): void;
+    rotate(element: T["E"], rotation: number, doNotRepaint?: boolean): RedrawResult;
     getRotation(elementId: string): number;
     /**
      * Internal method to create an Endpoint from the given options, perhaps with the given id. Do not use this method
@@ -187,8 +197,8 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
      */
     newEndpoint(params: EndpointOptions, id?: string): Endpoint;
     deriveEndpointAndAnchorSpec(type: string, dontPrependDefault?: boolean): any;
-    repaint(el: jsPlumbElement, ui?: any, timestamp?: string): RedrawResult;
-    revalidate(el: jsPlumbElement, timestamp?: string): RedrawResult;
+    repaint(el: T["E"], ui?: any, timestamp?: string): RedrawResult;
+    revalidate(el: T["E"], timestamp?: string): RedrawResult;
     repaintEverything(): JsPlumbInstance;
     /**
      * for some given element, find any other elements we want to draw whenever that element
@@ -196,61 +206,61 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
      * @param el
      * @private
      */
-    abstract _getAssociatedElements(el: jsPlumbElement): Array<any>;
-    _draw(el: jsPlumbElement, ui?: any, timestamp?: string, offsetsWereJustCalculated?: boolean): RedrawResult;
+    abstract _getAssociatedElements(el: T["E"]): Array<T["E"]>;
+    _draw(el: T["E"], ui?: any, timestamp?: string, offsetsWereJustCalculated?: boolean): RedrawResult;
     unregisterEndpoint(endpoint: Endpoint): void;
     maybePruneEndpoint(endpoint: Endpoint): boolean;
     deleteEndpoint(object: string | Endpoint): JsPlumbInstance;
-    addEndpoint(el: jsPlumbElement, params?: EndpointOptions, referenceParams?: EndpointOptions): Endpoint;
-    addEndpoints(el: jsPlumbElement, endpoints: Array<EndpointOptions>, referenceParams?: any): Array<Endpoint>;
+    addEndpoint(el: T["E"], params?: EndpointOptions, referenceParams?: EndpointOptions): Endpoint;
+    addEndpoints(el: T["E"], endpoints: Array<EndpointOptions>, referenceParams?: any): Array<Endpoint>;
     reset(silently?: boolean): void;
     uuid(): string;
     rotatePoint(point: Array<number>, center: PointArray, rotation: number): [number, number, number, number];
     rotateAnchorOrientation(orientation: [number, number], rotation: any): [number, number];
     destroy(): void;
-    getEndpoints(el: jsPlumbElement): Array<Endpoint>;
+    getEndpoints(el: T["E"]): Array<Endpoint>;
     getEndpoint(id: string): Endpoint;
     connect(params: ConnectParams, referenceParams?: ConnectParams): Connection;
     private _prepareConnectionParams;
     _newConnection(params: any): Connection;
     _finaliseConnection(jpc: Connection, params?: any, originalEvent?: Event): void;
-    removeAllEndpoints(el: jsPlumbElement, recurse?: boolean, affectedElements?: Array<jsPlumbElement>): JsPlumbInstance;
+    removeAllEndpoints(el: T["E"], recurse?: boolean, affectedElements?: Array<T["E"]>): JsPlumbInstance;
     private _setEnabled;
-    toggleSourceEnabled(el: jsPlumbElement, connectionType?: string): any;
-    setSourceEnabled(el: jsPlumbElement, state: boolean, connectionType?: string): any;
-    findFirstSourceDefinition(el: jsPlumbElement, connectionType?: string): SourceDefinition;
-    findFirstTargetDefinition(el: jsPlumbElement, connectionType?: string): TargetDefinition;
+    toggleSourceEnabled(el: T["E"], connectionType?: string): any;
+    setSourceEnabled(el: T["E"], state: boolean, connectionType?: string): any;
+    findFirstSourceDefinition(el: T["E"], connectionType?: string): SourceDefinition;
+    findFirstTargetDefinition(el: T["E"], connectionType?: string): TargetDefinition;
     private findFirstDefinition;
-    isSource(el: jsPlumbElement, connectionType?: string): any;
-    isSourceEnabled(el: jsPlumbElement, connectionType?: string): boolean;
-    toggleTargetEnabled(el: jsPlumbElement, connectionType?: string): any;
-    isTarget(el: jsPlumbElement, connectionType?: string): boolean;
-    isTargetEnabled(el: jsPlumbElement, connectionType?: string): boolean;
-    setTargetEnabled(el: jsPlumbElement, state: boolean, connectionType?: string): any;
+    isSource(el: T["E"], connectionType?: string): any;
+    isSourceEnabled(el: T["E"], connectionType?: string): boolean;
+    toggleTargetEnabled(el: T["E"], connectionType?: string): any;
+    isTarget(el: T["E"], connectionType?: string): boolean;
+    isTargetEnabled(el: T["E"], connectionType?: string): boolean;
+    setTargetEnabled(el: T["E"], state: boolean, connectionType?: string): any;
     private _unmake;
     private _unmakeEvery;
-    unmakeTarget(el: jsPlumbElement, connectionType?: string): void;
-    unmakeSource(el: jsPlumbElement, connectionType?: string): void;
+    unmakeTarget(el: T["E"], connectionType?: string): void;
+    unmakeSource(el: T["E"], connectionType?: string): void;
     unmakeEverySource(connectionType?: string): void;
     unmakeEveryTarget(connectionType?: string): void;
     private _writeScopeAttribute;
-    makeSource(el: jsPlumbElement, params?: BehaviouralTypeDescriptor, referenceParams?: any): JsPlumbInstance;
+    makeSource(el: jsPlumbElement<T["E"]>, params?: BehaviouralTypeDescriptor, referenceParams?: any): JsPlumbInstance;
     private _getScope;
-    getSourceScope(el: jsPlumbElement): string;
-    getTargetScope(el: jsPlumbElement): string;
-    getScope(el: jsPlumbElement): string;
+    getSourceScope(el: T["E"]): string;
+    getTargetScope(el: T["E"]): string;
+    getScope(el: T["E"]): string;
     private _setScope;
-    setSourceScope(el: jsPlumbElement, scope: string): void;
-    setTargetScope(el: jsPlumbElement, scope: string): void;
-    setScope(el: jsPlumbElement, scope: string): void;
-    makeTarget(el: jsPlumbElement, params: BehaviouralTypeDescriptor, referenceParams?: any): JsPlumbInstance;
-    show(el: jsPlumbElement, changeEndpoints?: boolean): JsPlumbInstance;
-    hide(el: jsPlumbElement, changeEndpoints?: boolean): JsPlumbInstance;
+    setSourceScope(el: T["E"], scope: string): void;
+    setTargetScope(el: T["E"], scope: string): void;
+    setScope(el: T["E"], scope: string): void;
+    makeTarget(el: T["E"], params: BehaviouralTypeDescriptor, referenceParams?: any): JsPlumbInstance;
+    show(el: T["E"], changeEndpoints?: boolean): JsPlumbInstance;
+    hide(el: T["E"], changeEndpoints?: boolean): JsPlumbInstance;
     private _setVisible;
     /**
      * private method to do the business of toggling hiding/showing.
      */
-    toggleVisible(el: jsPlumbElement, changeEndpoints?: boolean): void;
+    toggleVisible(el: T["E"], changeEndpoints?: boolean): void;
     private _operation;
     registerConnectionType(id: string, type: TypeDescriptor): void;
     registerConnectionTypes(types: Dictionary<TypeDescriptor>): void;
@@ -259,43 +269,43 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     getType(id: string, typeDescriptor: string): TypeDescriptor;
     importDefaults(d: jsPlumbDefaults): JsPlumbInstance;
     restoreDefaults(): JsPlumbInstance;
-    getManagedElements(): Dictionary<ManagedElement>;
-    proxyConnection(connection: Connection, index: number, proxyEl: jsPlumbElement, proxyElId: string, endpointGenerator: any, anchorGenerator: any): void;
+    getManagedElements(): Dictionary<ManagedElement<T["E"]>>;
+    proxyConnection(connection: Connection, index: number, proxyEl: T["E"], proxyElId: string, endpointGenerator: any, anchorGenerator: any): void;
     unproxyConnection(connection: Connection, index: number, proxyElId: string): void;
     sourceOrTargetChanged(originalId: string, newId: string, connection: any, newElement: any, index: number): void;
-    getGroup(groupId: string): UIGroup;
-    getGroupFor(el: jsPlumbElement): UIGroup;
-    addGroup(params: AddGroupOptions): UIGroup;
-    addToGroup(group: string | UIGroup, ...el: Array<jsPlumbElement>): void;
-    collapseGroup(group: string | UIGroup): void;
-    expandGroup(group: string | UIGroup): void;
-    toggleGroup(group: string | UIGroup): void;
-    removeGroup(group: string | UIGroup, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): void;
+    getGroup(groupId: string): UIGroup<T["E"]>;
+    getGroupFor(el: T["E"]): UIGroup<T["E"]>;
+    addGroup(params: AddGroupOptions): UIGroup<T["E"]>;
+    addToGroup(group: string | UIGroup<T["E"]>, ...el: Array<T["E"]>): void;
+    collapseGroup(group: string | UIGroup<T["E"]>): void;
+    expandGroup(group: string | UIGroup<T["E"]>): void;
+    toggleGroup(group: string | UIGroup<T["E"]>): void;
+    removeGroup(group: string | UIGroup<T["E"]>, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): void;
     removeAllGroups(deleteMembers?: boolean, manipulateView?: boolean): void;
-    removeFromGroup(group: string | UIGroup, ...el: Array<jsPlumbElement>): void;
-    abstract getElement(el: any | string): any;
-    abstract getElementById(el: string): any;
-    abstract removeElement(el: any): void;
-    abstract appendElement(el: any, parent: any): void;
-    abstract getChildElements(el: jsPlumbElement): Array<jsPlumbElement>;
-    abstract removeClass(el: any, clazz: string): void;
-    abstract addClass(el: any, clazz: string): void;
-    abstract toggleClass(el: any, clazz: string): void;
-    abstract getClass(el: any): string;
-    abstract hasClass(el: any, clazz: string): boolean;
-    abstract setAttribute(el: any, name: string, value: string): void;
-    abstract getAttribute(el: any, name: string): string;
-    abstract setAttributes(el: any, atts: Dictionary<string>): void;
-    abstract removeAttribute(el: any, attName: string): void;
-    abstract getSelector(ctx: string | any, spec?: string): NodeListOf<any>;
-    abstract getStyle(el: any, prop: string): any;
-    abstract _getSize(el: any): Size;
-    abstract _getOffset(el: any | string): Offset;
-    abstract _getOffsetRelativeToRoot(el: any | string): Offset;
-    abstract setPosition(el: any, p: Offset): void;
-    abstract on(el: any, event: string, callbackOrSelector: Function | string, callback?: Function): void;
-    abstract off(el: any, event: string, callback: Function): void;
-    abstract trigger(el: any, event: string, originalEvent?: Event, payload?: any): void;
+    removeFromGroup(group: string | UIGroup<T["E"]>, ...el: Array<T["E"]>): void;
+    abstract getElement(el: T["E"] | string): T["E"];
+    abstract getElementById(id: string): T["E"];
+    abstract removeElement(el: T["E"]): void;
+    abstract appendElement(el: T["E"], parent: T["E"]): void;
+    abstract getChildElements(el: T["E"]): Array<T["E"]>;
+    abstract removeClass(el: T["E"], clazz: string): void;
+    abstract addClass(el: T["E"], clazz: string): void;
+    abstract toggleClass(el: T["E"], clazz: string): void;
+    abstract getClass(el: T["E"]): string;
+    abstract hasClass(el: T["E"], clazz: string): boolean;
+    abstract setAttribute(el: T["E"], name: string, value: string): void;
+    abstract getAttribute(el: T["E"], name: string): string;
+    abstract setAttributes(el: T["E"], atts: Dictionary<string>): void;
+    abstract removeAttribute(el: T["E"], attName: string): void;
+    abstract getSelector(ctx: string | T["E"], spec?: string): NodeListOf<any>;
+    abstract getStyle(el: T["E"], prop: string): any;
+    abstract _getSize(el: T["E"]): Size;
+    abstract _getOffset(el: T["E"]): Offset;
+    abstract _getOffsetRelativeToRoot(el: T["E"] | string): Offset;
+    abstract setPosition(el: T["E"], p: Offset): void;
+    abstract on(el: T["E"], event: string, callbackOrSelector: Function | string, callback?: Function): void;
+    abstract off(el: T["E"], event: string, callback: Function): void;
+    abstract trigger(el: T["E"], event: string, originalEvent?: Event, payload?: any): void;
     abstract getPath(segment: Segment, isFirstSegment: boolean): string;
     abstract paintOverlay(o: Overlay, params: any, extents: any): void;
     abstract addOverlayClass(o: Overlay, clazz: string): void;
@@ -316,13 +326,13 @@ export declare abstract class JsPlumbInstance extends EventGenerator {
     abstract getConnectorClass(connector: AbstractConnector): string;
     abstract setConnectorVisible(connector: AbstractConnector, v: boolean): void;
     abstract applyConnectorType(connector: AbstractConnector, t: TypeDescriptor): void;
-    abstract applyEndpointType(ep: Endpoint, t: TypeDescriptor): void;
-    abstract setEndpointVisible(ep: Endpoint, v: boolean): void;
-    abstract destroyEndpoint(ep: Endpoint): void;
-    abstract paintEndpoint(ep: Endpoint, paintStyle: PaintStyle): void;
-    abstract addEndpointClass(ep: Endpoint, c: string): void;
-    abstract removeEndpointClass(ep: Endpoint, c: string): void;
-    abstract getEndpointClass(ep: Endpoint): string;
-    abstract setEndpointHover(endpoint: Endpoint, h: boolean, doNotCascade?: boolean): void;
-    abstract refreshEndpoint(endpoint: Endpoint): void;
+    abstract applyEndpointType(ep: Endpoint<T>, t: TypeDescriptor): void;
+    abstract setEndpointVisible(ep: Endpoint<T>, v: boolean): void;
+    abstract destroyEndpoint(ep: Endpoint<T>): void;
+    abstract paintEndpoint(ep: Endpoint<T>, paintStyle: PaintStyle): void;
+    abstract addEndpointClass(ep: Endpoint<T>, c: string): void;
+    abstract removeEndpointClass(ep: Endpoint<T>, c: string): void;
+    abstract getEndpointClass(ep: Endpoint<T>): string;
+    abstract setEndpointHover(endpoint: Endpoint<T>, h: boolean, doNotCascade?: boolean): void;
+    abstract refreshEndpoint(endpoint: Endpoint<T>): void;
 }

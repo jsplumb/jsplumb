@@ -1,4 +1,4 @@
-import { jsPlumbDefaults, jsPlumbHelperFunctions, Dictionary, SourceDefinition, TargetDefinition, Offset, PointArray, Size, jsPlumbElement, TypeDescriptor, JsPlumbInstance, UIGroup, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, OverlayCapableComponent, Segment, LabelOverlay, Connection, Component, DeleteConnectionOptions } from '@jsplumb/community-core';
+import { jsPlumbDefaults, jsPlumbHelperFunctions, Dictionary, Offset, PointArray, Size, jsPlumbElement, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, OverlayCapableComponent, Segment, LabelOverlay, Connection, Component, DeleteConnectionOptions } from '@jsplumb/community-core';
 import { ElementAttributes } from './svg-util';
 import { DragManager } from "./drag-manager";
 import { EventManager } from "./event-manager";
@@ -19,7 +19,7 @@ export interface DragEventCallbackOptions {
      */
     drag: {
         _size: [number, number];
-        getDragElement: () => jsPlumbDOMElement;
+        getDragElement: () => Element;
     };
     /**
      * Current mouse event for the drag
@@ -28,7 +28,7 @@ export interface DragEventCallbackOptions {
     /**
      * Element being dragged
      */
-    el: jsPlumbDOMElement;
+    el: Element;
     /**
      * x,y location of the element. provided on the `drag` event only.
      */
@@ -57,21 +57,19 @@ export interface jsPlumbDOMInformation {
     endpoint?: Endpoint;
     overlay?: Overlay;
 }
-export interface jsPlumbDOMElement extends HTMLElement, jsPlumbElement {
-    _jsPlumbGroup: UIGroup;
-    _jsPlumbParentGroup: UIGroup;
+export declare type ElementType = {
+    E: Element;
+};
+export interface jsPlumbDOMElement extends HTMLElement, jsPlumbElement<Element> {
     _isJsPlumbGroup: boolean;
     _jsPlumbOrphanedEndpoints: Array<Endpoint>;
-    offsetParent: HTMLElement;
-    getAttribute: (name: string) => string;
+    offsetParent: jsPlumbDOMElement;
     parentNode: jsPlumbDOMElement;
     jtk: jsPlumbDOMInformation;
-    _jsPlumbTargetDefinitions: Array<TargetDefinition>;
-    _jsPlumbSourceDefinitions: Array<SourceDefinition>;
     _jsPlumbList: any;
     _jsPlumbScrollHandler?: Function;
     _katavorioDrag?: Drag;
-    _jspContext?: any;
+    cloneNode: (deep?: boolean) => jsPlumbDOMElement;
 }
 export declare type DragGroupSpec = string | {
     id: string;
@@ -81,7 +79,7 @@ export declare type DragGroupSpec = string | {
  * JsPlumbInstance that renders to the DOM in a browser, and supports dragging of elements/connections.
  *
  */
-export declare class BrowserJsPlumbInstance extends JsPlumbInstance {
+export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     _instanceIndex: number;
     dragManager: DragManager;
     _connectorClick: Function;
@@ -101,7 +99,9 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance {
     _elementMouseexit: Function;
     _elementMousemove: Function;
     eventManager: EventManager;
-    listManager: jsPlumbListManager;
+    listManager: jsPlumbListManager<{
+        E: Element;
+    }>;
     draggingClass: string;
     elementDraggingClass: string;
     hoverClass: string;
@@ -119,46 +119,46 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance {
     constructor(_instanceIndex: number, defaults?: BrowserJsPlumbDefaults, helpers?: jsPlumbHelperFunctions);
     addDragFilter(filter: Function | string, exclude?: boolean): void;
     removeDragFilter(filter: Function | string): void;
-    getElement(el: HTMLElement | string): jsPlumbDOMElement;
-    getElementById(elId: string): jsPlumbDOMElement;
+    getElement(el: Element | string): Element;
+    getElementById(elId: string): Element;
     removeElement(element: any): void;
-    appendElement(el: HTMLElement, parent: HTMLElement): void;
-    getChildElements(el: jsPlumbElement): Array<jsPlumbElement>;
-    _getAssociatedElements(el: jsPlumbDOMElement): Array<jsPlumbElement>;
+    appendElement(el: Element, parent: Element): void;
+    getChildElements(el: Element): Array<Element>;
+    _getAssociatedElements(el: Element): Array<Element>;
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
-    getClass(el: jsPlumbDOMElement): string;
-    addClass(el: jsPlumbDOMElement, clazz: string): void;
-    hasClass(el: jsPlumbDOMElement, clazz: string): boolean;
-    removeClass(el: jsPlumbDOMElement, clazz: string): void;
-    toggleClass(el: jsPlumbDOMElement, clazz: string): void;
-    setAttribute(el: jsPlumbDOMElement, name: string, value: string): void;
-    getAttribute(el: jsPlumbDOMElement, name: string): string;
-    setAttributes(el: jsPlumbDOMElement, atts: Dictionary<string>): void;
-    removeAttribute(el: jsPlumbDOMElement, attName: string): void;
-    on(el: jsPlumbDOMElement, event: string, callbackOrSelector: Function | string, callback?: Function): this;
-    off(el: jsPlumbDOMElement, event: string, callback: Function): this;
-    trigger(el: jsPlumbDOMElement, event: string, originalEvent?: Event, payload?: any): void;
-    _getOffsetRelativeToRoot(el: jsPlumbDOMElement): Offset;
-    _getOffset(el: HTMLElement): Offset;
-    _getSize(el: HTMLElement): Size;
-    getStyle(el: HTMLElement, prop: string): any;
-    getSelector(ctx: string | jsPlumbDOMElement, spec: string): NodeListOf<jsPlumbDOMElement>;
+    getClass(el: Element): string;
+    addClass(el: Element, clazz: string): void;
+    hasClass(el: Element, clazz: string): boolean;
+    removeClass(el: Element, clazz: string): void;
+    toggleClass(el: Element, clazz: string): void;
+    setAttribute(el: Element, name: string, value: string): void;
+    getAttribute(el: Element, name: string): string;
+    setAttributes(el: Element, atts: Dictionary<string>): void;
+    removeAttribute(el: Element, attName: string): void;
+    on(el: Element, event: string, callbackOrSelector: Function | string, callback?: Function): this;
+    off(el: Element, event: string, callback: Function): this;
+    trigger(el: Element, event: string, originalEvent?: Event, payload?: any): void;
+    _getOffsetRelativeToRoot(el: Element): Offset;
+    _getOffset(el: Element): Offset;
+    _getSize(el: Element): Size;
+    getStyle(el: Element, prop: string): any;
+    getSelector(ctx: string | Element, spec: string): NodeListOf<jsPlumbDOMElement>;
     setPosition(el: HTMLElement, p: Offset): void;
     static getPositionOnElement(evt: Event, el: HTMLElement, zoom: number): PointArray;
-    setDraggable(element: jsPlumbDOMElement, draggable: boolean): void;
-    isDraggable(el: jsPlumbDOMElement): boolean;
-    toggleDraggable(el: jsPlumbDOMElement): boolean;
+    setDraggable(element: Element, draggable: boolean): void;
+    isDraggable(el: Element): boolean;
+    toggleDraggable(el: Element): boolean;
     private _attachEventDelegates;
     private _detachEventDelegates;
-    setContainer(c: string | jsPlumbDOMElement): void;
+    setContainer(c: string | Element): void;
     reset(silently?: boolean): void;
     destroy(): void;
-    unmanage(el: jsPlumbDOMElement, removeElement?: boolean): void;
-    addToDragSelection(...el: Array<string | jsPlumbDOMElement>): void;
+    unmanage(el: Element, removeElement?: boolean): void;
+    addToDragSelection(...el: Array<Element>): void;
     clearDragSelection(): void;
-    removeFromDragSelection(...el: Array<jsPlumbDOMElement>): void;
-    toggleDragSelection(...el: Array<string | jsPlumbDOMElement>): void;
-    getDragSelection(): Array<jsPlumbDOMElement>;
+    removeFromDragSelection(...el: Array<Element>): void;
+    toggleDragSelection(...el: Array<Element>): void;
+    getDragSelection(): Array<Element>;
     /**
      * Adds the given element(s) to the given drag group.
      * @param spec Either the ID of some drag group, in which case the elements are all added as 'active', or an object of the form
@@ -167,34 +167,43 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance {
      * given element(s) is "passive" and should only move when an active member of the drag group is dragged.
      * @param els Elements to add to the drag group.
      */
-    addToDragGroup(spec: DragGroupSpec, ...els: Array<jsPlumbDOMElement>): void;
+    addToDragGroup(spec: DragGroupSpec, ...els: Array<Element>): void;
     /**
      * Removes the given element(s) from any drag group they may be in. You don't need to supply the drag group id, as elements
      * can only be in one drag group anyway.
      * @param els Elements to remove from drag groups.
      */
-    removeFromDragGroup(...els: Array<jsPlumbDOMElement>): void;
+    removeFromDragGroup(...els: Array<Element>): void;
     /**
      * Sets the active/passive state for the given element(s).You don't need to supply the drag group id, as elements
      * can only be in one drag group anyway.
      * @param state true for active, false for passive.
      * @param els
      */
-    setDragGroupState(state: boolean, ...els: Array<jsPlumbDOMElement>): void;
+    setDragGroupState(state: boolean, ...els: Array<Element>): void;
     /**
      * Consumes the given event.
      * @param e
      * @param doNotPreventDefault
      */
     consume(e: Event, doNotPreventDefault?: boolean): void;
-    addList(el: jsPlumbDOMElement, options?: jsPlumbListOptions): jsPlumbList;
-    removeList(el: jsPlumbDOMElement): void;
+    /**
+     * Adds a managed list to the instance.
+     * @param el Element containing the list.
+     * @param options
+     */
+    addList(el: Element, options?: jsPlumbListOptions): jsPlumbList;
+    /**
+     * Removes a managed list from the instance
+     * @param el Element containing the list.
+     */
+    removeList(el: Element): void;
     /**
      * Helper method for other libs/code to get a DragManager.
      * @param options
      */
     createDragManager(options: CollicatOptions): Collicat;
-    rotate(element: jsPlumbElement, rotation: number, doNotRepaint?: boolean): RedrawResult;
+    rotate(element: Element, rotation: number, doNotRepaint?: boolean): RedrawResult;
     svg: {
         node: (name: string, attributes?: ElementAttributes) => jsPlumbDOMElement;
         attr: (node: SVGElement, attributes: ElementAttributes) => void;
@@ -223,8 +232,8 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance {
     addEndpointClass(ep: Endpoint, c: string): void;
     applyEndpointType<C>(ep: Endpoint, t: TypeDescriptor): void;
     destroyEndpoint(ep: Endpoint): void;
-    paintEndpoint<C>(ep: Endpoint, paintStyle: PaintStyle): void;
-    removeEndpointClass<C>(ep: Endpoint, c: string): void;
+    paintEndpoint(ep: Endpoint, paintStyle: PaintStyle): void;
+    removeEndpointClass(ep: Endpoint, c: string): void;
     getEndpointClass(ep: Endpoint): string;
     refreshEndpoint(endpoint: Endpoint): void;
     setEndpointHover(endpoint: Endpoint, h: boolean, doNotCascade?: boolean): void;
