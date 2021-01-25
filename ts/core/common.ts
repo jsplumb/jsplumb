@@ -8,15 +8,13 @@ import {PaintStyle} from "./styles"
 import {Connection} from "./connector/connection-impl"
 
 export type UUID = string
-export type ElementId = string
-export type ElementRef = ElementId | any
 
-export interface jsPlumbElement {
+export interface jsPlumbElement<E> {
     _jsPlumbTargetDefinitions:Array<TargetDefinition>
     _jsPlumbSourceDefinitions:Array<SourceDefinition>
     _jsplumbid:string
-    _jsPlumbGroup: UIGroup
-    _jsPlumbParentGroup:UIGroup
+    _jsPlumbGroup: UIGroup<E>
+    _jsPlumbParentGroup:UIGroup<E>
     _jspContext?:any
     _jsPlumbConnections:Dictionary<boolean>
     _jsPlumbProxies:Array<[Connection, number]>
@@ -24,8 +22,8 @@ export interface jsPlumbElement {
 
 export interface ConnectParams {
     uuids?: [UUID, UUID]
-    source?: jsPlumbElement | Endpoint
-    target?: jsPlumbElement | Endpoint
+    source?: Element | Endpoint
+    target?: Element | Endpoint
     detachable?: boolean
     deleteEndpointsOnDetach?: boolean
     endpoint?: EndpointSpec
@@ -50,17 +48,17 @@ export interface InternalConnectParams extends ConnectParams {
     newConnection?:(p:any) => Connection
 }
 
-export interface ConnectionEstablishedParams {
+export interface ConnectionEstablishedParams<E> {
     connection:Connection
-    source:jsPlumbElement
+    source:E
     sourceEndpoint:Endpoint
     sourceId:string
-    target:jsPlumbElement
+    target:E
     targetEndpoint:Endpoint
     targetId:string
 }
 
-export interface ConnectionDetachedParams extends ConnectionEstablishedParams {
+export interface ConnectionDetachedParams<E> extends ConnectionEstablishedParams<E> {
 
 }
 
@@ -120,7 +118,6 @@ export interface TargetDefinition extends SourceOrTargetDefinition { }
 export interface Offset {left:number, top:number}
 export type Size = [ number, number ]
 export type Rotation = number
-export interface OffsetAndSize { o:Offset, s:Size }
 export type PointArray = [ number, number ]
 export interface PointXY { x:number, y:number, theta?:number }
 export type BoundingBox = { x:number, y:number, w:number, h:number, center?:PointXY }
@@ -133,8 +130,6 @@ export interface UpdateOffsetOptions {
     offset?:Offset
     elId?:string
 }
-
-export type UpdateOffsetResult = {o:ExtendedOffset, s:Size, r:Rotation}
 
 export interface ExtendedOffset extends Offset {
     width?:number
