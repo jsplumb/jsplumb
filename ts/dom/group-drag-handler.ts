@@ -31,14 +31,15 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
         drag.on(EVENT_REVERT, this.doRevalidate)
     }
 
-    useGhostProxy(container:any, dragEl:jsPlumbDOMElement) {
-        let group = dragEl._jsPlumbParentGroup
+    useGhostProxy(container:any, dragEl:Element) {
+        let group = (dragEl as jsPlumbDOMElement)._jsPlumbParentGroup
         return group == null ? false : group.ghost === true
     }
 
-    makeGhostProxy (el: jsPlumbDOMElement):jsPlumbDOMElement {
-        const newEl = el.cloneNode(true) as jsPlumbDOMElement
-        newEl._jsPlumbParentGroup = el._jsPlumbParentGroup
+    makeGhostProxy (el: Element):Element {
+        const jel = el as unknown as jsPlumbDOMElement
+        const newEl = jel.cloneNode(true)
+        newEl._jsPlumbParentGroup = jel._jsPlumbParentGroup
         return newEl
     }
 
@@ -54,9 +55,9 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
 
         const originalElement = params.drag.getDragElement(true)
 
-        let originalGroup:UIGroup = params.el[PARENT_GROUP_KEY],
+        let originalGroup:UIGroup<Element> = params.el[PARENT_GROUP_KEY],
             out = super.onStop(params),
-            currentGroup:UIGroup = params.el[PARENT_GROUP_KEY]
+            currentGroup:UIGroup<Element> = params.el[PARENT_GROUP_KEY]
 
         if (currentGroup === originalGroup) {
             this._pruneOrOrphan(params)
@@ -89,13 +90,14 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
 
     private _pruneOrOrphan(params:DragStopEventParams) {
 
+        const jel = params.el as unknown as jsPlumbDOMElement
         let orphanedPosition = null
-        if (!this._isInsideParent(params.el, params.pos)) {
+        if (!this._isInsideParent(jel, params.pos)) {
             let group = params.el[PARENT_GROUP_KEY]
             if (group.prune) {
-                if (params.el._isJsPlumbGroup) {
+                if (jel._isJsPlumbGroup) {
                     // remove the group from the instance
-                    this.instance.removeGroup(params.el._jsPlumbGroup)
+                    this.instance.removeGroup(jel._jsPlumbGroup)
                 } else {
                     // instruct the group to remove the element from itself and also from the DOM.
                     group.remove(params.el, true)
@@ -103,9 +105,9 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
 
             } else if (group.orphan) {
                 orphanedPosition = this.instance.groupManager.orphan(params.el)
-                if (params.el._isJsPlumbGroup) {
+                if (jel._isJsPlumbGroup) {
                     // remove the nested group from the parent
-                    group.removeGroup(params.el._jsPlumbGroup)
+                    group.removeGroup(jel._jsPlumbGroup)
                 } else {
                     // remove the element from the group's DOM element.
                     group.remove(params.el)
