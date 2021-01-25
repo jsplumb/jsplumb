@@ -16,18 +16,18 @@ export class HTMLElementOverlay {
         this.htmlElementOverlay = overlay as HTMLElementOverlayHolder
     }
 
-    static createElement(o:HTMLElementOverlayHolder):jsPlumbDOMElement {
+    static createElement(o:HTMLElementOverlayHolder):Element {
         return createElement("div", {}, o.instance.overlayClass + " " +
             (o.cssClass ? o.cssClass : ""))
     }
 
-    static getElement (o:HTMLElementOverlayHolder, component?:Component, elementCreator?:(c:Component) => jsPlumbDOMElement):jsPlumbDOMElement{
+    static getElement (o:HTMLElementOverlayHolder, component?:Component, elementCreator?:(c:Component) => Element):Element{
         if (o.canvas == null) {
 
             if (elementCreator && component) {
-                o.canvas = elementCreator(component)
+                o.canvas = elementCreator(component) as jsPlumbDOMElement
             } else {
-                o.canvas = HTMLElementOverlay.createElement(o)
+                o.canvas = HTMLElementOverlay.createElement(o) as jsPlumbDOMElement
             }
 
             o.canvas.style.position = "absolute"
