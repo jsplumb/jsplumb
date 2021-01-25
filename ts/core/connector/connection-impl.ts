@@ -6,7 +6,7 @@ import {Endpoint} from "../endpoint/endpoint-impl"
 import {PaintStyle} from "../styles"
 import {Component} from "../component/component"
 import {OverlayCapableComponent} from "../component/overlay-capable-component"
-import {extend, addToList, isArray, isEmpty, IS, isString, merge, uuid, addToDictionary} from "../util"
+import {extend, isArray, isEmpty, IS, isString, merge, uuid, addToDictionary} from "../util"
 import {Overlay, OverlaySpec} from "../overlay/overlay"
 import {Connectors} from "./connectors"
 import {AnchorSpec, makeAnchorFromSpec} from "../factory/anchor-factory"
@@ -15,11 +15,11 @@ import {ConnectorSpec} from "./abstract-connector"
 import {EndpointSpec} from "../endpoint/endpoint"
 import * as Constants from "../constants"
 
-export interface ConnectionParams {
+export interface ConnectionParams<E> {
 
     id?:string
-    source?:jsPlumbElement
-    target?:jsPlumbElement
+    source?:E
+    target?:E
     sourceEndpoint?:Endpoint
     targetEndpoint?:Endpoint
     scope?:string
@@ -60,7 +60,7 @@ export interface ConnectionParams {
     anchor?:AnchorSpec
 }
 
-export class Connection extends OverlayCapableComponent {
+export class Connection<E = any> extends OverlayCapableComponent {
 
     id:string
     connector:AbstractConnector
@@ -121,7 +121,7 @@ export class Connection extends OverlayCapableComponent {
     floatingId:string
     floatingElement:any
 
-    static updateConnectedClass<E>(instance:JsPlumbInstance, conn:Connection, element:jsPlumbElement, isRemoval:boolean) {
+    static updateConnectedClass<E>(instance:JsPlumbInstance, conn:Connection, element:jsPlumbElement<E>, isRemoval:boolean) {
         if (element != null) {
             element._jsPlumbConnections = element._jsPlumbConnections || {}
             if (isRemoval) {
@@ -138,7 +138,7 @@ export class Connection extends OverlayCapableComponent {
         }
     }
 
-    constructor(public instance:JsPlumbInstance, params:ConnectionParams) {
+    constructor(public instance:JsPlumbInstance, params:ConnectionParams<E>) {
 
         super(instance, params)
 
@@ -573,7 +573,7 @@ export class Connection extends OverlayCapableComponent {
         }
     }
 
-    prepareEndpoint(existing:Endpoint, index:number, element?:any, elementId?:string, params?:ConnectionParams):Endpoint {
+    prepareEndpoint(existing:Endpoint, index:number, element?:any, elementId?:string, params?:ConnectionParams<E>):Endpoint {
 
         let e
         params = params || {}
