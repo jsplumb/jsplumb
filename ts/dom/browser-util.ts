@@ -66,7 +66,7 @@ export function getEventSource(e:Event):jsPlumbDOMElement {
     return (e.srcElement || e.target) as jsPlumbDOMElement
 }
 
-function _setClassName (el:HTMLElement, cn:string, classList:Array<string>):void {
+function _setClassName (el:Element, cn:string, classList:Array<string>):void {
     cn = fastTrim(cn)
 
     if (typeof (<any>el.className).baseVal !== "undefined") {
@@ -99,11 +99,11 @@ function _setClassName (el:HTMLElement, cn:string, classList:Array<string>):void
 
 //
 // get the class name for either an html element or an svg element.
-function _getClassName (el:jsPlumbDOMElement):string {
+function _getClassName (el:Element):string {
     return (typeof (<any>el.className).baseVal === "undefined") ? el.className : (<any>el.className).baseVal as string
 }
 
-function _classManip(el:jsPlumbDOMElement, classesToAdd:string | Array<string>, classesToRemove?:string | Array<String>) {
+function _classManip(el:Element, classesToAdd:string | Array<string>, classesToRemove?:string | Array<String>) {
     const cta:Array<string> = classesToAdd == null ? [] : isArray(classesToAdd) ? classesToAdd as string[] : (classesToAdd as string).split(/\s+/)
     const ctr:Array<string> = classesToRemove == null ? [] : isArray(classesToRemove) ? classesToRemove as string[] : (classesToRemove as string).split(/\s+/)
 
@@ -132,9 +132,9 @@ function _classManip(el:jsPlumbDOMElement, classesToAdd:string | Array<string>, 
     _setClassName(el, curClasses.join(" "), curClasses)
 }
 
-export function getClass(el:jsPlumbDOMElement):string { return _getClassName(el); }
+export function getClass(el:Element):string { return _getClassName(el); }
 
-export function addClass(el:jsPlumbDOMElement, clazz:string):void {
+export function addClass(el:Element, clazz:string):void {
 
     if (el != null && clazz != null && clazz.length > 0) {
         if (el.classList) {
@@ -146,7 +146,7 @@ export function addClass(el:jsPlumbDOMElement, clazz:string):void {
     }
 }
 
-export function hasClass(el:jsPlumbDOMElement, clazz:string):boolean {
+export function hasClass(el:Element, clazz:string):boolean {
     if (el.classList) {
         return el.classList.contains(clazz)
     }
@@ -155,7 +155,7 @@ export function hasClass(el:jsPlumbDOMElement, clazz:string):boolean {
     }
 }
 
-export function removeClass(el:jsPlumbDOMElement, clazz:string):void {
+export function removeClass(el:Element, clazz:string):void {
     if (el != null && clazz != null && clazz.length > 0) {
         if (el.classList) {
             el.classList.remove(...fastTrim(clazz).split(/\s+/))
@@ -165,7 +165,7 @@ export function removeClass(el:jsPlumbDOMElement, clazz:string):void {
     }
 }
 
-export function toggleClass(el:jsPlumbDOMElement, clazz:string):void {
+export function toggleClass(el:Element, clazz:string):void {
     if (el != null && clazz != null && clazz.length > 0) {
         if (el.classList) {
             el.classList.toggle(clazz)
