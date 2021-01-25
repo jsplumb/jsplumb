@@ -14,17 +14,17 @@ import {IS, removeWithFunction, suggest} from "../util"
 import {Connection} from "../connector/connection-impl"
 import {ConnectionSelection} from "../selection/connection-selection"
 
-interface GroupMemberEventParams {
-    el:jsPlumbElement,
-    group:UIGroup
+interface GroupMemberEventParams<E> {
+    el:jsPlumbElement<E>,
+    group:UIGroup<E>
 }
 
-interface GroupMemberAddedParams extends GroupMemberEventParams {
+interface GroupMemberAddedParams<E> extends GroupMemberEventParams<E> {
     pos:Offset
 }
 
-interface GroupMemberRemovedParams extends GroupMemberEventParams {
-    targetGroup?:UIGroup
+interface GroupMemberRemovedParams<E> extends GroupMemberEventParams<E> {
+    targetGroup?:UIGroup<E>
 }
 
 export interface AddGroupOptions {
@@ -33,15 +33,15 @@ export interface AddGroupOptions {
     collapsed?:boolean
 }
 
-export class GroupManager {
+export class GroupManager<E> {
 
-    groupMap:Dictionary<UIGroup> = {}
-    _connectionSourceMap:Dictionary<UIGroup> = {}
-    _connectionTargetMap:Dictionary<UIGroup> = {}
+    groupMap:Dictionary<UIGroup<E>> = {}
+    _connectionSourceMap:Dictionary<UIGroup<E>> = {}
+    _connectionTargetMap:Dictionary<UIGroup<E>> = {}
 
     constructor(public instance:JsPlumbInstance) {
 
-        instance.bind(Constants.EVENT_CONNECTION, (p:ConnectionEstablishedParams) => {
+        instance.bind(Constants.EVENT_CONNECTION, (p:ConnectionEstablishedParams<E>) => {
 
             const sourceGroup = this.getGroupFor(p.source)
             const targetGroup = this.getGroupFor(p.target)
@@ -53,7 +53,7 @@ export class GroupManager {
             }
             else {
                 if (sourceGroup != null) {
-                    if (p.target._jsPlumbGroup === sourceGroup) {
+                    if ((p.target as unknown as jsPlumbElement<E>)._jsPlumbGroup === sourceGroup) {
                         suggest(sourceGroup.connections.internal, p.connection)
                     } else {
                         suggest(sourceGroup.connections.source, p.connection)
@@ -61,7 +61,7 @@ export class GroupManager {
                     this._connectionSourceMap[p.connection.id] = sourceGroup
                 }
                 if (targetGroup != null) {
-                    if (p.source._jsPlumbGroup === targetGroup) {
+                    if ((p.source as unknown as jsPlumbElement<E>)._jsPlumbGroup === targetGroup) {
                         suggest(targetGroup.connections.internal, p.connection)
                     } else {
                         suggest(targetGroup.connections.target, p.connection)
@@ -71,7 +71,7 @@ export class GroupManager {
             }
         })
 
-        instance.bind(Constants.EVENT_INTERNAL_CONNECTION_DETACHED, (p:ConnectionDetachedParams) => {
+        instance.bind(Constants.EVENT_INTERNAL_CONNECTION_DETACHED, (p:ConnectionDetachedParams<E>) => {
             this._cleanupDetachedConnection(p.connection)
         })
 
@@ -143,7 +143,7 @@ export class GroupManager {
         if (params.el[Constants.IS_GROUP_KEY] != null) {
             throw new Error("cannot create Group [" + params.id + "]; the given element is already a Group")
         }
-        let group = new UIGroup(this.instance, params.el, params)
+        let group:UIGroup<E> = new UIGroup(this.instance, params.el, params)
         this.groupMap[group.id] = group
         if (params.collapsed) {
             this.collapseGroup(group)
@@ -159,7 +159,7 @@ export class GroupManager {
         return group
     }
 
-    getGroup (groupId:string | UIGroup):UIGroup {
+    getGroup (groupId:string | UIGroup<E>):UIGroup<E> {
         let group = groupId
         if (IS.aString(groupId)) {
             group = this.groupMap[groupId as string]
@@ -167,23 +167,24 @@ export class GroupManager {
                 throw new Error("No such group [" + groupId + "]")
             }
         }
-        return group as UIGroup
+        return group as UIGroup<E>
     }
 
-    getGroupFor(el:jsPlumbElement):UIGroup {
+    getGroupFor(el:E):UIGroup<E> {
 
+        let jel = el as unknown as jsPlumbElement<E>
         const c = this.instance.getContainer()
         let abort = false, g = null
         while (!abort) {
-            if (el == null || el === c) {
+            if (jel == null || jel === c) {
                 abort = true
             } else {
-                if (el._jsPlumbParentGroup) {
-                    g = el._jsPlumbParentGroup
+                if (jel._jsPlumbParentGroup) {
+                    g = jel._jsPlumbParentGroup
                     abort = true
                 } else {
                     // TODO knows about the DOM.
-                    el = (el as any).parentNode
+                    jel = (jel as any).parentNode
                 }
             }
         }
@@ -191,7 +192,7 @@ export class GroupManager {
 
     }
 
-    getGroups():Array<UIGroup> {
+    getGroups():Array<UIGroup<E>> {
         const g = []
         for (let key in this.groupMap) {
             g.push(this.groupMap[key])
@@ -199,13 +200,13 @@ export class GroupManager {
         return g
     }
 
-    removeGroup(group:string | UIGroup, deleteMembers?:boolean, manipulateView?:boolean, doNotFireEvent?:boolean):Dictionary<Offset> {
+    removeGroup(group:string | UIGroup<E>, deleteMembers?:boolean, manipulateView?:boolean, doNotFireEvent?:boolean):Dictionary<Offset> {
         let actualGroup = this.getGroup(group)
         this.expandGroup(actualGroup, true); // this reinstates any original connections and removes all proxies, but does not fire an event.
         let newPositions:Dictionary<Offset> = {}
         if (deleteMembers) {
             // remove all child groups
-            actualGroup.childGroups.forEach((cg:UIGroup) => this.removeGroup(cg, deleteMembers, manipulateView))
+            actualGroup.childGroups.forEach((cg:UIGroup<E>) => this.removeGroup(cg, deleteMembers, manipulateView))
             // remove all child nodes
             actualGroup.removeAll(manipulateView, doNotFireEvent)
         } else {
@@ -234,7 +235,7 @@ export class GroupManager {
         }
     }
 
-    forEach(f:(g:UIGroup) => any):void {
+    forEach(f:(g:UIGroup<E>) => any):void {
         for (let key in this.groupMap) {
             f(this.groupMap[key])
         }
@@ -242,36 +243,37 @@ export class GroupManager {
 
     // it would be nice to type `_el` as an element here, but the type of the element is currently specified by the
     // concrete implementation of jsplumb (of which there is 'DOM',  a browser implementation, at the moment.)
-    orphan(_el:any):[string, Offset] {
-        if ((_el as jsPlumbElement)._jsPlumbParentGroup) {
-            const group = (_el as jsPlumbElement)._jsPlumbParentGroup
-            const groupPos = this.instance.getOffset(_el)
-            const id = this.instance.getId(_el)
-            const pos = this.instance.getOffset(_el)
-            _el.parentNode.removeChild(_el)
+    orphan(el:E):[string, Offset] {
+        const jel = el as unknown as jsPlumbElement<E>
+        if (jel._jsPlumbParentGroup) {
+            const group = jel._jsPlumbParentGroup
+            const groupPos = this.instance.getOffset(jel)
+            const id = this.instance.getId(jel)
+            const pos = this.instance.getOffset(el);
+            (jel as any).parentNode.removeChild(jel)
 
             if (group.group) {
                 pos.left += groupPos.left
                 pos.top += groupPos.top
-                group.group.getContentArea().appendChild(_el); // set as child of parent group, if there is one.
+                group.group.getContentArea().appendChild(el); // set as child of parent group, if there is one.
             } else {
-                this.instance.appendElement(_el, this.instance.getContainer()); // set back as child of container
+                this.instance.appendElement(el, this.instance.getContainer()); // set back as child of container
             }
 
-            this.instance.setPosition(_el, pos)
-            delete _el._jsPlumbParentGroup
+            this.instance.setPosition(el, pos)
+            delete jel._jsPlumbParentGroup
             return [id, pos]
         }
     }
 
-    private _setGroupVisible(group:UIGroup, state:boolean) {
+    private _setGroupVisible(group:UIGroup<E>, state:boolean) {
         let m = (group.el as any).querySelectorAll(Constants.SELECTOR_MANAGED_ELEMENT)
         for (let i = 0; i < m.length; i++) {
             this.instance[state ? Constants.CMD_SHOW : Constants.CMD_HIDE](m[i], true)
         }
     }
 
-    _updateConnectionsForGroup(group:UIGroup) {
+    _updateConnectionsForGroup(group:UIGroup<E>) {
 
         group.connections.source.length = 0
         group.connections.target.length = 0
@@ -327,7 +329,7 @@ export class GroupManager {
         }
     }
 
-    private _collapseConnection(conn:Connection, index:number, group:UIGroup):boolean {
+    private _collapseConnection(conn:Connection, index:number, group:UIGroup<E>):boolean {
         let otherEl = conn.endpoints[index === 0 ? 1 : 0].element
         if (otherEl[Constants.PARENT_GROUP_KEY] && (!otherEl[Constants.PARENT_GROUP_KEY].proxied && otherEl[Constants.PARENT_GROUP_KEY].collapsed)) {
             return false
@@ -349,7 +351,7 @@ export class GroupManager {
         }
     }
 
-    private _expandConnection(c:Connection, index:number, group:UIGroup) {
+    private _expandConnection(c:Connection, index:number, group:UIGroup<E>) {
         this.instance.unproxyConnection(c, index, this.instance.getId(group.el))
     }
 
@@ -369,7 +371,7 @@ export class GroupManager {
         }
     }
 
-    collapseGroup (group:string | UIGroup) {
+    collapseGroup (group:string | UIGroup<E>) {
         let actualGroup = this.getGroup(group)
         if (actualGroup == null || actualGroup.collapsed) {
             return
@@ -406,7 +408,7 @@ export class GroupManager {
                 _collapseSet(actualGroup.connections.source, 0)
                 _collapseSet(actualGroup.connections.target, 1)
 
-                actualGroup.childGroups.forEach((cg: UIGroup) => {
+                actualGroup.childGroups.forEach((cg: UIGroup<E>) => {
                     this.cascadeCollapse(actualGroup, cg, collapsedConnectionIds)
                 })
 
@@ -429,7 +431,7 @@ export class GroupManager {
      * @param targetGroup
      * @param collapsedIds Set of connection ids for already collapsed connections, which we can ignore.
      */
-    cascadeCollapse(collapsedGroup:UIGroup, targetGroup:UIGroup, collapsedIds:Set<string>) {
+    cascadeCollapse(collapsedGroup:UIGroup<E>, targetGroup:UIGroup<E>, collapsedIds:Set<string>) {
         if (collapsedGroup.proxied) {
 
             // collapses all connections in a group.
@@ -451,12 +453,12 @@ export class GroupManager {
 
         }
 
-        targetGroup.childGroups.forEach((cg:UIGroup) => {
+        targetGroup.childGroups.forEach((cg:UIGroup<E>) => {
             this.cascadeCollapse(collapsedGroup, cg, collapsedIds)
         })
     }
 
-    expandGroup(group:string | UIGroup, doNotFireEvent?:boolean) {
+    expandGroup(group:string | UIGroup<E>, doNotFireEvent?:boolean) {
 
         let actualGroup = this.getGroup(group)
 
@@ -486,7 +488,7 @@ export class GroupManager {
                 _expandSet(actualGroup.connections.source, 0)
                 _expandSet(actualGroup.connections.target, 1)
 
-                const _expandNestedGroup = (group:UIGroup) => {
+                const _expandNestedGroup = (group:UIGroup<E>) => {
                   // if the group is collapsed:
                     // - all of its internal connections should remain hidden.
                     // - all external connections should be proxied to this group we are expanding (`actualGroup`)
@@ -539,7 +541,7 @@ export class GroupManager {
      * @param expandedGroup
      * @param targetGroup
      */
-    cascadeExpand(expandedGroup:UIGroup, targetGroup:UIGroup) {
+    cascadeExpand(expandedGroup:UIGroup<E>, targetGroup:UIGroup<E>) {
         //  What to do.
         //
         // We assume this method is only called when targetGroup is legitimately a descendant of collapsedGroup.
@@ -567,12 +569,12 @@ export class GroupManager {
         this.repaintGroup(targetGroup.el)
         this.instance.fire(Constants.EVENT_EXPAND, {group: targetGroup.el})
 
-        targetGroup.childGroups.forEach((cg:UIGroup) => {
+        targetGroup.childGroups.forEach((cg:UIGroup<E>) => {
             this.cascadeExpand(expandedGroup, cg)
         })
     }
 
-    toggleGroup(group:string|UIGroup) {
+    toggleGroup(group:string|UIGroup<E>) {
         group = this.getGroup(group)
         if (group != null) {
             if (group.collapsed) {
@@ -583,7 +585,7 @@ export class GroupManager {
         }
     }
 
-    repaintGroup (group:string|UIGroup) {
+    repaintGroup (group:string|UIGroup<E>) {
         let actualGroup = this.getGroup(group)
         const m = actualGroup.children
         for (let i = 0; i < m.length; i++) {
@@ -591,14 +593,14 @@ export class GroupManager {
         }
     }
 
-    addToGroup(group:string | UIGroup, doNotFireEvent:boolean, ...el:Array<jsPlumbElement>) {
+    addToGroup(group:string | UIGroup<E>, doNotFireEvent:boolean, ...el:Array<E>) {
         let actualGroup = this.getGroup(group)
         if (actualGroup) {
             let groupEl = actualGroup.el
 
             const _one = (el:any) => {
                 let isGroup = el[Constants.IS_GROUP_KEY] != null,
-                    droppingGroup = el[Constants.GROUP_KEY] as UIGroup
+                    droppingGroup = el[Constants.GROUP_KEY] as UIGroup<E>
 
                 let currentGroup = el[Constants.PARENT_GROUP_KEY]
                 // if already a member of this group, do nothing
@@ -664,11 +666,11 @@ export class GroupManager {
         }
     }
 
-    removeFromGroup (group:string | UIGroup, doNotFireEvent:boolean, ...el:Array<jsPlumbElement>):void {
+    removeFromGroup (group:string | UIGroup<E>, doNotFireEvent:boolean, ...el:Array<E>):void {
         let actualGroup = this.getGroup(group)
         if (actualGroup) {
 
-            const _one = (_el:jsPlumbElement) => {
+            const _one = (_el:E) => {
                 // if this group is currently collapsed then any proxied connections for the given el (or its descendants) need
                 // to be put back on their original element, and unproxied
                 if (actualGroup.collapsed) {
@@ -700,8 +702,8 @@ export class GroupManager {
         }
     }
 
-    getAncestors(group:UIGroup):Array<UIGroup> {
-        const ancestors:Array<UIGroup> = []
+    getAncestors(group:UIGroup<E>):Array<UIGroup<E>> {
+        const ancestors:Array<UIGroup<E>> = []
         let p = group.group
         while (p != null) {
             ancestors.push(p)
@@ -710,16 +712,16 @@ export class GroupManager {
         return ancestors
     }
 
-    isAncestor(group:UIGroup, possibleAncestor:UIGroup):boolean {
+    isAncestor(group:UIGroup<E>, possibleAncestor:UIGroup<E>):boolean {
         if (group == null || possibleAncestor == null) {
             return false
         }
         return this.getAncestors(group).indexOf(possibleAncestor) !== -1
     }
 
-    getDescendants(group:UIGroup):Array<UIGroup> {
-        const d:Array<UIGroup> = []
-        const _one = (g:UIGroup) => {
+    getDescendants(group:UIGroup<E>):Array<UIGroup<E>> {
+        const d:Array<UIGroup<E>> = []
+        const _one = (g:UIGroup<E>) => {
             d.push(...g.childGroups)
             g.childGroups.forEach(_one)
         }
@@ -727,7 +729,7 @@ export class GroupManager {
         return d
     }
 
-    isDescendant(possibleDescendant:UIGroup, ancestor:UIGroup):boolean {
+    isDescendant(possibleDescendant:UIGroup<E>, ancestor:UIGroup<E>):boolean {
         if (possibleDescendant == null || ancestor == null) {
             return false
         }
