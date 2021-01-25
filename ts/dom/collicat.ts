@@ -180,7 +180,7 @@ abstract class Base {
     }
 }
 
-export type GhostProxyGenerator = (el:jsPlumbDOMElement) => jsPlumbDOMElement
+export type GhostProxyGenerator = (el:Element) => Element
 
 function getConstrainingRectangle(el:jsPlumbDOMElement):PointArray {
     return [(<any>el.parentNode).scrollWidth, (<any>el.parentNode).scrollHeight]
@@ -192,12 +192,12 @@ export interface DragHandlerOptions {
     stop?:(p:DragEventCallbackOptions) => any
     drag?:(p:DragEventCallbackOptions) => any
     beforeStart?:(beforeStartParams:any) => void
-    dragInit?:(el:jsPlumbDOMElement) => any
-    dragAbort?:(el:jsPlumbDOMElement) => any
+    dragInit?:(el:Element) => any
+    dragAbort?:(el:Element) => any
     ghostProxy?:GhostProxyGenerator | boolean
     makeGhostProxy?:GhostProxyGenerator
     useGhostProxy?:(container:any, dragEl:any) => boolean
-    ghostProxyParent?:jsPlumbDOMElement
+    ghostProxyParent?:Element
     constrain?:ConstrainFunction | boolean
     revert?:RevertFunction
     filter?:string
@@ -305,7 +305,7 @@ export class Drag extends Base {
         this._consumeFilteredEvents = params.consumeFilteredEvents
         this._parent = params.parent
         this._ignoreZoom = params.ignoreZoom === true
-        this._ghostProxyParent = params.ghostProxyParent
+        this._ghostProxyParent = params.ghostProxyParent as jsPlumbDOMElement
 
         if (params.ghostProxy === true) {
             this._useGhostProxy = TRUE
