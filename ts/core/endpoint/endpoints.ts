@@ -1,6 +1,5 @@
 import { JsPlumbInstance } from "../core"
 import {Orientation} from "../factory/anchor-factory"
-//import {PaintStyle} from "../styles"
 import {EMPTY_BOUNDS, SegmentBounds} from "../connector/abstract-segment"
 import {Endpoint} from "./endpoint-impl"
 import {AnchorPlacement} from "../anchor-manager"
