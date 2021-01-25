@@ -54,7 +54,7 @@ export class jsPlumbListManager {
         })
     }
 
-    addList(el:jsPlumbDOMElement, options?:jsPlumbListOptions):jsPlumbList {
+    addList(el:Element, options?:jsPlumbListOptions):jsPlumbList {
         const dp = extend({} as any, DEFAULT_LIST_OPTIONS)
         extend(dp, this.options)
         options = extend(dp,  options || {})
@@ -63,15 +63,15 @@ export class jsPlumbListManager {
         return this.lists[id]
     }
 
-    removeList(el:jsPlumbDOMElement) {
-        const list = this.lists[el._jsPlumbList]
+    removeList(el:Element) {
+        const list = this.lists[(<jsPlumbDOMElement>el)._jsPlumbList]
         if (list) {
             list.destroy()
-            delete this.lists[el._jsPlumbList]
+            delete this.lists[(<jsPlumbDOMElement>el)._jsPlumbList]
         }
     }
 
-    _maybeUpdateParentList(el:jsPlumbDOMElement) {
+    private _maybeUpdateParentList(el:jsPlumbDOMElement) {
         let parent = el.parentNode, container = this.instance.getContainer()
         while(parent != null && parent !== container) {
             if (parent._jsPlumbList != null && this.lists[parent._jsPlumbList] != null) {
@@ -87,15 +87,17 @@ export class jsPlumbListManager {
 export class jsPlumbList {
 
     _scrollHandler:Function
+    private readonly domElement:jsPlumbDOMElement
 
-    constructor(private instance:BrowserJsPlumbInstance, private el:jsPlumbDOMElement, private options:jsPlumbListOptions, id:string){
-        el._jsPlumbList = id
+    constructor(private instance:BrowserJsPlumbInstance, private el:Element, private options:jsPlumbListOptions, id:string){
+        this.domElement = el as unknown as jsPlumbDOMElement
+        this.domElement._jsPlumbList = id
 
         instance.setAttribute(el, "jtk-scrollable-list", "true")
 
         this._scrollHandler = this.scrollHandler.bind(this)
 
-        el._jsPlumbScrollHandler = this._scrollHandler
+        this.domElement._jsPlumbScrollHandler = this._scrollHandler
         instance.on(el, "scroll", this._scrollHandler)
 
         this._scrollHandler(); // run it once; there may be connections already.
@@ -140,7 +142,7 @@ export class jsPlumbList {
                 if (!children[i]._jsPlumbProxies) {
                     children[i]._jsPlumbProxies = children[i]._jsPlumbProxies || []
                     this.instance.select({source: children[i]}).each( (c) => {
-                        this.instance.proxyConnection(c, 0, this.el, elId,  () => {
+                        this.instance.proxyConnection(c, 0, this.domElement, elId,  () => {
                             return this.deriveEndpoint("top", 0, c.endpoints[0], c)
                         },  () => {
                             return this.deriveAnchor("top", 0, c.endpoints[0], c)
@@ -149,7 +151,7 @@ export class jsPlumbList {
                     })
 
                     this.instance.select({target: children[i]}).each( (c) => {
-                        this.instance.proxyConnection(c, 1, this.el, elId,  () => {
+                        this.instance.proxyConnection(c, 1, this.domElement, elId,  () => {
                             return this.deriveEndpoint("top", 1, c.endpoints[1], c)
                         },  () => {
                             return this.deriveAnchor("top", 1, c.endpoints[1], c)
@@ -159,12 +161,12 @@ export class jsPlumbList {
                 }
             }
             //
-            else if (children[i].offsetTop + children[i].offsetHeight > this.el.scrollTop + this.el.offsetHeight) {
+            else if (children[i].offsetTop + children[i].offsetHeight > this.el.scrollTop + this.domElement.offsetHeight) {
                 if (!children[i]._jsPlumbProxies) {
                     children[i]._jsPlumbProxies = children[i]._jsPlumbProxies || []
 
                     this.instance.select({source: children[i]}).each( (c:any) => {
-                        this.instance.proxyConnection(c, 0, this.el, elId,  () => {
+                        this.instance.proxyConnection(c, 0, this.domElement, elId,  () => {
                             return this.deriveEndpoint("bottom", 0, c.endpoints[0], c)
                         },  () => {
                             return this.deriveAnchor("bottom", 0, c.endpoints[0], c)
@@ -173,7 +175,7 @@ export class jsPlumbList {
                     })
 
                     this.instance.select({target: children[i]}).each( (c:any) => {
-                        this.instance.proxyConnection(c, 1, this.el, elId, () => {
+                        this.instance.proxyConnection(c, 1, this.domElement, elId, () => {
                             return this.deriveEndpoint("bottom", 1, c.endpoints[1], c)
                         },  () => {
                             return this.deriveAnchor("bottom", 1, c.endpoints[1], c)
@@ -195,7 +197,7 @@ export class jsPlumbList {
 
     destroy () {
         this.instance.off(this.el, "scroll", this._scrollHandler)
-        delete this.el._jsPlumbScrollHandler
+        delete this.domElement._jsPlumbScrollHandler
 
         const children = this.instance.getSelector(this.el, "[jtk-managed]")
         const elId = this.instance.getId(this.el)
