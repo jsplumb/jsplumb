@@ -19,8 +19,7 @@ export interface ContinuousAnchorOptions extends AnchorOptions {
     clockwise?:boolean
 }
 
-const faces = ["top", "right", "bottom", "left"]
-export type FACE_MAP = Dictionary<boolean>;//{ [Key in faces]?:boolean }
+export type FACE_MAP = Dictionary<boolean>
 const opposites:Dictionary<Face> = {"top": "bottom", "right": "left", "left": "right", "bottom": "top"}
 const clockwiseOptions:Dictionary<Face> = {"top": "right", "right": "bottom", "left": "top", "bottom": "left"}
 const antiClockwiseOptions:Dictionary<Face> = {"top": "left", "right": "top", "left": "bottom", "bottom": "right"}
