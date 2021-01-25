@@ -40,8 +40,8 @@ export interface DragHandler {
     onStart:(params:DragStartEventParams) => boolean
     onDrag:(params:DragEventParams) => void
     onStop:(params:DragStopEventParams) => void
-    onDragInit: (el:jsPlumbDOMElement) => jsPlumbDOMElement
-    onDragAbort:(el:jsPlumbDOMElement) => void
+    onDragInit: (el:Element) => Element
+    onDragAbort:(el:Element) => void
 
     reset:() => void
     init:(drag:Drag) => void
@@ -50,7 +50,7 @@ export interface DragHandler {
 }
 
 export interface GhostProxyingDragHandler extends DragHandler {
-    useGhostProxy:(container:any, dragEl:jsPlumbDOMElement) => boolean
+    useGhostProxy:(container:any, dragEl:Element) => boolean
     makeGhostProxy?:GhostProxyGenerator
 }
 
@@ -58,7 +58,7 @@ type DragFilterSpec = [ Function|string, boolean ]
 
 export interface DragStartEventParams {
     e:MouseEvent
-    el:jsPlumbDOMElement
+    el:Element
     finalPos?:PointArray
     drag:Drag
 }
@@ -124,8 +124,8 @@ export class DragManager {
         o.drag = wrap(o.drag, (p:any) => { return handler.onDrag(p); })
         o.stop = wrap(o.stop, (p:any) => { return handler.onStop(p); })
         o.beforeStart = (handler.onBeforeStart || function(p:any) {}).bind(handler)
-        o.dragInit = (el:jsPlumbDOMElement) => handler.onDragInit(el)
-        o.dragAbort = (el:jsPlumbDOMElement) => handler.onDragAbort(el)
+        o.dragInit = (el:Element) => handler.onDragInit(el)
+        o.dragAbort = (el:Element) => handler.onDragAbort(el)
 
         if ((handler as GhostProxyingDragHandler).useGhostProxy) {
             o.useGhostProxy  = (handler as GhostProxyingDragHandler).useGhostProxy
@@ -136,7 +136,7 @@ export class DragManager {
             this.drag = this.collicat.draggable(this.instance.getContainer(), o)
             this._filtersToAdd.forEach((filterToAdd) => this.drag.addFilter(filterToAdd[0], filterToAdd[1]))
 
-            this.drag.on(EVENT_REVERT, (el:jsPlumbDOMElement) => {
+            this.drag.on(EVENT_REVERT, (el:Element) => {
                 this.instance.revalidate(el)
             })
 
