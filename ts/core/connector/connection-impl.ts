@@ -90,7 +90,7 @@ export class Connection<E = any> extends OverlayCapableComponent {
     cost:number
     directed:boolean
 
-    endpoints:[Endpoint, Endpoint] = [null, null]
+    endpoints:[Endpoint<E>, Endpoint<E>] = [null, null]
     endpointStyles:[PaintStyle, PaintStyle] = [null, null]
 
     _endpointSpec:EndpointSpec
