@@ -2,8 +2,6 @@ import {
     jsPlumbDefaults,
     jsPlumbHelperFunctions,
     Dictionary,
-    SourceDefinition,
-    TargetDefinition,
     Offset,
     PointArray,
     Size,
@@ -15,7 +13,6 @@ import {
     isFunction,
     isString,
     uuid,
-    UIGroup,
     AbstractConnector,
     Endpoint,
     Overlay,
@@ -125,7 +122,7 @@ export interface DragEventCallbackOptions {
      */
     drag: {
         _size: [ number, number ]
-        getDragElement:() => jsPlumbDOMElement
+        getDragElement:() => Element
     }
     /**
      * Current mouse event for the drag
@@ -134,7 +131,7 @@ export interface DragEventCallbackOptions {
     /**
      * Element being dragged
      */
-    el: jsPlumbDOMElement
+    el: Element
     /**
      * x,y location of the element. provided on the `drag` event only.
      */
@@ -168,21 +165,18 @@ export interface jsPlumbDOMInformation {
     overlay?:Overlay
 }
 
-export interface jsPlumbDOMElement extends HTMLElement, jsPlumbElement {
-    _jsPlumbGroup: UIGroup
-    _jsPlumbParentGroup:UIGroup
+export type ElementType = {E:Element}
+
+export interface jsPlumbDOMElement extends HTMLElement, jsPlumbElement<Element> {
     _isJsPlumbGroup: boolean
     _jsPlumbOrphanedEndpoints:Array<Endpoint>
-    offsetParent: HTMLElement
-    getAttribute:(name:string) => string
+    offsetParent: jsPlumbDOMElement
     parentNode: jsPlumbDOMElement
     jtk:jsPlumbDOMInformation
-    _jsPlumbTargetDefinitions:Array<TargetDefinition>
-    _jsPlumbSourceDefinitions:Array<SourceDefinition>
     _jsPlumbList:any
     _jsPlumbScrollHandler?:Function
     _katavorioDrag?:Drag
-    _jspContext?:any
+    cloneNode:(deep?:boolean) => jsPlumbDOMElement
 }
 
 export type DragGroupSpec = string | { id:string, active:boolean }
@@ -228,7 +222,7 @@ function getEndpointCanvas<C>(ep:EndpointRepresentation<C>):any {
 }
 
 function getLabelElement(o:LabelOverlay):jsPlumbDOMElement {
-    return HTMLElementOverlay.getElement(o as any)
+    return HTMLElementOverlay.getElement(o as any) as jsPlumbDOMElement
 }
 
 function getCustomElement(o:CustomOverlay):jsPlumbDOMElement {
@@ -236,7 +230,7 @@ function getCustomElement(o:CustomOverlay):jsPlumbDOMElement {
         const el = o.create(c)
         o.instance.addClass(el, o.instance.overlayClass)
         return el
-    })
+    }) as jsPlumbDOMElement
 }
 
 // ------------------------------------------------------------------------------------------------------------
@@ -245,7 +239,7 @@ function getCustomElement(o:CustomOverlay):jsPlumbDOMElement {
  * JsPlumbInstance that renders to the DOM in a browser, and supports dragging of elements/connections.
  *
  */
-export class BrowserJsPlumbInstance extends JsPlumbInstance {
+export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
     dragManager:DragManager
     _connectorClick:Function
@@ -428,7 +422,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         this.dragManager.removeFilter(filter)
     }
 
-    getElement(el:HTMLElement|string):jsPlumbDOMElement {
+    getElement(el:Element|string):Element {
         if (el == null) {
             return null
         }
@@ -436,22 +430,22 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         return (typeof el === "string" ? document.querySelector("[jtk-id='" + el + "'") : el) as jsPlumbDOMElement
     }
 
-    getElementById(elId: string): jsPlumbDOMElement {
-        return document.getElementById(elId) as jsPlumbDOMElement
+    getElementById(elId: string): Element {
+        return document.getElementById(elId)
     }
 
     removeElement(element:any):void {
         element.parentNode && element.parentNode.removeChild(element)
     }
 
-    appendElement(el:HTMLElement, parent:HTMLElement):void {
+    appendElement(el:Element, parent:Element):void {
         if (parent) {
             parent.appendChild(el)
         }
     }
 
-    getChildElements(el: jsPlumbElement): Array<jsPlumbElement> {
-        const out:Array<jsPlumbElement> = []
+    getChildElements(el: Element): Array<Element> {
+        const out:Array<Element> = []
         if (el && (<any>el).nodeType !== 3 && (<any>el).nodeType !== 8) {
             for (let i = 0, ii = (<any>el).childNodes.length; i < ii; i++) {
                 if ((<any>el).childNodes[i].nodeType !== 3 && (<any>el).childNodes[i].nodeType !== 8)
@@ -461,9 +455,9 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         return out
     }
 
-    _getAssociatedElements(el: jsPlumbDOMElement): Array<jsPlumbElement> {
+    _getAssociatedElements(el: Element): Array<Element> {
         let els = el.querySelectorAll(SELECTOR_MANAGED_ELEMENT)
-        let a:Array<jsPlumbDOMElement> = []
+        let a:Array<Element> = []
         Array.prototype.push.apply(a, els)
         return a
     }
@@ -472,43 +466,43 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         return true
     }
 
-    getClass(el:jsPlumbDOMElement):string { return getClass(el) }
+    getClass(el:Element):string { return getClass(el) }
 
-    addClass(el:jsPlumbDOMElement, clazz:string):void {
+    addClass(el:Element, clazz:string):void {
         addClass(el, clazz)
     }
 
-    hasClass(el:jsPlumbDOMElement, clazz:string):boolean {
+    hasClass(el:Element, clazz:string):boolean {
         return hasClass(el, clazz)
     }
 
-    removeClass(el:jsPlumbDOMElement, clazz:string):void {
+    removeClass(el:Element, clazz:string):void {
         removeClass(el, clazz)
     }
 
-    toggleClass(el:jsPlumbDOMElement, clazz:string):void {
+    toggleClass(el:Element, clazz:string):void {
         toggleClass(el, clazz)
     }
 
-    setAttribute(el:jsPlumbDOMElement, name:string, value:string):void {
+    setAttribute(el:Element, name:string, value:string):void {
         el.setAttribute(name, value)
     }
 
-    getAttribute(el:jsPlumbDOMElement, name:string):string {
+    getAttribute(el:Element, name:string):string {
         return el.getAttribute(name)
     }
 
-    setAttributes(el:jsPlumbDOMElement, atts:Dictionary<string>) {
+    setAttributes(el:Element, atts:Dictionary<string>) {
         for (let i in atts) {
             el.setAttribute(i, atts[i])
         }
     }
 
-    removeAttribute(el:jsPlumbDOMElement, attName:string) {
+    removeAttribute(el:Element, attName:string) {
         el.removeAttribute && el.removeAttribute(attName)
     }
 
-    on (el:jsPlumbDOMElement, event:string, callbackOrSelector:Function|string, callback?:Function) {
+    on (el:Element, event:string, callbackOrSelector:Function|string, callback?:Function) {
         if (callback == null) {
             this.eventManager.on(el, event, callbackOrSelector)
         } else {
@@ -517,26 +511,27 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         return this
     }
 
-    off (el:jsPlumbDOMElement, event:string, callback:Function) {
+    off (el:Element, event:string, callback:Function) {
         this.eventManager.off(el, event, callback)
         return this
     }
 
-    trigger(el:jsPlumbDOMElement, event:string, originalEvent?:Event, payload?:any) {
+    trigger(el:Element, event:string, originalEvent?:Event, payload?:any) {
         this.eventManager.trigger(el, event, originalEvent, payload)
     }
 
-    _getOffsetRelativeToRoot(el:jsPlumbDOMElement) {
+    _getOffsetRelativeToRoot(el:Element) {
         return offsetRelativeToRoot(el)
     }
 
-    _getOffset(el:HTMLElement):Offset {
+    _getOffset(el:Element):Offset {
+        const jel = el as unknown as jsPlumbDOMElement
         const container = this.getContainer()
         let out: Offset = {
-                left: el.offsetLeft,
-                top: el.offsetTop
+                left: jel.offsetLeft,
+                top: jel.offsetTop
             },
-            op = ((el !== container && el.offsetParent !== container) ? el.offsetParent : null) as HTMLElement,
+            op = ((el !== container && jel.offsetParent !== container) ? jel.offsetParent : null) as HTMLElement,
             _maybeAdjustScroll = (offsetParent: HTMLElement) => {
                 if (offsetParent != null && offsetParent !== document.body && (offsetParent.scrollTop > 0 || offsetParent.scrollLeft > 0)) {
                     out.left -= offsetParent.scrollLeft
@@ -553,8 +548,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
 
         // if container is scrolled and the element (or its offset parent) is not absolute or fixed, adjust accordingly.
         if (container != null && (container.scrollTop > 0 || container.scrollLeft > 0)) {
-            let pp = el.offsetParent != null ? this.getStyle(el.offsetParent as HTMLElement, PROPERTY_POSITION) : STATIC,
-                p = this.getStyle(el, PROPERTY_POSITION)
+            let pp = jel.offsetParent != null ? this.getStyle(jel.offsetParent as HTMLElement, PROPERTY_POSITION) : STATIC,
+                p = this.getStyle(jel, PROPERTY_POSITION)
             if (p !== ABSOLUTE && p !== FIXED && pp !== ABSOLUTE && pp !== FIXED) {
                 out.left -= container.scrollLeft
                 out.top -= container.scrollTop
@@ -564,11 +559,11 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         return out
     }
 
-    _getSize(el:HTMLElement):Size {
-        return [ el.offsetWidth, el.offsetHeight ]
+    _getSize(el:Element):Size {
+        return [ (el as jsPlumbDOMElement).offsetWidth, (el as jsPlumbDOMElement).offsetHeight ]
     }
 
-    getStyle(el:HTMLElement, prop:string):any {
+    getStyle(el:Element, prop:string):any {
         if (typeof window.getComputedStyle !== UNDEFINED) {
             return getComputedStyle(el, null).getPropertyValue(prop)
         } else {
@@ -576,14 +571,14 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         }
     }
 
-    getSelector(ctx:string | jsPlumbDOMElement, spec:string):NodeListOf<jsPlumbDOMElement> {
+    getSelector(ctx:string | Element, spec:string):NodeListOf<jsPlumbDOMElement> {
 
         let sel:NodeListOf<jsPlumbDOMElement> = null
         if (arguments.length === 1) {
             if (!isString(ctx)) {
 
                 let nodeList = document.createDocumentFragment()
-                nodeList.appendChild(ctx as jsPlumbDOMElement)
+                nodeList.appendChild(ctx as Element)
                 return nodeList.childNodes as NodeListOf<jsPlumbDOMElement>
             }
 
@@ -622,7 +617,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         return [ x, y ]
     }
 
-    setDraggable(element:jsPlumbDOMElement, draggable:boolean) {
+    setDraggable(element:Element, draggable:boolean) {
         if (draggable) {
             this.removeAttribute(element, ATTRIBUTE_NOT_DRAGGABLE)
         } else {
@@ -630,7 +625,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         }
     }
 
-    isDraggable(el:jsPlumbDOMElement):boolean {
+    isDraggable(el:Element):boolean {
         let d = this.getAttribute(el, ATTRIBUTE_NOT_DRAGGABLE)
         return d == null || d === FALSE
     }
@@ -639,7 +634,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
      * toggles the draggable state of the given element(s).
      * el is either an id, or an element object, or a list of ids/element objects.
      */
-    toggleDraggable (el:jsPlumbDOMElement):boolean {
+    toggleDraggable (el:Element):boolean {
         let state = this.isDraggable(el)
         this.setDraggable(el, !state)
         return !state
@@ -699,13 +694,13 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         }
     }
 
-    setContainer(c: string|jsPlumbDOMElement): void {
+    setContainer(c: string|Element): void {
         this._detachEventDelegates()
         if (this.dragManager != null) {
             this.dragManager.reset()
         }
 
-        const newContainer = isString(c) ?  this.getElementById(c as string) as jsPlumbDOMElement : c as jsPlumbDOMElement
+        const newContainer = isString(c) ?  this.getElementById(c as string) : c as Element
 
         this.setAttribute(newContainer, ATTRIBUTE_CONTAINER, uuid().replace("-", ""))
 
@@ -725,7 +720,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
             })
         }
 
-        super.setContainer(newContainer as jsPlumbDOMElement)
+        super.setContainer(newContainer)
         if (this.eventManager != null) {
             this._attachEventDelegates()
         }
@@ -757,12 +752,12 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         super.destroy()
     }
 
-    unmanage (el:jsPlumbDOMElement, removeElement?:boolean):void {
+    unmanage (el:Element, removeElement?:boolean):void {
         this.removeFromDragSelection(el)
         super.unmanage(el, removeElement)
     }
 
-    addToDragSelection(...el:Array<string|jsPlumbDOMElement>) {
+    addToDragSelection(...el:Array<Element>) {
         el.forEach((_el) => this.elementDragHandler.addToDragSelection(_el))
     }
 
@@ -770,15 +765,15 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         this.elementDragHandler.clearDragSelection()
     }
 
-    removeFromDragSelection(...el:Array<jsPlumbDOMElement>) {
+    removeFromDragSelection(...el:Array<Element>) {
         el.forEach((_el) => this.elementDragHandler.removeFromDragSelection(_el))
     }
 
-    toggleDragSelection(...el:Array<string|jsPlumbDOMElement>) {
+    toggleDragSelection(...el:Array<Element>) {
         el.forEach((_el) => this.elementDragHandler.toggleDragSelection(_el))
     }
 
-    getDragSelection():Array<jsPlumbDOMElement> {
+    getDragSelection():Array<Element> {
         return this.elementDragHandler.getDragSelection()
     }
 
@@ -792,7 +787,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
      * given element(s) is "passive" and should only move when an active member of the drag group is dragged.
      * @param els Elements to add to the drag group.
      */
-    addToDragGroup(spec:DragGroupSpec, ...els:Array<jsPlumbDOMElement>) {
+    addToDragGroup(spec:DragGroupSpec, ...els:Array<Element>) {
         this.elementDragHandler.addToDragGroup(spec, ...els)
     }
 
@@ -801,7 +796,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
      * can only be in one drag group anyway.
      * @param els Elements to remove from drag groups.
      */
-    removeFromDragGroup(...els:Array<jsPlumbDOMElement>) {
+    removeFromDragGroup(...els:Array<Element>) {
         this.elementDragHandler.removeFromDragGroup(...els)
     }
 
@@ -811,7 +806,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
      * @param state true for active, false for passive.
      * @param els
      */
-    setDragGroupState (state:boolean, ...els:Array<jsPlumbDOMElement>) {
+    setDragGroupState (state:boolean, ...els:Array<Element>) {
         this.elementDragHandler.setDragGroupState(state, ...els)
     }
 
@@ -824,11 +819,20 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         consume(e, doNotPreventDefault)
     }
 
-    addList (el:jsPlumbDOMElement, options?:jsPlumbListOptions):jsPlumbList {
+    /**
+     * Adds a managed list to the instance.
+     * @param el Element containing the list.
+     * @param options
+     */
+    addList (el:Element, options?:jsPlumbListOptions):jsPlumbList {
         return this.listManager.addList(el, options)
     }
 
-    removeList (el:jsPlumbDOMElement) {
+    /**
+     * Removes a managed list from the instance
+     * @param el Element containing the list.
+     */
+    removeList (el:Element) {
         this.listManager.removeList(el)
     }
 
@@ -840,7 +844,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         return new Collicat(options)
     }
 
-    rotate(element: jsPlumbElement, rotation: number, doNotRepaint?: boolean):RedrawResult {
+    rotate(element: Element, rotation: number, doNotRepaint?: boolean):RedrawResult {
         const elementId = this.getId(element)
         if (this._managedElements[elementId]) {
             (this._managedElements[elementId].el as jsPlumbDOMElement).style.transform = "rotate(" + rotation + "deg)";
@@ -974,7 +978,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
     setOverlayHover(o: Overlay, hover: boolean): any {
 
         const method = hover ? "addClass" : "removeClass"
-        let canvas:jsPlumbDOMElement
+        let canvas:Element
 
         if (isLabelOverlay(o)) {
             canvas = getLabelElement(o)
@@ -1180,7 +1184,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         cleanup(ep.endpoint as any)
     }
 
-    paintEndpoint<C>(ep: Endpoint, paintStyle: PaintStyle): void {
+    paintEndpoint(ep: Endpoint, paintStyle: PaintStyle): void {
         const renderer = endpointMap[ep.endpoint.getType()]
         if (renderer != null) {
             SvgEndpoint.paint(ep.endpoint, renderer, paintStyle)
@@ -1189,7 +1193,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance {
         }
     }
 
-    removeEndpointClass<C>(ep: Endpoint, c: string): void {
+    removeEndpointClass(ep: Endpoint, c: string): void {
         const canvas = getEndpointCanvas(ep.endpoint)
         if (canvas != null) {
             this.removeClass(canvas, c)
