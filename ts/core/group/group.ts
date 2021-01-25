@@ -26,15 +26,15 @@ export interface GroupOptions {
     endpoint?:EndpointSpec
 }
 
-export class UINode {
-    group:UIGroup
+export class UINode<E> {
+    group:UIGroup<E>
     constructor(public instance:JsPlumbInstance, public el:any) { }
 }
 
-export class UIGroup extends UINode {
+export class UIGroup<E = any> extends UINode<E> {
 
     children:Array<any> = []
-    childGroups:Array<UIGroup> = []
+    childGroups:Array<UIGroup<E>> = []
 
     collapsed:boolean = false
 
@@ -51,9 +51,9 @@ export class UIGroup extends UINode {
     endpoint:EndpointSpec
 
     connections:{source:Array<Connection>, target:Array<Connection>, internal:Array<Connection>} = {source:[], target:[], internal:[]}
-    groups:Array<UIGroup> = []
+    groups:Array<UIGroup<E>> = []
 
-    manager:GroupManager
+    manager:GroupManager<E>
 
     id:string
 
@@ -80,7 +80,7 @@ export class UIGroup extends UINode {
         instance.setAttribute(el, Constants.ATTRIBUTE_GROUP, "")
     }
 
-    overrideDrop(el:any, targetGroup:UIGroup):boolean {
+    overrideDrop(el:any, targetGroup:UIGroup<E>):boolean {
         return this.dropOverride && (this.revert || this.prune || this.orphan)
     }
 
@@ -119,7 +119,7 @@ export class UIGroup extends UINode {
         this.manager._updateConnectionsForGroup(this)
     }
 
-    remove (el:any | Array<any>, manipulateDOM?:boolean, doNotFireEvent?:boolean, doNotUpdateConnections?:boolean, targetGroup?:UIGroup) {
+    remove (el:E | Array<E>, manipulateDOM?:boolean, doNotFireEvent?:boolean, doNotUpdateConnections?:boolean, targetGroup?:UIGroup<E>) {
 
         this.instance.each(el, (__el:any) => {
             delete __el[Constants.PARENT_GROUP_KEY]
@@ -176,7 +176,7 @@ export class UIGroup extends UINode {
         return orphanedPositions
     }
 
-    addGroup(group:UIGroup):boolean {
+    addGroup(group:UIGroup<E>):boolean {
 
         if (this.instance.allowNestedGroups && group !== this) {
 
@@ -215,13 +215,13 @@ export class UIGroup extends UINode {
         }
     }
 
-    removeGroup(group:UIGroup):void {
+    removeGroup(group:UIGroup<E>):void {
         if (group.group === this) {
             const d = this.getContentArea()
             if (d === group.el.parentNode) {
                 d.removeChild(group.el)
             }
-            this.childGroups = this.childGroups.filter((cg:UIGroup) => cg.id !== group.id)
+            this.childGroups = this.childGroups.filter((cg:UIGroup<E>) => cg.id !== group.id)
             delete group.group
             delete group.el._jsPlumbParentGroup
             this.instance.fire(Constants.EVENT_NESTED_GROUP_REMOVED, {
@@ -231,12 +231,12 @@ export class UIGroup extends UINode {
         }
     }
 
-    getGroups():Array<UIGroup> {
+    getGroups():Array<UIGroup<E>> {
         return this.childGroups
     }
 
-    get collapseParent():UIGroup {
-        let cg:UIGroup = null
+    get collapseParent():UIGroup<E> {
+        let cg:UIGroup<E> = null
         if (this.group == null) {
             return null
         } else {
