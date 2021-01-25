@@ -66,20 +66,20 @@ function _scopeMatch(e1:Endpoint, e2:Endpoint):boolean {
     return false
 }
 
-export type ElementSelectionSpecifier = jsPlumbElement | Array<jsPlumbElement> | '*'
+export type ElementSelectionSpecifier<E> = E | Array<E> | '*'
 export type SelectionList = '*' | Array<string>
 
-export interface AbstractSelectOptions {
+export interface AbstractSelectOptions<E> {
     scope?:SelectionList
-    source?:ElementSelectionSpecifier
-    target?:ElementSelectionSpecifier
+    source?:ElementSelectionSpecifier<E>
+    target?:ElementSelectionSpecifier<E>
 }
-export interface SelectOptions extends AbstractSelectOptions {
+export interface SelectOptions<E> extends AbstractSelectOptions<E> {
     connections?:Array<Connection>
 }
 
-export interface SelectEndpointOptions extends AbstractSelectOptions {
-    element?:ElementSelectionSpecifier
+export interface SelectEndpointOptions<E> extends AbstractSelectOptions<E> {
+    element?:ElementSelectionSpecifier<E>
 }
 
 /**
@@ -141,8 +141,8 @@ function prepareList(instance:JsPlumbInstance, input:any, doNotGetIds?:boolean):
     return r
 }
 
-export type ManagedElement = {
-    el:jsPlumbElement,
+export type ManagedElement<E> = {
+    el:jsPlumbElement<E>,
     info?:ViewportElement,
     endpoints?:Array<Endpoint>,
     connections?:Array<Connection>,
@@ -151,7 +151,7 @@ export type ManagedElement = {
 
 const ID_ATTRIBUTE = Constants.JTK_ID
 
-export abstract class JsPlumbInstance extends EventGenerator {
+export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends EventGenerator {
 
     Defaults:jsPlumbDefaults
     private _initialDefaults:jsPlumbDefaults = {}
@@ -184,13 +184,13 @@ export abstract class JsPlumbInstance extends EventGenerator {
     readonly viewport:Viewport = new Viewport()
 
     readonly router: Router
-    readonly groupManager:GroupManager
+    readonly groupManager:GroupManager<T["E"]>
 
     private _connectionTypes:Map<string, TypeDescriptor> = new Map()
     private _endpointTypes:Map<string, TypeDescriptor> = new Map()
     private _container:any
 
-    protected _managedElements:Dictionary<ManagedElement> = {}
+    protected _managedElements:Dictionary<ManagedElement<T["E"]>> = {}
 
     private DEFAULT_SCOPE:string
     get defaultScope() { return this.DEFAULT_SCOPE }
@@ -248,11 +248,11 @@ export abstract class JsPlumbInstance extends EventGenerator {
         this.setContainer(this._initialDefaults.container)
     }
 
-    getSize(el:any) {
+    getSize(el:T["E"]) {
         return this._helpers.getSize ? this._helpers.getSize(el) : this._getSize(el)
     }
 
-    getOffset(el:any|string, relativeToRoot?:boolean):Offset {
+    getOffset(el:T["E"], relativeToRoot?:boolean):Offset {
         if (relativeToRoot) {
             return this._helpers.getOffsetRelativeToRoot ? this._helpers.getOffsetRelativeToRoot(el) : this._getOffsetRelativeToRoot(el)
         } else {
@@ -304,7 +304,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return r
     }
 
-    getId (element:jsPlumbElement, uuid?:string):string {
+    getId (element:T["E"], uuid?:string):string {
 
         if (element == null) {
             return null
@@ -339,11 +339,11 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
 // ------------------  element selection ------------------------
 
-    getConnections(options?:SelectOptions, flat?:boolean):Dictionary<Connection> | Array<Connection> {
+    getConnections(options?:SelectOptions<T["E"]>, flat?:boolean):Dictionary<Connection> | Array<Connection> {
         if (!options) {
             options = {}
         } else if (options.constructor === String) {
-            options = { "scope": options } as SelectOptions
+            options = { "scope": options } as SelectOptions<T>
         }
         let scope = options.scope || this.defaultScope,
             scopes = prepareList(this, scope, true),
@@ -375,13 +375,13 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return results
     }
 
-    select (params?:SelectOptions):ConnectionSelection {
+    select (params?:SelectOptions<T["E"]>):ConnectionSelection {
         params = params || {}
         params.scope = params.scope || "*"
         return new ConnectionSelection(this, params.connections || (this.getConnections(params, true) as Array<Connection>))
     }
 
-    selectEndpoints(params?:SelectEndpointOptions):EndpointSelection {
+    selectEndpoints(params?:SelectEndpointOptions<T["E"]>):EndpointSelection {
         params = params || {}
         params.scope = params.scope || Constants.WILDCARD
 
@@ -424,14 +424,14 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return new EndpointSelection(this, ep)
     }
 
-    setContainer(c:string | jsPlumbElement):void {
+    setContainer(c:string | T["E"]):void {
         // get container as element and set container.
         this._container = this.getElement(c)
         // tell people.
         this.fire(Constants.EVENT_CONTAINER_CHANGE, this._container)
     }
 
-    private _set (c:Connection, el:jsPlumbElement|Endpoint, idx:number, doNotRepaint?:boolean):any {
+    private _set (c:Connection, el:T["E"]|Endpoint, idx:number, doNotRepaint?:boolean):any {
 
         const stTypes = [
             { el: "source", elId: "sourceId", epDefs: Constants.SOURCE_DEFINITION_LIST },
@@ -455,7 +455,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
         if (el instanceof Endpoint) {
             ep = el;
             (<Endpoint>ep).addConnection(c)
-            el = (<Endpoint>ep).element
+            el = (<Endpoint>ep).element as unknown as Element
         }
         else {
             sid = this.getId(el)
@@ -499,13 +499,13 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
     }
 
-    setSource (connection:Connection, el:jsPlumbElement|Endpoint, doNotRepaint?:boolean):void {
+    setSource (connection:Connection, el:T["E"]|Endpoint, doNotRepaint?:boolean):void {
         let p = this._set(connection, el, 0, doNotRepaint)
         Connection.updateConnectedClass(this, connection, p.originalSource, true)
         this.sourceOrTargetChanged(p.originalSourceId, p.newSourceId, connection, p.element, 0)
     }
 
-    setTarget (connection:Connection, el:jsPlumbElement|Endpoint, doNotRepaint?:boolean):void {
+    setTarget (connection:Connection, el:T["E"]|Endpoint, doNotRepaint?:boolean):void {
         let p = this._set(connection, el, 1, doNotRepaint)
         Connection.updateConnectedClass(this, connection, p.originalTarget, true)
         connection.updateConnectedClass(false)
@@ -535,7 +535,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return curVal
     }
 
-    computeAnchorLoc(endpoint:Endpoint, timestamp?:string):AnchorPlacement {
+    computeAnchorLoc(endpoint:Endpoint<T>, timestamp?:string):AnchorPlacement {
 
         const myOffset = this._managedElements[endpoint.elementId].info
         return endpoint.anchor.compute({
@@ -574,7 +574,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
      * @param spec An Element, or an element id, or an array of elements/element ids.
      * @param fn The function to run on each element.
      */
-    each(spec:jsPlumbElement | Array<jsPlumbElement>, fn:(e:jsPlumbElement) => any):JsPlumbInstance {
+    each(spec:T["E"] | Array<T["E"]>, fn:(e:T["E"]) => any):JsPlumbInstance {
         if (spec == null) {
             return
         }
@@ -584,7 +584,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
             }
         }
         else {
-            fn(spec as jsPlumbElement)
+            fn(spec as T["E"])
         } // assume it's an element.
 
         return this
@@ -695,7 +695,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return deletedCount
     }
 
-    deleteConnectionsForElement(el:jsPlumbElement, params?:DeleteConnectionOptions):JsPlumbInstance {
+    deleteConnectionsForElement(el:T["E"], params?:DeleteConnectionOptions):JsPlumbInstance {
         params = params || {}
         let id = this.getId(el), endpoints = this.endpointsByElement[id]
         if (endpoints && endpoints.length) {
@@ -733,7 +733,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
      * @param elements Array-like object of strings or elements.
      * @param recalc Maybe recalculate offsets for the element also.
      */
-    manageAll (elements:Array<jsPlumbElement>, recalc?:boolean):void {
+    manageAll (elements:Array<Element>, recalc?:boolean):void {
         for (let i = 0; i < elements.length; i++) {
             this.manage(elements[i], null, recalc)
         }
@@ -745,7 +745,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
      * @param internalId Optional ID for jsPlumb to use internally.
      * @param recalc Maybe recalculate offsets for the element also.
      */
-    manage (element:jsPlumbElement, internalId?:string, recalc?:boolean):ManagedElement {
+    manage (element:T["E"], internalId?:string, recalc?:boolean):ManagedElement<T["E"]> {
 
         if (this.getAttribute(element, ID_ATTRIBUTE) == null) {
             internalId = internalId || uuid()
@@ -759,7 +759,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
             this.setAttribute(element, Constants.ATTRIBUTE_MANAGED, "")
 
             this._managedElements[elId] = {
-                el:element,
+                el:element as unknown as jsPlumbElement<T["E"]>,
                 endpoints:[],
                 connections:[],
                 rotation:0
@@ -786,13 +786,13 @@ export abstract class JsPlumbInstance extends EventGenerator {
      * @param el Element, or ID of the element to stop managing.
      * @param removeElement If true, also remove the element from the renderer.
      */
-    unmanage (el:jsPlumbElement, removeElement?:boolean):void {
+    unmanage (el:T["E"], removeElement?:boolean):void {
 
-        let affectedElements:Array<jsPlumbElement> = []
+        let affectedElements:Array<T["E"]> = []
 
         this.removeAllEndpoints(el, true, affectedElements)
 
-        let _one = (_el:jsPlumbElement) => {
+        let _one = (_el:T["E"]) => {
 
             let id = this.getId(_el)
 
@@ -825,7 +825,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
         _one(el)
     }
 
-    rotate(element:jsPlumbElement, rotation:number, doNotRepaint?:boolean):RedrawResult {
+    rotate(element:T["E"], rotation:number, doNotRepaint?:boolean):RedrawResult {
         const elementId = this.getId(element)
         if (this._managedElements[elementId]) {
             this._managedElements[elementId].rotation = rotation
@@ -848,7 +848,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
      * @param params Options for the Endpoint.
      * @param id Optional ID for the Endpoint.
      */
-    newEndpoint(params:EndpointOptions, id?:string):Endpoint {
+    newEndpoint(params:EndpointOptions<T["E"]>, id?:string):Endpoint {
         let _p:InternalEndpointOptions = extend({}, params)
         _p.elementId = id || this.getId(_p.source)
 
@@ -884,16 +884,12 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return { endpoints: eps ? eps : [ ep, ep ], anchors: as ? as : [a, a ]}
     }
 
-    // getAllConnections ():Array<Connection> {
-    //     return this.connections
-    // }
-
     // repaint some element's endpoints and connections
-    repaint (el:jsPlumbElement, ui?:any, timestamp?:string):RedrawResult {
+    repaint (el:T["E"], ui?:any, timestamp?:string):RedrawResult {
         return this._draw(el, ui, timestamp)
     }
 
-    revalidate (el:jsPlumbElement, timestamp?:string):RedrawResult {
+    revalidate (el:T["E"], timestamp?:string):RedrawResult {
         let elId = this.getId(el)
         this.updateOffset({ elId: elId, recalc: true, timestamp:timestamp })
         return this.repaint(el)
@@ -920,9 +916,9 @@ export abstract class JsPlumbInstance extends EventGenerator {
      * @param el
      * @private
      */
-    abstract _getAssociatedElements(el:jsPlumbElement):Array<any>
+    abstract _getAssociatedElements(el:T["E"]):Array<T["E"]>
 
-    _draw(el:jsPlumbElement, ui?:any, timestamp?:string, offsetsWereJustCalculated?:boolean):RedrawResult {
+    _draw(el:T["E"], ui?:any, timestamp?:string, offsetsWereJustCalculated?:boolean):RedrawResult {
 
         let r:RedrawResult = {
             c:new Set<Connection>(),
@@ -1037,13 +1033,13 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return this
     }
 
-    addEndpoint(el:jsPlumbElement, params?:EndpointOptions, referenceParams?:EndpointOptions):Endpoint{
-        referenceParams = referenceParams || {} as EndpointOptions
-        let p:EndpointOptions = extend({}, referenceParams)
+    addEndpoint(el:T["E"], params?:EndpointOptions<T["E"]>, referenceParams?:EndpointOptions<T["E"]>):Endpoint{
+        referenceParams = referenceParams || {} as EndpointOptions<T["E"]>
+        let p:EndpointOptions<T["E"]> = extend({}, referenceParams)
         extend(p, params)
         p.endpoint = p.endpoint || this.Defaults.endpoint
         p.paintStyle = p.paintStyle || this.Defaults.endpointStyle
-        let _p:EndpointOptions = extend({source:el}, p)
+        let _p:EndpointOptions<T["E"]> = extend({source:el}, p)
         let id = this.getId(_p.source)
         this.manage(el, null, !this._suspendDrawing)
         let e = this.newEndpoint(_p, id)
@@ -1062,7 +1058,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return e
     }
 
-    addEndpoints(el:jsPlumbElement, endpoints:Array<EndpointOptions>, referenceParams?:any):Array<Endpoint> {
+    addEndpoints(el:T["E"], endpoints:Array<EndpointOptions<T["E"]>>, referenceParams?:any):Array<Endpoint> {
         let results:Array<Endpoint> = []
         for (let i = 0, j = endpoints.length; i < j; i++) {
             results.push(this.addEndpoint(el, endpoints[i], referenceParams))
@@ -1108,7 +1104,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
         this.unbind()
     }
 
-    getEndpoints(el:jsPlumbElement):Array<Endpoint> {
+    getEndpoints(el:T["E"]):Array<Endpoint> {
         return this.endpointsByElement[this.getId(el)] || []
     }
 
@@ -1145,9 +1141,9 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return jpc
     }
 
-    private _prepareConnectionParams(params:ConnectParams, referenceParams?:ConnectParams):InternalConnectParams {
+    private _prepareConnectionParams(params:ConnectParams, referenceParams?:ConnectParams):InternalConnectParams<T["E"]> {
 
-        let _p:InternalConnectParams = extend({ }, params)
+        let _p:InternalConnectParams<T["E"]> = extend({ }, params)
         if (referenceParams) {
             extend(_p, referenceParams)
         }
@@ -1326,9 +1322,9 @@ export abstract class JsPlumbInstance extends EventGenerator {
         }
     }
 
-    removeAllEndpoints(el:jsPlumbElement, recurse?:boolean, affectedElements?:Array<jsPlumbElement>):JsPlumbInstance {
+    removeAllEndpoints(el:T["E"], recurse?:boolean, affectedElements?:Array<T["E"]>):JsPlumbInstance {
         affectedElements = affectedElements || []
-        let _one = (_el:jsPlumbElement) => {
+        let _one = (_el:T["E"]) => {
             let id = this.getId(_el),
                 ebe = this.endpointsByElement[id],
                 i, ii
@@ -1350,12 +1346,13 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return this
     }
 
-    private _setEnabled (type:string, el:jsPlumbElement, state:boolean, toggle?:boolean, connectionType?:string):any {
+    private _setEnabled (type:string, el:T["E"], state:boolean, toggle?:boolean, connectionType?:string):any {
         let originalState:Array<any> = [], newState, os
+        let jel = el as unknown as jsPlumbElement<T["E"]>
 
         connectionType = connectionType || Constants.DEFAULT
 
-        let defs = type === Constants.SOURCE ? el._jsPlumbSourceDefinitions : el._jsPlumbTargetDefinitions
+        let defs = type === Constants.SOURCE ? jel._jsPlumbSourceDefinitions : jel._jsPlumbTargetDefinitions
         if (defs) {
             defs.forEach((def: SourceOrTargetDefinition) => {
                 if (def.def.connectionType == null || def.def.connectionType === connectionType) {
@@ -1377,24 +1374,24 @@ export abstract class JsPlumbInstance extends EventGenerator {
 
     }
 
-    toggleSourceEnabled (el:jsPlumbElement, connectionType?:string):any {
+    toggleSourceEnabled (el:T["E"], connectionType?:string):any {
         this._setEnabled(Constants.SOURCE, el, null, true, connectionType)
         return this.isSourceEnabled(el, connectionType)
     }
 
-    setSourceEnabled (el:jsPlumbElement, state:boolean, connectionType?:string):any {
+    setSourceEnabled (el:T["E"], state:boolean, connectionType?:string):any {
         return this._setEnabled(Constants.SOURCE, el, state, null, connectionType)
     }
 
-    findFirstSourceDefinition(el:jsPlumbElement, connectionType?:string):SourceDefinition {
+    findFirstSourceDefinition(el:T["E"], connectionType?:string):SourceDefinition {
         return this.findFirstDefinition(Constants.SOURCE_DEFINITION_LIST, el, connectionType)
     }
 
-    findFirstTargetDefinition(el:jsPlumbElement, connectionType?:string):TargetDefinition {
+    findFirstTargetDefinition(el:T["E"], connectionType?:string):TargetDefinition {
         return this.findFirstDefinition(Constants.TARGET_DEFINITION_LIST, el, connectionType)
     }
 
-    private findFirstDefinition<T>(key:string, el:jsPlumbElement, connectionType?:string):T {
+    private findFirstDefinition<D>(key:string, el:T["E"], connectionType?:string):D {
         if (el == null) {
             return null
         } else {
@@ -1410,34 +1407,34 @@ export abstract class JsPlumbInstance extends EventGenerator {
         }
     }
 
-    isSource (el:jsPlumbElement, connectionType?:string):any {
+    isSource (el:T["E"], connectionType?:string):any {
         return this.findFirstSourceDefinition(el, connectionType) != null
     }
 
-    isSourceEnabled (el:jsPlumbElement, connectionType?:string):boolean {
+    isSourceEnabled (el:T["E"], connectionType?:string):boolean {
         let def = this.findFirstSourceDefinition(el, connectionType)
         return def != null && def.enabled !== false
     }
 
-    toggleTargetEnabled(el:jsPlumbElement, connectionType?:string):any {
+    toggleTargetEnabled(el:T["E"], connectionType?:string):any {
         this._setEnabled(Constants.TARGET, el, null, true, connectionType)
         return this.isTargetEnabled(el, connectionType)
     }
 
-    isTarget(el:jsPlumbElement, connectionType?:string):boolean {
+    isTarget(el:T["E"], connectionType?:string):boolean {
         return this.findFirstTargetDefinition(el, connectionType) != null
     }
 
-    isTargetEnabled (el:jsPlumbElement, connectionType?:string):boolean {
+    isTargetEnabled (el:T["E"], connectionType?:string):boolean {
         let def = this.findFirstTargetDefinition(el, connectionType)
         return def != null && def.enabled !== false
     }
 
-    setTargetEnabled(el:jsPlumbElement, state:boolean, connectionType?:string):any {
+    setTargetEnabled(el:T["E"], state:boolean, connectionType?:string):any {
         return this._setEnabled(Constants.TARGET, el, state, null, connectionType)
     }
 
-    private _unmake (type:string, key:string, el:jsPlumbElement, connectionType?:string) {
+    private _unmake (type:string, key:string, el:T["E"], connectionType?:string) {
 
         connectionType = connectionType || "*"
 
@@ -1471,12 +1468,12 @@ export abstract class JsPlumbInstance extends EventGenerator {
     }
 
     // see api docs
-    unmakeTarget (el:jsPlumbElement, connectionType?:string) {
+    unmakeTarget (el:T["E"], connectionType?:string) {
         return this._unmake(Constants.TARGET, Constants.TARGET_DEFINITION_LIST, el, connectionType)
     }
 
     // see api docs
-    unmakeSource (el:jsPlumbElement, connectionType?:string) {
+    unmakeSource (el:T["E"], connectionType?:string) {
         return this._unmake(Constants.SOURCE, Constants.SOURCE_DEFINITION_LIST, el, connectionType)
     }
 
@@ -1490,14 +1487,14 @@ export abstract class JsPlumbInstance extends EventGenerator {
         this._unmakeEvery(Constants.TARGET, Constants.TARGET_DEFINITION_LIST, connectionType || "*")
     }
 
-    private _writeScopeAttribute (el:jsPlumbElement, scope:string):void {
+    private _writeScopeAttribute (el:T["E"], scope:string):void {
         let scopes = scope.split(/\s/)
         for (let i = 0; i < scopes.length; i++) {
             this.setAttribute(el, Constants.SCOPE_PREFIX + scopes[i], "")
         }
     }
 
-    makeSource(el:jsPlumbElement, params?:BehaviouralTypeDescriptor, referenceParams?:any):JsPlumbInstance {
+    makeSource(el:jsPlumbElement<T["E"]>, params?:BehaviouralTypeDescriptor, referenceParams?:any):JsPlumbInstance {
         let p = extend({_jsPlumb: this}, referenceParams)
         extend(p, params)
         p.connectionType = p.connectionType || Constants.DEFAULT
@@ -1532,7 +1529,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return this
     }
 
-    private _getScope(el:jsPlumbElement, defKey:string):string {
+    private _getScope(el:T["E"], defKey:string):string {
         if (el[defKey] && el[defKey].length > 0) {
             return el[defKey][0].def.scope
         } else {
@@ -1540,39 +1537,40 @@ export abstract class JsPlumbInstance extends EventGenerator {
         }
     }
 
-    getSourceScope(el:jsPlumbElement):string {
+    getSourceScope(el:T["E"]):string {
         return this._getScope(el, Constants.SOURCE_DEFINITION_LIST)
     }
 
-    getTargetScope(el:jsPlumbElement):string {
+    getTargetScope(el:T["E"]):string {
         return this._getScope(el, Constants.TARGET_DEFINITION_LIST)
     }
 
-    getScope(el:jsPlumbElement):string {
+    getScope(el:T["E"]):string {
         return this.getSourceScope(el) || this.getTargetScope(el)
     }
 
-    private _setScope(el:jsPlumbElement, scope:string, defKey:string):void {
+    private _setScope(el:T["E"], scope:string, defKey:string):void {
         if (el[defKey]) {
             el[defKey].forEach((def:any) => def.def.scope = scope)
         }
     }
 
-    setSourceScope(el:jsPlumbElement, scope:string):void {
+    setSourceScope(el:T["E"], scope:string):void {
         this._setScope(el, scope, Constants.SOURCE_DEFINITION_LIST)
     }
 
-    setTargetScope(el:jsPlumbElement, scope:string):void {
+    setTargetScope(el:T["E"], scope:string):void {
         this._setScope(el, scope, Constants.TARGET_DEFINITION_LIST)
     }
 
-    setScope(el:jsPlumbElement, scope:string):void {
+    setScope(el:T["E"], scope:string):void {
         this._setScope(el, scope, Constants.SOURCE_DEFINITION_LIST)
         this._setScope(el, scope, Constants.TARGET_DEFINITION_LIST)
     }
 
-    makeTarget (el:jsPlumbElement, params:BehaviouralTypeDescriptor, referenceParams?:any):JsPlumbInstance {
+    makeTarget (el:T["E"], params:BehaviouralTypeDescriptor, referenceParams?:any):JsPlumbInstance {
 
+        let jel = el as unknown as jsPlumbElement<T["E"]>
         // put jsplumb ref into params without altering the params passed in
         let p = extend({_jsPlumb: this}, referenceParams)
         extend(p, params)
@@ -1587,11 +1585,11 @@ export abstract class JsPlumbInstance extends EventGenerator {
         this._writeScopeAttribute(el, (p.scope || this.Defaults.scope))
         this.setAttribute(el, [Constants.ATTRIBUTE_TARGET, p.connectionType].join("-"), "")
 
-        el._jsPlumbTargetDefinitions = el._jsPlumbTargetDefinitions || []
+        jel._jsPlumbTargetDefinitions = jel._jsPlumbTargetDefinitions || []
 
         // if this is a group and the user has not mandated a rank, set to -1 so that Nodes takes
         // precedence.
-        if (el._jsPlumbGroup && dropOptions.rank == null) {
+        if (jel._jsPlumbGroup && dropOptions.rank == null) {
             dropOptions.rank = -1
         }
 
@@ -1610,20 +1608,20 @@ export abstract class JsPlumbInstance extends EventGenerator {
             _def.endpoint.deleteOnEmpty = false
         }
 
-        el._jsPlumbTargetDefinitions.push(_def)
+        jel._jsPlumbTargetDefinitions.push(_def)
 
         return this
     }
 
-    show (el:jsPlumbElement, changeEndpoints?:boolean):JsPlumbInstance {
+    show (el:T["E"], changeEndpoints?:boolean):JsPlumbInstance {
         return this._setVisible(el, Constants.BLOCK, changeEndpoints)
     }
 
-    hide (el:jsPlumbElement, changeEndpoints?:boolean):JsPlumbInstance {
+    hide (el:T["E"], changeEndpoints?:boolean):JsPlumbInstance {
         return this._setVisible(el, Constants.NONE, changeEndpoints)
     }
 
-    private _setVisible (el:jsPlumbElement, state:string, alsoChangeEndpoints?:boolean) {
+    private _setVisible (el:T["E"], state:string, alsoChangeEndpoints?:boolean) {
         let visible = state === Constants.BLOCK
         let endpointFunc = null
         if (alsoChangeEndpoints) {
@@ -1652,7 +1650,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
     /**
      * private method to do the business of toggling hiding/showing.
      */
-    toggleVisible (el:jsPlumbElement, changeEndpoints?:boolean) {
+    toggleVisible (el:T["E"], changeEndpoints?:boolean) {
         let endpointFunc = null
         if (changeEndpoints) {
             endpointFunc = (ep:Endpoint) => {
@@ -1666,7 +1664,7 @@ export abstract class JsPlumbInstance extends EventGenerator {
         }, endpointFunc)
     }
 
-    private _operation (el:jsPlumbElement, func:(c:Connection) => any, endpointFunc?:(e:Endpoint) => any) {
+    private _operation (el:T["E"], func:(c:Connection) => any, endpointFunc?:(e:Endpoint) => any) {
         let elId = this.getId(el)
         let endpoints = this.endpointsByElement[elId]
         if (endpoints && endpoints.length) {
@@ -1746,14 +1744,14 @@ export abstract class JsPlumbInstance extends EventGenerator {
         return this
     }
 
-    getManagedElements():Dictionary<ManagedElement> {
+    getManagedElements():Dictionary<ManagedElement<T["E"]>> {
         return this._managedElements
     }
 
 // ----------------------------- proxy connections -----------------------
 
     proxyConnection(connection:Connection, index:number,
-                    proxyEl:jsPlumbElement, proxyElId:string,
+                    proxyEl:T["E"], proxyElId:string,
                     endpointGenerator:any, anchorGenerator:any) {
 
         let alreadyProxied = connection.proxies[index] != null,
@@ -1855,22 +1853,22 @@ export abstract class JsPlumbInstance extends EventGenerator {
 // ------------------------ GROUPS --------------
 
     getGroup(groupId:string) { return this.groupManager.getGroup(groupId); }
-    getGroupFor(el:jsPlumbElement) { return this.groupManager.getGroupFor(el); }
+    getGroupFor(el:T["E"]) { return this.groupManager.getGroupFor(el); }
     addGroup(params:AddGroupOptions) { return this.groupManager.addGroup(params); }
-    addToGroup(group:string | UIGroup, ...el:Array<jsPlumbElement>) { return this.groupManager.addToGroup(group, false, ...el); }
+    addToGroup(group:string | UIGroup<T["E"]>, ...el:Array<T["E"]>) { return this.groupManager.addToGroup(group, false, ...el); }
 
-    collapseGroup (group:string | UIGroup) { this.groupManager.collapseGroup(group); }
-    expandGroup (group:string | UIGroup) { this.groupManager.expandGroup(group); }
-    toggleGroup (group:string | UIGroup) { this.groupManager.toggleGroup(group); }
+    collapseGroup (group:string | UIGroup<T["E"]>) { this.groupManager.collapseGroup(group); }
+    expandGroup (group:string | UIGroup<T["E"]>) { this.groupManager.expandGroup(group); }
+    toggleGroup (group:string | UIGroup<T["E"]>) { this.groupManager.toggleGroup(group); }
 
-    removeGroup(group:string | UIGroup, deleteMembers?:boolean, manipulateView?:boolean, doNotFireEvent?:boolean) {
+    removeGroup(group:string | UIGroup<T["E"]>, deleteMembers?:boolean, manipulateView?:boolean, doNotFireEvent?:boolean) {
         this.groupManager.removeGroup(group, deleteMembers, manipulateView, doNotFireEvent)
     }
 
     removeAllGroups(deleteMembers?:boolean, manipulateView?:boolean) {
         this.groupManager.removeAllGroups(deleteMembers, manipulateView, false)
     }
-    removeFromGroup (group:string | UIGroup, ...el:Array<jsPlumbElement>):void {
+    removeFromGroup (group:string | UIGroup<T["E"]>, ...el:Array<T["E"]>):void {
         this.groupManager.removeFromGroup(group, false, ...el)
         el.forEach((_el) => {
             this.appendElement(_el, this.getContainer())
@@ -1878,36 +1876,36 @@ export abstract class JsPlumbInstance extends EventGenerator {
         })
     }
 
-    abstract getElement(el:any|string):any
-    abstract getElementById(el:string):any
-    abstract removeElement(el:any):void
-    abstract appendElement (el:any, parent:any):void
-    abstract getChildElements(el:jsPlumbElement):Array<jsPlumbElement>
+    abstract getElement(el:T["E"]|string):T["E"]
+    abstract getElementById(id:string):T["E"]
+    abstract removeElement(el:T["E"]):void
+    abstract appendElement (el:T["E"], parent:T["E"]):void
+    abstract getChildElements(el:T["E"]):Array<T["E"]>
 
-    abstract removeClass(el:any, clazz:string):void
-    abstract addClass(el:any, clazz:string):void
-    abstract toggleClass(el:any, clazz:string):void
-    abstract getClass(el:any):string
-    abstract hasClass(el:any, clazz:string):boolean
+    abstract removeClass(el:T["E"], clazz:string):void
+    abstract addClass(el:T["E"], clazz:string):void
+    abstract toggleClass(el:T["E"], clazz:string):void
+    abstract getClass(el:T["E"]):string
+    abstract hasClass(el:T["E"], clazz:string):boolean
 
-    abstract setAttribute(el:any, name:string, value:string):void
-    abstract getAttribute(el:any, name:string):string
-    abstract setAttributes(el:any, atts:Dictionary<string>):void
-    abstract removeAttribute(el:any, attName:string):void
+    abstract setAttribute(el:T["E"], name:string, value:string):void
+    abstract getAttribute(el:T["E"], name:string):string
+    abstract setAttributes(el:T["E"], atts:Dictionary<string>):void
+    abstract removeAttribute(el:T["E"], attName:string):void
 
-    abstract getSelector(ctx:string | any, spec?:string):NodeListOf<any>
-    abstract getStyle(el:any, prop:string):any
+    abstract getSelector(ctx:string | T["E"], spec?:string):NodeListOf<any>
+    abstract getStyle(el:T["E"], prop:string):any
 
-    abstract _getSize(el:any):Size
+    abstract _getSize(el:T["E"]):Size
 
-    abstract _getOffset(el:any|string):Offset
-    abstract _getOffsetRelativeToRoot(el:any|string):Offset
+    abstract _getOffset(el:T["E"]):Offset
+    abstract _getOffsetRelativeToRoot(el:T["E"]|string):Offset
 
-    abstract setPosition(el:any, p:Offset):void
+    abstract setPosition(el:T["E"], p:Offset):void
 
-    abstract on (el:any, event:string, callbackOrSelector:Function | string, callback?:Function):void
-    abstract off (el:any, event:string, callback:Function):void
-    abstract trigger(el:any, event:string, originalEvent?:Event, payload?:any):void
+    abstract on (el:T["E"], event:string, callbackOrSelector:Function | string, callback?:Function):void
+    abstract off (el:T["E"], event:string, callback:Function):void
+    abstract trigger(el:T["E"], event:string, originalEvent?:Event, payload?:any):void
 
     abstract getPath(segment:Segment, isFirstSegment:boolean):string
 
@@ -1933,14 +1931,14 @@ export abstract class JsPlumbInstance extends EventGenerator {
     abstract setConnectorVisible(connector:AbstractConnector, v:boolean):void
     abstract applyConnectorType(connector:AbstractConnector, t:TypeDescriptor):void
 
-    abstract applyEndpointType(ep:Endpoint, t:TypeDescriptor):void
-    abstract setEndpointVisible(ep:Endpoint, v:boolean):void
-    abstract destroyEndpoint(ep:Endpoint):void
-    abstract paintEndpoint(ep:Endpoint, paintStyle:PaintStyle):void
-    abstract addEndpointClass(ep:Endpoint, c:string):void
-    abstract removeEndpointClass(ep:Endpoint, c:string):void
-    abstract getEndpointClass(ep:Endpoint):string
-    abstract setEndpointHover(endpoint: Endpoint, h: boolean, doNotCascade?:boolean): void
-    abstract refreshEndpoint(endpoint:Endpoint):void
+    abstract applyEndpointType(ep:Endpoint<T>, t:TypeDescriptor):void
+    abstract setEndpointVisible(ep:Endpoint<T>, v:boolean):void
+    abstract destroyEndpoint(ep:Endpoint<T>):void
+    abstract paintEndpoint(ep:Endpoint<T>, paintStyle:PaintStyle):void
+    abstract addEndpointClass(ep:Endpoint<T>, c:string):void
+    abstract removeEndpointClass(ep:Endpoint<T>, c:string):void
+    abstract getEndpointClass(ep:Endpoint<T>):string
+    abstract setEndpointHover(endpoint: Endpoint<T>, h: boolean, doNotCascade?:boolean): void
+    abstract refreshEndpoint(endpoint:Endpoint<T>):void
 
 }
