@@ -1,7 +1,7 @@
 import {EndpointSpec, InternalEndpointOptions} from "../endpoint/endpoint"
-import {jsPlumbElement, PointArray} from '../common'
+import {PointArray} from '../common'
 import { JsPlumbInstance } from "../core"
-import {makeAnchorFromSpec} from "../factory/anchor-factory"
+import {AnchorSpec, makeAnchorFromSpec} from "../factory/anchor-factory"
 import {Anchor} from "../anchor/anchor"
 import {OverlayCapableComponent} from "../component/overlay-capable-component"
 import {isArray, isString, merge, extend } from "../util"
@@ -60,9 +60,9 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
     connectorClass:string
     connectorHoverClass:string
 
-    _originalAnchor:any
+    _originalAnchor:AnchorSpec
     deleteAfterDragStop:boolean
-    finalEndpoint:Endpoint
+    finalEndpoint:Endpoint<E>
 
     enabled = true
 
@@ -77,7 +77,7 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
 
     currentAnchorClass:string
 
-    referenceEndpoint:Endpoint
+    referenceEndpoint:Endpoint<E>
 
     connectionType:string
     connector:ConnectorSpec
@@ -263,7 +263,7 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         }
     }
 
-    detachFrom (targetEndpoint:Endpoint, fireEvent?:boolean, originalEvent?:Event):Endpoint {
+    detachFrom (targetEndpoint:Endpoint):Endpoint {
         let c = []
         for (let i = 0; i < this.connections.length; i++) {
             if (this.connections[i].endpoints[1] === targetEndpoint || this.connections[i].endpoints[0] === targetEndpoint) {
@@ -359,10 +359,6 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
     setElementId(_elId:string):void {
         this.elementId = _elId
         this.anchor.elementId = _elId
-    }
-
-    setReferenceElement(_el:any) {
-        this.element = this.instance.getElement(_el)
     }
 
     setDragAllowedWhenFull(allowed:boolean):void {
