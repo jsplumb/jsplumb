@@ -931,26 +931,20 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     }
 
     setOverlayVisible(o: Overlay, visible:boolean):void {
-
+        const d = visible ? "block" : "none"
+        function s(el:any) {
+            if (el != null) {
+                el.style.display = d
+            }
+        }
         if (isLabelOverlay(o)) {
-            getLabelElement(o).style.display = visible ? "block" : "none"
+            s(getLabelElement(o))
         }
         else if (isCustomOverlay(o)) {
-            getCustomElement(o).style.display = visible ? "block" : "none"
+            s(getCustomElement(o))
         } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
-            (o as any).path.style.display = visible ? "block" : "none"
+            s((o as any).path)
         }
-    }
-
-    moveOverlayParent(o: Overlay, newParent: HTMLElement): void {
-        if (isLabelOverlay(o)) {
-            o.instance.appendElement(getLabelElement(o), this.getContainer())
-        } else if (isCustomOverlay(o)) {
-            o.instance.appendElement(getCustomElement(o), this.getContainer())
-        }
-        // else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)){
-        //     // dont need to do anything with other types. seemingly. but why not.
-        // }
     }
 
     reattachOverlay(o: Overlay, c: OverlayCapableComponent): void {
@@ -1175,7 +1169,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         cleanup(ep.endpoint as any)
     }
 
-    paintEndpoint(ep: Endpoint, paintStyle: PaintStyle): void {
+    renderEndpoint(ep: Endpoint, paintStyle: PaintStyle): void {
         const renderer = endpointMap[ep.endpoint.getType()]
         if (renderer != null) {
             SvgEndpoint.paint(ep.endpoint, renderer, paintStyle)
@@ -1235,7 +1229,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             if (endpoint.hoverPaintStyle != null) {
                 endpoint.paintStyleInUse = h ? endpoint.hoverPaintStyle : endpoint.paintStyle
                 if (!this._suspendDrawing) {
-                    this.paintEndpoint(endpoint, endpoint.paintStyleInUse)
+                    this.renderEndpoint(endpoint, endpoint.paintStyleInUse)
                 }
             }
 
