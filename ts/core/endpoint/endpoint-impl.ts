@@ -172,11 +172,11 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         let ep = params.endpoint || instance.Defaults.endpoint
         this.setEndpoint(ep as any)
         let anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : (instance.Defaults.anchor || "Top")
-        this.setAnchor(anchorParamsToUse, true)
+        this.setAnchor(anchorParamsToUse)
 
         // finally, set type if it was provided
         let type = [ "default", (params.type || "")].join(" ")
-        this.addType(type, params.data, true)
+        this.addType(type, params.data)
     }
 
     private _updateAnchorClass ():void {
@@ -206,21 +206,16 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
     }
 
     // TODO refactor, somehow, to take AnchorManager out of the equation. update, rc35 - to take Router out of the equation.
-    setPreparedAnchor (anchor:Anchor, doNotRepaint?:boolean):Endpoint {
+    setPreparedAnchor (anchor:Anchor):Endpoint {
         this.instance.router.clearContinuousAnchorPlacement(this.elementId)
         this.anchor = anchor
         this._updateAnchorClass()
-
-        if (!doNotRepaint) {
-            this.instance.repaint(this.element)
-        }
-
         return this
     }
 
-    setAnchor (anchorParams:any, doNotRepaint?:boolean):Endpoint {
+    setAnchor (anchorParams:any):Endpoint {
         let a = this.prepareAnchor(anchorParams)
-        this.setPreparedAnchor(a, doNotRepaint)
+        this.setPreparedAnchor(a)
         return this
     }
 
@@ -297,12 +292,12 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         }
     }
 
-    applyType(t:any, doNotRepaint:boolean, typeMap:any):void {
+    applyType(t:any, typeMap:any):void {
 
-        super.applyType(t, doNotRepaint, typeMap)
+        super.applyType(t, typeMap)
 
-        this.setPaintStyle(t.endpointStyle || t.paintStyle, doNotRepaint)
-        this.setHoverPaintStyle(t.endpointHoverStyle || t.hoverPaintStyle, doNotRepaint)
+        this.setPaintStyle(t.endpointStyle || t.paintStyle)
+        this.setHoverPaintStyle(t.endpointHoverStyle || t.hoverPaintStyle)
 
         this.connectorStyle = t.connectorStyle
         this.connectorHoverStyle = t.connectorHoverStyle
@@ -375,61 +370,6 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
 
     connectorSelector ():Connection {
         return this.connections[0]
-    }
-
-    paint(params:{ timestamp?: string, offset?: ViewportElement,
-        recalc?:boolean, elementWithPrecedence?:string,
-        connectorPaintStyle?:PaintStyle,
-        anchorLoc?:AnchorPlacement
-        }):void {
-
-        params = params || {}
-        let timestamp = params.timestamp, recalc = !(params.recalc === false)
-        if (!timestamp || this.timestamp !== timestamp) {
-
-            let info = this.instance.updateOffset({ elId: this.elementId, timestamp: timestamp })
-            let xy = params.offset ? {left:params.offset.x, top:params.offset.y} : {left:info.x, top:info.y }
-            if (xy != null) {
-                let ap = params.anchorLoc
-                if (ap == null) {
-                    let wh:PointArray = [info.w, info.h],
-                        anchorParams:AnchorComputeParams = { xy: [ xy.left, xy.top ], wh: wh, element: this, timestamp: timestamp }
-                    if (recalc && this.anchor.isDynamic && this.connections.length > 0) {
-                        let c = findConnectionToUseForDynamicAnchor(this, params.elementWithPrecedence),
-                            oIdx = c.endpoints[0] === this ? 1 : 0,
-                            oId = oIdx === 0 ? c.sourceId : c.targetId,
-                            oInfo = this.instance.getCachedData(oId)
-
-                        anchorParams.index = oIdx === 0 ? 1 : 0
-                        anchorParams.connection = c
-                        anchorParams.txy = [ oInfo.x, oInfo.y]
-                        anchorParams.twh = [oInfo.w, oInfo.h]
-                        anchorParams.tElement = c.endpoints[oIdx]
-                        anchorParams.tRotation = this.instance.getRotation(oId)
-                    } else if (this.connections.length > 0) {
-                        anchorParams.connection = this.connections[0]
-                    }
-
-                    anchorParams.rotation = this.instance.getRotation(this.elementId)
-                    ap = this.anchor.compute(anchorParams)
-                }
-
-                this.endpoint.compute(ap, this.anchor.getOrientation(this), this.paintStyleInUse)
-                this.instance.paintEndpoint(this, this.paintStyleInUse)
-                this.timestamp = timestamp
-
-                // paint overlays
-                for (let i in this.overlays) {
-                    if (this.overlays.hasOwnProperty(i)) {
-                        let o = this.overlays[i]
-                        if (o.isVisible()) {
-                            this.overlayPlacements[i] = this.instance.drawOverlay(o, this.endpoint, this.paintStyleInUse, this.getAbsoluteOverlayPosition(o))
-                            this.instance.paintOverlay(o, this.overlayPlacements[i], {xmin:0, ymin:0})
-                        }
-                    }
-                }
-            }
-        }
     }
 
     prepareEndpoint<C>(ep:EndpointSpec | EndpointRepresentation<C>, typeId?:string):EndpointRepresentation<C> {
