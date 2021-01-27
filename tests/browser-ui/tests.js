@@ -53,18 +53,6 @@ var testSuite = function () {
     });
 
 
-    test(" : getElement", function () {
-        var e = document.createElement("div");
-        e.id = "FOO";
-        document.body.appendChild(e);
-        var e2 = _jsPlumb.getElement(e);
-        equal(e2.id, "FOO");
-        _jsPlumb.manage(e2)
-
-        var e3 = _jsPlumb.getElement(e2.getAttribute("jtk-id"));
-        equal(e3.id, "FOO");
-    });
-
     test(': _jsPlumb setup', function () {
         ok(_jsPlumb, "loaded");
     });
@@ -86,7 +74,7 @@ var testSuite = function () {
 
     test(': getId', function () {
         var d10 = support.addDiv('d10');
-        equal(_jsPlumb.getId(_jsPlumb.getElement(d10)), d10.getAttribute("jtk-id"));
+        equal(_jsPlumb.getId(d10), d10.getAttribute("jtk-id"));
     });
 
     test(': create a simple endpoint', function () {
@@ -151,7 +139,7 @@ var testSuite = function () {
         var d = document.createElement("div");
         d.innerHTML = '<div id="container2"><ul id="targets"><li id="in1">input 1</li><li id="in2">input 2</li></ul><ul id="sources"><li id="output">output</li></ul></div>';
         var container = d.firstChild;
-        document.body.appendChild(_jsPlumb.getElement(container));
+        document.body.appendChild(container);
         var output = document.getElementById("output")
         var e1 = _jsPlumb.addEndpoint(document.getElementById("in1"), { maxConnections: 1, isSource: false, isTarget: true, anchor: [ 0, 0.4, -1, 0 ] }),
             e2 = _jsPlumb.addEndpoint(document.getElementById("in2"), { maxConnections: 1, isSource: false, isTarget: true, anchor: [ 0, 0.4, -1, 0 ] }),
@@ -2878,7 +2866,7 @@ var testSuite = function () {
         equal(labelOverlay.canvas, null, "the label overlay was actually removed from the DOM");
 
         // remove the arrow
-        var arrowElement = arrowOverlay.path;//renderer.getElement();
+        var arrowElement = arrowOverlay.path;
         ok(arrowElement.parentNode != null, "arrow element is in the DOM");
         connection1.removeOverlay("anArrow");
 
@@ -5664,5 +5652,36 @@ var testSuite = function () {
         equal("Rectangle", c.endpoints[0].endpoint.getType(), "endpoint 1 is now a Rectangle");
         equal("Dot", c.endpoints[1].endpoint.getType(), "endpoint 2 is now a Dot");
     });
+
+    /**
+     * created to track issue 1012, but unfortunately the issue itself could not be reproduced.
+     */
+    test("shadow root", function() {
+        const newContainer = support.addDiv("newContainer")
+        newContainer.style.left = "0px"
+        newContainer.style.top = "0px"
+        const shadowRoot = newContainer.attachShadow({mode: 'open'});
+        const canvas = support.addDiv("canvas", shadowRoot)
+
+        canvas.style.outline = "1px solid"
+        canvas.style.width = "1000px";
+        canvas.style.height = "800px";
+        _jsPlumb.setContainer(canvas)
+        const d1 = support.addDiv("d1", canvas, null, 50, 50, 150, 150)
+        d1.style.outline = "1px solid"
+        const d2 = support.addDiv("d2", canvas, null, 350, 350, 150, 150)
+        d2.style.outline = "1px solid"
+
+        var c = _jsPlumb.connect({source:d1, target:d2, anchors:["Bottom", "Top"]})
+        var a1 = c.endpoints[0].anchor.getCurrentLocation()
+        var a2 = c.endpoints[1].anchor.getCurrentLocation()
+        equal(125, a1[0], "anchor 1 x is correct")
+        equal(200, a1[1], "anchor 1 y is correct")
+
+        equal(425, a2[0], "anchor 2 x is correct")
+        equal(350, a2[1], "anchor 2 y is correct")
+
+
+    })
 };
 
