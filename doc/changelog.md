@@ -1,3 +1,15 @@
+## 4.0.0-RC39
+
+### Breaking
+
+- The `container` property of a `Defaults` object, and the `container` method argument on the `setContainer` method, now only support an Element, not the ID of an element. 
+
+## 4.0.0-RC38
+
+25th January 2021
+
+- Various public methods changed to use `Element` instead of `jsPlumbElement` or `jsPlumbDOMElement`.
+
 ## 4.0.0-RC37
 
 23rd January 2021
