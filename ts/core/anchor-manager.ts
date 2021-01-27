@@ -361,7 +361,7 @@ export class AnchorManager<T extends {E:unknown} = any> {
 
                             if (otherEndpoint.anchor.constructor === DynamicAnchor) {
 
-                                otherEndpoint.paint({ elementWithPrecedence: elementId, timestamp: timestamp })
+                                this.instance.paintEndpoint(otherEndpoint, { elementWithPrecedence: elementId, timestamp: timestamp })
 
                                 connectionsToPaint.add(anEndpoint.connections[i])
 
@@ -387,7 +387,7 @@ export class AnchorManager<T extends {E:unknown} = any> {
             // now that continuous anchors have been placed, paint all the endpoints for this element and any other endpoints we came across as a result of the continuous anchors.
             for (let ep of endpointsToPaint) {
                 let cd = this.instance.getCachedData(ep.elementId)
-                ep.paint({ timestamp: timestamp, offset: cd })
+                this.instance.paintEndpoint(ep, { timestamp: timestamp, offset: cd })
             }
 
             // paint all the connections
