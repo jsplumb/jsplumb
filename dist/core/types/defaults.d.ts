@@ -7,7 +7,7 @@ import { Offset, Size } from "./common";
 export interface ListSpec {
     endpoint?: EndpointSpec;
 }
-export interface jsPlumbDefaults {
+export interface jsPlumbDefaults<E> {
     endpoint?: EndpointSpec;
     endpoints?: [EndpointSpec, EndpointSpec];
     anchor?: AnchorSpec;
@@ -23,7 +23,7 @@ export interface jsPlumbDefaults {
     endpointOverlays?: Array<OverlaySpec>;
     connectionOverlays?: Array<OverlaySpec>;
     listStyle?: ListSpec;
-    container?: any;
+    container?: E;
     connector?: ConnectorSpec;
     scope?: string;
     maxConnections?: number;

@@ -5517,7 +5517,7 @@ function (_OverlayCapableCompon) {
     }
   }, {
     key: "detachFrom",
-    value: function detachFrom(targetEndpoint, fireEvent, originalEvent) {
+    value: function detachFrom(targetEndpoint) {
       var c = [];
       for (var i = 0; i < this.connections.length; i++) {
         if (this.connections[i].endpoints[1] === targetEndpoint || this.connections[i].endpoints[0] === targetEndpoint) {
@@ -5607,11 +5607,6 @@ function (_OverlayCapableCompon) {
     value: function setElementId(_elId) {
       this.elementId = _elId;
       this.anchor.elementId = _elId;
-    }
-  }, {
-    key: "setReferenceElement",
-    value: function setReferenceElement(_el) {
-      this.element = this.instance.getElement(_el);
     }
   }, {
     key: "setDragAllowedWhenFull",
@@ -8166,7 +8161,7 @@ function (_EventGenerator) {
   }, {
     key: "setContainer",
     value: function setContainer(c) {
-      this._container = this.getElement(c);
+      this._container = c;
       this.fire(EVENT_CONTAINER_CHANGE, this._container);
     }
   }, {
@@ -8184,7 +8179,7 @@ function (_EventGenerator) {
       var ep,
           _st = stTypes[idx],
           cId = c[_st.elId],
-      sid,
+          sid,
           sep,
           oldEndpoint = c.endpoints[idx];
       var evtParams = {
@@ -8586,7 +8581,7 @@ function (_EventGenerator) {
         });
       }
       for (elId in this.endpointsByElement) {
-        this._draw(this.getElement(elId), null, timestamp, true);
+        this._draw(this._managedElements[elId].el, null, timestamp, true);
       }
       return this;
     }
@@ -8606,7 +8601,7 @@ function (_EventGenerator) {
         });
       };
       if (!this._suspendDrawing) {
-        var _id = this.getId(el);
+        var id = this.getId(el);
         if (el != null) {
           var repaintEls = this._getAssociatedElements(el),
               repaintOffsets = [];
@@ -8615,7 +8610,7 @@ function (_EventGenerator) {
           }
           if (!offsetsWereJustCalculated) {
             this.updateOffset({
-              elId: _id,
+              elId: id,
               offset: ui,
               recalc: false,
               timestamp: timestamp
@@ -8633,7 +8628,7 @@ function (_EventGenerator) {
               repaintOffsets.push(this.viewport.getPosition(reId));
             }
           }
-          _mergeRedraw(this.router.redraw(_id, ui, timestamp, null));
+          _mergeRedraw(this.router.redraw(id, ui, timestamp, null));
           if (repaintEls.length > 0) {
             for (var j = 0; j < repaintEls.length; j++) {
               _mergeRedraw(this.router.redraw(this.getId(repaintEls[j]), repaintOffsets[j], timestamp, null));

@@ -5409,7 +5409,7 @@ function (_OverlayCapableCompon) {
     }
   }, {
     key: "detachFrom",
-    value: function detachFrom(targetEndpoint, fireEvent, originalEvent) {
+    value: function detachFrom(targetEndpoint) {
       var c = [];
       for (var i = 0; i < this.connections.length; i++) {
         if (this.connections[i].endpoints[1] === targetEndpoint || this.connections[i].endpoints[0] === targetEndpoint) {
@@ -5499,11 +5499,6 @@ function (_OverlayCapableCompon) {
     value: function setElementId(_elId) {
       this.elementId = _elId;
       this.anchor.elementId = _elId;
-    }
-  }, {
-    key: "setReferenceElement",
-    value: function setReferenceElement(_el) {
-      this.element = this.instance.getElement(_el);
     }
   }, {
     key: "setDragAllowedWhenFull",
@@ -8058,7 +8053,7 @@ function (_EventGenerator) {
   }, {
     key: "setContainer",
     value: function setContainer(c) {
-      this._container = this.getElement(c);
+      this._container = c;
       this.fire(EVENT_CONTAINER_CHANGE, this._container);
     }
   }, {
@@ -8076,7 +8071,7 @@ function (_EventGenerator) {
       var ep,
           _st = stTypes[idx],
           cId = c[_st.elId],
-      sid,
+          sid,
           sep,
           oldEndpoint = c.endpoints[idx];
       var evtParams = {
@@ -8478,7 +8473,7 @@ function (_EventGenerator) {
         });
       }
       for (elId in this.endpointsByElement) {
-        this._draw(this.getElement(elId), null, timestamp, true);
+        this._draw(this._managedElements[elId].el, null, timestamp, true);
       }
       return this;
     }
@@ -8498,7 +8493,7 @@ function (_EventGenerator) {
         });
       };
       if (!this._suspendDrawing) {
-        var _id = this.getId(el);
+        var id = this.getId(el);
         if (el != null) {
           var repaintEls = this._getAssociatedElements(el),
               repaintOffsets = [];
@@ -8507,7 +8502,7 @@ function (_EventGenerator) {
           }
           if (!offsetsWereJustCalculated) {
             this.updateOffset({
-              elId: _id,
+              elId: id,
               offset: ui,
               recalc: false,
               timestamp: timestamp
@@ -8525,7 +8520,7 @@ function (_EventGenerator) {
               repaintOffsets.push(this.viewport.getPosition(reId));
             }
           }
-          _mergeRedraw(this.router.redraw(_id, ui, timestamp, null));
+          _mergeRedraw(this.router.redraw(id, ui, timestamp, null));
           if (repaintEls.length > 0) {
             for (var j = 0; j < repaintEls.length; j++) {
               _mergeRedraw(this.router.redraw(this.getId(repaintEls[j]), repaintOffsets[j], timestamp, null));
@@ -13353,19 +13348,6 @@ function (_JsPlumbInstance) {
       this.dragManager.removeFilter(filter);
     }
   }, {
-    key: "getElement",
-    value: function getElement(el) {
-      if (el == null) {
-        return null;
-      }
-      return typeof el === "string" ? document.querySelector("[jtk-id='" + el + "'") : el;
-    }
-  }, {
-    key: "getElementById",
-    value: function getElementById(elId) {
-      return document.getElementById(elId);
-    }
-  }, {
     key: "removeElement",
     value: function removeElement(element) {
       element.parentNode && element.parentNode.removeChild(element);
@@ -13539,8 +13521,9 @@ function (_JsPlumbInstance) {
   }, {
     key: "setPosition",
     value: function setPosition(el, p) {
-      el.style.left = p.left + "px";
-      el.style.top = p.top + "px";
+      var jel = el;
+      jel.style.left = p.left + "px";
+      jel.style.top = p.top + "px";
     }
   }, {
     key: "setDraggable",
@@ -13610,12 +13593,11 @@ function (_JsPlumbInstance) {
     }
   }, {
     key: "setContainer",
-    value: function setContainer(c) {
+    value: function setContainer(newContainer) {
       this._detachEventDelegates();
       if (this.dragManager != null) {
         this.dragManager.reset();
       }
-      var newContainer = isString(c) ? this.getElementById(c) : c;
       this.setAttribute(newContainer, ATTRIBUTE_CONTAINER, uuid().replace("-", ""));
       var currentContainer = this.getContainer();
       if (currentContainer != null) {
@@ -14173,6 +14155,7 @@ function (_JsPlumbInstance) {
   }], [{
     key: "getPositionOnElement",
     value: function getPositionOnElement(evt, el, zoom) {
+      var jel = el;
       var box = _typeof(el.getBoundingClientRect) !== UNDEFINED ? el.getBoundingClientRect() : {
         left: 0,
         top: 0,
@@ -14190,8 +14173,8 @@ function (_JsPlumbInstance) {
           top = box.top + scrollTop - clientTop + pst * zoom,
           left = box.left + scrollLeft - clientLeft + psl * zoom,
           cl = _pageLocation(evt),
-          w = box.width || el.offsetWidth * zoom,
-          h = box.height || el.offsetHeight * zoom,
+          w = box.width || jel.offsetWidth * zoom,
+          h = box.height || jel.offsetHeight * zoom,
           x = (cl[0] - left) / w,
           y = (cl[1] - top) / h;
       return [x, y];

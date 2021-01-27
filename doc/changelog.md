@@ -2,7 +2,8 @@
 
 ### Breaking
 
-- The `container` property of a `Defaults` object, and the `container` method argument on the `setContainer` method, now only support an Element, not the ID of an element. 
+- The `container` property of a `Defaults` object, and the `container` method argument on the `setContainer` method, now only support an Element, not the ID of an element.
+- The `getElement` and `getElementById` methods have been removed from `JsPlumbInstance` 
 
 ## 4.0.0-RC38
 

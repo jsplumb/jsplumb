@@ -1,5 +1,6 @@
 import { EndpointSpec, InternalEndpointOptions } from "../endpoint/endpoint";
 import { JsPlumbInstance } from "../core";
+import { AnchorSpec } from "../factory/anchor-factory";
 import { Anchor } from "../anchor/anchor";
 import { OverlayCapableComponent } from "../component/overlay-capable-component";
 import { Connection } from "../connector/connection-impl";
@@ -29,9 +30,9 @@ export declare class Endpoint<E = any> extends OverlayCapableComponent {
     maxConnections: number;
     connectorClass: string;
     connectorHoverClass: string;
-    _originalAnchor: any;
+    _originalAnchor: AnchorSpec;
     deleteAfterDragStop: boolean;
-    finalEndpoint: Endpoint;
+    finalEndpoint: Endpoint<E>;
     enabled: boolean;
     isSource: boolean;
     isTarget: boolean;
@@ -41,7 +42,7 @@ export declare class Endpoint<E = any> extends OverlayCapableComponent {
     connectionsDetachable: boolean;
     reattachConnections: boolean;
     currentAnchorClass: string;
-    referenceEndpoint: Endpoint;
+    referenceEndpoint: Endpoint<E>;
     connectionType: string;
     connector: ConnectorSpec;
     connectorOverlays: Array<OverlaySpec>;
@@ -67,7 +68,7 @@ export declare class Endpoint<E = any> extends OverlayCapableComponent {
      */
     detachFromConnection(connection: Connection, idx?: number, transientDetach?: boolean): void;
     deleteEveryConnection(params?: any): void;
-    detachFrom(targetEndpoint: Endpoint, fireEvent?: boolean, originalEvent?: Event): Endpoint;
+    detachFrom(targetEndpoint: Endpoint): Endpoint;
     setVisible(v: boolean, doNotChangeConnections?: boolean, doNotNotifyOtherEndpoint?: boolean): void;
     applyType(t: any, doNotRepaint: boolean, typeMap: any): void;
     destroy(force?: boolean): void;
@@ -75,7 +76,6 @@ export declare class Endpoint<E = any> extends OverlayCapableComponent {
     isFloating(): boolean;
     isConnectedTo(endpoint: Endpoint): boolean;
     setElementId(_elId: string): void;
-    setReferenceElement(_el: any): void;
     setDragAllowedWhenFull(allowed: boolean): void;
     equals(endpoint: Endpoint): boolean;
     getUuid(): string;

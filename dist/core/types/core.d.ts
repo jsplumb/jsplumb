@@ -67,7 +67,7 @@ export declare abstract class JsPlumbInstance<T extends {
     E: unknown;
 } = any> extends EventGenerator {
     readonly _instanceIndex: number;
-    Defaults: jsPlumbDefaults;
+    Defaults: jsPlumbDefaults<T["E"]>;
     private _initialDefaults;
     isConnectionBeingDragged: boolean;
     currentlyDragging: boolean;
@@ -103,7 +103,7 @@ export declare abstract class JsPlumbInstance<T extends {
     geometry: jsPlumbGeometryHelpers;
     private _zoom;
     get currentZoom(): number;
-    constructor(_instanceIndex: number, defaults?: jsPlumbDefaults, helpers?: jsPlumbHelperFunctions);
+    constructor(_instanceIndex: number, defaults?: jsPlumbDefaults<T["E"]>, helpers?: jsPlumbHelperFunctions);
     getSize(el: T["E"]): Size;
     getOffset(el: T["E"], relativeToRoot?: boolean): Offset;
     getContainer(): any;
@@ -116,7 +116,7 @@ export declare abstract class JsPlumbInstance<T extends {
     getConnections(options?: SelectOptions<T["E"]>, flat?: boolean): Dictionary<Connection> | Array<Connection>;
     select(params?: SelectOptions<T["E"]>): ConnectionSelection;
     selectEndpoints(params?: SelectEndpointOptions<T["E"]>): EndpointSelection;
-    setContainer(c: string | T["E"]): void;
+    setContainer(c: T["E"]): void;
     private _set;
     setSource(connection: Connection, el: T["E"] | Endpoint, doNotRepaint?: boolean): void;
     setTarget(connection: Connection, el: T["E"] | Endpoint, doNotRepaint?: boolean): void;
@@ -259,7 +259,7 @@ export declare abstract class JsPlumbInstance<T extends {
     registerEndpointType(id: string, type: TypeDescriptor): void;
     registerEndpointTypes(types: Dictionary<TypeDescriptor>): void;
     getType(id: string, typeDescriptor: string): TypeDescriptor;
-    importDefaults(d: jsPlumbDefaults): JsPlumbInstance;
+    importDefaults(d: jsPlumbDefaults<T["E"]>): JsPlumbInstance;
     restoreDefaults(): JsPlumbInstance;
     getManagedElements(): Dictionary<ManagedElement<T["E"]>>;
     proxyConnection(connection: Connection, index: number, proxyEl: T["E"], proxyElId: string, endpointGenerator: any, anchorGenerator: any): void;
@@ -275,8 +275,6 @@ export declare abstract class JsPlumbInstance<T extends {
     removeGroup(group: string | UIGroup<T["E"]>, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): void;
     removeAllGroups(deleteMembers?: boolean, manipulateView?: boolean): void;
     removeFromGroup(group: string | UIGroup<T["E"]>, ...el: Array<T["E"]>): void;
-    abstract getElement(el: T["E"] | string): T["E"];
-    abstract getElementById(id: string): T["E"];
     abstract removeElement(el: T["E"]): void;
     abstract appendElement(el: T["E"], parent: T["E"]): void;
     abstract getChildElements(el: T["E"]): Array<T["E"]>;
@@ -307,8 +305,8 @@ export declare abstract class JsPlumbInstance<T extends {
     abstract updateLabel(o: LabelOverlay): void;
     abstract drawOverlay(overlay: Overlay, component: any, paintStyle: PaintStyle, absolutePosition?: PointArray): any;
     abstract moveOverlayParent(o: Overlay, newParent: any): void;
-    abstract reattachOverlay(o: Overlay, c: OverlayCapableComponent): any;
-    abstract setOverlayHover(o: Overlay, hover: boolean): any;
+    abstract reattachOverlay(o: Overlay, c: OverlayCapableComponent): void;
+    abstract setOverlayHover(o: Overlay, hover: boolean): void;
     abstract setHover(component: Component, hover: boolean): void;
     abstract paintConnector(connector: AbstractConnector, paintStyle: PaintStyle, extents?: any): void;
     abstract destroyConnection(connection: Connection, force?: boolean): void;

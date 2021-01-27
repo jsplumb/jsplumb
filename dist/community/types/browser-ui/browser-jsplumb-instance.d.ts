@@ -42,7 +42,7 @@ export interface DragOptions {
     cursor?: string;
     zIndex?: number;
 }
-export interface BrowserJsPlumbDefaults extends jsPlumbDefaults {
+export interface BrowserJsPlumbDefaults extends jsPlumbDefaults<Element> {
     /**
      * Whether or not elements should be draggable. Default value is `true`.
      */
@@ -117,9 +117,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     constructor(_instanceIndex: number, defaults?: BrowserJsPlumbDefaults, helpers?: jsPlumbHelperFunctions);
     addDragFilter(filter: Function | string, exclude?: boolean): void;
     removeDragFilter(filter: Function | string): void;
-    getElement(el: Element | string): Element;
-    getElementById(elId: string): Element;
-    removeElement(element: any): void;
+    removeElement(element: Element): void;
     appendElement(el: Element, parent: Element): void;
     getChildElements(el: Element): Array<Element>;
     _getAssociatedElements(el: Element): Array<Element>;
@@ -141,14 +139,14 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     _getSize(el: Element): Size;
     getStyle(el: Element, prop: string): any;
     getSelector(ctx: string | Element, spec: string): NodeListOf<jsPlumbDOMElement>;
-    setPosition(el: HTMLElement, p: Offset): void;
-    static getPositionOnElement(evt: Event, el: HTMLElement, zoom: number): PointArray;
+    setPosition(el: Element, p: Offset): void;
+    static getPositionOnElement(evt: Event, el: Element, zoom: number): PointArray;
     setDraggable(element: Element, draggable: boolean): void;
     isDraggable(el: Element): boolean;
     toggleDraggable(el: Element): boolean;
     private _attachEventDelegates;
     private _detachEventDelegates;
-    setContainer(c: string | Element): void;
+    setContainer(newContainer: Element): void;
     reset(silently?: boolean): void;
     destroy(): void;
     unmanage(el: Element, removeElement?: boolean): void;
@@ -213,8 +211,8 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     paintOverlay(o: Overlay, params: any, extents: any): void;
     setOverlayVisible(o: Overlay, visible: boolean): void;
     moveOverlayParent(o: Overlay, newParent: HTMLElement): void;
-    reattachOverlay(o: Overlay, c: OverlayCapableComponent): any;
-    setOverlayHover(o: Overlay, hover: boolean): any;
+    reattachOverlay(o: Overlay, c: OverlayCapableComponent): void;
+    setOverlayHover(o: Overlay, hover: boolean): void;
     destroyOverlay(o: Overlay): void;
     drawOverlay(o: Overlay, component: any, paintStyle: PaintStyle, absolutePosition?: [number, number]): any;
     updateLabel(o: LabelOverlay): void;
