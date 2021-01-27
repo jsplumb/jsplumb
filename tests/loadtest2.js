@@ -105,7 +105,7 @@
                 actuallyPaint = val("input[name='chkPaint']:checked") === "yes";
 
             instance.importDefaults({
-                container: "demo",
+                container: demo,
                 overlays:[ "Arrow" ]
             });
 
