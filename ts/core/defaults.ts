@@ -9,7 +9,7 @@ export interface ListSpec {
     endpoint?: EndpointSpec
 }
 
-export interface jsPlumbDefaults {
+export interface jsPlumbDefaults<E> {
     endpoint?: EndpointSpec
     endpoints?: [ EndpointSpec, EndpointSpec ]
     anchor?: AnchorSpec
@@ -30,7 +30,7 @@ export interface jsPlumbDefaults {
 
     listStyle?: ListSpec
 
-    container?: any; // string(selector or id) or element
+    container?: E
     connector?:ConnectorSpec
     scope?:string
 
