@@ -153,8 +153,8 @@ const ID_ATTRIBUTE = Constants.JTK_ID
 
 export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends EventGenerator {
 
-    Defaults:jsPlumbDefaults
-    private _initialDefaults:jsPlumbDefaults = {}
+    Defaults:jsPlumbDefaults<T["E"]>
+    private _initialDefaults:jsPlumbDefaults<T["E"]> = {}
 
     isConnectionBeingDragged:boolean = false
     currentlyDragging:boolean = false
@@ -201,7 +201,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     private _zoom:number = 1
     get currentZoom() { return  this._zoom }
 
-    constructor(public readonly _instanceIndex:number, defaults?:jsPlumbDefaults, helpers?:jsPlumbHelperFunctions) {
+    constructor(public readonly _instanceIndex:number, defaults?:jsPlumbDefaults<T["E"]>, helpers?:jsPlumbHelperFunctions) {
 
         super()
 
@@ -424,10 +424,8 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return new EndpointSelection(this, ep)
     }
 
-    setContainer(c:string | T["E"]):void {
-        // get container as element and set container.
-        this._container = this.getElement(c)
-        // tell people.
+    setContainer(c:T["E"]):void {
+        this._container = c
         this.fire(Constants.EVENT_CONTAINER_CHANGE, this._container)
     }
 
@@ -438,7 +436,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             { el: "target", elId: "targetId", epDefs: Constants.TARGET_DEFINITION_LIST }
         ]
 
-        let ep, _st = stTypes[idx], cId = c[_st.elId], /*cEl = c[_st.el],*/ sid, sep,
+        let ep, _st = stTypes[idx], cId = c[_st.elId], sid, sep,
             oldEndpoint = c.endpoints[idx]
 
         let evtParams = {
@@ -1728,7 +1726,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return typeDescriptor === "connection" ? this._connectionTypes.get(id) : this._endpointTypes.get(id)
     }
 
-    importDefaults(d:jsPlumbDefaults):JsPlumbInstance {
+    importDefaults(d:jsPlumbDefaults<T["E"]>):JsPlumbInstance {
         for (let i in d) {
             this.Defaults[i] = d[i]
         }
