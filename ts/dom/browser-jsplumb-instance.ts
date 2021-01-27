@@ -422,19 +422,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         this.dragManager.removeFilter(filter)
     }
 
-    getElement(el:Element|string):Element {
-        if (el == null) {
-            return null
-        }
-
-        return (typeof el === "string" ? document.querySelector("[jtk-id='" + el + "'") : el) as jsPlumbDOMElement
-    }
-
-    getElementById(elId: string): Element {
-        return document.getElementById(elId)
-    }
-
-    removeElement(element:any):void {
+    removeElement(element:Element):void {
         element.parentNode && element.parentNode.removeChild(element)
     }
 
@@ -591,12 +579,14 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         return sel
     }
 
-    setPosition(el:HTMLElement, p:Offset):void {
-        el.style.left = p.left + "px"
-        el.style.top = p.top + "px"
+    setPosition(el:Element, p:Offset):void {
+        const jel = el as jsPlumbDOMElement
+        jel.style.left = p.left + "px"
+        jel.style.top = p.top + "px"
     }
 
-    static getPositionOnElement(evt:Event, el:HTMLElement, zoom:number):PointArray {
+    static getPositionOnElement(evt:Event, el:Element, zoom:number):PointArray {
+        const jel = el as jsPlumbDOMElement
         let box:any = typeof el.getBoundingClientRect !== UNDEFINED ? el.getBoundingClientRect() : { left: 0, top: 0, width: 0, height: 0 },
             body = document.body,
             docElem = document.documentElement,
@@ -609,8 +599,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             top = box.top + scrollTop - clientTop + (pst * zoom),
             left = box.left + scrollLeft - clientLeft + (psl * zoom),
             cl = _pageLocation(evt),
-            w = box.width || (el.offsetWidth * zoom),
-            h = box.height || (el.offsetHeight * zoom),
+            w = box.width || (jel.offsetWidth * zoom),
+            h = box.height || (jel.offsetHeight * zoom),
             x = (cl[0] - left) / w,
             y = (cl[1] - top) / h
 
@@ -694,13 +684,12 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
     }
 
-    setContainer(c: string|Element): void {
+
+    setContainer(newContainer: Element): void {
         this._detachEventDelegates()
         if (this.dragManager != null) {
             this.dragManager.reset()
         }
-
-        const newContainer = isString(c) ?  this.getElementById(c as string) : c as Element
 
         this.setAttribute(newContainer, ATTRIBUTE_CONTAINER, uuid().replace("-", ""))
 
@@ -964,7 +953,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         // }
     }
 
-    reattachOverlay(o: Overlay, c: OverlayCapableComponent): any {
+    reattachOverlay(o: Overlay, c: OverlayCapableComponent): void {
         if (isLabelOverlay(o)) {
             o.instance.appendElement(getLabelElement(o), this.getContainer())
         } else if (isCustomOverlay(o)) {
@@ -975,7 +964,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
     }
 
-    setOverlayHover(o: Overlay, hover: boolean): any {
+    setOverlayHover(o: Overlay, hover: boolean): void {
 
         const method = hover ? "addClass" : "removeClass"
         let canvas:Element
@@ -1014,12 +1003,13 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
     }
 
+    // TODO remove `any` here,
     drawOverlay(o: Overlay, component: any, paintStyle: PaintStyle, absolutePosition?: [number, number]): any {
         if (o.type === LabelOverlay.labelType || o.type === CustomOverlay.customType) {
 
             //  TO DO - move to a static method, or a shared method, etc.  (? future me doesnt know what that means.)
 
-            let td = HTMLElementOverlay._getDimensions(o as any);//._getDimensions()
+            let td = HTMLElementOverlay._getDimensions(o as any);
             if (td != null && td.length === 2) {
 
                 let cxy = {x: 0, y: 0}
@@ -1096,6 +1086,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
     // ------------------------------- connectors ---------------------------------------------------------
 
+    // TODO what is the type of `extents` ?
     paintConnector(connector:AbstractConnector, paintStyle:PaintStyle, extents?:any):void {
         SvgElementConnector.paint(connector, paintStyle, extents)
     }

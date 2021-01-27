@@ -902,7 +902,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         }
 
         for (elId in this.endpointsByElement) {
-            this._draw(this.getElement(elId), null, timestamp, true)
+            this._draw(this._managedElements[elId].el, null, timestamp, true)
         }
 
         return this
@@ -1874,8 +1874,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         })
     }
 
-    abstract getElement(el:T["E"]|string):T["E"]
-    abstract getElementById(id:string):T["E"]
     abstract removeElement(el:T["E"]):void
     abstract appendElement (el:T["E"], parent:T["E"]):void
     abstract getChildElements(el:T["E"]):Array<T["E"]>
@@ -1915,8 +1913,9 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     abstract updateLabel(o:LabelOverlay):void
     abstract drawOverlay(overlay:Overlay, component:any, paintStyle:PaintStyle, absolutePosition?:PointArray):any
     abstract moveOverlayParent(o:Overlay, newParent:any):void
-    abstract reattachOverlay(o:Overlay, c:OverlayCapableComponent):any
-    abstract setOverlayHover(o:Overlay, hover:boolean):any
+    abstract reattachOverlay(o:Overlay, c:OverlayCapableComponent):void
+
+    abstract setOverlayHover(o:Overlay, hover:boolean):void
 
     abstract setHover(component:Component, hover:boolean):void
 
