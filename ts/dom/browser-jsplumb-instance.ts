@@ -148,7 +148,7 @@ export interface DragOptions {
     zIndex?: number
 }
 
-export interface BrowserJsPlumbDefaults extends jsPlumbDefaults {
+export interface BrowserJsPlumbDefaults extends jsPlumbDefaults<Element> {
     /**
      * Whether or not elements should be draggable. Default value is `true`.
      */
