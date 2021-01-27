@@ -1,5 +1,5 @@
 import {PaintStyle} from "../styles"
-import  { Dictionary, Timestamp, TypeDescriptor, PointXY} from '../common'
+import  { Dictionary, TypeDescriptor, PointXY} from '../common'
 import { JsPlumbInstance } from "../core"
 import { extend, log, merge, populate } from "../util"
 import {EventGenerator} from "../event-generator"
@@ -26,7 +26,7 @@ const DEFAULT_TYPE_KEY = "__default"
 const ANCHOR = "anchor"
 const ANCHORS = "anchors"
 
-function _applyTypes<E>(component:Component, params?:any, doNotRepaint?:boolean) {
+function _applyTypes<E>(component:Component, params?:any) {
     if (component.getDefaultType) {
         let td = component.getTypeDescriptor(), map = {}
         let defType = component.getDefaultType()
@@ -57,10 +57,7 @@ function _applyTypes<E>(component:Component, params?:any, doNotRepaint?:boolean)
             o = populate(o, params, "_")
         }
 
-        component.applyType(o, doNotRepaint, map)
-        if (!doNotRepaint) {
-            component.paint()
-        }
+        component.applyType(o, map)
     }
 }
 
@@ -198,8 +195,6 @@ export abstract class Component extends EventGenerator {
         }
     }
 
-    abstract paint(params?:any):any
-
     isDetachAllowed(connection:Connection):boolean {
         let r = true
         if (this.beforeDetach) {
@@ -261,25 +256,25 @@ export abstract class Component extends EventGenerator {
         return this._typeCache[typeId] ? this._typeCache[typeId][key] : null
     }
 
-    setType(typeId:string, params?:any, doNotRepaint?:boolean) {
+    setType(typeId:string, params?:any) {
         this.clearTypes()
         this._types = _splitType(typeId) || []
-        _applyTypes(this, params, doNotRepaint)
+        _applyTypes(this, params)
     }
 
     getType():string[] {
         return this._types
     }
 
-    reapplyTypes(params?:any, doNotRepaint?:boolean) {
-        _applyTypes(this, params, doNotRepaint)
+    reapplyTypes(params?:any) {
+        _applyTypes(this, params)
     }
 
     hasType(typeId:string):boolean {
         return this._types.indexOf(typeId) !== -1
     }
 
-    addType(typeId:string, params?:any, doNotRepaint?:boolean):void {
+    addType(typeId:string, params?:any):void {
         let t = _splitType(typeId), _somethingAdded = false
         if (t != null) {
             for (let i = 0, j = t.length; i < j; i++) {
@@ -289,12 +284,12 @@ export abstract class Component extends EventGenerator {
                 }
             }
             if (_somethingAdded) {
-                _applyTypes(this, params, doNotRepaint)
+                _applyTypes(this, params)
             }
         }
     }
 
-    removeType(typeId:string, params?:any, doNotRepaint?:boolean) {
+    removeType(typeId:string, params?:any) {
         let t = _splitType(typeId), _cont = false, _one = (tt:string) =>{
             let idx = this._types.indexOf(tt)
             if (idx !== -1) {
@@ -311,7 +306,7 @@ export abstract class Component extends EventGenerator {
                 _cont = _one(t[i]) || _cont
             }
             if (_cont) {
-                _applyTypes(this, params, doNotRepaint)
+                _applyTypes(this, params)
             }
         }
     }
@@ -322,10 +317,10 @@ export abstract class Component extends EventGenerator {
             _removeTypeCssHelper(this, 0)
             this._types.splice(0, 1)
         }
-        _applyTypes(this, params, doNotRepaint)
+        _applyTypes(this, params)
     }
 
-    toggleType(typeId:string, params?:any, doNotRepaint?:boolean) {
+    toggleType(typeId:string, params?:any) {
         let t = _splitType(typeId)
         if (t != null) {
             for (let i = 0, j = t.length; i < j; i++) {
@@ -339,13 +334,13 @@ export abstract class Component extends EventGenerator {
                 }
             }
 
-            _applyTypes(this, params, doNotRepaint)
+            _applyTypes(this, params)
         }
     }
 
-    applyType(t:TypeDescriptor, doNotRepaint?:boolean, params?:any):void {
-        this.setPaintStyle(t.paintStyle, doNotRepaint)
-        this.setHoverPaintStyle(t.hoverPaintStyle, doNotRepaint)
+    applyType(t:TypeDescriptor, params?:any):void {
+        this.setPaintStyle(t.paintStyle)
+        this.setHoverPaintStyle(t.hoverPaintStyle)
         if (t.parameters) {
             for (let i in t.parameters) {
                 this.setParameter(i, t.parameters[i])
@@ -354,26 +349,20 @@ export abstract class Component extends EventGenerator {
         this.paintStyleInUse = this.getPaintStyle()
     }
 
-    setPaintStyle(style:PaintStyle, doNotRepaint?:boolean):void {
+    setPaintStyle(style:PaintStyle):void {
 
         this.paintStyle = style
         this.paintStyleInUse = this.paintStyle
         _updateHoverStyle(this)
-        if (!doNotRepaint) {
-            this.paint()
-        }
     }
 
     getPaintStyle():PaintStyle {
         return this.paintStyle
     }
 
-    setHoverPaintStyle(style:PaintStyle, doNotRepaint?:boolean) {
+    setHoverPaintStyle(style:PaintStyle) {
         this.hoverPaintStyle = style
         _updateHoverStyle(this)
-        if (!doNotRepaint) {
-            this.paint()
-        }
     }
 
     getHoverPaintStyle():PaintStyle {
