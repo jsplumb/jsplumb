@@ -7,9 +7,7 @@ import { Connection } from "../connector/connection-impl";
 import { PaintStyle } from "../styles";
 import { ConnectorSpec } from "../connector/abstract-connector";
 import { EndpointRepresentation } from "./endpoints";
-import { AnchorPlacement } from "../anchor-manager";
 import { OverlaySpec } from '../overlay/overlay';
-import { ViewportElement } from "../viewport";
 export declare class Endpoint<E = any> extends OverlayCapableComponent {
     instance: JsPlumbInstance;
     getIdPrefix(): string;
@@ -57,8 +55,8 @@ export declare class Endpoint<E = any> extends OverlayCapableComponent {
     constructor(instance: JsPlumbInstance, params: InternalEndpointOptions<E>);
     private _updateAnchorClass;
     private prepareAnchor;
-    setPreparedAnchor(anchor: Anchor, doNotRepaint?: boolean): Endpoint;
-    setAnchor(anchorParams: any, doNotRepaint?: boolean): Endpoint;
+    setPreparedAnchor(anchor: Anchor): Endpoint;
+    setAnchor(anchorParams: any): Endpoint;
     addConnection(conn: Connection): void;
     /**
      * Detaches this Endpoint from the given Connection.  If `deleteOnEmpty` is set to true and there are no
@@ -70,7 +68,7 @@ export declare class Endpoint<E = any> extends OverlayCapableComponent {
     deleteEveryConnection(params?: any): void;
     detachFrom(targetEndpoint: Endpoint): Endpoint;
     setVisible(v: boolean, doNotChangeConnections?: boolean, doNotNotifyOtherEndpoint?: boolean): void;
-    applyType(t: any, doNotRepaint: boolean, typeMap: any): void;
+    applyType(t: any, typeMap: any): void;
     destroy(force?: boolean): void;
     isFull(): boolean;
     isFloating(): boolean;
@@ -80,14 +78,6 @@ export declare class Endpoint<E = any> extends OverlayCapableComponent {
     equals(endpoint: Endpoint): boolean;
     getUuid(): string;
     connectorSelector(): Connection;
-    paint(params: {
-        timestamp?: string;
-        offset?: ViewportElement;
-        recalc?: boolean;
-        elementWithPrecedence?: string;
-        connectorPaintStyle?: PaintStyle;
-        anchorLoc?: AnchorPlacement;
-    }): void;
     prepareEndpoint<C>(ep: EndpointSpec | EndpointRepresentation<C>, typeId?: string): EndpointRepresentation<C>;
     setEndpoint(ep: EndpointSpec): void;
     setPreparedEndpoint<C>(ep: EndpointRepresentation<C>): void;

@@ -20,14 +20,14 @@ export declare abstract class OverlayCapableComponent extends Component {
         maxY: number;
     }>;
     constructor(instance: JsPlumbInstance, params: OverlayComponentOptions);
-    addOverlay(overlay: OverlaySpec, doNotRepaint?: boolean): Overlay;
+    addOverlay(overlay: OverlaySpec): Overlay;
     getOverlay(id: string): Overlay;
     getOverlays(): Dictionary<Overlay>;
     hideOverlay(id: string): void;
     hideOverlays(): void;
     showOverlay(id: string): void;
     showOverlays(): void;
-    removeAllOverlays(doNotRepaint?: boolean): void;
+    removeAllOverlays(): void;
     removeOverlay(overlayId: string, dontCleanup?: boolean): void;
     removeOverlays(...overlays: string[]): void;
     getLabel(): string;
@@ -40,5 +40,5 @@ export declare abstract class OverlayCapableComponent extends Component {
     private _clazzManip;
     addClass(clazz: string, dontUpdateOverlays?: boolean): void;
     removeClass(clazz: string, dontUpdateOverlays?: boolean): void;
-    applyType(t: any, doNotRepaint: boolean, typeMap: any): void;
+    applyType(t: any, typeMap: any): void;
 }

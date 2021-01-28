@@ -1,12 +1,12 @@
 import { Anchor, AnchorComputeParams, AnchorOptions, AnchorPlacement, Endpoint, JsPlumbInstance, Orientation, Size } from "@jsplumb/community-core";
 export interface FloatingAnchorOptions extends AnchorOptions {
     reference: Anchor;
-    referenceCanvas: HTMLElement;
+    referenceCanvas: Element;
 }
 export declare class FloatingAnchor extends Anchor {
     instance: JsPlumbInstance;
     ref: Anchor;
-    refCanvas: HTMLElement;
+    refCanvas: Element;
     size: Size;
     xDir: number;
     yDir: number;

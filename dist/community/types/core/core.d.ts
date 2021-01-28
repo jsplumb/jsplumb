@@ -275,6 +275,14 @@ export declare abstract class JsPlumbInstance<T extends {
     removeGroup(group: string | UIGroup<T["E"]>, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): void;
     removeAllGroups(deleteMembers?: boolean, manipulateView?: boolean): void;
     removeFromGroup(group: string | UIGroup<T["E"]>, ...el: Array<T["E"]>): void;
+    paintEndpoint(endpoint: Endpoint, params: {
+        timestamp?: string;
+        offset?: ViewportElement;
+        recalc?: boolean;
+        elementWithPrecedence?: string;
+        connectorPaintStyle?: PaintStyle;
+        anchorLoc?: AnchorPlacement;
+    }): void;
     abstract removeElement(el: T["E"]): void;
     abstract appendElement(el: T["E"], parent: T["E"]): void;
     abstract getChildElements(el: T["E"]): Array<T["E"]>;
@@ -304,7 +312,6 @@ export declare abstract class JsPlumbInstance<T extends {
     abstract destroyOverlay(o: Overlay, force?: boolean): void;
     abstract updateLabel(o: LabelOverlay): void;
     abstract drawOverlay(overlay: Overlay, component: any, paintStyle: PaintStyle, absolutePosition?: PointArray): any;
-    abstract moveOverlayParent(o: Overlay, newParent: any): void;
     abstract reattachOverlay(o: Overlay, c: OverlayCapableComponent): void;
     abstract setOverlayHover(o: Overlay, hover: boolean): void;
     abstract setHover(component: Component, hover: boolean): void;
@@ -319,7 +326,7 @@ export declare abstract class JsPlumbInstance<T extends {
     abstract applyEndpointType(ep: Endpoint<T>, t: TypeDescriptor): void;
     abstract setEndpointVisible(ep: Endpoint<T>, v: boolean): void;
     abstract destroyEndpoint(ep: Endpoint<T>): void;
-    abstract paintEndpoint(ep: Endpoint<T>, paintStyle: PaintStyle): void;
+    abstract renderEndpoint(ep: Endpoint<T>, paintStyle: PaintStyle): void;
     abstract addEndpointClass(ep: Endpoint<T>, c: string): void;
     abstract removeEndpointClass(ep: Endpoint<T>, c: string): void;
     abstract getEndpointClass(ep: Endpoint<T>): string;

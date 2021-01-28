@@ -1065,7 +1065,7 @@
       source: sourceElement,
       scope: scope
     });
-    ep.paint({});
+    instance.paintEndpoint(ep, {});
     return ep;
   }
   function selectorFilter(evt, _el, selector, _instance, negate) {
@@ -1503,7 +1503,7 @@
             }
           }
           this.currentDropTarget = newDropTarget;
-          this.ep.paint({
+          this.instance.paintEndpoint(this.ep, {
             anchorLoc: this.ep.anchor.getCurrentLocation({
               element: this.ep
             })
@@ -1627,7 +1627,7 @@
             if (dropEndpoint.deleteAfterDragStop) {
               this.instance.deleteEndpoint(dropEndpoint);
             } else {
-              dropEndpoint.paint({
+              this.instance.paintEndpoint(dropEndpoint, {
                 recalc: false
               });
             }
@@ -1833,7 +1833,8 @@
         }
         if (this.jpc.endpoints[0]._originalAnchor) {
           var newSourceAnchor = communityCore.makeAnchorFromSpec(this.instance, this.jpc.endpoints[0]._originalAnchor, this.jpc.endpoints[0].elementId);
-          this.jpc.endpoints[0].setAnchor(newSourceAnchor, true);
+          this.jpc.endpoints[0].setAnchor(newSourceAnchor
+          );
           delete this.jpc.endpoints[0]._originalAnchor;
         }
         this.instance._finaliseConnection(this.jpc, null, originalEvent);
@@ -3262,14 +3263,22 @@
     return Collicat;
   }();
 
+  var SupportedEdge;
+  (function (SupportedEdge) {
+    SupportedEdge[SupportedEdge["top"] = 0] = "top";
+    SupportedEdge[SupportedEdge["bottom"] = 1] = "bottom";
+  })(SupportedEdge || (SupportedEdge = {}));
+  var DEFAULT_ANCHOR_LOCATIONS = new Map();
+  DEFAULT_ANCHOR_LOCATIONS.set(SupportedEdge.top, ["TopRight", "TopLeft"]);
+  DEFAULT_ANCHOR_LOCATIONS.set(SupportedEdge.bottom, ["BottomRight", "BottomLeft"]);
   var DEFAULT_LIST_OPTIONS = {
     deriveAnchor: function deriveAnchor(edge, index, ep, conn) {
-      return {
-        top: ["TopRight", "TopLeft"],
-        bottom: ["BottomRight", "BottomLeft"]
-      }[edge][index];
+      return DEFAULT_ANCHOR_LOCATIONS.get(edge)[index];
     }
   };
+  var ATTR_SCROLLABLE_LIST = "jtk-scrollable-list";
+  var SELECTOR_SCROLLABLE_LIST = "[" + ATTR_SCROLLABLE_LIST + "]";
+  var EVENT_SCROLL = "scroll";
   var jsPlumbListManager =
   function () {
     function jsPlumbListManager(instance, params) {
@@ -3282,19 +3291,25 @@
       this.count = 0;
       this.lists = {};
       this.options = params || {};
-      this.instance.bind("manageElement", function (p) {
-        var scrollableLists = _this.instance.getSelector(p.el, "[jtk-scrollable-list]");
+      this.instance.bind(communityCore.EVENT_MANAGE_ELEMENT, function (p) {
+        var scrollableLists = _this.instance.getSelector(p.el, SELECTOR_SCROLLABLE_LIST);
         for (var i = 0; i < scrollableLists.length; i++) {
           _this.addList(scrollableLists[i]);
         }
       });
-      this.instance.bind("unmanageElement", function (p) {
+      this.instance.bind(communityCore.EVENT_UNMANAGE_ELEMENT, function (p) {
         _this.removeList(p.el);
       });
-      this.instance.bind("connection", function (c, evt) {
+      this.instance.bind(communityCore.EVENT_CONNECTION, function (params, evt) {
         if (evt == null) {
-          _this._maybeUpdateParentList(c.source);
-          _this._maybeUpdateParentList(c.target);
+          var targetParent = _this.findParentList(params.target);
+          if (targetParent != null) {
+            targetParent.newConnection(params.connection, params.target, 1);
+          }
+          var sourceParent = _this.findParentList(params.source);
+          if (sourceParent != null) {
+            sourceParent.newConnection(params.connection, params.source, 0);
+          }
         }
       });
     }
@@ -3318,14 +3333,13 @@
         }
       }
     }, {
-      key: "_maybeUpdateParentList",
-      value: function _maybeUpdateParentList(el) {
+      key: "findParentList",
+      value: function findParentList(el) {
         var parent = el.parentNode,
             container = this.instance.getContainer();
         while (parent != null && parent !== container) {
           if (parent._jsPlumbList != null && this.lists[parent._jsPlumbList] != null) {
-            parent._jsPlumbScrollHandler && parent._jsPlumbScrollHandler();
-            return;
+            return this.lists[parent._jsPlumbList];
           }
           parent = parent.parentNode;
         }
@@ -3342,12 +3356,14 @@
       this.options = options;
       _defineProperty(this, "_scrollHandler", void 0);
       _defineProperty(this, "domElement", void 0);
+      _defineProperty(this, "elId", void 0);
       this.domElement = el;
       this.domElement._jsPlumbList = id;
-      instance.setAttribute(el, "jtk-scrollable-list", "true");
+      this.elId = this.instance.getId(el);
+      instance.setAttribute(el, ATTR_SCROLLABLE_LIST, communityCore.TRUE);
       this._scrollHandler = this.scrollHandler.bind(this);
       this.domElement._jsPlumbScrollHandler = this._scrollHandler;
-      instance.on(el, "scroll", this._scrollHandler);
+      instance.on(el, EVENT_SCROLL, this._scrollHandler);
       this._scrollHandler();
     }
     _createClass(jsPlumbList, [{
@@ -3361,10 +3377,23 @@
         return this.options.deriveEndpoint ? this.options.deriveEndpoint(edge, index, ep, conn) : this.options.endpoint ? this.options.endpoint : ep.endpoint.getType();
       }
     }, {
+      key: "newConnection",
+      value: function newConnection(c, el, index) {
+        if (el.offsetTop < this.el.scrollTop) {
+          if (!el._jsPlumbProxies) {
+            this._proxyConnection(el, c, index, this.instance.getId(this.el), SupportedEdge.top);
+          }
+        } else if (el.offsetTop + el.offsetHeight > this.el.scrollTop + this.domElement.offsetHeight) {
+          if (!el._jsPlumbProxies) {
+            this._proxyConnection(el, c, index, this.instance.getId(this.el), SupportedEdge.bottom);
+          }
+        }
+      }
+    }, {
       key: "scrollHandler",
       value: function scrollHandler() {
         var _this2 = this;
-        var children = this.instance.getSelector(this.el, "[jtk-managed]");
+        var children = this.instance.getSelector(this.el, communityCore.SELECTOR_MANAGED_ELEMENT);
         var elId = this.instance.getId(this.el);
         var _loop = function _loop(i) {
           if (children[i].offsetTop < _this2.el.scrollTop) {
@@ -3373,22 +3402,12 @@
               _this2.instance.select({
                 source: children[i]
               }).each(function (c) {
-                _this2.instance.proxyConnection(c, 0, _this2.domElement, elId, function () {
-                  return _this2.deriveEndpoint("top", 0, c.endpoints[0], c);
-                }, function () {
-                  return _this2.deriveAnchor("top", 0, c.endpoints[0], c);
-                });
-                children[i]._jsPlumbProxies.push([c, 0]);
+                _this2._proxyConnection(children[i], c, 0, elId, SupportedEdge.top);
               });
               _this2.instance.select({
                 target: children[i]
               }).each(function (c) {
-                _this2.instance.proxyConnection(c, 1, _this2.domElement, elId, function () {
-                  return _this2.deriveEndpoint("top", 1, c.endpoints[1], c);
-                }, function () {
-                  return _this2.deriveAnchor("top", 1, c.endpoints[1], c);
-                });
-                children[i]._jsPlumbProxies.push([c, 1]);
+                _this2._proxyConnection(children[i], c, 1, elId, SupportedEdge.top);
               });
             }
           }
@@ -3398,22 +3417,12 @@
                 _this2.instance.select({
                   source: children[i]
                 }).each(function (c) {
-                  _this2.instance.proxyConnection(c, 0, _this2.domElement, elId, function () {
-                    return _this2.deriveEndpoint("bottom", 0, c.endpoints[0], c);
-                  }, function () {
-                    return _this2.deriveAnchor("bottom", 0, c.endpoints[0], c);
-                  });
-                  children[i]._jsPlumbProxies.push([c, 0]);
+                  _this2._proxyConnection(children[i], c, 0, elId, SupportedEdge.bottom);
                 });
                 _this2.instance.select({
                   target: children[i]
                 }).each(function (c) {
-                  _this2.instance.proxyConnection(c, 1, _this2.domElement, elId, function () {
-                    return _this2.deriveEndpoint("bottom", 1, c.endpoints[1], c);
-                  }, function () {
-                    return _this2.deriveAnchor("bottom", 1, c.endpoints[1], c);
-                  });
-                  children[i]._jsPlumbProxies.push([c, 1]);
+                  _this2._proxyConnection(children[i], c, 1, elId, SupportedEdge.bottom);
                 });
               }
             } else if (children[i]._jsPlumbProxies) {
@@ -3429,16 +3438,26 @@
         }
       }
     }, {
+      key: "_proxyConnection",
+      value: function _proxyConnection(el, conn, index, elId, edge) {
+        var _this3 = this;
+        this.instance.proxyConnection(conn, index, this.domElement, elId, function () {
+          return _this3.deriveEndpoint(edge, index, conn.endpoints[index], conn);
+        }, function () {
+          return _this3.deriveAnchor(edge, index, conn.endpoints[index], conn);
+        });
+        el._jsPlumbProxies.push([conn, index]);
+      }
+    }, {
       key: "destroy",
       value: function destroy() {
-        this.instance.off(this.el, "scroll", this._scrollHandler);
+        this.instance.off(this.el, EVENT_SCROLL, this._scrollHandler);
         delete this.domElement._jsPlumbScrollHandler;
-        var children = this.instance.getSelector(this.el, "[jtk-managed]");
-        var elId = this.instance.getId(this.el);
+        var children = this.instance.getSelector(this.el, communityCore.SELECTOR_MANAGED_ELEMENT);
         for (var i = 0; i < children.length; i++) {
           if (children[i]._jsPlumbProxies) {
             for (var j = 0; j < children[i]._jsPlumbProxies.length; j++) {
-              this.instance.unproxyConnection(children[i]._jsPlumbProxies[j][0], children[i]._jsPlumbProxies[j][1], elId);
+              this.instance.unproxyConnection(children[i]._jsPlumbProxies[j][0], children[i]._jsPlumbProxies[j][1], this.elId);
             }
             delete children[i]._jsPlumbProxies;
           }
@@ -3740,6 +3759,7 @@
           ep.instance.addClass(canvas, ep.instance.endpointClass);
           canvas.jtk = canvas.jtk || {};
           canvas.jtk.endpoint = ep.endpoint;
+          canvas.style.display = ep.endpoint.visible !== false ? "block" : "none";
           return canvas;
         }
       }
@@ -4430,21 +4450,18 @@
     }, {
       key: "setOverlayVisible",
       value: function setOverlayVisible(o, visible) {
-        if (communityCore.isLabelOverlay(o)) {
-          getLabelElement(o).style.display = visible ? "block" : "none";
-        } else if (communityCore.isCustomOverlay(o)) {
-          getCustomElement(o).style.display = visible ? "block" : "none";
-        } else if (communityCore.isArrowOverlay(o) || communityCore.isDiamondOverlay(o) || communityCore.isPlainArrowOverlay(o)) {
-          o.path.style.display = visible ? "block" : "none";
+        var d = visible ? "block" : "none";
+        function s(el) {
+          if (el != null) {
+            el.style.display = d;
+          }
         }
-      }
-    }, {
-      key: "moveOverlayParent",
-      value: function moveOverlayParent(o, newParent) {
         if (communityCore.isLabelOverlay(o)) {
-          o.instance.appendElement(getLabelElement(o), this.getContainer());
+          s(getLabelElement(o));
         } else if (communityCore.isCustomOverlay(o)) {
-          o.instance.appendElement(getCustomElement(o), this.getContainer());
+          s(getCustomElement(o));
+        } else if (communityCore.isArrowOverlay(o) || communityCore.isDiamondOverlay(o) || communityCore.isPlainArrowOverlay(o)) {
+          s(o.path);
         }
       }
     }, {
@@ -4680,8 +4697,8 @@
         cleanup(ep.endpoint);
       }
     }, {
-      key: "paintEndpoint",
-      value: function paintEndpoint(ep, paintStyle) {
+      key: "renderEndpoint",
+      value: function renderEndpoint(ep, paintStyle) {
         var renderer = endpointMap[ep.endpoint.getType()];
         if (renderer != null) {
           SvgEndpoint.paint(ep.endpoint, renderer, paintStyle);
@@ -4740,7 +4757,7 @@
           if (endpoint.hoverPaintStyle != null) {
             endpoint.paintStyleInUse = h ? endpoint.hoverPaintStyle : endpoint.paintStyle;
             if (!this._suspendDrawing) {
-              this.paintEndpoint(endpoint, endpoint.paintStyleInUse);
+              this.renderEndpoint(endpoint, endpoint.paintStyleInUse);
             }
           }
           if (!doNotCascade) {

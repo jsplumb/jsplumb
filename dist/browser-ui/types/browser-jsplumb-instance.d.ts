@@ -66,7 +66,7 @@ export interface jsPlumbDOMElement extends HTMLElement, jsPlumbElement<Element> 
     offsetParent: jsPlumbDOMElement;
     parentNode: jsPlumbDOMElement;
     jtk: jsPlumbDOMInformation;
-    _jsPlumbList: any;
+    _jsPlumbList: string;
     _jsPlumbScrollHandler?: Function;
     _katavorioDrag?: Drag;
     cloneNode: (deep?: boolean) => jsPlumbDOMElement;
@@ -210,7 +210,6 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     removeOverlayClass(o: Overlay, clazz: string): void;
     paintOverlay(o: Overlay, params: any, extents: any): void;
     setOverlayVisible(o: Overlay, visible: boolean): void;
-    moveOverlayParent(o: Overlay, newParent: HTMLElement): void;
     reattachOverlay(o: Overlay, c: OverlayCapableComponent): void;
     setOverlayHover(o: Overlay, hover: boolean): void;
     destroyOverlay(o: Overlay): void;
@@ -228,7 +227,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     addEndpointClass(ep: Endpoint, c: string): void;
     applyEndpointType<C>(ep: Endpoint, t: TypeDescriptor): void;
     destroyEndpoint(ep: Endpoint): void;
-    paintEndpoint(ep: Endpoint, paintStyle: PaintStyle): void;
+    renderEndpoint(ep: Endpoint, paintStyle: PaintStyle): void;
     removeEndpointClass(ep: Endpoint, c: string): void;
     getEndpointClass(ep: Endpoint): string;
     refreshEndpoint(endpoint: Endpoint): void;

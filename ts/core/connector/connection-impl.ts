@@ -242,9 +242,9 @@ export class Connection<E = any> extends OverlayCapableComponent {
         if (!this.instance._suspendDrawing) {
             const initialTimestamp = this.instance._suspendedAt || uuid()
             const sourceAnchorLoc = this.instance.computeAnchorLoc(this.endpoints[0], initialTimestamp)
-            this.endpoints[0].paint({ anchorLoc: sourceAnchorLoc, timestamp: initialTimestamp })
+            this.instance.paintEndpoint(this.endpoints[0], { anchorLoc: sourceAnchorLoc, timestamp: initialTimestamp })
             const targetAnchorLoc = this.instance.computeAnchorLoc(this.endpoints[1], initialTimestamp)
-            this.endpoints[1].paint({ anchorLoc: targetAnchorLoc, timestamp: initialTimestamp })
+            this.instance.paintEndpoint(this.endpoints[1], { anchorLoc: targetAnchorLoc, timestamp: initialTimestamp })
         }
 
         this.cost = params.cost || this.endpoints[0].connectionCost
@@ -276,7 +276,7 @@ export class Connection<E = any> extends OverlayCapableComponent {
         // the very last thing we do is apply types, if there are any.
         let _types = [ "default", this.endpoints[0].connectionType, this.endpoints[1].connectionType,  params.type ].join(" ")
         if (/[^\s]/.test(_types)) {
-            this.addType(_types, params.data, true)
+            this.addType(_types, params.data)
         }
 
         this.updateConnectedClass(false)
@@ -311,7 +311,7 @@ export class Connection<E = any> extends OverlayCapableComponent {
         this.reattach = reattach === true
     }
 
-    applyType(t:TypeDescriptor, doNotRepaint:boolean, typeMap:any):void {
+    applyType(t:TypeDescriptor, typeMap:any):void {
 
         let _connector = null
         if (t.connector != null) {
@@ -324,7 +324,7 @@ export class Connection<E = any> extends OverlayCapableComponent {
         }
 
         // apply connector before superclass, as a new connector means overlays have to move.
-        super.applyType(t, doNotRepaint, typeMap)
+        super.applyType(t, typeMap)
 
         // none of these things result in the creation of objects so can be ignored.
         if (t.detachable != null) {

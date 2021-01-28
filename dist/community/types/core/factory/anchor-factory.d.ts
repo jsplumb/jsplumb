@@ -27,10 +27,36 @@ export declare type AnchorComputeParams = {
 export interface AnchorOptions {
     cssClass?: string;
 }
-export declare type AnchorId = "Assign" | "AutoDefault" | "Bottom" | "BottomCenter" | "BottomLeft" | "BottomRight" | "Center" | "Continuous" | "ContinuousBottom" | "ContinuousLeft" | "ContinuousRight" | "ContinuousTop" | "ContinuousLeftRight" | "ContinuousTopBottom" | "Left" | "LeftMiddle" | "Perimeter" | "Right" | "RightMiddle" | "Top" | "TopCenter" | "TopLeft" | "TopRight";
+declare enum AnchorLocations {
+    Assign = 0,
+    AutoDefault = 1,
+    Bottom = 2,
+    BottomCenter = 3,
+    BottomLeft = 4,
+    BottomRight = 5,
+    Center = 6,
+    Continuous = 7,
+    ContinuousBottom = 8,
+    ContinuousLeft = 9,
+    ContinuousRight = 10,
+    ContinuousTop = 11,
+    ContinuousLeftRight = 12,
+    ContinuousTopBottom = 13,
+    Left = 14,
+    LeftMiddle = 15,
+    Perimeter = 16,
+    Right = 17,
+    RightMiddle = 18,
+    Top = 19,
+    TopCenter = 20,
+    TopLeft = 21,
+    TopRight = 22
+}
+export declare type AnchorId = keyof typeof AnchorLocations;
 export declare type AnchorSpec = AnchorId | [AnchorId, AnchorOptions] | AnchorPlacement;
 export declare const Anchors: {
     get: (instance: JsPlumbInstance<any>, name: string, args: any) => Anchor;
 };
 export declare function makeAnchorFromSpec(instance: JsPlumbInstance, spec: AnchorSpec, elementId?: string): Anchor;
 export declare type ShapeFunction = (anchorCount: number, p?: any) => Array<any>;
+export {};

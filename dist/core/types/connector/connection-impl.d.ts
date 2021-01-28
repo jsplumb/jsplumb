@@ -99,7 +99,7 @@ export declare class Connection<E = any> extends OverlayCapableComponent {
     setDetachable(detachable: boolean): void;
     isReattach(): boolean;
     setReattach(reattach: boolean): void;
-    applyType(t: TypeDescriptor, doNotRepaint: boolean, typeMap: any): void;
+    applyType(t: TypeDescriptor, typeMap: any): void;
     addClass(c: string, informEndpoints?: boolean): void;
     removeClass(c: string, informEndpoints?: boolean): void;
     setVisible(v: boolean): void;

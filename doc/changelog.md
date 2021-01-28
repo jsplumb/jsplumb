@@ -1,3 +1,9 @@
+## 4.0.0-RC40
+
+- `JsPlumbInstance` now fires `manageElement` and `unmanageElement` events from the `manage` and `unmanage` methods respectively.
+- Updates to list manager to fix an issue with the initialisation of a list via the `jtk-scrollable-list` attribute
+- Updates to list manager to be more efficient about processing new connections after list initialisation.
+
 ## 4.0.0-RC39
 
 ### Breaking

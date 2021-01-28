@@ -3098,6 +3098,7 @@ var EVENT_ENDPOINT_REPLACED = "endpointReplaced";
 var EVENT_INTERNAL_ENDPOINT_UNREGISTERED = "internal.endpointUnregistered";
 var EVENT_FOCUS = "focus";
 var EVENT_INTERNAL_CONNECTION_DETACHED = "internal.connection:detach";
+var EVENT_MANAGE_ELEMENT = "manageElement";
 var EVENT_MOUSEDOWN = "mousedown";
 var EVENT_MOUSEENTER = "mouseenter";
 var EVENT_MOUSEEXIT = "mouseexit";
@@ -3115,6 +3116,7 @@ var EVENT_MAX_CONNECTIONS = "maxConnections";
 var EVENT_NESTED_GROUP_ADDED = "nestedGroupAdded";
 var EVENT_NESTED_GROUP_REMOVED = "nestedGroupRemoved";
 var EVENT_TAP = "tap";
+var EVENT_UNMANAGE_ELEMENT = "unmanageElement";
 var EVENT_ZOOM = "zoom";
 var IS_DETACH_ALLOWED = "isDetachAllowed";
 var IS_GROUP_KEY = "_isJsPlumbGroup";
@@ -3286,7 +3288,7 @@ var CSS_CLASS = "cssClass";
 var DEFAULT_TYPE_KEY = "__default";
 var ANCHOR = "anchor";
 var ANCHORS = "anchors";
-function _applyTypes(component, params, doNotRepaint) {
+function _applyTypes(component, params) {
   if (component.getDefaultType) {
     var td = component.getTypeDescriptor(),
         map = {};
@@ -3312,10 +3314,7 @@ function _applyTypes(component, params, doNotRepaint) {
     if (params) {
       o = populate(o, params, "_");
     }
-    component.applyType(o, doNotRepaint, map);
-    if (!doNotRepaint) {
-      component.paint();
-    }
+    component.applyType(o, map);
   }
 }
 function _removeTypeCssHelper(component, typeIndex) {
@@ -3477,10 +3476,10 @@ function (_EventGenerator) {
     }
   }, {
     key: "setType",
-    value: function setType(typeId, params, doNotRepaint) {
+    value: function setType(typeId, params) {
       this.clearTypes();
       this._types = _splitType(typeId) || [];
-      _applyTypes(this, params, doNotRepaint);
+      _applyTypes(this, params);
     }
   }, {
     key: "getType",
@@ -3489,8 +3488,8 @@ function (_EventGenerator) {
     }
   }, {
     key: "reapplyTypes",
-    value: function reapplyTypes(params, doNotRepaint) {
-      _applyTypes(this, params, doNotRepaint);
+    value: function reapplyTypes(params) {
+      _applyTypes(this, params);
     }
   }, {
     key: "hasType",
@@ -3499,7 +3498,7 @@ function (_EventGenerator) {
     }
   }, {
     key: "addType",
-    value: function addType(typeId, params, doNotRepaint) {
+    value: function addType(typeId, params) {
       var t = _splitType(typeId),
           _somethingAdded = false;
       if (t != null) {
@@ -3510,13 +3509,13 @@ function (_EventGenerator) {
           }
         }
         if (_somethingAdded) {
-          _applyTypes(this, params, doNotRepaint);
+          _applyTypes(this, params);
         }
       }
     }
   }, {
     key: "removeType",
-    value: function removeType(typeId, params, doNotRepaint) {
+    value: function removeType(typeId, params) {
       var _this2 = this;
       var t = _splitType(typeId),
           _cont = false,
@@ -3534,7 +3533,7 @@ function (_EventGenerator) {
           _cont = _one(t[i]) || _cont;
         }
         if (_cont) {
-          _applyTypes(this, params, doNotRepaint);
+          _applyTypes(this, params);
         }
       }
     }
@@ -3546,11 +3545,11 @@ function (_EventGenerator) {
         _removeTypeCssHelper(this, 0);
         this._types.splice(0, 1);
       }
-      _applyTypes(this, params, doNotRepaint);
+      _applyTypes(this, params);
     }
   }, {
     key: "toggleType",
-    value: function toggleType(typeId, params, doNotRepaint) {
+    value: function toggleType(typeId, params) {
       var t = _splitType(typeId);
       if (t != null) {
         for (var i = 0, j = t.length; i < j; i++) {
@@ -3562,14 +3561,14 @@ function (_EventGenerator) {
             this._types.push(t[i]);
           }
         }
-        _applyTypes(this, params, doNotRepaint);
+        _applyTypes(this, params);
       }
     }
   }, {
     key: "applyType",
-    value: function applyType(t, doNotRepaint, params) {
-      this.setPaintStyle(t.paintStyle, doNotRepaint);
-      this.setHoverPaintStyle(t.hoverPaintStyle, doNotRepaint);
+    value: function applyType(t, params) {
+      this.setPaintStyle(t.paintStyle);
+      this.setHoverPaintStyle(t.hoverPaintStyle);
       if (t.parameters) {
         for (var i in t.parameters) {
           this.setParameter(i, t.parameters[i]);
@@ -3579,13 +3578,10 @@ function (_EventGenerator) {
     }
   }, {
     key: "setPaintStyle",
-    value: function setPaintStyle(style, doNotRepaint) {
+    value: function setPaintStyle(style) {
       this.paintStyle = style;
       this.paintStyleInUse = this.paintStyle;
       _updateHoverStyle(this);
-      if (!doNotRepaint) {
-        this.paint();
-      }
     }
   }, {
     key: "getPaintStyle",
@@ -3594,12 +3590,9 @@ function (_EventGenerator) {
     }
   }, {
     key: "setHoverPaintStyle",
-    value: function setHoverPaintStyle(style, doNotRepaint) {
+    value: function setHoverPaintStyle(style) {
       this.hoverPaintStyle = style;
       _updateHoverStyle(this);
-      if (!doNotRepaint) {
-        this.paint();
-      }
     }
   }, {
     key: "getHoverPaintStyle",
@@ -3893,7 +3886,7 @@ function (_Component) {
   }
   _createClass(OverlayCapableComponent, [{
     key: "addOverlay",
-    value: function addOverlay(overlay, doNotRepaint) {
+    value: function addOverlay(overlay) {
       var o = _processOverlay(this, overlay);
       if (this.getData && o.type === "Label" && isArray(overlay)) {
         var d = this.getData(),
@@ -3905,9 +3898,6 @@ function (_Component) {
             o.location = loc;
           }
         }
-      }
-      if (!doNotRepaint) {
-        this.paint();
       }
       return o;
     }
@@ -3953,16 +3943,13 @@ function (_Component) {
     }
   }, {
     key: "removeAllOverlays",
-    value: function removeAllOverlays(doNotRepaint) {
+    value: function removeAllOverlays() {
       for (var i in this.overlays) {
         this.overlays[i].destroy(true);
       }
       this.overlays = {};
       this.overlayPositions = null;
       this.overlayPlacements = {};
-      if (!doNotRepaint) {
-        this.paint();
-      }
     }
   }, {
     key: "removeOverlay",
@@ -4026,9 +4013,6 @@ function (_Component) {
           }
         }
       }
-      if (!this.instance._suspendDrawing) {
-        this.paint();
-      }
     }
   }, {
     key: "destroy",
@@ -4085,8 +4069,8 @@ function (_Component) {
     }
   }, {
     key: "applyType",
-    value: function applyType(t, doNotRepaint, typeMap) {
-      _get(_getPrototypeOf(OverlayCapableComponent.prototype), "applyType", this).call(this, t, doNotRepaint, typeMap);
+    value: function applyType(t, typeMap) {
+      _get(_getPrototypeOf(OverlayCapableComponent.prototype), "applyType", this).call(this, t, typeMap);
       if (t.overlays) {
         var keep = {},
             i;
@@ -4104,7 +4088,7 @@ function (_Component) {
               c.updateFrom(t.overlays[i][1]);
               this.overlays[c.id] = c;
             } else {
-              c = this.addOverlay(t.overlays[i], true);
+              c = this.addOverlay(t.overlays[i]);
             }
             keep[c.id] = true;
           }
@@ -4526,6 +4510,32 @@ _defineProperty(ContinuousAnchor, "continuousAnchorType", "Continuous");
 
 var X_AXIS_FACES = ["left", "right"];
 var Y_AXIS_FACES = ["top", "bottom"];
+var AnchorLocations;
+(function (AnchorLocations) {
+  AnchorLocations[AnchorLocations["Assign"] = 0] = "Assign";
+  AnchorLocations[AnchorLocations["AutoDefault"] = 1] = "AutoDefault";
+  AnchorLocations[AnchorLocations["Bottom"] = 2] = "Bottom";
+  AnchorLocations[AnchorLocations["BottomCenter"] = 3] = "BottomCenter";
+  AnchorLocations[AnchorLocations["BottomLeft"] = 4] = "BottomLeft";
+  AnchorLocations[AnchorLocations["BottomRight"] = 5] = "BottomRight";
+  AnchorLocations[AnchorLocations["Center"] = 6] = "Center";
+  AnchorLocations[AnchorLocations["Continuous"] = 7] = "Continuous";
+  AnchorLocations[AnchorLocations["ContinuousBottom"] = 8] = "ContinuousBottom";
+  AnchorLocations[AnchorLocations["ContinuousLeft"] = 9] = "ContinuousLeft";
+  AnchorLocations[AnchorLocations["ContinuousRight"] = 10] = "ContinuousRight";
+  AnchorLocations[AnchorLocations["ContinuousTop"] = 11] = "ContinuousTop";
+  AnchorLocations[AnchorLocations["ContinuousLeftRight"] = 12] = "ContinuousLeftRight";
+  AnchorLocations[AnchorLocations["ContinuousTopBottom"] = 13] = "ContinuousTopBottom";
+  AnchorLocations[AnchorLocations["Left"] = 14] = "Left";
+  AnchorLocations[AnchorLocations["LeftMiddle"] = 15] = "LeftMiddle";
+  AnchorLocations[AnchorLocations["Perimeter"] = 16] = "Perimeter";
+  AnchorLocations[AnchorLocations["Right"] = 17] = "Right";
+  AnchorLocations[AnchorLocations["RightMiddle"] = 18] = "RightMiddle";
+  AnchorLocations[AnchorLocations["Top"] = 19] = "Top";
+  AnchorLocations[AnchorLocations["TopCenter"] = 20] = "TopCenter";
+  AnchorLocations[AnchorLocations["TopLeft"] = 21] = "TopLeft";
+  AnchorLocations[AnchorLocations["TopRight"] = 22] = "TopRight";
+})(AnchorLocations || (AnchorLocations = {}));
 var anchorMap = {};
 var Anchors = {
   get: function get(instance, name, args) {
@@ -4900,12 +4910,12 @@ function (_OverlayCapableCompon) {
     if (!_this.instance._suspendDrawing) {
       var initialTimestamp = _this.instance._suspendedAt || uuid();
       var sourceAnchorLoc = _this.instance.computeAnchorLoc(_this.endpoints[0], initialTimestamp);
-      _this.endpoints[0].paint({
+      _this.instance.paintEndpoint(_this.endpoints[0], {
         anchorLoc: sourceAnchorLoc,
         timestamp: initialTimestamp
       });
       var targetAnchorLoc = _this.instance.computeAnchorLoc(_this.endpoints[1], initialTimestamp);
-      _this.endpoints[1].paint({
+      _this.instance.paintEndpoint(_this.endpoints[1], {
         anchorLoc: targetAnchorLoc,
         timestamp: initialTimestamp
       });
@@ -4925,7 +4935,7 @@ function (_OverlayCapableCompon) {
     _this.setData(data);
     var _types = ["default", _this.endpoints[0].connectionType, _this.endpoints[1].connectionType, params.type].join(" ");
     if (/[^\s]/.test(_types)) {
-      _this.addType(_types, params.data, true);
+      _this.addType(_types, params.data);
     }
     _this.updateConnectedClass(false);
     return _this;
@@ -4968,7 +4978,7 @@ function (_OverlayCapableCompon) {
     }
   }, {
     key: "applyType",
-    value: function applyType(t, doNotRepaint, typeMap) {
+    value: function applyType(t, typeMap) {
       var _connector = null;
       if (t.connector != null) {
         _connector = this.getCachedTypeItem("connector", typeMap.connector);
@@ -4978,7 +4988,7 @@ function (_OverlayCapableCompon) {
         }
         this.setPreparedConnector(_connector);
       }
-      _get(_getPrototypeOf(Connection.prototype), "applyType", this).call(this, t, doNotRepaint, typeMap);
+      _get(_getPrototypeOf(Connection.prototype), "applyType", this).call(this, t, typeMap);
       if (t.detachable != null) {
         this.setDetachable(t.detachable);
       }
@@ -5291,18 +5301,6 @@ function (_OverlayCapableCompon) {
   return Connection;
 }(OverlayCapableComponent);
 
-function findConnectionToUseForDynamicAnchor(ep, elementWithPrecedence) {
-  var idx = 0;
-  if (elementWithPrecedence != null) {
-    for (var i = 0; i < ep.connections.length; i++) {
-      if (ep.connections[i].sourceId === elementWithPrecedence || ep.connections[i].targetId === elementWithPrecedence) {
-        idx = i;
-        break;
-      }
-    }
-  }
-  return ep.connections[idx];
-}
 var typeParameters = ["connectorStyle", "connectorHoverStyle", "connectorOverlays", "connector", "connectionType", "connectorClass", "connectorHoverClass"];
 var Endpoint =
 function (_OverlayCapableCompon) {
@@ -5428,9 +5426,9 @@ function (_OverlayCapableCompon) {
     var ep = params.endpoint || instance.Defaults.endpoint;
     _this.setEndpoint(ep);
     var anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : instance.Defaults.anchor || "Top";
-    _this.setAnchor(anchorParamsToUse, true);
+    _this.setAnchor(anchorParamsToUse);
     var type = ["default", params.type || ""].join(" ");
-    _this.addType(type, params.data, true);
+    _this.addType(type, params.data);
     return _this;
   }
   _createClass(Endpoint, [{
@@ -5465,20 +5463,17 @@ function (_OverlayCapableCompon) {
     }
   }, {
     key: "setPreparedAnchor",
-    value: function setPreparedAnchor(anchor, doNotRepaint) {
+    value: function setPreparedAnchor(anchor) {
       this.instance.router.clearContinuousAnchorPlacement(this.elementId);
       this.anchor = anchor;
       this._updateAnchorClass();
-      if (!doNotRepaint) {
-        this.instance.repaint(this.element);
-      }
       return this;
     }
   }, {
     key: "setAnchor",
-    value: function setAnchor(anchorParams, doNotRepaint) {
+    value: function setAnchor(anchorParams) {
       var a = this.prepareAnchor(anchorParams);
-      this.setPreparedAnchor(a, doNotRepaint);
+      this.setPreparedAnchor(a);
       return this;
     }
   }, {
@@ -5549,10 +5544,10 @@ function (_OverlayCapableCompon) {
     }
   }, {
     key: "applyType",
-    value: function applyType(t, doNotRepaint, typeMap) {
-      _get(_getPrototypeOf(Endpoint.prototype), "applyType", this).call(this, t, doNotRepaint, typeMap);
-      this.setPaintStyle(t.endpointStyle || t.paintStyle, doNotRepaint);
-      this.setHoverPaintStyle(t.endpointHoverStyle || t.hoverPaintStyle, doNotRepaint);
+    value: function applyType(t, typeMap) {
+      _get(_getPrototypeOf(Endpoint.prototype), "applyType", this).call(this, t, typeMap);
+      this.setPaintStyle(t.endpointStyle || t.paintStyle);
+      this.setHoverPaintStyle(t.endpointHoverStyle || t.hoverPaintStyle);
       this.connectorStyle = t.connectorStyle;
       this.connectorHoverStyle = t.connectorHoverStyle;
       this.connector = t.connector;
@@ -5627,69 +5622,6 @@ function (_OverlayCapableCompon) {
     key: "connectorSelector",
     value: function connectorSelector() {
       return this.connections[0];
-    }
-  }, {
-    key: "paint",
-    value: function paint(params) {
-      params = params || {};
-      var timestamp = params.timestamp,
-          recalc = !(params.recalc === false);
-      if (!timestamp || this.timestamp !== timestamp) {
-        var info = this.instance.updateOffset({
-          elId: this.elementId,
-          timestamp: timestamp
-        });
-        var xy = params.offset ? {
-          left: params.offset.x,
-          top: params.offset.y
-        } : {
-          left: info.x,
-          top: info.y
-        };
-        if (xy != null) {
-          var ap = params.anchorLoc;
-          if (ap == null) {
-            var wh = [info.w, info.h],
-                anchorParams = {
-              xy: [xy.left, xy.top],
-              wh: wh,
-              element: this,
-              timestamp: timestamp
-            };
-            if (recalc && this.anchor.isDynamic && this.connections.length > 0) {
-              var c = findConnectionToUseForDynamicAnchor(this, params.elementWithPrecedence),
-                  oIdx = c.endpoints[0] === this ? 1 : 0,
-                  oId = oIdx === 0 ? c.sourceId : c.targetId,
-                  oInfo = this.instance.getCachedData(oId);
-              anchorParams.index = oIdx === 0 ? 1 : 0;
-              anchorParams.connection = c;
-              anchorParams.txy = [oInfo.x, oInfo.y];
-              anchorParams.twh = [oInfo.w, oInfo.h];
-              anchorParams.tElement = c.endpoints[oIdx];
-              anchorParams.tRotation = this.instance.getRotation(oId);
-            } else if (this.connections.length > 0) {
-              anchorParams.connection = this.connections[0];
-            }
-            anchorParams.rotation = this.instance.getRotation(this.elementId);
-            ap = this.anchor.compute(anchorParams);
-          }
-          this.endpoint.compute(ap, this.anchor.getOrientation(this), this.paintStyleInUse);
-          this.instance.paintEndpoint(this, this.paintStyleInUse);
-          this.timestamp = timestamp;
-          for (var i in this.overlays) {
-            if (this.overlays.hasOwnProperty(i)) {
-              var o = this.overlays[i];
-              if (o.isVisible()) {
-                this.overlayPlacements[i] = this.instance.drawOverlay(o, this.endpoint, this.paintStyleInUse, this.getAbsoluteOverlayPosition(o));
-                this.instance.paintOverlay(o, this.overlayPlacements[i], {
-                  xmin: 0,
-                  ymin: 0
-                });
-              }
-            }
-          }
-        }
-      }
     }
   }, {
     key: "prepareEndpoint",
@@ -6919,7 +6851,7 @@ function () {
                 } else {
                   var otherEndpoint = anEndpoint.connections[i].endpoints[conn.sourceId === elementId ? 1 : 0];
                   if (otherEndpoint.anchor.constructor === DynamicAnchor) {
-                    otherEndpoint.paint({
+                    this.instance.paintEndpoint(otherEndpoint, {
                       elementWithPrecedence: elementId,
                       timestamp: timestamp
                     });
@@ -6979,7 +6911,7 @@ function () {
           for (var _iterator3 = endpointsToPaint[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
             var _ep = _step3.value;
             var cd = this.instance.getCachedData(_ep.elementId);
-            _ep.paint({
+            this.instance.paintEndpoint(_ep, {
               timestamp: timestamp,
               offset: cd
             });
@@ -8449,6 +8381,9 @@ function (_EventGenerator) {
             recalc: true
           });
         }
+        this.fire(EVENT_MANAGE_ELEMENT, {
+          el: element
+        });
       } else {
         if (recalc) {
           this._managedElements[elId].info = this.updateOffset({
@@ -8479,6 +8414,9 @@ function (_EventGenerator) {
         _this3.removeAttribute(_el, ATTRIBUTE_MANAGED);
         delete _this3._managedElements[id];
         _this3.viewport.remove(id);
+        _this3.fire(EVENT_UNMANAGE_ELEMENT, {
+          el: _el
+        });
         if (_el && removeElement) {
           _this3.removeElement(_el);
         }
@@ -8710,7 +8648,7 @@ function (_EventGenerator) {
       addToDictionary(this.endpointsByElement, id, e);
       if (!this._suspendDrawing) {
         var anchorLoc = this.computeAnchorLoc(e);
-        e.paint({
+        this.paintEndpoint(e, {
           anchorLoc: anchorLoc,
           timestamp: this._suspendedAt
         });
@@ -9508,6 +9446,81 @@ function (_EventGenerator) {
         });
       });
     }
+  }, {
+    key: "paintEndpoint",
+    value: function paintEndpoint(endpoint, params) {
+      function findConnectionToUseForDynamicAnchor(ep) {
+        var idx = 0;
+        if (params.elementWithPrecedence != null) {
+          for (var i = 0; i < ep.connections.length; i++) {
+            if (ep.connections[i].sourceId === params.elementWithPrecedence || ep.connections[i].targetId === params.elementWithPrecedence) {
+              idx = i;
+              break;
+            }
+          }
+        }
+        return ep.connections[idx];
+      }
+      params = params || {};
+      var timestamp = params.timestamp,
+          recalc = !(params.recalc === false);
+      if (!timestamp || endpoint.timestamp !== timestamp) {
+        var info = this.updateOffset({
+          elId: endpoint.elementId,
+          timestamp: timestamp
+        });
+        var xy = params.offset ? {
+          left: params.offset.x,
+          top: params.offset.y
+        } : {
+          left: info.x,
+          top: info.y
+        };
+        if (xy != null) {
+          var ap = params.anchorLoc;
+          if (ap == null) {
+            var wh = [info.w, info.h],
+                anchorParams = {
+              xy: [xy.left, xy.top],
+              wh: wh,
+              element: endpoint,
+              timestamp: timestamp
+            };
+            if (recalc && endpoint.anchor.isDynamic && endpoint.connections.length > 0) {
+              var _c3 = findConnectionToUseForDynamicAnchor(endpoint),
+                  oIdx = _c3.endpoints[0] === endpoint ? 1 : 0,
+                  oId = oIdx === 0 ? _c3.sourceId : _c3.targetId,
+                  oInfo = this.getCachedData(oId);
+              anchorParams.index = oIdx === 0 ? 1 : 0;
+              anchorParams.connection = _c3;
+              anchorParams.txy = [oInfo.x, oInfo.y];
+              anchorParams.twh = [oInfo.w, oInfo.h];
+              anchorParams.tElement = _c3.endpoints[oIdx];
+              anchorParams.tRotation = this.getRotation(oId);
+            } else if (endpoint.connections.length > 0) {
+              anchorParams.connection = endpoint.connections[0];
+            }
+            anchorParams.rotation = this.getRotation(endpoint.elementId);
+            ap = endpoint.anchor.compute(anchorParams);
+          }
+          endpoint.endpoint.compute(ap, endpoint.anchor.getOrientation(endpoint), endpoint.paintStyleInUse);
+          this.renderEndpoint(endpoint, endpoint.paintStyleInUse);
+          endpoint.timestamp = timestamp;
+          for (var i in endpoint.overlays) {
+            if (endpoint.overlays.hasOwnProperty(i)) {
+              var _o = endpoint.overlays[i];
+              if (_o.isVisible()) {
+                endpoint.overlayPlacements[i] = this.drawOverlay(_o, endpoint.endpoint, endpoint.paintStyleInUse, endpoint.getAbsoluteOverlayPosition(_o));
+                this.paintOverlay(_o, endpoint.overlayPlacements[i], {
+                  xmin: 0,
+                  ymin: 0
+                });
+              }
+            }
+          }
+        }
+      }
+    }
   }]);
   return JsPlumbInstance;
 }(EventGenerator);
@@ -9684,4 +9697,4 @@ register$3();
 register$4();
 register$6();
 
-export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, AnchorManager, Anchors, ArcSegment, ArrowOverlay, BEFORE_DETACH, BLOCK, BezierSegment, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, GROUP_KEY, GroupManager, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JTK_ID, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PROPERTY_POSITION, PlainArrowOverlay, SCOPE_PREFIX, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, extend, fastTrim, filterList, findWithFunction, functionChain, getsert, gradientAtPoint, gradientAtPointAlongPathFrom, isArray, isArrowOverlay, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, jsPlumbGeometry, lineIntersection, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, optional, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, populate, register, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, rotatePointXY, sortHelper, suggest, uuid, wrap };
+export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, AnchorManager, Anchors, ArcSegment, ArrowOverlay, BEFORE_DETACH, BLOCK, BezierSegment, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, GROUP_KEY, GroupManager, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JTK_ID, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PROPERTY_POSITION, PlainArrowOverlay, SCOPE_PREFIX, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, extend, fastTrim, filterList, findWithFunction, functionChain, getsert, gradientAtPoint, gradientAtPointAlongPathFrom, isArray, isArrowOverlay, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, jsPlumbGeometry, lineIntersection, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, optional, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, populate, register, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, rotatePointXY, sortHelper, suggest, uuid, wrap };
