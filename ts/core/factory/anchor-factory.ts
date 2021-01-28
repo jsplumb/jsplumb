@@ -37,35 +37,36 @@ export interface AnchorOptions {
     cssClass?:string
 }
 
-export type AnchorId =
-    "Assign" |
-    "AutoDefault" |
-    "Bottom" |
-    "BottomCenter" |
-    "BottomLeft" |
-    "BottomRight" |
-    "Center" |
-    "Continuous" |
-    "ContinuousBottom" |
-    "ContinuousLeft" |
-    "ContinuousRight" |
-    "ContinuousTop" |
-    "ContinuousLeftRight" |
-    "ContinuousTopBottom" |
-    "Left" |
-    "LeftMiddle" |
-    "Perimeter" |
-    "Right" |
-    "RightMiddle" |
-    "Top" |
-    "TopCenter" |
-    "TopLeft" |
-    "TopRight"
+enum AnchorLocations {
+    Assign,
+    AutoDefault,
+    Bottom,
+    BottomCenter,
+    BottomLeft,
+    BottomRight,
+    Center,
+    Continuous,
+    ContinuousBottom,
+    ContinuousLeft,
+    ContinuousRight,
+    ContinuousTop,
+    ContinuousLeftRight,
+    ContinuousTopBottom,
+    Left,
+    LeftMiddle,
+    Perimeter,
+    Right,
+    RightMiddle,
+    Top,
+    TopCenter,
+    TopLeft,
+    TopRight
+}
 
+export type AnchorId = keyof typeof AnchorLocations
 
 export type AnchorSpec = AnchorId | [AnchorId, AnchorOptions] | AnchorPlacement
 
-//const anchorMap:Dictionary<(instance:jsPlumbInstance, args:any) => Anchor> = {}
 const anchorMap:Dictionary<(instance:JsPlumbInstance, args:any) => Anchor> = {}
 
 export const Anchors = {
@@ -78,7 +79,6 @@ export const Anchors = {
         } else {
             return con(instance, args || {}) as Anchor
         }
-
     }
 }
 
