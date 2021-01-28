@@ -52,6 +52,7 @@ import { LabelOverlay } from './overlay/label-overlay'
 import { AbstractConnector } from './connector/abstract-connector'
 import { OverlayCapableComponent } from './component/overlay-capable-component'
 import { PaintStyle} from './styles'
+import {AnchorComputeParams} from "./factory/anchor-factory"
 
 function _scopeMatch(e1:Endpoint, e2:Endpoint):boolean {
     let s1 = e1.scope.split(/\s/), s2 = e2.scope.split(/\s/)
@@ -770,6 +771,8 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
                 this._managedElements[elId].info = this.updateOffset({elId: elId, recalc:true})
             }
 
+            this.fire<{el:T["E"]}>(Constants.EVENT_MANAGE_ELEMENT, {el:element})
+
         } else {
             if (recalc) {
                 this._managedElements[elId].info = this.updateOffset({elId: elId, timestamp: null,  recalc:true })
@@ -808,6 +811,8 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             delete this._managedElements[id]
 
             this.viewport.remove(id)
+
+            this.fire<{el:T["E"]}>(Constants.EVENT_UNMANAGE_ELEMENT, {el:_el})
 
             if (_el && removeElement) {
                 this.removeElement(_el)
@@ -1047,7 +1052,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         if (!this._suspendDrawing) {
 
             const anchorLoc = this.computeAnchorLoc(e)
-            e.paint({
+            this.paintEndpoint(e, {
                 anchorLoc: anchorLoc,
                 timestamp: this._suspendedAt
             })
@@ -1874,6 +1879,79 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         })
     }
 
+
+    // ----------------------------- PAINT ENDPOINT
+
+    paintEndpoint(endpoint:Endpoint, params:{ timestamp?: string, offset?: ViewportElement,
+        recalc?:boolean, elementWithPrecedence?:string,
+        connectorPaintStyle?:PaintStyle,
+        anchorLoc?:AnchorPlacement
+    }):void {
+
+        function findConnectionToUseForDynamicAnchor<E>(ep:Endpoint):Connection {
+            let idx = 0
+            if (params.elementWithPrecedence != null) {
+                for (let i = 0; i < ep.connections.length; i++) {
+                    if (ep.connections[i].sourceId === params.elementWithPrecedence || ep.connections[i].targetId === params.elementWithPrecedence) {
+                        idx = i
+                        break
+                    }
+                }
+            }
+
+            return ep.connections[idx]
+        }
+
+        params = params || {}
+        let timestamp = params.timestamp, recalc = !(params.recalc === false)
+        if (!timestamp || endpoint.timestamp !== timestamp) {
+
+            let info = this.updateOffset({ elId: endpoint.elementId, timestamp: timestamp })
+            let xy = params.offset ? {left:params.offset.x, top:params.offset.y} : {left:info.x, top:info.y }
+            if (xy != null) {
+                let ap = params.anchorLoc
+                if (ap == null) {
+                    let wh:PointArray = [info.w, info.h],
+                        anchorParams:AnchorComputeParams = { xy: [ xy.left, xy.top ], wh: wh, element: endpoint, timestamp: timestamp }
+                    if (recalc && endpoint.anchor.isDynamic && endpoint.connections.length > 0) {
+                        let c = findConnectionToUseForDynamicAnchor(endpoint),
+                            oIdx = c.endpoints[0] === endpoint ? 1 : 0,
+                            oId = oIdx === 0 ? c.sourceId : c.targetId,
+                            oInfo = this.getCachedData(oId)
+
+                        anchorParams.index = oIdx === 0 ? 1 : 0
+                        anchorParams.connection = c
+                        anchorParams.txy = [ oInfo.x, oInfo.y]
+                        anchorParams.twh = [oInfo.w, oInfo.h]
+                        anchorParams.tElement = c.endpoints[oIdx]
+                        anchorParams.tRotation = this.getRotation(oId)
+                    } else if (endpoint.connections.length > 0) {
+                        anchorParams.connection = endpoint.connections[0]
+                    }
+
+                    anchorParams.rotation = this.getRotation(endpoint.elementId)
+                    ap = endpoint.anchor.compute(anchorParams)
+                }
+
+                endpoint.endpoint.compute(ap, endpoint.anchor.getOrientation(endpoint), endpoint.paintStyleInUse)
+                this.renderEndpoint(endpoint, endpoint.paintStyleInUse)
+                endpoint.timestamp = timestamp
+
+                // paint overlays
+                for (let i in endpoint.overlays) {
+                    if (endpoint.overlays.hasOwnProperty(i)) {
+                        let o = endpoint.overlays[i]
+                        if (o.isVisible()) {
+                            endpoint.overlayPlacements[i] = this.drawOverlay(o, endpoint.endpoint, endpoint.paintStyleInUse, endpoint.getAbsoluteOverlayPosition(o))
+                            this.paintOverlay(o, endpoint.overlayPlacements[i], {xmin:0, ymin:0})
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
     abstract removeElement(el:T["E"]):void
     abstract appendElement (el:T["E"], parent:T["E"]):void
     abstract getChildElements(el:T["E"]):Array<T["E"]>
@@ -1912,7 +1990,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     abstract destroyOverlay(o: Overlay, force?:boolean):void
     abstract updateLabel(o:LabelOverlay):void
     abstract drawOverlay(overlay:Overlay, component:any, paintStyle:PaintStyle, absolutePosition?:PointArray):any
-    abstract moveOverlayParent(o:Overlay, newParent:any):void
     abstract reattachOverlay(o:Overlay, c:OverlayCapableComponent):void
 
     abstract setOverlayHover(o:Overlay, hover:boolean):void
@@ -1931,7 +2008,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     abstract applyEndpointType(ep:Endpoint<T>, t:TypeDescriptor):void
     abstract setEndpointVisible(ep:Endpoint<T>, v:boolean):void
     abstract destroyEndpoint(ep:Endpoint<T>):void
-    abstract paintEndpoint(ep:Endpoint<T>, paintStyle:PaintStyle):void
+    abstract renderEndpoint(ep:Endpoint<T>, paintStyle:PaintStyle):void
     abstract addEndpointClass(ep:Endpoint<T>, c:string):void
     abstract removeEndpointClass(ep:Endpoint<T>, c:string):void
     abstract getEndpointClass(ep:Endpoint<T>):string
