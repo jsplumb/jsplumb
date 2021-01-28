@@ -10,13 +10,13 @@ import {
 
 export interface FloatingAnchorOptions extends AnchorOptions {
     reference:Anchor
-    referenceCanvas:HTMLElement
+    referenceCanvas:Element
 }
 
 export class FloatingAnchor extends Anchor {
 
     ref:Anchor
-    refCanvas:HTMLElement
+    refCanvas:Element
     size:Size
     xDir:number
     yDir:number
