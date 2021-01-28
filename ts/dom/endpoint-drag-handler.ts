@@ -36,11 +36,14 @@ import {
     TargetDefinition
 } from "@jsplumb/community-core"
 
-function _makeFloatingEndpoint (paintStyle:PaintStyle, referenceAnchor:Anchor, endpoint:Endpoint, referenceCanvas:HTMLElement, sourceElement:jsPlumbDOMElement, instance:BrowserJsPlumbInstance, scope?:string) {
+function _makeFloatingEndpoint (paintStyle:PaintStyle,
+                                referenceAnchor:Anchor,
+                                endpoint:Endpoint,
+                                referenceCanvas:Element,
+                                sourceElement:jsPlumbDOMElement,
+                                instance:BrowserJsPlumbInstance, scope?:string)
+{
     let floatingAnchor = new FloatingAnchor(instance, { reference: referenceAnchor, referenceCanvas: referenceCanvas })
-    //setting the scope here should not be the way to fix that mootools issue.  it should be fixed by not
-    // adding the floating endpoint as a droppable.  that makes more sense anyway!
-    // TRANSIENT MANAGE
     let ep = instance.newEndpoint({
         paintStyle: paintStyle,
         endpoint: endpoint,
@@ -48,7 +51,7 @@ function _makeFloatingEndpoint (paintStyle:PaintStyle, referenceAnchor:Anchor, e
         source: sourceElement,
         scope: scope
     })
-    ep.paint({})
+    instance.paintEndpoint(ep, {})
     return ep
 }
 
@@ -625,7 +628,7 @@ export class EndpointDragHandler implements DragHandler {
 
             // always repaint the source endpoint, because only continuous/dynamic anchors cause the endpoint
             // to be repainted, so static anchors need to be told (or the endpoint gets dragged around)
-            this.ep.paint({anchorLoc:this.ep.anchor.getCurrentLocation({element:this.ep})})
+            this.instance.paintEndpoint(this.ep, {anchorLoc:this.ep.anchor.getCurrentLocation({element:this.ep})})
         }
     }
 
@@ -798,7 +801,7 @@ export class EndpointDragHandler implements DragHandler {
                     this.instance.deleteEndpoint(dropEndpoint)
                 }
                 else {
-                    dropEndpoint.paint({ recalc: false })
+                    this.instance.paintEndpoint(dropEndpoint, { recalc: false })
                 }
             }
         }
@@ -1094,7 +1097,7 @@ export class EndpointDragHandler implements DragHandler {
 
         if (this.jpc.endpoints[0]._originalAnchor) {
             let newSourceAnchor = makeAnchorFromSpec(this.instance, this.jpc.endpoints[0]._originalAnchor, this.jpc.endpoints[0].elementId)
-            this.jpc.endpoints[0].setAnchor(newSourceAnchor, true)
+            this.jpc.endpoints[0].setAnchor(newSourceAnchor/*, true*/)
             delete this.jpc.endpoints[0]._originalAnchor
         }
 
