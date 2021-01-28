@@ -80,7 +80,7 @@ export abstract class OverlayCapableComponent extends Component {
         }
     }
 
-    addOverlay(overlay:OverlaySpec, doNotRepaint?:boolean):Overlay {
+    addOverlay(overlay:OverlaySpec):Overlay {
         let o = _processOverlay(this, overlay)
 
         if (this.getData && o.type === "Label" && isArray(overlay)) {
@@ -95,10 +95,6 @@ export abstract class OverlayCapableComponent extends Component {
                     o.location = loc
                 }
             }
-        }
-
-        if (!doNotRepaint) {
-            this.paint()
         }
         return o
     }
@@ -137,7 +133,7 @@ export abstract class OverlayCapableComponent extends Component {
         }
     }
 
-    removeAllOverlays(doNotRepaint?:boolean):void {
+    removeAllOverlays():void {
         for (let i in this.overlays) {
             this.overlays[i].destroy(true)
         }
@@ -145,9 +141,6 @@ export abstract class OverlayCapableComponent extends Component {
         this.overlays = {}
         this.overlayPositions = null
         this.overlayPlacements= {}
-        if (!doNotRepaint) {
-            this.paint()
-        }
     }
 
     removeOverlay(overlayId:string, dontCleanup?:boolean):void {
@@ -204,10 +197,6 @@ export abstract class OverlayCapableComponent extends Component {
                 }
             }
         }
-
-        if (!this.instance._suspendDrawing) {
-            this.paint()
-        }
     }
 
     destroy(force?:boolean) {
@@ -239,10 +228,8 @@ export abstract class OverlayCapableComponent extends Component {
         if (!dontUpdateOverlays) {
             for (let i in this.overlays) {
                 if (action === "add") {
-                    //this.overlays[i].addClass(clazz)
                     this.instance.addOverlayClass(this.overlays[i], clazz)
                 } else if (action === "remove") {
-                    //this.overlays[i].removeClass(clazz)
                     this.instance.removeOverlayClass(this.overlays[i], clazz)
                 }
             }
@@ -259,8 +246,8 @@ export abstract class OverlayCapableComponent extends Component {
         this._clazzManip("remove", clazz, dontUpdateOverlays)
     }
 
-    applyType(t:any, doNotRepaint:boolean, typeMap:any):void {
-        super.applyType(t, doNotRepaint, typeMap)
+    applyType(t:any, typeMap:any):void {
+        super.applyType(t, typeMap)
 
         // overlays?  not overlayMap?
         if (t.overlays) {
@@ -288,7 +275,7 @@ export abstract class OverlayCapableComponent extends Component {
                         this.overlays[c.id] = c
                     }
                     else {
-                        c = this.addOverlay(t.overlays[i], true)
+                        c = this.addOverlay(t.overlays[i])
                     }
                     keep[c.id] = true
                 }
