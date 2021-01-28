@@ -173,7 +173,7 @@ export interface jsPlumbDOMElement extends HTMLElement, jsPlumbElement<Element> 
     offsetParent: jsPlumbDOMElement
     parentNode: jsPlumbDOMElement
     jtk:jsPlumbDOMInformation
-    _jsPlumbList:any
+    _jsPlumbList:string
     _jsPlumbScrollHandler?:Function
     _katavorioDrag?:Drag
     cloneNode:(deep?:boolean) => jsPlumbDOMElement
