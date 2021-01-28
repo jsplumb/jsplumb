@@ -41,11 +41,8 @@ export abstract class SvgEndpoint<C> {
                 sizeElement(canvas, 0, 0, 1, 1)
             }
 
-            //(ep as any).canvas = svg
             ep.instance.appendElement(canvas, ep.instance.getContainer())
             canvas.appendChild(svg)
-
-            // TODO BG CANVAS! does it even need to be a canvas? i suppose not.
 
             if ((ep as any).cssClass != null) {
                 ep.instance.addClass(canvas, (ep as any).cssClass)
@@ -54,6 +51,8 @@ export abstract class SvgEndpoint<C> {
 
             canvas.jtk = canvas.jtk || { }
             canvas.jtk.endpoint = ep.endpoint
+
+            canvas.style.display = ep.endpoint.visible !== false ? "block" : "none"
 
             return canvas as HTMLElement
         }
