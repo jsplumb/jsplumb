@@ -37,7 +37,6 @@ export const ATTRIBUTE_NOT_DRAGGABLE = "jtk-not-draggable"
 export const ATTRIBUTE_SOURCE = "jtk-source"
 export const ATTRIBUTE_TABINDEX = "tabindex"
 export const ATTRIBUTE_TARGET = "jtk-target"
-export const BEFORE_DETACH = "beforeDetach"
 
 export const CHECK_CONDITION = "checkCondition"
 
@@ -103,6 +102,9 @@ export const EVENT_ZOOM = "zoom"
 
 export const IS_DETACH_ALLOWED = "isDetachAllowed"
 export const IS_GROUP_KEY = "_isJsPlumbGroup"
+
+export const INTERCEPT_BEFORE_DROP = "beforeDrop"
+export const INTERCEPT_BEFORE_DETACH = "beforeDetach"
 
 export const JTK_ID = "jtk-id"
 
