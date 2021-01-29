@@ -94,7 +94,7 @@ export class JsPlumbListManager {
         this.instance.bind(INTERCEPT_BEFORE_DROP, (p:any) => {
             const el = p.dropEndpoint.element as unknown as jsPlumbDOMElement
             const dropList = this.findParentList(el)
-            return dropList == null || (el.offsetTop >= dropList.domElement.scrollTop && (el.offsetTop + el.offsetHeight < dropList.domElement.scrollTop + dropList.domElement.offsetHeight))
+            return dropList == null || (el.offsetTop >= dropList.domElement.scrollTop && (el.offsetTop + el.offsetHeight <= dropList.domElement.scrollTop + dropList.domElement.offsetHeight))
         })
     }
 
@@ -113,22 +113,34 @@ export class JsPlumbListManager {
     }
 
     /**
+     * Gets the list associated with the given element, if any.
+     * @param el
+     */
+    getList(el:Element):JsPlumbList {
+        const listId = this.instance.getAttribute(el, ATTR_SCROLLABLE_LIST)
+        if (listId != null) {
+            return this.lists[listId]
+        }
+    }
+
+    /**
      * Destroy any scrollable list associated with the given element.
      * @param el
      */
     removeList(el:Element) {
-        const list = this.lists[(<jsPlumbDOMElement>el)._jsPlumbList]
+        const list = this.getList(el)
         if (list) {
             list.destroy()
-            delete this.lists[(<jsPlumbDOMElement>el)._jsPlumbList]
+            delete this.lists[list.id]
         }
     }
 
     findParentList(el:jsPlumbDOMElement):JsPlumbList {
-        let parent = el.parentNode, container = this.instance.getContainer()
+        let parent = el.parentNode, container = this.instance.getContainer(), parentList
         while(parent != null && parent !== container) {
-            if (parent._jsPlumbList != null && this.lists[parent._jsPlumbList] != null) {
-                return this.lists[parent._jsPlumbList]
+            parentList = this.getList(parent)
+            if (parentList != null) {
+                return parentList
             }
             parent = parent.parentNode
         }
@@ -147,12 +159,11 @@ export class JsPlumbList {
     private readonly elId:string
 
     constructor(private instance:BrowserJsPlumbInstance, private el:Element,
-                private options:JsPlumbListOptions, id:string){
+                private options:JsPlumbListOptions, public readonly id:string){
         this.domElement = el as unknown as jsPlumbDOMElement
-        this.domElement._jsPlumbList = id
         this.elId = this.instance.getId(el)
 
-        instance.setAttribute(el, ATTR_SCROLLABLE_LIST, TRUE)
+        instance.setAttribute(el, ATTR_SCROLLABLE_LIST, id)
 
         this._scrollHandler = this.scrollHandler.bind(this)
 
@@ -198,14 +209,10 @@ export class JsPlumbList {
     newConnection(c:Connection, el:jsPlumbDOMElement, index:number) {
 
         if (el.offsetTop < this.el.scrollTop) {
-            if (!el._jsPlumbProxies) {
-                this._proxyConnection(el, c, index, this.instance.getId(this.el), SupportedEdge.top)
-            }
+            this._proxyConnection(el, c, index, this.instance.getId(this.el), SupportedEdge.top)
         }
         else if (el.offsetTop + el.offsetHeight > this.el.scrollTop + this.domElement.offsetHeight) {
-            if (!el._jsPlumbProxies) {
-                this._proxyConnection(el, c, index, this.instance.getId(this.el), SupportedEdge.bottom)
-            }
+            this._proxyConnection(el, c, index, this.instance.getId(this.el), SupportedEdge.bottom)
         }
     }
 
@@ -221,30 +228,26 @@ export class JsPlumbList {
 
             // if child element is above the viewport, with no proxies, proxy any connections to/from it
             if (children[i].offsetTop < this.el.scrollTop) {
-                if (!children[i]._jsPlumbProxies) {
-                    children[i]._jsPlumbProxies = children[i]._jsPlumbProxies || []
-                    this.instance.select({source: children[i]}).each( (c) => {
-                        this._proxyConnection(children[i], c, 0, elId, SupportedEdge.top)
-                    })
+                children[i]._jsPlumbProxies = children[i]._jsPlumbProxies || []
+                this.instance.select({source: children[i]}).each( (c) => {
+                    this._proxyConnection(children[i], c, 0, elId, SupportedEdge.top)
+                })
 
-                    this.instance.select({target: children[i]}).each( (c) => {
-                        this._proxyConnection(children[i], c, 1, elId, SupportedEdge.top)
-                    })
-                }
+                this.instance.select({target: children[i]}).each( (c) => {
+                    this._proxyConnection(children[i], c, 1, elId, SupportedEdge.top)
+                })
             }
             // if child element is below the viewport, with no proxies, proxy any connections to/from it
             else if (children[i].offsetTop + children[i].offsetHeight > this.el.scrollTop + this.domElement.offsetHeight) {
-                if (!children[i]._jsPlumbProxies) {
-                    children[i]._jsPlumbProxies = children[i]._jsPlumbProxies || []
+                children[i]._jsPlumbProxies = children[i]._jsPlumbProxies || []
 
-                    this.instance.select({source: children[i]}).each( (c:any) => {
-                        this._proxyConnection(children[i], c, 0, elId, SupportedEdge.bottom)
-                    })
+                this.instance.select({source: children[i]}).each( (c:any) => {
+                    this._proxyConnection(children[i], c, 0, elId, SupportedEdge.bottom)
+                })
 
-                    this.instance.select({target: children[i]}).each( (c:any) => {
-                        this._proxyConnection(children[i], c, 1, elId, SupportedEdge.bottom)
-                    })
-                }
+                this.instance.select({target: children[i]}).each( (c:any) => {
+                    this._proxyConnection(children[i], c, 1, elId, SupportedEdge.bottom)
+                })
             // if child element is in the viewport, and has proxied connections, unproxy them.
             } else if (children[i]._jsPlumbProxies) {
                 for (let j = 0; j < children[i]._jsPlumbProxies.length; j++) {
