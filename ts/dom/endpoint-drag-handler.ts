@@ -16,7 +16,7 @@ import {consume, createElement, findParent} from "./browser-util"
 import {Drag} from "./collicat"
 import {
     addToDictionary,
-    Anchor, BEFORE_DETACH,
+    Anchor, INTERCEPT_BEFORE_DETACH,
     BoundingBox, CHECK_CONDITION,
     CHECK_DROP_ALLOWED, classList,
     cls,
@@ -976,7 +976,7 @@ export class EndpointDragHandler implements DragHandler {
             [ this.jpc.endpoints[0], IS_DETACH_ALLOWED, [ this.jpc ] ],
             [ this.jpc.endpoints[1], IS_DETACH_ALLOWED, [ this.jpc ] ],
             [ this.jpc, IS_DETACH_ALLOWED, [ this.jpc ] ],
-            [ this.instance, CHECK_CONDITION, [ BEFORE_DETACH, this.jpc ] ]
+            [ this.instance, CHECK_CONDITION, [ INTERCEPT_BEFORE_DETACH, this.jpc ] ]
         ])
     }
 
