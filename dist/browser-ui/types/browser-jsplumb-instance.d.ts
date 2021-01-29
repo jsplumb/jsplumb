@@ -3,7 +3,7 @@ import { ElementAttributes } from './svg-util';
 import { DragManager } from "./drag-manager";
 import { EventManager } from "./event-manager";
 import { CollicatOptions, Collicat, Drag } from './collicat';
-import { jsPlumbList, jsPlumbListManager, jsPlumbListOptions } from "./lists";
+import { JsPlumbList, JsPlumbListManager, JsPlumbListOptions } from "./lists";
 export interface UIComponent {
     canvas: HTMLElement;
     svg: SVGElement;
@@ -99,7 +99,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     _elementMouseexit: Function;
     _elementMousemove: Function;
     eventManager: EventManager;
-    listManager: jsPlumbListManager;
+    listManager: JsPlumbListManager;
     draggingClass: string;
     elementDraggingClass: string;
     hoverClass: string;
@@ -188,7 +188,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
      * @param el Element containing the list.
      * @param options
      */
-    addList(el: Element, options?: jsPlumbListOptions): jsPlumbList;
+    addList(el: Element, options?: JsPlumbListOptions): JsPlumbList;
     /**
      * Removes a managed list from the instance
      * @param el Element containing the list.

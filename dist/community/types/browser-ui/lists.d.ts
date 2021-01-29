@@ -6,7 +6,7 @@ export declare enum SupportedEdge {
     top = 0,
     bottom = 1
 }
-export interface jsPlumbListOptions {
+export interface JsPlumbListOptions {
     anchor?: AnchorSpec;
     deriveAnchor?: (edge: SupportedEdge, index: number, ep: Endpoint, conn: Connection) => Anchor;
     endpoint?: EndpointSpec;
@@ -18,38 +18,38 @@ export declare const EVENT_SCROLL = "scroll";
 /**
  * Provides methods to create/destroy scrollable lists.
  */
-export declare class jsPlumbListManager {
+export declare class JsPlumbListManager {
     private instance;
     options: ListManagerOptions;
     count: number;
-    lists: Dictionary<jsPlumbList>;
+    lists: Dictionary<JsPlumbList>;
     constructor(instance: BrowserJsPlumbInstance, params?: ListManagerOptions);
     /**
      * Configure the given element as a scrollable list.
      * @param el Element to configure as a list.
      * @param options Options for the list.
      */
-    addList(el: Element, options?: jsPlumbListOptions): jsPlumbList;
+    addList(el: Element, options?: JsPlumbListOptions): JsPlumbList;
     /**
      * Destroy any scrollable list associated with the given element.
      * @param el
      */
     removeList(el: Element): void;
-    private findParentList;
+    findParentList(el: jsPlumbDOMElement): JsPlumbList;
 }
 /**
  * Models a list of elements that is scrollable, and connections to the elements contained in the list are proxied onto
  * the top of bottom edge of the list element whenever their source/target is not within the list element's current
  * viewport.
  */
-export declare class jsPlumbList {
+export declare class JsPlumbList {
     private instance;
     private el;
     private options;
     _scrollHandler: Function;
-    private readonly domElement;
+    readonly domElement: jsPlumbDOMElement;
     private readonly elId;
-    constructor(instance: BrowserJsPlumbInstance, el: Element, options: jsPlumbListOptions, id: string);
+    constructor(instance: BrowserJsPlumbInstance, el: Element, options: JsPlumbListOptions, id: string);
     /**
      * Derive an anchor to use for the current situation. In contrast to the way we derive an endpoint, here we use `anchor` from the options, if present, as
      * our first choice, and then `deriveAnchor` as our next choice. There is a default `deriveAnchor` implementation that uses TopRight/TopLeft for top and

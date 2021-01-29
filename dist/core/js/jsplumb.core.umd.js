@@ -3068,7 +3068,6 @@
   var ATTRIBUTE_SOURCE = "jtk-source";
   var ATTRIBUTE_TABINDEX = "tabindex";
   var ATTRIBUTE_TARGET = "jtk-target";
-  var BEFORE_DETACH = "beforeDetach";
   var CHECK_CONDITION = "checkCondition";
   var CHECK_DROP_ALLOWED = "checkDropAllowed";
   var CLASS_CONNECTOR = "jtk-connector";
@@ -3126,6 +3125,8 @@
   var EVENT_ZOOM = "zoom";
   var IS_DETACH_ALLOWED = "isDetachAllowed";
   var IS_GROUP_KEY = "_isJsPlumbGroup";
+  var INTERCEPT_BEFORE_DROP = "beforeDrop";
+  var INTERCEPT_BEFORE_DETACH = "beforeDetach";
   var JTK_ID = "jtk-id";
   var PROPERTY_POSITION = "position";
   var SELECTOR_CONNECTOR = cls(CLASS_CONNECTOR);
@@ -3426,7 +3427,7 @@
     }, {
       key: "isDropAllowed",
       value: function isDropAllowed(sourceId, targetId, scope, connection, dropEndpoint, source, target) {
-        var r = this.instance.checkCondition("beforeDrop", {
+        var r = this.instance.checkCondition(INTERCEPT_BEFORE_DROP, {
           sourceId: sourceId,
           targetId: targetId,
           scope: scope,
@@ -8281,7 +8282,7 @@
       value: function deleteConnection(connection, params) {
         if (connection != null) {
           params = params || {};
-          if (params.force || functionChain(true, false, [[connection.endpoints[0], IS_DETACH_ALLOWED, [connection]], [connection.endpoints[1], IS_DETACH_ALLOWED, [connection]], [connection, IS_DETACH_ALLOWED, [connection]], [this, CHECK_CONDITION, [BEFORE_DETACH, connection]]])) {
+          if (params.force || functionChain(true, false, [[connection.endpoints[0], IS_DETACH_ALLOWED, [connection]], [connection.endpoints[1], IS_DETACH_ALLOWED, [connection]], [connection, IS_DETACH_ALLOWED, [connection]], [this, CHECK_CONDITION, [INTERCEPT_BEFORE_DETACH, connection]]])) {
             this.fireDetachEvent(connection, !connection.pending && params.fireEvent !== false, params.originalEvent);
             var sourceEndpoint = connection.endpoints[0];
             var targetEndpoint = connection.endpoints[1];
@@ -9718,7 +9719,6 @@
   exports.Anchors = Anchors;
   exports.ArcSegment = ArcSegment;
   exports.ArrowOverlay = ArrowOverlay;
-  exports.BEFORE_DETACH = BEFORE_DETACH;
   exports.BLOCK = BLOCK;
   exports.BezierSegment = BezierSegment;
   exports.CHECK_CONDITION = CHECK_CONDITION;
@@ -9796,6 +9796,8 @@
   exports.FIXED = FIXED;
   exports.GROUP_KEY = GROUP_KEY;
   exports.GroupManager = GroupManager;
+  exports.INTERCEPT_BEFORE_DETACH = INTERCEPT_BEFORE_DETACH;
+  exports.INTERCEPT_BEFORE_DROP = INTERCEPT_BEFORE_DROP;
   exports.IS = IS;
   exports.IS_DETACH_ALLOWED = IS_DETACH_ALLOWED;
   exports.IS_GROUP_KEY = IS_GROUP_KEY;

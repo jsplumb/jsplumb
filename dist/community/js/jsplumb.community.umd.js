@@ -2963,7 +2963,6 @@
   var ATTRIBUTE_SOURCE = "jtk-source";
   var ATTRIBUTE_TABINDEX = "tabindex";
   var ATTRIBUTE_TARGET = "jtk-target";
-  var BEFORE_DETACH = "beforeDetach";
   var CHECK_CONDITION = "checkCondition";
   var CHECK_DROP_ALLOWED = "checkDropAllowed";
   var CLASS_CONNECTOR = "jtk-connector";
@@ -3018,6 +3017,8 @@
   var EVENT_ZOOM = "zoom";
   var IS_DETACH_ALLOWED = "isDetachAllowed";
   var IS_GROUP_KEY = "_isJsPlumbGroup";
+  var INTERCEPT_BEFORE_DROP = "beforeDrop";
+  var INTERCEPT_BEFORE_DETACH = "beforeDetach";
   var JTK_ID = "jtk-id";
   var PROPERTY_POSITION = "position";
   var SELECTOR_CONNECTOR = cls(CLASS_CONNECTOR);
@@ -3318,7 +3319,7 @@
     }, {
       key: "isDropAllowed",
       value: function isDropAllowed(sourceId, targetId, scope, connection, dropEndpoint, source, target) {
-        var r = this.instance.checkCondition("beforeDrop", {
+        var r = this.instance.checkCondition(INTERCEPT_BEFORE_DROP, {
           sourceId: sourceId,
           targetId: targetId,
           scope: scope,
@@ -8173,7 +8174,7 @@
       value: function deleteConnection(connection, params) {
         if (connection != null) {
           params = params || {};
-          if (params.force || functionChain(true, false, [[connection.endpoints[0], IS_DETACH_ALLOWED, [connection]], [connection.endpoints[1], IS_DETACH_ALLOWED, [connection]], [connection, IS_DETACH_ALLOWED, [connection]], [this, CHECK_CONDITION, [BEFORE_DETACH, connection]]])) {
+          if (params.force || functionChain(true, false, [[connection.endpoints[0], IS_DETACH_ALLOWED, [connection]], [connection.endpoints[1], IS_DETACH_ALLOWED, [connection]], [connection, IS_DETACH_ALLOWED, [connection]], [this, CHECK_CONDITION, [INTERCEPT_BEFORE_DETACH, connection]]])) {
             this.fireDetachEvent(connection, !connection.pending && params.fireEvent !== false, params.originalEvent);
             var sourceEndpoint = connection.endpoints[0];
             var targetEndpoint = connection.endpoints[1];
@@ -11146,7 +11147,7 @@
     }, {
       key: "_shouldReattach",
       value: function _shouldReattach(originalEvent) {
-        return this.jpc.isReattach() || this.jpc._forceReattach || !functionChain(true, false, [[this.jpc.endpoints[0], IS_DETACH_ALLOWED, [this.jpc]], [this.jpc.endpoints[1], IS_DETACH_ALLOWED, [this.jpc]], [this.jpc, IS_DETACH_ALLOWED, [this.jpc]], [this.instance, CHECK_CONDITION, [BEFORE_DETACH, this.jpc]]]);
+        return this.jpc.isReattach() || this.jpc._forceReattach || !functionChain(true, false, [[this.jpc.endpoints[0], IS_DETACH_ALLOWED, [this.jpc]], [this.jpc.endpoints[1], IS_DETACH_ALLOWED, [this.jpc]], [this.jpc, IS_DETACH_ALLOWED, [this.jpc]], [this.instance, CHECK_CONDITION, [INTERCEPT_BEFORE_DETACH, this.jpc]]]);
       }
     }, {
       key: "_maybeReattach",
@@ -12684,11 +12685,11 @@
   var ATTR_SCROLLABLE_LIST = "jtk-scrollable-list";
   var SELECTOR_SCROLLABLE_LIST = "[" + ATTR_SCROLLABLE_LIST + "]";
   var EVENT_SCROLL = "scroll";
-  var jsPlumbListManager =
+  var JsPlumbListManager =
   function () {
-    function jsPlumbListManager(instance, params) {
+    function JsPlumbListManager(instance, params) {
       var _this = this;
-      _classCallCheck(this, jsPlumbListManager);
+      _classCallCheck(this, JsPlumbListManager);
       this.instance = instance;
       _defineProperty(this, "options", void 0);
       _defineProperty(this, "count", void 0);
@@ -12717,15 +12718,20 @@
           }
         }
       });
+      this.instance.bind(INTERCEPT_BEFORE_DROP, function (p) {
+        var el = p.dropEndpoint.element;
+        var dropList = _this.findParentList(el);
+        return dropList == null || el.offsetTop >= dropList.domElement.scrollTop && el.offsetTop + el.offsetHeight < dropList.domElement.scrollTop + dropList.domElement.offsetHeight;
+      });
     }
-    _createClass(jsPlumbListManager, [{
+    _createClass(JsPlumbListManager, [{
       key: "addList",
       value: function addList(el, options) {
         var dp = extend({}, DEFAULT_LIST_OPTIONS);
         extend(dp, this.options);
         options = extend(dp, options || {});
         var id = [this.instance._instanceIndex, this.count++].join("_");
-        this.lists[id] = new jsPlumbList(this.instance, el, options, id);
+        this.lists[id] = new JsPlumbList(this.instance, el, options, id);
         return this.lists[id];
       }
     }, {
@@ -12750,12 +12756,12 @@
         }
       }
     }]);
-    return jsPlumbListManager;
+    return JsPlumbListManager;
   }();
-  var jsPlumbList =
+  var JsPlumbList =
   function () {
-    function jsPlumbList(instance, el, options, id) {
-      _classCallCheck(this, jsPlumbList);
+    function JsPlumbList(instance, el, options, id) {
+      _classCallCheck(this, JsPlumbList);
       this.instance = instance;
       this.el = el;
       this.options = options;
@@ -12771,7 +12777,7 @@
       instance.on(el, EVENT_SCROLL, this._scrollHandler);
       this._scrollHandler();
     }
-    _createClass(jsPlumbList, [{
+    _createClass(JsPlumbList, [{
       key: "deriveAnchor",
       value: function deriveAnchor(edge, index, ep, conn) {
         return this.options.anchor ? this.options.anchor : this.options.deriveAnchor(edge, index, ep, conn);
@@ -12851,6 +12857,7 @@
         }, function () {
           return _this3.deriveAnchor(edge, index, conn.endpoints[index], conn);
         });
+        el._jsPlumbProxies = el._jsPlumbProxies || [];
         el._jsPlumbProxies.push([conn, index]);
       }
     }, {
@@ -12869,7 +12876,7 @@
         }
       }
     }]);
-    return jsPlumbList;
+    return JsPlumbList;
   }();
 
   var HTMLElementOverlay =
@@ -13285,7 +13292,7 @@
       _this.elementsDraggable = defaults && defaults.elementsDraggable !== false;
       _this.eventManager = new EventManager();
       _this.dragManager = new DragManager(_assertThisInitialized(_this));
-      _this.listManager = new jsPlumbListManager(_assertThisInitialized(_this));
+      _this.listManager = new JsPlumbListManager(_assertThisInitialized(_this));
       _this.dragManager.addHandler(new EndpointDragHandler(_assertThisInitialized(_this)));
       var groupDragOptions = {
         constrain: function constrain(desiredLoc, dragEl, constrainRect, size) {

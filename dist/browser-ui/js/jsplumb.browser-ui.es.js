@@ -1,4 +1,4 @@
-import { fastTrim, isArray, log, NONE, PARENT_GROUP_KEY, extend, wrap, isString, optional, GROUP_KEY, Anchor, cls, each, makeAnchorFromSpec, findWithFunction, IS_GROUP_KEY, SOURCE, TARGET, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, BEFORE_DETACH, IS, addToDictionary, EVENT_CONTEXTMENU, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, EVENT_CLICK, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, uuid, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, TRUE as TRUE$1, SELECTOR_MANAGED_ELEMENT, Connection, Endpoint, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, UNDEFINED, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, ATTRIBUTE_NOT_DRAGGABLE, FALSE as FALSE$1, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, LabelOverlay, CustomOverlay, EndpointRepresentation, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/community-core';
+import { fastTrim, isArray, log, NONE, PARENT_GROUP_KEY, extend, wrap, isString, optional, GROUP_KEY, Anchor, cls, each, makeAnchorFromSpec, findWithFunction, IS_GROUP_KEY, SOURCE, TARGET, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, IS, addToDictionary, EVENT_CONTEXTMENU, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, EVENT_CLICK, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, uuid, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, TRUE as TRUE$1, SELECTOR_MANAGED_ELEMENT, Connection, Endpoint, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, UNDEFINED, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, ATTRIBUTE_NOT_DRAGGABLE, FALSE as FALSE$1, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, LabelOverlay, CustomOverlay, EndpointRepresentation, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/community-core';
 
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -1737,7 +1737,7 @@ function () {
   }, {
     key: "_shouldReattach",
     value: function _shouldReattach(originalEvent) {
-      return this.jpc.isReattach() || this.jpc._forceReattach || !functionChain(true, false, [[this.jpc.endpoints[0], IS_DETACH_ALLOWED, [this.jpc]], [this.jpc.endpoints[1], IS_DETACH_ALLOWED, [this.jpc]], [this.jpc, IS_DETACH_ALLOWED, [this.jpc]], [this.instance, CHECK_CONDITION, [BEFORE_DETACH, this.jpc]]]);
+      return this.jpc.isReattach() || this.jpc._forceReattach || !functionChain(true, false, [[this.jpc.endpoints[0], IS_DETACH_ALLOWED, [this.jpc]], [this.jpc.endpoints[1], IS_DETACH_ALLOWED, [this.jpc]], [this.jpc, IS_DETACH_ALLOWED, [this.jpc]], [this.instance, CHECK_CONDITION, [INTERCEPT_BEFORE_DETACH, this.jpc]]]);
     }
   }, {
     key: "_maybeReattach",
@@ -3275,11 +3275,11 @@ var DEFAULT_LIST_OPTIONS = {
 var ATTR_SCROLLABLE_LIST = "jtk-scrollable-list";
 var SELECTOR_SCROLLABLE_LIST = "[" + ATTR_SCROLLABLE_LIST + "]";
 var EVENT_SCROLL = "scroll";
-var jsPlumbListManager =
+var JsPlumbListManager =
 function () {
-  function jsPlumbListManager(instance, params) {
+  function JsPlumbListManager(instance, params) {
     var _this = this;
-    _classCallCheck(this, jsPlumbListManager);
+    _classCallCheck(this, JsPlumbListManager);
     this.instance = instance;
     _defineProperty(this, "options", void 0);
     _defineProperty(this, "count", void 0);
@@ -3308,15 +3308,20 @@ function () {
         }
       }
     });
+    this.instance.bind(INTERCEPT_BEFORE_DROP, function (p) {
+      var el = p.dropEndpoint.element;
+      var dropList = _this.findParentList(el);
+      return dropList == null || el.offsetTop >= dropList.domElement.scrollTop && el.offsetTop + el.offsetHeight < dropList.domElement.scrollTop + dropList.domElement.offsetHeight;
+    });
   }
-  _createClass(jsPlumbListManager, [{
+  _createClass(JsPlumbListManager, [{
     key: "addList",
     value: function addList(el, options) {
       var dp = extend({}, DEFAULT_LIST_OPTIONS);
       extend(dp, this.options);
       options = extend(dp, options || {});
       var id = [this.instance._instanceIndex, this.count++].join("_");
-      this.lists[id] = new jsPlumbList(this.instance, el, options, id);
+      this.lists[id] = new JsPlumbList(this.instance, el, options, id);
       return this.lists[id];
     }
   }, {
@@ -3341,12 +3346,12 @@ function () {
       }
     }
   }]);
-  return jsPlumbListManager;
+  return JsPlumbListManager;
 }();
-var jsPlumbList =
+var JsPlumbList =
 function () {
-  function jsPlumbList(instance, el, options, id) {
-    _classCallCheck(this, jsPlumbList);
+  function JsPlumbList(instance, el, options, id) {
+    _classCallCheck(this, JsPlumbList);
     this.instance = instance;
     this.el = el;
     this.options = options;
@@ -3362,7 +3367,7 @@ function () {
     instance.on(el, EVENT_SCROLL, this._scrollHandler);
     this._scrollHandler();
   }
-  _createClass(jsPlumbList, [{
+  _createClass(JsPlumbList, [{
     key: "deriveAnchor",
     value: function deriveAnchor(edge, index, ep, conn) {
       return this.options.anchor ? this.options.anchor : this.options.deriveAnchor(edge, index, ep, conn);
@@ -3442,6 +3447,7 @@ function () {
       }, function () {
         return _this3.deriveAnchor(edge, index, conn.endpoints[index], conn);
       });
+      el._jsPlumbProxies = el._jsPlumbProxies || [];
       el._jsPlumbProxies.push([conn, index]);
     }
   }, {
@@ -3460,7 +3466,7 @@ function () {
       }
     }
   }]);
-  return jsPlumbList;
+  return JsPlumbList;
 }();
 
 var HTMLElementOverlay =
@@ -3876,7 +3882,7 @@ function (_JsPlumbInstance) {
     _this.elementsDraggable = defaults && defaults.elementsDraggable !== false;
     _this.eventManager = new EventManager();
     _this.dragManager = new DragManager(_assertThisInitialized(_this));
-    _this.listManager = new jsPlumbListManager(_assertThisInitialized(_this));
+    _this.listManager = new JsPlumbListManager(_assertThisInitialized(_this));
     _this.dragManager.addHandler(new EndpointDragHandler(_assertThisInitialized(_this)));
     var groupDragOptions = {
       constrain: function constrain(desiredLoc, dragEl, constrainRect, size) {

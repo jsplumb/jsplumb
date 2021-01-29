@@ -1741,7 +1741,7 @@
     }, {
       key: "_shouldReattach",
       value: function _shouldReattach(originalEvent) {
-        return this.jpc.isReattach() || this.jpc._forceReattach || !communityCore.functionChain(true, false, [[this.jpc.endpoints[0], communityCore.IS_DETACH_ALLOWED, [this.jpc]], [this.jpc.endpoints[1], communityCore.IS_DETACH_ALLOWED, [this.jpc]], [this.jpc, communityCore.IS_DETACH_ALLOWED, [this.jpc]], [this.instance, communityCore.CHECK_CONDITION, [communityCore.BEFORE_DETACH, this.jpc]]]);
+        return this.jpc.isReattach() || this.jpc._forceReattach || !communityCore.functionChain(true, false, [[this.jpc.endpoints[0], communityCore.IS_DETACH_ALLOWED, [this.jpc]], [this.jpc.endpoints[1], communityCore.IS_DETACH_ALLOWED, [this.jpc]], [this.jpc, communityCore.IS_DETACH_ALLOWED, [this.jpc]], [this.instance, communityCore.CHECK_CONDITION, [communityCore.INTERCEPT_BEFORE_DETACH, this.jpc]]]);
       }
     }, {
       key: "_maybeReattach",
@@ -3279,11 +3279,11 @@
   var ATTR_SCROLLABLE_LIST = "jtk-scrollable-list";
   var SELECTOR_SCROLLABLE_LIST = "[" + ATTR_SCROLLABLE_LIST + "]";
   var EVENT_SCROLL = "scroll";
-  var jsPlumbListManager =
+  var JsPlumbListManager =
   function () {
-    function jsPlumbListManager(instance, params) {
+    function JsPlumbListManager(instance, params) {
       var _this = this;
-      _classCallCheck(this, jsPlumbListManager);
+      _classCallCheck(this, JsPlumbListManager);
       this.instance = instance;
       _defineProperty(this, "options", void 0);
       _defineProperty(this, "count", void 0);
@@ -3312,15 +3312,20 @@
           }
         }
       });
+      this.instance.bind(communityCore.INTERCEPT_BEFORE_DROP, function (p) {
+        var el = p.dropEndpoint.element;
+        var dropList = _this.findParentList(el);
+        return dropList == null || el.offsetTop >= dropList.domElement.scrollTop && el.offsetTop + el.offsetHeight < dropList.domElement.scrollTop + dropList.domElement.offsetHeight;
+      });
     }
-    _createClass(jsPlumbListManager, [{
+    _createClass(JsPlumbListManager, [{
       key: "addList",
       value: function addList(el, options) {
         var dp = communityCore.extend({}, DEFAULT_LIST_OPTIONS);
         communityCore.extend(dp, this.options);
         options = communityCore.extend(dp, options || {});
         var id = [this.instance._instanceIndex, this.count++].join("_");
-        this.lists[id] = new jsPlumbList(this.instance, el, options, id);
+        this.lists[id] = new JsPlumbList(this.instance, el, options, id);
         return this.lists[id];
       }
     }, {
@@ -3345,12 +3350,12 @@
         }
       }
     }]);
-    return jsPlumbListManager;
+    return JsPlumbListManager;
   }();
-  var jsPlumbList =
+  var JsPlumbList =
   function () {
-    function jsPlumbList(instance, el, options, id) {
-      _classCallCheck(this, jsPlumbList);
+    function JsPlumbList(instance, el, options, id) {
+      _classCallCheck(this, JsPlumbList);
       this.instance = instance;
       this.el = el;
       this.options = options;
@@ -3366,7 +3371,7 @@
       instance.on(el, EVENT_SCROLL, this._scrollHandler);
       this._scrollHandler();
     }
-    _createClass(jsPlumbList, [{
+    _createClass(JsPlumbList, [{
       key: "deriveAnchor",
       value: function deriveAnchor(edge, index, ep, conn) {
         return this.options.anchor ? this.options.anchor : this.options.deriveAnchor(edge, index, ep, conn);
@@ -3446,6 +3451,7 @@
         }, function () {
           return _this3.deriveAnchor(edge, index, conn.endpoints[index], conn);
         });
+        el._jsPlumbProxies = el._jsPlumbProxies || [];
         el._jsPlumbProxies.push([conn, index]);
       }
     }, {
@@ -3464,7 +3470,7 @@
         }
       }
     }]);
-    return jsPlumbList;
+    return JsPlumbList;
   }();
 
   var HTMLElementOverlay =
@@ -3880,7 +3886,7 @@
       _this.elementsDraggable = defaults && defaults.elementsDraggable !== false;
       _this.eventManager = new EventManager();
       _this.dragManager = new DragManager(_assertThisInitialized(_this));
-      _this.listManager = new jsPlumbListManager(_assertThisInitialized(_this));
+      _this.listManager = new JsPlumbListManager(_assertThisInitialized(_this));
       _this.dragManager.addHandler(new EndpointDragHandler(_assertThisInitialized(_this)));
       var groupDragOptions = {
         constrain: function constrain(desiredLoc, dragEl, constrainRect, size) {
