@@ -7,7 +7,12 @@ import {
     Anchor,
     extend,
     Dictionary,
-    EVENT_CONNECTION, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, SELECTOR_MANAGED_ELEMENT, TRUE
+    EVENT_CONNECTION,
+    EVENT_MANAGE_ELEMENT,
+    EVENT_UNMANAGE_ELEMENT,
+    SELECTOR_MANAGED_ELEMENT,
+    TRUE,
+    INTERCEPT_BEFORE_DROP
 } from '@jsplumb/community-core'
 
 export interface ListManagerOptions { }
@@ -16,7 +21,7 @@ export enum SupportedEdge {
     top, bottom
 }
 
-export interface jsPlumbListOptions {
+export interface JsPlumbListOptions {
     anchor?:AnchorSpec
     deriveAnchor?:(edge:SupportedEdge, index:number, ep:Endpoint, conn:Connection) => Anchor
     endpoint?:EndpointSpec
@@ -41,11 +46,11 @@ export const EVENT_SCROLL = "scroll"
 /**
  * Provides methods to create/destroy scrollable lists.
  */
-export class jsPlumbListManager {
+export class JsPlumbListManager {
 
     options:ListManagerOptions
     count: number
-    lists: Dictionary<jsPlumbList>
+    lists: Dictionary<JsPlumbList>
 
     constructor(private instance:BrowserJsPlumbInstance, params?:ListManagerOptions) {
         this.count = 0
@@ -81,6 +86,16 @@ export class jsPlumbListManager {
 
             }
         })
+
+        //
+        // intercept connection drops, and if the drop element belongs to a list, ensure that it is currently within the visible viewport of
+        // the list. If it is not, reject the connection. This was reported in issue 944.
+        //
+        this.instance.bind(INTERCEPT_BEFORE_DROP, (p:any) => {
+            const el = p.dropEndpoint.element as unknown as jsPlumbDOMElement
+            const dropList = this.findParentList(el)
+            return dropList == null || (el.offsetTop >= dropList.domElement.scrollTop && (el.offsetTop + el.offsetHeight < dropList.domElement.scrollTop + dropList.domElement.offsetHeight))
+        })
     }
 
     /**
@@ -88,12 +103,12 @@ export class jsPlumbListManager {
      * @param el Element to configure as a list.
      * @param options Options for the list.
      */
-    addList(el:Element, options?:jsPlumbListOptions):jsPlumbList {
+    addList(el:Element, options?:JsPlumbListOptions):JsPlumbList {
         const dp = extend({} as any, DEFAULT_LIST_OPTIONS)
         extend(dp, this.options)
         options = extend(dp,  options || {})
         const id = [this.instance._instanceIndex, this.count++].join("_")
-        this.lists[id] = new jsPlumbList(this.instance, el, options, id)
+        this.lists[id] = new JsPlumbList(this.instance, el, options, id)
         return this.lists[id]
     }
 
@@ -109,7 +124,7 @@ export class jsPlumbListManager {
         }
     }
 
-    private findParentList(el:jsPlumbDOMElement):jsPlumbList {
+    findParentList(el:jsPlumbDOMElement):JsPlumbList {
         let parent = el.parentNode, container = this.instance.getContainer()
         while(parent != null && parent !== container) {
             if (parent._jsPlumbList != null && this.lists[parent._jsPlumbList] != null) {
@@ -125,13 +140,14 @@ export class jsPlumbListManager {
  * the top of bottom edge of the list element whenever their source/target is not within the list element's current
  * viewport.
  */
-export class jsPlumbList {
+export class JsPlumbList {
 
     _scrollHandler:Function
-    private readonly domElement:jsPlumbDOMElement
+    readonly domElement:jsPlumbDOMElement
     private readonly elId:string
 
-    constructor(private instance:BrowserJsPlumbInstance, private el:Element, private options:jsPlumbListOptions, id:string){
+    constructor(private instance:BrowserJsPlumbInstance, private el:Element,
+                private options:JsPlumbListOptions, id:string){
         this.domElement = el as unknown as jsPlumbDOMElement
         this.domElement._jsPlumbList = id
         this.elId = this.instance.getId(el)
@@ -257,6 +273,7 @@ export class jsPlumbList {
         },  () => {
             return this.deriveAnchor(edge, index, conn.endpoints[index], conn)
         });
+        (el as any)._jsPlumbProxies = (el as any)._jsPlumbProxies || [];
         (el as any)._jsPlumbProxies.push([conn, index])
     }
 
