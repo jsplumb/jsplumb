@@ -94,7 +94,7 @@ import {EventManager} from "./event-manager"
 
 import {CollicatOptions, Collicat, Drag, DragHandlerOptions} from './collicat'
 
-import {jsPlumbList, jsPlumbListManager, jsPlumbListOptions} from "./lists"
+import {JsPlumbList, JsPlumbListManager, JsPlumbListOptions} from "./lists"
 
 import {HTMLElementOverlay} from "./html-element-overlay"
 import {SVGElementOverlay} from "./svg-element-overlay"
@@ -263,7 +263,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     _elementMousemove:Function
 
     eventManager:EventManager
-    listManager:jsPlumbListManager
+    listManager:JsPlumbListManager
 
     draggingClass = "jtk-dragging"
 
@@ -293,7 +293,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
         this.eventManager = new EventManager()
         this.dragManager = new DragManager(this)
-        this.listManager = new jsPlumbListManager(this)
+        this.listManager = new JsPlumbListManager(this)
 
         this.dragManager.addHandler(new EndpointDragHandler(this))
         const groupDragOptions:DragHandlerOptions = {
@@ -813,7 +813,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
      * @param el Element containing the list.
      * @param options
      */
-    addList (el:Element, options?:jsPlumbListOptions):jsPlumbList {
+    addList (el:Element, options?:JsPlumbListOptions):JsPlumbList {
         return this.listManager.addList(el, options)
     }
 
