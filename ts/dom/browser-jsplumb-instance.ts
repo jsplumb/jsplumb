@@ -1098,7 +1098,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             if (connector.connection.hoverPaintStyle != null) {
                 connector.connection.paintStyleInUse = h ? connector.connection.hoverPaintStyle : connector.connection.paintStyle
                 if (!this._suspendDrawing) {
-                    connector.connection.paint(connector.connection.paintStyleInUse)
+                    this.paintConnection(connector.connection, connector.connection.paintStyleInUse)
                 }
             }
 
