@@ -194,7 +194,7 @@ var testSuite = function () {
                 outlineWidth: "5"
             }
         });
-        c.paint();
+        _jsPlumb.paintConnection(c)
         equal(c.paintStyleInUse.outlineWidth, 5, "outline width converted to integer");
     });
 
@@ -212,7 +212,7 @@ var testSuite = function () {
                 outlineWidth: "5"
             }
         });
-        c.paint();
+        _jsPlumb.paintConnection(c)
         equal(c.paintStyleInUse.outlineWidth, 5, "outline width converted to integer");
         equal(c.paintStyleInUse.strokeWidth, 3, "line width converted to integer");
     });
@@ -4690,7 +4690,6 @@ var testSuite = function () {
 
         c.setHoverPaintStyle({stroke: "BAZ", strokeWidth: 444});
 
-        //c.setHover(true);
         _jsPlumb.setHover(c, true);
 
         equal(c.paintStyleInUse.stroke, "BAZ", "stroke was set");
