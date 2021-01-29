@@ -1370,14 +1370,17 @@ var testSuite = function () {
 
     test(": Endpoint.detachFromConnection", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
-        var e16 = _jsPlumb.addEndpoint(d16, {isSource: true});
+        var e16 = _jsPlumb.addEndpoint(d16, {isSource: true, maxConnections:1});
         var c16 = support.getEndpointCanvas(e16);
         equal(false, _jsPlumb.hasClass(c16, _jsPlumb.endpointConnectedClass), "endpoint does not have connected class");
+        equal(false, _jsPlumb.hasClass(c16, _jsPlumb.endpointFullClass), "endpoint does not have full class");
+
         ok(e16.anchor, 'endpoint 16 has an anchor');
         var e17 = _jsPlumb.addEndpoint(d17, {isSource: true});
         var conn = _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17});
 
         equal(true, _jsPlumb.hasClass(c16, _jsPlumb.endpointConnectedClass), "endpoint has connected class");
+        equal(true, _jsPlumb.hasClass(c16, _jsPlumb.endpointFullClass), "endpoint has full class");
 
         assertConnectionCount(e16, 1);
         assertConnectionCount(e17, 1);
@@ -1385,6 +1388,7 @@ var testSuite = function () {
         e16.detachFromConnection(conn);
 
         equal(false, _jsPlumb.hasClass(c16, _jsPlumb.endpointConnectedClass), "endpoint does not have connected class");
+        equal(false, _jsPlumb.hasClass(c16, _jsPlumb.endpointFullClass), "endpoint does not have full class");
 
         // but endpoint e16 should have no connections now.
         assertConnectionCount(e16, 0);
