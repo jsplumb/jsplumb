@@ -4,18 +4,8 @@ import { JsPlumbInstance } from "../core"
 import { Connection } from '../connector/connection-impl'
 import { Endpoint } from '../endpoint/endpoint'
 import {ViewportElement} from "../viewport"
-
-import {
-    ConnectionDetachedParams,
-    Dictionary,
-    Offset,
-    PointArray,
-    PointXY,
-    SortFunction
-} from "../common"
-
-
-import {Face, Orientation} from "../factory/anchor-factory"
+import { ConnectionDetachedParams, Dictionary, Offset, PointArray, PointXY, SortFunction } from "../common"
+import {AnchorComputeParams, Face, Orientation} from "../factory/anchor-factory"
 import { DynamicAnchor } from "../anchor/dynamic-anchor"
 import {findWithFunction, removeWithFunction, rotatePoint, rotatePointXY, sortHelper, uuid} from "../util"
 import {ContinuousAnchor} from "../anchor/continuous-anchor"
@@ -110,17 +100,18 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
     private anchorLists:AnchorDictionary = {}
 
     constructor(public instance:JsPlumbInstance ) {
-        //this.anchorManager = new AnchorManager(this.instance)
         instance.bind<ConnectionDetachedParams<T["E"]>>(Constants.EVENT_INTERNAL_CONNECTION_DETACHED, (p:ConnectionDetachedParams<T["E"]>) => {
             this.connectionDetached(p)
         })
     }
 
     reset ():void {
-        //this.anchorManager.reset()
         this.anchorLists = {}
     }
 
+    getEndpointLocation(endpoint: Endpoint<any>, params:AnchorComputeParams): any {
+        return endpoint.anchor.getCurrentLocation(params)
+    }
 
     // TODO we dont want this in here either.
     getContinuousAnchorLocation(elementId: string): [number, number, number, number] {
@@ -148,14 +139,14 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
             targetOffset = {left:targetInfo.x, top:targetInfo.y},
             sE = connection.endpoints[0], tE = connection.endpoints[1]
 
-        let sAnchorP = sE.anchor.getCurrentLocation({
+        let sAnchorP = this.getEndpointLocation(sE, {
                     xy: [sourceInfo.x, sourceInfo.y],
                     wh: [sourceInfo.w, sourceInfo.h],
                     element: sE,
                     timestamp: timestamp,
                     rotation:sourceInfo.r
             }),
-            tAnchorP = tE.anchor.getCurrentLocation({
+            tAnchorP = this.getEndpointLocation(tE, {
                 xy: [targetInfo.x, targetInfo.y],
                 wh: [targetInfo.w, targetInfo.h],
                 element: tE,
