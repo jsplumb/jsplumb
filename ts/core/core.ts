@@ -430,7 +430,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         this.fire(Constants.EVENT_CONTAINER_CHANGE, this._container)
     }
 
-    private _set (c:Connection, el:T["E"]|Endpoint, idx:number, doNotRepaint?:boolean):any {
+    private _set (c:Connection, el:T["E"]|Endpoint, idx:number):any {
 
         const stTypes = [
             { el: "source", elId: "sourceId", epDefs: Constants.SOURCE_DEFINITION_LIST },
@@ -488,9 +488,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
             this.fireMoveEvent(evtParams)
 
-            if (!doNotRepaint) {
-                c.paint()
-            }
+            this.paintConnection(c)
         }
 
         (<any>evtParams).element = el
@@ -498,14 +496,14 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     }
 
-    setSource (connection:Connection, el:T["E"]|Endpoint, doNotRepaint?:boolean):void {
-        let p = this._set(connection, el, 0, doNotRepaint)
+    setSource (connection:Connection, el:T["E"] | Endpoint):void {
+        let p = this._set(connection, el, 0)
         Connection.updateConnectedClass(this, connection, p.originalSource, true)
         this.sourceOrTargetChanged(p.originalSourceId, p.newSourceId, connection, p.element, 0)
     }
 
-    setTarget (connection:Connection, el:T["E"]|Endpoint, doNotRepaint?:boolean):void {
-        let p = this._set(connection, el, 1, doNotRepaint)
+    setTarget (connection:Connection, el:T["E"] | Endpoint):void {
+        let p = this._set(connection, el, 1)
         Connection.updateConnectedClass(this, connection, p.originalTarget, true)
         connection.updateConnectedClass(false)
     }
@@ -534,7 +532,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return curVal
     }
 
-    computeAnchorLoc(endpoint:Endpoint<T>, timestamp?:string):AnchorPlacement {
+    computeAnchorLoc(endpoint:Endpoint, timestamp?:string):AnchorPlacement {
 
         const myOffset = this._managedElements[endpoint.elementId].info
         return endpoint.anchor.compute({
@@ -1287,7 +1285,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     _newConnection (params:any):Connection {
         params.id = "con_" + this._idstamp()
         const c = new Connection(this, params)
-        c.paint()
+        this.paintConnection(c)
         return c
     }
 
@@ -1948,6 +1946,66 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
                     }
                 }
             }
+        }
+    }
+
+    // ---- paint Connection
+
+    paintConnection(connection:Connection, params?:any) {
+
+        if (!this._suspendDrawing && connection.visible !== false) {
+
+            params = params || {}
+            let timestamp = params.timestamp
+            if (timestamp != null && timestamp === connection.lastPaintedAt) {
+                return
+            }
+
+            if (timestamp == null || timestamp !== connection.lastPaintedAt) {
+
+                this.router.computePath(connection, timestamp);
+
+                let overlayExtents = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity }
+
+                // compute overlays. we do this first so we can get their placements, and adjust the
+                // container if needs be (if an overlay would be clipped)
+                for (let i in connection.overlays) {
+                    if (connection.overlays.hasOwnProperty(i)) {
+                        let o:Overlay = connection.overlays[i]
+                        if (o.isVisible()) {
+
+                            connection.overlayPlacements[i] = this.drawOverlay(o, connection.connector, connection.paintStyleInUse, connection.getAbsoluteOverlayPosition(o))
+
+                            overlayExtents.minX = Math.min(overlayExtents.minX, connection.overlayPlacements[i].minX)
+                            overlayExtents.maxX = Math.max(overlayExtents.maxX, connection.overlayPlacements[i].maxX)
+                            overlayExtents.minY = Math.min(overlayExtents.minY, connection.overlayPlacements[i].minY)
+                            overlayExtents.maxY = Math.max(overlayExtents.maxY, connection.overlayPlacements[i].maxY)
+                        }
+                    }
+                }
+
+                let lineWidth = parseFloat("" + connection.paintStyleInUse.strokeWidth || "1") / 2,
+                    outlineWidth = parseFloat("" + connection.paintStyleInUse.strokeWidth || "0"),
+                    extents = {
+                        xmin: Math.min(connection.connector.bounds.minX - (lineWidth + outlineWidth), overlayExtents.minX),
+                        ymin: Math.min(connection.connector.bounds.minY - (lineWidth + outlineWidth), overlayExtents.minY),
+                        xmax: Math.max(connection.connector.bounds.maxX + (lineWidth + outlineWidth), overlayExtents.maxX),
+                        ymax: Math.max(connection.connector.bounds.maxY + (lineWidth + outlineWidth), overlayExtents.maxY)
+                    }
+
+                this.paintConnector(connection.connector, connection.paintStyleInUse, extents)
+
+                // and then the overlays
+                for (let j in connection.overlays) {
+                    if (connection.overlays.hasOwnProperty(j)) {
+                        let p = connection.overlays[j]
+                        if (p.isVisible()) {
+                            this.paintOverlay(p, connection.overlayPlacements[j], extents)
+                        }
+                    }
+                }
+            }
+            connection.lastPaintedAt = timestamp
         }
     }
 
