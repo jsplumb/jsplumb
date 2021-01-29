@@ -625,10 +625,6 @@ export class EndpointDragHandler implements DragHandler {
             }
 
             this.currentDropTarget = newDropTarget
-
-            // always repaint the source endpoint, because only continuous/dynamic anchors cause the endpoint
-            // to be repainted, so static anchors need to be told (or the endpoint gets dragged around)
-            this.instance.paintEndpoint(this.ep, {anchorLoc:this.ep.anchor.getCurrentLocation({element:this.ep})})
         }
     }
 
