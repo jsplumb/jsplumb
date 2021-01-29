@@ -1,3 +1,9 @@
+## 4.0.0-RC43
+
+29th January 2021
+
+- Fix issue #1014, in which a connection dragged by its source could not be reattached to its original endpoint (or indeed to any source)
+
 ## 4.0.0-RC42
 
 29th January 2021
