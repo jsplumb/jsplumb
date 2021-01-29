@@ -402,22 +402,25 @@ export class EndpointDragHandler implements DragHandler {
         this.floatingElement = (this.floatingEndpoint.endpoint as any).canvas
         
         const scope = this.ep.scope
+        const isSourceDrag = this.jpc && this.jpc.endpoints[0] === this.ep
         
         let boundingRect
         // get the list of potential drop targets for this endpoint, which excludes the source of the new connection.
         this.instance.getContainer().querySelectorAll(".jtk-endpoint[jtk-scope-" + this.ep.scope + "]").forEach((candidate:any) => {
             if ((this.jpc != null || candidate !== canvasElement) && candidate !== this.floatingElement) {
-                const o = this.instance.getOffset(candidate), s = this.instance.getSize(candidate)
-                boundingRect = { x:o.left, y:o.top, w:s[0], h:s[1]}
-                this.endpointDropTargets.push({el:candidate, r:boundingRect, endpoint:candidate.jtk.endpoint})
-                this.instance.addClass(candidate, CLASS_DRAG_ACTIVE)
+                if ( (isSourceDrag && candidate.jtk.endpoint.isSource) || (!isSourceDrag && candidate.jtk.endpoint.isTarget) ) {
+                    const o = this.instance.getOffset(candidate), s = this.instance.getSize(candidate)
+                    boundingRect = {x: o.left, y: o.top, w: s[0], h: s[1]}
+                    this.endpointDropTargets.push({el: candidate, r: boundingRect, endpoint: candidate.jtk.endpoint})
+                    this.instance.addClass(candidate, CLASS_DRAG_ACTIVE)
+                }
             }
         })
         
         // at this point we are in fact uncertain about whether or not the given endpoint is a source/target. it may not have been
         // specifically configured as one
         let selectors = [ ]
-        const isSourceDrag = this.jpc && this.jpc.endpoints[0] === this.ep
+
 
         if (!isSourceDrag) {
             selectors.push("[jtk-target][jtk-scope-" + this.ep.scope + "]")
@@ -606,7 +609,7 @@ export class EndpointDragHandler implements DragHandler {
 
                 if (newDropTarget.endpoint != null) {
 
-                    _cont = (newDropTarget.endpoint.isTarget && idx !== 0) || (this.jpc.suspendedEndpoint && newDropTarget.endpoint.referenceEndpoint && newDropTarget.endpoint.referenceEndpoint.id === this.jpc.suspendedEndpoint.id)
+                    _cont = (newDropTarget.endpoint.isSource && idx === 0) || (newDropTarget.endpoint.isTarget && idx !== 0) || (this.jpc.suspendedEndpoint && newDropTarget.endpoint.referenceEndpoint && newDropTarget.endpoint.referenceEndpoint.id === this.jpc.suspendedEndpoint.id)
                     if (_cont) {
                         let bb = this.instance.checkCondition(CHECK_DROP_ALLOWED, {
                             sourceEndpoint: this.jpc.endpoints[idx],
