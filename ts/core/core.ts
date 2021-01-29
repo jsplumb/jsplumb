@@ -647,7 +647,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
                     [ connection.endpoints[0], Constants.IS_DETACH_ALLOWED, [ connection ] ],
                     [ connection.endpoints[1], Constants.IS_DETACH_ALLOWED, [ connection ] ],
                     [ connection, Constants.IS_DETACH_ALLOWED, [ connection ] ],
-                    [ this, Constants.CHECK_CONDITION, [ Constants.BEFORE_DETACH, connection ] ]
+                    [ this, Constants.CHECK_CONDITION, [ Constants.INTERCEPT_BEFORE_DETACH, connection ] ]
                 ])) {
 
                 this.fireDetachEvent(connection, !connection.pending && params.fireEvent !== false, params.originalEvent)
