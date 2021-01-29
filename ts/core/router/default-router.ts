@@ -61,7 +61,7 @@ const edgeSortFunctions:Dictionary<SortFunction<AnchorListEntry>> = {
 
 interface ConnectionFacade {
     endpoints: [ Endpoint, Endpoint ],
-    paint:() => any
+    //paint:() => any
 }
 
 interface OrientationResult {
@@ -339,7 +339,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
                             this.anchorLists[elementId],
                             -Math.PI / 2,
                             0,
-                            {endpoints: [anEndpoint, anEndpoint], paint: function () { }},
+                            {endpoints: [anEndpoint, anEndpoint]},
                             false,
                             elementId,
                             0,
@@ -457,7 +457,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
 
             // paint all the connections
             for (let c of connectionsToPaint) {
-                c.paint({elId: elementId, timestamp: timestamp, recalc: false})
+                this.instance.paintConnection(c, {elId: elementId, timestamp: timestamp, recalc: false})
             }
         }
 
