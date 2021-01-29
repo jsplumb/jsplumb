@@ -10695,27 +10695,29 @@ function () {
       this.floatingEndpoint.deleteOnEmpty = true;
       this.floatingElement = this.floatingEndpoint.endpoint.canvas;
       var scope = this.ep.scope;
+      var isSourceDrag = this.jpc && this.jpc.endpoints[0] === this.ep;
       var boundingRect;
       this.instance.getContainer().querySelectorAll(".jtk-endpoint[jtk-scope-" + this.ep.scope + "]").forEach(function (candidate) {
         if ((_this.jpc != null || candidate !== canvasElement) && candidate !== _this.floatingElement) {
-          var o = _this.instance.getOffset(candidate),
-              s = _this.instance.getSize(candidate);
-          boundingRect = {
-            x: o.left,
-            y: o.top,
-            w: s[0],
-            h: s[1]
-          };
-          _this.endpointDropTargets.push({
-            el: candidate,
-            r: boundingRect,
-            endpoint: candidate.jtk.endpoint
-          });
-          _this.instance.addClass(candidate, CLASS_DRAG_ACTIVE);
+          if (isSourceDrag && candidate.jtk.endpoint.isSource || !isSourceDrag && candidate.jtk.endpoint.isTarget) {
+            var o = _this.instance.getOffset(candidate),
+                s = _this.instance.getSize(candidate);
+            boundingRect = {
+              x: o.left,
+              y: o.top,
+              w: s[0],
+              h: s[1]
+            };
+            _this.endpointDropTargets.push({
+              el: candidate,
+              r: boundingRect,
+              endpoint: candidate.jtk.endpoint
+            });
+            _this.instance.addClass(candidate, CLASS_DRAG_ACTIVE);
+          }
         }
       });
       var selectors = [];
-      var isSourceDrag = this.jpc && this.jpc.endpoints[0] === this.ep;
       if (!isSourceDrag) {
         selectors.push("[jtk-target][jtk-scope-" + this.ep.scope + "]");
       } else {
@@ -10865,7 +10867,7 @@ function () {
           this.instance.addClass(newDropTarget.el, CLASS_DRAG_HOVER);
           idx = this.getFloatingAnchorIndex(this.jpc);
           if (newDropTarget.endpoint != null) {
-            _cont = newDropTarget.endpoint.isTarget && idx !== 0 || this.jpc.suspendedEndpoint && newDropTarget.endpoint.referenceEndpoint && newDropTarget.endpoint.referenceEndpoint.id === this.jpc.suspendedEndpoint.id;
+            _cont = newDropTarget.endpoint.isSource && idx === 0 || newDropTarget.endpoint.isTarget && idx !== 0 || this.jpc.suspendedEndpoint && newDropTarget.endpoint.referenceEndpoint && newDropTarget.endpoint.referenceEndpoint.id === this.jpc.suspendedEndpoint.id;
             if (_cont) {
               var bb = this.instance.checkCondition(CHECK_DROP_ALLOWED, {
                 sourceEndpoint: this.jpc.endpoints[idx],
