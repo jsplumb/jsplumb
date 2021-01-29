@@ -1,10 +1,20 @@
+## 4.0.0-RC41
+
+29th January 2021
+
+- Fixed issued 944, in which connections could be dropped onto list elements that were not currently visible in the list's viewport.
+
 ## 4.0.0-RC40
+
+29th January 2021
 
 - `JsPlumbInstance` now fires `manageElement` and `unmanageElement` events from the `manage` and `unmanage` methods respectively.
 - Updates to list manager to fix an issue with the initialisation of a list via the `jtk-scrollable-list` attribute
 - Updates to list manager to be more efficient about processing new connections after list initialisation.
 
 ## 4.0.0-RC39
+
+28th January 2021
 
 ### Breaking
 
