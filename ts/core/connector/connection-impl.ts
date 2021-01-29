@@ -403,7 +403,7 @@ export class Connection<E = any> extends OverlayCapableComponent {
         if (this.connector) {
             this.instance.setConnectorVisible(this.connector, v)
         }
-        this.paint()
+        this.instance.paintConnection(this)
     }
 
     destroy(force?:boolean) {
@@ -484,7 +484,6 @@ export class Connection<E = any> extends OverlayCapableComponent {
             // and we havent passed in `true` for "force" here.
             if (this.connector != null) {
                 previous = this.connector
-                //previousClasses = previous.getClass()
                 previousClasses = this.instance.getConnectorClass(this.connector)
                 this.instance.destroyConnection(this)
             }
@@ -505,7 +504,7 @@ export class Connection<E = any> extends OverlayCapableComponent {
             }
 
             if (!doNotRepaint) {
-                this.paint()
+                this.instance.paintConnection(this)
             }
         }
     }
@@ -513,64 +512,6 @@ export class Connection<E = any> extends OverlayCapableComponent {
     setConnector(connectorSpec:ConnectorSpec, doNotRepaint?:boolean, doNotChangeListenerComponent?:boolean, typeId?:string) {
         let connector = this.prepareConnector(connectorSpec, typeId)
         this.setPreparedConnector(connector, doNotRepaint, doNotChangeListenerComponent, typeId)
-    }
-
-    paint(params?:any) {
-
-        if (!this.instance._suspendDrawing && this.visible !== false) {
-
-            params = params || {}
-            let timestamp = params.timestamp
-            if (timestamp != null && timestamp === this.lastPaintedAt) {
-                return
-            }
-
-            if (timestamp == null || timestamp !== this.lastPaintedAt) {
-
-                this.instance.router.computePath(this, timestamp);
-
-                let overlayExtents = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity }
-
-                // compute overlays. we do this first so we can get their placements, and adjust the
-                // container if needs be (if an overlay would be clipped)
-                for (let i in this.overlays) {
-                    if (this.overlays.hasOwnProperty(i)) {
-                        let o:Overlay = this.overlays[i]
-                        if (o.isVisible()) {
-
-                            this.overlayPlacements[i] = this.instance.drawOverlay(o, this.connector, this.paintStyleInUse, this.getAbsoluteOverlayPosition(o))
-
-                            overlayExtents.minX = Math.min(overlayExtents.minX, this.overlayPlacements[i].minX)
-                            overlayExtents.maxX = Math.max(overlayExtents.maxX, this.overlayPlacements[i].maxX)
-                            overlayExtents.minY = Math.min(overlayExtents.minY, this.overlayPlacements[i].minY)
-                            overlayExtents.maxY = Math.max(overlayExtents.maxY, this.overlayPlacements[i].maxY)
-                        }
-                    }
-                }
-
-                let lineWidth = parseFloat("" + this.paintStyleInUse.strokeWidth || "1") / 2,
-                    outlineWidth = parseFloat("" + this.paintStyleInUse.strokeWidth || "0"),
-                    extents = {
-                        xmin: Math.min(this.connector.bounds.minX - (lineWidth + outlineWidth), overlayExtents.minX),
-                        ymin: Math.min(this.connector.bounds.minY - (lineWidth + outlineWidth), overlayExtents.minY),
-                        xmax: Math.max(this.connector.bounds.maxX + (lineWidth + outlineWidth), overlayExtents.maxX),
-                        ymax: Math.max(this.connector.bounds.maxY + (lineWidth + outlineWidth), overlayExtents.maxY)
-                    }
-
-                this.instance.paintConnector(this.connector, this.paintStyleInUse, extents)
-
-                // and then the overlays
-                for (let j in this.overlays) {
-                    if (this.overlays.hasOwnProperty(j)) {
-                        let p = this.overlays[j]
-                        if (p.isVisible()) {
-                            this.instance.paintOverlay(p, this.overlayPlacements[j], extents)
-                        }
-                    }
-                }
-            }
-            this.lastPaintedAt = timestamp
-        }
     }
 
     prepareEndpoint(existing:Endpoint, index:number, element?:any, elementId?:string, params?:ConnectionParams<E>):Endpoint {
