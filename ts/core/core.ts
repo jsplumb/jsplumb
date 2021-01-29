@@ -2009,6 +2009,20 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         }
     }
 
+    refreshEndpoint(endpoint: Endpoint): void {
+
+        if (endpoint.connections.length > 0) {
+            this.addEndpointClass(endpoint, this.endpointConnectedClass)
+        } else {
+            this.removeEndpointClass(endpoint, this.endpointConnectedClass)
+        }
+
+        if (endpoint.isFull()) {
+            this.addEndpointClass(endpoint, this.endpointFullClass)
+        } else {
+            this.removeEndpointClass(endpoint, this.endpointFullClass)
+        }
+    }
 
     abstract removeElement(el:T["E"]):void
     abstract appendElement (el:T["E"], parent:T["E"]):void
@@ -2071,6 +2085,5 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     abstract removeEndpointClass(ep:Endpoint<T>, c:string):void
     abstract getEndpointClass(ep:Endpoint<T>):string
     abstract setEndpointHover(endpoint: Endpoint<T>, h: boolean, doNotCascade?:boolean): void
-    abstract refreshEndpoint(endpoint:Endpoint<T>):void
 
 }
