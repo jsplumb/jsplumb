@@ -6,6 +6,7 @@ import {EventGenerator} from "../event-generator"
 import {Connection} from "../connector/connection-impl"
 import {Endpoint} from "../endpoint/endpoint-impl"
 import {OverlaySpec} from "../overlay/overlay"
+import { INTERCEPT_BEFORE_DROP } from '../constants'
 
 export type ComponentParameters = Record<string, any>
 
@@ -209,7 +210,7 @@ export abstract class Component extends EventGenerator {
     }
 
     isDropAllowed(sourceId:string, targetId:string, scope:string, connection:Connection, dropEndpoint:Endpoint, source?:any, target?:any):any {
-        let r = this.instance.checkCondition("beforeDrop", {
+        let r = this.instance.checkCondition(INTERCEPT_BEFORE_DROP, {
             sourceId: sourceId,
             targetId: targetId,
             scope: scope,
