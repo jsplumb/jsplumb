@@ -629,7 +629,7 @@ export class EndpointDragHandler implements DragHandler {
     }
 
     private _maybeCleanup (ep:Endpoint):void {
-        if ((<any>ep)._mtNew && ep.connections.length === 0) {
+        if (ep.deleteAfterDragStop || ((<any>ep)._mtNew && ep.connections.length === 0)) {
             this.instance.deleteEndpoint(ep)
         }
         else {
@@ -792,13 +792,13 @@ export class EndpointDragHandler implements DragHandler {
 
                 this._maybeCleanup(dropEndpoint)
 
-                /* makeTarget sets this flag, to tell us we have been replaced and should delete this object. */
-                if (dropEndpoint.deleteAfterDragStop) {
-                    this.instance.deleteEndpoint(dropEndpoint)
-                }
-                else {
-                    this.instance.paintEndpoint(dropEndpoint, { recalc: false })
-                }
+                // /* makeTarget sets this flag, to tell us we have been replaced and should delete this object. */
+                // if (dropEndpoint.deleteAfterDragStop) {
+                //     this.instance.deleteEndpoint(dropEndpoint)
+                // }
+                // else {
+                //     this.instance.paintEndpoint(dropEndpoint, { recalc: false })
+                // }
             }
         }
     }
