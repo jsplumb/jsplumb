@@ -6634,6 +6634,11 @@ function () {
       this.anchorLists = {};
     }
   }, {
+    key: "getEndpointLocation",
+    value: function getEndpointLocation(endpoint, params) {
+      return endpoint.anchor.getCurrentLocation(params);
+    }
+  }, {
     key: "getContinuousAnchorLocation",
     value: function getContinuousAnchorLocation(elementId) {
       return this.continuousAnchorLocations[elementId] || [0, 0, 0, 0];
@@ -6670,14 +6675,14 @@ function () {
       },
           sE = connection.endpoints[0],
           tE = connection.endpoints[1];
-      var sAnchorP = sE.anchor.getCurrentLocation({
+      var sAnchorP = this.getEndpointLocation(sE, {
         xy: [sourceInfo.x, sourceInfo.y],
         wh: [sourceInfo.w, sourceInfo.h],
         element: sE,
         timestamp: timestamp,
         rotation: sourceInfo.r
       }),
-          tAnchorP = tE.anchor.getCurrentLocation({
+          tAnchorP = this.getEndpointLocation(tE, {
         xy: [targetInfo.x, targetInfo.y],
         wh: [targetInfo.w, targetInfo.h],
         element: tE,

@@ -6522,6 +6522,11 @@ function () {
       this.anchorLists = {};
     }
   }, {
+    key: "getEndpointLocation",
+    value: function getEndpointLocation(endpoint, params) {
+      return endpoint.anchor.getCurrentLocation(params);
+    }
+  }, {
     key: "getContinuousAnchorLocation",
     value: function getContinuousAnchorLocation(elementId) {
       return this.continuousAnchorLocations[elementId] || [0, 0, 0, 0];
@@ -6558,14 +6563,14 @@ function () {
       },
           sE = connection.endpoints[0],
           tE = connection.endpoints[1];
-      var sAnchorP = sE.anchor.getCurrentLocation({
+      var sAnchorP = this.getEndpointLocation(sE, {
         xy: [sourceInfo.x, sourceInfo.y],
         wh: [sourceInfo.w, sourceInfo.h],
         element: sE,
         timestamp: timestamp,
         rotation: sourceInfo.r
       }),
-          tAnchorP = tE.anchor.getCurrentLocation({
+          tAnchorP = this.getEndpointLocation(tE, {
         xy: [targetInfo.x, targetInfo.y],
         wh: [targetInfo.w, targetInfo.h],
         element: tE,
@@ -10876,17 +10881,12 @@ function () {
           }
         }
         this.currentDropTarget = newDropTarget;
-        this.instance.paintEndpoint(this.ep, {
-          anchorLoc: this.ep.anchor.getCurrentLocation({
-            element: this.ep
-          })
-        });
       }
     }
   }, {
     key: "_maybeCleanup",
     value: function _maybeCleanup(ep) {
-      if (ep._mtNew && ep.connections.length === 0) {
+      if (ep.deleteAfterDragStop || ep._mtNew && ep.connections.length === 0) {
         this.instance.deleteEndpoint(ep);
       } else {
         delete ep._mtNew;
@@ -10997,13 +10997,6 @@ function () {
         delete this.jpc.pending;
         if (dropEndpoint != null) {
           this._maybeCleanup(dropEndpoint);
-          if (dropEndpoint.deleteAfterDragStop) {
-            this.instance.deleteEndpoint(dropEndpoint);
-          } else {
-            this.instance.paintEndpoint(dropEndpoint, {
-              recalc: false
-            });
-          }
         }
       }
     }
@@ -12688,7 +12681,7 @@ function () {
     this.instance.bind(INTERCEPT_BEFORE_DROP, function (p) {
       var el = p.dropEndpoint.element;
       var dropList = _this.findParentList(el);
-      return dropList == null || el.offsetTop >= dropList.domElement.scrollTop && el.offsetTop + el.offsetHeight < dropList.domElement.scrollTop + dropList.domElement.offsetHeight;
+      return dropList == null || el.offsetTop >= dropList.domElement.scrollTop && el.offsetTop + el.offsetHeight <= dropList.domElement.scrollTop + dropList.domElement.offsetHeight;
     });
   }
   _createClass(JsPlumbListManager, [{
@@ -12702,22 +12695,32 @@ function () {
       return this.lists[id];
     }
   }, {
+    key: "getList",
+    value: function getList(el) {
+      var listId = this.instance.getAttribute(el, ATTR_SCROLLABLE_LIST);
+      if (listId != null) {
+        return this.lists[listId];
+      }
+    }
+  }, {
     key: "removeList",
     value: function removeList(el) {
-      var list = this.lists[el._jsPlumbList];
+      var list = this.getList(el);
       if (list) {
         list.destroy();
-        delete this.lists[el._jsPlumbList];
+        delete this.lists[list.id];
       }
     }
   }, {
     key: "findParentList",
     value: function findParentList(el) {
       var parent = el.parentNode,
-          container = this.instance.getContainer();
+          container = this.instance.getContainer(),
+          parentList;
       while (parent != null && parent !== container) {
-        if (parent._jsPlumbList != null && this.lists[parent._jsPlumbList] != null) {
-          return this.lists[parent._jsPlumbList];
+        parentList = this.getList(parent);
+        if (parentList != null) {
+          return parentList;
         }
         parent = parent.parentNode;
       }
@@ -12732,13 +12735,13 @@ function () {
     this.instance = instance;
     this.el = el;
     this.options = options;
+    this.id = id;
     _defineProperty(this, "_scrollHandler", void 0);
     _defineProperty(this, "domElement", void 0);
     _defineProperty(this, "elId", void 0);
     this.domElement = el;
-    this.domElement._jsPlumbList = id;
     this.elId = this.instance.getId(el);
-    instance.setAttribute(el, ATTR_SCROLLABLE_LIST, TRUE);
+    instance.setAttribute(el, ATTR_SCROLLABLE_LIST, id);
     this._scrollHandler = this.scrollHandler.bind(this);
     this.domElement._jsPlumbScrollHandler = this._scrollHandler;
     instance.on(el, EVENT_SCROLL, this._scrollHandler);
@@ -12758,13 +12761,9 @@ function () {
     key: "newConnection",
     value: function newConnection(c, el, index) {
       if (el.offsetTop < this.el.scrollTop) {
-        if (!el._jsPlumbProxies) {
-          this._proxyConnection(el, c, index, this.instance.getId(this.el), SupportedEdge.top);
-        }
+        this._proxyConnection(el, c, index, this.instance.getId(this.el), SupportedEdge.top);
       } else if (el.offsetTop + el.offsetHeight > this.el.scrollTop + this.domElement.offsetHeight) {
-        if (!el._jsPlumbProxies) {
-          this._proxyConnection(el, c, index, this.instance.getId(this.el), SupportedEdge.bottom);
-        }
+        this._proxyConnection(el, c, index, this.instance.getId(this.el), SupportedEdge.bottom);
       }
     }
   }, {
@@ -12775,34 +12774,30 @@ function () {
       var elId = this.instance.getId(this.el);
       var _loop = function _loop(i) {
         if (children[i].offsetTop < _this2.el.scrollTop) {
-          if (!children[i]._jsPlumbProxies) {
+          children[i]._jsPlumbProxies = children[i]._jsPlumbProxies || [];
+          _this2.instance.select({
+            source: children[i]
+          }).each(function (c) {
+            _this2._proxyConnection(children[i], c, 0, elId, SupportedEdge.top);
+          });
+          _this2.instance.select({
+            target: children[i]
+          }).each(function (c) {
+            _this2._proxyConnection(children[i], c, 1, elId, SupportedEdge.top);
+          });
+        }
+        else if (children[i].offsetTop + children[i].offsetHeight > _this2.el.scrollTop + _this2.domElement.offsetHeight) {
             children[i]._jsPlumbProxies = children[i]._jsPlumbProxies || [];
             _this2.instance.select({
               source: children[i]
             }).each(function (c) {
-              _this2._proxyConnection(children[i], c, 0, elId, SupportedEdge.top);
+              _this2._proxyConnection(children[i], c, 0, elId, SupportedEdge.bottom);
             });
             _this2.instance.select({
               target: children[i]
             }).each(function (c) {
-              _this2._proxyConnection(children[i], c, 1, elId, SupportedEdge.top);
+              _this2._proxyConnection(children[i], c, 1, elId, SupportedEdge.bottom);
             });
-          }
-        }
-        else if (children[i].offsetTop + children[i].offsetHeight > _this2.el.scrollTop + _this2.domElement.offsetHeight) {
-            if (!children[i]._jsPlumbProxies) {
-              children[i]._jsPlumbProxies = children[i]._jsPlumbProxies || [];
-              _this2.instance.select({
-                source: children[i]
-              }).each(function (c) {
-                _this2._proxyConnection(children[i], c, 0, elId, SupportedEdge.bottom);
-              });
-              _this2.instance.select({
-                target: children[i]
-              }).each(function (c) {
-                _this2._proxyConnection(children[i], c, 1, elId, SupportedEdge.bottom);
-              });
-            }
           } else if (children[i]._jsPlumbProxies) {
             for (var j = 0; j < children[i]._jsPlumbProxies.length; j++) {
               _this2.instance.unproxyConnection(children[i]._jsPlumbProxies[j][0], children[i]._jsPlumbProxies[j][1], elId);

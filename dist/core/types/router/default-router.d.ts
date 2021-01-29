@@ -4,7 +4,7 @@ import { Connection } from '../connector/connection-impl';
 import { Endpoint } from '../endpoint/endpoint';
 import { ViewportElement } from "../viewport";
 import { Dictionary, Offset } from "../common";
-import { Orientation } from "../factory/anchor-factory";
+import { AnchorComputeParams, Orientation } from "../factory/anchor-factory";
 export declare class DefaultRouter<T extends {
     E: unknown;
 }> implements Router {
@@ -14,6 +14,7 @@ export declare class DefaultRouter<T extends {
     private anchorLists;
     constructor(instance: JsPlumbInstance);
     reset(): void;
+    getEndpointLocation(endpoint: Endpoint<any>, params: AnchorComputeParams): any;
     getContinuousAnchorLocation(elementId: string): [number, number, number, number];
     getContinuousAnchorOrientation(endpointId: string): [number, number];
     addEndpoint(endpoint: Endpoint, elementId: string): void;

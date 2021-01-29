@@ -1,4 +1,4 @@
-import { fastTrim, isArray, log, NONE, PARENT_GROUP_KEY, extend, wrap, isString, optional, GROUP_KEY, Anchor, cls, each, makeAnchorFromSpec, findWithFunction, IS_GROUP_KEY, SOURCE, TARGET, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, IS, addToDictionary, EVENT_CONTEXTMENU, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, EVENT_CLICK, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, uuid, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, TRUE as TRUE$1, SELECTOR_MANAGED_ELEMENT, Connection, Endpoint, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, UNDEFINED, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, ATTRIBUTE_NOT_DRAGGABLE, FALSE as FALSE$1, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, LabelOverlay, CustomOverlay, EndpointRepresentation, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/community-core';
+import { fastTrim, isArray, log, NONE, PARENT_GROUP_KEY, extend, wrap, isString, optional, GROUP_KEY, Anchor, cls, each, makeAnchorFromSpec, findWithFunction, IS_GROUP_KEY, SOURCE, TARGET, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, IS, addToDictionary, EVENT_CONTEXTMENU, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, EVENT_CLICK, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, uuid, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, SELECTOR_MANAGED_ELEMENT, Connection, Endpoint, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, UNDEFINED, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, ATTRIBUTE_NOT_DRAGGABLE, TRUE as TRUE$1, FALSE as FALSE$1, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, LabelOverlay, CustomOverlay, EndpointRepresentation, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/community-core';
 
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -1499,17 +1499,12 @@ function () {
           }
         }
         this.currentDropTarget = newDropTarget;
-        this.instance.paintEndpoint(this.ep, {
-          anchorLoc: this.ep.anchor.getCurrentLocation({
-            element: this.ep
-          })
-        });
       }
     }
   }, {
     key: "_maybeCleanup",
     value: function _maybeCleanup(ep) {
-      if (ep._mtNew && ep.connections.length === 0) {
+      if (ep.deleteAfterDragStop || ep._mtNew && ep.connections.length === 0) {
         this.instance.deleteEndpoint(ep);
       } else {
         delete ep._mtNew;
@@ -1620,13 +1615,6 @@ function () {
         delete this.jpc.pending;
         if (dropEndpoint != null) {
           this._maybeCleanup(dropEndpoint);
-          if (dropEndpoint.deleteAfterDragStop) {
-            this.instance.deleteEndpoint(dropEndpoint);
-          } else {
-            this.instance.paintEndpoint(dropEndpoint, {
-              recalc: false
-            });
-          }
         }
       }
     }
@@ -3311,7 +3299,7 @@ function () {
     this.instance.bind(INTERCEPT_BEFORE_DROP, function (p) {
       var el = p.dropEndpoint.element;
       var dropList = _this.findParentList(el);
-      return dropList == null || el.offsetTop >= dropList.domElement.scrollTop && el.offsetTop + el.offsetHeight < dropList.domElement.scrollTop + dropList.domElement.offsetHeight;
+      return dropList == null || el.offsetTop >= dropList.domElement.scrollTop && el.offsetTop + el.offsetHeight <= dropList.domElement.scrollTop + dropList.domElement.offsetHeight;
     });
   }
   _createClass(JsPlumbListManager, [{
@@ -3325,22 +3313,32 @@ function () {
       return this.lists[id];
     }
   }, {
+    key: "getList",
+    value: function getList(el) {
+      var listId = this.instance.getAttribute(el, ATTR_SCROLLABLE_LIST);
+      if (listId != null) {
+        return this.lists[listId];
+      }
+    }
+  }, {
     key: "removeList",
     value: function removeList(el) {
-      var list = this.lists[el._jsPlumbList];
+      var list = this.getList(el);
       if (list) {
         list.destroy();
-        delete this.lists[el._jsPlumbList];
+        delete this.lists[list.id];
       }
     }
   }, {
     key: "findParentList",
     value: function findParentList(el) {
       var parent = el.parentNode,
-          container = this.instance.getContainer();
+          container = this.instance.getContainer(),
+          parentList;
       while (parent != null && parent !== container) {
-        if (parent._jsPlumbList != null && this.lists[parent._jsPlumbList] != null) {
-          return this.lists[parent._jsPlumbList];
+        parentList = this.getList(parent);
+        if (parentList != null) {
+          return parentList;
         }
         parent = parent.parentNode;
       }
@@ -3355,13 +3353,13 @@ function () {
     this.instance = instance;
     this.el = el;
     this.options = options;
+    this.id = id;
     _defineProperty(this, "_scrollHandler", void 0);
     _defineProperty(this, "domElement", void 0);
     _defineProperty(this, "elId", void 0);
     this.domElement = el;
-    this.domElement._jsPlumbList = id;
     this.elId = this.instance.getId(el);
-    instance.setAttribute(el, ATTR_SCROLLABLE_LIST, TRUE$1);
+    instance.setAttribute(el, ATTR_SCROLLABLE_LIST, id);
     this._scrollHandler = this.scrollHandler.bind(this);
     this.domElement._jsPlumbScrollHandler = this._scrollHandler;
     instance.on(el, EVENT_SCROLL, this._scrollHandler);
@@ -3381,13 +3379,9 @@ function () {
     key: "newConnection",
     value: function newConnection(c, el, index) {
       if (el.offsetTop < this.el.scrollTop) {
-        if (!el._jsPlumbProxies) {
-          this._proxyConnection(el, c, index, this.instance.getId(this.el), SupportedEdge.top);
-        }
+        this._proxyConnection(el, c, index, this.instance.getId(this.el), SupportedEdge.top);
       } else if (el.offsetTop + el.offsetHeight > this.el.scrollTop + this.domElement.offsetHeight) {
-        if (!el._jsPlumbProxies) {
-          this._proxyConnection(el, c, index, this.instance.getId(this.el), SupportedEdge.bottom);
-        }
+        this._proxyConnection(el, c, index, this.instance.getId(this.el), SupportedEdge.bottom);
       }
     }
   }, {
@@ -3398,34 +3392,30 @@ function () {
       var elId = this.instance.getId(this.el);
       var _loop = function _loop(i) {
         if (children[i].offsetTop < _this2.el.scrollTop) {
-          if (!children[i]._jsPlumbProxies) {
+          children[i]._jsPlumbProxies = children[i]._jsPlumbProxies || [];
+          _this2.instance.select({
+            source: children[i]
+          }).each(function (c) {
+            _this2._proxyConnection(children[i], c, 0, elId, SupportedEdge.top);
+          });
+          _this2.instance.select({
+            target: children[i]
+          }).each(function (c) {
+            _this2._proxyConnection(children[i], c, 1, elId, SupportedEdge.top);
+          });
+        }
+        else if (children[i].offsetTop + children[i].offsetHeight > _this2.el.scrollTop + _this2.domElement.offsetHeight) {
             children[i]._jsPlumbProxies = children[i]._jsPlumbProxies || [];
             _this2.instance.select({
               source: children[i]
             }).each(function (c) {
-              _this2._proxyConnection(children[i], c, 0, elId, SupportedEdge.top);
+              _this2._proxyConnection(children[i], c, 0, elId, SupportedEdge.bottom);
             });
             _this2.instance.select({
               target: children[i]
             }).each(function (c) {
-              _this2._proxyConnection(children[i], c, 1, elId, SupportedEdge.top);
+              _this2._proxyConnection(children[i], c, 1, elId, SupportedEdge.bottom);
             });
-          }
-        }
-        else if (children[i].offsetTop + children[i].offsetHeight > _this2.el.scrollTop + _this2.domElement.offsetHeight) {
-            if (!children[i]._jsPlumbProxies) {
-              children[i]._jsPlumbProxies = children[i]._jsPlumbProxies || [];
-              _this2.instance.select({
-                source: children[i]
-              }).each(function (c) {
-                _this2._proxyConnection(children[i], c, 0, elId, SupportedEdge.bottom);
-              });
-              _this2.instance.select({
-                target: children[i]
-              }).each(function (c) {
-                _this2._proxyConnection(children[i], c, 1, elId, SupportedEdge.bottom);
-              });
-            }
           } else if (children[i]._jsPlumbProxies) {
             for (var j = 0; j < children[i]._jsPlumbProxies.length; j++) {
               _this2.instance.unproxyConnection(children[i]._jsPlumbProxies[j][0], children[i]._jsPlumbProxies[j][1], elId);

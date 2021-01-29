@@ -1,3 +1,9 @@
+## 4.0.0-RC42
+
+29th January 2021
+
+- Added a test suite for scrollable lists and made some internal tweaks to the operation of scrollable lists.
+
 ## 4.0.0-RC41
 
 29th January 2021

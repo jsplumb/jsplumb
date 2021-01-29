@@ -31,6 +31,11 @@ export declare class JsPlumbListManager {
      */
     addList(el: Element, options?: JsPlumbListOptions): JsPlumbList;
     /**
+     * Gets the list associated with the given element, if any.
+     * @param el
+     */
+    getList(el: Element): JsPlumbList;
+    /**
      * Destroy any scrollable list associated with the given element.
      * @param el
      */
@@ -46,6 +51,7 @@ export declare class JsPlumbList {
     private instance;
     private el;
     private options;
+    readonly id: string;
     _scrollHandler: Function;
     readonly domElement: jsPlumbDOMElement;
     private readonly elId;
