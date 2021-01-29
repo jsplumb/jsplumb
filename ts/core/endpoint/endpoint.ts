@@ -289,6 +289,7 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         idx = idx == null ? this.connections.indexOf(connection) : idx
         if (idx >= 0) {
             this.connections.splice(idx, 1)
+            // refresh the endpoint's appearance (which can change based on the number of connections, via classes)
             this.instance.refreshEndpoint(this)
         }
 
