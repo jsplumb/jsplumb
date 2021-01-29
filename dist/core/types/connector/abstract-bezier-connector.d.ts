@@ -1,5 +1,5 @@
 import { AbstractConnector, ConnectorComputeParams, PaintGeometry } from "./abstract-connector";
-import { AnchorPlacement } from '../anchor-manager';
+import { AnchorPlacement } from '../router/router';
 import { Connection } from '../connector/connection-impl';
 import { JsPlumbInstance } from "../core";
 export interface AbstractBezierOptions {

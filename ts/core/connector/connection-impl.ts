@@ -2,7 +2,7 @@
 import { JsPlumbInstance } from "../core"
 import {Dictionary, jsPlumbElement, TypeDescriptor} from '../common'
 import {AbstractConnector} from "./abstract-connector"
-import {Endpoint} from "../endpoint/endpoint-impl"
+import {Endpoint} from "../endpoint/endpoint"
 import {PaintStyle} from "../styles"
 import {Component} from "../component/component"
 import {OverlayCapableComponent} from "../component/overlay-capable-component"

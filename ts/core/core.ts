@@ -1,9 +1,9 @@
 import {jsPlumbDefaults, jsPlumbHelperFunctions} from "./defaults"
 
 import {Connection} from "./connector/connection-impl"
-import {Endpoint} from "./endpoint/endpoint-impl"
+import {Endpoint} from "./endpoint/endpoint"
 import {FullOverlaySpec, OverlayId, OverlaySpec} from "./overlay/overlay"
-import {AnchorPlacement, RedrawResult} from "./anchor-manager"
+import {AnchorPlacement, RedrawResult} from "./router/router"
 import {
     _mergeOverrides,
     findWithFunction,

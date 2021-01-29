@@ -2,7 +2,7 @@ import { AbstractBezierConnector, AbstractBezierOptions } from "./abstract-bezie
 import { PaintGeometry, ConnectorComputeParams } from "./abstract-connector";
 import { JsPlumbInstance } from "../core";
 import { Connection } from "./connection-impl";
-import { AnchorPlacement } from "../anchor-manager";
+import { AnchorPlacement } from "../router/router";
 export declare class Bezier extends AbstractBezierConnector {
     connection: Connection;
     type: string;

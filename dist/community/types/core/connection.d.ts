@@ -1,4 +1,4 @@
-import { Endpoint } from "./endpoint/endpoint-impl";
+import { Endpoint } from "./endpoint/endpoint";
 export interface ProxyConnection {
     originalEp: Endpoint;
 }

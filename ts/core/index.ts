@@ -35,7 +35,6 @@ export * from "./selection/connection-selection"
 
 export * from './endpoint/endpoint'
 export * from './factory/endpoint-factory'
-export * from "./endpoint/endpoint-impl"
 export * from './endpoint/endpoints'
 export * from './endpoint/dot-endpoint'
 
@@ -49,13 +48,13 @@ export * from "./overlay/diamond-overlay"
 export * from "./overlay/custom-overlay"
 export * from "./factory/overlay-factory"
 
+export * from './router/router'
+export * from './router/default-router'
+
 export * from "./anchor/anchor"
 export * from "./anchor/dynamic-anchor"
 export * from "./anchor/continuous-anchor"
 export * from "./factory/anchor-factory"
-export * from "./anchor-manager"
-
-export * from "./connection"
 
 export * from "./styles"
 export * from "./util"

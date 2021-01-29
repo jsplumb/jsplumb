@@ -6611,11 +6611,11 @@ var edgeSortFunctions = {
   "bottom": rightAndBottomSort,
   "left": leftAndTopSort
 };
-var AnchorManager =
+var DefaultRouter =
 function () {
-  function AnchorManager(instance) {
+  function DefaultRouter(instance) {
     var _this = this;
-    _classCallCheck(this, AnchorManager);
+    _classCallCheck(this, DefaultRouter);
     this.instance = instance;
     _defineProperty(this, "continuousAnchorLocations", {});
     _defineProperty(this, "continuousAnchorOrientations", {});
@@ -6624,10 +6624,74 @@ function () {
       _this.connectionDetached(p);
     });
   }
-  _createClass(AnchorManager, [{
+  _createClass(DefaultRouter, [{
     key: "reset",
     value: function reset() {
       this.anchorLists = {};
+    }
+  }, {
+    key: "getContinuousAnchorLocation",
+    value: function getContinuousAnchorLocation(elementId) {
+      return this.continuousAnchorLocations[elementId] || [0, 0, 0, 0];
+    }
+  }, {
+    key: "getContinuousAnchorOrientation",
+    value: function getContinuousAnchorOrientation(endpointId) {
+      return this.continuousAnchorOrientations[endpointId] || [0, 0];
+    }
+  }, {
+    key: "addEndpoint",
+    value: function addEndpoint(endpoint, elementId) {
+    }
+  }, {
+    key: "elementRemoved",
+    value: function elementRemoved(id) {
+    }
+  }, {
+    key: "computePath",
+    value: function computePath(connection, timestamp) {
+      var sourceInfo = this.instance.updateOffset({
+        elId: connection.sourceId
+      }),
+      sourceOffset = {
+        left: sourceInfo.x,
+        top: sourceInfo.y
+      },
+          targetInfo = this.instance.updateOffset({
+        elId: connection.targetId
+      }),
+          targetOffset = {
+        left: targetInfo.x,
+        top: targetInfo.y
+      },
+          sE = connection.endpoints[0],
+          tE = connection.endpoints[1];
+      var sAnchorP = sE.anchor.getCurrentLocation({
+        xy: [sourceInfo.x, sourceInfo.y],
+        wh: [sourceInfo.w, sourceInfo.h],
+        element: sE,
+        timestamp: timestamp,
+        rotation: sourceInfo.r
+      }),
+          tAnchorP = tE.anchor.getCurrentLocation({
+        xy: [targetInfo.x, targetInfo.y],
+        wh: [targetInfo.w, targetInfo.h],
+        element: tE,
+        timestamp: timestamp,
+        rotation: targetInfo.r
+      });
+      connection.connector.resetBounds();
+      connection.connector.compute({
+        sourcePos: sAnchorP,
+        targetPos: tAnchorP,
+        sourceOrientation: sE.anchor.getOrientation(sE),
+        targetOrientation: tE.anchor.getOrientation(tE),
+        sourceEndpoint: connection.endpoints[0],
+        targetEndpoint: connection.endpoints[1],
+        strokeWidth: connection.paintStyleInUse.strokeWidth,
+        sourceInfo: sourceOffset,
+        targetInfo: targetOffset
+      });
     }
   }, {
     key: "placeAnchors",
@@ -7073,97 +7137,6 @@ function () {
         theta: theta,
         theta2: theta2
       };
-    }
-  }]);
-  return AnchorManager;
-}();
-
-var DefaultRouter =
-function () {
-  function DefaultRouter(instance) {
-    _classCallCheck(this, DefaultRouter);
-    this.instance = instance;
-    _defineProperty(this, "anchorManager", void 0);
-    this.anchorManager = new AnchorManager(this.instance);
-  }
-  _createClass(DefaultRouter, [{
-    key: "reset",
-    value: function reset() {
-      this.anchorManager.reset();
-    }
-  }, {
-    key: "redraw",
-    value: function redraw(elementId, ui, timestamp, offsetToUI) {
-      return this.anchorManager.redraw(elementId, ui, timestamp, offsetToUI);
-    }
-  }, {
-    key: "clearContinuousAnchorPlacement",
-    value: function clearContinuousAnchorPlacement(elementId) {
-      this.anchorManager.clearContinuousAnchorPlacement(elementId);
-    }
-  }, {
-    key: "getContinuousAnchorLocation",
-    value: function getContinuousAnchorLocation(elementId) {
-      return this.anchorManager.continuousAnchorLocations[elementId] || [0, 0, 0, 0];
-    }
-  }, {
-    key: "getContinuousAnchorOrientation",
-    value: function getContinuousAnchorOrientation(endpointId) {
-      return this.anchorManager.continuousAnchorOrientations[endpointId] || [0, 0];
-    }
-  }, {
-    key: "addEndpoint",
-    value: function addEndpoint(endpoint, elementId) {
-    }
-  }, {
-    key: "elementRemoved",
-    value: function elementRemoved(id) {
-    }
-  }, {
-    key: "computePath",
-    value: function computePath(connection, timestamp) {
-      var sourceInfo = this.instance.updateOffset({
-        elId: connection.sourceId
-      }),
-      sourceOffset = {
-        left: sourceInfo.x,
-        top: sourceInfo.y
-      },
-          targetInfo = this.instance.updateOffset({
-        elId: connection.targetId
-      }),
-          targetOffset = {
-        left: targetInfo.x,
-        top: targetInfo.y
-      },
-          sE = connection.endpoints[0],
-          tE = connection.endpoints[1];
-      var sAnchorP = sE.anchor.getCurrentLocation({
-        xy: [sourceInfo.x, sourceInfo.y],
-        wh: [sourceInfo.w, sourceInfo.h],
-        element: sE,
-        timestamp: timestamp,
-        rotation: sourceInfo.r
-      }),
-          tAnchorP = tE.anchor.getCurrentLocation({
-        xy: [targetInfo.x, targetInfo.y],
-        wh: [targetInfo.w, targetInfo.h],
-        element: tE,
-        timestamp: timestamp,
-        rotation: targetInfo.r
-      });
-      connection.connector.resetBounds();
-      connection.connector.compute({
-        sourcePos: sAnchorP,
-        targetPos: tAnchorP,
-        sourceOrientation: sE.anchor.getOrientation(sE),
-        targetOrientation: tE.anchor.getOrientation(tE),
-        sourceEndpoint: connection.endpoints[0],
-        targetEndpoint: connection.endpoints[1],
-        strokeWidth: connection.paintStyleInUse.strokeWidth,
-        sourceInfo: sourceOffset,
-        targetInfo: targetOffset
-      });
     }
   }]);
   return DefaultRouter;
@@ -9698,4 +9671,4 @@ register$3();
 register$4();
 register$6();
 
-export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, AnchorManager, Anchors, ArcSegment, ArrowOverlay, BLOCK, BezierSegment, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, GROUP_KEY, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DROP, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JTK_ID, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PROPERTY_POSITION, PlainArrowOverlay, SCOPE_PREFIX, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, extend, fastTrim, filterList, findWithFunction, functionChain, getsert, gradientAtPoint, gradientAtPointAlongPathFrom, isArray, isArrowOverlay, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, jsPlumbGeometry, lineIntersection, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, optional, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, populate, register, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, rotatePointXY, sortHelper, suggest, uuid, wrap };
+export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, Anchors, ArcSegment, ArrowOverlay, BLOCK, BezierSegment, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DefaultRouter, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, GROUP_KEY, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DROP, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JTK_ID, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PROPERTY_POSITION, PlainArrowOverlay, SCOPE_PREFIX, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, extend, fastTrim, filterList, findWithFunction, functionChain, getsert, gradientAtPoint, gradientAtPointAlongPathFrom, isArray, isArrowOverlay, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, jsPlumbGeometry, lineIntersection, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, optional, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, populate, register, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, rotatePointXY, sortHelper, suggest, uuid, wrap };

@@ -1,8 +1,8 @@
 import { jsPlumbDefaults, jsPlumbHelperFunctions } from "./defaults";
 import { Connection } from "./connector/connection-impl";
-import { Endpoint } from "./endpoint/endpoint-impl";
+import { Endpoint } from "./endpoint/endpoint";
 import { FullOverlaySpec, OverlaySpec } from "./overlay/overlay";
-import { AnchorPlacement, RedrawResult } from "./anchor-manager";
+import { AnchorPlacement, RedrawResult } from "./router/router";
 import { Dictionary, UpdateOffsetOptions, Offset, Size, jsPlumbElement, PointArray, ConnectParams, // <--
 SourceDefinition, TargetDefinition, BehaviouralTypeDescriptor, TypeDescriptor } from './common';
 import { EventGenerator } from "./event-generator";

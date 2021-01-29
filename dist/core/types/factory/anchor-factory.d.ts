@@ -1,9 +1,9 @@
 import { Connection } from "../connector/connection-impl";
-import { Endpoint } from "../endpoint/endpoint-impl";
+import { Endpoint } from "../endpoint/endpoint";
 import { PointArray } from "../common";
 import { JsPlumbInstance } from "../core";
 import { Anchor } from "../anchor/anchor";
-import { AnchorPlacement } from "../anchor-manager";
+import { AnchorPlacement } from "../router/router";
 export declare type AnchorOrientationHint = -1 | 0 | 1;
 export declare type Orientation = [number, number];
 export declare type Face = "top" | "right" | "bottom" | "left";

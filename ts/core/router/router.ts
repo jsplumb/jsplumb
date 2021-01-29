@@ -1,9 +1,15 @@
 import {Connection} from '../connector/connection-impl'
-import { Endpoint } from '../endpoint/endpoint-impl'
+import { Endpoint } from '../endpoint/endpoint'
 import { Offset } from '../common'
 import {ViewportElement} from "../viewport"
-import {RedrawResult} from "../anchor-manager"
 
+export interface RedrawResult {
+    c:Set<Connection>
+    e:Set<Endpoint>
+}
+
+export type AnchorPlacement = [ number, number, number, number ]
+export type ContinuousAnchorPlacement = [ number, number, number, number, Connection, Connection ]
 
 export interface Router {
 

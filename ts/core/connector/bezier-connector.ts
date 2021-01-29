@@ -4,7 +4,7 @@ import { JsPlumbInstance } from "../core"
 import {BezierSegment} from "./bezier-segment"
 import {Connectors} from "./connectors"
 import {Connection} from "./connection-impl"
-import {AnchorPlacement} from "../anchor-manager"
+import {AnchorPlacement} from "../router/router"
 
 export class Bezier extends AbstractBezierConnector {
 

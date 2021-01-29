@@ -9,8 +9,8 @@ import {
 
 import { PointArray} from '../common'
 import { JsPlumbInstance } from "../core"
-import {Endpoint} from "../endpoint/endpoint-impl"
-import {AnchorPlacement} from "../anchor-manager"
+import {Endpoint} from "../endpoint/endpoint"
+import {AnchorPlacement} from "../router/router"
 import {rotatePoint} from "../util"
 
 export interface DynamicAnchorOptions extends AnchorOptions {

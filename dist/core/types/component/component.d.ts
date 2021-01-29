@@ -3,7 +3,7 @@ import { Dictionary, TypeDescriptor, PointXY } from '../common';
 import { JsPlumbInstance } from "../core";
 import { EventGenerator } from "../event-generator";
 import { Connection } from "../connector/connection-impl";
-import { Endpoint } from "../endpoint/endpoint-impl";
+import { Endpoint } from "../endpoint/endpoint";
 import { OverlaySpec } from "../overlay/overlay";
 export declare type ComponentParameters = Record<string, any>;
 export declare function _removeTypeCssHelper<E>(component: Component, typeIndex: number): void;

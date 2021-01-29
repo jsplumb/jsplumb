@@ -4,7 +4,7 @@ import { JsPlumbInstance } from "../core"
 import { extend, log, merge, populate } from "../util"
 import {EventGenerator} from "../event-generator"
 import {Connection} from "../connector/connection-impl"
-import {Endpoint} from "../endpoint/endpoint-impl"
+import {Endpoint} from "../endpoint/endpoint"
 import {OverlaySpec} from "../overlay/overlay"
 import { INTERCEPT_BEFORE_DROP } from '../constants'
 

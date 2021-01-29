@@ -2,8 +2,8 @@ import { Anchor } from "./anchor";
 import { AnchorComputeParams, AnchorOptions, Orientation } from "../factory/anchor-factory";
 import { PointArray } from '../common';
 import { JsPlumbInstance } from "../core";
-import { Endpoint } from "../endpoint/endpoint-impl";
-import { AnchorPlacement } from "../anchor-manager";
+import { Endpoint } from "../endpoint/endpoint";
+import { AnchorPlacement } from "../router/router";
 export interface DynamicAnchorOptions extends AnchorOptions {
     selector?: (xy: PointArray, wh: PointArray, txy: PointArray, twh: PointArray, rotation: number, targetRotation: number, anchors: Array<Anchor>) => Anchor;
     elementId?: string;

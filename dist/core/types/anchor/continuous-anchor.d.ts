@@ -2,8 +2,8 @@ import { AnchorId, Face, Orientation, AnchorOptions, AnchorComputeParams } from 
 import { Anchor } from "./anchor";
 import { Dictionary } from '../common';
 import { JsPlumbInstance } from "../core";
-import { Endpoint } from "../endpoint/endpoint-impl";
-import { AnchorPlacement } from "../anchor-manager";
+import { Endpoint } from "../endpoint/endpoint";
+import { AnchorPlacement } from "../router/router";
 export interface ContinuousAnchorOptions extends AnchorOptions {
     faces?: Array<Face>;
     clockwise?: boolean;

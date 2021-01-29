@@ -1,9 +1,9 @@
 import { Offset, PointArray } from '../common';
 import { JsPlumbInstance } from "../core";
 import { EventGenerator } from "../event-generator";
-import { Endpoint } from "../endpoint/endpoint-impl";
+import { Endpoint } from "../endpoint/endpoint";
 import { AnchorComputeParams, AnchorId, AnchorOptions, AnchorOrientationHint, Orientation } from "../factory/anchor-factory";
-import { AnchorPlacement } from "../anchor-manager";
+import { AnchorPlacement } from "../router/router";
 export declare class Anchor extends EventGenerator {
     instance: JsPlumbInstance;
     type: AnchorId;

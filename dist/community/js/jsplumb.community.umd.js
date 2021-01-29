@@ -6509,11 +6509,11 @@
     "bottom": rightAndBottomSort,
     "left": leftAndTopSort
   };
-  var AnchorManager =
+  var DefaultRouter =
   function () {
-    function AnchorManager(instance) {
+    function DefaultRouter(instance) {
       var _this = this;
-      _classCallCheck(this, AnchorManager);
+      _classCallCheck(this, DefaultRouter);
       this.instance = instance;
       _defineProperty(this, "continuousAnchorLocations", {});
       _defineProperty(this, "continuousAnchorOrientations", {});
@@ -6522,10 +6522,74 @@
         _this.connectionDetached(p);
       });
     }
-    _createClass(AnchorManager, [{
+    _createClass(DefaultRouter, [{
       key: "reset",
       value: function reset() {
         this.anchorLists = {};
+      }
+    }, {
+      key: "getContinuousAnchorLocation",
+      value: function getContinuousAnchorLocation(elementId) {
+        return this.continuousAnchorLocations[elementId] || [0, 0, 0, 0];
+      }
+    }, {
+      key: "getContinuousAnchorOrientation",
+      value: function getContinuousAnchorOrientation(endpointId) {
+        return this.continuousAnchorOrientations[endpointId] || [0, 0];
+      }
+    }, {
+      key: "addEndpoint",
+      value: function addEndpoint(endpoint, elementId) {
+      }
+    }, {
+      key: "elementRemoved",
+      value: function elementRemoved(id) {
+      }
+    }, {
+      key: "computePath",
+      value: function computePath(connection, timestamp) {
+        var sourceInfo = this.instance.updateOffset({
+          elId: connection.sourceId
+        }),
+        sourceOffset = {
+          left: sourceInfo.x,
+          top: sourceInfo.y
+        },
+            targetInfo = this.instance.updateOffset({
+          elId: connection.targetId
+        }),
+            targetOffset = {
+          left: targetInfo.x,
+          top: targetInfo.y
+        },
+            sE = connection.endpoints[0],
+            tE = connection.endpoints[1];
+        var sAnchorP = sE.anchor.getCurrentLocation({
+          xy: [sourceInfo.x, sourceInfo.y],
+          wh: [sourceInfo.w, sourceInfo.h],
+          element: sE,
+          timestamp: timestamp,
+          rotation: sourceInfo.r
+        }),
+            tAnchorP = tE.anchor.getCurrentLocation({
+          xy: [targetInfo.x, targetInfo.y],
+          wh: [targetInfo.w, targetInfo.h],
+          element: tE,
+          timestamp: timestamp,
+          rotation: targetInfo.r
+        });
+        connection.connector.resetBounds();
+        connection.connector.compute({
+          sourcePos: sAnchorP,
+          targetPos: tAnchorP,
+          sourceOrientation: sE.anchor.getOrientation(sE),
+          targetOrientation: tE.anchor.getOrientation(tE),
+          sourceEndpoint: connection.endpoints[0],
+          targetEndpoint: connection.endpoints[1],
+          strokeWidth: connection.paintStyleInUse.strokeWidth,
+          sourceInfo: sourceOffset,
+          targetInfo: targetOffset
+        });
       }
     }, {
       key: "placeAnchors",
@@ -6971,97 +7035,6 @@
           theta: theta,
           theta2: theta2
         };
-      }
-    }]);
-    return AnchorManager;
-  }();
-
-  var DefaultRouter =
-  function () {
-    function DefaultRouter(instance) {
-      _classCallCheck(this, DefaultRouter);
-      this.instance = instance;
-      _defineProperty(this, "anchorManager", void 0);
-      this.anchorManager = new AnchorManager(this.instance);
-    }
-    _createClass(DefaultRouter, [{
-      key: "reset",
-      value: function reset() {
-        this.anchorManager.reset();
-      }
-    }, {
-      key: "redraw",
-      value: function redraw(elementId, ui, timestamp, offsetToUI) {
-        return this.anchorManager.redraw(elementId, ui, timestamp, offsetToUI);
-      }
-    }, {
-      key: "clearContinuousAnchorPlacement",
-      value: function clearContinuousAnchorPlacement(elementId) {
-        this.anchorManager.clearContinuousAnchorPlacement(elementId);
-      }
-    }, {
-      key: "getContinuousAnchorLocation",
-      value: function getContinuousAnchorLocation(elementId) {
-        return this.anchorManager.continuousAnchorLocations[elementId] || [0, 0, 0, 0];
-      }
-    }, {
-      key: "getContinuousAnchorOrientation",
-      value: function getContinuousAnchorOrientation(endpointId) {
-        return this.anchorManager.continuousAnchorOrientations[endpointId] || [0, 0];
-      }
-    }, {
-      key: "addEndpoint",
-      value: function addEndpoint(endpoint, elementId) {
-      }
-    }, {
-      key: "elementRemoved",
-      value: function elementRemoved(id) {
-      }
-    }, {
-      key: "computePath",
-      value: function computePath(connection, timestamp) {
-        var sourceInfo = this.instance.updateOffset({
-          elId: connection.sourceId
-        }),
-        sourceOffset = {
-          left: sourceInfo.x,
-          top: sourceInfo.y
-        },
-            targetInfo = this.instance.updateOffset({
-          elId: connection.targetId
-        }),
-            targetOffset = {
-          left: targetInfo.x,
-          top: targetInfo.y
-        },
-            sE = connection.endpoints[0],
-            tE = connection.endpoints[1];
-        var sAnchorP = sE.anchor.getCurrentLocation({
-          xy: [sourceInfo.x, sourceInfo.y],
-          wh: [sourceInfo.w, sourceInfo.h],
-          element: sE,
-          timestamp: timestamp,
-          rotation: sourceInfo.r
-        }),
-            tAnchorP = tE.anchor.getCurrentLocation({
-          xy: [targetInfo.x, targetInfo.y],
-          wh: [targetInfo.w, targetInfo.h],
-          element: tE,
-          timestamp: timestamp,
-          rotation: targetInfo.r
-        });
-        connection.connector.resetBounds();
-        connection.connector.compute({
-          sourcePos: sAnchorP,
-          targetPos: tAnchorP,
-          sourceOrientation: sE.anchor.getOrientation(sE),
-          targetOrientation: tE.anchor.getOrientation(tE),
-          sourceEndpoint: connection.endpoints[0],
-          targetEndpoint: connection.endpoints[1],
-          strokeWidth: connection.paintStyleInUse.strokeWidth,
-          sourceInfo: sourceOffset,
-          targetInfo: targetOffset
-        });
       }
     }]);
     return DefaultRouter;

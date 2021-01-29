@@ -1,6 +1,6 @@
 import {EndpointRepresentation} from "../endpoint/endpoints"
 import {Constructable, Dictionary} from "../common"
-import {Endpoint} from "../endpoint/endpoint-impl"
+import {Endpoint} from "../endpoint/endpoint"
 const endpointMap:Dictionary<Constructable<EndpointRepresentation<any>>> = {}
 
 export const EndpointFactory = {

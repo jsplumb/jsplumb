@@ -1,5 +1,5 @@
 import {Connection} from "../connector/connection-impl"
-import {Endpoint} from "../endpoint/endpoint-impl"
+import {Endpoint} from "../endpoint/endpoint"
 import {Dictionary, PointArray} from "../common"
 import { JsPlumbInstance } from "../core"
 
@@ -7,7 +7,7 @@ import {Anchor} from "../anchor/anchor"
 import {DynamicAnchor} from "../anchor/dynamic-anchor"
 import {extend, IS, isArray, isNumber, isString} from "../util"
 import {ContinuousAnchor, ContinuousAnchorOptions} from "../anchor/continuous-anchor"
-import {AnchorPlacement} from "../anchor-manager"
+import {AnchorPlacement} from "../router/router"
 
 export type AnchorOrientationHint = -1 | 0 | 1
 export type Orientation = [  number, number ]

@@ -1,11 +1,11 @@
 import { PointArray, PointXY, TypeDescriptor } from '../common';
 import { JsPlumbInstance } from "../core";
 import { Segment, SegmentBounds } from "./abstract-segment";
-import { AnchorPlacement } from "../anchor-manager";
+import { AnchorPlacement } from "../router/router";
 import { Connection } from '../connector/connection-impl';
 import { ComponentOptions } from '../component/component';
 import { Orientation } from '../factory/anchor-factory';
-import { Endpoint } from '../endpoint/endpoint-impl';
+import { Endpoint } from '../endpoint/endpoint';
 export interface ConnectorOptions extends Record<string, any> {
 }
 export declare type UserDefinedConnectorId = string;

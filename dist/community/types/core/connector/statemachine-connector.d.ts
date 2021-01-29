@@ -2,7 +2,7 @@ import { AbstractBezierConnector, AbstractBezierOptions } from "./abstract-bezie
 import { JsPlumbInstance } from "../core";
 import { ConnectorComputeParams, PaintGeometry } from "./abstract-connector";
 import { Connection } from "./connection-impl";
-import { AnchorPlacement } from "../anchor-manager";
+import { AnchorPlacement } from "../router/router";
 export interface StateMachineOptions extends AbstractBezierOptions {
 }
 export declare class StateMachine extends AbstractBezierConnector {

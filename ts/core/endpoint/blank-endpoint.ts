@@ -1,8 +1,8 @@
 import {EndpointRepresentation} from "./endpoints"
 import {Orientation} from "../factory/anchor-factory"
 import {EndpointFactory} from "../factory/endpoint-factory"
-import {Endpoint} from "./endpoint-impl"
-import {AnchorPlacement} from "../anchor-manager"
+import {Endpoint} from "./endpoint"
+import {AnchorPlacement} from "../router/router"
 
 export type ComputedBlankEndpoint = [ number, number, number, number  ]
 

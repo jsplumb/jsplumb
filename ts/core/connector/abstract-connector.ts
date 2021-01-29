@@ -2,26 +2,17 @@ import {isArray, log} from "../util"
 import { PointArray, PointXY, TypeDescriptor} from '../common'
 import { JsPlumbInstance } from "../core"
 import {EMPTY_BOUNDS, Segment, SegmentBounds} from "./abstract-segment"
-import {AnchorPlacement} from "../anchor-manager"
+import {AnchorPlacement} from "../router/router"
 import { Connection} from '../connector/connection-impl'
 import { ComponentOptions} from '../component/component'
 import { Orientation} from '../factory/anchor-factory'
-import { Endpoint} from '../endpoint/endpoint-impl'
+import { Endpoint} from '../endpoint/endpoint'
 
 export interface ConnectorOptions extends Record<string, any> { }
 export type UserDefinedConnectorId = string
 export type ConnectorId = "Bezier" | "StateMachine" | "Flowchart" | "Straight" | UserDefinedConnectorId
 export type ConnectorWithOptions = [ConnectorId, ConnectorOptions]
 export type ConnectorSpec = ConnectorId | ConnectorWithOptions
-
-// export interface PaintParams<E> {
-//     sourcePos:PointArray
-//     targetPos:PointArray
-//     sourceEndpoint:Endpoint
-//     targetEndpoint:Endpoint
-//     strokeWidth?:number
-// }
-
 export type PaintAxis = "y" | "x"
 
 type SegmentForPoint = { d: number, s: Segment, x: number, y: number, l: number, x1:number, y1:number, x2:number, y2:number, index:number, connectorLocation: number }

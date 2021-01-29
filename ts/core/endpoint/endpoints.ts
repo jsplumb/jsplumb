@@ -1,8 +1,8 @@
 import { JsPlumbInstance } from "../core"
 import {Orientation} from "../factory/anchor-factory"
 import {EMPTY_BOUNDS, SegmentBounds} from "../connector/abstract-segment"
-import {Endpoint} from "./endpoint-impl"
-import {AnchorPlacement} from "../anchor-manager"
+import {Endpoint} from "./endpoint"
+import {AnchorPlacement} from "../router/router"
 
 /**
  * Superclass for all types of Endpoint. This class is renderer

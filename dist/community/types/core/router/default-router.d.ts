@@ -1,20 +1,30 @@
-import { Router } from "./router";
-import { AnchorManager, RedrawResult } from "../anchor-manager";
+import { Router, RedrawResult } from "./router";
 import { JsPlumbInstance } from "../core";
-import { Offset } from '../common';
 import { Connection } from '../connector/connection-impl';
-import { Endpoint } from '../endpoint/endpoint-impl';
+import { Endpoint } from '../endpoint/endpoint';
 import { ViewportElement } from "../viewport";
-export declare class DefaultRouter implements Router {
+import { Dictionary, Offset } from "../common";
+import { Orientation } from "../factory/anchor-factory";
+export declare class DefaultRouter<T extends {
+    E: unknown;
+}> implements Router {
     instance: JsPlumbInstance;
-    readonly anchorManager: AnchorManager;
+    continuousAnchorLocations: Dictionary<[number, number, number, number]>;
+    continuousAnchorOrientations: Dictionary<Orientation>;
+    private anchorLists;
     constructor(instance: JsPlumbInstance);
     reset(): void;
-    redraw(elementId: string, ui?: ViewportElement, timestamp?: string, offsetToUI?: Offset): RedrawResult;
-    clearContinuousAnchorPlacement(elementId: string): void;
     getContinuousAnchorLocation(elementId: string): [number, number, number, number];
     getContinuousAnchorOrientation(endpointId: string): [number, number];
     addEndpoint(endpoint: Endpoint, elementId: string): void;
     elementRemoved(id: string): void;
     computePath(connection: Connection, timestamp: string): void;
+    private placeAnchors;
+    clearContinuousAnchorPlacement(endpointId: string): void;
+    private removeEndpointFromAnchorLists;
+    private connectionDetached;
+    deleteEndpoint(endpoint: Endpoint): void;
+    private _updateAnchorList;
+    redraw(elementId: string, ui?: ViewportElement, timestamp?: string, offsetToUI?: Offset): RedrawResult;
+    private calculateOrientation;
 }

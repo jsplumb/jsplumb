@@ -1,5 +1,5 @@
 import {UIGroup} from "./group/group"
-import {Endpoint} from "./endpoint/endpoint-impl"
+import {Endpoint} from "./endpoint/endpoint"
 import {EndpointSpec} from "./endpoint/endpoint"
 import {AnchorSpec} from "./factory/anchor-factory"
 import {ConnectorSpec} from "./connector/abstract-connector"
