@@ -1193,26 +1193,6 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
     }
 
-    refreshEndpoint(endpoint: Endpoint): void {
-        if (endpoint.endpoint != null) {
-            const c = getEndpointCanvas(endpoint.endpoint)
-            if (c != null) {
-
-                if (endpoint.connections.length > 0) {
-                    addClass(c, this.endpointConnectedClass)
-                } else {
-                    removeClass(c, this.endpointConnectedClass)
-                }
-
-                if (endpoint.isFull()) {
-                    addClass(c, this.endpointFullClass)
-                } else {
-                    removeClass(c, this.endpointFullClass)
-                }
-            }
-        }
-    }
-
     setEndpointHover(endpoint: Endpoint, h: boolean, doNotCascade?:boolean): void {
 
         if (endpoint != null && (h === false || (!this.currentlyDragging && !this.isHoverSuspended()))) {
