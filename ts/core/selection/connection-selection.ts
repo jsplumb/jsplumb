@@ -24,7 +24,7 @@ export class ConnectionSelection extends SelectionBase<Connection> {
     }
 
     repaint():ConnectionSelection {
-        this.each((c:Connection) => c.paint())
+        this.each((c:Connection) => this.instance.paintConnection(c))
         return this
     }
 }
