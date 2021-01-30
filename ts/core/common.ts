@@ -127,7 +127,6 @@ export type LineXY = [ PointXY, PointXY ]
 export interface UpdateOffsetOptions {
     timestamp?:string
     recalc?:boolean
-    offset?:Offset
     elId?:string
 }
 
