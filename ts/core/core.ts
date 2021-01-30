@@ -144,7 +144,7 @@ function prepareList(instance:JsPlumbInstance, input:any, doNotGetIds?:boolean):
 
 export type ManagedElement<E> = {
     el:jsPlumbElement<E>,
-    info?:ViewportElement,
+    viewportElement?:ViewportElement,
     endpoints?:Array<Endpoint>,
     connections?:Array<Connection>,
     rotation?:number
@@ -181,7 +181,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     public allowNestedGroups:boolean
 
     private _curIdStamp :number = 1
-    private _offsetTimestamps:Dictionary<string> = {}
     readonly viewport:Viewport = new Viewport()
 
     readonly router: Router
@@ -324,18 +323,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             this.setAttribute(element, ID_ATTRIBUTE, id)
         }
         return id
-    }
-
-
-    getCachedData(elId:string):ViewportElement {
-
-        let o = this.viewport.getPosition(elId)
-        if (!o) {
-            return this.updateOffset({elId: elId})
-        }
-        else {
-            return o
-        }
     }
 
 // ------------------  element selection ------------------------
@@ -534,7 +521,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     computeAnchorLoc(endpoint:Endpoint, timestamp?:string):AnchorPlacement {
 
-        const myOffset = this._managedElements[endpoint.elementId].info
+        const myOffset = this._managedElements[endpoint.elementId].viewportElement
         return endpoint.anchor.compute({
             xy: [ myOffset.x, myOffset.y ],
             wh : [myOffset.w, myOffset.h],
@@ -594,21 +581,16 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      */
     updateOffset(params?:UpdateOffsetOptions):ViewportElement {
 
-        let timestamp = params.timestamp,
-            recalc = params.recalc,
-            offset = params.offset,
+        let recalc = params.recalc,
             elId = params.elId,
             s
 
-        if (this._suspendDrawing && !timestamp) {
-            timestamp = this._suspendedAt
-        }
-        if (!recalc) {
-            if (timestamp && timestamp === this._offsetTimestamps[elId]) {
-                return this.viewport.getPosition(elId)
-            }
-        }
-        if (recalc || (!offset && this.viewport.getPosition(elId) == null)) { // if forced repaint or no offset available, we recalculate.
+        // if forced repaint, or no new offset provided, we recalculate the size + offset, then store on the viewport.
+        // Here we would prefer to tell the viewport to recalculate size/offset, using whatever functions were made available to it.
+        // abstracting out the size/offset to the viewport allows us to do things like a viewport with fixed size elements, and
+        // to integrate with the Toolkit's layout for offsets (the Toolkit will write the offsets and the community edition
+        // will not need to read from the DOM)
+        if (recalc || (this.viewport.getPosition(elId) == null)) {
 
             // get the current size and offset, and store them
             s = this._managedElements[elId] ? this._managedElements[elId].el : null
@@ -618,14 +600,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
                 const offset = this.getOffset(s)
 
                 this.viewport.updateElement(elId, offset.left, offset.top, size[0], size[1], null)
-                this._offsetTimestamps[elId] = timestamp
             }
-        } else {
-            // if offset available, update the viewport
-            if (offset != null) {
-                this.viewport.setPosition(elId, offset.left, offset.top)
-            }
-            this._offsetTimestamps[elId] = timestamp
         }
 
         return this.viewport.getPosition(elId)
@@ -763,17 +738,17 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             }
 
             if (this._suspendDrawing) {
-                this._managedElements[elId].info = this.viewport.registerElement(elId)
+                this._managedElements[elId].viewportElement = this.viewport.registerElement(elId)
 
             } else {
-                this._managedElements[elId].info = this.updateOffset({elId: elId, recalc:true})
+                this._managedElements[elId].viewportElement = this.updateOffset({elId: elId, recalc:true})
             }
 
             this.fire<{el:T["E"]}>(Constants.EVENT_MANAGE_ELEMENT, {el:element})
 
         } else {
             if (recalc) {
-                this._managedElements[elId].info = this.updateOffset({elId: elId, timestamp: null,  recalc:true })
+                this._managedElements[elId].viewportElement = this.updateOffset({elId: elId, timestamp: null,  recalc:true })
             }
         }
 
@@ -885,22 +860,20 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return { endpoints: eps ? eps : [ ep, ep ], anchors: as ? as : [a, a ]}
     }
 
-    // repaint some element's endpoints and connections
-    repaint (el:T["E"], ui?:any, timestamp?:string):RedrawResult {
-        return this._draw(el, ui, timestamp)
-    }
-
     revalidate (el:T["E"], timestamp?:string):RedrawResult {
         let elId = this.getId(el)
         this.updateOffset({ elId: elId, recalc: true, timestamp:timestamp })
-        return this.repaint(el)
+        return this._draw(el)
     }
 
     // repaint every endpoint and connection.
     repaintEverything ():JsPlumbInstance {
         let timestamp = uuid(), elId:string
 
+
         for (elId in this.endpointsByElement) {
+            // TODO here we want to force the viewport to update, rather than
+            // have our own updateOffset method
             this.updateOffset({ elId: elId, recalc: true, timestamp: timestamp })
         }
 
@@ -910,14 +883,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
         return this
     }
-
-    /**
-     * for some given element, find any other elements we want to draw whenever that element
-     * is being drawn. for groups, for example, this means any child elements of the group.
-     * @param el
-     * @private
-     */
-    abstract _getAssociatedElements(el:T["E"]):Array<T["E"]>
 
     _draw(el:T["E"], ui?:any, timestamp?:string, offsetsWereJustCalculated?:boolean):RedrawResult {
 
@@ -946,7 +911,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
                 if (!offsetsWereJustCalculated) {
                     // update the offset of everything _before_ we try to draw anything.
-                    this.updateOffset({elId: id, offset: ui, recalc: false, timestamp: timestamp})
+
                     for (let i = 0; i < repaintEls.length; i++) {
                         repaintOffsets.push(this.updateOffset({
                             elId: this.getId(repaintEls[i]),
@@ -1075,7 +1040,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             this._managedElements = {}
             this.endpointsByUUID.clear()
             this.viewport.reset()
-            this._offsetTimestamps = {}
             this.router.reset()
             this.groupManager.reset()
             this._connectionTypes.clear()
@@ -1904,7 +1868,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         let timestamp = params.timestamp, recalc = !(params.recalc === false)
         if (!timestamp || endpoint.timestamp !== timestamp) {
 
-            let info = this.updateOffset({ elId: endpoint.elementId, timestamp: timestamp })
+            let info = this.viewport.getPosition(endpoint.elementId)
             let xy = params.offset ? {left:params.offset.x, top:params.offset.y} : {left:info.x, top:info.y }
             if (xy != null) {
                 let ap = params.anchorLoc
@@ -1915,7 +1879,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
                         let c = findConnectionToUseForDynamicAnchor(endpoint),
                             oIdx = c.endpoints[0] === endpoint ? 1 : 0,
                             oId = oIdx === 0 ? c.sourceId : c.targetId,
-                            oInfo = this.getCachedData(oId)
+                            oInfo = this.viewport.getPosition(oId)
 
                         anchorParams.index = oIdx === 0 ? 1 : 0
                         anchorParams.connection = c
@@ -2023,6 +1987,15 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             this.removeEndpointClass(endpoint, this.endpointFullClass)
         }
     }
+
+    /**
+     * For some given element, find any other elements we want to draw whenever that element
+     * is being drawn. for groups, for example, this means any child elements of the group. For an element that has child
+     * elements that are also managed, it means those child elements.
+     * @param el
+     * @private
+     */
+    abstract _getAssociatedElements(el:T["E"]):Array<T["E"]>
 
     abstract removeElement(el:T["E"]):void
     abstract appendElement (el:T["E"], parent:T["E"]):void
