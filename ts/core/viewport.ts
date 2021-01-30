@@ -2,28 +2,34 @@ import {PointArray} from "./common"
 import {EventGenerator} from "./event-generator"
 import { getsert } from './util'
 
-export interface ViewportElementBase {
+export interface ViewportPosition {
     x:number
     y:number
+}
+
+export interface ViewportElementBase extends ViewportPosition {
     w:number
     h:number
     r:number
     c:PointArray
     x2:number
     y2:number
+    dirty:boolean
 }
 
 export interface ViewportElement extends ViewportElementBase {
     t:TranslatedViewportElement
 }
 
-export interface TranslatedViewportElement extends ViewportElementBase {
+export interface TranslatedViewportElementBase extends ViewportElementBase {
     cr:number
     sr:number
 }
 
+export type TranslatedViewportElement = Omit<TranslatedViewportElementBase, "dirty">
+
 function EMPTY_POSITION ():ViewportElement {
-    return { x:0, y:0, w:0, h:0, r:0, c:[0,0], x2:0, y2:0, t:{x:0, y:0, c:[0,0], w:0, h:0, r:0, x2:0, y2:0, cr:0, sr:0 } }
+    return { x:0, y:0, w:0, h:0, r:0, c:[0,0], x2:0, y2:0, t:{x:0, y:0, c:[0,0], w:0, h:0, r:0, x2:0, y2:0, cr:0, sr:0 }, dirty:true }
 }
 
 //
@@ -33,7 +39,7 @@ function rotate(x:number, y:number, w:number, h:number, r:number):TranslatedView
 
     const center=[x + (w/2),y + (h/2)],
         cr = Math.cos(r / 360 * Math.PI * 2), sr = Math.sin(r / 360 * Math.PI * 2),
-        _point = (x:number, y:number):PointArray => {
+        _point = (x:number, y:number):PointArray => {``
             return [
                 center[0] + Math.round( ((x-center[0])*cr) - ( (y-center[1]) * sr) ),
                 center[1] + Math.round( ((y-center[1])*cr) - ( (x-center[0]) * sr) )
@@ -223,6 +229,8 @@ export class Viewport extends EventGenerator {
     updateElement (id:string, x:number, y:number, width:number, height:number, rotation:number):ViewportElement {
 
         const e = getsert(this._elementMap, id, EMPTY_POSITION)
+
+        e.dirty = (x == null && e.x == null) || (y == null && e.y == null) || (width == null && e.w == null) || (height == null && e.h == null)
 
         if (x != null) {
             e.x = x
