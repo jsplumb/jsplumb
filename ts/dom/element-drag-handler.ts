@@ -10,7 +10,6 @@ import {
 
 import {BrowserJsPlumbInstance, DragGroupSpec, jsPlumbDOMElement} from "./browser-jsplumb-instance"
 
-
 import {Drag} from "./collicat"
 import {
     BoundingBox,
@@ -77,7 +76,7 @@ export class ElementDragHandler implements DragHandler {
 
         const _one = (_el:Element, pos:Offset) => {
 
-            const redrawResult = this.instance._draw(_el, pos)
+            const redrawResult = this.instance.setElementPosition(_el, pos.left, pos.top)
 
             this.instance.fire<DragStopPayload>(EVENT_DRAG_STOP, {
                 el:_el,
@@ -197,7 +196,7 @@ export class ElementDragHandler implements DragHandler {
                 }
             })
 
-            this.instance._draw(el, {left:bounds.x,top:bounds.y}, null)
+            this.instance.setElementPosition(el, bounds.x, bounds.y)
 
             this.instance.fire(EVENT_DRAG_MOVE, {
                 el:el,
