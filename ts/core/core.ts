@@ -884,7 +884,28 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return this
     }
 
-    _draw(el:T["E"], ui?:any, timestamp?:string, offsetsWereJustCalculated?:boolean):RedrawResult {
+    /**
+     * Sets the position of the given element to be [x,y].
+     * @param el Element to set the position for
+     * @param x Position in X axis
+     * @param y Position in Y axis
+     * @return The result of the redraw operation that follows the update of the viewport.
+     */
+    setElementPosition(el:T["E"], x:number, y:number):RedrawResult {
+        const id = this.getId(el)
+        this.viewport.setPosition(id, x, y)
+        return this._draw(el)
+    }
+
+    /**
+     * Repaints all connections and endpoints associated with the given element.
+     * @param el
+     */
+    repaint(el:T["E"]) {
+        this._draw(el)
+    }
+
+    private _draw(el:T["E"], ui?:any, timestamp?:string, offsetsWereJustCalculated?:boolean):RedrawResult {
 
         let r:RedrawResult = {
             c:new Set<Connection>(),
