@@ -89,7 +89,7 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         return { x:this.endpoint.x, y:this.endpoint.y }
     }
 
-    connections:Array<Connection> = []
+    connections:Array<Connection<E>> = []
     anchor:Anchor
     endpoint:EndpointRepresentation<any>
     element:E
@@ -106,8 +106,6 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
     connectorClass:string
     connectorHoverClass:string
 
-    _originalAnchor:AnchorSpec
-    deleteAfterDragStop:boolean
     finalEndpoint:Endpoint<E>
 
     enabled = true
@@ -193,7 +191,7 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
             this.instance.router.addEndpoint(this, this.elementId)
         }
 
-        // what does this do?
+        // copy all params onto this class
         extend((<any>this), params, typeParameters)
 
         this.isSource = params.isSource || false
@@ -443,7 +441,6 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         // and the clone is left in its place while the original one goes off on a magical journey.
         // the copy is to get around a closure problem, in which endpointArgs ends up getting shared by
         // the whole world.
-        //var argsForClone = jsPlumb.extend({}, endpointArgs)
         endpoint.clone = () => {
             // TODO this, and the code above, can be refactored to be more dry.
             if (isString(ep)) {
@@ -472,7 +469,6 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         }
         this.endpoint = ep
     }
-
 
     addClass(clazz: string, dontUpdateOverlays?: boolean): void {
         super.addClass(clazz, dontUpdateOverlays)
