@@ -89,10 +89,6 @@ type AnchorDictionary = Dictionary<AnchorLists>
  * Dual licensed under the MIT and GPL2 licenses.
  */
 export class DefaultRouter<T extends {E:unknown}> implements Router {
-    // TODO we don't want to expose the anchor manager on the instance (and as of RC35 that's been done). but we dont want to expose it on Router, either.
-    // this cast would currently mean any alternative Router could fail (if it didn't expose an anchorManager).
-    // this is something that will need to be refactored before the Toolkit edition 4.x can be released.
-    //readonly anchorManager:AnchorManager;
 
     continuousAnchorLocations:Dictionary<[number, number, number, number]> = {}
     continuousAnchorOrientations:Dictionary<Orientation> = {}
@@ -125,6 +121,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
 
     addEndpoint (endpoint:Endpoint, elementId:string):void {
         // no-op. method required?
+        // TODO what would be good here is to configure the anchor in fact.
     }
 
     elementRemoved(id: string): void {
@@ -132,10 +129,10 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
     }
 
     computePath(connection: Connection, timestamp:string): void {
-        let sourceInfo = this.instance.updateOffset({elId:connection.sourceId}),
+        let sourceInfo = this.instance.viewport.getPosition(connection.sourceId),
             // TODO dont create these intermediate sourceOffset/targetOffset objects, just use the ViewportElements.
             sourceOffset = {left:sourceInfo.x, top:sourceInfo.y},
-            targetInfo = this.instance.updateOffset({elId:connection.targetId}),
+            targetInfo = this.instance.viewport.getPosition(connection.targetId),
             targetOffset = {left:targetInfo.x, top:targetInfo.y},
             sE = connection.endpoints[0], tE = connection.endpoints[1]
 
@@ -171,7 +168,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
 
     // ----------------- continuous anchors -----------
     private placeAnchors (instance:JsPlumbInstance, elementId:string, _anchorLists:AnchorLists):void {
-        let cd:ViewportElement = instance.getCachedData(elementId),
+        let cd:ViewportElement = instance.viewport.getPosition(elementId),
             placeSomeAnchors = (desc:string, element:ViewportElement, unsortedConnections:Array<AnchorListEntry>, isHorizontal:boolean, otherMultiplier:number, orientation:Orientation) => {
                 if (unsortedConnections.length > 0) {
                     let sc = sortHelper(unsortedConnections, edgeSortFunctions[desc]), // puts them in order based on the target element's pos on screen
@@ -322,8 +319,6 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
                 }
             }
 
-            // valid for one paint cycle.
-            this.instance.updateOffset({ elId: elementId, offset: offsetToUse, recalc: false, timestamp: timestamp })
             let orientationCache = {}
 
             for(let anEndpoint of ep) {
@@ -370,15 +365,8 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
                                 this.anchorLists[targetId] = { top: [], right: [], bottom: [], left: [] }
                             }
 
-                            if (elementId !== targetId) {
-                                this.instance.updateOffset({ elId: targetId, timestamp: timestamp })
-                            }
-                            if (elementId !== sourceId) {
-                                this.instance.updateOffset({ elId: sourceId, timestamp: timestamp })
-                            }
-
-                            let td = this.instance.getCachedData(targetId),
-                                sd = this.instance.getCachedData(sourceId)
+                            let td = this.instance.viewport.getPosition(targetId),
+                                sd = this.instance.viewport.getPosition(sourceId)
 
                             if (targetId === sourceId && (sourceContinuous || targetContinuous)) {
                                 // here we may want to improve this by somehow determining the face we'd like
@@ -451,7 +439,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
 
             // now that continuous anchors have been placed, paint all the endpoints for this element and any other endpoints we came across as a result of the continuous anchors.
             for (let ep of endpointsToPaint) {
-                let cd = this.instance.getCachedData(ep.elementId)
+                let cd = this.instance.viewport.getPosition(ep.elementId)
                 this.instance.paintEndpoint(ep, { timestamp: timestamp, offset: cd })
             }
 
