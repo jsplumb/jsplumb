@@ -97,7 +97,8 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
 
     constructor(public instance:JsPlumbInstance ) {
         instance.bind<ConnectionDetachedParams<T["E"]>>(Constants.EVENT_INTERNAL_CONNECTION_DETACHED, (p:ConnectionDetachedParams<T["E"]>) => {
-            this.connectionDetached(p)
+            this.removeEndpointFromAnchorLists(p.sourceEndpoint)
+            this.removeEndpointFromAnchorLists(p.targetEndpoint)
         })
     }
 
@@ -207,6 +208,9 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
     }
 
     private removeEndpointFromAnchorLists (endpoint:Endpoint):void {
+        const listsForElement = this.anchorLists[endpoint.elementId]
+        let total = 0;
+
         (function (list, eId) {
             if (list) {  // transient anchors dont get entries in this list.
                 let f = (e:AnchorListEntry) => {
@@ -216,22 +220,18 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
                 removeWithFunction(list.left, f)
                 removeWithFunction(list.bottom, f)
                 removeWithFunction(list.right, f)
+
+                total += list.top.length
+                total += list.left.length
+                total += list.bottom.length
+                total += list.right.length
             }
-        })(this.anchorLists[endpoint.elementId], endpoint.id)
-    }
+        })(listsForElement, endpoint.id)
 
-    private connectionDetached (params:ConnectionDetachedParams<T["E"]>) {
-        // TODO this is DOM specific. core should not know.
-        if (params.connection.floatingId) {
-            this.removeEndpointFromAnchorLists(params.connection.floatingEndpoint)
+        // remove entry from anchor lists if there are no anchors left.
+        if (total === 0) {
+            delete this.anchorLists[endpoint.elementId]
         }
-        // remove from anchorLists
-        this.removeEndpointFromAnchorLists(params.sourceEndpoint)
-        this.removeEndpointFromAnchorLists(params.targetEndpoint)
-    }
-
-    deleteEndpoint (endpoint:Endpoint) {
-        this.removeEndpointFromAnchorLists(endpoint)
     }
 
     // updates the given anchor list by either updating an existing anchor's info, or adding it. this function
