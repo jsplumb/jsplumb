@@ -82,8 +82,12 @@ export class EndpointDragHandler implements DragHandler {
     private _activeDefinition:SourceOrTargetDefinition
 
     placeholderInfo:{ id?:string, element?:jsPlumbDOMElement } = { id: null, element: null }
-    floatingElement:HTMLElement
+
+    floatingIndex:number
+    floatingId:string
+    floatingElement:Element
     floatingEndpoint:Endpoint
+
     _stopped:boolean
     inPlaceCopy:any
     endpointDropTargets:Array<{el:jsPlumbDOMElement, endpoint:Endpoint, r:BoundingBox}> = []
@@ -399,6 +403,7 @@ export class EndpointDragHandler implements DragHandler {
         const _savedAnchor = this.floatingEndpoint.anchor
         this.floatingEndpoint.deleteOnEmpty = true
         this.floatingElement = (this.floatingEndpoint.endpoint as any).canvas
+        this.floatingId = this.instance.getId(this.floatingElement)
         
         const scope = this.ep.scope
         const isSourceDrag = this.jpc && this.jpc.endpoints[0] === this.ep
@@ -525,6 +530,7 @@ export class EndpointDragHandler implements DragHandler {
 
             // attach the connection to the floating endpoint.
             this.floatingEndpoint.addConnection(this.jpc)
+            this.floatingEndpoint.addClass(this.instance.draggingClass)
         
             // fire an event that informs that a connection is being dragged. we do this before
             // replacing the original target with the floating element info.
@@ -548,10 +554,8 @@ export class EndpointDragHandler implements DragHandler {
         
             this.jpc.addClass(this.instance.draggingClass)
         
-            this.jpc.floatingIndex = anchorIdx
-            this.jpc.floatingEndpoint = this.floatingEndpoint
-            this.jpc.floatingId = this.placeholderInfo.id
-            this.jpc.floatingEndpoint.addClass(this.instance.draggingClass)
+            this.floatingId = this.placeholderInfo.id
+            this.floatingIndex = anchorIdx
         }
 
         this._registerFloatingConnection(this.placeholderInfo, this.jpc, this.floatingEndpoint)
@@ -716,17 +720,9 @@ export class EndpointDragHandler implements DragHandler {
                             this._reattachOrDiscard(p.e)
                         } else {
                             if (idx === 0) {
-                                this.jpc.floatingElement = this.jpc.source
-                                this.jpc.floatingId = this.jpc.sourceId
-                                this.jpc.floatingEndpoint = this.jpc.endpoints[0]
-                                this.jpc.floatingIndex = 0
                                 this.jpc.source = dropEndpoint.element
                                 this.jpc.sourceId = dropEndpoint.elementId
                             } else {
-                                this.jpc.floatingElement = this.jpc.target
-                                this.jpc.floatingId = this.jpc.targetId
-                                this.jpc.floatingEndpoint = this.jpc.endpoints[1]
-                                this.jpc.floatingIndex = 1
                                 this.jpc.target = dropEndpoint.element
                                 this.jpc.targetId = dropEndpoint.elementId
                             }
@@ -781,10 +777,13 @@ export class EndpointDragHandler implements DragHandler {
             delete this.jpc.suspendedElementType
             delete this.jpc.suspendedElementId
             delete this.jpc.suspendedIndex
-            delete this.jpc.floatingElement
-            delete this.jpc.floatingEndpoint
-            delete this.jpc.floatingId
-            delete this.jpc.floatingIndex
+
+            delete this.floatingId
+            delete this.floatingIndex
+            delete this.floatingElement
+            delete this.floatingEndpoint
+
+
             delete this.jpc.pending
 
             if (dropEndpoint != null) {
@@ -854,11 +853,13 @@ export class EndpointDragHandler implements DragHandler {
             // find a suitable target definition, by matching the source of the drop element with the targets registered on the
             // drop target, and also the floating index (if set) of the connection
 
-            let targetDefinition = (jpc.floatingIndex == null || jpc.floatingIndex === 1) ? this._getTargetDefinition(this.currentDropTarget.el, p.e) : null
+            //let targetDefinition = (jpc.floatingIndex == null || jpc.floatingIndex === 1) ? this._getTargetDefinition(this.currentDropTarget.el, p.e) : null
+            let targetDefinition = (this.floatingIndex == null || this.floatingIndex === 1) ? this._getTargetDefinition(this.currentDropTarget.el, p.e) : null
 
             // need to figure the conditions under which each of these should be tested
             if (targetDefinition == null) {
-                targetDefinition = (jpc.floatingIndex == null || jpc.floatingIndex === 0) ? this._getSourceDefinition(this.currentDropTarget.el, p.e, true) : null
+                //targetDefinition = (jpc.floatingIndex == null || jpc.floatingIndex === 0) ? this._getSourceDefinition(this.currentDropTarget.el, p.e, true) : null
+                targetDefinition = (this.floatingIndex == null || this.floatingIndex === 0) ? this._getSourceDefinition(this.currentDropTarget.el, p.e, true) : null
             }
 
             if (targetDefinition == null) {
@@ -931,7 +932,7 @@ export class EndpointDragHandler implements DragHandler {
         this.jpc._forceDetach = true
 
         this.jpc.suspendedEndpoint.addConnection(this.jpc)
-        this.instance.sourceOrTargetChanged(this.jpc.floatingId, this.jpc.suspendedEndpoint.elementId, this.jpc, this.jpc.suspendedEndpoint.element, idx)
+        this.instance.sourceOrTargetChanged(this.floatingId, this.jpc.suspendedEndpoint.elementId, this.jpc, this.jpc.suspendedEndpoint.element, idx)
 
         this.instance.deleteEndpoint(this.floatingEndpoint)
 
@@ -949,36 +950,36 @@ export class EndpointDragHandler implements DragHandler {
         ])
     }
 
-    private _maybeReattach(idx:number, originalEvent?:Event):void {
-
-        this.instance.setHover(this.jpc, false)
-
-        if (this.jpc.suspendedEndpoint) {
-
-            // this.jpc._forceDetach ||  <-- why was this one of the tests in the line below?
-            if (this.jpc.isReattach() || this.jpc._forceReattach || !this.instance.deleteConnection(this.jpc, {originalEvent: originalEvent})) {
-
-                this.jpc.endpoints[idx] = this.jpc.suspendedEndpoint
-                this.instance.setHover(this.jpc, false)
-                this.jpc._forceDetach = true
-                this.jpc.suspendedEndpoint.addConnection(this.jpc)
-                this.instance.sourceOrTargetChanged(this.jpc.floatingId, this.jpc.suspendedEndpoint.elementId, this.jpc, this.jpc.suspendedEndpoint.element, idx)
-                this.instance.repaint(this.jpc.source)
-                this.jpc._forceDetach = false
-            }
-            else {
-                // TODO: not reattaching and not deleting. what should happen? seems nothing, after the rewrite
-            }
-
-        } else {
-
-            this.instance.deleteEndpoint(this.jpc.endpoints[idx])
-
-            if (this.jpc.pending) {
-                this.instance.fire<Connection>(EVENT_CONNECTION_ABORT, this.jpc, originalEvent)
-            }
-        }
-    }
+    // private _maybeReattach(idx:number, originalEvent?:Event):void {
+    //
+    //     this.instance.setHover(this.jpc, false)
+    //
+    //     if (this.jpc.suspendedEndpoint) {
+    //
+    //         // this.jpc._forceDetach ||  <-- why was this one of the tests in the line below?
+    //         if (this.jpc.isReattach() || this.jpc._forceReattach || !this.instance.deleteConnection(this.jpc, {originalEvent: originalEvent})) {
+    //
+    //             this.jpc.endpoints[idx] = this.jpc.suspendedEndpoint
+    //             this.instance.setHover(this.jpc, false)
+    //             this.jpc._forceDetach = true
+    //             this.jpc.suspendedEndpoint.addConnection(this.jpc)
+    //             this.instance.sourceOrTargetChanged(this.jpc.floatingId, this.jpc.suspendedEndpoint.elementId, this.jpc, this.jpc.suspendedEndpoint.element, idx)
+    //             this.instance.repaint(this.jpc.source)
+    //             this.jpc._forceDetach = false
+    //         }
+    //         else {
+    //             // TODO: not reattaching and not deleting. what should happen? seems nothing, after the rewrite
+    //         }
+    //
+    //     } else {
+    //
+    //         this.instance.deleteEndpoint(this.jpc.endpoints[idx])
+    //
+    //         if (this.jpc.pending) {
+    //             this.instance.fire<Connection>(EVENT_CONNECTION_ABORT, this.jpc, originalEvent)
+    //         }
+    //     }
+    // }
 
     private _discard(idx:number, originalEvent?:Event) {
 
@@ -996,8 +997,8 @@ export class EndpointDragHandler implements DragHandler {
             this.jpc.endpoints[idx] = this.jpc.suspendedEndpoint
         }
 
-        if (this.jpc.floatingEndpoint) {
-            this.jpc.floatingEndpoint.detachFromConnection(this.jpc)
+        if (this.floatingEndpoint) {
+            this.floatingEndpoint.detachFromConnection(this.jpc)
         }
 
         this.instance.deleteConnection(this.jpc, {originalEvent:originalEvent, force:true})
@@ -1045,7 +1046,7 @@ export class EndpointDragHandler implements DragHandler {
             this.jpc.updateConnectedClass(false)
         }
         else {
-            this.instance.sourceOrTargetChanged(this.jpc.floatingId, this.jpc.sourceId, this.jpc, this.jpc.source, 0)
+            this.instance.sourceOrTargetChanged(this.floatingId, this.jpc.sourceId, this.jpc, this.jpc.source, 0)
         }
 
         // when makeSource has uniqueEndpoint:true, we want to create connections with new endpoints
