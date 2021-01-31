@@ -5169,17 +5169,17 @@ var testSuite = function () {
        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         _jsPlumb.connect({source:d1, target:d2});
         var id = d1.getAttribute("jtk-id")
-        var cd = _jsPlumb.getCachedData(id);
+        var cd = _jsPlumb.viewport.getPosition(id);
        ok(cd != null, "d1 is cached");
 
         // reset and then move d1. get cached data and offset should have been updated.
         _jsPlumb.reset();
         d1.style.position = "absolute";
         d1.style.left = "5000px";
-        var cd2 = _jsPlumb.getCachedData("d1");
+        var cd2 = _jsPlumb.viewport.getPosition("d1");
         ok(cd2 == null, "cache data cleared");
         _jsPlumb.connect({source:d1, target:d2});
-        var cd3 = _jsPlumb.getCachedData(id);
+        var cd3 = _jsPlumb.viewport.getPosition(id);
         ok(cd3 != null, "d1 is cached");
 
 
