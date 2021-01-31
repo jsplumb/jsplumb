@@ -1,22 +1,26 @@
 import { PointArray } from "./common";
 import { EventGenerator } from "./event-generator";
-export interface ViewportElementBase {
+export interface ViewportPosition {
     x: number;
     y: number;
+}
+export interface ViewportElementBase extends ViewportPosition {
     w: number;
     h: number;
     r: number;
     c: PointArray;
     x2: number;
     y2: number;
+    dirty: boolean;
 }
 export interface ViewportElement extends ViewportElementBase {
     t: TranslatedViewportElement;
 }
-export interface TranslatedViewportElement extends ViewportElementBase {
+export interface TranslatedViewportElementBase extends ViewportElementBase {
     cr: number;
     sr: number;
 }
+export declare type TranslatedViewportElement = Omit<TranslatedViewportElementBase, "dirty">;
 export declare class Viewport extends EventGenerator {
     private _eventsSuspended;
     _sortedElements: Record<string, Array<[string, number]>>;

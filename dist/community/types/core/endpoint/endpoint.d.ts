@@ -66,7 +66,7 @@ export declare class Endpoint<E = any> extends OverlayCapableComponent {
         x: number;
         y: number;
     };
-    connections: Array<Connection>;
+    connections: Array<Connection<E>>;
     anchor: Anchor;
     endpoint: EndpointRepresentation<any>;
     element: E;
@@ -74,12 +74,9 @@ export declare class Endpoint<E = any> extends OverlayCapableComponent {
     dragAllowedWhenFull: boolean;
     timestamp: string;
     portId: string;
-    floatingEndpoint: EndpointRepresentation<any>;
     maxConnections: number;
     connectorClass: string;
     connectorHoverClass: string;
-    _originalAnchor: AnchorSpec;
-    deleteAfterDragStop: boolean;
     finalEndpoint: Endpoint<E>;
     enabled: boolean;
     isSource: boolean;

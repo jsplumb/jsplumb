@@ -229,7 +229,6 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     renderEndpoint(ep: Endpoint, paintStyle: PaintStyle): void;
     removeEndpointClass(ep: Endpoint, c: string): void;
     getEndpointClass(ep: Endpoint): string;
-    refreshEndpoint(endpoint: Endpoint): void;
     setEndpointHover(endpoint: Endpoint, h: boolean, doNotCascade?: boolean): void;
     setEndpointVisible(ep: Endpoint, v: boolean): void;
     deleteConnection(connection: Connection, params?: DeleteConnectionOptions): boolean;

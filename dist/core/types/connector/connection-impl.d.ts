@@ -3,7 +3,6 @@ import { jsPlumbElement, TypeDescriptor } from '../common';
 import { AbstractConnector } from "./abstract-connector";
 import { Endpoint } from "../endpoint/endpoint";
 import { PaintStyle } from "../styles";
-import { Component } from "../component/component";
 import { OverlayCapableComponent } from "../component/overlay-capable-component";
 import { OverlaySpec } from "../overlay/overlay";
 import { AnchorSpec } from "../factory/anchor-factory";
@@ -66,35 +65,29 @@ export declare class Connection<E = any> extends OverlayCapableComponent {
     directed: boolean;
     endpoints: [Endpoint<E>, Endpoint<E>];
     endpointStyles: [PaintStyle, PaintStyle];
-    _endpointSpec: EndpointSpec;
-    _endpointsSpec: [EndpointSpec, EndpointSpec];
-    _endpointStyle: PaintStyle;
-    _endpointHoverStyle: PaintStyle;
-    _endpointStyles: [PaintStyle, PaintStyle];
-    _endpointHoverStyles: [PaintStyle, PaintStyle];
-    suspendedEndpoint: Endpoint;
+    readonly endpointSpec: EndpointSpec;
+    readonly endpointsSpec: [EndpointSpec, EndpointSpec];
+    endpointStyle: PaintStyle;
+    endpointHoverStyle: PaintStyle;
+    endpointHoverStyles: [PaintStyle, PaintStyle];
+    suspendedEndpoint: Endpoint<E>;
     suspendedIndex: number;
-    suspendedElement: any;
+    suspendedElement: E;
     suspendedElementId: string;
     suspendedElementType: string;
     _forceReattach: boolean;
     _forceDetach: boolean;
     proxies: Array<{
-        ep: Endpoint;
-        originalEp: Endpoint;
+        ep: Endpoint<E>;
+        originalEp: Endpoint<E>;
     }>;
     pending: boolean;
     anchors: [AnchorSpec, AnchorSpec];
     anchor: AnchorSpec;
-    floatingIndex: number;
-    floatingEndpoint: Endpoint;
-    floatingId: string;
-    floatingElement: any;
     static updateConnectedClass<E>(instance: JsPlumbInstance, conn: Connection, element: jsPlumbElement<E>, isRemoval: boolean): void;
     constructor(instance: JsPlumbInstance, params: ConnectionParams<E>);
     makeEndpoint(isSource: boolean, el: any, elId: string, ep?: Endpoint): Endpoint;
     getTypeDescriptor(): string;
-    getAttachedElements(): Array<Component>;
     isDetachable(ep?: Endpoint): boolean;
     setDetachable(detachable: boolean): void;
     isReattach(): boolean;
@@ -114,8 +107,13 @@ export declare class Connection<E = any> extends OverlayCapableComponent {
     prepareConnector(connectorSpec: ConnectorSpec, typeId?: string): AbstractConnector;
     setPreparedConnector(connector: AbstractConnector, doNotRepaint?: boolean, doNotChangeListenerComponent?: boolean, typeId?: string): void;
     setConnector(connectorSpec: ConnectorSpec, doNotRepaint?: boolean, doNotChangeListenerComponent?: boolean, typeId?: string): void;
-    paint(params?: any): void;
-    prepareEndpoint(existing: Endpoint, index: number, element?: any, elementId?: string, params?: ConnectionParams<E>): Endpoint;
-    private _makeAnchor;
+    /**
+     * Replace the Endpoint at the given index with a new Endpoint.  This is used by the Toolkit edition, if changes to an edge type
+     * cause a change in Endpoint.
+     * @param idx 0 for source, 1 for target
+     * @param endpointDef Spec for the new Endpoint.
+     */
     replaceEndpoint(idx: number, endpointDef: EndpointSpec): void;
+    static prepareEndpoint<E>(conn: Connection, existing: Endpoint, index: number, element?: E, elementId?: string, endpoint?: EndpointSpec): Endpoint;
+    private static _makeAnchor;
 }

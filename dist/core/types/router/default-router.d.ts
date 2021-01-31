@@ -23,8 +23,6 @@ export declare class DefaultRouter<T extends {
     private placeAnchors;
     clearContinuousAnchorPlacement(endpointId: string): void;
     private removeEndpointFromAnchorLists;
-    private connectionDetached;
-    deleteEndpoint(endpoint: Endpoint): void;
     private _updateAnchorList;
     redraw(elementId: string, ui?: ViewportElement, timestamp?: string, offsetToUI?: Offset): RedrawResult;
     private calculateOrientation;

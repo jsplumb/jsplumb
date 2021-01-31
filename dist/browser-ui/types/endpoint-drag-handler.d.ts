@@ -6,6 +6,7 @@ export declare class EndpointDragHandler implements DragHandler {
     protected instance: BrowserJsPlumbInstance;
     jpc: Connection;
     existingJpc: boolean;
+    private _originalAnchor;
     ep: Endpoint<Element>;
     endpointRepresentation: EndpointRepresentation<any>;
     private _activeDefinition;
@@ -13,7 +14,9 @@ export declare class EndpointDragHandler implements DragHandler {
         id?: string;
         element?: jsPlumbDOMElement;
     };
-    floatingElement: HTMLElement;
+    floatingIndex: number;
+    floatingId: string;
+    floatingElement: Element;
     floatingEndpoint: Endpoint;
     _stopped: boolean;
     inPlaceCopy: any;
@@ -77,7 +80,6 @@ export declare class EndpointDragHandler implements DragHandler {
     private _getDropEndpoint;
     private _doForceReattach;
     private _shouldReattach;
-    private _maybeReattach;
     private _discard;
     private _drop;
     private _registerFloatingConnection;

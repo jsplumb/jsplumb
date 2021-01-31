@@ -58,7 +58,7 @@ export declare type DeleteConnectionOptions = {
 };
 export declare type ManagedElement<E> = {
     el: jsPlumbElement<E>;
-    info?: ViewportElement;
+    viewportElement?: ViewportElement;
     endpoints?: Array<Endpoint>;
     connections?: Array<Connection>;
     rotation?: number;
@@ -89,7 +89,6 @@ export declare abstract class JsPlumbInstance<T extends {
     private readonly endpointsByUUID;
     allowNestedGroups: boolean;
     private _curIdStamp;
-    private _offsetTimestamps;
     readonly viewport: Viewport;
     readonly router: Router;
     readonly groupManager: GroupManager<T["E"]>;
@@ -112,14 +111,13 @@ export declare abstract class JsPlumbInstance<T extends {
     convertToFullOverlaySpec(spec: string | OverlaySpec): FullOverlaySpec;
     checkCondition(conditionName: string, args?: any): boolean;
     getId(element: T["E"], uuid?: string): string;
-    getCachedData(elId: string): ViewportElement;
     getConnections(options?: SelectOptions<T["E"]>, flat?: boolean): Dictionary<Connection> | Array<Connection>;
     select(params?: SelectOptions<T["E"]>): ConnectionSelection;
     selectEndpoints(params?: SelectEndpointOptions<T["E"]>): EndpointSelection;
     setContainer(c: T["E"]): void;
     private _set;
-    setSource(connection: Connection, el: T["E"] | Endpoint, doNotRepaint?: boolean): void;
-    setTarget(connection: Connection, el: T["E"] | Endpoint, doNotRepaint?: boolean): void;
+    setSource(connection: Connection, el: T["E"] | Endpoint): void;
+    setTarget(connection: Connection, el: T["E"] | Endpoint): void;
     /**
      * Returns whether or not hover is currently suspended.
      */
@@ -130,7 +128,7 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param repaintAfterwards If true, repaint everything afterwards.
      */
     setSuspendDrawing(val?: boolean, repaintAfterwards?: boolean): boolean;
-    computeAnchorLoc(endpoint: Endpoint<T>, timestamp?: string): AnchorPlacement;
+    computeAnchorLoc(endpoint: Endpoint, timestamp?: string): AnchorPlacement;
     getSuspendedAt(): string;
     /**
      * Suspend drawing, run the given function, and then re-enable drawing, optionally repainting everything.
@@ -189,17 +187,22 @@ export declare abstract class JsPlumbInstance<T extends {
      */
     newEndpoint(params: EndpointOptions<T["E"]>, id?: string): Endpoint;
     deriveEndpointAndAnchorSpec(type: string, dontPrependDefault?: boolean): any;
-    repaint(el: T["E"], ui?: any, timestamp?: string): RedrawResult;
     revalidate(el: T["E"], timestamp?: string): RedrawResult;
     repaintEverything(): JsPlumbInstance;
     /**
-     * for some given element, find any other elements we want to draw whenever that element
-     * is being drawn. for groups, for example, this means any child elements of the group.
-     * @param el
-     * @private
+     * Sets the position of the given element to be [x,y].
+     * @param el Element to set the position for
+     * @param x Position in X axis
+     * @param y Position in Y axis
+     * @return The result of the redraw operation that follows the update of the viewport.
      */
-    abstract _getAssociatedElements(el: T["E"]): Array<T["E"]>;
-    _draw(el: T["E"], ui?: any, timestamp?: string, offsetsWereJustCalculated?: boolean): RedrawResult;
+    setElementPosition(el: T["E"], x: number, y: number): RedrawResult;
+    /**
+     * Repaints all connections and endpoints associated with the given element.
+     * @param el
+     */
+    repaint(el: T["E"]): void;
+    private _draw;
     unregisterEndpoint(endpoint: Endpoint): void;
     maybePruneEndpoint(endpoint: Endpoint): boolean;
     deleteEndpoint(object: string | Endpoint): JsPlumbInstance;
@@ -283,6 +286,16 @@ export declare abstract class JsPlumbInstance<T extends {
         connectorPaintStyle?: PaintStyle;
         anchorLoc?: AnchorPlacement;
     }): void;
+    paintConnection(connection: Connection, params?: any): void;
+    refreshEndpoint(endpoint: Endpoint): void;
+    /**
+     * For some given element, find any other elements we want to draw whenever that element
+     * is being drawn. for groups, for example, this means any child elements of the group. For an element that has child
+     * elements that are also managed, it means those child elements.
+     * @param el
+     * @private
+     */
+    abstract _getAssociatedElements(el: T["E"]): Array<T["E"]>;
     abstract removeElement(el: T["E"]): void;
     abstract appendElement(el: T["E"], parent: T["E"]): void;
     abstract getChildElements(el: T["E"]): Array<T["E"]>;
@@ -331,5 +344,4 @@ export declare abstract class JsPlumbInstance<T extends {
     abstract removeEndpointClass(ep: Endpoint<T>, c: string): void;
     abstract getEndpointClass(ep: Endpoint<T>): string;
     abstract setEndpointHover(endpoint: Endpoint<T>, h: boolean, doNotCascade?: boolean): void;
-    abstract refreshEndpoint(endpoint: Endpoint<T>): void;
 }
