@@ -99,8 +99,6 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
 
     portId:string
 
-    floatingEndpoint:EndpointRepresentation<any>
-
     maxConnections:number
 
     connectorClass:string
@@ -165,7 +163,6 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         this.uuid = params.uuid
 
         this.portId = params.portId
-        this.floatingEndpoint = null
         this.elementId = params.elementId
         this.dragProxy = params.dragProxy
 
