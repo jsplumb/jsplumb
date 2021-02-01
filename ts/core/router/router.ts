@@ -2,6 +2,8 @@ import {Connection} from '../connector/connection-impl'
 import { Endpoint } from '../endpoint/endpoint'
 import { Offset } from '../common'
 import {ViewportElement} from "../viewport"
+import {Anchor} from "../anchor/anchor"
+import {AnchorComputeParams} from "../factory/anchor-factory"
 
 export interface RedrawResult {
     c:Set<Connection>
@@ -20,6 +22,7 @@ export interface Router {
     addEndpoint (endpoint:Endpoint, elementId:string):void
 
     computePath(connection:Connection, timestamp:string):void
+    computeAnchorLocation(anchor:Anchor, params:AnchorComputeParams):AnchorPlacement
 
     elementRemoved(id:string):void
 
