@@ -9,6 +9,7 @@ import {AnchorComputeParams, Face, Orientation} from "../factory/anchor-factory"
 import { DynamicAnchor } from "../anchor/dynamic-anchor"
 import {findWithFunction, removeWithFunction, rotatePoint, rotatePointXY, sortHelper, uuid} from "../util"
 import {ContinuousAnchor} from "../anchor/continuous-anchor"
+import { Anchor } from '../anchor/anchor'
 
 import * as Constants from '../constants'
 
@@ -131,6 +132,10 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
 
     elementRemoved(id: string): void {
         // here we'd cleanup the anchor manager, ideally. there's a lot of shared responsibility between DefaultRouter and AnchorManager currently.
+    }
+
+    computeAnchorLocation(anchor: Anchor, params: AnchorComputeParams): [number, number, number, number] {
+        return anchor.compute(params)
     }
 
     computePath(connection: Connection, timestamp:string): void {
