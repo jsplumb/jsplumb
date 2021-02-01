@@ -519,19 +519,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return curVal
     }
 
-    computeAnchorLoc(endpoint:Endpoint, timestamp?:string):AnchorPlacement {
-
-        const myOffset = this._managedElements[endpoint.elementId].viewportElement
-        return endpoint.anchor.compute({
-            xy: [ myOffset.x, myOffset.y ],
-            wh : [myOffset.w, myOffset.h],
-            element: endpoint,
-            timestamp: timestamp || this._suspendedAt,
-            rotation:this._managedElements[endpoint.elementId].rotation
-        })
-
-    }
-
     // return time for when drawing was suspended.
     getSuspendedAt ():string {
         return this._suspendedAt
@@ -1035,9 +1022,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
         if (!this._suspendDrawing) {
 
-            const anchorLoc = this.computeAnchorLoc(e)
             this.paintEndpoint(e, {
-                anchorLoc: anchorLoc,
                 timestamp: this._suspendedAt
             })
         }
