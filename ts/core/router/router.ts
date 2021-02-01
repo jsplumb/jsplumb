@@ -23,9 +23,6 @@ export interface Router {
 
     elementRemoved(id:string):void
 
-    // TODO we dont want this method. it only delegates to anchorManager, which should listen to an event.
-    clearContinuousAnchorPlacement(elementId:string):void
-
     // TODO we dont want this either.
     getContinuousAnchorLocation(elementId:string):[number, number, number, number]
 
