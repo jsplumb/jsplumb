@@ -236,10 +236,8 @@ export class Connection<E = any> extends OverlayCapableComponent {
 
         if (!this.instance._suspendDrawing) {
             const initialTimestamp = this.instance._suspendedAt || uuid()
-            const sourceAnchorLoc = this.instance.computeAnchorLoc(this.endpoints[0], initialTimestamp)
-            this.instance.paintEndpoint(this.endpoints[0], { anchorLoc: sourceAnchorLoc, timestamp: initialTimestamp })
-            const targetAnchorLoc = this.instance.computeAnchorLoc(this.endpoints[1], initialTimestamp)
-            this.instance.paintEndpoint(this.endpoints[1], { anchorLoc: targetAnchorLoc, timestamp: initialTimestamp })
+            this.instance.paintEndpoint(this.endpoints[0], { timestamp: initialTimestamp })
+            this.instance.paintEndpoint(this.endpoints[1], { timestamp: initialTimestamp })
         }
 
         this.cost = params.cost || this.endpoints[0].connectionCost
