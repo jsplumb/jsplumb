@@ -101,7 +101,7 @@ export class DynamicAnchor extends Anchor {
         // maintain our state. anchor will be locked
         // if it is the source of a drag and drop.
         if (this.isLocked() || txy == null || twh == null) {
-            this.lastReturnValue = this._curAnchor.compute(params)
+            this.lastReturnValue = this.instance.router.computeAnchorLocation(this._curAnchor, params)
             return this.lastReturnValue
         }
         else {
