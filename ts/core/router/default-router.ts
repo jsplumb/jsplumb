@@ -100,6 +100,10 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
             this.removeEndpointFromAnchorLists(p.sourceEndpoint)
             this.removeEndpointFromAnchorLists(p.targetEndpoint)
         })
+
+        instance.bind<Endpoint<T["E"]>>(Constants.EVENT_INTERNAL_ENDPOINT_UNREGISTERED, (ep:Endpoint<T["E"]>) => {
+            this.removeEndpointFromAnchorLists(ep)
+        })
     }
 
     reset ():void {
@@ -203,10 +207,6 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
         placeSomeAnchors("right", cd, _anchorLists.right, false, 1, [1, 0])
     }
 
-    clearContinuousAnchorPlacement(endpointId:string) {
-        delete this.continuousAnchorLocations[endpointId]
-    }
-
     private removeEndpointFromAnchorLists (endpoint:Endpoint):void {
         const listsForElement = this.anchorLists[endpoint.elementId]
         let total = 0;
@@ -232,6 +232,9 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
         if (total === 0) {
             delete this.anchorLists[endpoint.elementId]
         }
+
+        delete this.continuousAnchorLocations[endpoint.id]
+        delete this.continuousAnchorOrientations[endpoint.id]
     }
 
     // updates the given anchor list by either updating an existing anchor's info, or adding it. this function
