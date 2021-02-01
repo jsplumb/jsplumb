@@ -248,7 +248,6 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
 
     // TODO refactor, somehow, to take AnchorManager out of the equation. update, rc35 - to take Router out of the equation.
     setPreparedAnchor (anchor:Anchor):Endpoint {
-        this.instance.router.clearContinuousAnchorPlacement(this.elementId)
         this.anchor = anchor
         this._updateAnchorClass()
         return this
