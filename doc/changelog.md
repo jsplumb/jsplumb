@@ -18,7 +18,7 @@
 31st January 2021
 
 - Internal refactoring of connection drag code
-- Internal refectoring of viewport code
+- Internal refactoring of viewport code
 
 ## 4.0.0-RC43
 
