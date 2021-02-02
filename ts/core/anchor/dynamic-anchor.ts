@@ -1,16 +1,8 @@
-import {
-    Anchor
-} from "./anchor"
-
-import {
-    AnchorComputeParams, AnchorOptions, AnchorSpec, makeAnchorFromSpec,
-    Orientation
-} from "../factory/anchor-factory"
+import { Anchor } from "./anchor"
+import { AnchorOptions, AnchorSpec, makeAnchorFromSpec } from "../factory/anchor-factory"
 
 import { PointArray} from '../common'
 import { JsPlumbInstance } from "../core"
-import {Endpoint} from "../endpoint/endpoint"
-import {AnchorPlacement} from "../router/router"
 import {rotatePoint} from "../util"
 
 export interface DynamicAnchorOptions extends AnchorOptions {
@@ -90,22 +82,6 @@ export class DynamicAnchor extends Anchor {
 
     getAnchors ():Array<Anchor> {
         return this.anchors
-    }
-
-    getOrientation (_endpoint?:Endpoint):Orientation {
-        return this._curAnchor != null ? this._curAnchor.getOrientation(_endpoint) : [ 0, 0 ]
-    }
-
-    over (anchor:Anchor, endpoint:Endpoint):void {
-        if (this._curAnchor != null) {
-            this._curAnchor.over(anchor, endpoint)
-        }
-    }
-
-    out ():void {
-        if (this._curAnchor != null) {
-            this._curAnchor.out()
-        }
     }
 
     setAnchor (a:Anchor):void {
