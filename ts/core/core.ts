@@ -1,4 +1,4 @@
-import {jsPlumbDefaults, jsPlumbHelperFunctions} from "./defaults"
+import {jsPlumbDefaults} from "./defaults"
 
 import {Connection} from "./connector/connection-impl"
 import {Endpoint} from "./endpoint/endpoint"
@@ -144,7 +144,7 @@ function prepareList(instance:JsPlumbInstance, input:any, doNotGetIds?:boolean):
 
 export type ManagedElement<E> = {
     el:jsPlumbElement<E>,
-    viewportElement?:ViewportElement,
+    viewportElement?:ViewportElement<E>,
     endpoints?:Array<Endpoint>,
     connections?:Array<Connection>,
     rotation?:number
@@ -181,9 +181,9 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     public allowNestedGroups:boolean
 
     private _curIdStamp :number = 1
-    readonly viewport:Viewport = new Viewport()
+    readonly viewport:Viewport<T> = new Viewport(this)
 
-    readonly router: Router
+    readonly router: Router<T>
     readonly groupManager:GroupManager<T["E"]>
 
     private _connectionTypes:Map<string, TypeDescriptor> = new Map()
@@ -195,17 +195,16 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     private DEFAULT_SCOPE:string
     get defaultScope() { return this.DEFAULT_SCOPE }
 
-    private _helpers:jsPlumbHelperFunctions
     public geometry:jsPlumbGeometryHelpers
 
     private _zoom:number = 1
     get currentZoom() { return  this._zoom }
 
-    constructor(public readonly _instanceIndex:number, defaults?:jsPlumbDefaults<T["E"]>, helpers?:jsPlumbHelperFunctions) {
+    constructor(public readonly _instanceIndex:number, defaults?:jsPlumbDefaults<T["E"]>) {
 
         super()
 
-        this._helpers = helpers || {}
+        //this._helpers = helpers || {}
 
         this.geometry = new jsPlumbGeometry()
 
@@ -246,18 +245,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         this.groupManager = new GroupManager(this)
 
         this.setContainer(this._initialDefaults.container)
-    }
-
-    getSize(el:T["E"]) {
-        return this._helpers.getSize ? this._helpers.getSize(el) : this._getSize(el)
-    }
-
-    getOffset(el:T["E"], relativeToRoot?:boolean):Offset {
-        if (relativeToRoot) {
-            return this._helpers.getOffsetRelativeToRoot ? this._helpers.getOffsetRelativeToRoot(el) : this._getOffsetRelativeToRoot(el)
-        } else {
-            return this._helpers.getOffset ? this._helpers.getOffset(el) : this._getOffset(el)
-        }
     }
 
     getContainer():any { return this._container; }
@@ -566,31 +553,20 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      * @param params
      * @return an UpdateOffsetResult containing the offset information for the given element.
      */
-    updateOffset(params?:UpdateOffsetOptions):ViewportElement {
+    updateOffset(params?:UpdateOffsetOptions):ViewportElement<T["E"]> {
 
-        let recalc = params.recalc,
-            elId = params.elId,
-            s
+        let elId = params.elId
 
         // if forced repaint, or no new offset provided, we recalculate the size + offset, then store on the viewport.
         // Here we would prefer to tell the viewport to recalculate size/offset, using whatever functions were made available to it.
         // abstracting out the size/offset to the viewport allows us to do things like a viewport with fixed size elements, and
         // to integrate with the Toolkit's layout for offsets (the Toolkit will write the offsets and the community edition
         // will not need to read from the DOM)
-        if (recalc || (this.viewport.getPosition(elId) == null)) {
-
-            // get the current size and offset, and store them
-            s = this._managedElements[elId] ? this._managedElements[elId].el : null
-            if (s != null) {
-
-                const size = this.getSize(s)
-                const offset = this.getOffset(s)
-
-                this.viewport.updateElement(elId, offset.left, offset.top, size[0], size[1], null)
-            }
+        if (params.recalc) {
+            return this.viewport.refreshElement(elId)
+        } else {
+            return this.viewport.getPosition(elId)
         }
-
-        return this.viewport.getPosition(elId)
     }
 
     /**
@@ -909,7 +885,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
             if (el != null) {
                 let repaintEls = this._getAssociatedElements(el),
-                    repaintOffsets:Array<ViewportElement> = []
+                    repaintOffsets:Array<ViewportElement<T["E"]>> = []
 
                 if (timestamp == null) {
                     timestamp = uuid()
@@ -1848,7 +1824,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     // ----------------------------- PAINT ENDPOINT
 
-    paintEndpoint(endpoint:Endpoint, params:{ timestamp?: string, offset?: ViewportElement,
+    paintEndpoint(endpoint:Endpoint, params:{ timestamp?: string, offset?: ViewportElement<T["E"]>,
         recalc?:boolean, elementWithPrecedence?:string,
         connectorPaintStyle?:PaintStyle,
         anchorLoc?:AnchorPlacement
@@ -2019,10 +1995,10 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     abstract getSelector(ctx:string | T["E"], spec?:string):NodeListOf<any>
     abstract getStyle(el:T["E"], prop:string):any
 
-    abstract _getSize(el:T["E"]):Size
+    abstract getSize(el:T["E"]):Size
 
-    abstract _getOffset(el:T["E"]):Offset
-    abstract _getOffsetRelativeToRoot(el:T["E"]|string):Offset
+    abstract getOffset(el:T["E"]):Offset
+    abstract getOffsetRelativeToRoot(el:T["E"]|string):Offset
 
     abstract setPosition(el:T["E"], p:Offset):void
 
