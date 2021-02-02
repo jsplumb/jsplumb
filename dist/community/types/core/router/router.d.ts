@@ -2,6 +2,8 @@ import { Connection } from '../connector/connection-impl';
 import { Endpoint } from '../endpoint/endpoint';
 import { Offset } from '../common';
 import { ViewportElement } from "../viewport";
+import { Anchor } from "../anchor/anchor";
+import { AnchorComputeParams, Orientation } from "../factory/anchor-factory";
 export interface RedrawResult {
     c: Set<Connection>;
     e: Set<Endpoint>;
@@ -11,10 +13,8 @@ export declare type ContinuousAnchorPlacement = [number, number, number, number,
 export interface Router {
     reset(): void;
     redraw(elementId: string, ui?: ViewportElement, timestamp?: string, offsetToUI?: Offset): RedrawResult;
-    addEndpoint(endpoint: Endpoint, elementId: string): void;
     computePath(connection: Connection, timestamp: string): void;
-    elementRemoved(id: string): void;
-    clearContinuousAnchorPlacement(elementId: string): void;
-    getContinuousAnchorLocation(elementId: string): [number, number, number, number];
-    getContinuousAnchorOrientation(endpointId: string): [number, number];
+    computeAnchorLocation(anchor: Anchor, params: AnchorComputeParams): AnchorPlacement;
+    getAnchorOrientation(anchor: Anchor, endpoint?: Endpoint): Orientation;
+    getEndpointOrientation(endpoint: Endpoint): Orientation;
 }

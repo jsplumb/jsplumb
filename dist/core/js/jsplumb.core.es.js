@@ -1075,8 +1075,8 @@ function () {
           swapX = params.targetPos[0] < params.sourcePos[0],
           swapY = params.targetPos[1] < params.sourcePos[1],
           lw = params.strokeWidth || 1,
-          so = params.sourceEndpoint.anchor.getOrientation(params.sourceEndpoint),
-          to = params.targetEndpoint.anchor.getOrientation(params.targetEndpoint),
+          so = this.instance.router.getEndpointOrientation(params.sourceEndpoint),
+          to = this.instance.router.getEndpointOrientation(params.targetEndpoint),
           x = swapX ? params.targetPos[0] : params.sourcePos[0],
           y = swapY ? params.targetPos[1] : params.sourcePos[1],
           w = Math.abs(params.targetPos[0] - params.sourcePos[0]),
@@ -4140,17 +4140,6 @@ function (_EventGenerator) {
       return true;
     }
   }, {
-    key: "getOrientation",
-    value: function getOrientation(endpoint) {
-      return this.orientation;
-    }
-  }, {
-    key: "getCurrentLocation",
-    value: function getCurrentLocation(params) {
-      params = params || {};
-      return this.lastReturnValue == null || params.timestamp != null && this.timestamp !== params.timestamp ? this.compute(params) : this.lastReturnValue;
-    }
-  }, {
     key: "setPosition",
     value: function setPosition(x, y, ox, oy, overrideLock) {
       if (!this.locked || overrideLock) {
@@ -4168,37 +4157,13 @@ function (_EventGenerator) {
       this._unrotatedOrientation = [ox, oy];
     }
   }, {
-    key: "compute",
-    value: function compute(params) {
-      var xy = params.xy,
-          wh = params.wh,
-          timestamp = params.timestamp;
-      if (timestamp && timestamp === this.timestamp) {
-        return this.lastReturnValue;
-      }
-      var candidate = [xy[0] + this.x * wh[0] + this.offsets[0], xy[1] + this.y * wh[1] + this.offsets[1], this.x, this.y];
-      var rotation = params.rotation;
-      if (rotation != null && rotation !== 0) {
-        var c2 = rotatePoint(candidate, [xy[0] + wh[0] / 2, xy[1] + wh[1] / 2], rotation);
-        this.orientation[0] = Math.round(this._unrotatedOrientation[0] * c2[2] - this._unrotatedOrientation[1] * c2[3]);
-        this.orientation[1] = Math.round(this._unrotatedOrientation[1] * c2[2] + this._unrotatedOrientation[0] * c2[3]);
-        this.lastReturnValue = [c2[0], c2[1], this.x, this.y];
-      } else {
-        this.orientation[0] = this._unrotatedOrientation[0];
-        this.orientation[1] = this._unrotatedOrientation[1];
-        this.lastReturnValue = candidate;
-      }
-      this.timestamp = timestamp;
-      return this.lastReturnValue;
-    }
-  }, {
     key: "equals",
     value: function equals(anchor) {
       if (!anchor) {
         return false;
       }
-      var ao = anchor.getOrientation(),
-          o = this.getOrientation();
+      var ao = this.instance.router.getAnchorOrientation(anchor),
+          o = this.instance.router.getAnchorOrientation(this);
       return this.x === anchor.x && this.y === anchor.y && this.offsets[0] === anchor.offsets[0] && this.offsets[1] === anchor.offsets[1] && o[0] === ao[0] && o[1] === ao[1];
     }
   }, {
@@ -4221,12 +4186,6 @@ function (_EventGenerator) {
     value: function isLocked() {
       return this.locked;
     }
-  }, {
-    key: "over",
-    value: function over(anchor, endpoint) {}
-  }, {
-    key: "out",
-    value: function out() {}
   }]);
   return Anchor;
 }(EventGenerator);
@@ -4287,54 +4246,6 @@ function (_Anchor) {
     key: "getAnchors",
     value: function getAnchors() {
       return this.anchors;
-    }
-  }, {
-    key: "compute",
-    value: function compute(params) {
-      var xy = params.xy,
-          wh = params.wh,
-          txy = params.txy,
-          twh = params.twh;
-      this.timestamp = params.timestamp;
-      if (this.isLocked() || txy == null || twh == null) {
-        this.lastReturnValue = this._curAnchor.compute(params);
-        return this.lastReturnValue;
-      } else {
-        params.timestamp = null;
-      }
-      this._curAnchor = this._anchorSelector(xy, wh, txy, twh, params.rotation, params.tRotation, this.anchors);
-      this.x = this._curAnchor.x;
-      this.y = this._curAnchor.y;
-      if (this._curAnchor !== this._lastAnchor) {
-        this.fire("anchorChanged", this._curAnchor);
-      }
-      this._lastAnchor = this._curAnchor;
-      this.lastReturnValue = this._curAnchor.compute(params);
-      return this.lastReturnValue;
-    }
-  }, {
-    key: "getCurrentLocation",
-    value: function getCurrentLocation(params) {
-      return this._curAnchor != null ? this._curAnchor.getCurrentLocation(params) : null;
-    }
-  }, {
-    key: "getOrientation",
-    value: function getOrientation(_endpoint) {
-      return this._curAnchor != null ? this._curAnchor.getOrientation(_endpoint) : [0, 0];
-    }
-  }, {
-    key: "over",
-    value: function over(anchor, endpoint) {
-      if (this._curAnchor != null) {
-        this._curAnchor.over(anchor, endpoint);
-      }
-    }
-  }, {
-    key: "out",
-    value: function out() {
-      if (this._curAnchor != null) {
-        this._curAnchor.out();
-      }
     }
   }, {
     key: "setAnchor",
@@ -4485,21 +4396,6 @@ function (_Anchor) {
       this._lockedAxis = null;
     }
   }, {
-    key: "compute",
-    value: function compute(params) {
-      return this.instance.router.getContinuousAnchorLocation(params.element.id);
-    }
-  }, {
-    key: "getCurrentLocation",
-    value: function getCurrentLocation(params) {
-      return this.instance.router.getContinuousAnchorLocation(params.element.id);
-    }
-  }, {
-    key: "getOrientation",
-    value: function getOrientation(endpoint) {
-      return this.instance.router.getContinuousAnchorOrientation(endpoint.id);
-    }
-  }, {
     key: "getCssClass",
     value: function getCssClass() {
       return this.cssClass;
@@ -4580,9 +4476,6 @@ function isPrimitiveAnchorSpec(sa) {
   return sa.length < 7 && sa.every(isNumber) || sa.length === 7 && sa.slice(0, 5).every(isNumber) && isString(sa[6]);
 }
 function makeAnchorFromSpec(instance, spec, elementId) {
-  if (spec.compute && spec.getOrientation) {
-    return spec;
-  }
   if (isString(spec)) {
     return getNamedAnchor(instance, spec, null, elementId);
   } else if (isArray(spec)) {
@@ -4906,14 +4799,10 @@ function (_OverlayCapableCompon) {
     });
     if (!_this.instance._suspendDrawing) {
       var initialTimestamp = _this.instance._suspendedAt || uuid();
-      var sourceAnchorLoc = _this.instance.computeAnchorLoc(_this.endpoints[0], initialTimestamp);
       _this.instance.paintEndpoint(_this.endpoints[0], {
-        anchorLoc: sourceAnchorLoc,
         timestamp: initialTimestamp
       });
-      var targetAnchorLoc = _this.instance.computeAnchorLoc(_this.endpoints[1], initialTimestamp);
       _this.instance.paintEndpoint(_this.endpoints[1], {
-        anchorLoc: targetAnchorLoc,
         timestamp: initialTimestamp
       });
     }
@@ -5202,15 +5091,24 @@ function (_OverlayCapableCompon) {
             ehs.fill = conn.hoverPaintStyle.stroke;
           }
         }
-        var a = conn.anchors ? conn.anchors[index] : conn.anchor ? conn.anchor : Connection._makeAnchor(conn.instance, conn.instance.Defaults.anchors[index], elementId) || Connection._makeAnchor(conn.instance, conn.instance.Defaults.anchor, elementId),
-            u = conn.uuids ? conn.uuids[index] : null;
+        var anchorSpec;
+        if (conn.anchors != null && conn.anchors[index] != null) {
+          anchorSpec = conn.anchors[index];
+        } else if (conn.anchor != null) {
+          anchorSpec = conn.anchor;
+        } else if (conn.instance.Defaults.anchors[index] != null) {
+          anchorSpec = conn.instance.Defaults.anchors[index];
+        } else {
+          anchorSpec = conn.instance.Defaults.anchor;
+        }
+        var u = conn.uuids ? conn.uuids[index] : null;
         e = conn.instance.newEndpoint({
           paintStyle: es,
           hoverPaintStyle: ehs,
           endpoint: ep,
           connections: [conn],
           uuid: u,
-          anchor: a,
+          anchor: anchorSpec,
           source: element,
           scope: conn.scope,
           reattach: conn.reattach || conn.instance.Defaults.reattachConnections,
@@ -5331,9 +5229,6 @@ function (_OverlayCapableCompon) {
     _this.connectorClass = params.connectorClass;
     _this.connectorHoverClass = params.connectorHoverClass;
     _this.deleteOnEmpty = params.deleteOnEmpty === true;
-    if (!params._transient) {
-      _this.instance.router.addEndpoint(_assertThisInitialized(_this), _this.elementId);
-    }
     extend(_assertThisInitialized(_this), params, typeParameters);
     _this.isSource = params.isSource || false;
     _this.isTemporarySource = params.isTemporarySource || false;
@@ -5352,8 +5247,12 @@ function (_OverlayCapableCompon) {
     }
     var ep = params.endpoint || instance.Defaults.endpoint;
     _this.setEndpoint(ep);
-    var anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : instance.Defaults.anchor || "Top";
-    _this.setAnchor(anchorParamsToUse);
+    if (params.preparedAnchor != null) {
+      _this.setPreparedAnchor(params.preparedAnchor);
+    } else {
+      var anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : instance.Defaults.anchor || "Top";
+      _this.setAnchor(anchorParamsToUse);
+    }
     var type = ["default", params.type || ""].join(" ");
     _this.addType(type, params.data);
     return _this;
@@ -5391,7 +5290,6 @@ function (_OverlayCapableCompon) {
   }, {
     key: "setPreparedAnchor",
     value: function setPreparedAnchor(anchor) {
-      this.instance.router.clearContinuousAnchorPlacement(this.elementId);
       this.anchor = anchor;
       this._updateAnchorClass();
       return this;
@@ -6547,8 +6445,11 @@ function () {
     _defineProperty(this, "continuousAnchorOrientations", {});
     _defineProperty(this, "anchorLists", {});
     instance.bind(EVENT_INTERNAL_CONNECTION_DETACHED, function (p) {
-      _this.removeEndpointFromAnchorLists(p.sourceEndpoint);
-      _this.removeEndpointFromAnchorLists(p.targetEndpoint);
+      _this._removeEndpointFromAnchorLists(p.sourceEndpoint);
+      _this._removeEndpointFromAnchorLists(p.targetEndpoint);
+    });
+    instance.bind(EVENT_INTERNAL_ENDPOINT_UNREGISTERED, function (ep) {
+      _this._removeEndpointFromAnchorLists(ep);
     });
   }
   _createClass(DefaultRouter, [{
@@ -6559,25 +6460,99 @@ function () {
   }, {
     key: "getEndpointLocation",
     value: function getEndpointLocation(endpoint, params) {
-      return endpoint.anchor.getCurrentLocation(params);
+      params = params || {};
+      return endpoint.anchor.lastReturnValue == null || params.timestamp != null && endpoint.anchor.timestamp !== params.timestamp ? this.computeAnchorLocation(endpoint.anchor, params) : endpoint.anchor.lastReturnValue;
     }
   }, {
-    key: "getContinuousAnchorLocation",
-    value: function getContinuousAnchorLocation(elementId) {
-      return this.continuousAnchorLocations[elementId] || [0, 0, 0, 0];
+    key: "computeAnchorLocation",
+    value: function computeAnchorLocation(anchor, params) {
+      if (anchor.isContinuous) {
+        return this.continuousAnchorLocations[params.element.id] || [0, 0, 0, 0];
+      } else if (anchor.isDynamic) {
+        return this.dynamicAnchorCompute(anchor, params);
+      } else if (anchor.isFloating) {
+        return this.floatingAnchorCompute(anchor, params);
+      } else {
+        return this.defaultAnchorCompute(anchor, params);
+      }
     }
   }, {
-    key: "getContinuousAnchorOrientation",
-    value: function getContinuousAnchorOrientation(endpointId) {
-      return this.continuousAnchorOrientations[endpointId] || [0, 0];
+    key: "floatingAnchorCompute",
+    value: function floatingAnchorCompute(anchor, params) {
+      var xy = params.xy;
+      anchor._lastResult = [xy[0] + anchor.size[0] / 2, xy[1] + anchor.size[1] / 2, 0, 0];
+      return anchor._lastResult;
     }
   }, {
-    key: "addEndpoint",
-    value: function addEndpoint(endpoint, elementId) {
+    key: "defaultAnchorCompute",
+    value: function defaultAnchorCompute(anchor, params) {
+      var xy = params.xy,
+          wh = params.wh,
+          timestamp = params.timestamp;
+      if (timestamp && timestamp === anchor.timestamp) {
+        return anchor.lastReturnValue;
+      }
+      var candidate = [xy[0] + anchor.x * wh[0] + anchor.offsets[0], xy[1] + anchor.y * wh[1] + anchor.offsets[1], anchor.x, anchor.y];
+      var rotation = params.rotation;
+      if (rotation != null && rotation !== 0) {
+        var c2 = rotatePoint(candidate, [xy[0] + wh[0] / 2, xy[1] + wh[1] / 2], rotation);
+        anchor.orientation[0] = Math.round(anchor._unrotatedOrientation[0] * c2[2] - anchor._unrotatedOrientation[1] * c2[3]);
+        anchor.orientation[1] = Math.round(anchor._unrotatedOrientation[1] * c2[2] + anchor._unrotatedOrientation[0] * c2[3]);
+        anchor.lastReturnValue = [c2[0], c2[1], anchor.x, anchor.y];
+      } else {
+        anchor.orientation[0] = anchor._unrotatedOrientation[0];
+        anchor.orientation[1] = anchor._unrotatedOrientation[1];
+        anchor.lastReturnValue = candidate;
+      }
+      anchor.timestamp = timestamp;
+      return anchor.lastReturnValue;
     }
   }, {
-    key: "elementRemoved",
-    value: function elementRemoved(id) {
+    key: "dynamicAnchorCompute",
+    value: function dynamicAnchorCompute(anchor, params) {
+      var xy = params.xy,
+          wh = params.wh,
+          txy = params.txy,
+          twh = params.twh;
+      anchor.timestamp = params.timestamp;
+      if (anchor.isLocked() || txy == null || twh == null) {
+        anchor.lastReturnValue = this.computeAnchorLocation(anchor._curAnchor, params);
+        return anchor.lastReturnValue;
+      } else {
+        params.timestamp = null;
+      }
+      anchor._curAnchor = anchor._anchorSelector(xy, wh, txy, twh, params.rotation, params.tRotation, anchor.anchors);
+      anchor.x = anchor._curAnchor.x;
+      anchor.y = anchor._curAnchor.y;
+      if (anchor._curAnchor !== anchor._lastAnchor) {
+        anchor.fire("anchorChanged", anchor._curAnchor);
+      }
+      anchor._lastAnchor = anchor._curAnchor;
+      anchor.lastReturnValue = this.defaultAnchorCompute(anchor._curAnchor, params);
+      return anchor.lastReturnValue;
+    }
+  }, {
+    key: "getEndpointOrientation",
+    value: function getEndpointOrientation(endpoint) {
+      return this.getAnchorOrientation(endpoint.anchor, endpoint);
+    }
+  }, {
+    key: "getAnchorOrientation",
+    value: function getAnchorOrientation(anchor, endpoint) {
+      if (anchor.isContinuous) {
+        return this.continuousAnchorOrientations[endpoint.id] || [0, 0];
+      } else if (anchor.isDynamic) {
+        return anchor._curAnchor != null ? anchor._curAnchor.orientation : [0, 0];
+      } else if (anchor.isFloating) {
+        if (anchor.orientation) {
+          return anchor.orientation;
+        } else {
+          var o = this.getAnchorOrientation(anchor.ref, endpoint);
+          return [Math.abs(o[0]) * anchor.xDir * -1, Math.abs(o[1]) * anchor.yDir * -1];
+        }
+      } else {
+        return anchor.orientation;
+      }
     }
   }, {
     key: "computePath",
@@ -6612,8 +6587,8 @@ function () {
       connection.connector.compute({
         sourcePos: sAnchorP,
         targetPos: tAnchorP,
-        sourceOrientation: sE.anchor.getOrientation(sE),
-        targetOrientation: tE.anchor.getOrientation(tE),
+        sourceOrientation: this.getEndpointOrientation(sE),
+        targetOrientation: this.getEndpointOrientation(tE),
         sourceEndpoint: connection.endpoints[0],
         targetEndpoint: connection.endpoints[1],
         strokeWidth: connection.paintStyleInUse.strokeWidth,
@@ -6654,13 +6629,8 @@ function () {
       placeSomeAnchors("right", cd, _anchorLists.right, false, 1, [1, 0]);
     }
   }, {
-    key: "clearContinuousAnchorPlacement",
-    value: function clearContinuousAnchorPlacement(endpointId) {
-      delete this.continuousAnchorLocations[endpointId];
-    }
-  }, {
-    key: "removeEndpointFromAnchorLists",
-    value: function removeEndpointFromAnchorLists(endpoint) {
+    key: "_removeEndpointFromAnchorLists",
+    value: function _removeEndpointFromAnchorLists(endpoint) {
       var listsForElement = this.anchorLists[endpoint.elementId];
       var total = 0;
       (function (list, eId) {
@@ -6681,6 +6651,8 @@ function () {
       if (total === 0) {
         delete this.anchorLists[endpoint.elementId];
       }
+      delete this.continuousAnchorLocations[endpoint.id];
+      delete this.continuousAnchorOrientations[endpoint.id];
     }
   }, {
     key: "_updateAnchorList",
@@ -8061,18 +8033,6 @@ function (_EventGenerator) {
       return curVal;
     }
   }, {
-    key: "computeAnchorLoc",
-    value: function computeAnchorLoc(endpoint, timestamp) {
-      var myOffset = this._managedElements[endpoint.elementId].viewportElement;
-      return endpoint.anchor.compute({
-        xy: [myOffset.x, myOffset.y],
-        wh: [myOffset.w, myOffset.h],
-        element: endpoint,
-        timestamp: timestamp || this._suspendedAt,
-        rotation: this._managedElements[endpoint.elementId].rotation
-      });
-    }
-  }, {
     key: "getSuspendedAt",
     value: function getSuspendedAt() {
       return this._suspendedAt;
@@ -8253,7 +8213,6 @@ function (_EventGenerator) {
       this.removeAllEndpoints(el, true, affectedElements);
       var _one = function _one(_el) {
         var id = _this3.getId(_el);
-        _this3.router.elementRemoved(id);
         if (_this3.isSource(_el)) {
           _this3.unmakeSource(_el);
         }
@@ -8498,9 +8457,7 @@ function (_EventGenerator) {
       var e = this.newEndpoint(_p, id);
       addToDictionary(this.endpointsByElement, id, e);
       if (!this._suspendDrawing) {
-        var anchorLoc = this.computeAnchorLoc(e);
         this.paintEndpoint(e, {
-          anchorLoc: anchorLoc,
           timestamp: this._suspendedAt
         });
       }
@@ -9348,9 +9305,9 @@ function (_EventGenerator) {
               anchorParams.connection = endpoint.connections[0];
             }
             anchorParams.rotation = this.getRotation(endpoint.elementId);
-            ap = endpoint.anchor.compute(anchorParams);
+            ap = this.router.computeAnchorLocation(endpoint.anchor, anchorParams);
           }
-          endpoint.endpoint.compute(ap, endpoint.anchor.getOrientation(endpoint), endpoint.paintStyleInUse);
+          endpoint.endpoint.compute(ap, this.router.getEndpointOrientation(endpoint), endpoint.paintStyleInUse);
           this.renderEndpoint(endpoint, endpoint.paintStyleInUse);
           endpoint.timestamp = timestamp;
           for (var i in endpoint.overlays) {
@@ -9600,6 +9557,63 @@ function isCustomOverlay(o) {
 }
 OverlayFactory.register("Custom", CustomOverlay);
 
+var FloatingAnchor =
+function (_Anchor) {
+  _inherits(FloatingAnchor, _Anchor);
+  function FloatingAnchor(instance, params) {
+    var _this;
+    _classCallCheck(this, FloatingAnchor);
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(FloatingAnchor).call(this, instance, params));
+    _this.instance = instance;
+    _defineProperty(_assertThisInitialized(_this), "ref", void 0);
+    _defineProperty(_assertThisInitialized(_this), "refCanvas", void 0);
+    _defineProperty(_assertThisInitialized(_this), "size", void 0);
+    _defineProperty(_assertThisInitialized(_this), "xDir", void 0);
+    _defineProperty(_assertThisInitialized(_this), "yDir", void 0);
+    _defineProperty(_assertThisInitialized(_this), "_lastResult", void 0);
+    _this.ref = params.reference;
+    _this.refCanvas = params.referenceCanvas;
+    _this.size = instance.getSize(_this.refCanvas);
+    _this.xDir = 0;
+    _this.yDir = 0;
+    _this.orientation = null;
+    _this._lastResult = null;
+    _this.x = 0;
+    _this.y = 0;
+    _this.isFloating = true;
+    return _this;
+  }
+  _createClass(FloatingAnchor, [{
+    key: "compute",
+    value: function compute(params) {
+      var xy = params.xy;
+      this._lastResult = [xy[0] + this.size[0] / 2, xy[1] + this.size[1] / 2, 0, 0];
+      return this._lastResult;
+    }
+  }, {
+    key: "getOrientation",
+    value: function getOrientation(_endpoint) {
+      if (this.orientation) {
+        return this.orientation;
+      } else {
+        var o = this.instance.router.getAnchorOrientation(this.ref, _endpoint);
+        return [Math.abs(o[0]) * this.xDir * -1, Math.abs(o[1]) * this.yDir * -1];
+      }
+    }
+  }, {
+    key: "over",
+    value: function over(anchor, endpoint) {
+      this.orientation = this.instance.router.getAnchorOrientation(anchor, endpoint);
+    }
+  }, {
+    key: "out",
+    value: function out() {
+      this.orientation = null;
+    }
+  }]);
+  return FloatingAnchor;
+}(Anchor);
+
 register();
 register$1();
 register$2();
@@ -9608,4 +9622,4 @@ register$3();
 register$4();
 register$6();
 
-export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, Anchors, ArcSegment, ArrowOverlay, BLOCK, BezierSegment, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DefaultRouter, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, GROUP_KEY, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DROP, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JTK_ID, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PROPERTY_POSITION, PlainArrowOverlay, SCOPE_PREFIX, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, extend, fastTrim, filterList, findWithFunction, functionChain, getsert, gradientAtPoint, gradientAtPointAlongPathFrom, isArray, isArrowOverlay, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, jsPlumbGeometry, lineIntersection, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, optional, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, populate, register, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, rotatePointXY, sortHelper, suggest, uuid, wrap };
+export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, Anchors, ArcSegment, ArrowOverlay, BLOCK, BezierSegment, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DefaultRouter, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FloatingAnchor, GROUP_KEY, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DROP, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JTK_ID, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PROPERTY_POSITION, PlainArrowOverlay, SCOPE_PREFIX, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, extend, fastTrim, filterList, findWithFunction, functionChain, getsert, gradientAtPoint, gradientAtPointAlongPathFrom, isArray, isArrowOverlay, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, jsPlumbGeometry, lineIntersection, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, optional, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, populate, register, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, rotatePointXY, sortHelper, suggest, uuid, wrap };

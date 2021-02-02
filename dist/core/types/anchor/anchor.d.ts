@@ -1,8 +1,7 @@
 import { Offset, PointArray } from '../common';
 import { JsPlumbInstance } from "../core";
 import { EventGenerator } from "../event-generator";
-import { Endpoint } from "../endpoint/endpoint";
-import { AnchorComputeParams, AnchorId, AnchorOptions, AnchorOrientationHint, Orientation } from "../factory/anchor-factory";
+import { AnchorId, AnchorOptions, AnchorOrientationHint, Orientation } from "../factory/anchor-factory";
 import { AnchorPlacement } from "../router/router";
 export declare class Anchor extends EventGenerator {
     instance: JsPlumbInstance;
@@ -20,21 +19,16 @@ export declare class Anchor extends EventGenerator {
     y: number;
     timestamp: string;
     lastReturnValue: AnchorPlacement;
-    private _unrotatedOrientation;
+    _unrotatedOrientation: Orientation;
     positionFinder: (dropPosition: Offset, elPosition: Offset, elSize: PointArray, constructorParams: any) => any;
     clone: () => Anchor;
     constructor(instance: JsPlumbInstance, params?: AnchorOptions);
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
-    getOrientation(endpoint?: Endpoint): Orientation;
-    getCurrentLocation(params: AnchorComputeParams): AnchorPlacement;
     setPosition(x: number, y: number, ox: AnchorOrientationHint, oy: AnchorOrientationHint, overrideLock?: boolean): void;
     setInitialOrientation(ox: number, oy: number): void;
-    compute(params: AnchorComputeParams): AnchorPlacement;
     equals(anchor: Anchor): boolean;
     getCssClass(): string;
     lock(): void;
     unlock(): void;
     isLocked(): boolean;
-    over(anchor: Anchor, endpoint: Endpoint): void;
-    out(): void;
 }

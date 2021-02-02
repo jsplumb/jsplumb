@@ -26,5 +26,4 @@ export declare class FloatingAnchor extends Anchor {
      * orientation as we normally do.
      */
     out(): void;
-    getCurrentLocation(params: AnchorComputeParams): AnchorPlacement;
 }

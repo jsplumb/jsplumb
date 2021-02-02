@@ -16,7 +16,8 @@ export interface InternalEndpointOptions<E> extends EndpointOptions<E> {
     isTemporarySource?: boolean;
 }
 export interface EndpointOptions<E> extends ComponentOptions {
-    anchor?: AnchorSpec | Anchor;
+    preparedAnchor?: Anchor;
+    anchor?: AnchorSpec;
     anchors?: [AnchorSpec, AnchorSpec];
     endpoint?: EndpointSpec | Endpoint<E>;
     enabled?: boolean;
@@ -103,7 +104,7 @@ export declare class Endpoint<E = any> extends OverlayCapableComponent {
     private _updateAnchorClass;
     private prepareAnchor;
     setPreparedAnchor(anchor: Anchor): Endpoint;
-    setAnchor(anchorParams: any): Endpoint;
+    setAnchor(anchorParams: AnchorSpec | Array<AnchorSpec>): Endpoint;
     addConnection(conn: Connection): void;
     /**
      * Detaches this Endpoint from the given Connection.  If `deleteOnEmpty` is set to true and there are no

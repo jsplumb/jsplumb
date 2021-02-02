@@ -35,6 +35,7 @@ export * from './router/default-router';
 export * from "./anchor/anchor";
 export * from "./anchor/dynamic-anchor";
 export * from "./anchor/continuous-anchor";
+export * from "./anchor/floating-anchor";
 export * from "./factory/anchor-factory";
 export * from "./styles";
 export * from "./util";

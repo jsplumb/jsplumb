@@ -128,7 +128,6 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param repaintAfterwards If true, repaint everything afterwards.
      */
     setSuspendDrawing(val?: boolean, repaintAfterwards?: boolean): boolean;
-    computeAnchorLoc(endpoint: Endpoint, timestamp?: string): AnchorPlacement;
     getSuspendedAt(): string;
     /**
      * Suspend drawing, run the given function, and then re-enable drawing, optionally repainting everything.

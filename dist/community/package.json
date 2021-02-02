@@ -1,6 +1,6 @@
 {
   "name": "@jsplumb/community",
-  "version": "4.0.0-RC44",
+  "version": "4.0.0-RC45",
   "description": "Visual connectivity for webapps. This package contains `community-core` and `browser-ui`, and is equivalent to the way that previous versions of the Community edition were packaged. Note that this package is effectively deprecated, and will not always be available. Try importing `@jsplumb/browser-ui` instead.",
   "main": "js/jsplumb.community.cjs.js",
   "module": "js/jsplumb.community.es.js",

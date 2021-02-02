@@ -988,77 +988,15 @@
     return ElementDragHandler;
   }();
 
-  var FloatingAnchor =
-  function (_Anchor) {
-    _inherits(FloatingAnchor, _Anchor);
-    function FloatingAnchor(instance, params) {
-      var _this;
-      _classCallCheck(this, FloatingAnchor);
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(FloatingAnchor).call(this, instance, params));
-      _this.instance = instance;
-      _defineProperty(_assertThisInitialized(_this), "ref", void 0);
-      _defineProperty(_assertThisInitialized(_this), "refCanvas", void 0);
-      _defineProperty(_assertThisInitialized(_this), "size", void 0);
-      _defineProperty(_assertThisInitialized(_this), "xDir", void 0);
-      _defineProperty(_assertThisInitialized(_this), "yDir", void 0);
-      _defineProperty(_assertThisInitialized(_this), "_lastResult", void 0);
-      _this.ref = params.reference;
-      _this.refCanvas = params.referenceCanvas;
-      _this.size = instance.getSize(_this.refCanvas);
-      _this.xDir = 0;
-      _this.yDir = 0;
-      _this.orientation = null;
-      _this._lastResult = null;
-      _this.x = 0;
-      _this.y = 0;
-      _this.isFloating = true;
-      return _this;
-    }
-    _createClass(FloatingAnchor, [{
-      key: "compute",
-      value: function compute(params) {
-        var xy = params.xy;
-        this._lastResult = [xy[0] + this.size[0] / 2, xy[1] + this.size[1] / 2, 0, 0];
-        return this._lastResult;
-      }
-    }, {
-      key: "getOrientation",
-      value: function getOrientation(_endpoint) {
-        if (this.orientation) {
-          return this.orientation;
-        } else {
-          var o = this.ref.getOrientation(_endpoint);
-          return [Math.abs(o[0]) * this.xDir * -1, Math.abs(o[1]) * this.yDir * -1];
-        }
-      }
-    }, {
-      key: "over",
-      value: function over(anchor, endpoint) {
-        this.orientation = anchor.getOrientation(endpoint);
-      }
-    }, {
-      key: "out",
-      value: function out() {
-        this.orientation = null;
-      }
-    }, {
-      key: "getCurrentLocation",
-      value: function getCurrentLocation(params) {
-        return this._lastResult == null ? this.compute(params) : this._lastResult;
-      }
-    }]);
-    return FloatingAnchor;
-  }(communityCore.Anchor);
-
   function _makeFloatingEndpoint(paintStyle, referenceAnchor, endpoint, referenceCanvas, sourceElement, instance, scope) {
-    var floatingAnchor = new FloatingAnchor(instance, {
+    var floatingAnchor = new communityCore.FloatingAnchor(instance, {
       reference: referenceAnchor,
       referenceCanvas: referenceCanvas
     });
     var ep = instance.newEndpoint({
       paintStyle: paintStyle,
       endpoint: endpoint,
-      anchor: floatingAnchor,
+      preparedAnchor: floatingAnchor,
       source: sourceElement,
       scope: scope
     });
@@ -1097,6 +1035,7 @@
       _defineProperty(this, "floatingId", void 0);
       _defineProperty(this, "floatingElement", void 0);
       _defineProperty(this, "floatingEndpoint", void 0);
+      _defineProperty(this, "floatingAnchor", void 0);
       _defineProperty(this, "_stopped", void 0);
       _defineProperty(this, "inPlaceCopy", void 0);
       _defineProperty(this, "endpointDropTargets", []);
@@ -1310,7 +1249,7 @@
         var centerAnchor = communityCore.makeAnchorFromSpec(this.instance, "Center");
         centerAnchor.isFloating = true;
         this.floatingEndpoint = _makeFloatingEndpoint(this.ep.getPaintStyle(), centerAnchor, endpointToFloat, canvasElement, this.placeholderInfo.element, this.instance, this.ep.scope);
-        var _savedAnchor = this.floatingEndpoint.anchor;
+        this.floatingAnchor = this.floatingEndpoint.anchor;
         this.floatingEndpoint.deleteOnEmpty = true;
         this.floatingElement = this.floatingEndpoint.endpoint.canvas;
         this.floatingId = this.instance.getId(this.floatingElement);
@@ -1415,7 +1354,6 @@
           this.jpc.pending = true;
           this.jpc.addClass(this.instance.draggingClass);
           this.floatingEndpoint.addClass(this.instance.draggingClass);
-          this.floatingEndpoint.anchor = _savedAnchor;
           this.instance.fire(EVENT_CONNECTION_DRAG, this.jpc);
         } else {
           this.existingJpc = true;
@@ -1477,7 +1415,7 @@
               this.currentDropTarget.endpoint.endpoint.removeClass(this.instance.endpointDropAllowedClass);
               this.currentDropTarget.endpoint.endpoint.removeClass(this.instance.endpointDropForbiddenClass);
             }
-            this.jpc.endpoints[idx].anchor.out();
+            this.floatingAnchor.out();
           }
           if (newDropTarget != null) {
             this.instance.addClass(newDropTarget.el, CLASS_DRAG_HOVER);
@@ -1492,7 +1430,7 @@
                 });
                 newDropTarget.endpoint.endpoint[(bb ? "add" : "remove") + "Class"](this.instance.endpointDropAllowedClass);
                 newDropTarget.endpoint.endpoint[(bb ? "remove" : "add") + "Class"](this.instance.endpointDropForbiddenClass);
-                this.jpc.endpoints[idx].anchor.over(newDropTarget.endpoint.anchor, newDropTarget.endpoint);
+                this.floatingAnchor.over(newDropTarget.endpoint.anchor, newDropTarget.endpoint);
               } else {
                 newDropTarget = null;
               }
@@ -1604,6 +1542,7 @@
           delete this.floatingIndex;
           delete this.floatingElement;
           delete this.floatingEndpoint;
+          delete this.floatingAnchor;
           delete this.jpc.pending;
           if (dropEndpoint != null) {
             this._maybeCleanup(dropEndpoint);
@@ -1785,8 +1724,7 @@
           this.jpc.mergeData(optionalData);
         }
         if (this._originalAnchor) {
-          var newSourceAnchor = communityCore.makeAnchorFromSpec(this.instance, this._originalAnchor, this.jpc.endpoints[0].elementId);
-          this.jpc.endpoints[0].setAnchor(newSourceAnchor);
+          this.jpc.endpoints[0].setAnchor(this._originalAnchor);
           this._originalAnchor = null;
         }
         this.instance._finaliseConnection(this.jpc, null, originalEvent);
@@ -1802,7 +1740,7 @@
     }, {
       key: "getFloatingAnchorIndex",
       value: function getFloatingAnchorIndex(jpc) {
-        return jpc.endpoints[0].isFloating() ? 0 : jpc.endpoints[1].isFloating() ? 1 : -1;
+        return jpc.endpoints[0].isFloating() ? 0 : jpc.endpoints[1].isFloating() ? 1 : 1;
       }
     }]);
     return EndpointDragHandler;

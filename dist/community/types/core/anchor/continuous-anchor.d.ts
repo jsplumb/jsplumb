@@ -1,9 +1,7 @@
-import { AnchorId, Face, Orientation, AnchorOptions, AnchorComputeParams } from "../factory/anchor-factory";
+import { AnchorId, Face, AnchorOptions } from "../factory/anchor-factory";
 import { Anchor } from "./anchor";
 import { Dictionary } from '../common';
 import { JsPlumbInstance } from "../core";
-import { Endpoint } from "../endpoint/endpoint";
-import { AnchorPlacement } from "../router/router";
 export interface ContinuousAnchorOptions extends AnchorOptions {
     faces?: Array<Face>;
     clockwise?: boolean;
@@ -34,8 +32,5 @@ export declare class ContinuousAnchor extends Anchor {
     unlock(): void;
     lockCurrentAxis(): void;
     unlockCurrentAxis(): void;
-    compute(params: AnchorComputeParams): AnchorPlacement;
-    getCurrentLocation(params: AnchorComputeParams): AnchorPlacement;
-    getOrientation(endpoint?: Endpoint): Orientation;
     getCssClass(): string;
 }
