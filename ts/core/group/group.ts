@@ -189,8 +189,8 @@ export class UIGroup<E = any> extends UINode<E> {
                 group.group.removeGroup(group)
             }
 
-            const elpos = this.instance.getOffset(group.el, true)
-            const cpos = this.collapsed ? this.instance.getOffset(this.el, true) : this.instance.getOffset(this.getContentArea(), true)
+            const elpos = this.instance.getOffsetRelativeToRoot(group.el)
+            const cpos = this.collapsed ? this.instance.getOffsetRelativeToRoot(this.el) : this.instance.getOffsetRelativeToRoot(this.getContentArea())
 
             group.el[Constants.PARENT_GROUP_KEY] = this
 
