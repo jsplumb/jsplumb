@@ -1,12 +1,12 @@
-import {
-    Anchor,
-    AnchorComputeParams,
-    AnchorOptions, AnchorOrientationHint,
-    AnchorPlacement,
-    Endpoint,
-    JsPlumbInstance, Orientation,
-    Size
-} from "@jsplumb/community-core"
+import { Anchor } from './anchor'
+
+import { Endpoint } from '../endpoint/endpoint'
+import { JsPlumbInstance } from '../core'
+
+import { Orientation, AnchorComputeParams, AnchorOptions, AnchorOrientationHint } from '../factory/anchor-factory'
+
+import { Size } from '../common'
+import {AnchorPlacement} from "../router/router"
 
 export interface FloatingAnchorOptions extends AnchorOptions {
     reference:Anchor
@@ -34,19 +34,19 @@ export class FloatingAnchor extends Anchor {
 
         this.size = instance.getSize(this.refCanvas)
 
-            // these are used to store the current relative position of our
-            // anchor wrt the reference anchor. they only indicate
-            // direction, so have a value of 1 or -1 (or, very rarely, 0). these
-            // values are written by the compute method, and read
-            // by the getOrientation method.
-            this.xDir = 0
-            this.yDir = 0
-            // temporary member used to store an orientation when the floating
-            // anchor is hovering over another anchor.
+        // these are used to store the current relative position of our
+        // anchor wrt the reference anchor. they only indicate
+        // direction, so have a value of 1 or -1 (or, very rarely, 0). these
+        // values are written by the compute method, and read
+        // by the getOrientation method.
+        this.xDir = 0
+        this.yDir = 0
+        // temporary member used to store an orientation when the floating
+        // anchor is hovering over another anchor.
 
         // clear from parent. we want floating anchor orientation to always be computed.
-            this.orientation = null
-            this._lastResult = null
+        this.orientation = null
+        this._lastResult = null
 
         // set these to 0 each; they are used by certain types of connectors in the loopback case,
         // when the connector is trying to clear the element it is on. but for floating anchor it's not
@@ -68,7 +68,7 @@ export class FloatingAnchor extends Anchor {
             return this.orientation
         }
         else {
-            let o = this.ref.getOrientation(_endpoint)
+            let o = this.instance.router.getAnchorOrientation(this.ref, _endpoint)
             // here we take into account the orientation of the other
             // anchor: if it declares zero for some direction, we declare zero too. this might not be the most awesome. perhaps we can come
             // up with a better way. it's just so that the line we draw looks like it makes sense. maybe this wont make sense.
@@ -83,7 +83,7 @@ export class FloatingAnchor extends Anchor {
      * for the duration of the hover.
      */
     over (anchor:Anchor, endpoint:Endpoint) {
-        this.orientation = anchor.getOrientation(endpoint)
+        this.orientation = this.instance.router.getAnchorOrientation(anchor, endpoint)
     }
 
     /**
