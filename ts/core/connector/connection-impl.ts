@@ -564,20 +564,27 @@ export class Connection<E = any> extends OverlayCapableComponent {
                     ehs.fill = conn.hoverPaintStyle.stroke
                 }
             }
-            let a = conn.anchors ? conn.anchors[index] :
 
-                conn.anchor ?
-                    conn.anchor :
-                    Connection._makeAnchor(conn.instance, conn.instance.Defaults.anchors[index], elementId) || Connection._makeAnchor(conn.instance, conn.instance.Defaults.anchor, elementId),
+            let anchorSpec:AnchorSpec
+            if (conn.anchors != null && conn.anchors[index] != null) {
+                anchorSpec = conn.anchors[index]
+            } else if (conn.anchor != null) {
+                anchorSpec = conn.anchor
+            } else if (conn.instance.Defaults.anchors[index] != null) {
+                anchorSpec = conn.instance.Defaults.anchors[index]
+            } else {
+                anchorSpec = conn.instance.Defaults.anchor
+            }
 
-                u = conn.uuids ? conn.uuids[index] : null
+            let    u = conn.uuids ? conn.uuids[index] : null
 
             e = conn.instance.newEndpoint({
                 paintStyle: es, hoverPaintStyle: ehs, endpoint: ep, connections: [ conn ],
-                uuid: u, anchor: a, source: element, scope: conn.scope,
+                uuid: u, anchor: anchorSpec, source: element, scope: conn.scope,
                 reattach: conn.reattach || conn.instance.Defaults.reattachConnections,
                 detachable: conn.detachable || conn.instance.Defaults.connectionsDetachable
             })
+
             if (existing == null) {
                 e.deleteOnEmpty = true
             }
