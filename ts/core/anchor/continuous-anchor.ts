@@ -2,17 +2,13 @@ import {
     AnchorId,
     Axis,
     Face,
-    Orientation,
     X_AXIS_FACES,
     Y_AXIS_FACES,
     AnchorOptions,
-    AnchorComputeParams
 } from "../factory/anchor-factory"
 import {Anchor} from "./anchor"
 import { Dictionary} from '../common'
 import { JsPlumbInstance } from "../core"
-import {Endpoint} from "../endpoint/endpoint"
-import {AnchorPlacement} from "../router/router"
 
 export interface ContinuousAnchorOptions extends AnchorOptions {
     faces?:Array<Face>
@@ -78,7 +74,7 @@ export class ContinuousAnchor extends Anchor {
         else if (this.availableFaces[this.lastChoice[edge]]) {
             return this.lastChoice[edge]
         }
-        return edge; // we have to give them something.
+        return edge // we have to give them something.
     }
 
     isEdgeSupported (edge:Face):boolean {
@@ -125,11 +121,6 @@ export class ContinuousAnchor extends Anchor {
 
     unlockCurrentAxis () {
         this._lockedAxis = null
-    }
-
-    // TODO Whoever calls this should be using the Router instead.
-    getOrientation (endpoint?:Endpoint):Orientation {
-        return this.instance.router.getContinuousAnchorOrientation(endpoint.id)
     }
 
     getCssClass ():string {
