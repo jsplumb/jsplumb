@@ -1,3 +1,17 @@
+## 4.0.0-RC45
+
+2nd February 2021
+
+- Internal refactoring of anchor code
+- Fixed issue with cleanup of continuous anchors
+
+## 4.0.0-RC44
+
+31st January 2021
+
+- Internal refactoring of connection drag code
+- Internal refectoring of viewport code
+
 ## 4.0.0-RC43
 
 29th January 2021
