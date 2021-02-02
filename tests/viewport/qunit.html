@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+    <head>
+        <title>All qUnit tests</title>
+        <link rel="stylesheet" href="../qunit-1.11.0.css" type="text/css" media="screen">
+        <script src="../qunit-1.11.0.js"></script>
+
+        <script src="../../dist/core/js/jsplumb.core.umd.js"></script>
+        <script src="../../dist/browser-ui/js/jsplumb.browser-ui.umd.js"></script>
+
+        <script src="tests.js"></script>
+        <script src="../test-support-dom.js"></script>
+
+    </head>
+    <body>
+        <h1 id="qunit-header">All qUnit tests</h1>
+        <h2 id="qunit-banner"></h2>
+        <div id="qunit-testrunner-toolbar"></div>
+        <h2 id="qunit-userAgent"></h2>
+        <ol id="qunit-tests"></ol>
+
+        <div id="container"></div>
+
+        <script type="text/javascript">
+            jsPlumbBrowserUI.ready(testSuite);
+        </script>
+    </body>
+</html>
