@@ -14,7 +14,7 @@ import { Anchor } from '../anchor/anchor'
 import * as Constants from '../constants'
 import {FloatingAnchor} from "../anchor/floating-anchor"
 
-function placeAnchorsOnLine(element:ViewportElement, connections:Array<any>, horizontal:boolean, otherMultiplier:number, reverse:boolean):Array<ContinuousAnchorPlacement> {
+function placeAnchorsOnLine<E>(element:ViewportElement<E>, connections:Array<any>, horizontal:boolean, otherMultiplier:number, reverse:boolean):Array<ContinuousAnchorPlacement> {
 
     const sizeInAxis = horizontal ? element.w : element.h
     const sizeInOtherAxis = horizontal ? element.h : element.w
@@ -89,7 +89,7 @@ type AnchorDictionary = Dictionary<AnchorLists>
  *
  * Dual licensed under the MIT and GPL2 licenses.
  */
-export class DefaultRouter<T extends {E:unknown}> implements Router {
+export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
 
     continuousAnchorLocations:Dictionary<[number, number, number, number]> = {}
     continuousAnchorOrientations:Dictionary<Orientation> = {}
@@ -259,8 +259,8 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
 
     // ----------------- continuous anchors -----------
     private placeAnchors (instance:JsPlumbInstance, elementId:string, _anchorLists:AnchorLists):void {
-        let cd:ViewportElement = instance.viewport.getPosition(elementId),
-            placeSomeAnchors = (desc:string, element:ViewportElement, unsortedConnections:Array<AnchorListEntry>, isHorizontal:boolean, otherMultiplier:number, orientation:Orientation) => {
+        let cd:ViewportElement<T["E"]> = instance.viewport.getPosition(elementId),
+            placeSomeAnchors = (desc:string, element:ViewportElement<T["E"]>, unsortedConnections:Array<AnchorListEntry>, isHorizontal:boolean, otherMultiplier:number, orientation:Orientation) => {
                 if (unsortedConnections.length > 0) {
                     let sc = sortHelper(unsortedConnections, edgeSortFunctions[desc]), // puts them in order based on the target element's pos on screen
                         reverse = desc === "right" || desc === "top",
@@ -383,7 +383,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
         (endpoint as any)._continuousAnchorEdge = edgeId
     }
 
-    redraw (elementId:string, ui?:ViewportElement, timestamp?:string, offsetToUI?:Offset):RedrawResult {
+    redraw (elementId:string, ui?:ViewportElement<T["E"]>, timestamp?:string, offsetToUI?:Offset):RedrawResult {
 
         let connectionsToPaint:Set<Connection> = new Set(),
             endpointsToPaint:Set<Endpoint> = new Set(),
@@ -546,7 +546,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
 
 
     private calculateOrientation (sourceId:string, targetId:string,
-                                  sd:ViewportElement, td:ViewportElement,
+                                  sd:ViewportElement<T["E"]>, td:ViewportElement<T["E"]>,
                                   sourceAnchor:ContinuousAnchor,
                                   targetAnchor:ContinuousAnchor,
                                   sourceRotation:number,
@@ -577,7 +577,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
                 right:PointXY,
                 bottom:PointXY
             }> = { }
-        ;(function (types:Array<string>, dim:Array<[ViewportElement, number]>) {
+        ;(function (types:Array<string>, dim:Array<[ViewportElement<T["E"]>, number]>) {
             for (let i = 0; i < types.length; i++) {
                 midpoints[types[i]] = {
                     "left": {x:dim[i][0].x, y:dim[i][0].c[1] },
