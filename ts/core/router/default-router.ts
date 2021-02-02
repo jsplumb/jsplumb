@@ -12,7 +12,7 @@ import {ContinuousAnchor} from "../anchor/continuous-anchor"
 import { Anchor } from '../anchor/anchor'
 
 import * as Constants from '../constants'
-import {FloatingAnchor} from "@jsplumb/dom/floating-anchor"
+import {FloatingAnchor} from "../anchor/floating-anchor"
 
 function placeAnchorsOnLine(element:ViewportElement, connections:Array<any>, horizontal:boolean, otherMultiplier:number, reverse:boolean):Array<ContinuousAnchorPlacement> {
 
@@ -62,8 +62,7 @@ const edgeSortFunctions:Dictionary<SortFunction<AnchorListEntry>> = {
 }
 
 interface ConnectionFacade {
-    endpoints: [ Endpoint, Endpoint ],
-    //paint:() => any
+    endpoints: [ Endpoint, Endpoint ]
 }
 
 interface OrientationResult {
@@ -99,12 +98,12 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
 
     constructor(public instance:JsPlumbInstance ) {
         instance.bind<ConnectionDetachedParams<T["E"]>>(Constants.EVENT_INTERNAL_CONNECTION_DETACHED, (p:ConnectionDetachedParams<T["E"]>) => {
-            this.removeEndpointFromAnchorLists(p.sourceEndpoint)
-            this.removeEndpointFromAnchorLists(p.targetEndpoint)
+            this._removeEndpointFromAnchorLists(p.sourceEndpoint)
+            this._removeEndpointFromAnchorLists(p.targetEndpoint)
         })
 
         instance.bind<Endpoint<T["E"]>>(Constants.EVENT_INTERNAL_ENDPOINT_UNREGISTERED, (ep:Endpoint<T["E"]>) => {
-            this.removeEndpointFromAnchorLists(ep)
+            this._removeEndpointFromAnchorLists(ep)
         })
     }
 
@@ -113,28 +112,8 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
     }
 
     getEndpointLocation(endpoint: Endpoint<any>, params:AnchorComputeParams): any {
-        //return endpoint.anchor.getCurrentLocation(params)
         params = params || {}
         return (endpoint.anchor.lastReturnValue == null || (params.timestamp != null && endpoint.anchor.timestamp !== params.timestamp)) ? this.computeAnchorLocation(endpoint.anchor, params) : endpoint.anchor.lastReturnValue
-    }
-
-    // TODO we dont want this in here either.
-    getContinuousAnchorLocation(elementId: string): [number, number, number, number] {
-        return this.continuousAnchorLocations[elementId] || [0, 0, 0, 0]
-    }
-
-    // TODO or this.
-    getContinuousAnchorOrientation(endpointId: string): [number, number] {
-        return this.continuousAnchorOrientations[endpointId] || [0, 0]
-    }
-
-    addEndpoint (endpoint:Endpoint, elementId:string):void {
-        // no-op. method required?
-        // TODO what would be good here is to configure the anchor in fact.
-    }
-
-    elementRemoved(id: string): void {
-        // here we'd cleanup the anchor manager, ideally. there's a lot of shared responsibility between DefaultRouter and AnchorManager currently.
     }
 
     computeAnchorLocation(anchor: Anchor, params: AnchorComputeParams): AnchorPlacement {
@@ -147,7 +126,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
             return this.floatingAnchorCompute(anchor as FloatingAnchor, params)
         }
         else {
-            return this.defaultAnchorCompute(anchor, params)//anchor.compute(params)
+            return this.defaultAnchorCompute(anchor, params)
         }
     }
 
@@ -210,22 +189,25 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
 
         anchor._lastAnchor = anchor._curAnchor
 
-        //anchor.lastReturnValue = anchor._curAnchor.compute(params)
         anchor.lastReturnValue = this.defaultAnchorCompute(anchor._curAnchor, params)
         return anchor.lastReturnValue
     }
 
+    getEndpointOrientation(endpoint: Endpoint): Orientation {
+        return this.getAnchorOrientation(endpoint.anchor, endpoint)
+    }
+
     getAnchorOrientation(anchor:Anchor, endpoint?: Endpoint): Orientation {
         if (anchor.isContinuous) {
-            return this.continuousAnchorOrientations[endpoint.id]
+            return this.continuousAnchorOrientations[endpoint.id] || [ 0, 0 ]
         } else if (anchor.isDynamic) {
-            return (anchor as DynamicAnchor)._curAnchor != null ? (anchor as DynamicAnchor)._curAnchor.getOrientation(endpoint) : [ 0, 0 ]
+            return (anchor as DynamicAnchor)._curAnchor != null ? (anchor as DynamicAnchor)._curAnchor.orientation : [ 0, 0 ]
         } else if (anchor.isFloating) {
             if (anchor.orientation) {
                 return anchor.orientation
             }
             else {
-                let o = (anchor as FloatingAnchor).ref.getOrientation(endpoint)
+                let o = this.getAnchorOrientation((anchor as FloatingAnchor).ref, endpoint)
                 // here we take into account the orientation of the other
                 // anchor: if it declares zero for some direction, we declare zero too. this might not be the most awesome. perhaps we can come
                 // up with a better way. it's just so that the line we draw looks like it makes sense. maybe this wont make sense.
@@ -265,8 +247,8 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
         connection.connector.compute({
             sourcePos: sAnchorP,
             targetPos: tAnchorP,
-            sourceOrientation:sE.anchor.getOrientation(sE),
-            targetOrientation:tE.anchor.getOrientation(tE),
+            sourceOrientation:this.getEndpointOrientation(sE),
+            targetOrientation:this.getEndpointOrientation(tE),
             sourceEndpoint: connection.endpoints[0],
             targetEndpoint: connection.endpoints[1],
             strokeWidth: connection.paintStyleInUse.strokeWidth,
@@ -311,7 +293,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
         placeSomeAnchors("right", cd, _anchorLists.right, false, 1, [1, 0])
     }
 
-    private removeEndpointFromAnchorLists (endpoint:Endpoint):void {
+    private _removeEndpointFromAnchorLists (endpoint:Endpoint):void {
         const listsForElement = this.anchorLists[endpoint.elementId]
         let total = 0;
 
