@@ -757,8 +757,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
             let id = this.getId(_el)
 
-            this.router.elementRemoved(id)
-
             if (this.isSource(_el)) {
                 this.unmakeSource(_el)
             }
@@ -1901,7 +1899,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
                     ap = this.router.computeAnchorLocation(endpoint.anchor, anchorParams)
                 }
 
-                endpoint.endpoint.compute(ap, endpoint.anchor.getOrientation(endpoint), endpoint.paintStyleInUse)
+                endpoint.endpoint.compute(ap, this.router.getEndpointOrientation(endpoint), endpoint.paintStyleInUse)
                 this.renderEndpoint(endpoint, endpoint.paintStyleInUse)
                 endpoint.timestamp = timestamp
 
