@@ -3,7 +3,7 @@ import { Endpoint } from '../endpoint/endpoint'
 import { Offset } from '../common'
 import {ViewportElement} from "../viewport"
 import {Anchor} from "../anchor/anchor"
-import {AnchorComputeParams} from "../factory/anchor-factory"
+import {AnchorComputeParams, Orientation} from "../factory/anchor-factory"
 
 export interface RedrawResult {
     c:Set<Connection>
@@ -19,17 +19,11 @@ export interface Router {
 
     redraw (elementId:string, ui?:ViewportElement, timestamp?:string, offsetToUI?:Offset):RedrawResult
 
-    addEndpoint (endpoint:Endpoint, elementId:string):void
-
     computePath(connection:Connection, timestamp:string):void
     computeAnchorLocation(anchor:Anchor, params:AnchorComputeParams):AnchorPlacement
 
-    elementRemoved(id:string):void
-
-    // TODO we dont want this either.
-    getContinuousAnchorLocation(elementId:string):[number, number, number, number]
-
-    // TODO or this
-    getContinuousAnchorOrientation(endpointId:string):[number, number]
+    // TODO does this definitely have to be exposed, or does all the code that calls it now site inside router?
+    getAnchorOrientation(anchor:Anchor, endpoint?: Endpoint): Orientation
+    getEndpointOrientation(endpoint: Endpoint): Orientation
 
 }
