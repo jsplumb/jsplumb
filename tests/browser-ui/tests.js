@@ -2351,10 +2351,10 @@ var testSuite = function () {
         equal(e16.anchor.y, a16[1]);
         equal(e17.anchor.x, a17[0]);
         equal(e17.anchor.y, a17[1]);
-        equal(e16.anchor.getOrientation()[0], a16[2]);
-        equal(e16.anchor.getOrientation()[1], a16[3]);
-        equal(e17.anchor.getOrientation()[0], a17[2]);
-        equal(e17.anchor.getOrientation()[1], a17[3]);
+        equal(  _jsPlumb.router.getEndpointOrientation(e16)[0], a16[2]);
+        equal(_jsPlumb.router.getEndpointOrientation(e16)[1], a16[3]);
+        equal(_jsPlumb.router.getEndpointOrientation(e17)[0], a17[2]);
+        equal(_jsPlumb.router.getEndpointOrientation(e17)[1], a17[3]);
     });
 
     test(": _jsPlumb.connect (by Endpoints, endpoints create dynamic anchors; anchors specified by 'anchor')", function () {
@@ -3179,7 +3179,7 @@ var testSuite = function () {
         var a = dynamicAnchor.getAnchors();
         equal(a.length, 4, "Dynamic Anchors has four anchors");
         for (var i = 0; i < a.length; i++)
-            ok(a[i].compute.constructor == Function, "anchor " + i + " well formed");
+            ok(a[i].setPosition.constructor == Function, "anchor " + i + " well formed");
     });
 
     test(": Connection.isVisible/setVisible", function () {
@@ -5684,8 +5684,8 @@ var testSuite = function () {
         d2.style.outline = "1px solid"
 
         var c = _jsPlumb.connect({source:d1, target:d2, anchors:["Bottom", "Top"]})
-        var a1 = c.endpoints[0].anchor.getCurrentLocation()
-        var a2 = c.endpoints[1].anchor.getCurrentLocation()
+        var a1 = _jsPlumb.router.getEndpointLocation(c.endpoints[0])
+        var a2 = _jsPlumb.router.getEndpointLocation(c.endpoints[1])
         equal(125, a1[0], "anchor 1 x is correct")
         equal(200, a1[1], "anchor 1 y is correct")
 
