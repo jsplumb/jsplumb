@@ -5550,40 +5550,6 @@ var testSuite = function () {
         ok(e.endpoints[0].endpoint.y != null, "y is set and retrievable");
     });
 
-// ---------------------------- pluggable size/position handler --------------------------------
-
-
-    test("pluggable getSize", function() {
-        var foo = support.addDiv("foo", document.body);
-        document.body.appendChild(foo);
-        var j = jsPlumbBrowserUI.newInstance({
-            container:foo
-        }, {
-            getSize:function() { return [100,100]; }
-        });
-
-        var d = support.addDiv("d");
-        equal(j.getSize(d)[0], 100, "width is set by pluggable function");
-        equal(j.getSize(d)[1], 100, "height is set by pluggable function");
-
-        jsPlumbTestSupport.getInstance(j).cleanup();
-    });
-
-    test("pluggable getOffset", function() {
-        var foo = support.addDiv("foo", document.body);
-        var j = jsPlumbBrowserUI.newInstance({
-            container:foo
-        }, {
-            getOffset:function() { return {left:100, top:100}; }
-        });
-
-        var d = support.addDiv("d");
-        equal(j.getOffset(d).left, 100, "offset left is set by pluggable function");
-        equal(j.getOffset(d).top, 100, "offset top is set by pluggable function");
-
-        jsPlumbTestSupport.getInstance(j).cleanup();
-    });
-
     test("endpoint deletion: no deletion by default", function() {
         var d1 = support.addDiv("d1", null, null, 0, 0, 500, 500);
         var d2 = support.addDiv("d2", d1, null, 200, 200, 50, 50);
