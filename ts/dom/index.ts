@@ -5,8 +5,6 @@ import * as DotEndpointRenderer from './dot-endpoint-renderer'
 import * as RectangleEndpointRenderer from './rectangle-endpoint-renderer'
 import * as BlankEndpointRenderer from './blank-endpoint-renderer'
 
-import {jsPlumbHelperFunctions} from "@jsplumb/community-core"
-
 DotEndpointRenderer.register()
 BlankEndpointRenderer.register()
 RectangleEndpointRenderer.register()
@@ -24,8 +22,8 @@ export { EVENT_DRAG_START, EVENT_DRAG_MOVE, EVENT_DRAG_STOP } from './drag-manag
 export { EventManager, pageLocation } from './event-manager'
 export * from "./browser-util"
 
-export function newInstance(defaults?:BrowserJsPlumbDefaults, helpers?:jsPlumbHelperFunctions): BrowserJsPlumbInstance {
-    return new BrowserJsPlumbInstance(getInstanceIndex(), defaults, helpers)
+export function newInstance(defaults?:BrowserJsPlumbDefaults): BrowserJsPlumbInstance {
+    return new BrowserJsPlumbInstance(getInstanceIndex(), defaults)
 }
 
 export function ready(f:Function) {
