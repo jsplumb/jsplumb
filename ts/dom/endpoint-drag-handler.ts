@@ -10,12 +10,12 @@ import {
 } from "./drag-manager"
 import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance"
 
-import { FloatingAnchor  } from "./floating-anchor"
 import {consume, createElement, findParent} from "./browser-util"
 
 import {Drag} from "./collicat"
 import {
     addToDictionary,
+    FloatingAnchor,
     Anchor, INTERCEPT_BEFORE_DETACH,
     BoundingBox, CHECK_CONDITION,
     CHECK_DROP_ALLOWED, classList,
@@ -87,6 +87,7 @@ export class EndpointDragHandler implements DragHandler {
     floatingId:string
     floatingElement:Element
     floatingEndpoint:Endpoint
+    floatingAnchor:FloatingAnchor
 
     _stopped:boolean
     inPlaceCopy:any
@@ -400,7 +401,8 @@ export class EndpointDragHandler implements DragHandler {
         centerAnchor.isFloating = true
 
         this.floatingEndpoint = _makeFloatingEndpoint(this.ep.getPaintStyle(), centerAnchor, endpointToFloat, canvasElement, this.placeholderInfo.element, this.instance, this.ep.scope)
-        const _savedAnchor = this.floatingEndpoint.anchor
+        this.floatingAnchor = this.floatingEndpoint.anchor as FloatingAnchor
+
         this.floatingEndpoint.deleteOnEmpty = true
         this.floatingElement = (this.floatingEndpoint.endpoint as any).canvas
         this.floatingId = this.instance.getId(this.floatingElement)
@@ -424,7 +426,6 @@ export class EndpointDragHandler implements DragHandler {
         // at this point we are in fact uncertain about whether or not the given endpoint is a source/target. it may not have been
         // specifically configured as one
         let selectors = [ ]
-
 
         if (!isSourceDrag) {
             selectors.push("[jtk-target][jtk-scope-" + this.ep.scope + "]")
@@ -512,7 +513,6 @@ export class EndpointDragHandler implements DragHandler {
             this.jpc.pending = true
             this.jpc.addClass(this.instance.draggingClass)
             this.floatingEndpoint.addClass(this.instance.draggingClass)
-            this.floatingEndpoint.anchor = _savedAnchor
             // fire an event that informs that a connection is being dragged
             this.instance.fire<Connection>(EVENT_CONNECTION_DRAG, this.jpc)
         
@@ -602,7 +602,7 @@ export class EndpointDragHandler implements DragHandler {
                     this.currentDropTarget.endpoint.endpoint.removeClass(this.instance.endpointDropForbiddenClass)
                 }
 
-                this.jpc.endpoints[idx].anchor.out()
+                this.floatingAnchor.out()
             }
 
             if (newDropTarget != null) {
@@ -623,7 +623,7 @@ export class EndpointDragHandler implements DragHandler {
                         newDropTarget.endpoint.endpoint[(bb ? "add" : "remove") + "Class"](this.instance.endpointDropAllowedClass)
                         newDropTarget.endpoint.endpoint[(bb ? "remove" : "add") + "Class"](this.instance.endpointDropForbiddenClass)
 
-                        this.jpc.endpoints[idx].anchor.over(newDropTarget.endpoint.anchor, newDropTarget.endpoint)
+                        this.floatingAnchor.over(newDropTarget.endpoint.anchor, newDropTarget.endpoint)
                     } else {
                         newDropTarget = null
                     }
@@ -782,7 +782,7 @@ export class EndpointDragHandler implements DragHandler {
             delete this.floatingIndex
             delete this.floatingElement
             delete this.floatingEndpoint
-
+            delete this.floatingAnchor
 
             delete this.jpc.pending
 
@@ -1085,7 +1085,7 @@ export class EndpointDragHandler implements DragHandler {
     }
 
     private getFloatingAnchorIndex(jpc:Connection):number {
-        return jpc.endpoints[0].isFloating() ? 0 : jpc.endpoints[1].isFloating() ? 1 : -1
+        return jpc.endpoints[0].isFloating() ? 0 : jpc.endpoints[1].isFloating() ? 1 : 1  // default to 1, because a drag of a new connection is index 1.
     }
         
 }
