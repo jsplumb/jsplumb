@@ -23,7 +23,8 @@ export interface InternalEndpointOptions<E> extends EndpointOptions<E> {
 }
 
 export interface EndpointOptions<E> extends ComponentOptions {
-    anchor?: AnchorSpec | Anchor
+    preparedAnchor?:Anchor
+    anchor?: AnchorSpec
     anchors?:[ AnchorSpec, AnchorSpec ]
     endpoint?: EndpointSpec | Endpoint<E>
     enabled?: boolean;//= true
@@ -212,8 +213,13 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
 
         let ep = params.endpoint || instance.Defaults.endpoint
         this.setEndpoint(ep as any)
-        let anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : (instance.Defaults.anchor || "Top")
-        this.setAnchor(anchorParamsToUse)
+
+        if (params.preparedAnchor != null) {
+            this.setPreparedAnchor(params.preparedAnchor)
+        } else {
+            let anchorParamsToUse:AnchorSpec|Array<AnchorSpec> = params.anchor ? params.anchor : params.anchors ? params.anchors : (instance.Defaults.anchor || "Top")
+            this.setAnchor(anchorParamsToUse)
+        }
 
         // finally, set type if it was provided
         let type = [ "default", (params.type || "")].join(" ")
@@ -253,7 +259,7 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         return this
     }
 
-    setAnchor (anchorParams:any):Endpoint {
+    setAnchor (anchorParams:AnchorSpec | Array<AnchorSpec>):Endpoint {
         let a = this.prepareAnchor(anchorParams)
         this.setPreparedAnchor(a)
         return this
