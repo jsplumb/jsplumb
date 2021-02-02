@@ -47,7 +47,7 @@ function _makeFloatingEndpoint (paintStyle:PaintStyle,
     let ep = instance.newEndpoint({
         paintStyle: paintStyle,
         endpoint: endpoint,
-        anchor: floatingAnchor,
+        preparedAnchor: floatingAnchor,
         source: sourceElement,
         scope: scope
     })
@@ -1066,8 +1066,7 @@ export class EndpointDragHandler implements DragHandler {
         }
 
         if (this._originalAnchor) {
-            let newSourceAnchor = makeAnchorFromSpec(this.instance, this._originalAnchor, this.jpc.endpoints[0].elementId)
-            this.jpc.endpoints[0].setAnchor(newSourceAnchor)
+            this.jpc.endpoints[0].setAnchor(this._originalAnchor)
             this._originalAnchor = null
         }
 
