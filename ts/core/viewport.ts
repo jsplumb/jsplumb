@@ -1,13 +1,15 @@
-import {PointArray} from "./common"
+import {Size, PointArray, Offset} from "./common"
 import {EventGenerator} from "./event-generator"
 import { getsert } from './util'
+import {JsPlumbInstance} from "../core"
+
 
 export interface ViewportPosition {
     x:number
     y:number
 }
 
-export interface ViewportElementBase extends ViewportPosition {
+export interface ViewportElementBase<E> extends ViewportPosition {
     w:number
     h:number
     r:number
@@ -17,25 +19,25 @@ export interface ViewportElementBase extends ViewportPosition {
     dirty:boolean
 }
 
-export interface ViewportElement extends ViewportElementBase {
-    t:TranslatedViewportElement
+export interface ViewportElement<E> extends ViewportElementBase<E> {
+    t:TranslatedViewportElement<E>
 }
 
-export interface TranslatedViewportElementBase extends ViewportElementBase {
+export interface TranslatedViewportElementBase<E> extends ViewportElementBase<E> {
     cr:number
     sr:number
 }
 
-export type TranslatedViewportElement = Omit<TranslatedViewportElementBase, "dirty">
+export type TranslatedViewportElement<E> = Omit<TranslatedViewportElementBase<E>, "dirty">
 
-function EMPTY_POSITION ():ViewportElement {
+function EMPTY_POSITION<E>():ViewportElement<E> {
     return { x:0, y:0, w:0, h:0, r:0, c:[0,0], x2:0, y2:0, t:{x:0, y:0, c:[0,0], w:0, h:0, r:0, x2:0, y2:0, cr:0, sr:0 }, dirty:true }
 }
 
 //
 // rotate the given rectangle around its center, and return the new bounds, plus new center.
 //
-function rotate(x:number, y:number, w:number, h:number, r:number):TranslatedViewportElement {
+function rotate<E>(x:number, y:number, w:number, h:number, r:number):TranslatedViewportElement<E> {
 
     const center=[x + (w/2),y + (h/2)],
         cr = Math.cos(r / 360 * Math.PI * 2), sr = Math.sin(r / 360 * Math.PI * 2),
@@ -110,11 +112,15 @@ function insertSorted<T>(value:[string, T], array:Array<[string, T]>, comparator
     }
 }
 
-export class Viewport extends EventGenerator {
+export class Viewport<T extends{E:unknown}> extends EventGenerator {
 
 // --------------- PRIVATE  ------------------------------------------
 
     private _eventsSuspended:boolean = false
+
+    constructor(public instance:JsPlumbInstance<T>) {
+        super()
+    }
 
     //
     // this map contains sorted positions for each element, split into the two axes.
@@ -131,8 +137,8 @@ export class Viewport extends EventGenerator {
         ymax:[]
     }
 
-    _elementMap:Map<string, ViewportElement> = new Map()
-    _transformedElementMap:Map<string, TranslatedViewportElement> = new Map()
+    _elementMap:Map<string, ViewportElement<T["E"]>> = new Map()
+    _transformedElementMap:Map<string, TranslatedViewportElement<T["E"]>> = new Map()
 
     _bounds:Record<string, number> = {
         minx:0,
@@ -186,7 +192,7 @@ export class Viewport extends EventGenerator {
     }
 
 
-    private _finaliseUpdate (id:string, e:ViewportElement) {
+    private _finaliseUpdate (id:string, e:ViewportElement<T["E"]>) {
         e.t = rotate(e.x, e.y, e.w, e.h, e.r)
         this._transformedElementMap.set(id, e.t)
 
@@ -226,7 +232,7 @@ export class Viewport extends EventGenerator {
      * @param height
      * @param rotation
      */
-    updateElement (id:string, x:number, y:number, width:number, height:number, rotation:number):ViewportElement {
+    updateElement (id:string, x:number, y:number, width:number, height:number, rotation:number):ViewportElement<T["E"]> {
 
         const e = getsert(this._elementMap, id, EMPTY_POSITION)
 
@@ -262,11 +268,32 @@ export class Viewport extends EventGenerator {
         return e
     }
 
+    refreshElement(elId:string):ViewportElement<T["E"]>  {
+        const me = this.instance.getManagedElements()
+        const s = me[elId] ? me[elId].el : null
+        if (s != null) {
+
+            const size = this.getSize(s)
+            const offset = this.getOffset(s)
+            return this.updateElement(elId, offset.left, offset.top, size[0], size[1], null)
+        } else {
+            return null
+        }
+    }
+
+    protected getSize(el:T["E"]):Size {
+        return this.instance.getSize(el)
+    }
+
+    protected getOffset(el:T["E"]):Offset {
+        return  this.instance.getOffset(el)
+    }
+
     /**
      * Creates an empty entry for an element with the given ID.
      * @param id
      */
-    registerElement(id:string):ViewportElement {
+    registerElement(id:string):ViewportElement<T["E"]> {
         return this.updateElement(id, 0, 0, 0, 0, 0)
     }
 
@@ -279,7 +306,7 @@ export class Viewport extends EventGenerator {
      * @param height
      * @param rotation
      */
-    addElement (id:string, x:number, y:number, width:number, height:number, rotation:number):ViewportElement {
+    addElement (id:string, x:number, y:number, width:number, height:number, rotation:number):ViewportElement<T["E"]> {
         return this.updateElement(id, x, y, width, height, rotation)
     }
 
@@ -288,7 +315,7 @@ export class Viewport extends EventGenerator {
      * @param id
      * @param rotation
      */
-    rotateElement (id:string, rotation:number):ViewportElement {
+    rotateElement (id:string, rotation:number):ViewportElement<T["E"]> {
 
         const e = getsert(this._elementMap, id, EMPTY_POSITION)
         e.r = rotation || 0
@@ -331,7 +358,7 @@ export class Viewport extends EventGenerator {
      * @param w
      * @param h
      */
-    setSize (id:string, w:number, h:number):ViewportElement {
+    setSize (id:string, w:number, h:number):ViewportElement<T["E"]> {
         if (this._elementMap.has(id)) {
             return this.updateElement(id, null, null, w, h, null)
         }
@@ -343,7 +370,7 @@ export class Viewport extends EventGenerator {
      * @param x
      * @param y
      */
-    setPosition(id:string, x:number, y:number):ViewportElement {
+    setPosition(id:string, x:number, y:number):ViewportElement<T["E"]> {
         if (this._elementMap.has(id)) {
             return this.updateElement(id, x, y, null, null, null)
         }
@@ -385,14 +412,14 @@ export class Viewport extends EventGenerator {
      * Other parts of the codebase - the Toolkit's magnetizer or pan/zoom widget, for instance - are interested in the rotated position.
      * @param id
      */
-    getPosition (id:string):ViewportElement {
+    getPosition (id:string):ViewportElement<T["E"]> {
         return this._elementMap.get(id)
     }
 
     /**
      * Get all elements managed by the Viewport.
      */
-    getElements():Map<string, ViewportElement> {
+    getElements():Map<string, ViewportElement<T["E"]>> {
         return this._elementMap
     }
 
