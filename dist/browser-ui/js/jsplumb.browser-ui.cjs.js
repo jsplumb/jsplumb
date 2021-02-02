@@ -3730,10 +3730,10 @@ function getCustomElement(o) {
 var BrowserJsPlumbInstance =
 function (_JsPlumbInstance) {
   _inherits(BrowserJsPlumbInstance, _JsPlumbInstance);
-  function BrowserJsPlumbInstance(_instanceIndex, defaults, helpers) {
+  function BrowserJsPlumbInstance(_instanceIndex, defaults) {
     var _this;
     _classCallCheck(this, BrowserJsPlumbInstance);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(BrowserJsPlumbInstance).call(this, _instanceIndex, defaults, helpers));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(BrowserJsPlumbInstance).call(this, _instanceIndex, defaults));
     _this._instanceIndex = _instanceIndex;
     _defineProperty(_assertThisInitialized(_this), "dragManager", void 0);
     _defineProperty(_assertThisInitialized(_this), "_connectorClick", void 0);
@@ -3984,13 +3984,13 @@ function (_JsPlumbInstance) {
       this.eventManager.trigger(el, event, originalEvent, payload);
     }
   }, {
-    key: "_getOffsetRelativeToRoot",
-    value: function _getOffsetRelativeToRoot(el) {
+    key: "getOffsetRelativeToRoot",
+    value: function getOffsetRelativeToRoot(el) {
       return offsetRelativeToRoot(el);
     }
   }, {
-    key: "_getOffset",
-    value: function _getOffset(el) {
+    key: "getOffset",
+    value: function getOffset(el) {
       var jel = el;
       var container = this.getContainer();
       var out = {
@@ -4021,8 +4021,8 @@ function (_JsPlumbInstance) {
       return out;
     }
   }, {
-    key: "_getSize",
-    value: function _getSize(el) {
+    key: "getSize",
+    value: function getSize(el) {
       return [el.offsetWidth, el.offsetHeight];
     }
   }, {
@@ -4755,8 +4755,8 @@ function getInstanceIndex() {
   _jsPlumbInstanceIndex++;
   return i;
 }
-function newInstance(defaults, helpers) {
-  return new BrowserJsPlumbInstance(getInstanceIndex(), defaults, helpers);
+function newInstance(defaults) {
+  return new BrowserJsPlumbInstance(getInstanceIndex(), defaults);
 }
 function ready(f) {
   var _do = function _do() {

@@ -1,4 +1,4 @@
-import { jsPlumbDefaults, jsPlumbHelperFunctions, Dictionary, Offset, PointArray, Size, jsPlumbElement, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, OverlayCapableComponent, Segment, LabelOverlay, Connection, Component, DeleteConnectionOptions } from '@jsplumb/community-core';
+import { jsPlumbDefaults, Dictionary, Offset, PointArray, Size, jsPlumbElement, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, OverlayCapableComponent, Segment, LabelOverlay, Connection, Component, DeleteConnectionOptions } from '@jsplumb/community-core';
 import { ElementAttributes } from './svg-util';
 import { DragManager } from "./drag-manager";
 import { EventManager } from "./event-manager";
@@ -113,7 +113,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
      */
     elementsDraggable: boolean;
     private elementDragHandler;
-    constructor(_instanceIndex: number, defaults?: BrowserJsPlumbDefaults, helpers?: jsPlumbHelperFunctions);
+    constructor(_instanceIndex: number, defaults?: BrowserJsPlumbDefaults);
     addDragFilter(filter: Function | string, exclude?: boolean): void;
     removeDragFilter(filter: Function | string): void;
     removeElement(element: Element): void;
@@ -133,9 +133,9 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     on(el: Element, event: string, callbackOrSelector: Function | string, callback?: Function): this;
     off(el: Element, event: string, callback: Function): this;
     trigger(el: Element, event: string, originalEvent?: Event, payload?: any): void;
-    _getOffsetRelativeToRoot(el: Element): Offset;
-    _getOffset(el: Element): Offset;
-    _getSize(el: Element): Size;
+    getOffsetRelativeToRoot(el: Element): Offset;
+    getOffset(el: Element): Offset;
+    getSize(el: Element): Size;
     getStyle(el: Element, prop: string): any;
     getSelector(ctx: string | Element, spec: string): NodeListOf<jsPlumbDOMElement>;
     setPosition(el: Element, p: Offset): void;

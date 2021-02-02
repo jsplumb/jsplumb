@@ -10,9 +10,11 @@ export interface RedrawResult {
 }
 export declare type AnchorPlacement = [number, number, number, number];
 export declare type ContinuousAnchorPlacement = [number, number, number, number, Connection, Connection];
-export interface Router {
+export interface Router<T extends {
+    E: unknown;
+}> {
     reset(): void;
-    redraw(elementId: string, ui?: ViewportElement, timestamp?: string, offsetToUI?: Offset): RedrawResult;
+    redraw(elementId: string, ui?: ViewportElement<T["E"]>, timestamp?: string, offsetToUI?: Offset): RedrawResult;
     computePath(connection: Connection, timestamp: string): void;
     computeAnchorLocation(anchor: Anchor, params: AnchorComputeParams): AnchorPlacement;
     getAnchorOrientation(anchor: Anchor, endpoint?: Endpoint): Orientation;

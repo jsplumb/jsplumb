@@ -8,7 +8,7 @@ import { AnchorComputeParams, Orientation } from "../factory/anchor-factory";
 import { Anchor } from '../anchor/anchor';
 export declare class DefaultRouter<T extends {
     E: unknown;
-}> implements Router {
+}> implements Router<T> {
     instance: JsPlumbInstance;
     continuousAnchorLocations: Dictionary<[number, number, number, number]>;
     continuousAnchorOrientations: Dictionary<Orientation>;
@@ -26,6 +26,6 @@ export declare class DefaultRouter<T extends {
     private placeAnchors;
     private _removeEndpointFromAnchorLists;
     private _updateAnchorList;
-    redraw(elementId: string, ui?: ViewportElement, timestamp?: string, offsetToUI?: Offset): RedrawResult;
+    redraw(elementId: string, ui?: ViewportElement<T["E"]>, timestamp?: string, offsetToUI?: Offset): RedrawResult;
     private calculateOrientation;
 }

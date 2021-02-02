@@ -3,7 +3,6 @@ import { AnchorSpec } from "./factory/anchor-factory";
 import { PaintStyle } from "./styles";
 import { OverlaySpec } from "./overlay/overlay";
 import { ConnectorSpec } from "./connector/abstract-connector";
-import { Offset, Size } from "./common";
 export interface ListSpec {
     endpoint?: EndpointSpec;
 }
@@ -29,9 +28,4 @@ export interface jsPlumbDefaults<E> {
     maxConnections?: number;
     hoverClass?: string;
     allowNestedGroups?: boolean;
-}
-export interface jsPlumbHelperFunctions {
-    getSize?: (el: any) => Size;
-    getOffset?: (el: any | string) => Offset;
-    getOffsetRelativeToRoot?: (el: any | string) => Offset;
 }

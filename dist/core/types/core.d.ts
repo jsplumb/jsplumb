@@ -1,4 +1,4 @@
-import { jsPlumbDefaults, jsPlumbHelperFunctions } from "./defaults";
+import { jsPlumbDefaults } from "./defaults";
 import { Connection } from "./connector/connection-impl";
 import { Endpoint } from "./endpoint/endpoint";
 import { FullOverlaySpec, OverlaySpec } from "./overlay/overlay";
@@ -58,7 +58,7 @@ export declare type DeleteConnectionOptions = {
 };
 export declare type ManagedElement<E> = {
     el: jsPlumbElement<E>;
-    viewportElement?: ViewportElement;
+    viewportElement?: ViewportElement<E>;
     endpoints?: Array<Endpoint>;
     connections?: Array<Connection>;
     rotation?: number;
@@ -89,8 +89,8 @@ export declare abstract class JsPlumbInstance<T extends {
     private readonly endpointsByUUID;
     allowNestedGroups: boolean;
     private _curIdStamp;
-    readonly viewport: Viewport;
-    readonly router: Router;
+    readonly viewport: Viewport<T>;
+    readonly router: Router<T>;
     readonly groupManager: GroupManager<T["E"]>;
     private _connectionTypes;
     private _endpointTypes;
@@ -98,13 +98,10 @@ export declare abstract class JsPlumbInstance<T extends {
     protected _managedElements: Dictionary<ManagedElement<T["E"]>>;
     private DEFAULT_SCOPE;
     get defaultScope(): string;
-    private _helpers;
     geometry: jsPlumbGeometryHelpers;
     private _zoom;
     get currentZoom(): number;
-    constructor(_instanceIndex: number, defaults?: jsPlumbDefaults<T["E"]>, helpers?: jsPlumbHelperFunctions);
-    getSize(el: T["E"]): Size;
-    getOffset(el: T["E"], relativeToRoot?: boolean): Offset;
+    constructor(_instanceIndex: number, defaults?: jsPlumbDefaults<T["E"]>);
     getContainer(): any;
     setZoom(z: number, repaintEverything?: boolean): boolean;
     _idstamp(): string;
@@ -146,7 +143,7 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param params
      * @return an UpdateOffsetResult containing the offset information for the given element.
      */
-    updateOffset(params?: UpdateOffsetOptions): ViewportElement;
+    updateOffset(params?: UpdateOffsetOptions): ViewportElement<T["E"]>;
     /**
      * Delete the given connection.
      * @param connection Connection to delete.
@@ -279,7 +276,7 @@ export declare abstract class JsPlumbInstance<T extends {
     removeFromGroup(group: string | UIGroup<T["E"]>, ...el: Array<T["E"]>): void;
     paintEndpoint(endpoint: Endpoint, params: {
         timestamp?: string;
-        offset?: ViewportElement;
+        offset?: ViewportElement<T["E"]>;
         recalc?: boolean;
         elementWithPrecedence?: string;
         connectorPaintStyle?: PaintStyle;
@@ -309,9 +306,9 @@ export declare abstract class JsPlumbInstance<T extends {
     abstract removeAttribute(el: T["E"], attName: string): void;
     abstract getSelector(ctx: string | T["E"], spec?: string): NodeListOf<any>;
     abstract getStyle(el: T["E"], prop: string): any;
-    abstract _getSize(el: T["E"]): Size;
-    abstract _getOffset(el: T["E"]): Offset;
-    abstract _getOffsetRelativeToRoot(el: T["E"] | string): Offset;
+    abstract getSize(el: T["E"]): Size;
+    abstract getOffset(el: T["E"]): Offset;
+    abstract getOffsetRelativeToRoot(el: T["E"] | string): Offset;
     abstract setPosition(el: T["E"], p: Offset): void;
     abstract on(el: T["E"], event: string, callbackOrSelector: Function | string, callback?: Function): void;
     abstract off(el: T["E"], event: string, callback: Function): void;

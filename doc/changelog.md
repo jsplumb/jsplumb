@@ -1,3 +1,11 @@
+## 4.0.0-RC46
+
+3rd February 2021
+
+- Internal method `getOffset` in `JsPlumbInstance` does not support optional `relativeToRoot` argument now. If you happen to be using it, with the `relativeToRoot` argument set, use `getOffsetRelativeToRoot(el)` instead.
+
+- Removed the concept of "helper functions" for retrieving element position and size. This can be overridden in the `Viewport` now, as `Viewport` is the only class internally that calls these methods.     
+
 ## 4.0.0-RC45
 
 2nd February 2021

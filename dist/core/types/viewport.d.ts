@@ -1,10 +1,11 @@
-import { PointArray } from "./common";
+import { Size, PointArray, Offset } from "./common";
 import { EventGenerator } from "./event-generator";
+import { JsPlumbInstance } from "../core";
 export interface ViewportPosition {
     x: number;
     y: number;
 }
-export interface ViewportElementBase extends ViewportPosition {
+export interface ViewportElementBase<E> extends ViewportPosition {
     w: number;
     h: number;
     r: number;
@@ -13,19 +14,23 @@ export interface ViewportElementBase extends ViewportPosition {
     y2: number;
     dirty: boolean;
 }
-export interface ViewportElement extends ViewportElementBase {
-    t: TranslatedViewportElement;
+export interface ViewportElement<E> extends ViewportElementBase<E> {
+    t: TranslatedViewportElement<E>;
 }
-export interface TranslatedViewportElementBase extends ViewportElementBase {
+export interface TranslatedViewportElementBase<E> extends ViewportElementBase<E> {
     cr: number;
     sr: number;
 }
-export declare type TranslatedViewportElement = Omit<TranslatedViewportElementBase, "dirty">;
-export declare class Viewport extends EventGenerator {
+export declare type TranslatedViewportElement<E> = Omit<TranslatedViewportElementBase<E>, "dirty">;
+export declare class Viewport<T extends {
+    E: unknown;
+}> extends EventGenerator {
+    instance: JsPlumbInstance<T>;
     private _eventsSuspended;
+    constructor(instance: JsPlumbInstance<T>);
     _sortedElements: Record<string, Array<[string, number]>>;
-    _elementMap: Map<string, ViewportElement>;
-    _transformedElementMap: Map<string, TranslatedViewportElement>;
+    _elementMap: Map<string, ViewportElement<T["E"]>>;
+    _transformedElementMap: Map<string, TranslatedViewportElement<T["E"]>>;
     _bounds: Record<string, number>;
     private _clearElementIndex;
     private static _updateElementIndex;
@@ -54,12 +59,15 @@ export declare class Viewport extends EventGenerator {
      * @param height
      * @param rotation
      */
-    updateElement(id: string, x: number, y: number, width: number, height: number, rotation: number): ViewportElement;
+    updateElement(id: string, x: number, y: number, width: number, height: number, rotation: number): ViewportElement<T["E"]>;
+    refreshElement(elId: string): ViewportElement<T["E"]>;
+    protected getSize(el: T["E"]): Size;
+    protected getOffset(el: T["E"]): Offset;
     /**
      * Creates an empty entry for an element with the given ID.
      * @param id
      */
-    registerElement(id: string): ViewportElement;
+    registerElement(id: string): ViewportElement<T["E"]>;
     /**
      * Adds the element with the given id, with the given values for x, y, width, height and rotation. Any of these may be null.
      * @param id
@@ -69,13 +77,13 @@ export declare class Viewport extends EventGenerator {
      * @param height
      * @param rotation
      */
-    addElement(id: string, x: number, y: number, width: number, height: number, rotation: number): ViewportElement;
+    addElement(id: string, x: number, y: number, width: number, height: number, rotation: number): ViewportElement<T["E"]>;
     /**
      * Rotates the element with the given id, recalculating bounds afterwards.
      * @param id
      * @param rotation
      */
-    rotateElement(id: string, rotation: number): ViewportElement;
+    rotateElement(id: string, rotation: number): ViewportElement<T["E"]>;
     /**
      * Gets the width of the content managed by the viewport, taking any rotated elements into account.
      */
@@ -98,14 +106,14 @@ export declare class Viewport extends EventGenerator {
      * @param w
      * @param h
      */
-    setSize(id: string, w: number, h: number): ViewportElement;
+    setSize(id: string, w: number, h: number): ViewportElement<T["E"]>;
     /**
      * Sets the [x,y] position of the element with the given ID, recalculating bounds.
      * @param id
      * @param x
      * @param y
      */
-    setPosition(id: string, x: number, y: number): ViewportElement;
+    setPosition(id: string, x: number, y: number): ViewportElement<T["E"]>;
     /**
      * Clears the internal state of the viewport, removing all elements.
      */
@@ -121,11 +129,11 @@ export declare class Viewport extends EventGenerator {
      * Other parts of the codebase - the Toolkit's magnetizer or pan/zoom widget, for instance - are interested in the rotated position.
      * @param id
      */
-    getPosition(id: string): ViewportElement;
+    getPosition(id: string): ViewportElement<T["E"]>;
     /**
      * Get all elements managed by the Viewport.
      */
-    getElements(): Map<string, ViewportElement>;
+    getElements(): Map<string, ViewportElement<T["E"]>>;
     /**
      * Returns whether or not the viewport is empty.
      */

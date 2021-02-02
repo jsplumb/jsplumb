@@ -606,7 +606,7 @@ export class GroupManager<E> {
                 // if already a member of this group, do nothing
                 if (currentGroup !== actualGroup) {
                     const elpos = this.instance.getOffset(el)
-                    const cpos = actualGroup.collapsed ? this.instance.getOffset(groupEl, true) : this.instance.getOffset(actualGroup.getContentArea())
+                    const cpos = actualGroup.collapsed ? this.instance.getOffsetRelativeToRoot(groupEl) : this.instance.getOffset(actualGroup.getContentArea())
 
                     // otherwise, transfer to this group.
                     if (currentGroup != null) {

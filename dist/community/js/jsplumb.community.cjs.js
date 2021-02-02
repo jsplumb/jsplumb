@@ -4542,6 +4542,7 @@ _curryContinuousAnchor("ContinuousLeftRight", ["left", "right"]);
 _curryContinuousAnchor("ContinuousTopBottom", ["top", "bottom"]);
 
 var TYPE_ITEM_ANCHORS = "anchors";
+var TYPE_ITEM_CONNECTOR = "connector";
 var Connection =
 function (_OverlayCapableCompon) {
   _inherits(Connection, _OverlayCapableCompon);
@@ -4758,10 +4759,10 @@ function (_OverlayCapableCompon) {
     value: function applyType(t, typeMap) {
       var _connector = null;
       if (t.connector != null) {
-        _connector = this.getCachedTypeItem("connector", typeMap.connector);
+        _connector = this.getCachedTypeItem(TYPE_ITEM_CONNECTOR, typeMap.connector);
         if (_connector == null) {
           _connector = this.prepareConnector(t.connector, typeMap.connector);
-          this.cacheTypeItem("connector", _connector, typeMap.connector);
+          this.cacheTypeItem(TYPE_ITEM_CONNECTOR, _connector, typeMap.connector);
         }
         this.setPreparedConnector(_connector);
       }
@@ -4921,7 +4922,7 @@ function (_OverlayCapableCompon) {
         }
         this.connector = connector;
         if (typeId) {
-          this.cacheTypeItem("connector", connector, typeId);
+          this.cacheTypeItem(TYPE_ITEM_CONNECTOR, connector, typeId);
         }
         this.addClass(previousClasses);
         if (previous != null) {
@@ -5573,8 +5574,8 @@ function (_UINode) {
         if (group.group != null) {
           group.group.removeGroup(group);
         }
-        var elpos = this.instance.getOffset(group.el, true);
-        var cpos = this.collapsed ? this.instance.getOffset(this.el, true) : this.instance.getOffset(this.getContentArea(), true);
+        var elpos = this.instance.getOffsetRelativeToRoot(group.el);
+        var cpos = this.collapsed ? this.instance.getOffsetRelativeToRoot(this.el) : this.instance.getOffsetRelativeToRoot(this.getContentArea());
         group.el[PARENT_GROUP_KEY] = this;
         this.childGroups.push(group);
         this.instance.appendElement(group.el, this.getContentArea());
@@ -6150,7 +6151,7 @@ function () {
           var currentGroup = el[PARENT_GROUP_KEY];
           if (currentGroup !== actualGroup) {
             var elpos = _this8.instance.getOffset(el);
-            var cpos = actualGroup.collapsed ? _this8.instance.getOffset(groupEl, true) : _this8.instance.getOffset(actualGroup.getContentArea());
+            var cpos = actualGroup.collapsed ? _this8.instance.getOffsetRelativeToRoot(groupEl) : _this8.instance.getOffset(actualGroup.getContentArea());
             if (currentGroup != null) {
               currentGroup.remove(el, false, doNotFireEvent, false, actualGroup);
               _this8._updateConnectionsForGroup(currentGroup);
@@ -7312,14 +7313,11 @@ function insertSorted(value, array, comparator, sortDescending) {
 var Viewport =
 function (_EventGenerator) {
   _inherits(Viewport, _EventGenerator);
-  function Viewport() {
-    var _getPrototypeOf2;
+  function Viewport(instance) {
     var _this;
     _classCallCheck(this, Viewport);
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-    _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(Viewport)).call.apply(_getPrototypeOf2, [this].concat(args)));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Viewport).call(this));
+    _this.instance = instance;
     _defineProperty(_assertThisInitialized(_this), "_eventsSuspended", false);
     _defineProperty(_assertThisInitialized(_this), "_sortedElements", {
       xmin: [],
@@ -7436,6 +7434,29 @@ function (_EventGenerator) {
       e.y2 = e.y + e.h;
       this._finaliseUpdate(id, e);
       return e;
+    }
+  }, {
+    key: "refreshElement",
+    value: function refreshElement(elId) {
+      var me = this.instance.getManagedElements();
+      var s = me[elId] ? me[elId].el : null;
+      if (s != null) {
+        var size = this.getSize(s);
+        var offset = this.getOffset(s);
+        return this.updateElement(elId, offset.left, offset.top, size[0], size[1], null);
+      } else {
+        return null;
+      }
+    }
+  }, {
+    key: "getSize",
+    value: function getSize(el) {
+      return this.instance.getSize(el);
+    }
+  }, {
+    key: "getOffset",
+    value: function getOffset(el) {
+      return this.instance.getOffset(el);
     }
   }, {
     key: "registerElement",
@@ -7592,7 +7613,7 @@ function (_EventGenerator) {
       return this._zoom;
     }
   }]);
-  function JsPlumbInstance(_instanceIndex, defaults, helpers) {
+  function JsPlumbInstance(_instanceIndex, defaults) {
     var _this;
     _classCallCheck(this, JsPlumbInstance);
     _this = _possibleConstructorReturn(this, _getPrototypeOf(JsPlumbInstance).call(this));
@@ -7619,7 +7640,7 @@ function (_EventGenerator) {
     _defineProperty(_assertThisInitialized(_this), "endpointsByUUID", new Map());
     _defineProperty(_assertThisInitialized(_this), "allowNestedGroups", void 0);
     _defineProperty(_assertThisInitialized(_this), "_curIdStamp", 1);
-    _defineProperty(_assertThisInitialized(_this), "viewport", new Viewport());
+    _defineProperty(_assertThisInitialized(_this), "viewport", new Viewport(_assertThisInitialized(_this)));
     _defineProperty(_assertThisInitialized(_this), "router", void 0);
     _defineProperty(_assertThisInitialized(_this), "groupManager", void 0);
     _defineProperty(_assertThisInitialized(_this), "_connectionTypes", new Map());
@@ -7627,10 +7648,8 @@ function (_EventGenerator) {
     _defineProperty(_assertThisInitialized(_this), "_container", void 0);
     _defineProperty(_assertThisInitialized(_this), "_managedElements", {});
     _defineProperty(_assertThisInitialized(_this), "DEFAULT_SCOPE", void 0);
-    _defineProperty(_assertThisInitialized(_this), "_helpers", void 0);
     _defineProperty(_assertThisInitialized(_this), "geometry", void 0);
     _defineProperty(_assertThisInitialized(_this), "_zoom", 1);
-    _this._helpers = helpers || {};
     _this.geometry = new jsPlumbGeometry();
     _this.Defaults = {
       anchor: "Bottom",
@@ -7671,20 +7690,6 @@ function (_EventGenerator) {
     return _this;
   }
   _createClass(JsPlumbInstance, [{
-    key: "getSize",
-    value: function getSize(el) {
-      return this._helpers.getSize ? this._helpers.getSize(el) : this._getSize(el);
-    }
-  }, {
-    key: "getOffset",
-    value: function getOffset(el, relativeToRoot) {
-      if (relativeToRoot) {
-        return this._helpers.getOffsetRelativeToRoot ? this._helpers.getOffsetRelativeToRoot(el) : this._getOffsetRelativeToRoot(el);
-      } else {
-        return this._helpers.getOffset ? this._helpers.getOffset(el) : this._getOffset(el);
-      }
-    }
-  }, {
     key: "getContainer",
     value: function getContainer() {
       return this._container;
@@ -7963,18 +7968,12 @@ function (_EventGenerator) {
   }, {
     key: "updateOffset",
     value: function updateOffset(params) {
-      var recalc = params.recalc,
-          elId = params.elId,
-          s;
-      if (recalc || this.viewport.getPosition(elId) == null) {
-        s = this._managedElements[elId] ? this._managedElements[elId].el : null;
-        if (s != null) {
-          var size = this.getSize(s);
-          var offset = this.getOffset(s);
-          this.viewport.updateElement(elId, offset.left, offset.top, size[0], size[1], null);
-        }
+      var elId = params.elId;
+      if (params.recalc) {
+        return this.viewport.refreshElement(elId);
+      } else {
+        return this.viewport.getPosition(elId);
       }
-      return this.viewport.getPosition(elId);
     }
   }, {
     key: "deleteConnection",
@@ -13058,10 +13057,10 @@ function getCustomElement(o) {
 var BrowserJsPlumbInstance =
 function (_JsPlumbInstance) {
   _inherits(BrowserJsPlumbInstance, _JsPlumbInstance);
-  function BrowserJsPlumbInstance(_instanceIndex, defaults, helpers) {
+  function BrowserJsPlumbInstance(_instanceIndex, defaults) {
     var _this;
     _classCallCheck(this, BrowserJsPlumbInstance);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(BrowserJsPlumbInstance).call(this, _instanceIndex, defaults, helpers));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(BrowserJsPlumbInstance).call(this, _instanceIndex, defaults));
     _this._instanceIndex = _instanceIndex;
     _defineProperty(_assertThisInitialized(_this), "dragManager", void 0);
     _defineProperty(_assertThisInitialized(_this), "_connectorClick", void 0);
@@ -13312,13 +13311,13 @@ function (_JsPlumbInstance) {
       this.eventManager.trigger(el, event, originalEvent, payload);
     }
   }, {
-    key: "_getOffsetRelativeToRoot",
-    value: function _getOffsetRelativeToRoot(el) {
+    key: "getOffsetRelativeToRoot",
+    value: function getOffsetRelativeToRoot(el) {
       return offsetRelativeToRoot(el);
     }
   }, {
-    key: "_getOffset",
-    value: function _getOffset(el) {
+    key: "getOffset",
+    value: function getOffset(el) {
       var jel = el;
       var container = this.getContainer();
       var out = {
@@ -13349,8 +13348,8 @@ function (_JsPlumbInstance) {
       return out;
     }
   }, {
-    key: "_getSize",
-    value: function _getSize(el) {
+    key: "getSize",
+    value: function getSize(el) {
       return [el.offsetWidth, el.offsetHeight];
     }
   }, {
@@ -14083,8 +14082,8 @@ function getInstanceIndex() {
   _jsPlumbInstanceIndex++;
   return i;
 }
-function newInstance(defaults, helpers) {
-  return new BrowserJsPlumbInstance(getInstanceIndex(), defaults, helpers);
+function newInstance(defaults) {
+  return new BrowserJsPlumbInstance(getInstanceIndex(), defaults);
 }
 function ready(f) {
   var _do = function _do() {
