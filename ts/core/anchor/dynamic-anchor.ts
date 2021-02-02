@@ -58,10 +58,10 @@ function _convertAnchor(anchor:Anchor | AnchorSpec, instance:JsPlumbInstance, el
 export class DynamicAnchor extends Anchor {
 
     anchors:Array<Anchor>
-    private _curAnchor:Anchor
-    private _lastAnchor:Anchor
+    _curAnchor:Anchor
+    _lastAnchor:Anchor
 
-    private _anchorSelector:(xy:PointArray, wh:PointArray, txy:PointArray, twh:PointArray, rotation:number, targetRotation:number, anchors:Array<Anchor>) => Anchor = null
+    _anchorSelector:(xy:PointArray, wh:PointArray, txy:PointArray, twh:PointArray, rotation:number, targetRotation:number, anchors:Array<Anchor>) => Anchor = null
 
     constructor(public instance:JsPlumbInstance, options:DynamicAnchorOptions) {
         super(instance, options)
@@ -90,40 +90,6 @@ export class DynamicAnchor extends Anchor {
 
     getAnchors ():Array<Anchor> {
         return this.anchors
-    }
-
-    compute (params:AnchorComputeParams):AnchorPlacement {
-        let xy = params.xy, wh = params.wh, txy = params.txy, twh = params.twh
-
-        this.timestamp = params.timestamp
-
-        // if anchor is locked or an opposite element was not given, we
-        // maintain our state. anchor will be locked
-        // if it is the source of a drag and drop.
-        if (this.isLocked() || txy == null || twh == null) {
-            this.lastReturnValue = this.instance.router.computeAnchorLocation(this._curAnchor, params)
-            return this.lastReturnValue
-        }
-        else {
-            params.timestamp = null; // otherwise clear this, i think. we want the anchor to compute.
-        }
-
-        this._curAnchor = this._anchorSelector(xy, wh, txy, twh, params.rotation, params.tRotation, this.anchors)
-        this.x = this._curAnchor.x
-        this.y = this._curAnchor.y
-
-        if (this._curAnchor !== this._lastAnchor) {
-            this.fire("anchorChanged", this._curAnchor)
-        }
-
-        this._lastAnchor = this._curAnchor
-
-        this.lastReturnValue = this._curAnchor.compute(params)
-        return this.lastReturnValue
-    }
-
-    getCurrentLocation (params:AnchorComputeParams):AnchorPlacement {
-        return (this._curAnchor != null ? this._curAnchor.getCurrentLocation(params) : null)
     }
 
     getOrientation (_endpoint?:Endpoint):Orientation {
