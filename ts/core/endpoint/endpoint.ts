@@ -185,10 +185,6 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
 
         this.deleteOnEmpty = params.deleteOnEmpty === true
 
-        if (!params._transient) { // in place copies, for example, are transient.  they will never need to be retrieved during a paint cycle, because they dont move, and then they are deleted.
-            this.instance.router.addEndpoint(this, this.elementId)
-        }
-
         // copy all params onto this class
         extend((<any>this), params, typeParameters)
 
