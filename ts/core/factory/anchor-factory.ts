@@ -121,12 +121,7 @@ function isPrimitiveAnchorSpec(sa:Array<any>):boolean {
            sa.length === 7 && sa.slice(0, 5).every(isNumber) && isString(sa[6])
 }
 
-export function makeAnchorFromSpec(instance:JsPlumbInstance, spec:AnchorSpec, elementId?:string):Anchor {
-
-    // if already an Anchor, return it
-    if ((<any>spec).getOrientation) {
-        return (<unknown>spec) as Anchor
-    }
+export function makeAnchorFromSpec(instance:JsPlumbInstance, spec:AnchorSpec|Array<AnchorSpec>, elementId?:string):Anchor {
 
     // if a string, its just a named anchor
     if (isString(spec)){
