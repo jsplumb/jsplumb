@@ -124,7 +124,7 @@ function isPrimitiveAnchorSpec(sa:Array<any>):boolean {
 export function makeAnchorFromSpec(instance:JsPlumbInstance, spec:AnchorSpec, elementId?:string):Anchor {
 
     // if already an Anchor, return it
-    if ((<any>spec).compute && (<any>spec).getOrientation) {
+    if ((<any>spec).getOrientation) {
         return (<unknown>spec) as Anchor
     }
 
