@@ -1,17 +1,18 @@
-import {Router, ContinuousAnchorPlacement, RedrawResult} from "./router"
+import {Router, ContinuousAnchorPlacement, RedrawResult, AnchorPlacement} from "./router"
 
 import { JsPlumbInstance } from "../core"
 import { Connection } from '../connector/connection-impl'
 import { Endpoint } from '../endpoint/endpoint'
 import {ViewportElement} from "../viewport"
 import { ConnectionDetachedParams, Dictionary, Offset, PointArray, PointXY, SortFunction } from "../common"
-import {AnchorComputeParams, Face, Orientation} from "../factory/anchor-factory"
+import {AnchorComputeParams, AnchorOrientationHint, Face, Orientation} from "../factory/anchor-factory"
 import { DynamicAnchor } from "../anchor/dynamic-anchor"
 import {findWithFunction, removeWithFunction, rotatePoint, rotatePointXY, sortHelper, uuid} from "../util"
 import {ContinuousAnchor} from "../anchor/continuous-anchor"
 import { Anchor } from '../anchor/anchor'
 
 import * as Constants from '../constants'
+import {FloatingAnchor} from "@jsplumb/dom/floating-anchor"
 
 function placeAnchorsOnLine(element:ViewportElement, connections:Array<any>, horizontal:boolean, otherMultiplier:number, reverse:boolean):Array<ContinuousAnchorPlacement> {
 
@@ -112,7 +113,9 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
     }
 
     getEndpointLocation(endpoint: Endpoint<any>, params:AnchorComputeParams): any {
-        return endpoint.anchor.getCurrentLocation(params)
+        //return endpoint.anchor.getCurrentLocation(params)
+        params = params || {}
+        return (endpoint.anchor.lastReturnValue == null || (params.timestamp != null && endpoint.anchor.timestamp !== params.timestamp)) ? this.computeAnchorLocation(endpoint.anchor, params) : endpoint.anchor.lastReturnValue
     }
 
     // TODO we dont want this in here either.
@@ -134,8 +137,104 @@ export class DefaultRouter<T extends {E:unknown}> implements Router {
         // here we'd cleanup the anchor manager, ideally. there's a lot of shared responsibility between DefaultRouter and AnchorManager currently.
     }
 
-    computeAnchorLocation(anchor: Anchor, params: AnchorComputeParams): [number, number, number, number] {
-        return anchor.compute(params)
+    computeAnchorLocation(anchor: Anchor, params: AnchorComputeParams): AnchorPlacement {
+        if (anchor.isContinuous) {
+            return this.continuousAnchorLocations[params.element.id] || [0, 0, 0, 0]
+        } else if (anchor.isDynamic) {
+            return this.dynamicAnchorCompute(anchor as DynamicAnchor, params)
+        }
+        else if (anchor.isFloating) {
+            return this.floatingAnchorCompute(anchor as FloatingAnchor, params)
+        }
+        else {
+            return this.defaultAnchorCompute(anchor, params)//anchor.compute(params)
+        }
+    }
+
+    private floatingAnchorCompute(anchor:FloatingAnchor, params:AnchorComputeParams):AnchorPlacement {
+        let xy = params.xy
+        anchor._lastResult = [ xy[0] + (anchor.size[0] / 2), xy[1] + (anchor.size[1] / 2), 0, 0 ] as AnchorPlacement; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
+        return anchor._lastResult
+    }
+
+    private defaultAnchorCompute(anchor:Anchor, params:AnchorComputeParams):AnchorPlacement {
+        let xy = params.xy, wh = params.wh, timestamp = params.timestamp
+
+        if (timestamp && timestamp === anchor.timestamp) {
+            return anchor.lastReturnValue
+        }
+
+        const candidate:[ number, number, number, number ] = [ xy[0] + (anchor.x * wh[0]) + anchor.offsets[0], xy[1] + (anchor.y * wh[1]) + anchor.offsets[1], anchor.x, anchor.y ]
+
+        const rotation = params.rotation;
+        if (rotation != null && rotation !== 0) {
+            const c2 = rotatePoint(candidate, [ xy[0] + (wh[0] / 2), xy[1] + (wh[1] / 2)], rotation)
+
+            anchor.orientation[0] = Math.round((anchor._unrotatedOrientation[0] * c2[2]) - (anchor._unrotatedOrientation[1] * c2[3]));
+            anchor.orientation[1] = Math.round((anchor._unrotatedOrientation[1] * c2[2]) + (anchor._unrotatedOrientation[0] * c2[3]));
+
+            anchor.lastReturnValue = [ c2[0], c2[1], anchor.x, anchor.y ]
+        } else {
+            anchor.orientation[0] = anchor._unrotatedOrientation[0];
+            anchor.orientation[1] = anchor._unrotatedOrientation[1];
+            anchor.lastReturnValue = candidate;
+        }
+
+        anchor.timestamp = timestamp
+        return anchor.lastReturnValue
+    }
+
+    private dynamicAnchorCompute(anchor:DynamicAnchor, params:AnchorComputeParams):AnchorPlacement {
+        let xy = params.xy, wh = params.wh, txy = params.txy, twh = params.twh
+
+        anchor.timestamp = params.timestamp
+
+        // if anchor is locked or an opposite element was not given, we
+        // maintain our state. anchor will be locked
+        // if it is the source of a drag and drop.
+        if (anchor.isLocked() || txy == null || twh == null) {
+            anchor.lastReturnValue = this.computeAnchorLocation(anchor._curAnchor, params)
+            return anchor.lastReturnValue
+        }
+        else {
+            params.timestamp = null; // otherwise clear this, i think. we want the anchor to compute.
+        }
+
+        anchor._curAnchor = anchor._anchorSelector(xy, wh, txy, twh, params.rotation, params.tRotation, anchor.anchors)
+        anchor.x = anchor._curAnchor.x
+        anchor.y = anchor._curAnchor.y
+
+        if (anchor._curAnchor !== anchor._lastAnchor) {
+            anchor.fire("anchorChanged", anchor._curAnchor)
+        }
+
+        anchor._lastAnchor = anchor._curAnchor
+
+        //anchor.lastReturnValue = anchor._curAnchor.compute(params)
+        anchor.lastReturnValue = this.defaultAnchorCompute(anchor._curAnchor, params)
+        return anchor.lastReturnValue
+    }
+
+    getAnchorOrientation(anchor:Anchor, endpoint?: Endpoint): Orientation {
+        if (anchor.isContinuous) {
+            return this.continuousAnchorOrientations[endpoint.id]
+        } else if (anchor.isDynamic) {
+            return (anchor as DynamicAnchor)._curAnchor != null ? (anchor as DynamicAnchor)._curAnchor.getOrientation(endpoint) : [ 0, 0 ]
+        } else if (anchor.isFloating) {
+            if (anchor.orientation) {
+                return anchor.orientation
+            }
+            else {
+                let o = (anchor as FloatingAnchor).ref.getOrientation(endpoint)
+                // here we take into account the orientation of the other
+                // anchor: if it declares zero for some direction, we declare zero too. this might not be the most awesome. perhaps we can come
+                // up with a better way. it's just so that the line we draw looks like it makes sense. maybe this wont make sense.
+                return [ (Math.abs(o[0]) * (anchor as FloatingAnchor).xDir * -1) as AnchorOrientationHint,
+                    (Math.abs(o[1]) * (anchor as FloatingAnchor).yDir * -1) as AnchorOrientationHint ]
+            }
+        } else {
+            return anchor.orientation
+        }
     }
 
     computePath(connection: Connection, timestamp:string): void {
