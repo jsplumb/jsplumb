@@ -94,8 +94,4 @@ export class FloatingAnchor extends Anchor {
     out ():void {
         this.orientation = null
     }
-
-    getCurrentLocation (params:AnchorComputeParams):AnchorPlacement {
-        return this._lastResult == null ? this.compute(params) : this._lastResult
-    }
 }
