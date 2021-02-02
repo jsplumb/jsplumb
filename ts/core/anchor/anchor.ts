@@ -1,10 +1,8 @@
 import { Offset, PointArray} from '../common'
 import { JsPlumbInstance } from "../core"
 import {EventGenerator} from "../event-generator"
-import {Endpoint} from "../endpoint/endpoint"
-import { AnchorComputeParams, AnchorId, AnchorOptions, AnchorOrientationHint, Orientation } from "../factory/anchor-factory"
+import { AnchorId, AnchorOptions, AnchorOrientationHint, Orientation } from "../factory/anchor-factory"
 import {AnchorPlacement} from "../router/router"
-import {rotatePoint} from "../util"
 
 export class Anchor extends EventGenerator {
 
@@ -39,10 +37,6 @@ export class Anchor extends EventGenerator {
         return true
     }
 
-    getOrientation(endpoint?: Endpoint): Orientation {
-        return this.orientation
-    }
-
     setPosition (x:number, y:number, ox:AnchorOrientationHint, oy:AnchorOrientationHint, overrideLock?:boolean):void {
         if (!this.locked || overrideLock) {
             this.x = x
@@ -62,8 +56,8 @@ export class Anchor extends EventGenerator {
         if (!anchor) {
             return false
         }
-        let ao = anchor.getOrientation(),
-            o = this.getOrientation()
+        let ao = this.instance.router.getAnchorOrientation(anchor),
+            o = this.instance.router.getAnchorOrientation(this)
         return this.x === anchor.x && this.y === anchor.y && this.offsets[0] === anchor.offsets[0] && this.offsets[1] === anchor.offsets[1] && o[0] === ao[0] && o[1] === ao[1]
     }
 
@@ -75,7 +69,4 @@ export class Anchor extends EventGenerator {
     unlock ():void { this.locked = false; }
     isLocked ():boolean { return this.locked; }
 
-    over (anchor:Anchor, endpoint:Endpoint):void { }
-
-    out ():void { }
 }
