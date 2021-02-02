@@ -15,6 +15,7 @@ import {EndpointSpec} from "../endpoint/endpoint"
 import * as Constants from "../constants"
 
 const TYPE_ITEM_ANCHORS = "anchors"
+const TYPE_ITEM_CONNECTOR = "connector"
 
 export interface ConnectionParams<E> {
 
@@ -304,10 +305,10 @@ export class Connection<E = any> extends OverlayCapableComponent {
 
         let _connector = null
         if (t.connector != null) {
-            _connector = this.getCachedTypeItem("connector", typeMap.connector)
+            _connector = this.getCachedTypeItem(TYPE_ITEM_CONNECTOR, typeMap.connector)
             if (_connector == null) {
                 _connector = this.prepareConnector(t.connector, typeMap.connector)
-                this.cacheTypeItem("connector", _connector, typeMap.connector)
+                this.cacheTypeItem(TYPE_ITEM_CONNECTOR, _connector, typeMap.connector)
             }
             this.setPreparedConnector(_connector)
         }
@@ -478,7 +479,7 @@ export class Connection<E = any> extends OverlayCapableComponent {
 
             this.connector = connector
             if (typeId) {
-                this.cacheTypeItem("connector", connector, typeId)
+                this.cacheTypeItem(TYPE_ITEM_CONNECTOR, connector, typeId)
             }
 
             // put classes from prior connector onto the canvas
