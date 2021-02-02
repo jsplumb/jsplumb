@@ -1,6 +1,5 @@
 import {
     jsPlumbDefaults,
-    jsPlumbHelperFunctions,
     Dictionary,
     Offset,
     PointArray,
@@ -284,8 +283,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
     private elementDragHandler :ElementDragHandler
 
-    constructor(public _instanceIndex:number, defaults?:BrowserJsPlumbDefaults, helpers?:jsPlumbHelperFunctions) {
-        super(_instanceIndex, defaults, helpers);
+    constructor(public _instanceIndex:number, defaults?:BrowserJsPlumbDefaults) {
+        super(_instanceIndex, defaults)
 
         // by default, elements are draggable
         this.elementsDraggable = defaults && defaults.elementsDraggable !== false
@@ -507,11 +506,11 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         this.eventManager.trigger(el, event, originalEvent, payload)
     }
 
-    _getOffsetRelativeToRoot(el:Element) {
+    getOffsetRelativeToRoot(el:Element) {
         return offsetRelativeToRoot(el)
     }
 
-    _getOffset(el:Element):Offset {
+    getOffset(el:Element):Offset {
         const jel = el as unknown as jsPlumbDOMElement
         const container = this.getContainer()
         let out: Offset = {
@@ -546,7 +545,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         return out
     }
 
-    _getSize(el:Element):Size {
+    getSize(el:Element):Size {
         return [ (el as jsPlumbDOMElement).offsetWidth, (el as jsPlumbDOMElement).offsetHeight ]
     }
 
