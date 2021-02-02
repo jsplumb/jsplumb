@@ -23,7 +23,7 @@ export class Anchor extends EventGenerator {
     timestamp:string
     lastReturnValue: AnchorPlacement
 
-    private _unrotatedOrientation:Orientation
+    _unrotatedOrientation:Orientation
 
     positionFinder:(dropPosition:Offset, elPosition:Offset, elSize:PointArray, constructorParams:any) => any
 
@@ -43,11 +43,6 @@ export class Anchor extends EventGenerator {
         return this.orientation
     }
 
-    getCurrentLocation(params:AnchorComputeParams):AnchorPlacement {
-        params = params || {}
-        return (this.lastReturnValue == null || (params.timestamp != null && this.timestamp !== params.timestamp)) ? this.compute(params) : this.lastReturnValue
-    }
-
     setPosition (x:number, y:number, ox:AnchorOrientationHint, oy:AnchorOrientationHint, overrideLock?:boolean):void {
         if (!this.locked || overrideLock) {
             this.x = x
@@ -61,34 +56,6 @@ export class Anchor extends EventGenerator {
     setInitialOrientation(ox:number, oy:number) {
         this.orientation = [ ox, oy ]
         this._unrotatedOrientation = [ ox, oy ]
-    }
-
-    compute (params:AnchorComputeParams):AnchorPlacement {
-
-        let xy = params.xy, wh = params.wh, timestamp = params.timestamp
-
-        if (timestamp && timestamp === this.timestamp) {
-            return this.lastReturnValue
-        }
-
-        const candidate:[ number, number, number, number ] = [ xy[0] + (this.x * wh[0]) + this.offsets[0], xy[1] + (this.y * wh[1]) + this.offsets[1], this.x, this.y ]
-
-        const rotation = params.rotation;
-        if (rotation != null && rotation !== 0) {
-           const c2 = rotatePoint(candidate, [ xy[0] + (wh[0] / 2), xy[1] + (wh[1] / 2)], rotation)
-
-            this.orientation[0] = Math.round((this._unrotatedOrientation[0] * c2[2]) - (this._unrotatedOrientation[1] * c2[3]));
-            this.orientation[1] = Math.round((this._unrotatedOrientation[1] * c2[2]) + (this._unrotatedOrientation[0] * c2[3]));
-
-            this.lastReturnValue = [ c2[0], c2[1], this.x, this.y ]
-        } else {
-            this.orientation[0] = this._unrotatedOrientation[0];
-            this.orientation[1] = this._unrotatedOrientation[1];
-            this.lastReturnValue = candidate;
-        }
-
-        this.timestamp = timestamp
-        return this.lastReturnValue
     }
 
     equals(anchor:Anchor):boolean {
