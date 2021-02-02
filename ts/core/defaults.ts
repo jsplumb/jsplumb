@@ -41,8 +41,3 @@ export interface jsPlumbDefaults<E> {
     allowNestedGroups?:boolean
 }
 
-export interface jsPlumbHelperFunctions {
-    getSize?:(el:any) => Size
-    getOffset?:(el:any|string) => Offset
-    getOffsetRelativeToRoot?:(el:any|string) => Offset
-}
