@@ -3,7 +3,7 @@ import {ElementDragHandler} from "./element-drag-handler"
 import {DragEventParams, EVENT_REVERT, GhostProxyingDragHandler, DragStopEventParams} from "./drag-manager"
 import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance"
 import {Drag} from "./collicat"
-import {PARENT_GROUP_KEY, PointArray, UIGroup} from "@jsplumb/community-core"
+import {PARENT_GROUP_KEY, PointArray, UIGroup} from "@jsplumb/core"
 
 
 export class GroupDragHandler extends ElementDragHandler implements GhostProxyingDragHandler {

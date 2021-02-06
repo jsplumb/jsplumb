@@ -34,7 +34,7 @@ import {
     SourceDefinition,
     SourceOrTargetDefinition, TARGET,
     TargetDefinition, AnchorSpec
-} from "@jsplumb/community-core"
+} from "@jsplumb/core"
 
 function _makeFloatingEndpoint (paintStyle:PaintStyle,
                                 referenceAnchor:Anchor,

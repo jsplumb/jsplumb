@@ -13,7 +13,7 @@ import {
     SELECTOR_MANAGED_ELEMENT,
     TRUE,
     INTERCEPT_BEFORE_DROP
-} from '@jsplumb/community-core'
+} from '@jsplumb/core'
 
 export interface ListManagerOptions { }
 

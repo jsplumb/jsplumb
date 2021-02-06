@@ -1,3 +1,16 @@
+
+import {
+    ATTRIBUTE_TABINDEX,
+    EVENT_CLICK, EVENT_CONTEXTMENU, EVENT_DBL_TAP,
+    EVENT_FOCUS,
+    EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEOUT, EVENT_MOUSEOVER,
+    EVENT_MOUSEUP, EVENT_TAP,
+    PointArray,
+    uuid
+} from "@jsplumb/core"
+
+import { jsPlumbDOMElement } from './browser-jsplumb-instance'
+
 /**
  * Creates a Touch object.
  * @param target
@@ -10,18 +23,6 @@
  * @returns {Touch}
  * @private
  */
-import {
-    ATTRIBUTE_TABINDEX,
-    EVENT_CLICK, EVENT_CONTEXTMENU, EVENT_DBL_TAP,
-    EVENT_FOCUS,
-    EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEOUT, EVENT_MOUSEOVER,
-    EVENT_MOUSEUP, EVENT_TAP,
-    PointArray,
-    uuid
-} from "@jsplumb/community-core"
-
-import { jsPlumbDOMElement } from './browser-jsplumb-instance'
-
 function _touch(target:any, pageX:number, pageY:number, screenX:number, screenY:number, clientX:number, clientY:number):Touch {
 
     return new Touch({

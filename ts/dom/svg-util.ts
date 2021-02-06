@@ -2,7 +2,7 @@
 
 import {createElementNS} from './browser-util'
 import { jsPlumbDOMElement } from './browser-jsplumb-instance'
-import {Component, Dictionary, NONE} from "@jsplumb/community-core"
+import {Component, Dictionary, NONE} from "@jsplumb/core"
 
 const svgAttributeMap = {
         "stroke-linejoin": "stroke-linejoin",
@@ -12,12 +12,9 @@ const svgAttributeMap = {
 
 export const STROKE_DASHARRAY = "stroke-dasharray"
 export const DASHSTYLE = "dashstyle"
-export const DEFS = "defs"
 export const FILL = "fill"
-export const STOP = "stop"
 export const STROKE = "stroke"
 export const STROKE_WIDTH = "stroke-width"
-export const STYLE = "style"
 export const LINE_WIDTH = "strokeWidth"
 
 export type ElementAttributes = Dictionary<string | number>

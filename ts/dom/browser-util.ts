@@ -1,5 +1,5 @@
 import {jsPlumbDOMElement} from "./browser-jsplumb-instance"
-import {Dictionary, fastTrim, isArray, log, Offset} from "@jsplumb/community-core"
+import {Dictionary, fastTrim, isArray, log, Offset} from "@jsplumb/core"
 
 
 // These are utility functions for use inside a Browser.

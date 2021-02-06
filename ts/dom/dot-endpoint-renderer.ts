@@ -1,6 +1,6 @@
 import {registerEndpointRenderer} from "./browser-jsplumb-instance"
 import { _attr, _node } from './svg-util'
-import { PaintStyle, DotEndpoint } from '@jsplumb/community-core'
+import { PaintStyle, DotEndpoint } from '@jsplumb/core'
 
 export const register = () => {
 

@@ -20,7 +20,7 @@ import {
     PointArray,
     RedrawResult,
     UIGroup
-} from "@jsplumb/community-core"
+} from "@jsplumb/core"
 
 type IntersectingGroup = {
     group:UIGroup<Element>

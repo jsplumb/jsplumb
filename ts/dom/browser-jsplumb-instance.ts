@@ -68,7 +68,7 @@ import {
     CustomOverlay,
     isCustomOverlay,
     DeleteConnectionOptions
-} from '@jsplumb/community-core'
+} from '@jsplumb/core'
 
 import { _attr,
     _node,

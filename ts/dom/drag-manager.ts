@@ -1,6 +1,6 @@
-import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance"
+import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
 
-import { PARENT_GROUP_KEY, extend, wrap, Dictionary, PointArray } from '@jsplumb/community-core'
+import { PARENT_GROUP_KEY, extend, wrap, Dictionary, PointArray } from '@jsplumb/core'
 
 import {Collicat, Drag, DragHandlerOptions, GhostProxyGenerator} from "./collicat"
 

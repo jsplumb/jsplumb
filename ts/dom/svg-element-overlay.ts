@@ -1,6 +1,6 @@
 
 import { _attr, _node, _appendAtIndex } from './svg-util'
-import {Connection, Endpoint, Overlay} from "@jsplumb/community-core"
+import {Connection, Endpoint, Overlay} from "@jsplumb/core"
 import {jsPlumbDOMElement} from "./browser-jsplumb-instance"
 
 export abstract class SVGElementOverlay {
