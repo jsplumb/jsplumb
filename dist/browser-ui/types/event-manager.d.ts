@@ -10,7 +10,7 @@
  * @returns {Touch}
  * @private
  */
-import { PointArray } from "@jsplumb/community-core";
+import { PointArray } from "@jsplumb/core";
 export declare function pageLocation(e: Event): PointArray;
 export interface EventManagerOptions {
     clickThreshold?: number;

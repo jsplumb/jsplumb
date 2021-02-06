@@ -1,4 +1,4 @@
-import { AbstractConnector, PaintStyle } from "@jsplumb/community-core";
+import { AbstractConnector, PaintStyle } from "@jsplumb/core";
 /**
  * Renderer for a connector that uses an `svg` element in the DOM.
  */

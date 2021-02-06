@@ -7,7 +7,7 @@ export declare class SelectionBase<T extends OverlayCapableComponent> {
     protected instance: JsPlumbInstance;
     protected entries: Array<T>;
     constructor(instance: JsPlumbInstance, entries: Array<T>);
-    get length(): number;
+    readonly length: number;
     each(handler: (arg0: T) => void): SelectionBase<T>;
     get(index: number): T;
     addClass(clazz: string, updateAttachedElements?: boolean): SelectionBase<T>;

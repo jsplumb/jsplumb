@@ -1,7 +1,7 @@
 import { DragEventParams, DragHandler, DragStopEventParams } from "./drag-manager";
 import { BrowserJsPlumbInstance, DragGroupSpec, jsPlumbDOMElement } from "./browser-jsplumb-instance";
 import { Drag } from "./collicat";
-import { Offset, PointArray, RedrawResult } from "@jsplumb/community-core";
+import { Offset, PointArray, RedrawResult } from "@jsplumb/core";
 export interface DragStopPayload {
     el: Element;
     e: MouseEvent;

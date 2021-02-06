@@ -60,5 +60,5 @@ export declare class UIGroup<E = any> extends UINode<E> {
     addGroup(group: UIGroup<E>): boolean;
     removeGroup(group: UIGroup<E>): void;
     getGroups(): Array<UIGroup<E>>;
-    get collapseParent(): UIGroup<E>;
+    readonly collapseParent: UIGroup<E>;
 }

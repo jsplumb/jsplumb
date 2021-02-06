@@ -97,10 +97,10 @@ export declare abstract class JsPlumbInstance<T extends {
     private _container;
     protected _managedElements: Dictionary<ManagedElement<T["E"]>>;
     private DEFAULT_SCOPE;
-    get defaultScope(): string;
+    readonly defaultScope: string;
     geometry: jsPlumbGeometryHelpers;
     private _zoom;
-    get currentZoom(): number;
+    readonly currentZoom: number;
     constructor(_instanceIndex: number, defaults?: jsPlumbDefaults<T["E"]>);
     getContainer(): any;
     setZoom(z: number, repaintEverything?: boolean): boolean;

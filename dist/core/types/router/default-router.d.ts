@@ -15,7 +15,7 @@ export declare class DefaultRouter<T extends {
     private anchorLists;
     constructor(instance: JsPlumbInstance);
     reset(): void;
-    getEndpointLocation(endpoint: Endpoint<any>, params: AnchorComputeParams): any;
+    getEndpointLocation(endpoint: Endpoint<any>, params: AnchorComputeParams): AnchorPlacement;
     computeAnchorLocation(anchor: Anchor, params: AnchorComputeParams): AnchorPlacement;
     private floatingAnchorCompute;
     private defaultAnchorCompute;

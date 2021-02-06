@@ -2,7 +2,7 @@
  A Typescript port of Katavorio, without Droppables or Posses, as the code
  does that for itself now.
 */
-import { BoundingBox, Dictionary, PointArray } from '@jsplumb/community-core';
+import { BoundingBox, Dictionary, PointArray } from '@jsplumb/core';
 import { EventManager } from "./event-manager";
 import { DragEventCallbackOptions, jsPlumbDOMElement } from "./browser-jsplumb-instance";
 export interface DragSelector {

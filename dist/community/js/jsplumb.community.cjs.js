@@ -6364,14 +6364,15 @@ function () {
     key: "computeAnchorLocation",
     value: function computeAnchorLocation(anchor, params) {
       if (anchor.isContinuous) {
-        return this.continuousAnchorLocations[params.element.id] || [0, 0, 0, 0];
+        anchor.lastReturnValue = this.continuousAnchorLocations[params.element.id] || [0, 0, 0, 0];
       } else if (anchor.isDynamic) {
-        return this.dynamicAnchorCompute(anchor, params);
+        anchor.lastReturnValue = this.dynamicAnchorCompute(anchor, params);
       } else if (anchor.isFloating) {
-        return this.floatingAnchorCompute(anchor, params);
+        anchor.lastReturnValue = this.floatingAnchorCompute(anchor, params);
       } else {
-        return this.defaultAnchorCompute(anchor, params);
+        anchor.lastReturnValue = this.defaultAnchorCompute(anchor, params);
       }
+      return anchor.lastReturnValue;
     }
   }, {
     key: "floatingAnchorCompute",

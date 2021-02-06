@@ -17,6 +17,7 @@ export interface Router<T extends {
     redraw(elementId: string, ui?: ViewportElement<T["E"]>, timestamp?: string, offsetToUI?: Offset): RedrawResult;
     computePath(connection: Connection, timestamp: string): void;
     computeAnchorLocation(anchor: Anchor, params: AnchorComputeParams): AnchorPlacement;
+    getEndpointLocation(endpoint: Endpoint<any>, params: AnchorComputeParams): AnchorPlacement;
     getAnchorOrientation(anchor: Anchor, endpoint?: Endpoint): Orientation;
     getEndpointOrientation(endpoint: Endpoint): Orientation;
 }

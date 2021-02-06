@@ -1,5 +1,5 @@
 import { jsPlumbDOMElement } from "./browser-jsplumb-instance";
-import { Dictionary, Offset } from "@jsplumb/community-core";
+import { Dictionary, Offset } from "@jsplumb/core";
 export declare function matchesSelector(el: jsPlumbDOMElement, selector: string, ctx?: HTMLElement): boolean;
 export declare function consume(e: Event, doNotPreventDefault?: boolean): void;
 export declare function sizeElement(el: jsPlumbDOMElement, x: number, y: number, w: number, h: number): void;

@@ -111,23 +111,25 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
         this.anchorLists = {}
     }
 
-    getEndpointLocation(endpoint: Endpoint<any>, params:AnchorComputeParams): any {
+    getEndpointLocation(endpoint: Endpoint<any>, params:AnchorComputeParams): AnchorPlacement {
         params = params || {}
         return (endpoint.anchor.lastReturnValue == null || (params.timestamp != null && endpoint.anchor.timestamp !== params.timestamp)) ? this.computeAnchorLocation(endpoint.anchor, params) : endpoint.anchor.lastReturnValue
     }
 
     computeAnchorLocation(anchor: Anchor, params: AnchorComputeParams): AnchorPlacement {
         if (anchor.isContinuous) {
-            return this.continuousAnchorLocations[params.element.id] || [0, 0, 0, 0]
+            anchor.lastReturnValue = this.continuousAnchorLocations[params.element.id] || [0, 0, 0, 0]
         } else if (anchor.isDynamic) {
-            return this.dynamicAnchorCompute(anchor as DynamicAnchor, params)
+            anchor.lastReturnValue = this.dynamicAnchorCompute(anchor as DynamicAnchor, params)
         }
         else if (anchor.isFloating) {
-            return this.floatingAnchorCompute(anchor as FloatingAnchor, params)
+            anchor.lastReturnValue = this.floatingAnchorCompute(anchor as FloatingAnchor, params)
         }
         else {
-            return this.defaultAnchorCompute(anchor, params)
+            anchor.lastReturnValue = this.defaultAnchorCompute(anchor, params)
         }
+
+        return anchor.lastReturnValue
     }
 
     private floatingAnchorCompute(anchor:FloatingAnchor, params:AnchorComputeParams):AnchorPlacement {
@@ -196,6 +198,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
     getEndpointOrientation(endpoint: Endpoint): Orientation {
         return this.getAnchorOrientation(endpoint.anchor, endpoint)
     }
+
 
     getAnchorOrientation(anchor:Anchor, endpoint?: Endpoint): Orientation {
         if (anchor.isContinuous) {

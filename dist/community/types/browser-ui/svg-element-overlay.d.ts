@@ -1,4 +1,4 @@
-import { Overlay } from "@jsplumb/community-core";
+import { Overlay } from "@jsplumb/core";
 import { jsPlumbDOMElement } from "./browser-jsplumb-instance";
 export declare abstract class SVGElementOverlay {
     static ensurePath(o: any): jsPlumbDOMElement;

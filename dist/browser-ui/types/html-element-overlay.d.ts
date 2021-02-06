@@ -1,5 +1,5 @@
 import { jsPlumbDOMElement } from "./browser-jsplumb-instance";
-import { Component, JsPlumbInstance, Overlay, PointArray } from "@jsplumb/community-core";
+import { Component, JsPlumbInstance, Overlay, PointArray } from "@jsplumb/core";
 interface HTMLElementOverlayHolder extends Overlay {
     canvas: jsPlumbDOMElement;
     cachedDimensions: PointArray;

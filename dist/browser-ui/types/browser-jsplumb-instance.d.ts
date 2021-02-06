@@ -1,5 +1,4 @@
-import { jsPlumbDefaults, Dictionary, Offset, PointArray, Size, jsPlumbElement, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, OverlayCapableComponent, Segment, LabelOverlay, Connection, Component, DeleteConnectionOptions } from '@jsplumb/community-core';
-import { ElementAttributes } from './svg-util';
+import { jsPlumbDefaults, Dictionary, Offset, PointArray, Size, jsPlumbElement, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, OverlayCapableComponent, Segment, LabelOverlay, Connection, Component, DeleteConnectionOptions } from '@jsplumb/core';
 import { DragManager } from "./drag-manager";
 import { EventManager } from "./event-manager";
 import { CollicatOptions, Collicat, Drag } from './collicat';
@@ -200,8 +199,8 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     createDragManager(options: CollicatOptions): Collicat;
     rotate(element: Element, rotation: number, doNotRepaint?: boolean): RedrawResult;
     svg: {
-        node: (name: string, attributes?: ElementAttributes) => jsPlumbDOMElement;
-        attr: (node: SVGElement, attributes: ElementAttributes) => void;
+        node: (name: string, attributes?: Dictionary<string | number>) => jsPlumbDOMElement;
+        attr: (node: SVGElement, attributes: Dictionary<string | number>) => void;
         pos: (d: [number, number]) => string;
     };
     getPath(segment: Segment, isFirstSegment: boolean): string;

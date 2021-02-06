@@ -1,6 +1,6 @@
 import { Size, PointArray, Offset } from "./common";
 import { EventGenerator } from "./event-generator";
-import { JsPlumbInstance } from "../core";
+import { JsPlumbInstance } from "./core";
 export interface ViewportPosition {
     x: number;
     y: number;
@@ -21,7 +21,7 @@ export interface TranslatedViewportElementBase<E> extends ViewportElementBase<E>
     cr: number;
     sr: number;
 }
-export declare type TranslatedViewportElement<E> = Omit<TranslatedViewportElementBase<E>, "dirty">;
+export declare type TranslatedViewportElement<E> = Pick<TranslatedViewportElementBase<E>, Exclude<keyof TranslatedViewportElementBase<E>, "dirty">>;
 export declare class Viewport<T extends {
     E: unknown;
 }> extends EventGenerator {

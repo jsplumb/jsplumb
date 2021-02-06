@@ -1,5 +1,5 @@
 import { BrowserJsPlumbInstance, jsPlumbDOMElement } from "./browser-jsplumb-instance";
-import { EndpointSpec, Endpoint, Connection, AnchorSpec, Anchor, Dictionary } from '@jsplumb/community-core';
+import { EndpointSpec, Endpoint, Connection, AnchorSpec, Anchor, Dictionary } from '@jsplumb/core';
 export interface ListManagerOptions {
 }
 export declare enum SupportedEdge {

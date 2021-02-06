@@ -1,5 +1,5 @@
 import { jsPlumbDOMElement } from './browser-jsplumb-instance';
-import { Component, Dictionary } from "@jsplumb/community-core";
+import { Component, Dictionary } from "@jsplumb/core";
 export declare const STROKE_DASHARRAY = "stroke-dasharray";
 export declare const DASHSTYLE = "dashstyle";
 export declare const DEFS = "defs";

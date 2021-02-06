@@ -1,3 +1,11 @@
+## 4.0.0-RC47
+
+6th February 2021
+
+### Breaking
+
+- `@jsplumb/community-core` package renamed to `@jsplumb/core`.  We were going to use `@jsplumb` as the scope for the Toolkit edition packages, hence the name `community-core`, to distinguish it from the Toolkit. But now the Toolkit packages will use `@jsplumbtoolkit` as their scope.
+
 ## 4.0.0-RC46
 
 3rd February 2021
