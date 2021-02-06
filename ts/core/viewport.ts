@@ -1,8 +1,7 @@
 import {Size, PointArray, Offset} from "./common"
 import {EventGenerator} from "./event-generator"
 import { getsert } from './util'
-import {JsPlumbInstance} from "../core"
-
+import {JsPlumbInstance} from "./core"
 
 export interface ViewportPosition {
     x:number
@@ -19,6 +18,7 @@ export interface ViewportElementBase<E> extends ViewportPosition {
     dirty:boolean
 }
 
+
 export interface ViewportElement<E> extends ViewportElementBase<E> {
     t:TranslatedViewportElement<E>
 }
@@ -28,7 +28,9 @@ export interface TranslatedViewportElementBase<E> extends ViewportElementBase<E>
     sr:number
 }
 
-export type TranslatedViewportElement<E> = Omit<TranslatedViewportElementBase<E>, "dirty">
+// use Omit once we can upgrade past ~3.4.0
+//export type TranslatedViewportElement<E> = Omit<TranslatedViewportElementBase<E>, "dirty">
+export type TranslatedViewportElement<E> = Pick<TranslatedViewportElementBase<E>, Exclude<keyof TranslatedViewportElementBase<E>, "dirty">>
 
 function EMPTY_POSITION<E>():ViewportElement<E> {
     return { x:0, y:0, w:0, h:0, r:0, c:[0,0], x2:0, y2:0, t:{x:0, y:0, c:[0,0], w:0, h:0, r:0, x2:0, y2:0, cr:0, sr:0 }, dirty:true }
