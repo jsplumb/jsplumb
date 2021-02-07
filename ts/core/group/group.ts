@@ -189,6 +189,9 @@ export class UIGroup<E = any> extends UINode<E> {
                 group.group.removeGroup(group)
             }
 
+            const groupElId = this.instance.getId(group.el)
+            const entry = this.instance.getManagedElements()[groupElId]
+            entry.group = this.id
             const elpos = this.instance.getOffsetRelativeToRoot(group.el)
             const cpos = this.collapsed ? this.instance.getOffsetRelativeToRoot(this.el) : this.instance.getOffsetRelativeToRoot(this.getContentArea())
 
@@ -221,6 +224,14 @@ export class UIGroup<E = any> extends UINode<E> {
             if (d === group.el.parentNode) {
                 d.removeChild(group.el)
             }
+
+            // clear the `group` flag for this group in managed elements.
+            const groupElId = this.instance.getId(group.el)
+            const entry = this.instance.getManagedElements()[groupElId]
+            if (entry) {
+                delete entry.group
+            }
+
             this.childGroups = this.childGroups.filter((cg:UIGroup<E>) => cg.id !== group.id)
             delete group.group
             delete group.el._jsPlumbParentGroup
