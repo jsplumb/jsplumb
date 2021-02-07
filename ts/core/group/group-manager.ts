@@ -202,8 +202,21 @@ export class GroupManager<E> {
 
     removeGroup(group:string | UIGroup<E>, deleteMembers?:boolean, manipulateView?:boolean, doNotFireEvent?:boolean):Dictionary<Offset> {
         let actualGroup = this.getGroup(group)
-        this.expandGroup(actualGroup, true); // this reinstates any original connections and removes all proxies, but does not fire an event.
+        this.expandGroup(actualGroup, true) // this reinstates any original connections and removes all proxies, but does not fire an event.
         let newPositions:Dictionary<Offset> = {}
+        // remove `group` from child nodes
+        actualGroup.children.forEach((_el:E) => {
+            const entry = this.instance.getManagedElements()[this.instance.getId(_el)]
+            if (entry) {
+                delete entry.group
+            }
+        })
+        actualGroup.childGroups.forEach((g:UIGroup<E>) => {
+            const entry = this.instance.getManagedElements()[this.instance.getId(g.el)]
+            if (entry) {
+                delete entry.group
+            }
+        })
         if (deleteMembers) {
             // remove all child groups
             actualGroup.childGroups.forEach((cg:UIGroup<E>) => this.removeGroup(cg, deleteMembers, manipulateView))
@@ -598,15 +611,18 @@ export class GroupManager<E> {
         if (actualGroup) {
             let groupEl = actualGroup.el
 
-            const _one = (el:any) => {
+            const _one = (el:E) => {
                 let isGroup = el[Constants.IS_GROUP_KEY] != null,
                     droppingGroup = el[Constants.GROUP_KEY] as UIGroup<E>
 
                 let currentGroup = el[Constants.PARENT_GROUP_KEY]
                 // if already a member of this group, do nothing
                 if (currentGroup !== actualGroup) {
+
+                    const entry = this.instance.manage(el)
                     const elpos = this.instance.getOffset(el)
                     const cpos = actualGroup.collapsed ? this.instance.getOffsetRelativeToRoot(groupEl) : this.instance.getOffset(actualGroup.getContentArea())
+                    entry.group = actualGroup.id
 
                     // otherwise, transfer to this group.
                     if (currentGroup != null) {
@@ -696,6 +712,10 @@ export class GroupManager<E> {
                 }
 
                 actualGroup.remove(_el, null, doNotFireEvent)
+                const entry = this.instance.getManagedElements()[this.instance.getId(_el)]
+                if (entry) {
+                    delete entry.group
+                }
             };
 
             el.forEach(_one)
