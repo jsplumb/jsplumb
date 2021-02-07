@@ -147,7 +147,8 @@ export type ManagedElement<E> = {
     viewportElement?:ViewportElement<E>,
     endpoints?:Array<Endpoint>,
     connections?:Array<Connection>,
-    rotation?:number
+    rotation?:number,
+    group?:string
 }
 
 const ID_ATTRIBUTE = Constants.JTK_ID
