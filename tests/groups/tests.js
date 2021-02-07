@@ -256,40 +256,81 @@ var testSuite = function () {
 
     });
 
-    // test("simple adding to group", function() {
-    //     var g = _addGroupAndDomElement(_jsPlumb, "g1");
-    //     var d1 = support.addDiv("d1");
-    //
-    //     equal(g.children.length, 0, "0 members in group");
-    //
-    //     _jsPlumb.addToGroup(g, d1);
-    //     equal(g.children.length, 1, "1 member in group");
-    //
-    //     // var els = _jsPlumb.getDragManager().getElementsForDraggable("g1");
-    //     // equal(support.countKeys(els), 1, "1 element for group g1 to repaint");
-    //
-    //     // add again; should ignore.
-    //     _jsPlumb.addToGroup(g, d1);
-    //     equal(g.children.length, 1, "1 member in group");
-    //
-    //     var g2 = _addGroupAndDomElement(_jsPlumb, "g2");
-    //     _jsPlumb.addToGroup(g2, d1);
-    //     equal(g.children.length, 0, "0 members in group g1 after node removal");
-    //     equal(g2.children.length, 1, "1 member in group g2 after node addition");
-    //
-    //     // els = _jsPlumb.getDragManager().getElementsForDraggable("g1");
-    //     // equal(support.countKeys(els), 0, "0 elements for group g1 to repaint");
-    //
-    //     // els = _jsPlumb.getDragManager().getElementsForDraggable("g2");
-    //     // equal(support.countKeys(els), 1, "1 element for group g2 to repaint");
-    //
-    //     var d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
-    //     _jsPlumb.addToGroup(g2, [ d2, d3 ]);
-    //     equal(g2.children.length, 3, "3 members in group g2 after node additions");
-    //     // els = _jsPlumb.getDragManager().getElementsForDraggable("g2");
-    //     // equal(support.countKeys(els), 3, "3 elements for group g2 to repaint");
-    //
-    // });
+    test("adding to/removing from group, test that elements are managed correctly and their `group` flag is set.", function() {
+        var gg = support.addDiv("group1")
+        gg.style.width = "600px";
+        gg.style.height = "600px";
+        var d1 = support.addDiv("d1");
+
+        var g = _jsPlumb.addGroup({el:gg})
+
+        equal(g.children.length, 0, "0 members in group");
+
+        _jsPlumb.addToGroup(g, d1);
+        equal(g.children.length, 1, "1 member in group");
+
+         var d1Id = d1.getAttribute("jtk-id")
+        var ggId = gg.getAttribute("jtk-id")
+
+        ok(_jsPlumb._managedElements[d1Id] != null, "d1 is in the managed elements map")
+        ok(_jsPlumb._managedElements[ggId] != null, "group1 element is in the managed elements map")
+
+        equal(g.id, _jsPlumb._managedElements[d1Id].group, "group's id has been registered as `group` for element d1")
+
+        _jsPlumb.removeFromGroup(g, d1)
+
+        equal(g.children.length, 0, "0 members in group");
+        equal(null, _jsPlumb._managedElements[d1Id].group, "group's id has been removed from `group` value for element d1")
+
+        // add back to group
+        _jsPlumb.addToGroup(g, d1);
+        equal(g.id, _jsPlumb._managedElements[d1Id].group, "group id has been registered as `group` for element d1")
+
+        // now remove the group. it should no longer be the `group` for d1
+        _jsPlumb.removeGroup(g)
+        equal(null, _jsPlumb._managedElements[d1Id].group, "group's id has been removed from `group` value for element d1 after group removed")
+
+    });
+
+    test("adding to/removing from group, test that elements are managed correctly and their `group` flag is set - nested groups", function() {
+        var gg = support.addDiv("group1")
+        gg.style.width = "600px";
+        gg.style.height = "600px";
+
+        var gg2 = support.addDiv("group2")
+        gg2.style.width = "600px";
+        gg2.style.height = "600px";
+
+        var g = _jsPlumb.addGroup({el:gg})
+        var g2 = _jsPlumb.addGroup({el:gg2})
+
+        equal(g.childGroups.length, 0, "0 child groups in group1");
+
+        g.addGroup(g2)
+
+        equal(g.childGroups.length, 1, "1 child group in group1");
+
+        var gg2Id = gg2.getAttribute("jtk-id")
+        var ggId = gg.getAttribute("jtk-id")
+
+        ok(_jsPlumb._managedElements[gg2Id] != null, "group2 element is in the managed elements map")
+        ok(_jsPlumb._managedElements[ggId] != null, "group1 element is in the managed elements map")
+
+        equal(g.id, _jsPlumb._managedElements[gg2Id].group, "group1's id has been registered as `group` for the element related to group2")
+        //
+         g.removeGroup(g2)
+        equal(g.childGroups.length, 0, "0 child groups in group1");
+        equal(null, _jsPlumb._managedElements[gg2Id].group, "group1's id has been removed from `group` value for element related to group2")
+        //
+        // add back to group
+        g.addGroup(g2)
+        equal(g.id, _jsPlumb._managedElements[gg2Id].group, "group1 id has been registered as `group` for element related to group 2")
+        //
+        // now remove the group. it should no longer be the `group` for d1
+        _jsPlumb.removeGroup(g)
+        equal(null, _jsPlumb._managedElements[gg2Id].group, "group1's id has been removed from `group` value for group2's element after group1 removed")
+
+    });
 
     test("groups, dragging between groups, take one", function() {
         _setupGroups();
