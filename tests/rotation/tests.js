@@ -65,10 +65,13 @@ var testSuite = function () {
         equal(e17Loc[2], 0.5, "e17 x position is middle");
         equal(e17Loc[3], 0, "e17 y position is top");
 
-        equal(e16.anchor.getOrientation()[0], 0, "e16 x orientation is correct initially");
-        equal(e16.anchor.getOrientation()[1], 1, "e16 y orientation is correct initially");
-        equal(e17.anchor.getOrientation()[0], 0, "e17 x orientation is correct initially");
-        equal(e17.anchor.getOrientation()[1], -1, "e17 y orientation is correct initially");
+        var e16o = _jsPlumb.router.getEndpointOrientation(e16);
+        equal(e16o[0], 0, "e16 x orientation is correct initially");
+        equal(e16o[1], 1, "e16 y orientation is correct initially");
+
+        var e17o = _jsPlumb.router.getEndpointOrientation(e17);
+        equal(e17o[0], 0, "e17 x orientation is correct initially");
+        equal(e17o[1], -1, "e17 y orientation is correct initially");
 
         // now rotate e16 by 90 degrees
         _jsPlumb.rotate(d16, 90);
@@ -123,10 +126,12 @@ var testSuite = function () {
         equal(e17Loc[0], 250, "e17 x position is correct initially");
         equal(e17Loc[1], 325, "e17 y position is correct initially");
 
-        equal(e16.anchor.getOrientation()[0], 1, "e16 x orientation is correct initially");
-        equal(e16.anchor.getOrientation()[1], 0, "e16 y orientation is correct initially");
-        equal(e17.anchor.getOrientation()[0], -1, "e17 x orientation is correct initially");
-        equal(e17.anchor.getOrientation()[1], 0, "e17 y orientation is correct initially");
+        var e16o = _jsPlumb.router.getEndpointOrientation(e16);
+        var e17o = _jsPlumb.router.getEndpointOrientation(e17);
+        equal(e16o[0], 1, "e16 x orientation is correct initially");
+        equal(e16o[1], 0, "e16 y orientation is correct initially");
+        equal(e17o[0], -1, "e17 x orientation is correct initially");
+        equal(e17o[1], 0, "e17 y orientation is correct initially");
 
         // now rotate e16 by 90 degrees
         _jsPlumb.rotate(d16, 90);
