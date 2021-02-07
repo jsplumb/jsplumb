@@ -19,7 +19,7 @@ function ON_WARN(warning, rollupWarn) {
 }
 
 const EXTERNALS = {
-    "@jsplumb/community-core":'jsPlumb'
+    "@jsplumb/core":'jsPlumb'
 }
 
 export default [
@@ -52,7 +52,7 @@ export default [
     },
     {
         input: './ts/dom/index.ts',
-        external: ['@jsplumb/community-core'],
+        external: ['@jsplumb/core'],
         output: [
             {
                 name: 'jsPlumbBrowserUI',
@@ -78,34 +78,7 @@ export default [
             cleanup({ extensions:['ts', 'js']})
         ],
         onwarn:ON_WARN
-    },
-    // deprecated. This is the original way the community edition was packaged, with core and the browser ui stuff.
-    // We make this available for users for the time being.
-    {
-        input: './ts/dom/index.ts',
-        output: [
-            {
-                name: 'jsPlumb',
-                file: 'dist/community/js/jsplumb.community.cjs.js',
-                format: 'cjs'
-            },
-            {
-                name: 'jsPlumb',
-                file: 'dist/community/js/jsplumb.community.es.js',
-                format: 'es'
-            },
-            {
-                name: 'jsPlumb',
-                file: 'dist/community/js/jsplumb.community.umd.js',
-                format: 'umd'
-            }
-        ],
-        plugins: [
-            resolve({ extensions }),
-            commonjs(),
-            babel({ extensions, include: ['ts/**/*'] }),
-            cleanup({ extensions:['ts', 'js']})
-        ],
-        onwarn:ON_WARN
     }
 ];
+
+
