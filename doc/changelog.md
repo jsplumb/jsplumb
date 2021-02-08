@@ -1,3 +1,11 @@
+## 4.0.0-RC48
+
+8th February 2021
+
+- Dropped the `@jsplumb/community` package. Use `@jsplumb/browser-ui` now; it will import `@jsplumb/core`.  If you use static JS imports, not a build system, then import `jsplumb.core.umd.js` from `@jsplumb/core` and `jsplumb.browser-ui.umd.js` from `@jsplumb/browser-ui` to your page.
+
+- Internal refactoring to support multiple rotations for any given element. This allows jsPlumb to support rotated nodes inside groups that are themselves rotated.
+
 ## 4.0.0-RC47
 
 6th February 2021
