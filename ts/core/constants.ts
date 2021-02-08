@@ -98,6 +98,7 @@ export const EVENT_NESTED_GROUP_ADDED = "nestedGroupAdded"
 export const EVENT_NESTED_GROUP_REMOVED = "nestedGroupRemoved"
 export const EVENT_TAP = "tap"
 export const EVENT_UNMANAGE_ELEMENT = "unmanageElement"
+export const EVENT_UPDATE = "update"
 export const EVENT_ZOOM = "zoom"
 
 export const IS_DETACH_ALLOWED = "isDetachAllowed"
