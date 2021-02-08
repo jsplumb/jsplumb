@@ -287,6 +287,13 @@ export function populate(model: any, values: any, functionPrefix?: string, doNot
     return _one(model)
 }
 
+/**
+ * Search each entry in the given array for an entry for which the function `f` returns true. This is a stand-in replacement for the
+ * `findIndex` method which is available on `Array` in modern browsers, but not IE11.
+ * @param a Array to search
+ * @param f Predicate to use to test each entry
+ * @return The index of the entry for which the predicate returned true, -1 if not found.
+ */
 export function findWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): number {
     if (a) {
         for (let i = 0; i < a.length; i++) {
@@ -296,6 +303,18 @@ export function findWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): number 
         }
     }
     return -1
+}
+
+/**
+ * Search each entry in the given array for an entry for which the function `f` returns true. This is a stand-in replacement for the
+ * `find` method which is available on `Array` in modern browsers, but not IE11.
+ * @param a Array to search
+ * @param f Predicate to use to test each entry
+ * @return The entry for which the predicate returned true, null if not found.
+ */
+export function getWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): T {
+    const idx = findWithFunction(a, f)
+    return idx === -1 ? null : a[idx]
 }
 
 export function removeWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): boolean {
