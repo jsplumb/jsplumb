@@ -13,14 +13,15 @@ import {BrowserJsPlumbInstance, DragGroupSpec, jsPlumbDOMElement} from "./browse
 import {Drag} from "./collicat"
 import {
     BoundingBox,
-    Dictionary, getWithFunction,
+    Dictionary,
     GROUP_KEY, isString, JsPlumbInstance,
     Offset, optional,
     PARENT_GROUP_KEY,
     PointArray,
     RedrawResult,
     UIGroup,
-    forEach
+    forEach,
+    getFromSetWithFunction
 } from "@jsplumb/core"
 
 type IntersectingGroup = {
@@ -439,7 +440,7 @@ export class ElementDragHandler implements DragHandler {
         const elementIds = els.map(el => this.instance.getId(el))
         forEach(elementIds,(id:string) => {
             optional<DragGroup>(this._dragGroupByElementIdMap[id]).map(dragGroup => {
-                optional(getWithFunction(Array.from(dragGroup.members),(m:any) => m.elId === id)).map ( member => {
+                optional(getFromSetWithFunction(dragGroup.members,(m:any) => m.elId === id)).map ( member => {
                     member.active = state
                 })
             })
@@ -447,7 +448,7 @@ export class ElementDragHandler implements DragHandler {
     }
 
     private isActiveDragGroupMember(dragGroup:DragGroup, el:any): boolean {
-        const details = getWithFunction(Array.from(dragGroup.members), (m:any) => m.el === el)
+        const details = getFromSetWithFunction(dragGroup.members, (m:any) => m.el === el)
         if (details !== null) {
             return details.active === true
         } else {
