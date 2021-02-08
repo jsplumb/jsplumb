@@ -232,6 +232,8 @@ var testSuite = function () {
         var g1 = _jsPlumb.addGroup({id:"g1", el:g1El});
         _jsPlumb.addToGroup(g1, d16);
 
+        var d16Id = _jsPlumb.getId(d16);
+
         var e16 = _jsPlumb.addEndpoint(d16, {anchor: "Bottom"});
         var e17 = _jsPlumb.addEndpoint(d17, {anchor: "Top"});
         _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" });
@@ -251,17 +253,59 @@ var testSuite = function () {
 
         var e16or = _jsPlumb.router.getEndpointOrientation(e16)
 
-        equal(600, e16LocRotated[0], "x pos is 600 after rotation of parent group");
+        equal(900, e16LocRotated[0], "x pos is 900 after rotation of parent group");
         equal(600, e16LocRotated[1], "x pos is 600 after rotation of parent group");
 
         equal(-1, e16or[0], "x orientation is -1 after rotation of parent group");
         equal(0, e16or[1], "y orientation is 0 after rotation of parent group");
 
-        equal(0, _jsPlumb.getRotation(d16), "d16 is registered as having rotation of 0 degrees")
-        equal(90, _jsPlumb.getRotation(g1.el), "g1 element is registered as having rotation of 90 degrees")
+        equal(0, _jsPlumb.getRotation(d16Id), "d16 is registered as having rotation of 0 degrees")
+        equal(90, _jsPlumb.getRotation(g1.elId), "g1 element is registered as having rotation of 90 degrees")
 
         // the anchor value should be different.
 
+    });
+
+    test("group contains nodes, node inside group is rotated, then group is rotated", function() {
+        var d16 = support.addDiv("d16", null, null, 550, 550),
+            d17 = support.addDiv("d17", null, null, 250, 250),
+            g1El = support.addDiv("g1", null, null, 500, 500, 600, 600);
+
+        var g1 = _jsPlumb.addGroup({id:"g1", el:g1El});
+        _jsPlumb.addToGroup(g1, d16);
+
+        var e16 = _jsPlumb.addEndpoint(d16, {anchor: "Bottom"});
+        var e17 = _jsPlumb.addEndpoint(d17, {anchor: "Top"});
+        _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" });
+        var e16Loc = e16.anchor.lastReturnValue.slice();//[600, 700, 0.5, 1]
+        var e16o = _jsPlumb.router.getEndpointOrientation(e16)
+
+        equal(600, e16Loc[0], "x pos is 600 before rotation");
+        equal(700, e16Loc[1], "x pos is 700 before rotation");
+        equal(0, e16o[0], "x orientation is 0 before rotation");
+        equal(1, e16o[1], "y orientation is 1 before rotation");
+
+        _jsPlumb.rotate(d16, 90);
+
+        var e16LocRotated = e16.anchor.lastReturnValue.slice(); // [525, 625, 0.5, 1]
+        var e16or = _jsPlumb.router.getEndpointOrientation(e16)
+
+        equal(525, e16LocRotated[0], "x pos is 525 after rotation");
+        equal(625, e16LocRotated[1], "x pos is 625 after rotation");
+
+        equal(-1, e16or[0], "x orientation is -1 after rotation of node");
+        equal(0, e16or[1], "y orientation is 0 after rotation of node");
+
+        _jsPlumb.rotate(g1.el, 90);
+
+        e16LocRotated = e16.anchor.lastReturnValue.slice(); // [525, 625, 0.5, 1]
+        e16or = _jsPlumb.router.getEndpointOrientation(e16)
+
+        equal(975, e16LocRotated[0], "x pos is 975 after rotation of group the node is a member of");
+        equal(525, e16LocRotated[1], "x pos is 525 after rotation of group the node is a member of");
+
+        equal(0, e16or[0], "x orientation is 0 after rotation of group the node is a member of");
+        equal(-1, e16or[1], "y orientation is -1 after rotation of group the node is a member of");
 
     });
 };
