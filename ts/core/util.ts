@@ -367,6 +367,13 @@ export function uuid():string {
         lut[d3&0xff]+lut[d3>>8&0xff]+lut[d3>>16&0xff]+lut[d3>>24&0xff]
 }
 
+/**
+ * Rotate the given point around the given center, by the given rotation (in degrees)
+ * @param point
+ * @param center
+ * @param rotation
+ * @return An array consisting of the rotated point, followed by cos theta and sin theta.
+ */
 export function rotatePoint(point:Array<number>, center:PointArray, rotation:number):[number, number, number, number] {
     const radial = [ point[0] - center[0], point[1]- center[1]],
         cr = Math.cos(rotation / 360 * Math.PI * 2),
