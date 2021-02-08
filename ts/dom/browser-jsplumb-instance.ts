@@ -719,8 +719,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
     }
 
-    reset(silently?:boolean) {
-        super.reset(silently)
+    reset() {
+        super.reset()
         const container = this.getContainer()
         const els = container.querySelectorAll([SELECTOR_MANAGED_ELEMENT, SELECTOR_ENDPOINT, SELECTOR_CONNECTOR, SELECTOR_OVERLAY].join(","))
         els.forEach((el:any) => el.parentNode && el.parentNode.removeChild(el))
@@ -821,14 +821,6 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
      */
     removeList (el:Element) {
         this.listManager.removeList(el)
-    }
-
-    /**
-     * Helper method for other libs/code to get a DragManager.
-     * @param options
-     */
-    createDragManager(options:CollicatOptions):Collicat {
-        return new Collicat(options)
     }
 
     rotate(element: Element, rotation: number, doNotRepaint?: boolean):RedrawResult {
