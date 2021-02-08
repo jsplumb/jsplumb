@@ -3,6 +3,7 @@ import { OverlaySpec } from '../overlay/overlay'
 import {OverlayCapableComponent } from "../component/overlay-capable-component"
 import { Dictionary } from '../common'
 import { JsPlumbInstance } from "../core"
+import {forEach} from "../util"
 
 export class SelectionBase<T extends OverlayCapableComponent>{
 
@@ -13,7 +14,7 @@ export class SelectionBase<T extends OverlayCapableComponent>{
     }
 
     each( handler:(arg0:T) => void ):SelectionBase<T> {
-        this.entries.forEach( (e:T) => handler(e) )
+        forEach(this.entries, (e:T) => handler(e) )
         return this
     }
 

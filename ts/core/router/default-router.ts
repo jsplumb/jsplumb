@@ -7,7 +7,7 @@ import {ViewportElement} from "../viewport"
 import {ConnectionDetachedParams, Dictionary, Offset, PointArray, PointXY, Rotations, SortFunction} from "../common"
 import {AnchorComputeParams, AnchorOrientationHint, Face, Orientation} from "../factory/anchor-factory"
 import { DynamicAnchor } from "../anchor/dynamic-anchor"
-import {findWithFunction, removeWithFunction, rotatePoint, sortHelper, uuid} from "../util"
+import {findWithFunction, removeWithFunction, rotatePoint, sortHelper, uuid, forEach} from "../util"
 import {ContinuousAnchor} from "../anchor/continuous-anchor"
 import { Anchor } from '../anchor/anchor'
 
@@ -152,7 +152,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
 
             let o = anchor._unrotatedOrientation.slice(), current = candidate.slice()
 
-            rotation.forEach((r) => {
+            forEach(rotation, (r) => {
                 current = rotatePoint(current, r.c, r.r)
                 let _o = [ Math.round((o[0] * current[2]) - (o[1] * current[3])),
                         Math.round((o[1] * current[2]) + (o[0] * current[3])) ]

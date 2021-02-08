@@ -13,7 +13,7 @@ import {
     removeWithFunction, rotateAnchorOrientation, rotatePoint,
     uuid,
     extend,
-    filterList, addToDictionary, rotatePointXY
+    filterList, addToDictionary, rotatePointXY, forEach
 } from "./util"
 
 import {
@@ -808,14 +808,14 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     applyRotations(point:[number, number, number, number], rotations:Rotations) {
         let current:Array<number> = point.slice()
-        rotations.forEach((rotation) => {
+        forEach(rotations,(rotation) => {
             current = rotatePoint(current, rotation.c, rotation.r)
         })
         return current
     }
 
     applyRotationsXY(point:PointXY, rotations:Rotations) {
-        rotations.forEach((rotation) => {
+        forEach(rotations, (rotation) => {
             point = rotatePointXY(point, {x:rotation.c[0], y:rotation.c[1]}, rotation.r)
         })
         return point
@@ -1002,7 +1002,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
             // find all connections for the endpoint
             const connectionsToDelete = endpoint.connections.slice()
-            connectionsToDelete.forEach((connection) => {
+            forEach(connectionsToDelete,(connection) => {
                 // detach this endpoint from each of these connections.
                 endpoint.detachFromConnection(connection, null, true)
             })
@@ -1012,7 +1012,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             endpoint.destroy(true)
 
             // then delete the connections. each of these connections only has one endpoint at the moment
-            connectionsToDelete.forEach((connection) => {
+            forEach(connectionsToDelete,(connection) => {
                 // detach this endpoint from each of these connections.
                 this.deleteConnection(connection, {force:true, endpointToIgnore:endpoint})
             })
@@ -1370,7 +1370,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
         let defs = type === Constants.SOURCE ? jel._jsPlumbSourceDefinitions : jel._jsPlumbTargetDefinitions
         if (defs) {
-            defs.forEach((def: SourceOrTargetDefinition) => {
+            forEach(defs,(def: SourceOrTargetDefinition) => {
                 if (def.def.connectionType == null || def.def.connectionType === connectionType) {
                     os = def.enabled
                     originalState.push(os)
@@ -1470,7 +1470,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
                 this.removeAttribute(el, "jtk-" + type)
             } else {
                 let t: Array<any> = []
-                el[key].forEach((def: any) => {
+                forEach(el[key], (def: any) => {
                     if (connectionType !== def.def.connectionType) {
                         t.push(def)
                     }
@@ -1577,7 +1577,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     private _setScope(el:T["E"], scope:string, defKey:string):void {
         if (el[defKey]) {
-            el[defKey].forEach((def:any) => def.def.scope = scope)
+            forEach(el[defKey], (def:any) => def.def.scope = scope)
         }
     }
 
@@ -1902,7 +1902,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     }
     removeFromGroup (group:string | UIGroup<T["E"]>, ...el:Array<T["E"]>):void {
         this.groupManager.removeFromGroup(group, false, ...el)
-        el.forEach((_el) => {
+        forEach(el,(_el) => {
             this.appendElement(_el, this.getContainer())
             this.updateOffset({recalc:true, elId:this.getId(_el)})
         })

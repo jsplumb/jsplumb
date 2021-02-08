@@ -1,4 +1,4 @@
-import { fastTrim, isArray, log, NONE, EVENT_CONTEXTMENU, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, EVENT_CLICK, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, uuid, IS, extend, PARENT_GROUP_KEY, wrap, isString, optional, getWithFunction, GROUP_KEY, cls, each, makeAnchorFromSpec, findWithFunction, IS_GROUP_KEY, SOURCE, TARGET, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, SELECTOR_MANAGED_ELEMENT, Connection, Endpoint, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, UNDEFINED, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, ATTRIBUTE_NOT_DRAGGABLE, TRUE as TRUE$1, FALSE as FALSE$1, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, LabelOverlay, CustomOverlay, EndpointRepresentation, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/core';
+import { fastTrim, isArray, log, NONE, forEach, EVENT_CONTEXTMENU, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, EVENT_CLICK, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, uuid, IS, extend, PARENT_GROUP_KEY, wrap, isString, optional, getWithFunction, GROUP_KEY, cls, each, makeAnchorFromSpec, findWithFunction, IS_GROUP_KEY, SOURCE, TARGET, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, SELECTOR_MANAGED_ELEMENT, Connection, Endpoint, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, UNDEFINED, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, ATTRIBUTE_NOT_DRAGGABLE, TRUE as TRUE$1, FALSE as FALSE$1, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, LabelOverlay, CustomOverlay, EndpointRepresentation, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/core';
 
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -394,7 +394,7 @@ function _applyStyles(parent, node, style, dimensions, uiComponent) {
     var sep = style[DASHSTYLE].indexOf(",") === -1 ? " " : ",",
         parts = style[DASHSTYLE].split(sep),
         styleToUse = "";
-    parts.forEach(function (p) {
+    forEach(parts, function (p) {
       styleToUse += Math.floor(p * style.strokeWidth) + sep;
     });
     node.setAttribute(STROKE_DASHARRAY, styleToUse);
@@ -1795,7 +1795,7 @@ function () {
       }
       if (this.drag == null) {
         this.drag = this.collicat.draggable(this.instance.getContainer(), o);
-        this._filtersToAdd.forEach(function (filterToAdd) {
+        forEach(this._filtersToAdd, function (filterToAdd) {
           return _this2.drag.addFilter(filterToAdd[0], filterToAdd[1]);
         });
         this.drag.on(EVENT_REVERT, function (el) {
@@ -1825,7 +1825,7 @@ function () {
   }, {
     key: "reset",
     value: function reset() {
-      this.handlers.forEach(function (handler) {
+      forEach(this.handlers, function (handler) {
         handler.reset();
       });
       if (this.drag != null) {
@@ -1920,7 +1920,7 @@ function () {
     key: "_cleanup",
     value: function _cleanup() {
       var _this2 = this;
-      this._groupLocations.forEach(function (groupLoc) {
+      forEach(this._groupLocations, function (groupLoc) {
         _this2.instance.removeClass(groupLoc.el, CLASS_DRAG_ACTIVE);
         _this2.instance.removeClass(groupLoc.el, CLASS_DRAG_HOVER);
       });
@@ -1960,7 +1960,7 @@ function () {
       }
       var _one = function _one(el, bounds, e) {
         var ancestorsOfIntersectingGroups = new Set();
-        _this3._groupLocations.forEach(function (groupLoc) {
+        forEach(_this3._groupLocations, function (groupLoc) {
           if (!ancestorsOfIntersectingGroups.has(groupLoc.group.id) && _this3.instance.geometry.intersects(bounds, groupLoc.r)) {
             if (groupLoc.group !== _this3._currentDragParentGroup) {
               _this3.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
@@ -1970,7 +1970,7 @@ function () {
               intersectingElement: params.drag.getDragElement(true),
               d: 0
             });
-            _this3.instance.groupManager.getAncestors(groupLoc.group).forEach(function (g) {
+            forEach(_this3.instance.groupManager.getAncestors(groupLoc.group), function (g) {
               return ancestorsOfIntersectingGroups.add(g.id);
             });
           } else {
@@ -2040,7 +2040,7 @@ function () {
         this.instance.hoverSuspended = true;
         this._dragSelectionOffsets.clear();
         this._dragSizes.clear();
-        this._dragSelection.forEach(function (jel) {
+        forEach(this._dragSelection, function (jel) {
           var id = _this4.instance.getId(jel);
           var off = _this4.instance.getOffset(jel);
           _this4._dragSelectionOffsets.set(id, [{
@@ -2055,7 +2055,7 @@ function () {
             var membersAreDroppable = isNotInAGroup || _el[PARENT_GROUP_KEY].dropOverride !== true;
             var isGhostOrNotConstrained = !isNotInAGroup && (_el[PARENT_GROUP_KEY].ghost || _el[PARENT_GROUP_KEY].constrain !== true);
             if (isNotInAGroup || membersAreDroppable && isGhostOrNotConstrained) {
-              _this4.instance.groupManager.forEach(function (group) {
+              forEach(_this4.instance.groupManager.getGroups(), function (group) {
                 var elementGroup = _el[GROUP_KEY];
                 if (group.droppable !== false && group.enabled !== false && _el[GROUP_KEY] !== group && !_this4.instance.groupManager.isDescendant(group, elementGroup)) {
                   var groupEl = group.el,
@@ -2138,7 +2138,7 @@ function () {
     key: "clearDragSelection",
     value: function clearDragSelection() {
       var _this5 = this;
-      this._dragSelection.forEach(function (el) {
+      forEach(this._dragSelection, function (el) {
         return _this5.instance.removeClass(el, CLASS_DRAG_SELECTED);
       });
       this._dragSelection.length = 0;
@@ -2189,7 +2189,7 @@ function () {
         els[_key - 1] = arguments[_key];
       }
       this.removeFromDragGroup.apply(this, els);
-      els.forEach(function (el) {
+      forEach(els, function (el) {
         var elId = _this7.instance.getId(el);
         dragGroup.members.add({
           elId: elId,
@@ -2206,7 +2206,7 @@ function () {
       for (var _len2 = arguments.length, els = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
         els[_key2] = arguments[_key2];
       }
-      els.forEach(function (el) {
+      forEach(els, function (el) {
         var id = _this8.instance.getId(el);
         var dragGroup = _this8._dragGroupByElementIdMap[id];
         if (dragGroup != null) {
@@ -2233,7 +2233,7 @@ function () {
       var elementIds = els.map(function (el) {
         return _this9.instance.getId(el);
       });
-      elementIds.forEach(function (id) {
+      forEach(elementIds, function (id) {
         optional(_this9._dragGroupByElementIdMap[id]).map(function (dragGroup) {
           optional(getWithFunction(Array.from(dragGroup.members), function (m) {
             return m.elId === id;
@@ -2542,7 +2542,8 @@ function () {
       var scope = this.ep.scope;
       var isSourceDrag = this.jpc && this.jpc.endpoints[0] === this.ep;
       var boundingRect;
-      this.instance.getContainer().querySelectorAll(".jtk-endpoint[jtk-scope-" + this.ep.scope + "]").forEach(function (candidate) {
+      var matchingEndpoints = this.instance.getContainer().querySelectorAll(".jtk-endpoint[jtk-scope-" + this.ep.scope + "]");
+      forEach(matchingEndpoints, function (candidate) {
         if ((_this.jpc != null || candidate !== canvasElement) && candidate !== _this.floatingElement) {
           if (isSourceDrag && candidate.jtk.endpoint.isSource || !isSourceDrag && candidate.jtk.endpoint.isTarget) {
             var o = _this.instance.getOffset(candidate),
@@ -2568,7 +2569,8 @@ function () {
       } else {
         selectors.push("[jtk-source][jtk-scope-" + this.ep.scope + "]");
       }
-      this.instance.getContainer().querySelectorAll(selectors.join(",")).forEach(function (candidate) {
+      var matchingElements = this.instance.getContainer().querySelectorAll(selectors.join(","));
+      forEach(matchingElements, function (candidate) {
         var o = _this.instance.getOffset(candidate),
             s = _this.instance.getSize(candidate);
         boundingRect = {
@@ -2762,7 +2764,8 @@ function () {
       this.instance.isConnectionBeingDragged = false;
       this.instance.currentlyDragging = false;
       var classesToRemove = classList(CLASS_DRAG_HOVER, CLASS_DRAG_ACTIVE);
-      this.instance.getContainer().querySelectorAll(SELECTOR_DRAG_ACTIVE_OR_HOVER).forEach(function (el) {
+      var matchingSelectors = this.instance.getContainer().querySelectorAll(SELECTOR_DRAG_ACTIVE_OR_HOVER);
+      forEach(matchingSelectors, function (el) {
         _this2.instance.removeClass(el, classesToRemove);
       });
       if (this.jpc && this.jpc.endpoints != null) {
@@ -4134,7 +4137,7 @@ function (_JsPlumbInstance) {
           var cl = cn.classList;
           return cl && (cl.contains(CLASS_CONNECTOR) || cl.contains(CLASS_ENDPOINT) || cl.contains(CLASS_OVERLAY)) || cn.getAttribute && cn.getAttribute(ATTRIBUTE_MANAGED) != null;
         });
-        children.forEach(function (el) {
+        forEach(children, function (el) {
           newContainer.appendChild(el);
         });
       }
@@ -4155,7 +4158,7 @@ function (_JsPlumbInstance) {
       _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "reset", this).call(this);
       var container = this.getContainer();
       var els = container.querySelectorAll([SELECTOR_MANAGED_ELEMENT, SELECTOR_ENDPOINT, SELECTOR_CONNECTOR, SELECTOR_OVERLAY].join(","));
-      els.forEach(function (el) {
+      forEach(els, function (el) {
         return el.parentNode && el.parentNode.removeChild(el);
       });
     }
@@ -4182,7 +4185,7 @@ function (_JsPlumbInstance) {
       for (var _len = arguments.length, el = new Array(_len), _key = 0; _key < _len; _key++) {
         el[_key] = arguments[_key];
       }
-      el.forEach(function (_el) {
+      forEach(el, function (_el) {
         return _this2.elementDragHandler.addToDragSelection(_el);
       });
     }
@@ -4198,7 +4201,7 @@ function (_JsPlumbInstance) {
       for (var _len2 = arguments.length, el = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
         el[_key2] = arguments[_key2];
       }
-      el.forEach(function (_el) {
+      forEach(el, function (_el) {
         return _this3.elementDragHandler.removeFromDragSelection(_el);
       });
     }
@@ -4209,7 +4212,7 @@ function (_JsPlumbInstance) {
       for (var _len3 = arguments.length, el = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
         el[_key3] = arguments[_key3];
       }
-      el.forEach(function (_el) {
+      forEach(el, function (_el) {
         return _this4.elementDragHandler.toggleDragSelection(_el);
       });
     }

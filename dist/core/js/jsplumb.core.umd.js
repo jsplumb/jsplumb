@@ -620,6 +620,15 @@
     };
     return _one(model);
   }
+  function forEach(a, f) {
+    if (a) {
+      for (var i = 0; i < a.length; i++) {
+        f(a[i]);
+      }
+    } else {
+      return null;
+    }
+  }
   function findWithFunction(a, f) {
     if (a) {
       for (var i = 0; i < a.length; i++) {
@@ -5928,26 +5937,26 @@
         var actualGroup = this.getGroup(group);
         this.expandGroup(actualGroup, true);
         var newPositions = {};
-        actualGroup.children.forEach(function (_el) {
+        forEach(actualGroup.children, function (_el) {
           var entry = _this2.instance.getManagedElements()[_this2.instance.getId(_el)];
           if (entry) {
             delete entry.group;
           }
         });
-        actualGroup.childGroups.forEach(function (g) {
+        forEach(actualGroup.childGroups, function (g) {
           var entry = _this2.instance.getManagedElements()[_this2.instance.getId(g.el)];
           if (entry) {
             delete entry.group;
           }
         });
         if (deleteMembers) {
-          actualGroup.childGroups.forEach(function (cg) {
+          forEach(actualGroup.childGroups, function (cg) {
             return _this2.removeGroup(cg, deleteMembers, manipulateView);
           });
           actualGroup.removeAll(manipulateView, doNotFireEvent);
         } else {
           if (actualGroup.group) {
-            actualGroup.children.forEach(function (c) {
+            forEach(actualGroup.children, function (c) {
               return actualGroup.group.add(c);
             });
           }
@@ -6017,7 +6026,7 @@
         group.connections.internal.length = 0;
         var members = group.children.slice();
         var childMembers = [];
-        members.forEach(function (member) {
+        forEach(members, function (member) {
           return childMembers.push.apply(childMembers, _toConsumableArray(member.querySelectorAll("[jtk-managed]")));
         });
         members.push.apply(members, childMembers);
@@ -6133,7 +6142,7 @@
             };
             _collapseSet(actualGroup.connections.source, 0);
             _collapseSet(actualGroup.connections.target, 1);
-            actualGroup.childGroups.forEach(function (cg) {
+            forEach(actualGroup.childGroups, function (cg) {
               _this4.cascadeCollapse(actualGroup, cg, collapsedConnectionIds);
             });
           }
@@ -6166,7 +6175,7 @@
           _collapseSet(targetGroup.connections.source, 0);
           _collapseSet(targetGroup.connections.target, 1);
         }
-        targetGroup.childGroups.forEach(function (cg) {
+        forEach(targetGroup.childGroups, function (cg) {
           _this5.cascadeCollapse(collapsedGroup, cg, collapsedIds);
         });
       }
@@ -6204,15 +6213,15 @@
                 };
                 _collapseSet(group.connections.source, 0);
                 _collapseSet(group.connections.target, 1);
-                group.connections.internal.forEach(function (c) {
+                forEach(group.connections.internal, function (c) {
                   return c.setVisible(false);
                 });
-                group.childGroups.forEach(_expandNestedGroup);
+                forEach(group.childGroups, _expandNestedGroup);
               } else {
                 _this6.expandGroup(group, doNotFireEvent);
               }
             };
-            actualGroup.childGroups.forEach(_expandNestedGroup);
+            forEach(actualGroup.childGroups, _expandNestedGroup);
           }
           this.instance.revalidate(groupEl);
           this.repaintGroup(actualGroup);
@@ -6250,7 +6259,7 @@
         this.instance.fire(EVENT_EXPAND, {
           group: targetGroup.el
         });
-        targetGroup.childGroups.forEach(function (cg) {
+        forEach(targetGroup.childGroups, function (cg) {
           _this7.cascadeExpand(expandedGroup, cg);
         });
       }
@@ -6345,7 +6354,7 @@
           for (var _len = arguments.length, el = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
             el[_key - 2] = arguments[_key];
           }
-          el.forEach(_one);
+          forEach(el, _one);
         }
       }
     }, {
@@ -6383,7 +6392,7 @@
           for (var _len2 = arguments.length, el = new Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
             el[_key2 - 2] = arguments[_key2];
           }
-          el.forEach(_one);
+          forEach(el, _one);
         }
       }
     }, {
@@ -6411,7 +6420,7 @@
         var d = [];
         var _one = function _one(g) {
           d.push.apply(d, _toConsumableArray(g.childGroups));
-          g.childGroups.forEach(_one);
+          forEach(g.childGroups, _one);
         };
         _one(group);
         return d;
@@ -6538,7 +6547,7 @@
         if (rotation != null && rotation.length > 0) {
           var o = anchor._unrotatedOrientation.slice(),
               current = candidate.slice();
-          rotation.forEach(function (r) {
+          forEach(rotation, function (r) {
             current = rotatePoint(current, r.c, r.r);
             var _o = [Math.round(o[0] * current[2] - o[1] * current[3]), Math.round(o[1] * current[2] + o[0] * current[3])];
             o = _o.slice();
@@ -7073,7 +7082,7 @@
     _createClass(SelectionBase, [{
       key: "each",
       value: function each(handler) {
-        this.entries.forEach(function (e) {
+        forEach(this.entries, function (e) {
           return handler(e);
         });
         return this;
@@ -7551,7 +7560,7 @@
       value: function updateElements(entries) {
         var _this2 = this;
         this.startTransaction();
-        entries.forEach(function (e) {
+        forEach(entries, function (e) {
           return _this2.updateElement(e.id, e.x, e.y, e.width, e.height, e.rotation);
         });
         this.endTransaction();
@@ -8335,7 +8344,7 @@
       key: "applyRotations",
       value: function applyRotations(point, rotations) {
         var current = point.slice();
-        rotations.forEach(function (rotation) {
+        forEach(rotations, function (rotation) {
           current = rotatePoint(current, rotation.c, rotation.r);
         });
         return current;
@@ -8343,7 +8352,7 @@
     }, {
       key: "applyRotationsXY",
       value: function applyRotationsXY(point, rotations) {
-        rotations.forEach(function (rotation) {
+        forEach(rotations, function (rotation) {
           point = rotatePointXY(point, {
             x: rotation.c[0],
             y: rotation.c[1]
@@ -8518,12 +8527,12 @@
         var endpoint = typeof object === "string" ? this.endpointsByUUID.get(object) : object;
         if (endpoint) {
           var connectionsToDelete = endpoint.connections.slice();
-          connectionsToDelete.forEach(function (connection) {
+          forEach(connectionsToDelete, function (connection) {
             endpoint.detachFromConnection(connection, null, true);
           });
           this.unregisterEndpoint(endpoint);
           endpoint.destroy(true);
-          connectionsToDelete.forEach(function (connection) {
+          forEach(connectionsToDelete, function (connection) {
             _this5.deleteConnection(connection, {
               force: true,
               endpointToIgnore: endpoint
@@ -8802,7 +8811,7 @@
         connectionType = connectionType || DEFAULT;
         var defs = type === SOURCE ? jel._jsPlumbSourceDefinitions : jel._jsPlumbTargetDefinitions;
         if (defs) {
-          defs.forEach(function (def) {
+          forEach(defs, function (def) {
             if (def.def.connectionType == null || def.def.connectionType === connectionType) {
               os = def.enabled;
               originalState.push(os);
@@ -8900,7 +8909,7 @@
             this.removeAttribute(el, "jtk-" + type);
           } else {
             var _t2 = [];
-            el[key].forEach(function (def) {
+            forEach(el[key], function (def) {
               if (connectionType !== def.def.connectionType) {
                 _t2.push(def);
               }
@@ -9010,7 +9019,7 @@
       key: "_setScope",
       value: function _setScope(el, scope, defKey) {
         if (el[defKey]) {
-          el[defKey].forEach(function (def) {
+          forEach(el[defKey], function (def) {
             return def.def.scope = scope;
           });
         }
@@ -9336,7 +9345,7 @@
           el[_key2 - 1] = arguments[_key2];
         }
         (_this$groupManager2 = this.groupManager).removeFromGroup.apply(_this$groupManager2, [group, false].concat(el));
-        el.forEach(function (_el) {
+        forEach(el, function (_el) {
           _this10.appendElement(_el, _this10.getContainer());
           _this10.updateOffset({
             recalc: true,
@@ -9865,6 +9874,7 @@
   exports.fastTrim = fastTrim;
   exports.filterList = filterList;
   exports.findWithFunction = findWithFunction;
+  exports.forEach = forEach;
   exports.functionChain = functionChain;
   exports.getWithFunction = getWithFunction;
   exports.getsert = getsert;

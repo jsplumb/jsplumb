@@ -1,6 +1,6 @@
 import {Size, PointArray, Offset} from "./common"
 import {EventGenerator} from "./event-generator"
-import {findWithFunction, getsert} from './util'
+import {findWithFunction, getsert, forEach} from './util'
 import {JsPlumbInstance} from "./core"
 import {EVENT_UPDATE} from "@jsplumb/core/constants"
 
@@ -222,7 +222,7 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
 
     updateElements (entries:Array<{id:string, x:number, y:number, width:number, height:number, rotation:number}>) {
         this.startTransaction()
-        entries.forEach((e) => this.updateElement(e.id, e.x, e.y, e.width, e.height, e.rotation))
+        forEach(entries, (e) => this.updateElement(e.id, e.x, e.y, e.width, e.height, e.rotation))
         this.endTransaction()
     }
 

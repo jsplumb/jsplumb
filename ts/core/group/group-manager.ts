@@ -10,7 +10,7 @@ import { JsPlumbInstance } from "../core"
 
 import {UIGroup} from "./group"
 import * as Constants from "../constants"
-import {IS, removeWithFunction, suggest} from "../util"
+import {IS, removeWithFunction, suggest, forEach } from "../util"
 import {Connection} from "../connector/connection-impl"
 import {ConnectionSelection} from "../selection/connection-selection"
 
@@ -205,13 +205,13 @@ export class GroupManager<E> {
         this.expandGroup(actualGroup, true) // this reinstates any original connections and removes all proxies, but does not fire an event.
         let newPositions:Dictionary<Offset> = {}
         // remove `group` from child nodes
-        actualGroup.children.forEach((_el:E) => {
+        forEach(actualGroup.children,(_el:E) => {
             const entry = this.instance.getManagedElements()[this.instance.getId(_el)]
             if (entry) {
                 delete entry.group
             }
         })
-        actualGroup.childGroups.forEach((g:UIGroup<E>) => {
+        forEach(actualGroup.childGroups, (g:UIGroup<E>) => {
             const entry = this.instance.getManagedElements()[this.instance.getId(g.el)]
             if (entry) {
                 delete entry.group
@@ -219,14 +219,14 @@ export class GroupManager<E> {
         })
         if (deleteMembers) {
             // remove all child groups
-            actualGroup.childGroups.forEach((cg:UIGroup<E>) => this.removeGroup(cg, deleteMembers, manipulateView))
+            forEach(actualGroup.childGroups, (cg:UIGroup<E>) => this.removeGroup(cg, deleteMembers, manipulateView))
             // remove all child nodes
             actualGroup.removeAll(manipulateView, doNotFireEvent)
         } else {
             // if we want to retain the child nodes then we need to test if there is a group that the parent of actualGroup.
             // if so, transfer the nodes to that group
             if (actualGroup.group) {
-                actualGroup.children.forEach((c:any) => actualGroup.group.add(c))
+                forEach(actualGroup.children, (c:any) => actualGroup.group.add(c))
             }
             newPositions = actualGroup.orphanAll()
         }
@@ -295,7 +295,7 @@ export class GroupManager<E> {
         // get all direct members, and any of their descendants.
         const members = group.children.slice()
         const childMembers:Array<any> = []
-        members.forEach((member: any) => childMembers.push(...member.querySelectorAll("[jtk-managed]")))
+        forEach(members,(member: any) => childMembers.push(...member.querySelectorAll("[jtk-managed]")))
         members.push(...childMembers)
 
         if (members.length > 0) {
@@ -421,7 +421,7 @@ export class GroupManager<E> {
                 _collapseSet(actualGroup.connections.source, 0)
                 _collapseSet(actualGroup.connections.target, 1)
 
-                actualGroup.childGroups.forEach((cg: UIGroup<E>) => {
+                forEach(actualGroup.childGroups,(cg: UIGroup<E>) => {
                     this.cascadeCollapse(actualGroup, cg, collapsedConnectionIds)
                 })
 
@@ -466,7 +466,7 @@ export class GroupManager<E> {
 
         }
 
-        targetGroup.childGroups.forEach((cg:UIGroup<E>) => {
+        forEach(targetGroup.childGroups,(cg:UIGroup<E>) => {
             this.cascadeCollapse(collapsedGroup, cg, collapsedIds)
         })
     }
@@ -522,10 +522,10 @@ export class GroupManager<E> {
                         _collapseSet(group.connections.target, 1)
 
                         // hide internal connections - the group is collapsed
-                        group.connections.internal.forEach((c:Connection) => c.setVisible(false))
+                        forEach(group.connections.internal,(c:Connection) => c.setVisible(false))
 
                         // expand child groups
-                        group.childGroups.forEach(_expandNestedGroup)
+                        forEach(group.childGroups, _expandNestedGroup)
 
                     } else {
                         this.expandGroup(group, doNotFireEvent)
@@ -533,7 +533,7 @@ export class GroupManager<E> {
                 }
 
                 // expand any nested groups. this will take into account if the nested group is collapsed.
-                actualGroup.childGroups.forEach(_expandNestedGroup)
+                forEach(actualGroup.childGroups, _expandNestedGroup)
             }
 
 
@@ -582,7 +582,7 @@ export class GroupManager<E> {
         this.repaintGroup(targetGroup.el)
         this.instance.fire(Constants.EVENT_EXPAND, {group: targetGroup.el})
 
-        targetGroup.childGroups.forEach((cg:UIGroup<E>) => {
+        forEach(targetGroup.childGroups,(cg:UIGroup<E>) => {
             this.cascadeExpand(expandedGroup, cg)
         })
     }
@@ -677,7 +677,7 @@ export class GroupManager<E> {
                 }
             }
 
-            el.forEach(_one)
+            forEach(el, _one)
 
         }
     }
@@ -718,7 +718,7 @@ export class GroupManager<E> {
                 }
             };
 
-            el.forEach(_one)
+            forEach(el, _one)
         }
     }
 
@@ -743,7 +743,7 @@ export class GroupManager<E> {
         const d:Array<UIGroup<E>> = []
         const _one = (g:UIGroup<E>) => {
             d.push(...g.childGroups)
-            g.childGroups.forEach(_one)
+            forEach(g.childGroups, _one)
         }
         _one(group)
         return d

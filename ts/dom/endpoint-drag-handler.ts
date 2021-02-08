@@ -33,7 +33,8 @@ import {
     PaintStyle, SOURCE,
     SourceDefinition,
     SourceOrTargetDefinition, TARGET,
-    TargetDefinition, AnchorSpec
+    TargetDefinition, AnchorSpec,
+    forEach
 } from "@jsplumb/core"
 
 function _makeFloatingEndpoint (paintStyle:PaintStyle,
@@ -412,7 +413,8 @@ export class EndpointDragHandler implements DragHandler {
         
         let boundingRect
         // get the list of potential drop targets for this endpoint, which excludes the source of the new connection.
-        this.instance.getContainer().querySelectorAll(".jtk-endpoint[jtk-scope-" + this.ep.scope + "]").forEach((candidate:any) => {
+        const matchingEndpoints = this.instance.getContainer().querySelectorAll(".jtk-endpoint[jtk-scope-" + this.ep.scope + "]")
+        forEach(matchingEndpoints, (candidate:any) => {
             if ((this.jpc != null || candidate !== canvasElement) && candidate !== this.floatingElement) {
                 if ( (isSourceDrag && candidate.jtk.endpoint.isSource) || (!isSourceDrag && candidate.jtk.endpoint.isTarget) ) {
                     const o = this.instance.getOffset(candidate), s = this.instance.getSize(candidate)
@@ -433,7 +435,8 @@ export class EndpointDragHandler implements DragHandler {
             selectors.push("[jtk-source][jtk-scope-" + this.ep.scope + "]")
         }
 
-        this.instance.getContainer().querySelectorAll(selectors.join(",")).forEach((candidate:any) => {
+        const matchingElements = this.instance.getContainer().querySelectorAll(selectors.join(","))
+        forEach(matchingElements, (candidate:any) => {
 
             const o = this.instance.getOffset(candidate), s = this.instance.getSize(candidate)
             boundingRect = {x: o.left, y: o.top, w: s[0], h: s[1]}
@@ -680,7 +683,8 @@ export class EndpointDragHandler implements DragHandler {
 
         const classesToRemove = classList(CLASS_DRAG_HOVER, CLASS_DRAG_ACTIVE)
 
-        this.instance.getContainer().querySelectorAll(SELECTOR_DRAG_ACTIVE_OR_HOVER).forEach((el:jsPlumbDOMElement) => {
+        const matchingSelectors = this.instance.getContainer().querySelectorAll(SELECTOR_DRAG_ACTIVE_OR_HOVER)
+        forEach(matchingSelectors,(el:jsPlumbDOMElement) => {
             this.instance.removeClass(el, classesToRemove)
         })
 

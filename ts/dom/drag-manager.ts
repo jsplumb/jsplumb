@@ -1,6 +1,6 @@
 import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
 
-import { PARENT_GROUP_KEY, extend, wrap, Dictionary, PointArray } from '@jsplumb/core'
+import { PARENT_GROUP_KEY, extend, wrap, Dictionary, PointArray, forEach } from '@jsplumb/core'
 
 import {Collicat, Drag, DragHandlerOptions, GhostProxyGenerator} from "./collicat"
 
@@ -134,7 +134,7 @@ export class DragManager {
 
         if (this.drag == null) {
             this.drag = this.collicat.draggable(this.instance.getContainer(), o)
-            this._filtersToAdd.forEach((filterToAdd) => this.drag.addFilter(filterToAdd[0], filterToAdd[1]))
+            forEach(this._filtersToAdd, (filterToAdd) => this.drag.addFilter(filterToAdd[0], filterToAdd[1]))
 
             this.drag.on(EVENT_REVERT, (el:Element) => {
                 this.instance.revalidate(el)
@@ -163,7 +163,7 @@ export class DragManager {
 
     reset():void {
 
-        this.handlers.forEach((handler:DragHandler) => { handler.reset(); })
+        forEach(this.handlers,(handler:DragHandler) => { handler.reset(); })
 
         if (this.drag != null) {
             this.collicat.destroyDraggable(this.instance.getContainer())

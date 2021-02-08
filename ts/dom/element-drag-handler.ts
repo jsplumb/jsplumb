@@ -19,7 +19,8 @@ import {
     PARENT_GROUP_KEY,
     PointArray,
     RedrawResult,
-    UIGroup
+    UIGroup,
+    forEach
 } from "@jsplumb/core"
 
 type IntersectingGroup = {
@@ -94,7 +95,7 @@ export class ElementDragHandler implements DragHandler {
         const dragElement = params.drag.getDragElement()
         _one(dragElement, {left:params.finalPos[0], top:params.finalPos[1]})
 
-        this._dragSelectionOffsets.forEach((v:[Offset, jsPlumbDOMElement], k:string) => {
+        this._dragSelectionOffsets.forEach( (v:[Offset, jsPlumbDOMElement], k:string) => {
             if (v[1] !== params.el) {
                 const pp = {
                     left:params.finalPos[0] + v[0].left,
@@ -127,7 +128,7 @@ export class ElementDragHandler implements DragHandler {
     }
 
     private _cleanup() {
-        this._groupLocations.forEach((groupLoc:any) => {
+        forEach(this._groupLocations,(groupLoc:any) => {
             this.instance.removeClass(groupLoc.el, CLASS_DRAG_ACTIVE)
             this.instance.removeClass(groupLoc.el, CLASS_DRAG_HOVER)
         })
@@ -171,7 +172,7 @@ export class ElementDragHandler implements DragHandler {
             // keep track of the ancestors of each intersecting group we find. if
             const ancestorsOfIntersectingGroups = new Set<string>()
 
-            this._groupLocations.forEach((groupLoc:GroupLocation) => {
+            forEach(this._groupLocations,(groupLoc:GroupLocation) => {
                 if (!ancestorsOfIntersectingGroups.has(groupLoc.group.id) && this.instance.geometry.intersects(bounds, groupLoc.r)) {
 
                     // when a group intersects it should only get the hover class if one of its descendants does not also intersect.
@@ -189,7 +190,7 @@ export class ElementDragHandler implements DragHandler {
                     })
 
                     // store all this group's ancestor ids in a set, which will preclude them from being added as an intersecting group
-                    this.instance.groupManager.getAncestors(groupLoc.group).forEach((g:UIGroup<Element>) => ancestorsOfIntersectingGroups.add(g.id))
+                    forEach(this.instance.groupManager.getAncestors(groupLoc.group),(g:UIGroup<Element>) => ancestorsOfIntersectingGroups.add(g.id))
 
                 } else {
                     this.instance.removeClass(groupLoc.el, CLASS_DRAG_HOVER)
@@ -251,7 +252,7 @@ export class ElementDragHandler implements DragHandler {
             // reset the drag selection offsets array
             this._dragSelectionOffsets.clear()
             this._dragSizes.clear()
-            this._dragSelection.forEach((jel:jsPlumbDOMElement) => {
+            forEach(this._dragSelection,(jel:jsPlumbDOMElement) => {
                 let id = this.instance.getId(jel)
                 let off = this.instance.getOffset(jel)
                 this._dragSelectionOffsets.set(id, [ { left:off.left - elOffset.left, top:off.top - elOffset.top }, jel])
@@ -273,7 +274,8 @@ export class ElementDragHandler implements DragHandler {
                     // it hasn't mandated its elements are constrained to the group, unless ghost proxying is turned on.
 
                     if (isNotInAGroup || (membersAreDroppable && isGhostOrNotConstrained)) {
-                        this.instance.groupManager.forEach((group: UIGroup<Element>) => {
+
+                        forEach(this.instance.groupManager.getGroups(), (group: UIGroup<Element>) => {
                             // prepare a list of potential droppable groups.
 
                             // get the group pertaining to the dragged element. this is null if the element being dragged is not a UIGroup.
@@ -354,7 +356,7 @@ export class ElementDragHandler implements DragHandler {
     }
 
     clearDragSelection() {
-        this._dragSelection.forEach((el) => this.instance.removeClass(el, CLASS_DRAG_SELECTED))
+        forEach(this._dragSelection,(el) => this.instance.removeClass(el, CLASS_DRAG_SELECTED))
         this._dragSelection.length = 0
     }
 
@@ -406,7 +408,7 @@ export class ElementDragHandler implements DragHandler {
 
         this.removeFromDragGroup(...els)
 
-        els.forEach((el:Element) => {
+        forEach(els,(el:Element) => {
             const elId = this.instance.getId(el)
             dragGroup.members.add({elId:elId, el:el, active:details.active})
             this._dragGroupByElementIdMap[elId] = dragGroup
@@ -414,7 +416,7 @@ export class ElementDragHandler implements DragHandler {
     }
 
     removeFromDragGroup(...els:Array<Element>) {
-        els.forEach((el:Element) => {
+        forEach(els,(el:Element) => {
             const id = this.instance.getId(el)
             const dragGroup = this._dragGroupByElementIdMap[id]
             if (dragGroup != null) {
@@ -435,7 +437,7 @@ export class ElementDragHandler implements DragHandler {
 
     setDragGroupState (state:boolean, ...els:Array<Element>) {
         const elementIds = els.map(el => this.instance.getId(el))
-        elementIds.forEach((id:string) => {
+        forEach(elementIds,(id:string) => {
             optional<DragGroup>(this._dragGroupByElementIdMap[id]).map(dragGroup => {
                 optional(getWithFunction(Array.from(dragGroup.members),(m:any) => m.elId === id)).map ( member => {
                     member.active = state

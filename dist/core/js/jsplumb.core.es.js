@@ -616,6 +616,15 @@ function populate(model, values, functionPrefix, doNotExpandFunctions) {
   };
   return _one(model);
 }
+function forEach(a, f) {
+  if (a) {
+    for (var i = 0; i < a.length; i++) {
+      f(a[i]);
+    }
+  } else {
+    return null;
+  }
+}
 function findWithFunction(a, f) {
   if (a) {
     for (var i = 0; i < a.length; i++) {
@@ -5924,26 +5933,26 @@ function () {
       var actualGroup = this.getGroup(group);
       this.expandGroup(actualGroup, true);
       var newPositions = {};
-      actualGroup.children.forEach(function (_el) {
+      forEach(actualGroup.children, function (_el) {
         var entry = _this2.instance.getManagedElements()[_this2.instance.getId(_el)];
         if (entry) {
           delete entry.group;
         }
       });
-      actualGroup.childGroups.forEach(function (g) {
+      forEach(actualGroup.childGroups, function (g) {
         var entry = _this2.instance.getManagedElements()[_this2.instance.getId(g.el)];
         if (entry) {
           delete entry.group;
         }
       });
       if (deleteMembers) {
-        actualGroup.childGroups.forEach(function (cg) {
+        forEach(actualGroup.childGroups, function (cg) {
           return _this2.removeGroup(cg, deleteMembers, manipulateView);
         });
         actualGroup.removeAll(manipulateView, doNotFireEvent);
       } else {
         if (actualGroup.group) {
-          actualGroup.children.forEach(function (c) {
+          forEach(actualGroup.children, function (c) {
             return actualGroup.group.add(c);
           });
         }
@@ -6013,7 +6022,7 @@ function () {
       group.connections.internal.length = 0;
       var members = group.children.slice();
       var childMembers = [];
-      members.forEach(function (member) {
+      forEach(members, function (member) {
         return childMembers.push.apply(childMembers, _toConsumableArray(member.querySelectorAll("[jtk-managed]")));
       });
       members.push.apply(members, childMembers);
@@ -6129,7 +6138,7 @@ function () {
           };
           _collapseSet(actualGroup.connections.source, 0);
           _collapseSet(actualGroup.connections.target, 1);
-          actualGroup.childGroups.forEach(function (cg) {
+          forEach(actualGroup.childGroups, function (cg) {
             _this4.cascadeCollapse(actualGroup, cg, collapsedConnectionIds);
           });
         }
@@ -6162,7 +6171,7 @@ function () {
         _collapseSet(targetGroup.connections.source, 0);
         _collapseSet(targetGroup.connections.target, 1);
       }
-      targetGroup.childGroups.forEach(function (cg) {
+      forEach(targetGroup.childGroups, function (cg) {
         _this5.cascadeCollapse(collapsedGroup, cg, collapsedIds);
       });
     }
@@ -6200,15 +6209,15 @@ function () {
               };
               _collapseSet(group.connections.source, 0);
               _collapseSet(group.connections.target, 1);
-              group.connections.internal.forEach(function (c) {
+              forEach(group.connections.internal, function (c) {
                 return c.setVisible(false);
               });
-              group.childGroups.forEach(_expandNestedGroup);
+              forEach(group.childGroups, _expandNestedGroup);
             } else {
               _this6.expandGroup(group, doNotFireEvent);
             }
           };
-          actualGroup.childGroups.forEach(_expandNestedGroup);
+          forEach(actualGroup.childGroups, _expandNestedGroup);
         }
         this.instance.revalidate(groupEl);
         this.repaintGroup(actualGroup);
@@ -6246,7 +6255,7 @@ function () {
       this.instance.fire(EVENT_EXPAND, {
         group: targetGroup.el
       });
-      targetGroup.childGroups.forEach(function (cg) {
+      forEach(targetGroup.childGroups, function (cg) {
         _this7.cascadeExpand(expandedGroup, cg);
       });
     }
@@ -6341,7 +6350,7 @@ function () {
         for (var _len = arguments.length, el = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
           el[_key - 2] = arguments[_key];
         }
-        el.forEach(_one);
+        forEach(el, _one);
       }
     }
   }, {
@@ -6379,7 +6388,7 @@ function () {
         for (var _len2 = arguments.length, el = new Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
           el[_key2 - 2] = arguments[_key2];
         }
-        el.forEach(_one);
+        forEach(el, _one);
       }
     }
   }, {
@@ -6407,7 +6416,7 @@ function () {
       var d = [];
       var _one = function _one(g) {
         d.push.apply(d, _toConsumableArray(g.childGroups));
-        g.childGroups.forEach(_one);
+        forEach(g.childGroups, _one);
       };
       _one(group);
       return d;
@@ -6534,7 +6543,7 @@ function () {
       if (rotation != null && rotation.length > 0) {
         var o = anchor._unrotatedOrientation.slice(),
             current = candidate.slice();
-        rotation.forEach(function (r) {
+        forEach(rotation, function (r) {
           current = rotatePoint(current, r.c, r.r);
           var _o = [Math.round(o[0] * current[2] - o[1] * current[3]), Math.round(o[1] * current[2] + o[0] * current[3])];
           o = _o.slice();
@@ -7069,7 +7078,7 @@ function () {
   _createClass(SelectionBase, [{
     key: "each",
     value: function each(handler) {
-      this.entries.forEach(function (e) {
+      forEach(this.entries, function (e) {
         return handler(e);
       });
       return this;
@@ -7547,7 +7556,7 @@ function (_EventGenerator) {
     value: function updateElements(entries) {
       var _this2 = this;
       this.startTransaction();
-      entries.forEach(function (e) {
+      forEach(entries, function (e) {
         return _this2.updateElement(e.id, e.x, e.y, e.width, e.height, e.rotation);
       });
       this.endTransaction();
@@ -8331,7 +8340,7 @@ function (_EventGenerator) {
     key: "applyRotations",
     value: function applyRotations(point, rotations) {
       var current = point.slice();
-      rotations.forEach(function (rotation) {
+      forEach(rotations, function (rotation) {
         current = rotatePoint(current, rotation.c, rotation.r);
       });
       return current;
@@ -8339,7 +8348,7 @@ function (_EventGenerator) {
   }, {
     key: "applyRotationsXY",
     value: function applyRotationsXY(point, rotations) {
-      rotations.forEach(function (rotation) {
+      forEach(rotations, function (rotation) {
         point = rotatePointXY(point, {
           x: rotation.c[0],
           y: rotation.c[1]
@@ -8514,12 +8523,12 @@ function (_EventGenerator) {
       var endpoint = typeof object === "string" ? this.endpointsByUUID.get(object) : object;
       if (endpoint) {
         var connectionsToDelete = endpoint.connections.slice();
-        connectionsToDelete.forEach(function (connection) {
+        forEach(connectionsToDelete, function (connection) {
           endpoint.detachFromConnection(connection, null, true);
         });
         this.unregisterEndpoint(endpoint);
         endpoint.destroy(true);
-        connectionsToDelete.forEach(function (connection) {
+        forEach(connectionsToDelete, function (connection) {
           _this5.deleteConnection(connection, {
             force: true,
             endpointToIgnore: endpoint
@@ -8798,7 +8807,7 @@ function (_EventGenerator) {
       connectionType = connectionType || DEFAULT;
       var defs = type === SOURCE ? jel._jsPlumbSourceDefinitions : jel._jsPlumbTargetDefinitions;
       if (defs) {
-        defs.forEach(function (def) {
+        forEach(defs, function (def) {
           if (def.def.connectionType == null || def.def.connectionType === connectionType) {
             os = def.enabled;
             originalState.push(os);
@@ -8896,7 +8905,7 @@ function (_EventGenerator) {
           this.removeAttribute(el, "jtk-" + type);
         } else {
           var _t2 = [];
-          el[key].forEach(function (def) {
+          forEach(el[key], function (def) {
             if (connectionType !== def.def.connectionType) {
               _t2.push(def);
             }
@@ -9006,7 +9015,7 @@ function (_EventGenerator) {
     key: "_setScope",
     value: function _setScope(el, scope, defKey) {
       if (el[defKey]) {
-        el[defKey].forEach(function (def) {
+        forEach(el[defKey], function (def) {
           return def.def.scope = scope;
         });
       }
@@ -9332,7 +9341,7 @@ function (_EventGenerator) {
         el[_key2 - 1] = arguments[_key2];
       }
       (_this$groupManager2 = this.groupManager).removeFromGroup.apply(_this$groupManager2, [group, false].concat(el));
-      el.forEach(function (_el) {
+      forEach(el, function (_el) {
         _this10.appendElement(_el, _this10.getContainer());
         _this10.updateOffset({
           recalc: true,
@@ -9709,4 +9718,4 @@ register$3();
 register$4();
 register$6();
 
-export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, Anchors, ArcSegment, ArrowOverlay, BLOCK, BezierSegment, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DefaultRouter, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FloatingAnchor, GROUP_KEY, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DROP, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JTK_ID, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PROPERTY_POSITION, PlainArrowOverlay, SCOPE_PREFIX, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, extend, fastTrim, filterList, findWithFunction, functionChain, getWithFunction, getsert, gradientAtPoint, gradientAtPointAlongPathFrom, isArray, isArrowOverlay, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, jsPlumbGeometry, lineIntersection, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, optional, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, populate, register, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, rotatePointXY, sortHelper, suggest, uuid, wrap };
+export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, Anchors, ArcSegment, ArrowOverlay, BLOCK, BezierSegment, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DefaultRouter, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FloatingAnchor, GROUP_KEY, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DROP, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JTK_ID, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PROPERTY_POSITION, PlainArrowOverlay, SCOPE_PREFIX, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, extend, fastTrim, filterList, findWithFunction, forEach, functionChain, getWithFunction, getsert, gradientAtPoint, gradientAtPointAlongPathFrom, isArray, isArrowOverlay, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, jsPlumbGeometry, lineIntersection, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, optional, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, populate, register, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, rotatePointXY, sortHelper, suggest, uuid, wrap };

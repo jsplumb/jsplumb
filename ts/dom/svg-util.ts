@@ -2,7 +2,7 @@
 
 import {createElementNS} from './browser-util'
 import { jsPlumbDOMElement } from './browser-jsplumb-instance'
-import {Component, Dictionary, NONE} from "@jsplumb/core"
+import {Component, Dictionary, NONE, forEach} from "@jsplumb/core"
 
 const svgAttributeMap = {
         "stroke-linejoin": "stroke-linejoin",
@@ -62,7 +62,7 @@ export function _applyStyles(parent:any, node:SVGElement, style:any, dimensions:
             parts = style[DASHSTYLE].split(sep),
             styleToUse = ""
 
-        parts.forEach((p:any) => {
+        forEach(parts, (p:any) => {
             styleToUse += (Math.floor(p * style.strokeWidth) + sep)
         })
 

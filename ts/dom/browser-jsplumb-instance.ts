@@ -67,7 +67,8 @@ import {
     Component,
     CustomOverlay,
     isCustomOverlay,
-    DeleteConnectionOptions
+    DeleteConnectionOptions,
+    forEach
 } from '@jsplumb/core'
 
 import { _attr,
@@ -702,7 +703,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
                 )
             })
 
-            children.forEach( (el:HTMLElement) => {
+            forEach(children, (el:Element) => {
                 newContainer.appendChild(el)
             })
         }
@@ -723,7 +724,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         super.reset()
         const container = this.getContainer()
         const els = container.querySelectorAll([SELECTOR_MANAGED_ELEMENT, SELECTOR_ENDPOINT, SELECTOR_CONNECTOR, SELECTOR_OVERLAY].join(","))
-        els.forEach((el:any) => el.parentNode && el.parentNode.removeChild(el))
+        forEach(els,(el:any) => el.parentNode && el.parentNode.removeChild(el))
     }
 
     destroy(): void {
@@ -745,7 +746,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     }
 
     addToDragSelection(...el:Array<Element>) {
-        el.forEach((_el) => this.elementDragHandler.addToDragSelection(_el))
+        forEach(el, (_el) => this.elementDragHandler.addToDragSelection(_el))
     }
 
     clearDragSelection() {
@@ -753,11 +754,11 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     }
 
     removeFromDragSelection(...el:Array<Element>) {
-        el.forEach((_el) => this.elementDragHandler.removeFromDragSelection(_el))
+        forEach(el, (_el) => this.elementDragHandler.removeFromDragSelection(_el))
     }
 
     toggleDragSelection(...el:Array<Element>) {
-        el.forEach((_el) => this.elementDragHandler.toggleDragSelection(_el))
+        forEach(el,(_el) => this.elementDragHandler.toggleDragSelection(_el))
     }
 
     getDragSelection():Array<Element> {
