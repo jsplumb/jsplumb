@@ -1,3 +1,9 @@
+## 4.0.0-RC49
+
+- Fixed a race condition in the list manager tests that was causing intermittent test failures.
+- Updated a few places in the code there `findIndex` or `find` from `Array` was being used - replaced this with an IE11 compatible hand rolled
+method.
+
 ## 4.0.0-RC48
 
 8th February 2021
