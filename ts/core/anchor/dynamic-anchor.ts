@@ -1,24 +1,23 @@
 import { Anchor } from "./anchor"
 import { AnchorOptions, AnchorSpec, makeAnchorFromSpec } from "../factory/anchor-factory"
 
-import { PointArray} from '../common'
+import {PointArray, Rotations} from '../common'
 import { JsPlumbInstance } from "../core"
-import {rotatePoint} from "../util"
 
 export interface DynamicAnchorOptions extends AnchorOptions {
-    selector?:(xy:PointArray, wh:PointArray, txy:PointArray, twh:PointArray, rotation:number, targetRotation:number, anchors:Array<Anchor>) => Anchor
+    selector?:(xy:PointArray, wh:PointArray, txy:PointArray, twh:PointArray, rotation:Rotations, targetRotation:Rotations, anchors:Array<Anchor>) => Anchor
     elementId?:string
     anchors:Array<Anchor>
 }
 
 // helper method to calculate the distance between the centers of the two elements.
-function _distance(anchor:Anchor, cx:number, cy:number, xy:PointArray, wh:PointArray, rotation:number, targetRotation:number):number {
+function _distance(anchor:Anchor, cx:number, cy:number, xy:PointArray, wh:PointArray, rotation:Rotations, targetRotation:Rotations):number {
 
     let ax = xy[0] + (anchor.x * wh[0]), ay = xy[1] + (anchor.y * wh[1]),
         acx = xy[0] + (wh[0] / 2), acy = xy[1] + (wh[1] / 2)
 
-    if(rotation != null && rotation !== 0) {
-        const rotated = rotatePoint([ax,ay], [acx, acy], rotation)
+    if(rotation != null && rotation.length > 0) {
+        const rotated = anchor.instance.applyRotations([ax,ay, 0, 0], rotation)
         ax = rotated[0]
         ay = rotated[1]
     }
@@ -27,8 +26,8 @@ function _distance(anchor:Anchor, cx:number, cy:number, xy:PointArray, wh:PointA
 }
 
 const DEFAULT_ANCHOR_SELECTOR = (xy:PointArray, wh:PointArray, txy:PointArray, twh:PointArray,
-                                 rotation:number,
-                                 targetRotation:number,
+                                 rotation:Rotations,
+                                 targetRotation:Rotations,
                                  anchors:Array<Anchor>) => {
 
     let cx = txy[0] + (twh[0] / 2), cy = txy[1] + (twh[1] / 2)
@@ -53,7 +52,7 @@ export class DynamicAnchor extends Anchor {
     _curAnchor:Anchor
     _lastAnchor:Anchor
 
-    _anchorSelector:(xy:PointArray, wh:PointArray, txy:PointArray, twh:PointArray, rotation:number, targetRotation:number, anchors:Array<Anchor>) => Anchor = null
+    _anchorSelector:(xy:PointArray, wh:PointArray, txy:PointArray, twh:PointArray, rotation:Rotations, targetRotation:Rotations, anchors:Array<Anchor>) => Anchor = null
 
     constructor(public instance:JsPlumbInstance, options:DynamicAnchorOptions) {
         super(instance, options)
