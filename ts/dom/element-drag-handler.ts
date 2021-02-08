@@ -13,7 +13,7 @@ import {BrowserJsPlumbInstance, DragGroupSpec, jsPlumbDOMElement} from "./browse
 import {Drag} from "./collicat"
 import {
     BoundingBox,
-    Dictionary,
+    Dictionary, getWithFunction,
     GROUP_KEY, isString, JsPlumbInstance,
     Offset, optional,
     PARENT_GROUP_KEY,
@@ -437,7 +437,7 @@ export class ElementDragHandler implements DragHandler {
         const elementIds = els.map(el => this.instance.getId(el))
         elementIds.forEach((id:string) => {
             optional<DragGroup>(this._dragGroupByElementIdMap[id]).map(dragGroup => {
-                optional(Array.from(dragGroup.members).find((m:any) => m.elId === id)).map ( member => {
+                optional(getWithFunction(Array.from(dragGroup.members),(m:any) => m.elId === id)).map ( member => {
                     member.active = state
                 })
             })
@@ -445,7 +445,7 @@ export class ElementDragHandler implements DragHandler {
     }
 
     private isActiveDragGroupMember(dragGroup:DragGroup, el:any): boolean {
-        const details = Array.from(dragGroup.members).find((m:any) => m.el === el)
+        const details = getWithFunction(Array.from(dragGroup.members), (m:any) => m.el === el)
         if (details !== null) {
             return details.active === true
         } else {
