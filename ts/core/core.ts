@@ -1863,7 +1863,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         connection.proxies[index] = null
 
         // if both empty, set length to 0.
-        if (connection.proxies.find((p:any) => p != null) == null) {
+        if (findWithFunction(connection.proxies, (p:any) => p != null) === -1) {
             connection.proxies.length = 0
         }
     }
