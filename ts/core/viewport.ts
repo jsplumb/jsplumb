@@ -1,7 +1,8 @@
 import {Size, PointArray, Offset} from "./common"
 import {EventGenerator} from "./event-generator"
-import { getsert } from './util'
+import {findWithFunction, getsert} from './util'
 import {JsPlumbInstance} from "./core"
+import {EVENT_UPDATE} from "@jsplumb/core/constants"
 
 export interface ViewportPosition {
     x:number
@@ -150,9 +151,10 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
     };
 
     private _clearElementIndex(id:string, array:Array<any>) {
-        const idx = array.findIndex((entry) => {
+        const idx = findWithFunction(array, (entry) => {
             return entry[0] === id
         })
+
         if (idx > -1) {
             array.splice(idx, 1)
         }
@@ -163,10 +165,10 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
     }
 
     private _fireUpdate(payload?:any) {
-        this.fire("update", payload || {})
+        this.fire(EVENT_UPDATE, payload || {})
     }
 
-    private _updateBounds (id:string, updatedElement:any) {
+    private _updateBounds (id:string, updatedElement:ViewportElement<T["E"]>) {
         if (updatedElement != null) {
 
             this._clearElementIndex(id, this._sortedElements.xmin)
