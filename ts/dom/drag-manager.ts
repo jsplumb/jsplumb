@@ -90,7 +90,7 @@ export class DragManager {
     constructor(protected instance:BrowserJsPlumbInstance) {
 
         // create a delegated drag handler
-        this.collicat = this.instance.createDragManager({
+        this.collicat = new Collicat({
             zoom:this.instance.currentZoom,
             css: {
                 noSelect: this.instance.dragSelectClass,
@@ -103,7 +103,7 @@ export class DragManager {
                 hover: "jtk-drag-hover",
                 ghostProxy: "jtk-ghost-proxy"
             },
-            revert: (dragEl:HTMLElement, pos:PointArray):boolean => {
+            revert: (dragEl:Element, pos:PointArray):boolean => {
                 const _el = <any>dragEl
                 // if drag el not removed from DOM (pruned by a group), and it has a group which has revert:true, then revert.
                 return _el.parentNode != null && _el[PARENT_GROUP_KEY] && _el[PARENT_GROUP_KEY].revert ? !_isInsideParent(this.instance, _el, pos) : false
