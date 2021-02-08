@@ -3,6 +3,7 @@ import { AnchorOptions, AnchorSpec, makeAnchorFromSpec } from "../factory/anchor
 
 import {PointArray, Rotations} from '../common'
 import { JsPlumbInstance } from "../core"
+import {findWithFunction} from "../util"
 
 export interface DynamicAnchorOptions extends AnchorOptions {
     selector?:(xy:PointArray, wh:PointArray, txy:PointArray, twh:PointArray, rotation:Rotations, targetRotation:Rotations, anchors:Array<Anchor>) => Anchor
@@ -92,7 +93,7 @@ export class DynamicAnchor extends Anchor {
     }
 
     setAnchorCoordinates (coords: PointArray) {
-        const idx = this.anchors.findIndex((a:Anchor) => a.x === coords[0] && a.y === coords[1])
+        const idx = findWithFunction(this.anchors, (a:Anchor) => a.x === coords[0] && a.y === coords[1])
         if (idx !== -1) {
             this.setAnchor(this.anchors[idx])
             return true
