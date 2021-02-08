@@ -622,7 +622,7 @@ export class GroupManager<E> {
                     const entry = this.instance.manage(el)
                     const elpos = this.instance.getOffset(el)
                     const cpos = actualGroup.collapsed ? this.instance.getOffsetRelativeToRoot(groupEl) : this.instance.getOffset(actualGroup.getContentArea())
-                    entry.group = actualGroup.id
+                    entry.group = actualGroup.elId
 
                     // otherwise, transfer to this group.
                     if (currentGroup != null) {

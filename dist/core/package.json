@@ -1,6 +1,6 @@
 {
   "name": "@jsplumb/core",
-  "version": "4.0.0-RC47",
+  "version": "4.0.0-RC48",
   "description": "Visual connectivity for webapps. This is the core package, which is imported by specific renderers. You probably want to import @jsplumb/browser-ui, as it is currently the only renderer available.",
   "main": "js/jsplumb.core.cjs.js",
   "module": "js/jsplumb.core.es.js",

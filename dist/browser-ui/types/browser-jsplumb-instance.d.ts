@@ -1,7 +1,7 @@
 import { jsPlumbDefaults, Dictionary, Offset, PointArray, Size, jsPlumbElement, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, OverlayCapableComponent, Segment, LabelOverlay, Connection, Component, DeleteConnectionOptions } from '@jsplumb/core';
 import { DragManager } from "./drag-manager";
 import { EventManager } from "./event-manager";
-import { CollicatOptions, Collicat, Drag } from './collicat';
+import { Drag } from './collicat';
 import { JsPlumbList, JsPlumbListManager, JsPlumbListOptions } from "./lists";
 export interface UIComponent {
     canvas: HTMLElement;
@@ -145,7 +145,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     private _attachEventDelegates;
     private _detachEventDelegates;
     setContainer(newContainer: Element): void;
-    reset(silently?: boolean): void;
+    reset(): void;
     destroy(): void;
     unmanage(el: Element, removeElement?: boolean): void;
     addToDragSelection(...el: Array<Element>): void;
@@ -192,11 +192,6 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
      * @param el Element containing the list.
      */
     removeList(el: Element): void;
-    /**
-     * Helper method for other libs/code to get a DragManager.
-     * @param options
-     */
-    createDragManager(options: CollicatOptions): Collicat;
     rotate(element: Element, rotation: number, doNotRepaint?: boolean): RedrawResult;
     svg: {
         node: (name: string, attributes?: Dictionary<string | number>) => jsPlumbDOMElement;

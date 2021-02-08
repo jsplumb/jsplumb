@@ -1,6 +1,6 @@
 import { Connection } from "../connector/connection-impl";
 import { Endpoint } from "../endpoint/endpoint";
-import { PointArray } from "../common";
+import { PointArray, Rotations } from "../common";
 import { JsPlumbInstance } from "../core";
 import { Anchor } from "../anchor/anchor";
 import { AnchorPlacement } from "../router/router";
@@ -21,8 +21,8 @@ export declare type AnchorComputeParams = {
     tElement?: Endpoint;
     connection?: Connection;
     elementId?: string;
-    rotation?: number;
-    tRotation?: number;
+    rotation?: Rotations;
+    tRotation?: Rotations;
 };
 export interface AnchorOptions {
     cssClass?: string;

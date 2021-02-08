@@ -4195,8 +4195,8 @@ function _distance(anchor, cx, cy, xy, wh, rotation, targetRotation) {
       ay = xy[1] + anchor.y * wh[1],
       acx = xy[0] + wh[0] / 2,
       acy = xy[1] + wh[1] / 2;
-  if (rotation != null && rotation !== 0) {
-    var rotated = rotatePoint([ax, ay], [acx, acy], rotation);
+  if (rotation != null && rotation.length > 0) {
+    var rotated = anchor.instance.applyRotations([ax, ay, 0, 0], rotation);
     ax = rotated[0];
     ay = rotated[1];
   }
@@ -5550,8 +5550,10 @@ function (_UINode) {
     _defineProperty(_assertThisInitialized(_this), "groups", []);
     _defineProperty(_assertThisInitialized(_this), "manager", void 0);
     _defineProperty(_assertThisInitialized(_this), "id", void 0);
+    _defineProperty(_assertThisInitialized(_this), "elId", void 0);
     _this.el[IS_GROUP_KEY] = true;
     _this.el[GROUP_KEY] = _assertThisInitialized(_this);
+    _this.elId = instance.getId(el);
     _this.revert = options.revert !== false;
     _this.droppable = options.droppable !== false;
     _this.ghost = options.ghost === true;
@@ -5678,6 +5680,9 @@ function (_UINode) {
         if (group.group != null) {
           group.group.removeGroup(group);
         }
+        var groupElId = this.instance.getId(group.el);
+        var entry = this.instance.getManagedElements()[groupElId];
+        entry.group = this.elId;
         var elpos = this.instance.getOffsetRelativeToRoot(group.el);
         var cpos = this.collapsed ? this.instance.getOffsetRelativeToRoot(this.el) : this.instance.getOffsetRelativeToRoot(this.getContentArea());
         group.el[PARENT_GROUP_KEY] = this;
@@ -5705,6 +5710,11 @@ function (_UINode) {
         var d = this.getContentArea();
         if (d === group.el.parentNode) {
           d.removeChild(group.el);
+        }
+        var groupElId = this.instance.getId(group.el);
+        var entry = this.instance.getManagedElements()[groupElId];
+        if (entry) {
+          delete entry.group;
         }
         this.childGroups = this.childGroups.filter(function (cg) {
           return cg.id !== group.id;
@@ -5907,6 +5917,18 @@ function () {
       var actualGroup = this.getGroup(group);
       this.expandGroup(actualGroup, true);
       var newPositions = {};
+      actualGroup.children.forEach(function (_el) {
+        var entry = _this2.instance.getManagedElements()[_this2.instance.getId(_el)];
+        if (entry) {
+          delete entry.group;
+        }
+      });
+      actualGroup.childGroups.forEach(function (g) {
+        var entry = _this2.instance.getManagedElements()[_this2.instance.getId(g.el)];
+        if (entry) {
+          delete entry.group;
+        }
+      });
       if (deleteMembers) {
         actualGroup.childGroups.forEach(function (cg) {
           return _this2.removeGroup(cg, deleteMembers, manipulateView);
@@ -6254,8 +6276,10 @@ function () {
               droppingGroup = el[GROUP_KEY];
           var currentGroup = el[PARENT_GROUP_KEY];
           if (currentGroup !== actualGroup) {
+            var entry = _this8.instance.manage(el);
             var elpos = _this8.instance.getOffset(el);
             var cpos = actualGroup.collapsed ? _this8.instance.getOffsetRelativeToRoot(groupEl) : _this8.instance.getOffset(actualGroup.getContentArea());
+            entry.group = actualGroup.elId;
             if (currentGroup != null) {
               currentGroup.remove(el, false, doNotFireEvent, false, actualGroup);
               _this8._updateConnectionsForGroup(currentGroup);
@@ -6340,6 +6364,10 @@ function () {
             _expandSet(actualGroup.connections.target.slice(), 1);
           }
           actualGroup.remove(_el, null, doNotFireEvent);
+          var entry = _this9.instance.getManagedElements()[_this9.instance.getId(_el)];
+          if (entry) {
+            delete entry.group;
+          }
         };
         for (var _len2 = arguments.length, el = new Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
           el[_key2 - 2] = arguments[_key2];
@@ -6496,11 +6524,17 @@ function () {
       }
       var candidate = [xy[0] + anchor.x * wh[0] + anchor.offsets[0], xy[1] + anchor.y * wh[1] + anchor.offsets[1], anchor.x, anchor.y];
       var rotation = params.rotation;
-      if (rotation != null && rotation !== 0) {
-        var c2 = rotatePoint(candidate, [xy[0] + wh[0] / 2, xy[1] + wh[1] / 2], rotation);
-        anchor.orientation[0] = Math.round(anchor._unrotatedOrientation[0] * c2[2] - anchor._unrotatedOrientation[1] * c2[3]);
-        anchor.orientation[1] = Math.round(anchor._unrotatedOrientation[1] * c2[2] + anchor._unrotatedOrientation[0] * c2[3]);
-        anchor.lastReturnValue = [c2[0], c2[1], anchor.x, anchor.y];
+      if (rotation != null && rotation.length > 0) {
+        var o = anchor._unrotatedOrientation.slice(),
+            current = candidate.slice();
+        rotation.forEach(function (r) {
+          current = rotatePoint(current, r.c, r.r);
+          var _o = [Math.round(o[0] * current[2] - o[1] * current[3]), Math.round(o[1] * current[2] + o[0] * current[3])];
+          o = _o.slice();
+        });
+        anchor.orientation[0] = o[0];
+        anchor.orientation[1] = o[1];
+        anchor.lastReturnValue = [current[0], current[1], anchor.x, anchor.y];
       } else {
         anchor.orientation[0] = anchor._unrotatedOrientation[0];
         anchor.orientation[1] = anchor._unrotatedOrientation[1];
@@ -6576,14 +6610,14 @@ function () {
         wh: [sourceInfo.w, sourceInfo.h],
         element: sE,
         timestamp: timestamp,
-        rotation: sourceInfo.r
+        rotation: this.instance.getRotations(connection.sourceId)
       }),
           tAnchorP = this.getEndpointLocation(tE, {
         xy: [targetInfo.x, targetInfo.y],
         wh: [targetInfo.w, targetInfo.h],
         element: tE,
         timestamp: timestamp,
-        rotation: targetInfo.r
+        rotation: this.instance.getRotations(connection.targetId)
       });
       connection.connector.resetBounds();
       connection.connector.compute({
@@ -6768,8 +6802,8 @@ function () {
                     this._updateAnchorList(this.anchorLists[sourceId], -Math.PI / 2, 0, conn, false, targetId, 0, false, "top", connectionsToPaint, endpointsToPaint);
                     this._updateAnchorList(this.anchorLists[targetId], -Math.PI / 2, 0, conn, false, sourceId, 1, false, "top", connectionsToPaint, endpointsToPaint);
                   } else {
-                    var sourceRotation = this.instance.getRotation(sourceId);
-                    var targetRotation = this.instance.getRotation(targetId);
+                    var sourceRotation = this.instance.getRotations(sourceId);
+                    var targetRotation = this.instance.getRotations(targetId);
                     if (!o) {
                       o = this.calculateOrientation(sourceId, targetId, sd, td, conn.endpoints[0].anchor, conn.endpoints[1].anchor, sourceRotation, targetRotation);
                       orientationCache[oKey] = o;
@@ -6908,6 +6942,7 @@ function () {
   }, {
     key: "calculateOrientation",
     value: function calculateOrientation(sourceId, targetId, sd, td, sourceAnchor, targetAnchor, sourceRotation, targetRotation) {
+      var _this3 = this;
       var Orientation = {
         HORIZONTAL: "horizontal",
         VERTICAL: "vertical",
@@ -6944,12 +6979,9 @@ function () {
               y: dim[i][0].y + dim[i][0].h
             }
           };
-          if (dim[i][1] !== 0) {
+          if (dim[i][1] != null && dim[i][1].length > 0) {
             for (var axis in midpoints[types[i]]) {
-              midpoints[types[i]][axis] = rotatePointXY(midpoints[types[i]][axis], {
-                x: dim[i][0].c[0],
-                y: dim[i][0].c[1]
-              }, dim[i][1]);
+              midpoints[types[i]][axis] = _this3.instance.applyRotationsXY(midpoints[types[i]][axis], dim[i][1]);
             }
           }
         }
@@ -8254,7 +8286,59 @@ function (_EventGenerator) {
   }, {
     key: "getRotation",
     value: function getRotation(elementId) {
-      return this._managedElements[elementId] ? this._managedElements[elementId].rotation || 0 : 0;
+      var entry = this._managedElements[elementId];
+      if (entry != null) {
+        return entry.rotation || 0;
+      } else {
+        return 0;
+      }
+    }
+  }, {
+    key: "getRotations",
+    value: function getRotations(elementId) {
+      var _this4 = this;
+      var rotations = [];
+      var entry = this._managedElements[elementId];
+      var _oneLevel = function _oneLevel(e) {
+        if (e.group != null) {
+          var gEntry = _this4._managedElements[e.group];
+          if (gEntry != null) {
+            rotations.push({
+              r: gEntry.viewportElement.r,
+              c: gEntry.viewportElement.c
+            });
+            _oneLevel(gEntry);
+          }
+        }
+      };
+      if (entry != null) {
+        rotations.push({
+          r: entry.viewportElement.r || 0,
+          c: entry.viewportElement.c
+        });
+        _oneLevel(entry);
+      }
+      return rotations;
+    }
+  }, {
+    key: "applyRotations",
+    value: function applyRotations(point, rotations) {
+      var current = point.slice();
+      rotations.forEach(function (rotation) {
+        current = rotatePoint(current, rotation.c, rotation.r);
+      });
+      return current;
+    }
+  }, {
+    key: "applyRotationsXY",
+    value: function applyRotationsXY(point, rotations) {
+      rotations.forEach(function (rotation) {
+        point = rotatePointXY(point, {
+          x: rotation.c[0],
+          y: rotation.c[1]
+        }, rotation.r);
+      });
+      return point;
     }
   }, {
     key: "newEndpoint",
@@ -8316,11 +8400,7 @@ function (_EventGenerator) {
       var timestamp = uuid(),
           elId;
       for (elId in this.endpointsByElement) {
-        this.updateOffset({
-          elId: elId,
-          recalc: true,
-          timestamp: timestamp
-        });
+        this.viewport.refreshElement(elId);
       }
       for (elId in this.endpointsByElement) {
         this._draw(this._managedElements[elId].el, null, timestamp, true);
@@ -8423,7 +8503,7 @@ function (_EventGenerator) {
   }, {
     key: "deleteEndpoint",
     value: function deleteEndpoint(object) {
-      var _this4 = this;
+      var _this5 = this;
       var endpoint = typeof object === "string" ? this.endpointsByUUID.get(object) : object;
       if (endpoint) {
         var connectionsToDelete = endpoint.connections.slice();
@@ -8433,7 +8513,7 @@ function (_EventGenerator) {
         this.unregisterEndpoint(endpoint);
         endpoint.destroy(true);
         connectionsToDelete.forEach(function (connection) {
-          _this4.deleteConnection(connection, {
+          _this5.deleteConnection(connection, {
             force: true,
             endpointToIgnore: endpoint
           });
@@ -8446,7 +8526,7 @@ function (_EventGenerator) {
     value: function addEndpoint(el, params, referenceParams) {
       referenceParams = referenceParams || {};
       var p = extend({}, referenceParams);
-      extend(p, params);
+      extend(p, params || {});
       p.endpoint = p.endpoint || this.Defaults.endpoint;
       p.paintStyle = p.paintStyle || this.Defaults.endpointStyle;
       var _p = extend({
@@ -8474,18 +8554,18 @@ function (_EventGenerator) {
     }
   }, {
     key: "reset",
-    value: function reset(silently) {
-      var _this5 = this;
+    value: function reset() {
+      var _this6 = this;
       this.silently(function () {
-        _this5.endpointsByElement = {};
-        _this5._managedElements = {};
-        _this5.endpointsByUUID.clear();
-        _this5.viewport.reset();
-        _this5.router.reset();
-        _this5.groupManager.reset();
-        _this5._connectionTypes.clear();
-        _this5._endpointTypes.clear();
-        _this5.connections.length = 0;
+        _this6.endpointsByElement = {};
+        _this6._managedElements = {};
+        _this6.endpointsByUUID.clear();
+        _this6.viewport.reset();
+        _this6.router.reset();
+        _this6.groupManager.reset();
+        _this6._connectionTypes.clear();
+        _this6._endpointTypes.clear();
+        _this6.connections.length = 0;
       });
     }
   }, {
@@ -8506,7 +8586,7 @@ function (_EventGenerator) {
   }, {
     key: "destroy",
     value: function destroy() {
-      this.reset(true);
+      this.reset();
       this.unbind();
     }
   }, {
@@ -8541,7 +8621,7 @@ function (_EventGenerator) {
   }, {
     key: "_prepareConnectionParams",
     value: function _prepareConnectionParams(params, referenceParams) {
-      var _this6 = this;
+      var _this7 = this;
       var _p = extend({}, params);
       if (referenceParams) {
         extend(_p, referenceParams);
@@ -8588,7 +8668,7 @@ function (_EventGenerator) {
           hoverPaintStyle: _p.endpointHoverStyles ? _p.endpointHoverStyles[idx] : _p.endpointHoverStyle,
           portId: _p.ports ? _p.ports[idx] : null
         });
-        return _this6.addEndpoint(el, params);
+        return _this7.addEndpoint(el, params);
       };
       var _oneElementDef = function _oneElementDef(type, idx, matchType, portId) {
         if (_p[type] && !_p[type].endpoint && !_p[type + "Endpoint"] && !_p.newConnection) {
@@ -8679,22 +8759,22 @@ function (_EventGenerator) {
   }, {
     key: "removeAllEndpoints",
     value: function removeAllEndpoints(el, recurse, affectedElements) {
-      var _this7 = this;
+      var _this8 = this;
       affectedElements = affectedElements || [];
       var _one = function _one(_el) {
-        var id = _this7.getId(_el),
-            ebe = _this7.endpointsByElement[id],
+        var id = _this8.getId(_el),
+            ebe = _this8.endpointsByElement[id],
             i,
             ii;
         if (ebe) {
           affectedElements.push(_el);
           for (i = 0, ii = ebe.length; i < ii; i++) {
-            _this7.deleteEndpoint(ebe[i]);
+            _this8.deleteEndpoint(ebe[i]);
           }
         }
-        delete _this7.endpointsByElement[id];
+        delete _this8.endpointsByElement[id];
         if (recurse) {
-          _this7.getChildElements(_el).map(_one);
+          _this8.getChildElements(_el).map(_one);
         }
       };
       _one(el);
@@ -8703,7 +8783,7 @@ function (_EventGenerator) {
   }, {
     key: "_setEnabled",
     value: function _setEnabled(type, el, state, toggle, connectionType) {
-      var _this8 = this;
+      var _this9 = this;
       var originalState = [],
           newState,
           os;
@@ -8719,9 +8799,9 @@ function (_EventGenerator) {
             def.enabled = newState;
             var cls = ["jtk", type, "disabled"].join("-");
             if (newState) {
-              _this8.removeClass(el, cls);
+              _this9.removeClass(el, cls);
             } else {
-              _this8.addClass(el, cls);
+              _this9.addClass(el, cls);
             }
           }
         });
@@ -9240,16 +9320,16 @@ function (_EventGenerator) {
     key: "removeFromGroup",
     value: function removeFromGroup(group) {
       var _this$groupManager2,
-          _this9 = this;
+          _this10 = this;
       for (var _len2 = arguments.length, el = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
         el[_key2 - 1] = arguments[_key2];
       }
       (_this$groupManager2 = this.groupManager).removeFromGroup.apply(_this$groupManager2, [group, false].concat(el));
       el.forEach(function (_el) {
-        _this9.appendElement(_el, _this9.getContainer());
-        _this9.updateOffset({
+        _this10.appendElement(_el, _this10.getContainer());
+        _this10.updateOffset({
           recalc: true,
-          elId: _this9.getId(_el)
+          elId: _this10.getId(_el)
         });
       });
     }
@@ -9300,11 +9380,11 @@ function (_EventGenerator) {
               anchorParams.txy = [oInfo.x, oInfo.y];
               anchorParams.twh = [oInfo.w, oInfo.h];
               anchorParams.tElement = _c3.endpoints[oIdx];
-              anchorParams.tRotation = this.getRotation(oId);
+              anchorParams.tRotation = this.getRotations(oId);
             } else if (endpoint.connections.length > 0) {
               anchorParams.connection = endpoint.connections[0];
             }
-            anchorParams.rotation = this.getRotation(endpoint.elementId);
+            anchorParams.rotation = this.getRotations(endpoint.elementId);
             ap = this.router.computeAnchorLocation(endpoint.anchor, anchorParams);
           }
           endpoint.endpoint.compute(ap, this.router.getEndpointOrientation(endpoint), endpoint.paintStyleInUse);

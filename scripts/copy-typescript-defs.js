@@ -44,7 +44,3 @@ g.mkdirs("./dist/browser-ui/types");
 
 _one("./_build_es6/ts/dom",null, "./dist/browser-ui/types");
 
-g.mkdirs("./dist/community/types/core");
-g.mkdirs("./dist/community/types/browser-ui");
-_one("./_build_es6/ts/core",null, "./dist/community/types/core");
-_one("./_build_es6/ts/dom",null, "./dist/community/types/browser-ui");

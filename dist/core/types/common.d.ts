@@ -109,7 +109,6 @@ export interface Offset {
     top: number;
 }
 export declare type Size = [number, number];
-export declare type Rotation = number;
 export declare type PointArray = [number, number];
 export interface PointXY {
     x: number;
@@ -146,3 +145,8 @@ export declare type Constructable<T> = {
     new (...args: any[]): T;
 };
 export declare type Timestamp = string;
+export interface Rotation {
+    r: number;
+    c: PointArray;
+}
+export declare type Rotations = Array<Rotation>;

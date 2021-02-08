@@ -1,6 +1,6 @@
 import {Connection} from "../connector/connection-impl"
 import {Endpoint} from "../endpoint/endpoint"
-import {Dictionary, PointArray} from "../common"
+import {Dictionary, PointArray, Rotations} from "../common"
 import { JsPlumbInstance } from "../core"
 
 import {Anchor} from "../anchor/anchor"
@@ -29,8 +29,8 @@ export type AnchorComputeParams = {
     tElement?:Endpoint
     connection?:Connection
     elementId?:string
-    rotation?:number
-    tRotation?:number
+    rotation?:Rotations
+    tRotation?:Rotations
 }
 
 export interface AnchorOptions {

@@ -4,7 +4,7 @@ import { Endpoint } from "./endpoint/endpoint";
 import { FullOverlaySpec, OverlaySpec } from "./overlay/overlay";
 import { AnchorPlacement, RedrawResult } from "./router/router";
 import { Dictionary, UpdateOffsetOptions, Offset, Size, jsPlumbElement, PointArray, ConnectParams, // <--
-SourceDefinition, TargetDefinition, BehaviouralTypeDescriptor, TypeDescriptor } from './common';
+SourceDefinition, TargetDefinition, BehaviouralTypeDescriptor, TypeDescriptor, Rotations, PointXY } from './common';
 import { EventGenerator } from "./event-generator";
 import { EndpointOptions } from "./endpoint/endpoint";
 import { AddGroupOptions, GroupManager } from "./group/group-manager";
@@ -62,6 +62,7 @@ export declare type ManagedElement<E> = {
     endpoints?: Array<Endpoint>;
     connections?: Array<Connection>;
     rotation?: number;
+    group?: string;
 };
 export declare abstract class JsPlumbInstance<T extends {
     E: unknown;
@@ -175,6 +176,9 @@ export declare abstract class JsPlumbInstance<T extends {
     unmanage(el: T["E"], removeElement?: boolean): void;
     rotate(element: T["E"], rotation: number, doNotRepaint?: boolean): RedrawResult;
     getRotation(elementId: string): number;
+    getRotations(elementId: string): Rotations;
+    applyRotations(point: [number, number, number, number], rotations: Rotations): number[];
+    applyRotationsXY(point: PointXY, rotations: Rotations): PointXY;
     /**
      * Internal method to create an Endpoint from the given options, perhaps with the given id. Do not use this method
      * as a consumer of the API. If you wish to add an Endpoint to some element, use `addEndpoint` instead.
@@ -202,15 +206,49 @@ export declare abstract class JsPlumbInstance<T extends {
     unregisterEndpoint(endpoint: Endpoint): void;
     maybePruneEndpoint(endpoint: Endpoint): boolean;
     deleteEndpoint(object: string | Endpoint): JsPlumbInstance;
+    /**
+     * Add an Endpoint to the given element.
+     * @param el Element to add the endpoint to.
+     * @param params
+     * @param referenceParams
+     */
     addEndpoint(el: T["E"], params?: EndpointOptions<T["E"]>, referenceParams?: EndpointOptions<T["E"]>): Endpoint;
+    /**
+     * Add a set of Endpoints to an element
+     * @param el Element to add the Endpoints to.
+     * @param endpoints Array of endpoint options.
+     * @param referenceParams
+     */
     addEndpoints(el: T["E"], endpoints: Array<EndpointOptions<T["E"]>>, referenceParams?: any): Array<Endpoint>;
-    reset(silently?: boolean): void;
+    /**
+     * Clears all endpoints and connections from the instance of jsplumb. Does not also clear out event listeners - for that,
+     * use `destroy()`.
+     */
+    reset(): void;
+    /**
+     *
+     */
     uuid(): string;
+    /**
+     * Rotate the given point around the given center.
+     * @param point
+     * @param center
+     * @param rotation
+     */
     rotatePoint(point: Array<number>, center: PointArray, rotation: number): [number, number, number, number];
     rotateAnchorOrientation(orientation: [number, number], rotation: any): [number, number];
+    /**
+     * Clears the instance and unbinds any listeners on the instance. After you call this method you cannot use this
+     * instance of jsPlumb again.
+     */
     destroy(): void;
     getEndpoints(el: T["E"]): Array<Endpoint>;
     getEndpoint(id: string): Endpoint;
+    /**
+     * Connect one element to another.
+     * @param params At the very least you need to supply {source:.., target:...}.
+     * @param referenceParams Optional extra parameters. This can be useful when you're creating multiple connections that have some things in common.
+     */
     connect(params: ConnectParams, referenceParams?: ConnectParams): Connection;
     private _prepareConnectionParams;
     _newConnection(params: any): Connection;
@@ -222,12 +260,22 @@ export declare abstract class JsPlumbInstance<T extends {
     findFirstSourceDefinition(el: T["E"], connectionType?: string): SourceDefinition;
     findFirstTargetDefinition(el: T["E"], connectionType?: string): TargetDefinition;
     private findFirstDefinition;
-    isSource(el: T["E"], connectionType?: string): any;
+    /**
+     * Returns whether or not the given element is configured as a connection source.
+     * @param el
+     * @param connectionType
+     */
+    isSource(el: T["E"], connectionType?: string): boolean;
+    /**
+     * Returns whether or not the given element is configured as a connection source and that it is currently enabled.
+     * @param el
+     * @param connectionType
+     */
     isSourceEnabled(el: T["E"], connectionType?: string): boolean;
-    toggleTargetEnabled(el: T["E"], connectionType?: string): any;
+    toggleTargetEnabled(el: T["E"], connectionType?: string): boolean;
     isTarget(el: T["E"], connectionType?: string): boolean;
     isTargetEnabled(el: T["E"], connectionType?: string): boolean;
-    setTargetEnabled(el: T["E"], state: boolean, connectionType?: string): any;
+    setTargetEnabled(el: T["E"], state: boolean, connectionType?: string): boolean;
     private _unmake;
     private _unmakeEvery;
     unmakeTarget(el: T["E"], connectionType?: string): void;
@@ -244,6 +292,12 @@ export declare abstract class JsPlumbInstance<T extends {
     setSourceScope(el: T["E"], scope: string): void;
     setTargetScope(el: T["E"], scope: string): void;
     setScope(el: T["E"], scope: string): void;
+    /**
+     * Make the given element a connection target.
+     * @param el
+     * @param params
+     * @param referenceParams
+     */
     makeTarget(el: T["E"], params: BehaviouralTypeDescriptor, referenceParams?: any): JsPlumbInstance;
     show(el: T["E"], changeEndpoints?: boolean): JsPlumbInstance;
     hide(el: T["E"], changeEndpoints?: boolean): JsPlumbInstance;

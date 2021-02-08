@@ -41,6 +41,13 @@ export declare function addToDictionary<T>(map: Dictionary<Array<T>>, key: strin
 export declare function addToList<T>(map: Map<string, Array<T>>, key: string, value: any, insertAtStart?: boolean): Array<any>;
 export declare function suggest(list: Array<any>, item: any, insertAtHead?: boolean): boolean;
 export declare function uuid(): string;
+/**
+ * Rotate the given point around the given center, by the given rotation (in degrees)
+ * @param point
+ * @param center
+ * @param rotation
+ * @return An array consisting of the rotated point, followed by cos theta and sin theta.
+ */
 export declare function rotatePoint(point: Array<number>, center: PointArray, rotation: number): [number, number, number, number];
 export interface RotatedPointXY extends PointXY {
     cr: number;
