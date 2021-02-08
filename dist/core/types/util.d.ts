@@ -33,7 +33,22 @@ export declare function functionChain(successValue: any, failValue: any, fns: Ar
  * @returns {any}
  */
 export declare function populate(model: any, values: any, functionPrefix?: string, doNotExpandFunctions?: boolean): any;
+/**
+ * Search each entry in the given array for an entry for which the function `f` returns true. This is a stand-in replacement for the
+ * `findIndex` method which is available on `Array` in modern browsers, but not IE11.
+ * @param a Array to search
+ * @param f Predicate to use to test each entry
+ * @return The index of the entry for which the predicate returned true, -1 if not found.
+ */
 export declare function findWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): number;
+/**
+ * Search each entry in the given array for an entry for which the function `f` returns true. This is a stand-in replacement for the
+ * `find` method which is available on `Array` in modern browsers, but not IE11.
+ * @param a Array to search
+ * @param f Predicate to use to test each entry
+ * @return The entry for which the predicate returned true, null if not found.
+ */
+export declare function getWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): T;
 export declare function removeWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): boolean;
 export declare function remove<T>(l: Array<T>, v: T): boolean;
 export declare function addWithFunction<T>(list: Array<T>, item: T, hashFunction: (_a: T) => boolean): void;

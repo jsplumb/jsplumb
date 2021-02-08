@@ -38,7 +38,7 @@ export declare class Viewport<T extends {
     private _updateBounds;
     private _recalculateBounds;
     private _finaliseUpdate;
-    shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
+    shouldFireEvent(event: string, value: unknown, originalEvent?: Event): boolean;
     startTransaction(): void;
     endTransaction(doNotFireUpdate?: boolean): void;
     updateElements(entries: Array<{

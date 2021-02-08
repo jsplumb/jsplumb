@@ -2,6 +2,8 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
+var constants = require('@jsplumb/core/constants');
+
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
@@ -627,6 +629,10 @@ function findWithFunction(a, f) {
     }
   }
   return -1;
+}
+function getWithFunction(a, f) {
+  var idx = findWithFunction(a, f);
+  return idx === -1 ? null : a[idx];
 }
 function removeWithFunction(a, f) {
   var idx = findWithFunction(a, f);
@@ -3120,6 +3126,7 @@ var EVENT_NESTED_GROUP_ADDED = "nestedGroupAdded";
 var EVENT_NESTED_GROUP_REMOVED = "nestedGroupRemoved";
 var EVENT_TAP = "tap";
 var EVENT_UNMANAGE_ELEMENT = "unmanageElement";
+var EVENT_UPDATE = "update";
 var EVENT_ZOOM = "zoom";
 var IS_DETACH_ALLOWED = "isDetachAllowed";
 var IS_GROUP_KEY = "_isJsPlumbGroup";
@@ -4264,7 +4271,7 @@ function (_Anchor) {
   }, {
     key: "setAnchorCoordinates",
     value: function setAnchorCoordinates(coords) {
-      var idx = this.anchors.findIndex(function (a) {
+      var idx = findWithFunction(this.anchors, function (a) {
         return a.x === coords[0] && a.y === coords[1];
       });
       if (idx !== -1) {
@@ -7479,7 +7486,7 @@ function (_EventGenerator) {
   _createClass(Viewport, [{
     key: "_clearElementIndex",
     value: function _clearElementIndex(id, array) {
-      var idx = array.findIndex(function (entry) {
+      var idx = findWithFunction(array, function (entry) {
         return entry[0] === id;
       });
       if (idx > -1) {
@@ -7489,7 +7496,7 @@ function (_EventGenerator) {
   }, {
     key: "_fireUpdate",
     value: function _fireUpdate(payload) {
-      this.fire("update", payload || {});
+      this.fire(constants.EVENT_UPDATE, payload || {});
     }
   }, {
     key: "_updateBounds",
@@ -9250,9 +9257,9 @@ function (_EventGenerator) {
         connection.proxies[index].originalEp.setVisible(true);
       }
       connection.proxies[index] = null;
-      if (connection.proxies.find(function (p) {
+      if (findWithFunction(connection.proxies, function (p) {
         return p != null;
-      }) == null) {
+      }) === -1) {
         connection.proxies.length = 0;
       }
     }
@@ -9788,6 +9795,7 @@ exports.EVENT_NESTED_GROUP_ADDED = EVENT_NESTED_GROUP_ADDED;
 exports.EVENT_NESTED_GROUP_REMOVED = EVENT_NESTED_GROUP_REMOVED;
 exports.EVENT_TAP = EVENT_TAP;
 exports.EVENT_UNMANAGE_ELEMENT = EVENT_UNMANAGE_ELEMENT;
+exports.EVENT_UPDATE = EVENT_UPDATE;
 exports.EVENT_ZOOM = EVENT_ZOOM;
 exports.Endpoint = Endpoint;
 exports.EndpointFactory = EndpointFactory;
@@ -9858,6 +9866,7 @@ exports.fastTrim = fastTrim;
 exports.filterList = filterList;
 exports.findWithFunction = findWithFunction;
 exports.functionChain = functionChain;
+exports.getWithFunction = getWithFunction;
 exports.getsert = getsert;
 exports.gradientAtPoint = gradientAtPoint;
 exports.gradientAtPointAlongPathFrom = gradientAtPointAlongPathFrom;

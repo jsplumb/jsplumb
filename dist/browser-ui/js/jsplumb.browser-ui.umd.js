@@ -2239,7 +2239,7 @@
         });
         elementIds.forEach(function (id) {
           core.optional(_this9._dragGroupByElementIdMap[id]).map(function (dragGroup) {
-            core.optional(Array.from(dragGroup.members).find(function (m) {
+            core.optional(core.getWithFunction(Array.from(dragGroup.members), function (m) {
               return m.elId === id;
             })).map(function (member) {
               member.active = state;
@@ -2250,7 +2250,7 @@
     }, {
       key: "isActiveDragGroupMember",
       value: function isActiveDragGroupMember(dragGroup, el) {
-        var details = Array.from(dragGroup.members).find(function (m) {
+        var details = core.getWithFunction(Array.from(dragGroup.members), function (m) {
           return m.el === el;
         });
         if (details !== null) {

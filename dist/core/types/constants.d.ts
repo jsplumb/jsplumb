@@ -79,6 +79,7 @@ export declare const EVENT_NESTED_GROUP_ADDED = "nestedGroupAdded";
 export declare const EVENT_NESTED_GROUP_REMOVED = "nestedGroupRemoved";
 export declare const EVENT_TAP = "tap";
 export declare const EVENT_UNMANAGE_ELEMENT = "unmanageElement";
+export declare const EVENT_UPDATE = "update";
 export declare const EVENT_ZOOM = "zoom";
 export declare const IS_DETACH_ALLOWED = "isDetachAllowed";
 export declare const IS_GROUP_KEY = "_isJsPlumbGroup";
