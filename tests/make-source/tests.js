@@ -11,7 +11,7 @@ var testSuite = function () {
         setup: function () {
             _jsPlumb = jsPlumbBrowserUI.newInstance({container:container});
             support = jsPlumbTestSupport.getInstance(_jsPlumb);
-            defaults = Object.assign({}, _jsPlumb.Defaults);
+            defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
         }
     });
 
@@ -296,7 +296,7 @@ var testSuite = function () {
         try {
             _jsPlumb.isSource(null);
             ok(true, "requesting isSource with null argument doesnt throw an error");
-        } catch {
+        } catch(e) {
             ok(false, "requesting isSource with null argument threw an error when it shouldnt have");
         }
     });
@@ -412,7 +412,7 @@ var testSuite = function () {
         try {
             _jsPlumb.isTarget(null);
             ok(true, "requesting isTarget with null argument doesnt throw an error");
-        } catch {
+        } catch(e) {
             ok(false, "requesting isTarget with null argument threw an error when it shouldnt have");
         }
     });
