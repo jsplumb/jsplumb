@@ -68,7 +68,8 @@ import {
     CustomOverlay,
     isCustomOverlay,
     DeleteConnectionOptions,
-    forEach
+    forEach,
+    fromArray
 } from '@jsplumb/core'
 
 import { _attr,
@@ -696,7 +697,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         const currentContainer = this.getContainer()
         if (currentContainer != null) {
             currentContainer.removeAttribute(ATTRIBUTE_CONTAINER)
-            const children = Array.from(currentContainer.childNodes).filter( (cn:HTMLElement) => {
+            const children = fromArray(currentContainer.childNodes).filter( (cn:HTMLElement) => {
                 const cl = cn.classList
                 return (cl && (cl.contains(CLASS_CONNECTOR) ||  cl.contains(CLASS_ENDPOINT) || cl.contains(CLASS_OVERLAY)) ||
                     cn.getAttribute && cn.getAttribute(ATTRIBUTE_MANAGED) != null
