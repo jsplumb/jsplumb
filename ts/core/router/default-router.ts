@@ -4,10 +4,10 @@ import { JsPlumbInstance } from "../core"
 import { Connection } from '../connector/connection-impl'
 import { Endpoint } from '../endpoint/endpoint'
 import {ViewportElement} from "../viewport"
-import { ConnectionDetachedParams, Dictionary, Offset, PointArray, PointXY, SortFunction } from "../common"
+import {ConnectionDetachedParams, Dictionary, Offset, PointArray, PointXY, Rotations, SortFunction} from "../common"
 import {AnchorComputeParams, AnchorOrientationHint, Face, Orientation} from "../factory/anchor-factory"
 import { DynamicAnchor } from "../anchor/dynamic-anchor"
-import {findWithFunction, removeWithFunction, rotatePoint, rotatePointXY, sortHelper, uuid} from "../util"
+import {findWithFunction, removeWithFunction, rotatePoint, sortHelper, uuid} from "../util"
 import {ContinuousAnchor} from "../anchor/continuous-anchor"
 import { Anchor } from '../anchor/anchor'
 
@@ -148,13 +148,21 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
         const candidate:[ number, number, number, number ] = [ xy[0] + (anchor.x * wh[0]) + anchor.offsets[0], xy[1] + (anchor.y * wh[1]) + anchor.offsets[1], anchor.x, anchor.y ]
 
         const rotation = params.rotation;
-        if (rotation != null && rotation !== 0) {
-            const c2 = rotatePoint(candidate, [ xy[0] + (wh[0] / 2), xy[1] + (wh[1] / 2)], rotation)
+        if (rotation != null && rotation.length > 0) {
 
-            anchor.orientation[0] = Math.round((anchor._unrotatedOrientation[0] * c2[2]) - (anchor._unrotatedOrientation[1] * c2[3]));
-            anchor.orientation[1] = Math.round((anchor._unrotatedOrientation[1] * c2[2]) + (anchor._unrotatedOrientation[0] * c2[3]));
+            let o = anchor._unrotatedOrientation.slice(), current = candidate.slice()
 
-            anchor.lastReturnValue = [ c2[0], c2[1], anchor.x, anchor.y ]
+            rotation.forEach((r) => {
+                current = rotatePoint(current, r.c, r.r)
+                let _o = [ Math.round((o[0] * current[2]) - (o[1] * current[3])),
+                        Math.round((o[1] * current[2]) + (o[0] * current[3])) ]
+                o = _o.slice()
+            })
+
+            anchor.orientation[0] = o[0]
+            anchor.orientation[1] = o[1]
+            anchor.lastReturnValue = [current[0], current[1], anchor.x, anchor.y]
+
         } else {
             anchor.orientation[0] = anchor._unrotatedOrientation[0];
             anchor.orientation[1] = anchor._unrotatedOrientation[1];
@@ -235,14 +243,14 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
                     wh: [sourceInfo.w, sourceInfo.h],
                     element: sE,
                     timestamp: timestamp,
-                    rotation:sourceInfo.r
+                    rotation:this.instance.getRotations(connection.sourceId)
             }),
             tAnchorP = this.getEndpointLocation(tE, {
                 xy: [targetInfo.x, targetInfo.y],
                 wh: [targetInfo.w, targetInfo.h],
                 element: tE,
                 timestamp: timestamp,
-                rotation:targetInfo.r
+                rotation:this.instance.getRotations(connection.targetId)
             })
 
         connection.connector.resetBounds()
@@ -469,15 +477,16 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
                                 this._updateAnchorList( this.anchorLists[targetId], -Math.PI / 2, 0, conn, false, sourceId, 1, false, "top", connectionsToPaint, endpointsToPaint)
                             }
                             else {
-                                const sourceRotation = this.instance.getRotation(sourceId);
-                                const targetRotation = this.instance.getRotation(targetId);
+                                const sourceRotation = this.instance.getRotations(sourceId)
+                                const targetRotation = this.instance.getRotations(targetId)
 
                                 if (!o) {
                                     o = this.calculateOrientation(sourceId, targetId, sd, td,
                                         (conn.endpoints[0].anchor as ContinuousAnchor),
                                         (conn.endpoints[1].anchor as ContinuousAnchor),
                                         sourceRotation,
-                                        targetRotation)
+                                        targetRotation
+                                    )
                                     orientationCache[oKey] = o
                                 }
                                 if (sourceContinuous) {
@@ -549,11 +558,13 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
 
 
     private calculateOrientation (sourceId:string, targetId:string,
-                                  sd:ViewportElement<T["E"]>, td:ViewportElement<T["E"]>,
+                                  sd:ViewportElement<T["E"]>,
+                                  td:ViewportElement<T["E"]>,
                                   sourceAnchor:ContinuousAnchor,
                                   targetAnchor:ContinuousAnchor,
-                                  sourceRotation:number,
-                                  targetRotation:number):OrientationResult {
+                                  sourceRotation:Rotations,
+                                  targetRotation:Rotations
+    ):OrientationResult {
 
         let Orientation = { HORIZONTAL: "horizontal", VERTICAL: "vertical", DIAGONAL: "diagonal", IDENTITY: "identity" }
 
@@ -580,7 +591,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
                 right:PointXY,
                 bottom:PointXY
             }> = { }
-        ;(function (types:Array<string>, dim:Array<[ViewportElement<T["E"]>, number]>) {
+        ;( (types:Array<string>, dim:Array<[ViewportElement<T["E"]>, Rotations]>) => {
             for (let i = 0; i < types.length; i++) {
                 midpoints[types[i]] = {
                     "left": {x:dim[i][0].x, y:dim[i][0].c[1] },
@@ -589,9 +600,10 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
                     "bottom": {x:dim[i][0].c[0], y:dim[i][0].y + dim[i][0].h}
                 }
 
-                if (dim[i][1] !== 0) {
+
+                if (dim[i][1] != null && dim[i][1].length > 0) {
                     for (let axis in midpoints[types[i]]) {
-                        midpoints[types[i]][axis] = rotatePointXY(midpoints[types[i]][axis], {x:dim[i][0].c[0], y:dim[i][0].c[1]}, dim[i][1]);
+                        midpoints[types[i]][axis] = this.instance.applyRotationsXY(midpoints[types[i]][axis], dim[i][1])
                     }
                 }
 
