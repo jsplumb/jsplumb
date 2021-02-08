@@ -57,11 +57,15 @@ export class UIGroup<E = any> extends UINode<E> {
 
     id:string
 
-    constructor(public instance:JsPlumbInstance, el:any, options:GroupOptions) {
-        super(instance, el)
-        this.el[Constants.IS_GROUP_KEY] = true
+    readonly elId:string
 
+    constructor(public instance:JsPlumbInstance, el:E, options:GroupOptions) {
+        super(instance, el)
+
+        this.el[Constants.IS_GROUP_KEY] = true
         this.el[Constants.GROUP_KEY] = this
+
+        this.elId = instance.getId(el)
 
         this.revert = options.revert !== false
         this.droppable = options.droppable !== false
@@ -191,7 +195,7 @@ export class UIGroup<E = any> extends UINode<E> {
 
             const groupElId = this.instance.getId(group.el)
             const entry = this.instance.getManagedElements()[groupElId]
-            entry.group = this.id
+            entry.group = this.elId
             const elpos = this.instance.getOffsetRelativeToRoot(group.el)
             const cpos = this.collapsed ? this.instance.getOffsetRelativeToRoot(this.el) : this.instance.getOffsetRelativeToRoot(this.getContentArea())
 
