@@ -334,6 +334,35 @@ export function getWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): T {
 }
 
 /**
+ * Extract a value from the set where the given predicate returns true for that value.
+ * @param s
+ * @param f
+ */
+export function getFromSetWithFunction<T>(s:Set<T>, f:(_a:T) => boolean) : T {
+    let it:IteratorResult<T>
+    const values = s.values()
+    while((it = values.next()).done !== true) {
+        if (f(it.value)) {
+            return it.value
+        }
+    }
+}
+
+/**
+ * Convert a set into an array. This is not needed for modern browsers but for IE11 compatibility we use this in jsplumb.
+ * @param s
+ */
+export function setToArray<T>(s:Set<T>):Array<T> {
+    const a:Array<T> = []
+    let it:IteratorResult<T>
+    const values = s.values()
+    while((it = values.next()).done !== true) {
+        a.push(it.value)
+    }
+    return a
+}
+
+/**
  * Remove the entry from the array for which the function `f` returns true.
  * @param a
  * @param f
@@ -345,6 +374,21 @@ export function removeWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): boole
         a.splice(idx, 1)
     }
     return idx !== -1
+}
+
+/**
+ * A shim for the `fromArray` method, which is not present in IE11.  This method falls back to `fromArray` if it is present.
+ * @param a Array-like object to convert into an Array
+ * @return An Array
+ */
+export function fromArray<T>(a:ArrayLike<T>):Array<T> {
+    if ((Array as any).fromArray != null) {
+        return Array.from(a)
+    } else {
+        const arr:Array<T> = []
+        Array.prototype.push.apply(arr, a)
+        return arr
+    }
 }
 
 export function remove<T>(l: Array<T>, v: T): boolean {
