@@ -263,6 +263,7 @@ var testSuite = function () {
         var d1 = support.addDiv("d1");
 
         var g = _jsPlumb.addGroup({el:gg})
+        var groupElId = g.elId
 
         equal(g.children.length, 0, "0 members in group");
 
@@ -275,7 +276,7 @@ var testSuite = function () {
         ok(_jsPlumb._managedElements[d1Id] != null, "d1 is in the managed elements map")
         ok(_jsPlumb._managedElements[ggId] != null, "group1 element is in the managed elements map")
 
-        equal(g.id, _jsPlumb._managedElements[d1Id].group, "group's id has been registered as `group` for element d1")
+        equal(groupElId, _jsPlumb._managedElements[d1Id].group, "group element's jtk-id has been registered as `group` for element d1")
 
         _jsPlumb.removeFromGroup(g, d1)
 
@@ -284,7 +285,7 @@ var testSuite = function () {
 
         // add back to group
         _jsPlumb.addToGroup(g, d1);
-        equal(g.id, _jsPlumb._managedElements[d1Id].group, "group id has been registered as `group` for element d1")
+        equal(g.elId, _jsPlumb._managedElements[d1Id].group, "group id has been registered as `group` for element d1")
 
         // now remove the group. it should no longer be the `group` for d1
         _jsPlumb.removeGroup(g)
@@ -316,7 +317,7 @@ var testSuite = function () {
         ok(_jsPlumb._managedElements[gg2Id] != null, "group2 element is in the managed elements map")
         ok(_jsPlumb._managedElements[ggId] != null, "group1 element is in the managed elements map")
 
-        equal(g.id, _jsPlumb._managedElements[gg2Id].group, "group1's id has been registered as `group` for the element related to group2")
+        equal(g.elId, _jsPlumb._managedElements[gg2Id].group, "group1's id has been registered as `group` for the element related to group2")
         //
          g.removeGroup(g2)
         equal(g.childGroups.length, 0, "0 child groups in group1");
@@ -324,7 +325,7 @@ var testSuite = function () {
         //
         // add back to group
         g.addGroup(g2)
-        equal(g.id, _jsPlumb._managedElements[gg2Id].group, "group1 id has been registered as `group` for element related to group 2")
+        equal(g.elId, _jsPlumb._managedElements[gg2Id].group, "group1 id has been registered as `group` for element related to group 2")
         //
         // now remove the group. it should no longer be the `group` for d1
         _jsPlumb.removeGroup(g)
