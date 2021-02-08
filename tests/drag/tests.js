@@ -3,12 +3,12 @@ QUnit.config.reorder = false;
 var defaults = null, support, _jsPlumb;
 
 var reinit = function(defaults) {
-    var d = Object.assign({container:container}, defaults || {});
+    var d = jsPlumb.extend({container:container}, defaults || {});
     support.cleanup()
 
     _jsPlumb = jsPlumbBrowserUI.newInstance((d));
     support = jsPlumbTestSupport.getInstance(_jsPlumb);
-    defaults = Object.assign({}, _jsPlumb.Defaults);
+    defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
 }
 
 /**
@@ -56,7 +56,7 @@ var testSuite = function () {
         setup: function () {
             _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
             support = jsPlumbTestSupport.getInstance(_jsPlumb);
-            defaults = Object.assign({}, _jsPlumb.Defaults);
+            defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
 
             var epElCount = document.querySelectorAll(".jtk-endpoint").length,
                 connElCount = document.querySelectorAll(".jtk-connector").length;
@@ -581,8 +581,8 @@ var testSuite = function () {
     test("connection dragging, simple drag and detach case", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
         
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeSource(el, { }));
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { }); });
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { }) });
 
         support.dragConnection(d1, d2);
         equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
@@ -608,12 +608,12 @@ var testSuite = function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
         
         d1.setAttribute("foo", "the value of foo");
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeSource(el, {
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, {
             extract:{
                 "foo":"fooAttribute"
             }
-        }));
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
+        })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
 
         var con = support.dragConnection(d1, d2);
         equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
@@ -624,8 +624,8 @@ var testSuite = function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
         
         _jsPlumb.bind("beforeDetach", function() { return false; });
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeSource(el, { }));
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
 
         support.dragConnection(d1, d2);
         equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
@@ -643,8 +643,8 @@ var testSuite = function () {
 
     test("connection dragging, simple drag and detach case, reattach=true on connection prevents detach.", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeSource(el, { }));
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
 
         support.dragConnection(d1, d2);
         equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
@@ -663,8 +663,8 @@ var testSuite = function () {
 
     test("connection dragging, simple move target case", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeSource(el, { }));
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
 
         var c = _jsPlumb.connect({source: d1, target: d2});
         equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
@@ -686,8 +686,8 @@ var testSuite = function () {
     // DRAG SOURCE TO ANOTHER SOURCE
     test("connection dragging, simple move source case", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeSource(el, { }));
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
+        [d1,d2,d3].forEach(function(el) {  _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
 
         var c = _jsPlumb.connect({source: d1, target: d2});
         equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
@@ -705,8 +705,8 @@ var testSuite = function () {
     test("connection dragging, simple move source case, continuous anchors", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
         _jsPlumb.importDefaults({anchor:"Continuous"});
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeSource(el, { }));
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
 
         var c = _jsPlumb.connect({source: d1, target: d2});
         equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
@@ -724,8 +724,8 @@ var testSuite = function () {
     test("connection dragging, simple move target case, beforeDetach aborts the move (and causes the connection to be reattached)", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
         _jsPlumb.bind("beforeDetach", function() { return false; });
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeSource(el, { }));
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
 
         var c = _jsPlumb.connect({source: d1, target: d2});
         equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
@@ -758,8 +758,8 @@ var testSuite = function () {
     test("connection dragging, simple move source case, beforeDetach aborts the move", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
         _jsPlumb.bind("beforeDetach", function() { return false; });
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeSource(el, { }));
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
 
         var c = _jsPlumb.connect({source: d1, target: d2});
         equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
@@ -773,8 +773,8 @@ var testSuite = function () {
 
     test("connection dragging, simple move case, connection reattach=true aborts the move", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeSource(el, { }));
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
 
         var c = _jsPlumb.connect({source: d1, target: d2});
         c.setReattach(true);
@@ -795,8 +795,8 @@ var testSuite = function () {
             d3 = _addDiv("d3", 450, 450, 100, 100),
             d4 = _addDiv("d4", 650, 650, 100, 100);
 
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeSource(el, { }));
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
 
         var c = _jsPlumb.connect({source: d1, target: d2});
         equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
@@ -814,8 +814,8 @@ var testSuite = function () {
             d2 = _addDiv("d2", 250, 250, 100, 100),
             d3 = _addDiv("d3", 450, 450, 100, 100),
             d4 = _addDiv("d4", 650, 650, 100, 100);
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeSource(el, { }));
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
 
         var c = _jsPlumb.connect({source: d1, target: d2});
         equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
@@ -834,8 +834,8 @@ var testSuite = function () {
             d2 = _addDiv("d2", 250, 250, 100, 100),
             d3 = _addDiv("d3", 450, 450, 100, 100),
             d4 = _addDiv("d4", 650, 650, 100, 100);
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeSource(el, { }));
-        [d1,d2,d3,d4].forEach((el) => _jsPlumb.makeTarget(el, { }));
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3,d4].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
 
         var c = _jsPlumb.connect({source: d1, target: d2});
         equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
@@ -857,8 +857,8 @@ var testSuite = function () {
             d4 = _addDiv("d4", 650, 650, 100, 100);
 
         _jsPlumb.bind("beforeDetach", function() { return false; });
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeSource(el, { }));
-        [d1,d2,d3,d4].forEach((el) => _jsPlumb.makeTarget(el, { }));
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3,d4].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
 
         var c = _jsPlumb.connect({source: d1, target: d2});
         equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
@@ -879,8 +879,8 @@ var testSuite = function () {
             d4 = _addDiv("d4", 650, 650, 100, 100);
 
         _jsPlumb.bind("beforedrop", function() { return false; });
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeSource(el, { }));
-        [d1,d2,d3,d4].forEach((el) => _jsPlumb.makeTarget(el, { }));
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3,d4].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
 
         var c = _jsPlumb.connect({source: d1, target: d2});
         equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
@@ -900,8 +900,8 @@ var testSuite = function () {
             d3 = _addDiv("d3", 450, 450, 100, 100),
             d4 = _addDiv("d4", 650, 650, 100, 100);
 
-        [d1,d2,d3,d4].forEach((el) => _jsPlumb.makeSource(el, { }));
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
+        [d1,d2,d3,d4].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
 
         var c = _jsPlumb.connect({source: d1, target: d2});
         equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
@@ -930,8 +930,8 @@ var testSuite = function () {
             d4 = _addDiv("d4", 650, 650, 100, 100);
 
         _jsPlumb.bind("beforeDetach", function() { return false; });
-        [d1,d2,d3,d4].forEach((el) => _jsPlumb.makeSource(el, { }));
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
+        [d1,d2,d3,d4].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
 
         var c = _jsPlumb.connect({source: d1, target: d2});
         equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
@@ -955,8 +955,8 @@ var testSuite = function () {
             d3 = _addDiv("d3", 450, 450, 100, 100),
             d4 = _addDiv("d4", 650, 650, 100, 100);
 
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeSource(el, { endpoint:"Rectangle", anchor:"Left"}));
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { endpoint:"Rectangle", anchor:"Left"})});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
 
         support.dragConnection(d1, d2);
         equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
@@ -985,7 +985,7 @@ var testSuite = function () {
         _jsPlumb.makeSource(d1, { connectionType:"basic", endpoint:"Rectangle", anchor:"Left"});
         _jsPlumb.makeSource(d2, { connectionType:"basic"});
         //_jsPlumb.makeTarget([d1, d2, d3]);
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
 
         support.dragConnection(d1, d3);
         equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
@@ -1050,8 +1050,8 @@ var testSuite = function () {
             d3 = _addDiv("d3", 450, 450, 100, 100),
             d4 = _addDiv("d4", 650, 650, 100, 100);
 
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeSource(el, { }));
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { endpoint:"Rectangle", anchor:"Top"}));
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { endpoint:"Rectangle", anchor:"Top"})});
 
         support.dragConnection(d1, d2);
         equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
@@ -1077,8 +1077,8 @@ var testSuite = function () {
             d3 = _addDiv("d3", 450, 450, 100, 100),
             d4 = _addDiv("d4", 650, 650, 100, 100);
 
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeSource(el, { }));
-        [d1,d2,d3].forEach((el) => _jsPlumb.makeTarget(el, { }));
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
         /*
          var c = _jsPlumb.connect({source:d1, target:d2});
          equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after programmatic connect");
@@ -1863,7 +1863,8 @@ var testSuite = function () {
 
         ok(!ec1.classList.contains("endpointDrag"), "endpointDrag class removed from endpoint after drag");
         ok(!ec1.classList.contains("jtk-dragging"), "jtk-dragging class removed from endpoint after drag");
-        ok(!cc.classList.contains("jtk-dragging"), "jtk-dragging class removed from connection after drag");
+        // Use jsplumb.hasClass here; IE11 doesnt have `classList` on SVG element
+        ok(!_jsPlumb.hasClass(cc, "jtk-dragging"), "jtk-dragging class removed from connection after drag");
 
     });
 
@@ -1881,7 +1882,8 @@ var testSuite = function () {
 
         ok(!ec1.classList.contains("endpointDrag"), "endpointDrag class removed from endpoint after drag");
         ok(!ec1.classList.contains("jtk-dragging"), "jtk-dragging class removed from endpoint after drag");
-        ok(!cc.classList.contains("jtk-dragging"), "jtk-dragging class removed from connection after drag");
+        // Use jsplumb.hasClass here; IE11 doesnt have `classList` on SVG element
+        ok(!_jsPlumb.hasClass(cc, "jtk-dragging"), "jtk-dragging class removed from connection after drag");
 
         support.dragtoDistantLand(e2);
 
