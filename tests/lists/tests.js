@@ -1,5 +1,5 @@
 QUnit.config.reorder = false;
-var defaults = null, support, _jsPlumb;
+var defaults = null, support, _jsPlumb, divs = []
 
 function makeAList(count, x, y) {
     var parent = support.addDiv(support.uuid(), null, null, x, y)
@@ -13,6 +13,8 @@ function makeAList(count, x, y) {
 
     count = count || 10;
 
+    divs.push(parent);
+
     for (var i = 0; i < count; i++) {
         var child = document.createElement("div")
         parent.appendChild(child)
@@ -21,6 +23,7 @@ function makeAList(count, x, y) {
         child.style.flexBasis = "40px";
         child.style.outline = "1px solid";
         child.style.flexShrink = "0";
+        divs.push(child);
     }
 
     return parent;
@@ -57,6 +60,12 @@ var testSuite = function () {
     module("jsPlumb - Lists", {
         teardown: function () {
             support.cleanup();
+            for (var i = 0; i < divs.length; i++) {
+                try {
+                    divs[i].parentNode && divs[i].parentNode.removeChild(divs[i]);
+                }
+                catch (e) {}
+            }
         },
         setup: function () {
             _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
