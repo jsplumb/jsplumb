@@ -1,7 +1,7 @@
 import {PaintStyle} from "../styles"
 import  { Dictionary, TypeDescriptor, PointXY} from '../common'
 import { JsPlumbInstance } from "../core"
-import { extend, log, merge, populate } from "../util"
+import { extend, log, merge, populate, setToArray } from "../util"
 import {EventGenerator} from "../event-generator"
 import {Connection} from "../connector/connection-impl"
 import {Endpoint} from "../endpoint/endpoint"
@@ -48,7 +48,7 @@ function _applyTypes<E>(component:Component, params?:any) {
                         }
                     }
 
-                    o = merge(o, _t, [CSS_CLASS], Array.from(overrides))
+                    o = merge(o, _t, [CSS_CLASS], setToArray(overrides))
                     _mapType(map, _t, tid)
                 }
             }
