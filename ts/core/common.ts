@@ -117,7 +117,6 @@ export interface TargetDefinition extends SourceOrTargetDefinition { }
 
 export interface Offset {left:number, top:number}
 export type Size = [ number, number ]
-export type Rotation = number
 export type PointArray = [ number, number ]
 export interface PointXY { x:number, y:number, theta?:number }
 export type BoundingBox = { x:number, y:number, w:number, h:number, center?:PointXY }
@@ -148,4 +147,7 @@ export type SortFunction<T> = (a:T,b:T) => number
 export type Constructable<T> = { new(...args: any[]): T }
 
 export type Timestamp = string
+
+export interface Rotation {r:number, c:PointArray}
+export type Rotations = Array<Rotation>
 
