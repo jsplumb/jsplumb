@@ -150,7 +150,7 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
         maxy:0
     };
 
-    private _clearElementIndex(id:string, array:Array<any>) {
+    private _clearElementIndex<T>(id:string, array:Array<T>) {
         const idx = findWithFunction(array, (entry) => {
             return entry[0] === id
         })
@@ -203,7 +203,7 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
         this._updateBounds(id, e)
     }
 
-    shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean {
+    shouldFireEvent(event: string, value: unknown, originalEvent?: Event): boolean {
         return !this._eventsSuspended
     }
 
