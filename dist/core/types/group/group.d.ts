@@ -26,7 +26,7 @@ export declare class UINode<E> {
 }
 export declare class UIGroup<E = any> extends UINode<E> {
     instance: JsPlumbInstance;
-    children: Array<any>;
+    children: Array<E>;
     childGroups: Array<UIGroup<E>>;
     collapsed: boolean;
     droppable: boolean;

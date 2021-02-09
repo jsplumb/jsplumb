@@ -1,4 +1,4 @@
-import { fastTrim, isArray, log, NONE, forEach, EVENT_CONTEXTMENU, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, EVENT_CLICK, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, uuid, IS, extend, PARENT_GROUP_KEY, wrap, isString, optional, getWithFunction, GROUP_KEY, cls, each, makeAnchorFromSpec, findWithFunction, IS_GROUP_KEY, SOURCE, TARGET, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, SELECTOR_MANAGED_ELEMENT, Connection, Endpoint, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, UNDEFINED, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, ATTRIBUTE_NOT_DRAGGABLE, TRUE as TRUE$1, FALSE as FALSE$1, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, LabelOverlay, CustomOverlay, EndpointRepresentation, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/core';
+import { fastTrim, forEach, isArray, log, NONE, EVENT_CONTEXTMENU, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, EVENT_CLICK, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, uuid, IS, extend, PARENT_GROUP_KEY, wrap, isString, optional, getFromSetWithFunction, GROUP_KEY, cls, each, makeAnchorFromSpec, findWithFunction, IS_GROUP_KEY, SOURCE, TARGET, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, SELECTOR_MANAGED_ELEMENT, Connection, Endpoint, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, UNDEFINED, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, fromArray, ATTRIBUTE_NOT_DRAGGABLE, TRUE as TRUE$1, FALSE as FALSE$1, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, LabelOverlay, CustomOverlay, EndpointRepresentation, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/core';
 
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -253,7 +253,7 @@ function _setClassName(el, cn, classList) {
   }
 }
 function _getClassName(el) {
-  return typeof el.className.baseVal === "undefined" ? el.className : el.className.baseVal;
+  return el.className != null ? typeof el.className.baseVal === "undefined" ? el.className : el.className.baseVal : "";
 }
 function _classManip(el, classesToAdd, classesToRemove) {
   var cta = classesToAdd == null ? [] : isArray(classesToAdd) ? classesToAdd : classesToAdd.split(/\s+/);
@@ -284,8 +284,10 @@ function getClass(el) {
 function addClass(el, clazz) {
   if (el != null && clazz != null && clazz.length > 0) {
     if (el.classList) {
-      var _el$classList;
-      (_el$classList = el.classList).add.apply(_el$classList, _toConsumableArray(fastTrim(clazz).split(/\s+/)));
+      var parts = fastTrim(clazz).split(/\s+/);
+      forEach(parts, function (part) {
+        el.classList.add(part);
+      });
     } else {
       _classManip(el, clazz);
     }
@@ -301,8 +303,10 @@ function hasClass(el, clazz) {
 function removeClass(el, clazz) {
   if (el != null && clazz != null && clazz.length > 0) {
     if (el.classList) {
-      var _el$classList2;
-      (_el$classList2 = el.classList).remove.apply(_el$classList2, _toConsumableArray(fastTrim(clazz).split(/\s+/)));
+      var parts = fastTrim(clazz).split(/\s+/);
+      parts.forEach(function (part) {
+        el.classList.remove(part);
+      });
     } else {
       _classManip(el, null, clazz);
     }
@@ -2211,13 +2215,11 @@ function () {
         var dragGroup = _this8._dragGroupByElementIdMap[id];
         if (dragGroup != null) {
           var s = new Set();
-          var p;
-          var e = dragGroup.members.values();
-          while (!(p = e.next()).done) {
-            if (p.value.el !== el) {
-              s.add(p.value);
+          dragGroup.members.forEach(function (member) {
+            if (member.el !== el) {
+              s.add(member);
             }
-          }
+          });
           dragGroup.members = s;
           delete _this8._dragGroupByElementIdMap[id];
         }
@@ -2235,7 +2237,7 @@ function () {
       });
       forEach(elementIds, function (id) {
         optional(_this9._dragGroupByElementIdMap[id]).map(function (dragGroup) {
-          optional(getWithFunction(Array.from(dragGroup.members), function (m) {
+          optional(getFromSetWithFunction(dragGroup.members, function (m) {
             return m.elId === id;
           })).map(function (member) {
             member.active = state;
@@ -2246,7 +2248,7 @@ function () {
   }, {
     key: "isActiveDragGroupMember",
     value: function isActiveDragGroupMember(dragGroup, el) {
-      var details = getWithFunction(Array.from(dragGroup.members), function (m) {
+      var details = getFromSetWithFunction(dragGroup.members, function (m) {
         return m.el === el;
       });
       if (details !== null) {
@@ -4041,11 +4043,11 @@ function (_JsPlumbInstance) {
         if (!isString(ctx)) {
           var nodeList = document.createDocumentFragment();
           nodeList.appendChild(ctx);
-          return nodeList.childNodes;
+          return fromArray(nodeList.childNodes);
         }
-        sel = document.querySelectorAll(ctx);
+        sel = fromArray(document.querySelectorAll(ctx));
       } else {
-        sel = ctx.querySelectorAll(spec);
+        sel = fromArray(ctx.querySelectorAll(spec));
       }
       return sel;
     }
@@ -4125,6 +4127,7 @@ function (_JsPlumbInstance) {
   }, {
     key: "setContainer",
     value: function setContainer(newContainer) {
+      var _this2 = this;
       this._detachEventDelegates();
       if (this.dragManager != null) {
         this.dragManager.reset();
@@ -4133,9 +4136,8 @@ function (_JsPlumbInstance) {
       var currentContainer = this.getContainer();
       if (currentContainer != null) {
         currentContainer.removeAttribute(ATTRIBUTE_CONTAINER);
-        var children = Array.from(currentContainer.childNodes).filter(function (cn) {
-          var cl = cn.classList;
-          return cl && (cl.contains(CLASS_CONNECTOR) || cl.contains(CLASS_ENDPOINT) || cl.contains(CLASS_OVERLAY)) || cn.getAttribute && cn.getAttribute(ATTRIBUTE_MANAGED) != null;
+        var children = fromArray(currentContainer.childNodes).filter(function (cn) {
+          return cn != null && (_this2.hasClass(cn, CLASS_CONNECTOR) || _this2.hasClass(cn, CLASS_ENDPOINT) || _this2.hasClass(cn, CLASS_OVERLAY) || cn.getAttribute && cn.getAttribute(ATTRIBUTE_MANAGED) != null);
         });
         forEach(children, function (el) {
           newContainer.appendChild(el);
@@ -4181,12 +4183,12 @@ function (_JsPlumbInstance) {
   }, {
     key: "addToDragSelection",
     value: function addToDragSelection() {
-      var _this2 = this;
+      var _this3 = this;
       for (var _len = arguments.length, el = new Array(_len), _key = 0; _key < _len; _key++) {
         el[_key] = arguments[_key];
       }
       forEach(el, function (_el) {
-        return _this2.elementDragHandler.addToDragSelection(_el);
+        return _this3.elementDragHandler.addToDragSelection(_el);
       });
     }
   }, {
@@ -4197,23 +4199,23 @@ function (_JsPlumbInstance) {
   }, {
     key: "removeFromDragSelection",
     value: function removeFromDragSelection() {
-      var _this3 = this;
+      var _this4 = this;
       for (var _len2 = arguments.length, el = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
         el[_key2] = arguments[_key2];
       }
       forEach(el, function (_el) {
-        return _this3.elementDragHandler.removeFromDragSelection(_el);
+        return _this4.elementDragHandler.removeFromDragSelection(_el);
       });
     }
   }, {
     key: "toggleDragSelection",
     value: function toggleDragSelection() {
-      var _this4 = this;
+      var _this5 = this;
       for (var _len3 = arguments.length, el = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
         el[_key3] = arguments[_key3];
       }
       forEach(el, function (_el) {
-        return _this4.elementDragHandler.toggleDragSelection(_el);
+        return _this5.elementDragHandler.toggleDragSelection(_el);
       });
     }
   }, {

@@ -56,12 +56,29 @@ export declare function findWithFunction<T>(a: Array<T>, f: (_a: T) => boolean):
  */
 export declare function getWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): T;
 /**
+ * Extract a value from the set where the given predicate returns true for that value.
+ * @param s
+ * @param f
+ */
+export declare function getFromSetWithFunction<T>(s: Set<T>, f: (_a: T) => boolean): T;
+/**
+ * Convert a set into an array. This is not needed for modern browsers but for IE11 compatibility we use this in jsplumb.
+ * @param s
+ */
+export declare function setToArray<T>(s: Set<T>): Array<T>;
+/**
  * Remove the entry from the array for which the function `f` returns true.
  * @param a
  * @param f
  * @return true if an element was removed, false if not.
  */
 export declare function removeWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): boolean;
+/**
+ * A shim for the `fromArray` method, which is not present in IE11.  This method falls back to `fromArray` if it is present.
+ * @param a Array-like object to convert into an Array
+ * @return An Array
+ */
+export declare function fromArray<T>(a: ArrayLike<T>): Array<T>;
 export declare function remove<T>(l: Array<T>, v: T): boolean;
 export declare function addWithFunction<T>(list: Array<T>, item: T, hashFunction: (_a: T) => boolean): void;
 export declare function addToDictionary<T>(map: Dictionary<Array<T>>, key: string, value: any, insertAtStart?: boolean): Array<any>;

@@ -257,7 +257,7 @@
     }
   }
   function _getClassName(el) {
-    return typeof el.className.baseVal === "undefined" ? el.className : el.className.baseVal;
+    return el.className != null ? typeof el.className.baseVal === "undefined" ? el.className : el.className.baseVal : "";
   }
   function _classManip(el, classesToAdd, classesToRemove) {
     var cta = classesToAdd == null ? [] : core.isArray(classesToAdd) ? classesToAdd : classesToAdd.split(/\s+/);
@@ -288,8 +288,10 @@
   function addClass(el, clazz) {
     if (el != null && clazz != null && clazz.length > 0) {
       if (el.classList) {
-        var _el$classList;
-        (_el$classList = el.classList).add.apply(_el$classList, _toConsumableArray(core.fastTrim(clazz).split(/\s+/)));
+        var parts = core.fastTrim(clazz).split(/\s+/);
+        core.forEach(parts, function (part) {
+          el.classList.add(part);
+        });
       } else {
         _classManip(el, clazz);
       }
@@ -305,8 +307,10 @@
   function removeClass(el, clazz) {
     if (el != null && clazz != null && clazz.length > 0) {
       if (el.classList) {
-        var _el$classList2;
-        (_el$classList2 = el.classList).remove.apply(_el$classList2, _toConsumableArray(core.fastTrim(clazz).split(/\s+/)));
+        var parts = core.fastTrim(clazz).split(/\s+/);
+        parts.forEach(function (part) {
+          el.classList.remove(part);
+        });
       } else {
         _classManip(el, null, clazz);
       }
@@ -2215,13 +2219,11 @@
           var dragGroup = _this8._dragGroupByElementIdMap[id];
           if (dragGroup != null) {
             var s = new Set();
-            var p;
-            var e = dragGroup.members.values();
-            while (!(p = e.next()).done) {
-              if (p.value.el !== el) {
-                s.add(p.value);
+            dragGroup.members.forEach(function (member) {
+              if (member.el !== el) {
+                s.add(member);
               }
-            }
+            });
             dragGroup.members = s;
             delete _this8._dragGroupByElementIdMap[id];
           }
@@ -2239,7 +2241,7 @@
         });
         core.forEach(elementIds, function (id) {
           core.optional(_this9._dragGroupByElementIdMap[id]).map(function (dragGroup) {
-            core.optional(core.getWithFunction(Array.from(dragGroup.members), function (m) {
+            core.optional(core.getFromSetWithFunction(dragGroup.members, function (m) {
               return m.elId === id;
             })).map(function (member) {
               member.active = state;
@@ -2250,7 +2252,7 @@
     }, {
       key: "isActiveDragGroupMember",
       value: function isActiveDragGroupMember(dragGroup, el) {
-        var details = core.getWithFunction(Array.from(dragGroup.members), function (m) {
+        var details = core.getFromSetWithFunction(dragGroup.members, function (m) {
           return m.el === el;
         });
         if (details !== null) {
@@ -4045,11 +4047,11 @@
           if (!core.isString(ctx)) {
             var nodeList = document.createDocumentFragment();
             nodeList.appendChild(ctx);
-            return nodeList.childNodes;
+            return core.fromArray(nodeList.childNodes);
           }
-          sel = document.querySelectorAll(ctx);
+          sel = core.fromArray(document.querySelectorAll(ctx));
         } else {
-          sel = ctx.querySelectorAll(spec);
+          sel = core.fromArray(ctx.querySelectorAll(spec));
         }
         return sel;
       }
@@ -4129,6 +4131,7 @@
     }, {
       key: "setContainer",
       value: function setContainer(newContainer) {
+        var _this2 = this;
         this._detachEventDelegates();
         if (this.dragManager != null) {
           this.dragManager.reset();
@@ -4137,9 +4140,8 @@
         var currentContainer = this.getContainer();
         if (currentContainer != null) {
           currentContainer.removeAttribute(core.ATTRIBUTE_CONTAINER);
-          var children = Array.from(currentContainer.childNodes).filter(function (cn) {
-            var cl = cn.classList;
-            return cl && (cl.contains(core.CLASS_CONNECTOR) || cl.contains(core.CLASS_ENDPOINT) || cl.contains(core.CLASS_OVERLAY)) || cn.getAttribute && cn.getAttribute(core.ATTRIBUTE_MANAGED) != null;
+          var children = core.fromArray(currentContainer.childNodes).filter(function (cn) {
+            return cn != null && (_this2.hasClass(cn, core.CLASS_CONNECTOR) || _this2.hasClass(cn, core.CLASS_ENDPOINT) || _this2.hasClass(cn, core.CLASS_OVERLAY) || cn.getAttribute && cn.getAttribute(core.ATTRIBUTE_MANAGED) != null);
           });
           core.forEach(children, function (el) {
             newContainer.appendChild(el);
@@ -4185,12 +4187,12 @@
     }, {
       key: "addToDragSelection",
       value: function addToDragSelection() {
-        var _this2 = this;
+        var _this3 = this;
         for (var _len = arguments.length, el = new Array(_len), _key = 0; _key < _len; _key++) {
           el[_key] = arguments[_key];
         }
         core.forEach(el, function (_el) {
-          return _this2.elementDragHandler.addToDragSelection(_el);
+          return _this3.elementDragHandler.addToDragSelection(_el);
         });
       }
     }, {
@@ -4201,23 +4203,23 @@
     }, {
       key: "removeFromDragSelection",
       value: function removeFromDragSelection() {
-        var _this3 = this;
+        var _this4 = this;
         for (var _len2 = arguments.length, el = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
           el[_key2] = arguments[_key2];
         }
         core.forEach(el, function (_el) {
-          return _this3.elementDragHandler.removeFromDragSelection(_el);
+          return _this4.elementDragHandler.removeFromDragSelection(_el);
         });
       }
     }, {
       key: "toggleDragSelection",
       value: function toggleDragSelection() {
-        var _this4 = this;
+        var _this5 = this;
         for (var _len3 = arguments.length, el = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
           el[_key3] = arguments[_key3];
         }
         core.forEach(el, function (_el) {
-          return _this4.elementDragHandler.toggleDragSelection(_el);
+          return _this5.elementDragHandler.toggleDragSelection(_el);
         });
       }
     }, {

@@ -1,3 +1,9 @@
+## 4.0.0-RC51
+
+9th February 2021
+
+- Updated a few places in the code where `Array.from` was used - replaced this with an IE11 compatible hand rolled method.
+
 ## 4.0.0-RC50
 
 9th February 2021

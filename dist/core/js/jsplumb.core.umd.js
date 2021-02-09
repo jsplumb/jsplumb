@@ -643,12 +643,37 @@
     var idx = findWithFunction(a, f);
     return idx === -1 ? null : a[idx];
   }
+  function getFromSetWithFunction(s, f) {
+    var out = null;
+    s.forEach(function (t) {
+      if (f(t)) {
+        out = t;
+      }
+    });
+    return out;
+  }
+  function setToArray(s) {
+    var a = [];
+    s.forEach(function (t) {
+      a.push(t);
+    });
+    return a;
+  }
   function removeWithFunction(a, f) {
     var idx = findWithFunction(a, f);
     if (idx > -1) {
       a.splice(idx, 1);
     }
     return idx !== -1;
+  }
+  function fromArray(a) {
+    if (Array.fromArray != null) {
+      return Array.from(a);
+    } else {
+      var arr = [];
+      Array.prototype.push.apply(arr, a);
+      return arr;
+    }
   }
   function remove(l, v) {
     var idx = l.indexOf(v);
@@ -3327,7 +3352,7 @@
                 overrides.add(k);
               }
             }
-            o = merge(o, _t, [CSS_CLASS], Array.from(overrides));
+            o = merge(o, _t, [CSS_CLASS], setToArray(overrides));
             _mapType(map, _t, tid);
           }
         }
@@ -6027,9 +6052,9 @@
         var members = group.children.slice();
         var childMembers = [];
         forEach(members, function (member) {
-          return childMembers.push.apply(childMembers, _toConsumableArray(member.querySelectorAll("[jtk-managed]")));
+          Array.prototype.push.apply(childMembers, _this3.instance.getSelector(member, "[jtk-managed]"));
         });
-        members.push.apply(members, childMembers);
+        Array.prototype.push.apply(members, childMembers);
         if (members.length > 0) {
           var c1 = this.instance.getConnections({
             source: members,
@@ -6749,6 +6774,7 @@
     }, {
       key: "redraw",
       value: function redraw(elementId, ui, timestamp, offsetToUI) {
+        var _this3 = this;
         var connectionsToPaint = new Set(),
             endpointsToPaint = new Set(),
             anchorsToUpdate = new Set();
@@ -6767,192 +6793,116 @@
             };
           }
           var orientationCache = {};
-          var _iteratorNormalCompletion = true;
-          var _didIteratorError = false;
-          var _iteratorError = undefined;
-          try {
-            for (var _iterator = ep[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-              var anEndpoint = _step.value;
-              endpointsToPaint.add(anEndpoint);
-              if (anEndpoint.connections.length === 0) {
-                if (anEndpoint.anchor.isContinuous) {
-                  if (!this.anchorLists[elementId]) {
-                    this.anchorLists[elementId] = {
+          forEach(ep, function (anEndpoint) {
+            endpointsToPaint.add(anEndpoint);
+            if (anEndpoint.connections.length === 0) {
+              if (anEndpoint.anchor.isContinuous) {
+                if (!_this3.anchorLists[elementId]) {
+                  _this3.anchorLists[elementId] = {
+                    top: [],
+                    right: [],
+                    bottom: [],
+                    left: []
+                  };
+                }
+                _this3._updateAnchorList(_this3.anchorLists[elementId], -Math.PI / 2, 0, {
+                  endpoints: [anEndpoint, anEndpoint]
+                }, false, elementId, 0, false, anEndpoint.anchor.getDefaultFace(), connectionsToPaint, endpointsToPaint);
+                anchorsToUpdate.add(elementId);
+              }
+            } else {
+              for (var i = 0; i < anEndpoint.connections.length; i++) {
+                var conn = anEndpoint.connections[i],
+                    sourceId = conn.sourceId,
+                    targetId = conn.targetId,
+                    sourceContinuous = conn.endpoints[0].anchor.isContinuous,
+                    targetContinuous = conn.endpoints[1].anchor.isContinuous;
+                if (sourceContinuous || targetContinuous) {
+                  var oKey = sourceId + "_" + targetId,
+                      o = orientationCache[oKey],
+                      oIdx = conn.sourceId === elementId ? 1 : 0;
+                  if (sourceContinuous && !_this3.anchorLists[sourceId]) {
+                    _this3.anchorLists[sourceId] = {
                       top: [],
                       right: [],
                       bottom: [],
                       left: []
                     };
                   }
-                  this._updateAnchorList(this.anchorLists[elementId], -Math.PI / 2, 0, {
-                    endpoints: [anEndpoint, anEndpoint]
-                  }, false, elementId, 0, false, anEndpoint.anchor.getDefaultFace(), connectionsToPaint, endpointsToPaint);
-                  anchorsToUpdate.add(elementId);
-                }
-              } else {
-                for (var i = 0; i < anEndpoint.connections.length; i++) {
-                  var conn = anEndpoint.connections[i],
-                      sourceId = conn.sourceId,
-                      targetId = conn.targetId,
-                      sourceContinuous = conn.endpoints[0].anchor.isContinuous,
-                      targetContinuous = conn.endpoints[1].anchor.isContinuous;
-                  if (sourceContinuous || targetContinuous) {
-                    var oKey = sourceId + "_" + targetId,
-                        o = orientationCache[oKey],
-                        oIdx = conn.sourceId === elementId ? 1 : 0;
-                    if (sourceContinuous && !this.anchorLists[sourceId]) {
-                      this.anchorLists[sourceId] = {
-                        top: [],
-                        right: [],
-                        bottom: [],
-                        left: []
-                      };
-                    }
-                    if (targetContinuous && !this.anchorLists[targetId]) {
-                      this.anchorLists[targetId] = {
-                        top: [],
-                        right: [],
-                        bottom: [],
-                        left: []
-                      };
-                    }
-                    var td = this.instance.viewport.getPosition(targetId),
-                        sd = this.instance.viewport.getPosition(sourceId);
-                    if (targetId === sourceId && (sourceContinuous || targetContinuous)) {
-                      this._updateAnchorList(this.anchorLists[sourceId], -Math.PI / 2, 0, conn, false, targetId, 0, false, "top", connectionsToPaint, endpointsToPaint);
-                      this._updateAnchorList(this.anchorLists[targetId], -Math.PI / 2, 0, conn, false, sourceId, 1, false, "top", connectionsToPaint, endpointsToPaint);
-                    } else {
-                      var sourceRotation = this.instance.getRotations(sourceId);
-                      var targetRotation = this.instance.getRotations(targetId);
-                      if (!o) {
-                        o = this.calculateOrientation(sourceId, targetId, sd, td, conn.endpoints[0].anchor, conn.endpoints[1].anchor, sourceRotation, targetRotation);
-                        orientationCache[oKey] = o;
-                      }
-                      if (sourceContinuous) {
-                        this._updateAnchorList(this.anchorLists[sourceId], o.theta, 0, conn, false, targetId, 0, false, o.a[0], connectionsToPaint, endpointsToPaint);
-                      }
-                      if (targetContinuous) {
-                        this._updateAnchorList(this.anchorLists[targetId], o.theta2, -1, conn, true, sourceId, 1, true, o.a[1], connectionsToPaint, endpointsToPaint);
-                      }
+                  if (targetContinuous && !_this3.anchorLists[targetId]) {
+                    _this3.anchorLists[targetId] = {
+                      top: [],
+                      right: [],
+                      bottom: [],
+                      left: []
+                    };
+                  }
+                  var td = _this3.instance.viewport.getPosition(targetId),
+                      sd = _this3.instance.viewport.getPosition(sourceId);
+                  if (targetId === sourceId && (sourceContinuous || targetContinuous)) {
+                    _this3._updateAnchorList(_this3.anchorLists[sourceId], -Math.PI / 2, 0, conn, false, targetId, 0, false, "top", connectionsToPaint, endpointsToPaint);
+                    _this3._updateAnchorList(_this3.anchorLists[targetId], -Math.PI / 2, 0, conn, false, sourceId, 1, false, "top", connectionsToPaint, endpointsToPaint);
+                  } else {
+                    var sourceRotation = _this3.instance.getRotations(sourceId);
+                    var targetRotation = _this3.instance.getRotations(targetId);
+                    if (!o) {
+                      o = _this3.calculateOrientation(sourceId, targetId, sd, td, conn.endpoints[0].anchor, conn.endpoints[1].anchor, sourceRotation, targetRotation);
+                      orientationCache[oKey] = o;
                     }
                     if (sourceContinuous) {
-                      anchorsToUpdate.add(sourceId);
+                      _this3._updateAnchorList(_this3.anchorLists[sourceId], o.theta, 0, conn, false, targetId, 0, false, o.a[0], connectionsToPaint, endpointsToPaint);
                     }
                     if (targetContinuous) {
-                      anchorsToUpdate.add(targetId);
+                      _this3._updateAnchorList(_this3.anchorLists[targetId], o.theta2, -1, conn, true, sourceId, 1, true, o.a[1], connectionsToPaint, endpointsToPaint);
                     }
-                    connectionsToPaint.add(conn);
-                    if (sourceContinuous && oIdx === 0 || targetContinuous && oIdx === 1) {
-                      endpointsToPaint.add(conn.endpoints[oIdx]);
+                  }
+                  if (sourceContinuous) {
+                    anchorsToUpdate.add(sourceId);
+                  }
+                  if (targetContinuous) {
+                    anchorsToUpdate.add(targetId);
+                  }
+                  connectionsToPaint.add(conn);
+                  if (sourceContinuous && oIdx === 0 || targetContinuous && oIdx === 1) {
+                    endpointsToPaint.add(conn.endpoints[oIdx]);
+                  }
+                } else {
+                  var otherEndpoint = anEndpoint.connections[i].endpoints[conn.sourceId === elementId ? 1 : 0];
+                  if (otherEndpoint.anchor.constructor === DynamicAnchor) {
+                    _this3.instance.paintEndpoint(otherEndpoint, {
+                      elementWithPrecedence: elementId,
+                      timestamp: timestamp
+                    });
+                    connectionsToPaint.add(anEndpoint.connections[i]);
+                    for (var k = 0; k < otherEndpoint.connections.length; k++) {
+                      if (otherEndpoint.connections[k] !== anEndpoint.connections[i]) {
+                        connectionsToPaint.add(otherEndpoint.connections[k]);
+                      }
                     }
                   } else {
-                    var otherEndpoint = anEndpoint.connections[i].endpoints[conn.sourceId === elementId ? 1 : 0];
-                    if (otherEndpoint.anchor.constructor === DynamicAnchor) {
-                      this.instance.paintEndpoint(otherEndpoint, {
-                        elementWithPrecedence: elementId,
-                        timestamp: timestamp
-                      });
-                      connectionsToPaint.add(anEndpoint.connections[i]);
-                      for (var k = 0; k < otherEndpoint.connections.length; k++) {
-                        if (otherEndpoint.connections[k] !== anEndpoint.connections[i]) {
-                          connectionsToPaint.add(otherEndpoint.connections[k]);
-                        }
-                      }
-                    } else {
-                      connectionsToPaint.add(anEndpoint.connections[i]);
-                    }
+                    connectionsToPaint.add(anEndpoint.connections[i]);
                   }
                 }
               }
             }
-          } catch (err) {
-            _didIteratorError = true;
-            _iteratorError = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-                _iterator["return"]();
-              }
-            } finally {
-              if (_didIteratorError) {
-                throw _iteratorError;
-              }
-            }
-          }
-          var _iteratorNormalCompletion2 = true;
-          var _didIteratorError2 = false;
-          var _iteratorError2 = undefined;
-          try {
-            for (var _iterator2 = anchorsToUpdate[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-              var anchor = _step2.value;
-              this.placeAnchors(this.instance, anchor, this.anchorLists[anchor]);
-            }
-          } catch (err) {
-            _didIteratorError2 = true;
-            _iteratorError2 = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion2 && _iterator2["return"] != null) {
-                _iterator2["return"]();
-              }
-            } finally {
-              if (_didIteratorError2) {
-                throw _iteratorError2;
-              }
-            }
-          }
-          var _iteratorNormalCompletion3 = true;
-          var _didIteratorError3 = false;
-          var _iteratorError3 = undefined;
-          try {
-            for (var _iterator3 = endpointsToPaint[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-              var _ep = _step3.value;
-              var cd = this.instance.viewport.getPosition(_ep.elementId);
-              this.instance.paintEndpoint(_ep, {
-                timestamp: timestamp,
-                offset: cd
-              });
-            }
-          } catch (err) {
-            _didIteratorError3 = true;
-            _iteratorError3 = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion3 && _iterator3["return"] != null) {
-                _iterator3["return"]();
-              }
-            } finally {
-              if (_didIteratorError3) {
-                throw _iteratorError3;
-              }
-            }
-          }
-          var _iteratorNormalCompletion4 = true;
-          var _didIteratorError4 = false;
-          var _iteratorError4 = undefined;
-          try {
-            for (var _iterator4 = connectionsToPaint[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-              var c = _step4.value;
-              this.instance.paintConnection(c, {
-                elId: elementId,
-                timestamp: timestamp,
-                recalc: false
-              });
-            }
-          } catch (err) {
-            _didIteratorError4 = true;
-            _iteratorError4 = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion4 && _iterator4["return"] != null) {
-                _iterator4["return"]();
-              }
-            } finally {
-              if (_didIteratorError4) {
-                throw _iteratorError4;
-              }
-            }
-          }
+          });
+          anchorsToUpdate.forEach(function (anchor) {
+            _this3.placeAnchors(_this3.instance, anchor, _this3.anchorLists[anchor]);
+          });
+          endpointsToPaint.forEach(function (ep) {
+            var cd = _this3.instance.viewport.getPosition(ep.elementId);
+            _this3.instance.paintEndpoint(ep, {
+              timestamp: timestamp,
+              offset: cd
+            });
+          });
+          connectionsToPaint.forEach(function (c) {
+            _this3.instance.paintConnection(c, {
+              elId: elementId,
+              timestamp: timestamp,
+              recalc: false
+            });
+          });
         }
         return {
           c: connectionsToPaint,
@@ -6962,7 +6912,7 @@
     }, {
       key: "calculateOrientation",
       value: function calculateOrientation(sourceId, targetId, sd, td, sourceAnchor, targetAnchor, sourceRotation, targetRotation) {
-        var _this3 = this;
+        var _this4 = this;
         var Orientation = {
           HORIZONTAL: "horizontal",
           VERTICAL: "vertical",
@@ -7001,7 +6951,7 @@
             };
             if (dim[i][1] != null && dim[i][1].length > 0) {
               for (var axis in midpoints[types[i]]) {
-                midpoints[types[i]][axis] = _this3.instance.applyRotationsXY(midpoints[types[i]][axis], dim[i][1]);
+                midpoints[types[i]][axis] = _this4.instance.applyRotationsXY(midpoints[types[i]][axis], dim[i][1]);
               }
             }
           }
@@ -9875,7 +9825,9 @@
   exports.filterList = filterList;
   exports.findWithFunction = findWithFunction;
   exports.forEach = forEach;
+  exports.fromArray = fromArray;
   exports.functionChain = functionChain;
+  exports.getFromSetWithFunction = getFromSetWithFunction;
   exports.getWithFunction = getWithFunction;
   exports.getsert = getsert;
   exports.gradientAtPoint = gradientAtPoint;
@@ -9919,6 +9871,7 @@
   exports.rotateAnchorOrientation = rotateAnchorOrientation;
   exports.rotatePoint = rotatePoint;
   exports.rotatePointXY = rotatePointXY;
+  exports.setToArray = setToArray;
   exports.sortHelper = sortHelper;
   exports.suggest = suggest;
   exports.uuid = uuid;

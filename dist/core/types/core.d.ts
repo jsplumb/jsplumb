@@ -358,7 +358,7 @@ export declare abstract class JsPlumbInstance<T extends {
     abstract getAttribute(el: T["E"], name: string): string;
     abstract setAttributes(el: T["E"], atts: Dictionary<string>): void;
     abstract removeAttribute(el: T["E"], attName: string): void;
-    abstract getSelector(ctx: string | T["E"], spec?: string): NodeListOf<any>;
+    abstract getSelector(ctx: string | T["E"], spec?: string): Array<T["E"]>;
     abstract getStyle(el: T["E"], prop: string): any;
     abstract getSize(el: T["E"]): Size;
     abstract getOffset(el: T["E"]): Offset;
