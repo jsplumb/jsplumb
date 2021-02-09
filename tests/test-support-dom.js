@@ -1,3 +1,11 @@
+if (Array.prototype.forEach == null) {
+    Array.prototype.forEach = function(f) {
+        for (var i = 0; i < this.length; i++) {
+            f(i)
+        }
+    }
+}
+
 ;(function() {
 
     var mottle = new jsPlumbBrowserUI.EventManager();
