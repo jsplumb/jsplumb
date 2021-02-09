@@ -559,21 +559,21 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
     }
 
-    getSelector(ctx:string | Element, spec:string):NodeListOf<jsPlumbDOMElement> {
+    getSelector(ctx:string | Element, spec:string):Array<jsPlumbDOMElement> {
 
-        let sel:NodeListOf<jsPlumbDOMElement> = null
+        let sel:Array<jsPlumbDOMElement> = null
         if (arguments.length === 1) {
             if (!isString(ctx)) {
 
                 let nodeList = document.createDocumentFragment()
                 nodeList.appendChild(ctx as Element)
-                return nodeList.childNodes as NodeListOf<jsPlumbDOMElement>
+                return fromArray(nodeList.childNodes) as Array<jsPlumbDOMElement>
             }
 
-            sel = document.querySelectorAll(<string>ctx)
+            sel = fromArray(document.querySelectorAll(<string>ctx))
         }
         else {
-            sel = (<HTMLElement>ctx).querySelectorAll(<string>spec)
+            sel = fromArray((<Element>ctx).querySelectorAll(<string>spec))  as Array<jsPlumbDOMElement>
         }
 
         return sel
@@ -697,10 +697,9 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         const currentContainer = this.getContainer()
         if (currentContainer != null) {
             currentContainer.removeAttribute(ATTRIBUTE_CONTAINER)
-            const children = fromArray(currentContainer.childNodes).filter( (cn:HTMLElement) => {
-                const cl = cn.classList
-                return (cl && (cl.contains(CLASS_CONNECTOR) ||  cl.contains(CLASS_ENDPOINT) || cl.contains(CLASS_OVERLAY)) ||
-                    cn.getAttribute && cn.getAttribute(ATTRIBUTE_MANAGED) != null
+            const children = fromArray(currentContainer.childNodes).filter( (cn:Element) => {
+                return cn != null && (((this.hasClass(cn, CLASS_CONNECTOR) ||  this.hasClass(cn, CLASS_ENDPOINT) || this.hasClass(cn, CLASS_OVERLAY)) ||
+                    cn.getAttribute && cn.getAttribute(ATTRIBUTE_MANAGED) != null)
                 )
             })
 
