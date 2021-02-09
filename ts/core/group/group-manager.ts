@@ -293,10 +293,13 @@ export class GroupManager<E> {
         group.connections.internal.length = 0
 
         // get all direct members, and any of their descendants.
-        const members = group.children.slice()
-        const childMembers:Array<any> = []
-        forEach(members,(member: any) => childMembers.push(...member.querySelectorAll("[jtk-managed]")))
-        members.push(...childMembers)
+        const members:Array<E> = group.children.slice()
+        const childMembers:Array<E> = []
+        forEach(members,(member: E) => {
+            Array.prototype.push.apply(childMembers, this.instance.getSelector(member, "[jtk-managed]"))
+        })
+
+        Array.prototype.push.apply(members, childMembers)
 
         if (members.length > 0) {
 
