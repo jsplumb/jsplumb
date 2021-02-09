@@ -422,13 +422,11 @@ export class ElementDragHandler implements DragHandler {
             const dragGroup = this._dragGroupByElementIdMap[id]
             if (dragGroup != null) {
                 const s = new Set<DragGroupMemberSpec>()
-                let p:IteratorResult<DragGroupMemberSpec>
-                let e = dragGroup.members.values()
-                while (!(p = e.next()).done) {
-                    if (p.value.el !== el) {
-                        s.add(p.value)
+                dragGroup.members.forEach((member) => {
+                    if (member.el !== el) {
+                        s.add(member)
                     }
-                }
+                })
                 dragGroup.members = s
 
                 delete this._dragGroupByElementIdMap[id]
