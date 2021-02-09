@@ -10,7 +10,7 @@ var testSuite = function () {
         setup: function () {
             _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
             support = jsPlumbTestSupport.getInstance(_jsPlumb);
-            defaults = Object.assign({}, _jsPlumb.Defaults);
+            defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
         }
     });
 

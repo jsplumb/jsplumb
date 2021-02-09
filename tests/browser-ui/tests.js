@@ -36,7 +36,7 @@ var within = function (val, target, _ok, msg) {
 var defaults = null, support, _jsPlumb;
 
 var isHover = function(connection) {
-    return connection.connector.canvas.classList.contains("jtk-hover");
+    return _jsPlumb.hasClass(connection.connector.canvas, "jtk-hover");
 }
 
 var testSuite = function () {
@@ -48,7 +48,7 @@ var testSuite = function () {
         setup: function () {
             _jsPlumb = jsPlumbBrowserUI.newInstance({container:document.getElementById("container")});
             support = jsPlumbTestSupport.getInstance(_jsPlumb);
-            defaults = Object.assign({}, _jsPlumb.Defaults);
+            defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
         }
     });
 
@@ -1148,7 +1148,7 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var returnedParams = null;
         _jsPlumb.bind("connection", function (params) {
-            returnedParams = Object.assign({}, params);
+            returnedParams = jsPlumb.extend({}, params);
         });
         var c = _jsPlumb.connect({source: d1, target: d2});
         ok(returnedParams != null, "new connection listener event was fired");
@@ -1160,7 +1160,7 @@ var testSuite = function () {
         ok(returnedParams.sourceEndpoint != null, "source endpoint is not null");
         ok(returnedParams.targetEndpoint != null, "target endpoint is not null");
         _jsPlumb.bind("connection:detach", function (params) {
-            returnedParams = Object.assign({}, params);
+            returnedParams = jsPlumb.extend({}, params);
         });
         _jsPlumb.deleteConnection(c);
         ok(returnedParams.connection != null, 'connection is set');
@@ -1170,7 +1170,7 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var returnedParams = null;
         _jsPlumb.bind("connection:detach", function (params) {
-            returnedParams = Object.assign({}, params);
+            returnedParams = jsPlumb.extend({}, params);
         });
         var conn = _jsPlumb.connect({source: d1, target: d2});
         _jsPlumb.deleteConnection(conn);
@@ -1182,7 +1182,7 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var returnedParams = null;
         _jsPlumb.bind("connection:detach", function (params) {
-            returnedParams = Object.assign({}, params);
+            returnedParams = jsPlumb.extend({}, params);
         });
         _jsPlumb.connect({source: d1, target: d2});
         _jsPlumb.select({source: d1, target: d2}).deleteAll();
@@ -1193,7 +1193,7 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var returnedParams = null;
         _jsPlumb.bind("connection:detach", function (params) {
-            returnedParams = Object.assign({}, params);
+            returnedParams = jsPlumb.extend({}, params);
         });
         var conn = _jsPlumb.connect({source: d1, target: d2});
         _jsPlumb.select({source: d1, target: d2}).deleteAll();
@@ -1206,7 +1206,7 @@ var testSuite = function () {
         var e2 = _jsPlumb.addEndpoint(d2, {});
         var returnedParams = null;
         _jsPlumb.bind("connection:detach", function (params) {
-            returnedParams = Object.assign({}, params);
+            returnedParams = jsPlumb.extend({}, params);
         });
         var conn = _jsPlumb.connect({sourceEndpoint: e1, targetEndpoint: e2});
         _jsPlumb.deleteConnection(conn);
@@ -1219,7 +1219,7 @@ var testSuite = function () {
         var e2 = _jsPlumb.addEndpoint(d2, {});
         var returnedParams = null;
         _jsPlumb.bind("connection:detach", function (params) {
-            returnedParams = Object.assign({}, params);
+            returnedParams = jsPlumb.extend({}, params);
         });
         _jsPlumb.connect({sourceEndpoint: e1, targetEndpoint: e2});
         e1.detachFrom(e2);
@@ -1232,7 +1232,7 @@ var testSuite = function () {
         var e2 = _jsPlumb.addEndpoint(d2, {});
         var returnedParams = null;
         _jsPlumb.bind("connection:detach", function (params) {
-            returnedParams = Object.assign({}, params);
+            returnedParams = jsPlumb.extend({}, params);
         });
         _jsPlumb.connect({sourceEndpoint: e1, targetEndpoint: e2});
         e1.deleteEveryConnection();
@@ -1245,7 +1245,7 @@ var testSuite = function () {
         var e2 = _jsPlumb.addEndpoint(d2, {});
         var returnedParams = null;
         _jsPlumb.bind("connection:detach", function (params) {
-            returnedParams = Object.assign({}, params);
+            returnedParams = jsPlumb.extend({}, params);
         });
         _jsPlumb.connect({sourceEndpoint: e1, targetEndpoint: e2});
         _jsPlumb.deleteEndpoint(e1);
@@ -1256,7 +1256,7 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var returnedParams = null;
         _jsPlumb.bind("connection:detach", function (params) {
-            returnedParams = Object.assign({}, params);
+            returnedParams = jsPlumb.extend({}, params);
         });
         var conn = _jsPlumb.connect({source: d1, target: d2});
         _jsPlumb.select({source: d1, target: d2}).deleteAll();
@@ -1273,7 +1273,7 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var returnedParams = null, returnedParams2 = null;
         _jsPlumb.bind("connection", function (params) {
-            returnedParams = Object.assign({}, params);
+            returnedParams = jsPlumb.extend({}, params);
             throw "oh no!";
         });
         _jsPlumb.connect({source: d1, target: d2});
@@ -2563,10 +2563,10 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
         var connectCallback = null, detachCallback = null;
         _jsPlumb.bind("connection", function (params) {
-            connectCallback = Object.assign({}, params);
+            connectCallback = jsPlumb.extend({}, params);
         });
         _jsPlumb.bind("connection:detach", function (params) {
-            detachCallback = Object.assign({}, params);
+            detachCallback = jsPlumb.extend({}, params);
         });
         _jsPlumb.connect({source: d1, target: d2});                // auto connect with default endpoint and anchor set
         ok(connectCallback != null, "connect callback was made");
@@ -4773,17 +4773,6 @@ var testSuite = function () {
         }, t: "Function" }
     ];
 
-    test("Object.assign, filter values", function () {
-        var n = ["foo", "bar", "baz"],
-            t = {"hello": "hello", "foo": "replaced"},
-            f = {"foo": "new", "bar": "bar"};
-
-        Object.assign(t, f, n);
-        equal(t.foo, "new");
-        equal(t.hello, "hello");
-        equal(t.bar, "bar");
-    });
-
     // -- geometry tests have been moved into the jtk-geom project (because that's where the code is now) ---
 
 
@@ -5635,28 +5624,34 @@ var testSuite = function () {
      */
     test("shadow root", function() {
         const newContainer = support.addDiv("newContainer")
-        newContainer.style.left = "0px"
-        newContainer.style.top = "0px"
-        const shadowRoot = newContainer.attachShadow({mode: 'open'});
-        const canvas = support.addDiv("canvas", shadowRoot)
 
-        canvas.style.outline = "1px solid"
-        canvas.style.width = "1000px";
-        canvas.style.height = "800px";
-        _jsPlumb.setContainer(canvas)
-        const d1 = support.addDiv("d1", canvas, null, 50, 50, 150, 150)
-        d1.style.outline = "1px solid"
-        const d2 = support.addDiv("d2", canvas, null, 350, 350, 150, 150)
-        d2.style.outline = "1px solid"
+        if (newContainer.attachShadow != null) {
 
-        var c = _jsPlumb.connect({source:d1, target:d2, anchors:["Bottom", "Top"]})
-        var a1 = _jsPlumb.router.getEndpointLocation(c.endpoints[0])
-        var a2 = _jsPlumb.router.getEndpointLocation(c.endpoints[1])
-        equal(125, a1[0], "anchor 1 x is correct")
-        equal(200, a1[1], "anchor 1 y is correct")
+            newContainer.style.left = "0px"
+            newContainer.style.top = "0px"
+            const shadowRoot = newContainer.attachShadow({mode: 'open'});
+            const canvas = support.addDiv("canvas", shadowRoot)
 
-        equal(425, a2[0], "anchor 2 x is correct")
-        equal(350, a2[1], "anchor 2 y is correct")
+            canvas.style.outline = "1px solid"
+            canvas.style.width = "1000px";
+            canvas.style.height = "800px";
+            _jsPlumb.setContainer(canvas)
+            const d1 = support.addDiv("d1", canvas, null, 50, 50, 150, 150)
+            d1.style.outline = "1px solid"
+            const d2 = support.addDiv("d2", canvas, null, 350, 350, 150, 150)
+            d2.style.outline = "1px solid"
+
+            var c = _jsPlumb.connect({source: d1, target: d2, anchors: ["Bottom", "Top"]})
+            var a1 = _jsPlumb.router.getEndpointLocation(c.endpoints[0])
+            var a2 = _jsPlumb.router.getEndpointLocation(c.endpoints[1])
+            equal(125, a1[0], "anchor 1 x is correct")
+            equal(200, a1[1], "anchor 1 y is correct")
+
+            equal(425, a2[0], "anchor 2 x is correct")
+            equal(350, a2[1], "anchor 2 y is correct")
+        } else {
+            equal(1,1,"This browser does not support shadow DOM");
+        }
 
 
     })

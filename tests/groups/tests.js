@@ -32,7 +32,7 @@ var testSuite = function () {
         setup: function () {
             _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
             support = jsPlumbTestSupport.getInstance(_jsPlumb);
-            defaults = Object.assign({}, _jsPlumb.Defaults);
+            defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
 
         }
     });
@@ -42,7 +42,7 @@ var testSuite = function () {
     });
 
     var _addGroup = function(j, name, container, members, params) {
-        var g = j.addGroup(Object.assign({
+        var g = j.addGroup(jsPlumb.extend({
             el:container,
             id:name,
             anchor:"Continuous",
