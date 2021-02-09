@@ -75,7 +75,9 @@ var testSuite = function () {
     });
 
     asyncTest(': configure two lists, connect them programmatically, scroll.', function () {
-        let [l1,l2] = makeTwoLists()
+        var lists = makeTwoLists()
+        var l1 = lists[0]
+        var l2 = lists[1]
         // now we have two lists whose child items overflow their viewport.
 
         QUnit.start()
@@ -111,7 +113,9 @@ var testSuite = function () {
     });
 
     asyncTest(': configure two lists, connect them via the mouse, scroll.', function () {
-        let [l1,l2] = makeTwoLists()
+        var lists = makeTwoLists()
+        var l1 = lists[0]
+        var l2 = lists[1]
         // now we have two lists whose child items overflow their viewport.
 
         QUnit.start()
