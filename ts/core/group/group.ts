@@ -33,7 +33,7 @@ export class UINode<E> {
 
 export class UIGroup<E = any> extends UINode<E> {
 
-    children:Array<any> = []
+    children:Array<E> = []
     childGroups:Array<UIGroup<E>> = []
 
     collapsed:boolean = false
