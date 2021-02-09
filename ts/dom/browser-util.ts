@@ -1,5 +1,5 @@
 import {jsPlumbDOMElement} from "./browser-jsplumb-instance"
-import {Dictionary, fastTrim, isArray, log, Offset} from "@jsplumb/core"
+import {Dictionary, fastTrim, forEach, isArray, log, Offset} from "@jsplumb/core"
 
 
 // These are utility functions for use inside a Browser.
@@ -100,7 +100,7 @@ function _setClassName (el:Element, cn:string, classList:Array<string>):void {
 //
 // get the class name for either an html element or an svg element.
 function _getClassName (el:Element):string {
-    return (typeof (<any>el.className).baseVal === "undefined") ? el.className : (<any>el.className).baseVal as string
+    return (<any>el).className != null ? (typeof (<any>el.className).baseVal === "undefined") ? el.className : (<any>el.className).baseVal as string : ""
 }
 
 function _classManip(el:Element, classesToAdd:string | Array<string>, classesToRemove?:string | Array<String>) {
@@ -138,8 +138,10 @@ export function addClass(el:Element, clazz:string):void {
 
     if (el != null && clazz != null && clazz.length > 0) {
         if (el.classList) {
-            el.classList.add(...fastTrim(clazz).split(/\s+/))
-
+            const parts = fastTrim(clazz).split(/\s+/)
+            forEach(parts, (part) => {
+                el.classList.add(part)
+            })
         } else {
             _classManip(el, clazz)
         }
@@ -158,7 +160,10 @@ export function hasClass(el:Element, clazz:string):boolean {
 export function removeClass(el:Element, clazz:string):void {
     if (el != null && clazz != null && clazz.length > 0) {
         if (el.classList) {
-            el.classList.remove(...fastTrim(clazz).split(/\s+/))
+            const parts = fastTrim(clazz).split(/\s+/)
+            parts.forEach((part) => {
+                el.classList.remove(part)
+            })
         } else {
             _classManip(el, null, clazz)
         }
