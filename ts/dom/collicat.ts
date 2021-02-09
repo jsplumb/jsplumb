@@ -445,8 +445,8 @@ export class Drag extends Base {
                         // the clone node is added to the body; getOffsetRect gives us a value
                         // relative to the body.
                         const b = offsetRelativeToRoot(this._elementToDrag)
-                        this._dragEl.style.left = b[0] + "px"
-                        this._dragEl.style.top = b[1] + "px"
+                        this._dragEl.style.left = b.left + "px"
+                        this._dragEl.style.top = b.top + "px"
 
                         document.body.appendChild(this._dragEl)
                     }
