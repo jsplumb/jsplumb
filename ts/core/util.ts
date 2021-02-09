@@ -339,13 +339,13 @@ export function getWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): T {
  * @param f
  */
 export function getFromSetWithFunction<T>(s:Set<T>, f:(_a:T) => boolean) : T {
-    let it:IteratorResult<T>
-    const values = s.values()
-    while((it = values.next()).done !== true) {
-        if (f(it.value)) {
-            return it.value
+    let out:T = null
+    s.forEach((t:T) => {
+        if (f(t)) {
+            out = t
         }
-    }
+    })
+    return out
 }
 
 /**
@@ -354,11 +354,9 @@ export function getFromSetWithFunction<T>(s:Set<T>, f:(_a:T) => boolean) : T {
  */
 export function setToArray<T>(s:Set<T>):Array<T> {
     const a:Array<T> = []
-    let it:IteratorResult<T>
-    const values = s.values()
-    while((it = values.next()).done !== true) {
-        a.push(it.value)
-    }
+    s.forEach((t:T) => {
+        a.push(t)
+    })
     return a
 }
 
