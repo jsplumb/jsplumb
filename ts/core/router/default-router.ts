@@ -421,7 +421,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
 
             let orientationCache = {}
 
-            for(let anEndpoint of ep) {
+            forEach(ep, (anEndpoint) => {
 
                 endpointsToPaint.add(anEndpoint)
 
@@ -531,23 +531,23 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
                         }
                     }
                 }
-            }
+            })
 
             // now place all the continuous anchors we need to
-            for (let anchor of anchorsToUpdate) {
+            anchorsToUpdate.forEach((anchor) => {
                 this.placeAnchors(this.instance, anchor, this.anchorLists[anchor])
-            }
+            })
 
             // now that continuous anchors have been placed, paint all the endpoints for this element and any other endpoints we came across as a result of the continuous anchors.
-            for (let ep of endpointsToPaint) {
+            endpointsToPaint.forEach((ep) => {
                 let cd = this.instance.viewport.getPosition(ep.elementId)
                 this.instance.paintEndpoint(ep, { timestamp: timestamp, offset: cd })
-            }
+            })
 
             // paint all the connections
-            for (let c of connectionsToPaint) {
+            connectionsToPaint.forEach((c) => {
                 this.instance.paintConnection(c, {elId: elementId, timestamp: timestamp, recalc: false})
-            }
+            })
         }
 
         return {
