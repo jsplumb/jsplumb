@@ -22,7 +22,7 @@ export interface InternalEndpointOptions<E> extends EndpointOptions<E> {
     isTemporarySource?:boolean
 }
 
-export interface EndpointOptions<E> extends ComponentOptions {
+export interface EndpointOptions<E = any> extends ComponentOptions {
     preparedAnchor?:Anchor
     anchor?: AnchorSpec
     anchors?:[ AnchorSpec, AnchorSpec ]
