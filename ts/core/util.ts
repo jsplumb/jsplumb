@@ -293,9 +293,9 @@ export function populate(model: any, values: any, functionPrefix?: string, doNot
  * @param a
  * @param f
  */
-export function forEach<T>(a:Array<T>, f:(_a:T) => any):Array<T> {
+export function forEach<T>(a:ArrayLike<T>, f:(_a:T) => any):void {
     if (a) {
-        for (let i = 0; i < (a as Array<T>).length; i++) {
+        for (let i = 0; i < a.length; i++) {
             f(a[i])
         }
     } else {
