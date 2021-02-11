@@ -8,7 +8,8 @@ import {AnchorPlacement} from "../router/router"
 
 export class Bezier extends AbstractBezierConnector {
 
-    type = "Bezier"
+    static type = "Bezier"
+    type = Bezier.type
 
     majorAnchor:number
     minorAnchor:number
@@ -94,8 +95,4 @@ export class Bezier extends AbstractBezierConnector {
         })
     }
 
-}
-
-export function register() {
-    Connectors.register("Bezier", Bezier)
 }
