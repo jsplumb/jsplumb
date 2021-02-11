@@ -36,12 +36,10 @@ export class RectangleEndpoint extends EndpointRepresentation<ComputedRectangleE
         return [ x, y, width, height]
     }
 
+    static type= "Rectangle"
     getType(): string {
-        return "Rectangle"
+        return RectangleEndpoint.type
     }
 }
 
-export function register() {
-    EndpointFactory.register("Rectangle", RectangleEndpoint)
-}
 
