@@ -4,7 +4,8 @@ import {StraightSegment} from "./straight-segment"
 
 export class StraightConnector extends AbstractConnector {
 
-    type = "Straight"
+    static type = "Straight"
+    type = StraightConnector.type
 
     getDefaultStubs(): [number, number] {
         return [0, 0]
@@ -19,7 +20,4 @@ export class StraightConnector extends AbstractConnector {
     }
 }
 
-export function register() {
-    Connectors.register("Straight", StraightConnector)
-}
 
