@@ -17,7 +17,7 @@ import * as Constants from "../constants"
 const TYPE_ITEM_ANCHORS = "anchors"
 const TYPE_ITEM_CONNECTOR = "connector"
 
-export interface ConnectionParams<E> {
+export interface ConnectionParams<E = any> {
 
     id?:string
     source?:E
@@ -81,8 +81,8 @@ export class Connection<E = any> extends OverlayCapableComponent {
 
     sourceId:string
     targetId:string
-    source:any
-    target:any
+    source:E
+    target:E
 
     detachable:boolean = true
     reattach:boolean = false
@@ -411,8 +411,8 @@ export class Connection<E = any> extends OverlayCapableComponent {
     }
 
     updateConnectedClass(isRemoval:boolean) {
-        Connection.updateConnectedClass(this.instance, this, this.source, isRemoval)
-        Connection.updateConnectedClass(this.instance, this, this.target, isRemoval)
+        Connection.updateConnectedClass(this.instance, this, this.source as unknown as jsPlumbElement<E>, isRemoval)
+        Connection.updateConnectedClass(this.instance, this, this.target as unknown as jsPlumbElement<E>, isRemoval)
     }
 
     getUuids():[string, string] {
