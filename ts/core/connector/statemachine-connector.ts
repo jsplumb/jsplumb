@@ -1,7 +1,6 @@
 import {AbstractBezierConnector, AbstractBezierOptions} from "./abstract-bezier-connector"
 import { JsPlumbInstance } from "../core"
 import {BezierSegment} from "./bezier-segment"
-import {Connectors} from "./connectors"
 import {ConnectorComputeParams, PaintGeometry} from "./abstract-connector"
 import {Connection} from "./connection-impl"
 import {AnchorPlacement} from "../router/router"
@@ -90,7 +89,8 @@ export interface StateMachineOptions extends AbstractBezierOptions  { }
 
 export class StateMachine extends AbstractBezierConnector {
 
-    type = "StateMachine"
+    static type = "StateMachine"
+    type = StateMachine.type
 
     _controlPoint:[ number, number ]
     proximityLimit:number
@@ -199,8 +199,3 @@ export class StateMachine extends AbstractBezierConnector {
     }
 
 }
-
-export function register() {
-    Connectors.register("StateMachine", StateMachine)
-}
-
