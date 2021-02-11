@@ -11,6 +11,7 @@ import { JsPlumbInstance } from "../core"
 import { Connection } from '../connector/connection-impl'
 
 export interface FlowchartConnectorOptions extends ConnectorOptions {
+    stub?:[number,number],
     alwaysRespectStubs?:boolean
     midpoint?:number
     cornerRadius?:number
@@ -44,7 +45,8 @@ function _cloneArray (a:Array<any>):Array<any> {
 
 export class FlowchartConnector extends AbstractConnector {
 
-    type = "Flowchart"
+    static type = "Flowchart"
+    type = FlowchartConnector.type
 
     private internalSegments:Array<FlowchartSegment> = []
     midpoint:number
@@ -376,7 +378,4 @@ export class FlowchartConnector extends AbstractConnector {
     }
 }
 
-export function register() {
-    Connectors.register("Flowchart", FlowchartConnector)
-}
 
