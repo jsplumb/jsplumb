@@ -1,11 +1,14 @@
-import {register as DotEndpointRegister} from "./endpoint/dot-endpoint"
-import {register as BlankEndpointRegister} from "./endpoint/blank-endpoint"
-import {register as RectangleEndpointRegister} from "./endpoint/rectangle-endpoint"
+import {DotEndpoint} from "./endpoint/dot-endpoint"
+import {BlankEndpoint} from "./endpoint/blank-endpoint"
+import {RectangleEndpoint} from "./endpoint/rectangle-endpoint"
 
-import {register as StraightConnectorRegister} from "./connector/straight-connector"
-import {register as FlowchartConnectorRegister} from "./connector/flowchart-connector"
-import {register as BezierConnectorRegister} from "./connector/bezier-connector"
-import {register as StateMachineConnectorRegister} from "./connector/statemachine-connector"
+import {StraightConnector} from "./connector/straight-connector"
+import {FlowchartConnector} from "./connector/flowchart-connector"
+import {Bezier} from "./connector/bezier-connector"
+import {StateMachine} from "./connector/statemachine-connector"
+
+import { Connectors } from './connector/connectors'
+import {EndpointFactory} from "./factory/endpoint-factory"
 
 export * from "./constants"
 export * from './common'
@@ -30,6 +33,10 @@ export * from "./connector/bezier-segment"
 export * from "./connector/connection-impl"
 export * from "./connector/connectors"
 export * from "./connector/straight-segment"
+export * from './connector/flowchart-connector'
+export * from './connector/straight-connector'
+export * from './connector/bezier-connector'
+export * from './connector/statemachine-connector'
 
 export * from "./selection/connection-selection"
 
@@ -37,6 +44,7 @@ export * from './endpoint/endpoint'
 export * from './factory/endpoint-factory'
 export * from './endpoint/endpoints'
 export * from './endpoint/dot-endpoint'
+export * from './endpoint/rectangle-endpoint'
 
 export * from "./selection/endpoint-selection"
 
@@ -60,12 +68,12 @@ export * from "./factory/anchor-factory"
 export * from "./styles"
 export * from "./util"
 
-DotEndpointRegister()
-BlankEndpointRegister()
-RectangleEndpointRegister()
+EndpointFactory.register(DotEndpoint.type, DotEndpoint)
+EndpointFactory.register(BlankEndpoint.type, BlankEndpoint)
+EndpointFactory.register(RectangleEndpoint.type, RectangleEndpoint)
 
-BezierConnectorRegister()
-StraightConnectorRegister()
-FlowchartConnectorRegister()
-StateMachineConnectorRegister()
+Connectors.register(Bezier.type, Bezier)
+Connectors.register(StraightConnector.type, StraightConnector)
+Connectors.register(FlowchartConnector.type, FlowchartConnector)
+Connectors.register(StateMachine.type, StateMachine)
 
