@@ -47,13 +47,10 @@ export class DotEndpoint extends EndpointRepresentation<ComputedDotEndpoint> {
         return [ x, y, w, h, this.radius ]
     }
 
-    static dotEndpointType = "Dot"
+    static type = "Dot"
 
     getType(): string {
-        return DotEndpoint.dotEndpointType
+        return DotEndpoint.type
     }
 }
 
-export function register() {
-    EndpointFactory.register("Dot", DotEndpoint)
-}
