@@ -8,7 +8,6 @@ import { ComponentOptions} from '../component/component'
 import { Orientation} from '../factory/anchor-factory'
 import { Endpoint} from '../endpoint/endpoint'
 
-export interface ConnectorOptions extends Record<string, any> { }
 export type UserDefinedConnectorId = string
 export type ConnectorId = "Bezier" | "StateMachine" | "Flowchart" | "Straight" | UserDefinedConnectorId
 export type ConnectorWithOptions = [ConnectorId, ConnectorOptions]
@@ -61,7 +60,7 @@ export interface PaintGeometry {
 }
 
 export interface ConnectorOptions extends ComponentOptions {
-    stub?:number
+    stub?:number|[number,number]
     gap?:number
 }
 
