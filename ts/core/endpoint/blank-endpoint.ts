@@ -25,13 +25,11 @@ export class BlankEndpoint extends EndpointRepresentation<ComputedBlankEndpoint>
         return [anchorPoint[0], anchorPoint[1], 10, 0]
     }
 
+    static type = "Blank"
     getType(): string {
-        return "Blank"
+        return BlankEndpoint.type
     }
 }
 
-export function register() {
-    EndpointFactory.register("Blank", BlankEndpoint)
-}
 
 
