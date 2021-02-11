@@ -30,7 +30,7 @@ import {
     BehaviouralTypeDescriptor,  // <--
     InternalConnectParams,
     TypeDescriptor,
-    Rotation, Rotations, PointXY
+    Rotation, Rotations, PointXY, ConnectionMovedParams
 } from './common'
 
 import { EventGenerator } from "./event-generator"
@@ -411,13 +411,17 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             { el: "target", elId: "targetId", epDefs: Constants.TARGET_DEFINITION_LIST }
         ]
 
-        let ep, _st = stTypes[idx], cId = c[_st.elId], sid, sep,
+        let ep,
+            _st = stTypes[idx],
+            cId = c[_st.elId],
+            sid, sep,
             oldEndpoint = c.endpoints[idx]
 
-        let evtParams = {
+        let evtParams:ConnectionMovedParams = {
             index: idx,
-            originalSource:c.source,
-            originalTarget:c.target,
+            originalSourceEndpoint: idx === 0 ? oldEndpoint : c.endpoints[0],
+            originalTargetEndpoint:idx === 1 ? oldEndpoint : c.endpoints[1],
+
             originalSourceId: idx === 0 ? cId : c.sourceId,
             newSourceId: c.sourceId,
             originalTargetId: idx === 1 ? cId : c.targetId,
@@ -659,8 +663,8 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         this.fire(Constants.EVENT_INTERNAL_CONNECTION_DETACHED, params, originalEvent)
     }
 
-    fireMoveEvent (params?:any, evt?:Event):void {
-        this.fire(Constants.EVENT_CONNECTION_MOVED, params, evt)
+    fireMoveEvent (params?:ConnectionMovedParams, evt?:Event):void {
+        this.fire<ConnectionMovedParams>(Constants.EVENT_CONNECTION_MOVED, params, evt)
     }
 
     /**
