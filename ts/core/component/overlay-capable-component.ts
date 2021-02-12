@@ -1,9 +1,9 @@
 import {Component, ComponentOptions} from "./component"
-import {LabelOverlayOptions, Overlay, OverlaySpec} from "../overlay/overlay"
+import {FullOverlaySpec, LabelOverlayOptions, Overlay, OverlaySpec} from "../overlay/overlay"
 import { Dictionary, PointArray} from '../common'
 import { JsPlumbInstance } from "../core"
 import {LabelOverlay} from "../overlay/label-overlay"
-import {extend, isArray, isFunction, isString, uuid} from "../util"
+import {extend, isFunction, isString, uuid} from "../util"
 import {OverlayFactory} from "../factory/overlay-factory"
 
 const _internalLabelOverlayId = "__label"
@@ -30,20 +30,14 @@ function _makeLabelOverlay(component:OverlayCapableComponent, params:any):LabelO
 
 function _processOverlay<E>(component:OverlayCapableComponent, o:OverlaySpec|Overlay) {
     let _newOverlay:Overlay = null
-    if (isArray(o)) {	// this is for the shorthand ["Arrow", { width:50 }] syntax
-        // there's also a three arg version:
-        // ["Arrow", { width:50 }, {location:0.7}]
-        // which merges the 3rd arg into the 2nd.
-        let oa = (<Array<any>>o)
-        let type = oa[0],
-            // make a copy of the object so as not to mess up anyone else's reference...
-            p = extend({}, oa[1])
-        if (oa.length === 3) {
-            extend(p, oa[2])
-        }
-        _newOverlay = OverlayFactory.get(component.instance, type, component, p)
-    } else if (isString(o)) {
+    if (isString(o)) {
         _newOverlay = OverlayFactory.get(component.instance, o as string, component, {})
+    }
+    else if ((o as FullOverlaySpec).type != null && (o as FullOverlaySpec).options != null) {
+        // this is for the {type:"Arrow", options:{ width:50 }} syntax
+        const oa = o as FullOverlaySpec
+        const p = extend({}, oa.options)
+        _newOverlay = OverlayFactory.get(component.instance, oa.type, component, p)
     } else {
         _newOverlay = o as Overlay
     }
@@ -72,21 +66,24 @@ export abstract class OverlayCapableComponent extends Component {
         this.overlayPositions = {}
 
         if (params.label) {
-            this.getDefaultType().overlays[_internalLabelOverlayId] = ["Label", {
-                label: params.label,
-                location: params.labelLocation || this.defaultLabelLocation,
-                id:_internalLabelOverlayId
-            }]
+            this.getDefaultType().overlays[_internalLabelOverlayId] = {
+                type:"Label",
+                options:{
+                    label: params.label,
+                    location: params.labelLocation || this.defaultLabelLocation,
+                    id:_internalLabelOverlayId
+                }
+            }
         }
     }
 
     addOverlay(overlay:OverlaySpec):Overlay {
         let o = _processOverlay(this, overlay)
 
-        if (this.getData && o.type === "Label" && isArray(overlay)) {
+        if (this.getData && o.type === "Label" && !isString(overlay)) {
             //
             // component data might contain label location - look for it here.
-            const d = this.getData(), p = overlay[1]
+            const d = this.getData(), p = (overlay as FullOverlaySpec).options
             if (d) {
                 const locationAttribute = (<LabelOverlayOptions>p).labelLocationAttribute || "labelLocation"
                 const loc = d[locationAttribute]
@@ -99,8 +96,14 @@ export abstract class OverlayCapableComponent extends Component {
         return o
     }
 
-    getOverlay(id:string):Overlay {
-        return this.overlays[id]
+    /**
+     * Get the Overlay with the given ID. You can optionally provide a type parameter for this method in order to get
+     * a typed return value (such as `LabelOverlay`, `ArrowOverlay`, etc), since some overlays have methods that
+     * others do not.
+     * @param id ID of the overlay to retrieve.
+     */
+    getOverlay<T extends Overlay>(id:string):T {
+        return this.overlays[id] as T
     }
 
     getOverlays():Dictionary<Overlay> {
@@ -257,21 +260,21 @@ export abstract class OverlayCapableComponent extends Component {
 
             for (i in t.overlays) {
 
-                let existing:Overlay = this.overlays[t.overlays[i][1].id]
+                let existing:Overlay = this.overlays[t.overlays[i].options.id]
                 if (existing) {
                     // maybe update from data, if there were parameterised values for instance.
-                    existing.updateFrom(t.overlays[i][1])
-                    keep[t.overlays[i][1].id] = true
+                    existing.updateFrom(t.overlays[i].options)
+                    keep[t.overlays[i].options.id] = true
                     this.instance.reattachOverlay(existing, this)
 
                 }
                 else {
-                    let c:Overlay = this.getCachedTypeItem("overlay", t.overlays[i][1].id)
+                    let c:Overlay = this.getCachedTypeItem("overlay", t.overlays[i].options.id)
                     if (c != null) {
                         this.instance.reattachOverlay(c, this)
                         c.setVisible(true)
                         // maybe update from data, if there were parameterised values for instance.
-                        c.updateFrom(t.overlays[i][1])
+                        c.updateFrom(t.overlays[i].options)
                         this.overlays[c.id] = c
                     }
                     else {
