@@ -1,8 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@jsplumb/core/constants')) :
-  typeof define === 'function' && define.amd ? define(['exports', '@jsplumb/core/constants'], factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.jsPlumb = {}, global.constants));
-}(this, (function (exports, constants) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+  typeof define === 'function' && define.amd ? define(['exports'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.jsPlumb = {}));
+}(this, (function (exports) { 'use strict';
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -7433,7 +7433,7 @@
     }, {
       key: "_fireUpdate",
       value: function _fireUpdate(payload) {
-        this.fire(constants.EVENT_UPDATE, payload || {});
+        this.fire(EVENT_UPDATE, payload || {});
       }
     }, {
       key: "_updateBounds",
@@ -7743,7 +7743,7 @@
         connectionOverlays: [],
         connector: Bezier.type,
         container: null,
-        endpoint: "Dot",
+        endpoint: DotEndpoint.type,
         endpointOverlays: [],
         endpoints: [null, null],
         endpointStyle: {

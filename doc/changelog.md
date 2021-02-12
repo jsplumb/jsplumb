@@ -1,4 +1,12 @@
+## 4.0.0-RC53
+
+12th February 2021
+
+- corrected an import that was pointing at the @jsplumb package
+
 ## 4.0.0-RC52
+
+12th February 2021
 
 - Converted `AnchorLocations` into a string enum, so you can now specify anchor locations in a type-safe way:
 

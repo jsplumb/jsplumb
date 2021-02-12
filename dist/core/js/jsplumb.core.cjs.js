@@ -2,8 +2,6 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var constants = require('@jsplumb/core/constants');
-
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
@@ -7433,7 +7431,7 @@ function (_EventGenerator) {
   }, {
     key: "_fireUpdate",
     value: function _fireUpdate(payload) {
-      this.fire(constants.EVENT_UPDATE, payload || {});
+      this.fire(EVENT_UPDATE, payload || {});
     }
   }, {
     key: "_updateBounds",
@@ -7743,7 +7741,7 @@ function (_EventGenerator) {
       connectionOverlays: [],
       connector: Bezier.type,
       container: null,
-      endpoint: "Dot",
+      endpoint: DotEndpoint.type,
       endpointOverlays: [],
       endpoints: [null, null],
       endpointStyle: {
