@@ -2,6 +2,7 @@ import {jsPlumbDefaults} from "./defaults"
 
 import {Connection} from "./connector/connection-impl"
 import {Endpoint, EndpointSpec} from "./endpoint/endpoint"
+import { DotEndpoint } from './endpoint/dot-endpoint'
 import {FullOverlaySpec, OverlaySpec} from "./overlay/overlay"
 import {AnchorPlacement, RedrawResult} from "./router/router"
 import {
@@ -51,9 +52,10 @@ import { Segment } from './connector/abstract-segment'
 import { Overlay } from './overlay/overlay'
 import { LabelOverlay } from './overlay/label-overlay'
 import { AbstractConnector } from './connector/abstract-connector'
+import { Bezier } from './connector/bezier-connector'
 import { OverlayCapableComponent } from './component/overlay-capable-component'
 import { PaintStyle} from './styles'
-import {AnchorComputeParams, AnchorSpec} from "./factory/anchor-factory"
+import {AnchorComputeParams, AnchorSpec, AnchorLocations } from "./factory/anchor-factory"
 
 function _scopeMatch(e1:Endpoint, e2:Endpoint):boolean {
     let s1 = e1.scope.split(/\s/), s2 = e2.scope.split(/\s/)
@@ -209,13 +211,13 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         this.geometry = new jsPlumbGeometry()
 
         this.Defaults = {
-            anchor: "Bottom",
+            anchor: AnchorLocations.Bottom,
             anchors: [ null, null ],
             connectionsDetachable: true,
             connectionOverlays: [ ],
-            connector: "Bezier",
+            connector: Bezier.type,
             container: null,
-            endpoint: "Dot",
+            endpoint: DotEndpoint.type,
             endpointOverlays: [ ],
             endpoints: [ null, null ],
             endpointStyle: { fill: "#456" },
