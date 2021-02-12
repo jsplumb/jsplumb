@@ -37,30 +37,26 @@ export interface AnchorOptions {
     cssClass?:string
 }
 
-enum AnchorLocations {
-    Assign,
-    AutoDefault,
-    Bottom,
-    BottomCenter,
-    BottomLeft,
-    BottomRight,
-    Center,
-    Continuous,
-    ContinuousBottom,
-    ContinuousLeft,
-    ContinuousRight,
-    ContinuousTop,
-    ContinuousLeftRight,
-    ContinuousTopBottom,
-    Left,
-    LeftMiddle,
-    Perimeter,
-    Right,
-    RightMiddle,
-    Top,
-    TopCenter,
-    TopLeft,
-    TopRight
+export enum AnchorLocations {
+    Assign = "Assign",
+    AutoDefault = "AutoDefault",
+    Bottom = "Bottom",
+    BottomLeft = "BottomLeft",
+    BottomRight = "BottomRight",
+    Center = "Center",
+    Continuous = "Continuous",
+    ContinuousBottom = "ContinuousBottom",
+    ContinuousLeft = "ContinuousLeft",
+    ContinuousRight = "ContinuousRight",
+    ContinuousTop = "ContinuousTop",
+    ContinuousLeftRight = "ContinuousLeftRight",
+    ContinuousTopBottom = "ContinuousTopBottom",
+    Left = "Left",
+    Perimeter = "Perimeter",
+    Right = "Right",
+    Top = "Top",
+    TopLeft = "TopLeft",
+    TopRight = "TopRight"
 }
 
 export type AnchorId = keyof typeof AnchorLocations
@@ -170,28 +166,24 @@ function _curryAnchor (x:number, y:number, ox:AnchorOrientationHint, oy:AnchorOr
     }
 }
 
-_curryAnchor(0.5, 0, 0, -1, "TopCenter")
-_curryAnchor(0.5, 1, 0, 1, "BottomCenter")
-_curryAnchor(0, 0.5, -1, 0, "LeftMiddle")
-_curryAnchor(1, 0.5, 1, 0, "RightMiddle")
+_curryAnchor(0.5, 0, 0, -1, AnchorLocations.Top)
+_curryAnchor(0.5, 1, 0, 1, AnchorLocations.Bottom)
+_curryAnchor(0, 0.5, -1, 0, AnchorLocations.Left)
+_curryAnchor(1, 0.5, 1, 0, AnchorLocations.Right)
 
-_curryAnchor(0.5, 0, 0, -1, "Top")
-_curryAnchor(0.5, 1, 0, 1, "Bottom")
-_curryAnchor(0, 0.5, -1, 0, "Left")
-_curryAnchor(1, 0.5, 1, 0, "Right")
-_curryAnchor(0.5, 0.5, 0, 0, "Center")
-_curryAnchor(1, 0, 0, -1, "TopRight")
-_curryAnchor(1, 1, 0, 1, "BottomRight")
-_curryAnchor(0, 0, 0, -1, "TopLeft")
-_curryAnchor(0, 1, 0, 1, "BottomLeft")
+_curryAnchor(0.5, 0.5, 0, 0, AnchorLocations.Center)
+_curryAnchor(1, 0, 0, -1, AnchorLocations.TopRight)
+_curryAnchor(1, 1, 0, 1, AnchorLocations.BottomRight)
+_curryAnchor(0, 0, 0, -1, AnchorLocations.TopLeft)
+_curryAnchor(0, 1, 0, 1, AnchorLocations.BottomLeft)
 
 
 // ------------- DYNAMIC ANCHOR DEFAULT ---------------------------
 
-const DEFAULT_DYNAMIC_ANCHORS = [ "TopCenter", "RightMiddle", "BottomCenter", "LeftMiddle" ]
-anchorMap["AutoDefault"] = function(instance:JsPlumbInstance, params:any):Anchor {
+const DEFAULT_DYNAMIC_ANCHORS = [ AnchorLocations.Top, AnchorLocations.Right, AnchorLocations.Bottom, AnchorLocations.Left ]
+anchorMap[AnchorLocations.AutoDefault] = function(instance:JsPlumbInstance, params:any):Anchor {
     let a = new DynamicAnchor(instance, {anchors:DEFAULT_DYNAMIC_ANCHORS.map((da:string) => getNamedAnchor(instance, da, params))})
-    a.type = "AutoDefault"
+    a.type = AnchorLocations.AutoDefault
     return a
 }
 
@@ -299,7 +291,7 @@ const _shapes:Dictionary<ShapeFunction> = {
     }
 }
 
-anchorMap["Perimeter"] = function(instance:JsPlumbInstance, params:any):Anchor {
+anchorMap[AnchorLocations.Perimeter] = function(instance:JsPlumbInstance, params:any):Anchor {
     let anchorCount = params.anchorCount || 60
 
     if (!params.shape) {
@@ -332,14 +324,14 @@ function _curryContinuousAnchor (type:AnchorId, faces?:Array<Face>) {
     }
 }
 
-_curryContinuousAnchor("Continuous")
-_curryContinuousAnchor("ContinuousLeft", ["left"])
-_curryContinuousAnchor("ContinuousTop", ["top"])
-_curryContinuousAnchor("ContinuousBottom", ["bottom"])
-_curryContinuousAnchor("ContinuousRight", ["right"])
-_curryContinuousAnchor("ContinuousLeft", ["left"])
-_curryContinuousAnchor("ContinuousTop", ["top"])
-_curryContinuousAnchor("ContinuousBottom", ["bottom"])
-_curryContinuousAnchor("ContinuousLeftRight", ["left", "right"])
-_curryContinuousAnchor("ContinuousTopBottom", ["top", "bottom"])
+_curryContinuousAnchor(AnchorLocations.Continuous)
+_curryContinuousAnchor(AnchorLocations.ContinuousLeft, ["left"])
+_curryContinuousAnchor(AnchorLocations.ContinuousTop, ["top"])
+_curryContinuousAnchor(AnchorLocations.ContinuousBottom, ["bottom"])
+_curryContinuousAnchor(AnchorLocations.ContinuousRight, ["right"])
+_curryContinuousAnchor(AnchorLocations.ContinuousLeft, ["left"])
+_curryContinuousAnchor(AnchorLocations.ContinuousTop, ["top"])
+_curryContinuousAnchor(AnchorLocations.ContinuousBottom, ["bottom"])
+_curryContinuousAnchor(AnchorLocations.ContinuousLeftRight, ["left", "right"])
+_curryContinuousAnchor(AnchorLocations.ContinuousTopBottom, ["top", "bottom"])
 
