@@ -65,7 +65,8 @@ enum AnchorLocations {
 
 export type AnchorId = keyof typeof AnchorLocations
 
-export type AnchorSpec = AnchorId | [AnchorId, AnchorOptions] | AnchorPlacement
+export type FullAnchorSpec = {type:AnchorId, options:AnchorOptions}
+export type AnchorSpec = AnchorId | FullAnchorSpec | AnchorPlacement
 
 const anchorMap:Dictionary<(instance:JsPlumbInstance, args:any) => Anchor> = {}
 
@@ -127,36 +128,34 @@ export function makeAnchorFromSpec(instance:JsPlumbInstance, spec:AnchorSpec|Arr
     if (isString(spec)){
         return getNamedAnchor(instance, spec as string, null, elementId)
 
-    } else if (isArray(spec)) {
+    }
+    else if (isArray(spec)) {
 
         // if its an array then it can be either:
         // - a DynamicAnchor, which is a series of Anchor specs
-        // - an Anchor with constructor args
         // - a set of values for a low level Anchor create
 
-        let sa:Array<any> = (spec as Array<any>)
-
-        // second arg is object, its a named anchor with constructor args
-        if (IS.anObject(sa[1]) && sa[1].compute == null) {
-            return getNamedAnchor(instance, sa[0] as string, sa[1], elementId)
-        } else {
-            // if all values are numbers (or all numbers and an optional css class as the 7th arg) its a low level create
-            if(isPrimitiveAnchorSpec(sa)) {
-                return getAnchorWithValues(instance,
-                    sa[0],
-                    sa[1],
-                    [ sa[2] as AnchorOrientationHint, sa[3] as AnchorOrientationHint ],
-                    [ sa[4] || 0, sa[5] || 0],
-                    elementId,
-                    sa[6]
-                )
-            } else {
-                return new DynamicAnchor(instance, {anchors:sa, elementId:elementId})
-            }
+        // if all values are numbers (or all numbers and an optional css class as the 7th arg) its a low level create
+        if(isPrimitiveAnchorSpec(spec as Array<AnchorSpec>)) {
+            return getAnchorWithValues(instance,
+                spec[0],
+                spec[1],
+                [ spec[2] as AnchorOrientationHint, spec[3] as AnchorOrientationHint ],
+                [ spec[4] || 0, spec[5] || 0],
+                elementId,
+                spec[6]
+            )
         }
-
-    } else {
-        throw { message: "jsPlumb cannot create anchor from " + spec }
+        else {
+            // otherwise it's a list of specs, for plugging in to a DynamicAnchor.
+            // TODO fold DynamicAnchor and Anchor into a separate concept: any given anchor should support multiple locations.
+            return new DynamicAnchor(instance, {anchors:spec as Array<AnchorSpec>, elementId:elementId})
+        }
+    }
+    else {
+        // if not an array or string, then it's a named Anchor with constructor args
+        const sa = spec as FullAnchorSpec
+        return getNamedAnchor(instance, sa.type, sa.options, elementId)
     }
 }
 
