@@ -1038,11 +1038,9 @@ export class EndpointDragHandler implements DragHandler {
                 newSourceId: idx === 0 ? dropEndpoint.elementId : this.jpc.sourceId,
                 originalTargetId: idx === 1 ? suspendedElementId : this.jpc.targetId,
                 newTargetId: idx === 1 ? dropEndpoint.elementId : this.jpc.targetId,
-                originalSourceEndpoint: idx === 0 ? this.jpc.suspendedEndpoint : this.jpc.endpoints[0],
-                newSourceEndpoint: idx === 0 ? dropEndpoint : this.jpc.endpoints[0],
-                originalTargetEndpoint: idx === 1 ? this.jpc.suspendedEndpoint : this.jpc.endpoints[1],
-                newTargetEndpoint: idx === 1 ? dropEndpoint : this.jpc.endpoints[1],
-                connection: this.jpc
+                originalEndpoint:this.jpc.suspendedEndpoint,
+                connection: this.jpc,
+                newEndpoint:dropEndpoint
             }, originalEvent)
         }
 
