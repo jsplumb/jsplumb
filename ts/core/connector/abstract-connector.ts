@@ -10,7 +10,7 @@ import { Endpoint} from '../endpoint/endpoint'
 
 export type UserDefinedConnectorId = string
 export type ConnectorId = "Bezier" | "StateMachine" | "Flowchart" | "Straight" | UserDefinedConnectorId
-export type ConnectorWithOptions = [ConnectorId, ConnectorOptions]
+export type ConnectorWithOptions = { type:ConnectorId, options:ConnectorOptions}
 export type ConnectorSpec = ConnectorId | ConnectorWithOptions
 export type PaintAxis = "y" | "x"
 
@@ -60,7 +60,7 @@ export interface PaintGeometry {
 }
 
 export interface ConnectorOptions extends ComponentOptions {
-    stub?:number|[number,number]
+    stub?:number|number[]
     gap?:number
 }
 
@@ -79,7 +79,7 @@ export abstract class AbstractConnector implements Connector {
 
     edited = false
 
-    stub:number | [number, number]
+    stub:number | number[]
     sourceStub:number
     targetStub:number
     maxStub:number
