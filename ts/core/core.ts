@@ -2,7 +2,7 @@ import {jsPlumbDefaults} from "./defaults"
 
 import {Connection} from "./connector/connection-impl"
 import {Endpoint} from "./endpoint/endpoint"
-import {FullOverlaySpec, OverlayId, OverlaySpec} from "./overlay/overlay"
+import {FullOverlaySpec, OverlaySpec} from "./overlay/overlay"
 import {AnchorPlacement, RedrawResult} from "./router/router"
 import {
     _mergeOverrides,
@@ -265,11 +265,11 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     convertToFullOverlaySpec(spec:string | OverlaySpec):FullOverlaySpec {
         let o:FullOverlaySpec = null
         if (isString(spec)) {
-            o = [ spec as OverlayId, { } ]
+            o = { type:spec as string, options:{ } }
         } else {
             o = spec as FullOverlaySpec
         }
-        o[1].id = o[1].id || uuid()
+        o.options.id = o.options.id || uuid()
         return o
     }
 
@@ -404,7 +404,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         this.fire(Constants.EVENT_CONTAINER_CHANGE, this._container)
     }
 
-    private _set (c:Connection, el:T["E"]|Endpoint, idx:number):any {
+    private _set (c:Connection, el:T["E"]|Endpoint, idx:number):ConnectionMovedParams {
 
         const stTypes = [
             { el: "source", elId: "sourceId", epDefs: Constants.SOURCE_DEFINITION_LIST },
@@ -419,14 +419,13 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
         let evtParams:ConnectionMovedParams = {
             index: idx,
-            originalSourceEndpoint: idx === 0 ? oldEndpoint : c.endpoints[0],
-            originalTargetEndpoint:idx === 1 ? oldEndpoint : c.endpoints[1],
-
+            originalEndpoint:oldEndpoint,
             originalSourceId: idx === 0 ? cId : c.sourceId,
             newSourceId: c.sourceId,
             originalTargetId: idx === 1 ? cId : c.targetId,
             newTargetId: c.targetId,
-            connection: c
+            connection: c,
+            newEndpoint:oldEndpoint
         }
 
         if (el instanceof Endpoint) {
@@ -458,6 +457,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         }
 
         if (ep != null) {
+            evtParams.newEndpoint = ep
             oldEndpoint.detachFromConnection(c)
             c.endpoints[idx] = ep
             c[_st.el] = ep.element
@@ -469,20 +469,19 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             this.paintConnection(c)
         }
 
-        (<any>evtParams).element = el
         return evtParams
 
     }
 
     setSource (connection:Connection, el:T["E"] | Endpoint):void {
         let p = this._set(connection, el, 0)
-        Connection.updateConnectedClass(this, connection, p.originalSource, true)
-        this.sourceOrTargetChanged(p.originalSourceId, p.newSourceId, connection, p.element, 0)
+        Connection.updateConnectedClass(this, connection, p.originalEndpoint.element, true)
+        this.sourceOrTargetChanged(p.originalSourceId, p.newSourceId, connection, p.newEndpoint.element, 0)
     }
 
     setTarget (connection:Connection, el:T["E"] | Endpoint):void {
         let p = this._set(connection, el, 1)
-        Connection.updateConnectedClass(this, connection, p.originalTarget, true)
+        Connection.updateConnectedClass(this, connection, p.originalEndpoint.element, true)
         connection.updateConnectedClass(false)
     }
 
@@ -1728,7 +1727,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
                 // if a string, convert to object representation so that we can store the typeid on it.
                 // also assign an id.
                 let fo = this.convertToFullOverlaySpec(type.overlays[i])
-                to[fo[1].id] = fo
+                to[fo.options.id] = fo
             }
             this._connectionTypes.get(id).overlays = to as any
         }
@@ -1748,7 +1747,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
                 // if a string, convert to object representation so that we can store the typeid on it.
                 // also assign an id.
                 let fo = this.convertToFullOverlaySpec(type.overlays[i])
-                to[fo[1].id] = fo
+                to[fo.options.id] = fo
             }
             this._endpointTypes.get(id).overlays = to as any
         }
