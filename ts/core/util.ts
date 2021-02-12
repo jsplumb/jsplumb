@@ -665,6 +665,12 @@ export function optional<T>(obj:T):Optional<T> {
     }
 }
 
+/**
+ * Get, or insert then get, a value from the map.
+ * @param map Map to get the value from.
+ * @param key Key of the value to retrieve
+ * @param valueGenerator Method used to generate a value for the key if it is not currently in the map.
+ */
 export function getsert<K,V>(map:Map<K,V>, key:K, valueGenerator:() => V):V {
     if (!map.has(key)) {
         map.set(key, valueGenerator())
@@ -672,3 +678,20 @@ export function getsert<K,V>(map:Map<K,V>, key:K, valueGenerator:() => V):V {
     return map.get(key)
 }
 
+/**
+ * Returns true if the given `object` can be considered to be an instance of the class `cls`.  This is done by
+ * testing the proto chain of the object and checking at each level to see if the proto is an instance of the given class.
+ * @param object Object to test
+ * @param cls Class to test for.
+ */
+export function isAssignableFrom(object:any, cls:any) {
+    let proto = object.__proto__
+    while (proto != null) {
+        if (proto instanceof cls) {
+            return true
+        } else {
+            proto = proto.__proto__
+        }
+    }
+    return false
+}
