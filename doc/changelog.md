@@ -1,3 +1,94 @@
+## 4.0.0-RC52
+
+### Breaking
+
+- The format of the various "spec" object used to define the appearance of various parts of the UI has changed. This came about after I actually tried to write an app against the Typescript API and ran into a few vagaries of how Typescript infers types, which together required more boilerplate in the UI than is desirable.
+
+#### ConnectorSpec
+ 
+
+Whereas previously you might have had:
+
+```javascript
+connector:[ "Flowchart", { cornerRadius:10 } ]
+```
+
+you now need:
+
+```
+connector:{
+    type:"Flowchart",
+    options:{
+        cornerRadius:10
+    }
+}
+```
+#### OverlaySpec
+
+`OverlaySpec` has also changed. Previously:
+
+```
+overlays:[
+    [ "Label", { label:"foo" } ]
+]
+```
+
+now:
+
+```javascript
+overlays:[
+    { 
+        type:"Label",
+        options:{
+            label:"foo"
+        }
+    }
+]
+```
+
+Also note that in 2.x, there was a 3-arg version of the OverlaySpec:
+
+```
+[ "Label", { label:"foo" }, { location:0.2 } ]
+```
+
+This does not exist in 4.x. You will now need to merge the two objects before passing it to the overlay spec.
+
+#### AnchorSpec
+
+In some - very few - cases, it is possible to specify an anchor via its name and a set of constructor options, in the same way you could specify connectors or overlays, for instance:
+
+```
+anchor: [ "Continuous", { faces: [ "bottom", "left" ] } ]
+```
+
+This too has changed in 4.0.0-RC52:
+
+```
+anchor: { type:"Continuous", options:{ faces: [ "bottom", "left" ] } }
+```
+
+#### EndpointSpec
+
+`EndpointSpec` has also been changed to be in the same format as the other spec objects. Where previously you had this:
+
+```javascript
+endpoint:[ "Dot", { radius:5} ]
+```
+
+You now need this:
+
+```javascript
+endpoint:{
+    type:"Dot",
+    options:{
+        radius:5
+    }
+}
+```
+
+    
+
 ## 4.0.0-RC51
 
 9th February 2021
