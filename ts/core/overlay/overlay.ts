@@ -35,10 +35,8 @@ export interface CustomOverlayOptions extends OverlayOptions {
     create:(c:Component) => any
 }
 
-export type OverlayId = "Label" | "Arrow" | "PlainArrow" | "Custom"
-
-export type FullOverlaySpec = [OverlayId, OverlayOptions]
-export type OverlaySpec = OverlayId | FullOverlaySpec
+export type FullOverlaySpec = { type:string, options:OverlayOptions }
+export type OverlaySpec = string | FullOverlaySpec
 
 export abstract class Overlay extends EventGenerator {
 
