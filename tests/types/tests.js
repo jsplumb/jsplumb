@@ -461,12 +461,12 @@ var testSuite = function () {
         var jpInstance = jsPlumbBrowserUI.newInstance({
             container: canvas,
             anchor: 'Continuous',
-            endpoint: [
-                'Dot',
-                {
+            endpoint: {
+                type: 'Dot',
+                options: {
                     radius: 2
                 }
-            ],
+            },
             connectionOverlays: [
                 { type:'Arrow', options:{
                     location: 1,
@@ -665,6 +665,7 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3"),
             c = _jsPlumb.connect({source: d1, target: d2}),
             c2 = _jsPlumb.connect({source: d2, target: d3});
+
         c.setType("basic");
         equal(c.getPaintStyle().stroke, "yellow", "first connection has yellow stroke style");
         c2.setType("other");
@@ -1261,25 +1262,31 @@ var testSuite = function () {
         var jpInstance = jsPlumbBrowserUI.newInstance({
             container: canvas,
             anchor: 'Continuous',
-            endpoint: [
-                'Dot',
-                {
+            endpoint: {
+                type: 'Dot',
+                options: {
                     radius: 2
                 }
-            ],
+            },
             connectionOverlays: [
-                { type:'Arrow', options:{
-                    location: 1,
-                    id: 'arrow',
-                    length: 8,
-                    width: 10,
-                    foldback: 1
-                }},
-                { type:'Label', options:{
-                    location: 0.5,
-                    id: 'label',
-                    label: "foo"
-                }}
+                {
+                    type:'Arrow',
+                    options:{
+                        location: 1,
+                        id: 'arrow',
+                        length: 8,
+                        width: 10,
+                        foldback: 1
+                    }
+                },
+                {
+                    type:'Label',
+                    options:{
+                        location: 0.5,
+                        id: 'label',
+                        label: "foo"
+                    }
+                }
             ],
             paintStyle: {
                 stroke: '#b6b6b6',
@@ -1287,18 +1294,21 @@ var testSuite = function () {
                 outlineStroke: 'transparent',
                 outlineWidth: 4
             },
-            HoverPaintStyle: {
+            hoverPaintStyle: {
                 stroke: '#545454',
                 zIndex: 6
             }
         });
 
         jpInstance.registerConnectionType('default', {
-            connector: { type:'Flowchart', options:{
-                cornerRadius: 10,
-                gap: 10,
-                stub: 15
-            }},
+            connector: {
+                type:'Flowchart',
+                options:{
+                    cornerRadius: 10,
+                    gap: 10,
+                    stub: 15
+                }
+            },
             cssClass: 'transition'
         });
 

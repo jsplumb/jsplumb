@@ -5530,7 +5530,7 @@ var testSuite = function () {
            e = _jsPlumb.connect({
                source:d1,
                target:d2,
-               endpoint:["Dot", { radius:250 }]
+               endpoint:{type:"Dot", options:{ radius:250 }}
            });
 
         equal(e.endpoints[0].endpoint.radius, 250, "radius is set correctly and retrievable");
@@ -5541,7 +5541,7 @@ var testSuite = function () {
             e = _jsPlumb.connect({
                 source:d1,
                 target:d2,
-                endpoint:["Rectangle", { width:250, height:250 }]
+                endpoint:{type:"Rectangle", options:{ width:250, height:250 }}
             });
 
         equal(e.endpoints[0].endpoint.width, 250, "width is set correctly and retrievable");
@@ -5606,10 +5606,10 @@ var testSuite = function () {
     test("connection.replaceEndpoint", function() {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
             e1 = _jsPlumb.addEndpoint(d1, {
-                endpoint:[ "Dot", { radius:15 } ]
+                endpoint:{type: "Dot", options:{ radius:15 } }
             }),
             e2 = _jsPlumb.addEndpoint(d2, {
-                endpoint:[ "Dot", { radius:25 } ]
+                endpoint:{type: "Dot", options:{ radius:25 } }
             }),
             c = _jsPlumb.connect({source:e1, target:e2});
 
@@ -5619,8 +5619,8 @@ var testSuite = function () {
         equal("Dot", c.endpoints[0].endpoint.getType(), "endpoint 1 is a Dot");
         equal("Dot", c.endpoints[1].endpoint.getType(), "endpoint 2 is a Dot");
 
-        c.replaceEndpoint(0, [ "Rectangle", {width:50,height:50}]);
-        c.replaceEndpoint(1, [ "Dot", {radius:100}]);
+        c.replaceEndpoint(0, { type:"Rectangle", options:{width:50,height:50}});
+        c.replaceEndpoint(1, {type: "Dot", options:{radius:100}});
 
         equal(50, c.endpoints[0].endpoint.width, "endpoint 1 now has width 50");
         equal(50, c.endpoints[0].endpoint.height, "endpoint 1 now has height 50");
