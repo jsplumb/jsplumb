@@ -77,10 +77,9 @@ export class GroupManager<E> {
 
         instance.bind(Constants.EVENT_CONNECTION_MOVED, (p:ConnectionMovedParams) => {
 
-            const originalEndpoint = p.index === 0 ? p.originalSourceEndpoint : p.originalTargetEndpoint,
-                  originalElement = originalEndpoint.element,
+            const originalElement = p.originalEndpoint.element,
                   originalGroup = this.getGroupFor(originalElement),
-                  newEndpoint = p.index === 0 ? p.newSourceEndpoint : p.newTargetEndpoint,
+                  newEndpoint = p.connection.endpoints[p.index],
                   newElement = newEndpoint.element,
                   newGroup = this.getGroupFor(newElement),
                   connMap = p.index === 0 ? this._connectionSourceMap : this._connectionTargetMap,
