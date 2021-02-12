@@ -2,7 +2,7 @@ import {Size, PointArray, Offset} from "./common"
 import {EventGenerator} from "./event-generator"
 import {findWithFunction, getsert, forEach} from './util'
 import {JsPlumbInstance} from "./core"
-import {EVENT_UPDATE} from "@jsplumb/core/constants"
+import {EVENT_UPDATE} from "./constants"
 
 export interface ViewportPosition {
     x:number
