@@ -34,12 +34,12 @@ import {
     SourceDefinition,
     SourceOrTargetDefinition, TARGET,
     TargetDefinition, AnchorSpec,
-    forEach
+    forEach, EndpointSpec
 } from "@jsplumb/core"
 
 function _makeFloatingEndpoint (paintStyle:PaintStyle,
                                 referenceAnchor:Anchor,
-                                endpoint:Endpoint,
+                                endpoint:EndpointSpec | EndpointRepresentation<any>,
                                 referenceCanvas:Element,
                                 sourceElement:jsPlumbDOMElement,
                                 instance:BrowserJsPlumbInstance, scope?:string)
@@ -391,12 +391,10 @@ export class EndpointDragHandler implements DragHandler {
         
         // ------------------- create an endpoint that will be our floating endpoint ------------------------------------
         
-        let endpointToFloat = this.ep.dragProxy || this.ep.endpoint
+        let endpointToFloat:EndpointSpec|EndpointRepresentation<any> = this.ep.dragProxy || this.ep.endpoint
         if (this.ep.dragProxy == null && this.ep.connectionType != null) {
             const aae = this.instance.deriveEndpointAndAnchorSpec(this.ep.connectionType)
-            if (aae.endpoints[1]) {
-                endpointToFloat = aae.endpoints[1]
-            }
+            endpointToFloat = aae.endpoints[1]
         }
         const centerAnchor = makeAnchorFromSpec(this.instance, "Center")
         centerAnchor.isFloating = true
