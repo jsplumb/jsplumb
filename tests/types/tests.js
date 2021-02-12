@@ -266,14 +266,14 @@ var testSuite = function () {
             paintStyle: { stroke: "yellow", strokeWidth: 4 },
             hoverPaintStyle: { stroke: "blue" },
             overlays: [
-                [ "Label", {id:"LBL", label:"${lbl}" } ]
+                { type: "Label", options:{id:"LBL", label:"${lbl}" } }
             ],
             cssClass: "FOO"
         };
 
         var overlayType = {
             overlays: [
-                [ "Label", {id:"LBL2", label:"LABEL 2" } ]
+                { type: "Label", options:{id:"LBL2", label:"LABEL 2" } }
             ]
         };
 
@@ -283,7 +283,7 @@ var testSuite = function () {
             connector: "Bezier",
             paintStyle: { strokeWidth: 14 },
             overlays: [
-                ["Arrow", {location: 0.25}]
+                { type:"Arrow", options:{location: 0.25}}
             ],
             cssClass: "BAR"
         };
@@ -377,14 +377,15 @@ var testSuite = function () {
             target: d2,
             detachable: true,
             overlays: [
-                ["Label",
-                    {
+                {
+                    type: "Label",
+                    options: {
                         label: "hello",
                         location: 50,
                         id: "myLabel1",
                         cssClass: "connectionLabel"
                     }
-                ]
+                }
             ],
             type: "normal"
         });
@@ -430,14 +431,15 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var e = _jsPlumb.addEndpoint(d1, {
             overlays: [
-                ["Label",
-                    {
+                {
+                    type: "Label",
+                    options: {
                         label: "hello",
                         location: 50,
                         id: "myLabel1",
                         cssClass: "connectionLabel"
                     }
-                ]
+                }
             ],
             type: "normal"
         });
@@ -466,18 +468,18 @@ var testSuite = function () {
                 }
             ],
             connectionOverlays: [
-                ['Arrow', {
+                { type:'Arrow', options:{
                     location: 1,
                     id: 'arrow',
                     length: 8,
                     width: 10,
                     foldback: 1
-                }],
-                ['Label', {
+                }},
+                { type:'Label', options:{
                     location: 0.5,
                     id: 'label',
                     label: "foo"
-                }]
+                }}
             ],
             paintStyle: {
                 stroke: '#b6b6b6',
@@ -492,18 +494,18 @@ var testSuite = function () {
         });
 
         jpInstance.registerConnectionType('default', {
-            connector: ['Flowchart', {
+            connector: { type:'Flowchart', options:{
                 cornerRadius: 10,
                 gap: 10,
                 stub: 15
-            }],
+            }},
             cssClass: 'transition'
         });
 
         jpInstance.registerConnectionType('loopback', {
-            connector: ['StateMachine', {
+            connector: { type:'StateMachine', options:{
                 loopbackRadius: 10
-            }],
+            }},
             cssClass: 'transition'
         });
 
@@ -551,7 +553,7 @@ var testSuite = function () {
             connector: "Bezier",
             paintStyle: { strokeWidth: 14 },
             overlays: [
-                ["Arrow", {location: 0.25}]
+                { type:"Arrow", options:{location: 0.25}}
             ]
         };
         _jsPlumb.registerConnectionTypes({
@@ -614,7 +616,7 @@ var testSuite = function () {
             connector: "Bezier",
             paintStyle: { strokeWidth: 14 },
             overlays: [
-                ["Arrow", {location: 0.25}]
+                { type:"Arrow", options:{location: 0.25}}
             ]
         };
         _jsPlumb.registerConnectionTypes({
@@ -675,14 +677,14 @@ var testSuite = function () {
     test(" connection type tests, two types, mergeStrategy:\"override\"", function () {
         var basicType = {
             overlays:[
-                [ "Arrow", { location: 1, id:"basicArrow" }],
-                [ "Label", { location:0.2, id:"basicLabel" }]
+                { type: "Arrow", options:{ location: 1, id:"basicArrow" }},
+                { type: "Label", options:{ location:0.2, id:"basicLabel" }}
             ]
         };
 
         var otherType = {
             overlays:[
-                [ "Arrow", { location: 0.5, id:"otherArrow" }]
+                { type: "Arrow", options:{ location: 0.5, id:"otherArrow" }}
             ],
             mergeStrategy:"override"
 
@@ -690,7 +692,7 @@ var testSuite = function () {
 
         var anotherType = {
             overlays:[
-                [ "Label", { location: 0.5, id:"anotherLabel" }]
+                { type: "Label", options:{ location: 0.5, id:"anotherLabel" }}
             ]
 
         };
@@ -916,9 +918,9 @@ var testSuite = function () {
             paintStyle: { stroke: "${strokeColor}", strokeWidth: 4 },
             hoverPaintStyle: { stroke: "blue" },
             overlays:[
-                ["Label", {id:"one", label:"one" }],
-                ["Label", {id:"two", label:"${label}" }],
-                ["Label", {id:"three", label:"${missing}" }]
+                { type:"Label", options:{id:"one", label:"one" }},
+        { type:"Label", options:{id:"two", label:"${label}" }},
+            { type:"Label", options:{id:"three", label:"${missing}" }}
             ]
         };
 
@@ -950,7 +952,7 @@ var testSuite = function () {
         var basicType = {
             connector: "Flowchart",
             overlays: [
-                [ "Label", { label: "${label}", id: "label"} ]
+                { type: "Label", options:{ label: "${label}", id: "label"} }
             ]
         };
 
@@ -972,7 +974,7 @@ var testSuite = function () {
         var basicType = {
             connector: "Flowchart",
             overlays: [
-                [ "Label", { label: "${label}", id: "label"} ]
+                { type: "Label", options:{ label: "${label}", id: "label"} }
             ]
         };
 
@@ -1266,18 +1268,18 @@ var testSuite = function () {
                 }
             ],
             connectionOverlays: [
-                ['Arrow', {
+                { type:'Arrow', options:{
                     location: 1,
                     id: 'arrow',
                     length: 8,
                     width: 10,
                     foldback: 1
-                }],
-                ['Label', {
+                }},
+                { type:'Label', options:{
                     location: 0.5,
                     id: 'label',
                     label: "foo"
-                }]
+                }}
             ],
             paintStyle: {
                 stroke: '#b6b6b6',
@@ -1292,18 +1294,18 @@ var testSuite = function () {
         });
 
         jpInstance.registerConnectionType('default', {
-            connector: ['Flowchart', {
+            connector: { type:'Flowchart', options:{
                 cornerRadius: 10,
                 gap: 10,
                 stub: 15
-            }],
+            }},
             cssClass: 'transition'
         });
 
         jpInstance.registerConnectionType('loopback', {
-            connector: ['StateMachine', {
+            connector: { type:'StateMachine', options:{
                 loopbackRadius: 10
-            }],
+            }},
             cssClass: 'transition'
         });
 

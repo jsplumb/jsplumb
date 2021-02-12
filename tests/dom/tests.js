@@ -78,17 +78,17 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
         var e1 = _jsPlumb.addEndpoint(d1, {
                 overlays: [
-                    [ "Label", { label: "FOO", id: "label" }]
+                    { type: "Label", options:{ label: "FOO", id: "label" }}
                 ]
             }),
             e2 = _jsPlumb.addEndpoint(d2, {
                 overlays: [
-                    [ "Label", { label: "FOO", id: "label" }]
+                    { type: "Label", options:{ label: "FOO", id: "label" }}
                 ]
             }),
             e3 = _jsPlumb.addEndpoint(d1, {
                 overlays: [
-                    [ "Label", { label: "FOO", id: "label" }]
+                    { type: "Label", options:{ label: "FOO", id: "label" }}
                 ]
             });
 

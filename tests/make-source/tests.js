@@ -669,7 +669,7 @@ var testSuite = function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
 
         _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle", connectorOverlays:[
-            ["Label", {label:"FOO", id:"overlay"}]
+                { type:"Label", options:{label:"FOO", id:"overlay"}}
         ]  });
 
         var c = _jsPlumb.connect({source: d17, target: d16});
