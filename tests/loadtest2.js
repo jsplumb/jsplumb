@@ -66,7 +66,7 @@
 
     window.jsPlumbLoadTest = {
         anchors:{
-            "normal":[ "TopCenter", "BottomCenter" ],
+            "normal":[ "Top", "Bottom" ],
             "dynamic":[ "AutoDefault", "AutoDefault" ],
             "continuous":[ "Continuous", "Continuous" ]
         },

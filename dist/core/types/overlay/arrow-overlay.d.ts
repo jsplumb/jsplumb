@@ -10,6 +10,7 @@ export declare class ArrowOverlay extends Overlay {
     length: number;
     foldback: number;
     direction: number;
+    location: number;
     paintStyle: PaintStyle;
     static arrowType: string;
     type: string;

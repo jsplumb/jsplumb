@@ -8,7 +8,7 @@ import { OverlaySpec } from "../overlay/overlay";
 import { AnchorSpec } from "../factory/anchor-factory";
 import { ConnectorSpec } from "./abstract-connector";
 import { EndpointSpec } from "../endpoint/endpoint";
-export interface ConnectionParams<E> {
+export interface ConnectionParams<E = any> {
     id?: string;
     source?: E;
     target?: E;
@@ -56,8 +56,8 @@ export declare class Connection<E = any> extends OverlayCapableComponent {
     previousConnection: Connection;
     sourceId: string;
     targetId: string;
-    source: any;
-    target: any;
+    source: E;
+    target: E;
     detachable: boolean;
     reattach: boolean;
     uuids: [string, string];

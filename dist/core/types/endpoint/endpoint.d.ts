@@ -11,15 +11,19 @@ import { OverlayCapableComponent } from '../component/overlay-capable-component'
 export declare type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndpointId;
 export declare type UserDefinedEndpointId = string;
 export declare type EndpointParams = any;
-export declare type EndpointSpec = EndpointId | [EndpointId, EndpointParams];
+export declare type FullEndpointSpec = {
+    type: EndpointId;
+    options: EndpointParams;
+};
+export declare type EndpointSpec = EndpointId | FullEndpointSpec;
 export interface InternalEndpointOptions<E> extends EndpointOptions<E> {
     isTemporarySource?: boolean;
 }
-export interface EndpointOptions<E> extends ComponentOptions {
+export interface EndpointOptions<E = any> extends ComponentOptions {
     preparedAnchor?: Anchor;
     anchor?: AnchorSpec;
     anchors?: [AnchorSpec, AnchorSpec];
-    endpoint?: EndpointSpec | Endpoint<E>;
+    endpoint?: EndpointSpec | EndpointRepresentation<E>;
     enabled?: boolean;
     paintStyle?: PaintStyle;
     hoverPaintStyle?: PaintStyle;

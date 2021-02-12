@@ -10,6 +10,7 @@ export interface FlowchartConnectorOptions extends ConnectorOptions {
 export declare class FlowchartConnector extends AbstractConnector {
     instance: JsPlumbInstance;
     connection: Connection;
+    static type: string;
     type: string;
     private internalSegments;
     midpoint: number;
@@ -26,4 +27,3 @@ export declare class FlowchartConnector extends AbstractConnector {
     private writeSegments;
     _compute(paintInfo: PaintGeometry, params: ConnectorComputeParams): void;
 }
-export declare function register(): void;

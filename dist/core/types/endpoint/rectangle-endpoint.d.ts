@@ -8,6 +8,6 @@ export declare class RectangleEndpoint extends EndpointRepresentation<ComputedRe
     height: number;
     constructor(endpoint: Endpoint, params?: any);
     _compute(anchorPoint: AnchorPlacement, orientation: Orientation, endpointStyle: any): ComputedRectangleEndpoint;
+    static type: string;
     getType(): string;
 }
-export declare function register(): void;

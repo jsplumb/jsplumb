@@ -40,6 +40,7 @@ export interface DragOptions {
     stop?: (params: DragEventCallbackOptions) => void;
     cursor?: string;
     zIndex?: number;
+    grid?: [number, number];
 }
 export interface BrowserJsPlumbDefaults extends jsPlumbDefaults<Element> {
     /**

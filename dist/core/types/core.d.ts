@@ -1,10 +1,10 @@
 import { jsPlumbDefaults } from "./defaults";
 import { Connection } from "./connector/connection-impl";
-import { Endpoint } from "./endpoint/endpoint";
+import { Endpoint, EndpointSpec } from "./endpoint/endpoint";
 import { FullOverlaySpec, OverlaySpec } from "./overlay/overlay";
 import { AnchorPlacement, RedrawResult } from "./router/router";
 import { Dictionary, UpdateOffsetOptions, Offset, Size, jsPlumbElement, PointArray, ConnectParams, // <--
-SourceDefinition, TargetDefinition, BehaviouralTypeDescriptor, TypeDescriptor, Rotations, PointXY } from './common';
+SourceDefinition, TargetDefinition, BehaviouralTypeDescriptor, TypeDescriptor, Rotations, PointXY, ConnectionMovedParams } from './common';
 import { EventGenerator } from "./event-generator";
 import { EndpointOptions } from "./endpoint/endpoint";
 import { AddGroupOptions, GroupManager } from "./group/group-manager";
@@ -21,6 +21,7 @@ import { LabelOverlay } from './overlay/label-overlay';
 import { AbstractConnector } from './connector/abstract-connector';
 import { OverlayCapableComponent } from './component/overlay-capable-component';
 import { PaintStyle } from './styles';
+import { AnchorSpec } from "./factory/anchor-factory";
 export declare type ElementSelectionSpecifier<E> = E | Array<E> | '*';
 export declare type SelectionList = '*' | Array<string>;
 export interface AbstractSelectOptions<E> {
@@ -154,7 +155,7 @@ export declare abstract class JsPlumbInstance<T extends {
     deleteEveryConnection(params?: DeleteConnectionOptions): number;
     deleteConnectionsForElement(el: T["E"], params?: DeleteConnectionOptions): JsPlumbInstance;
     private fireDetachEvent;
-    fireMoveEvent(params?: any, evt?: Event): void;
+    fireMoveEvent(params?: ConnectionMovedParams, evt?: Event): void;
     /**
      * Manage a group of elements.
      * @param elements Array-like object of strings or elements.
@@ -186,7 +187,10 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param id Optional ID for the Endpoint.
      */
     newEndpoint(params: EndpointOptions<T["E"]>, id?: string): Endpoint;
-    deriveEndpointAndAnchorSpec(type: string, dontPrependDefault?: boolean): any;
+    deriveEndpointAndAnchorSpec(type: string, dontPrependDefault?: boolean): {
+        endpoints: [EndpointSpec, EndpointSpec];
+        anchors: [AnchorSpec, AnchorSpec];
+    };
     revalidate(el: T["E"], timestamp?: string): RedrawResult;
     repaintEverything(): JsPlumbInstance;
     /**

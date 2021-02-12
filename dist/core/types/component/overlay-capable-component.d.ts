@@ -21,7 +21,13 @@ export declare abstract class OverlayCapableComponent extends Component {
     }>;
     constructor(instance: JsPlumbInstance, params: OverlayComponentOptions);
     addOverlay(overlay: OverlaySpec): Overlay;
-    getOverlay(id: string): Overlay;
+    /**
+     * Get the Overlay with the given ID. You can optionally provide a type parameter for this method in order to get
+     * a typed return value (such as `LabelOverlay`, `ArrowOverlay`, etc), since some overlays have methods that
+     * others do not.
+     * @param id ID of the overlay to retrieve.
+     */
+    getOverlay<T extends Overlay>(id: string): T;
     getOverlays(): Dictionary<Overlay>;
     hideOverlay(id: string): void;
     hideOverlays(): void;

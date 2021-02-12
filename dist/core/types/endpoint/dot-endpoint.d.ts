@@ -9,7 +9,6 @@ export declare class DotEndpoint extends EndpointRepresentation<ComputedDotEndpo
     defaultInnerRadius: number;
     constructor(endpoint: Endpoint, params?: any);
     _compute(anchorPoint: AnchorPlacement, orientation: Orientation, endpointStyle: any): ComputedDotEndpoint;
-    static dotEndpointType: string;
+    static type: string;
     getType(): string;
 }
-export declare function register(): void;

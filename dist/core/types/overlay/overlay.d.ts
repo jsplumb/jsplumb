@@ -6,8 +6,7 @@ import { EventGenerator } from "../event-generator";
 export interface OverlayOptions extends Record<string, any> {
     id?: string;
     cssClass?: string;
-    location?: number;
-    endpointLoc?: [number, number];
+    location?: number | number[];
     events?: Dictionary<(value: any, event?: any) => any>;
 }
 export interface ArrowOverlayOptions extends OverlayOptions {
@@ -19,15 +18,16 @@ export interface ArrowOverlayOptions extends OverlayOptions {
 }
 export interface LabelOverlayOptions extends OverlayOptions {
     label: string;
-    endpointLocation?: [number, number];
     labelLocationAttribute?: string;
 }
 export interface CustomOverlayOptions extends OverlayOptions {
     create: (c: Component) => any;
 }
-export declare type OverlayId = "Label" | "Arrow" | "PlainArrow" | "Custom";
-export declare type FullOverlaySpec = [OverlayId, OverlayOptions];
-export declare type OverlaySpec = OverlayId | FullOverlaySpec;
+export declare type FullOverlaySpec = {
+    type: string;
+    options: OverlayOptions;
+};
+export declare type OverlaySpec = string | FullOverlaySpec;
 export declare abstract class Overlay extends EventGenerator {
     instance: JsPlumbInstance;
     component: Component;
@@ -35,8 +35,7 @@ export declare abstract class Overlay extends EventGenerator {
     abstract type: string;
     cssClass: string;
     visible: boolean;
-    location: number;
-    endpointLocation: [number, number];
+    location: number | Array<number>;
     events?: Dictionary<(value: any, event?: any) => any>;
     constructor(instance: JsPlumbInstance, component: Component, p: OverlayOptions);
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;

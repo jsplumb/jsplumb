@@ -43,28 +43,26 @@ export interface InternalConnectParams<E> extends ConnectParams {
     type?: string;
     newConnection?: (p: any) => Connection;
 }
-export interface ConnectionEstablishedParams<E> {
-    connection: Connection;
+export interface ConnectionEstablishedParams<E = any> {
+    connection: Connection<E>;
     source: E;
-    sourceEndpoint: Endpoint;
+    sourceEndpoint: Endpoint<E>;
     sourceId: string;
     target: E;
-    targetEndpoint: Endpoint;
+    targetEndpoint: Endpoint<E>;
     targetId: string;
 }
-export interface ConnectionDetachedParams<E> extends ConnectionEstablishedParams<E> {
+export interface ConnectionDetachedParams<E = any> extends ConnectionEstablishedParams<E> {
 }
-export interface ConnectionMovedParams {
-    connection: Connection;
+export interface ConnectionMovedParams<E = any> {
+    connection: Connection<E>;
     index: number;
     originalSourceId: string;
     newSourceId: string;
     originalTargetId: string;
     newTargetId: string;
-    originalSourceEndpoint: Endpoint;
-    newSourceEndpoint: Endpoint;
-    originalTargetEndpoint: Endpoint;
-    newTargetEndpoint: Endpoint;
+    originalEndpoint: Endpoint<E>;
+    newEndpoint: Endpoint<E>;
 }
 export interface TypeDescriptor {
     cssClass?: string;

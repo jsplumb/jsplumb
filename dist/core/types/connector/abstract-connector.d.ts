@@ -6,11 +6,12 @@ import { Connection } from '../connector/connection-impl';
 import { ComponentOptions } from '../component/component';
 import { Orientation } from '../factory/anchor-factory';
 import { Endpoint } from '../endpoint/endpoint';
-export interface ConnectorOptions extends Record<string, any> {
-}
 export declare type UserDefinedConnectorId = string;
 export declare type ConnectorId = "Bezier" | "StateMachine" | "Flowchart" | "Straight" | UserDefinedConnectorId;
-export declare type ConnectorWithOptions = [ConnectorId, ConnectorOptions];
+export declare type ConnectorWithOptions = {
+    type: ConnectorId;
+    options: ConnectorOptions;
+};
 export declare type ConnectorSpec = ConnectorId | ConnectorWithOptions;
 export declare type PaintAxis = "y" | "x";
 declare type SegmentForPoint = {
@@ -68,7 +69,7 @@ export interface PaintGeometry {
     anchorOrientation?: string;
 }
 export interface ConnectorOptions extends ComponentOptions {
-    stub?: number;
+    stub?: number | number[];
     gap?: number;
 }
 export interface Connector {
@@ -82,7 +83,7 @@ export declare abstract class AbstractConnector implements Connector {
     connection: Connection;
     abstract type: string;
     edited: boolean;
-    stub: number | [number, number];
+    stub: number | number[];
     sourceStub: number;
     targetStub: number;
     maxStub: number;

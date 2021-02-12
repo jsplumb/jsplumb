@@ -260,23 +260,6 @@ function () {
   return EndpointRepresentation;
 }();
 
-var endpointMap = {};
-var EndpointFactory = {
-  get: function get(ep, name, params) {
-    var e = endpointMap[name];
-    if (!e) {
-      throw {
-        message: "jsPlumb: unknown endpoint type '" + name + "'"
-      };
-    } else {
-      return new e(ep, params);
-    }
-  },
-  register: function register(name, ep) {
-    endpointMap[name] = ep;
-  }
-};
-
 var DotEndpoint =
 function (_EndpointRepresentati) {
   _inherits(DotEndpoint, _EndpointRepresentati);
@@ -316,15 +299,12 @@ function (_EndpointRepresentati) {
   }, {
     key: "getType",
     value: function getType() {
-      return DotEndpoint.dotEndpointType;
+      return DotEndpoint.type;
     }
   }]);
   return DotEndpoint;
 }(EndpointRepresentation);
-_defineProperty(DotEndpoint, "dotEndpointType", "Dot");
-function register() {
-  EndpointFactory.register("Dot", DotEndpoint);
-}
+_defineProperty(DotEndpoint, "type", "Dot");
 
 var BlankEndpoint =
 function (_EndpointRepresentati) {
@@ -345,14 +325,12 @@ function (_EndpointRepresentati) {
   }, {
     key: "getType",
     value: function getType() {
-      return "Blank";
+      return BlankEndpoint.type;
     }
   }]);
   return BlankEndpoint;
 }(EndpointRepresentation);
-function register$1() {
-  EndpointFactory.register("Blank", BlankEndpoint);
-}
+_defineProperty(BlankEndpoint, "type", "Blank");
 
 var RectangleEndpoint =
 function (_EndpointRepresentati) {
@@ -384,14 +362,12 @@ function (_EndpointRepresentati) {
   }, {
     key: "getType",
     value: function getType() {
-      return "Rectangle";
+      return RectangleEndpoint.type;
     }
   }]);
   return RectangleEndpoint;
 }(EndpointRepresentation);
-function register$2() {
-  EndpointFactory.register("Rectangle", RectangleEndpoint);
-}
+_defineProperty(RectangleEndpoint, "type", "Rectangle");
 
 function filterList(list, value, missingIsFalse) {
   if (list === "*") {
@@ -882,6 +858,17 @@ function getsert(map, key, valueGenerator) {
   }
   return map.get(key);
 }
+function isAssignableFrom(object, cls) {
+  var proto = object.__proto__;
+  while (proto != null) {
+    if (proto instanceof cls) {
+      return true;
+    } else {
+      proto = proto.__proto__;
+    }
+  }
+  return false;
+}
 
 var AbstractConnector =
 function () {
@@ -1239,23 +1226,6 @@ function () {
   return AbstractConnector;
 }();
 
-var connectorMap = {};
-var Connectors = {
-  get: function get(instance, connection, name, params) {
-    var c = connectorMap[name];
-    if (!c) {
-      throw {
-        message: "jsPlumb: unknown connector type '" + name + "'"
-      };
-    } else {
-      return new c(instance, connection, params);
-    }
-  },
-  register: function register(name, conn) {
-    connectorMap[name] = conn;
-  }
-};
-
 var StraightSegment =
 function (_AbstractSegment) {
   _inherits(StraightSegment, _AbstractSegment);
@@ -1501,7 +1471,7 @@ function (_AbstractConnector) {
       args[_key] = arguments[_key];
     }
     _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(StraightConnector)).call.apply(_getPrototypeOf2, [this].concat(args)));
-    _defineProperty(_assertThisInitialized(_this), "type", "Straight");
+    _defineProperty(_assertThisInitialized(_this), "type", StraightConnector.type);
     return _this;
   }
   _createClass(StraightConnector, [{
@@ -1538,9 +1508,7 @@ function (_AbstractConnector) {
   }]);
   return StraightConnector;
 }(AbstractConnector);
-function register$3() {
-  Connectors.register("Straight", StraightConnector);
-}
+_defineProperty(StraightConnector, "type", "Straight");
 
 var segmentMultipliers = [null, [1, -1], [1, 1], [-1, 1], [-1, -1]];
 var inverseSegmentMultipliers = [null, [-1, -1], [-1, 1], [1, 1], [1, -1]];
@@ -1841,7 +1809,7 @@ function (_AbstractConnector) {
     _this = _possibleConstructorReturn(this, _getPrototypeOf(FlowchartConnector).call(this, instance, connection, params));
     _this.instance = instance;
     _this.connection = connection;
-    _defineProperty(_assertThisInitialized(_this), "type", "Flowchart");
+    _defineProperty(_assertThisInitialized(_this), "type", FlowchartConnector.type);
     _defineProperty(_assertThisInitialized(_this), "internalSegments", []);
     _defineProperty(_assertThisInitialized(_this), "midpoint", void 0);
     _defineProperty(_assertThisInitialized(_this), "alwaysRespectStubs", void 0);
@@ -2086,9 +2054,7 @@ function (_AbstractConnector) {
   }]);
   return FlowchartConnector;
 }(AbstractConnector);
-function register$4() {
-  Connectors.register("Flowchart", FlowchartConnector);
-}
+_defineProperty(FlowchartConnector, "type", "Flowchart");
 
 var AbstractBezierConnector =
 function (_AbstractConnector) {
@@ -2848,7 +2814,7 @@ function (_AbstractBezierConnec) {
     _classCallCheck(this, Bezier);
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Bezier).call(this, instance, connection, params));
     _this.connection = connection;
-    _defineProperty(_assertThisInitialized(_this), "type", "Bezier");
+    _defineProperty(_assertThisInitialized(_this), "type", Bezier.type);
     _defineProperty(_assertThisInitialized(_this), "majorAnchor", void 0);
     _defineProperty(_assertThisInitialized(_this), "minorAnchor", void 0);
     params = params || {};
@@ -2926,9 +2892,7 @@ function (_AbstractBezierConnec) {
   }]);
   return Bezier;
 }(AbstractBezierConnector);
-function register$5() {
-  Connectors.register("Bezier", Bezier);
-}
+_defineProperty(Bezier, "type", "Bezier");
 
 function _segment(x1, y1, x2, y2) {
   if (x1 <= x2 && y2 <= y1) {
@@ -2986,7 +2950,7 @@ function (_AbstractBezierConnec) {
     _classCallCheck(this, StateMachine);
     _this = _possibleConstructorReturn(this, _getPrototypeOf(StateMachine).call(this, instance, connection, params));
     _this.connection = connection;
-    _defineProperty(_assertThisInitialized(_this), "type", "StateMachine");
+    _defineProperty(_assertThisInitialized(_this), "type", StateMachine.type);
     _defineProperty(_assertThisInitialized(_this), "_controlPoint", void 0);
     _defineProperty(_assertThisInitialized(_this), "proximityLimit", void 0);
     _this.curviness = params.curviness || 10;
@@ -3059,9 +3023,41 @@ function (_AbstractBezierConnec) {
   }]);
   return StateMachine;
 }(AbstractBezierConnector);
-function register$6() {
-  Connectors.register("StateMachine", StateMachine);
-}
+_defineProperty(StateMachine, "type", "StateMachine");
+
+var connectorMap = {};
+var Connectors = {
+  get: function get(instance, connection, name, params) {
+    var c = connectorMap[name];
+    if (!c) {
+      throw {
+        message: "jsPlumb: unknown connector type '" + name + "'"
+      };
+    } else {
+      return new c(instance, connection, params);
+    }
+  },
+  register: function register(name, conn) {
+    connectorMap[name] = conn;
+  }
+};
+
+var endpointMap = {};
+var EndpointFactory = {
+  get: function get(ep, name, params) {
+    var e = endpointMap[name];
+    if (!e) {
+      throw {
+        message: "jsPlumb: unknown endpoint type '" + name + "'"
+      };
+    } else {
+      return new e(ep, params);
+    }
+  },
+  register: function register(name, ep) {
+    endpointMap[name] = ep;
+  }
+};
 
 function cls() {
   for (var _len = arguments.length, className = new Array(_len), _key = 0; _key < _len; _key++) {
@@ -3426,7 +3422,7 @@ function (_EventGenerator) {
       }
       for (var i = 0; i < o.length; i++) {
         var fo = _this.instance.convertToFullOverlaySpec(o[i]);
-        oo[fo[1].id] = fo;
+        oo[fo.options.id] = fo;
       }
     }
     _this._defaultType = {
@@ -3742,7 +3738,6 @@ function (_EventGenerator) {
     _defineProperty(_assertThisInitialized(_this), "cssClass", void 0);
     _defineProperty(_assertThisInitialized(_this), "visible", true);
     _defineProperty(_assertThisInitialized(_this), "location", void 0);
-    _defineProperty(_assertThisInitialized(_this), "endpointLocation", void 0);
     _defineProperty(_assertThisInitialized(_this), "events", void 0);
     p = p || {};
     _this.id = p.id || uuid();
@@ -3884,16 +3879,12 @@ function _makeLabelOverlay(component, params) {
 }
 function _processOverlay(component, o) {
   var _newOverlay = null;
-  if (isArray(o)) {
-    var oa = o;
-    var type = oa[0],
-    p = extend({}, oa[1]);
-    if (oa.length === 3) {
-      extend(p, oa[2]);
-    }
-    _newOverlay = OverlayFactory.get(component.instance, type, component, p);
-  } else if (isString(o)) {
+  if (isString(o)) {
     _newOverlay = OverlayFactory.get(component.instance, o, component, {});
+  } else if (o.type != null && o.options != null) {
+    var oa = o;
+    var p = extend({}, oa.options);
+    _newOverlay = OverlayFactory.get(component.instance, oa.type, component, p);
   } else {
     _newOverlay = o;
   }
@@ -3918,11 +3909,14 @@ function (_Component) {
     _this.overlays = {};
     _this.overlayPositions = {};
     if (params.label) {
-      _this.getDefaultType().overlays[_internalLabelOverlayId] = ["Label", {
-        label: params.label,
-        location: params.labelLocation || _this.defaultLabelLocation,
-        id: _internalLabelOverlayId
-      }];
+      _this.getDefaultType().overlays[_internalLabelOverlayId] = {
+        type: "Label",
+        options: {
+          label: params.label,
+          location: params.labelLocation || _this.defaultLabelLocation,
+          id: _internalLabelOverlayId
+        }
+      };
     }
     return _this;
   }
@@ -3930,9 +3924,9 @@ function (_Component) {
     key: "addOverlay",
     value: function addOverlay(overlay) {
       var o = _processOverlay(this, overlay);
-      if (this.getData && o.type === "Label" && isArray(overlay)) {
+      if (this.getData && o.type === "Label" && !isString(overlay)) {
         var d = this.getData(),
-            p = overlay[1];
+            p = overlay.options;
         if (d) {
           var locationAttribute = p.labelLocationAttribute || "labelLocation";
           var loc = d[locationAttribute];
@@ -4117,17 +4111,17 @@ function (_Component) {
         var keep = {},
             i;
         for (i in t.overlays) {
-          var existing = this.overlays[t.overlays[i][1].id];
+          var existing = this.overlays[t.overlays[i].options.id];
           if (existing) {
-            existing.updateFrom(t.overlays[i][1]);
-            keep[t.overlays[i][1].id] = true;
+            existing.updateFrom(t.overlays[i].options);
+            keep[t.overlays[i].options.id] = true;
             this.instance.reattachOverlay(existing, this);
           } else {
-            var c = this.getCachedTypeItem("overlay", t.overlays[i][1].id);
+            var c = this.getCachedTypeItem("overlay", t.overlays[i].options.id);
             if (c != null) {
               this.instance.reattachOverlay(c, this);
               c.setVisible(true);
-              c.updateFrom(t.overlays[i][1]);
+              c.updateFrom(t.overlays[i].options);
               this.overlays[c.id] = c;
             } else {
               c = this.addOverlay(t.overlays[i]);
@@ -4450,29 +4444,25 @@ var X_AXIS_FACES = ["left", "right"];
 var Y_AXIS_FACES = ["top", "bottom"];
 var AnchorLocations;
 (function (AnchorLocations) {
-  AnchorLocations[AnchorLocations["Assign"] = 0] = "Assign";
-  AnchorLocations[AnchorLocations["AutoDefault"] = 1] = "AutoDefault";
-  AnchorLocations[AnchorLocations["Bottom"] = 2] = "Bottom";
-  AnchorLocations[AnchorLocations["BottomCenter"] = 3] = "BottomCenter";
-  AnchorLocations[AnchorLocations["BottomLeft"] = 4] = "BottomLeft";
-  AnchorLocations[AnchorLocations["BottomRight"] = 5] = "BottomRight";
-  AnchorLocations[AnchorLocations["Center"] = 6] = "Center";
-  AnchorLocations[AnchorLocations["Continuous"] = 7] = "Continuous";
-  AnchorLocations[AnchorLocations["ContinuousBottom"] = 8] = "ContinuousBottom";
-  AnchorLocations[AnchorLocations["ContinuousLeft"] = 9] = "ContinuousLeft";
-  AnchorLocations[AnchorLocations["ContinuousRight"] = 10] = "ContinuousRight";
-  AnchorLocations[AnchorLocations["ContinuousTop"] = 11] = "ContinuousTop";
-  AnchorLocations[AnchorLocations["ContinuousLeftRight"] = 12] = "ContinuousLeftRight";
-  AnchorLocations[AnchorLocations["ContinuousTopBottom"] = 13] = "ContinuousTopBottom";
-  AnchorLocations[AnchorLocations["Left"] = 14] = "Left";
-  AnchorLocations[AnchorLocations["LeftMiddle"] = 15] = "LeftMiddle";
-  AnchorLocations[AnchorLocations["Perimeter"] = 16] = "Perimeter";
-  AnchorLocations[AnchorLocations["Right"] = 17] = "Right";
-  AnchorLocations[AnchorLocations["RightMiddle"] = 18] = "RightMiddle";
-  AnchorLocations[AnchorLocations["Top"] = 19] = "Top";
-  AnchorLocations[AnchorLocations["TopCenter"] = 20] = "TopCenter";
-  AnchorLocations[AnchorLocations["TopLeft"] = 21] = "TopLeft";
-  AnchorLocations[AnchorLocations["TopRight"] = 22] = "TopRight";
+  AnchorLocations["Assign"] = "Assign";
+  AnchorLocations["AutoDefault"] = "AutoDefault";
+  AnchorLocations["Bottom"] = "Bottom";
+  AnchorLocations["BottomLeft"] = "BottomLeft";
+  AnchorLocations["BottomRight"] = "BottomRight";
+  AnchorLocations["Center"] = "Center";
+  AnchorLocations["Continuous"] = "Continuous";
+  AnchorLocations["ContinuousBottom"] = "ContinuousBottom";
+  AnchorLocations["ContinuousLeft"] = "ContinuousLeft";
+  AnchorLocations["ContinuousRight"] = "ContinuousRight";
+  AnchorLocations["ContinuousTop"] = "ContinuousTop";
+  AnchorLocations["ContinuousLeftRight"] = "ContinuousLeftRight";
+  AnchorLocations["ContinuousTopBottom"] = "ContinuousTopBottom";
+  AnchorLocations["Left"] = "Left";
+  AnchorLocations["Perimeter"] = "Perimeter";
+  AnchorLocations["Right"] = "Right";
+  AnchorLocations["Top"] = "Top";
+  AnchorLocations["TopLeft"] = "TopLeft";
+  AnchorLocations["TopRight"] = "TopRight";
 })(AnchorLocations || (AnchorLocations = {}));
 var anchorMap = {};
 var Anchors = {
@@ -4520,23 +4510,17 @@ function makeAnchorFromSpec(instance, spec, elementId) {
   if (isString(spec)) {
     return getNamedAnchor(instance, spec, null, elementId);
   } else if (isArray(spec)) {
-    var sa = spec;
-    if (IS.anObject(sa[1]) && sa[1].compute == null) {
-      return getNamedAnchor(instance, sa[0], sa[1], elementId);
+    if (isPrimitiveAnchorSpec(spec)) {
+      return getAnchorWithValues(instance, spec[0], spec[1], [spec[2], spec[3]], [spec[4] || 0, spec[5] || 0], elementId, spec[6]);
     } else {
-      if (isPrimitiveAnchorSpec(sa)) {
-        return getAnchorWithValues(instance, sa[0], sa[1], [sa[2], sa[3]], [sa[4] || 0, sa[5] || 0], elementId, sa[6]);
-      } else {
-        return new DynamicAnchor(instance, {
-          anchors: sa,
-          elementId: elementId
-        });
-      }
+      return new DynamicAnchor(instance, {
+        anchors: spec,
+        elementId: elementId
+      });
     }
   } else {
-    throw {
-      message: "jsPlumb cannot create anchor from " + spec
-    };
+    var sa = spec;
+    return getNamedAnchor(instance, sa.type, sa.options, elementId);
   }
 }
 function _curryAnchor(x, y, ox, oy, type, fnInit) {
@@ -4549,27 +4533,23 @@ function _curryAnchor(x, y, ox, oy, type, fnInit) {
     return a;
   };
 }
-_curryAnchor(0.5, 0, 0, -1, "TopCenter");
-_curryAnchor(0.5, 1, 0, 1, "BottomCenter");
-_curryAnchor(0, 0.5, -1, 0, "LeftMiddle");
-_curryAnchor(1, 0.5, 1, 0, "RightMiddle");
-_curryAnchor(0.5, 0, 0, -1, "Top");
-_curryAnchor(0.5, 1, 0, 1, "Bottom");
-_curryAnchor(0, 0.5, -1, 0, "Left");
-_curryAnchor(1, 0.5, 1, 0, "Right");
-_curryAnchor(0.5, 0.5, 0, 0, "Center");
-_curryAnchor(1, 0, 0, -1, "TopRight");
-_curryAnchor(1, 1, 0, 1, "BottomRight");
-_curryAnchor(0, 0, 0, -1, "TopLeft");
-_curryAnchor(0, 1, 0, 1, "BottomLeft");
-var DEFAULT_DYNAMIC_ANCHORS = ["TopCenter", "RightMiddle", "BottomCenter", "LeftMiddle"];
-anchorMap["AutoDefault"] = function (instance, params) {
+_curryAnchor(0.5, 0, 0, -1, AnchorLocations.Top);
+_curryAnchor(0.5, 1, 0, 1, AnchorLocations.Bottom);
+_curryAnchor(0, 0.5, -1, 0, AnchorLocations.Left);
+_curryAnchor(1, 0.5, 1, 0, AnchorLocations.Right);
+_curryAnchor(0.5, 0.5, 0, 0, AnchorLocations.Center);
+_curryAnchor(1, 0, 0, -1, AnchorLocations.TopRight);
+_curryAnchor(1, 1, 0, 1, AnchorLocations.BottomRight);
+_curryAnchor(0, 0, 0, -1, AnchorLocations.TopLeft);
+_curryAnchor(0, 1, 0, 1, AnchorLocations.BottomLeft);
+var DEFAULT_DYNAMIC_ANCHORS = [AnchorLocations.Top, AnchorLocations.Right, AnchorLocations.Bottom, AnchorLocations.Left];
+anchorMap[AnchorLocations.AutoDefault] = function (instance, params) {
   var a = new DynamicAnchor(instance, {
     anchors: DEFAULT_DYNAMIC_ANCHORS.map(function (da) {
       return getNamedAnchor(instance, da, params);
     })
   });
-  a.type = "AutoDefault";
+  a.type = AnchorLocations.AutoDefault;
   return a;
 };
 function _circle(anchorCount) {
@@ -4647,7 +4627,7 @@ var _shapes = {
     return _path(anchorCount, p);
   }
 };
-anchorMap["Perimeter"] = function (instance, params) {
+anchorMap[AnchorLocations.Perimeter] = function (instance, params) {
   var anchorCount = params.anchorCount || 60;
   if (!params.shape) {
     throw new Error("no shape supplied to Perimeter Anchor type");
@@ -4675,16 +4655,16 @@ function _curryContinuousAnchor(type, faces) {
     return a;
   };
 }
-_curryContinuousAnchor("Continuous");
-_curryContinuousAnchor("ContinuousLeft", ["left"]);
-_curryContinuousAnchor("ContinuousTop", ["top"]);
-_curryContinuousAnchor("ContinuousBottom", ["bottom"]);
-_curryContinuousAnchor("ContinuousRight", ["right"]);
-_curryContinuousAnchor("ContinuousLeft", ["left"]);
-_curryContinuousAnchor("ContinuousTop", ["top"]);
-_curryContinuousAnchor("ContinuousBottom", ["bottom"]);
-_curryContinuousAnchor("ContinuousLeftRight", ["left", "right"]);
-_curryContinuousAnchor("ContinuousTopBottom", ["top", "bottom"]);
+_curryContinuousAnchor(AnchorLocations.Continuous);
+_curryContinuousAnchor(AnchorLocations.ContinuousLeft, ["left"]);
+_curryContinuousAnchor(AnchorLocations.ContinuousTop, ["top"]);
+_curryContinuousAnchor(AnchorLocations.ContinuousBottom, ["bottom"]);
+_curryContinuousAnchor(AnchorLocations.ContinuousRight, ["right"]);
+_curryContinuousAnchor(AnchorLocations.ContinuousLeft, ["left"]);
+_curryContinuousAnchor(AnchorLocations.ContinuousTop, ["top"]);
+_curryContinuousAnchor(AnchorLocations.ContinuousBottom, ["bottom"]);
+_curryContinuousAnchor(AnchorLocations.ContinuousLeftRight, ["left", "right"]);
+_curryContinuousAnchor(AnchorLocations.ContinuousTopBottom, ["top", "bottom"]);
 
 var TYPE_ITEM_ANCHORS = "anchors";
 var TYPE_ITEM_CONNECTOR = "connector";
@@ -5041,14 +5021,10 @@ function (_OverlayCapableCompon) {
           connector;
       if (isString(connectorSpec)) {
         connector = this.makeConnector(connectorSpec, connectorArgs);
+      } else {
+        var co = connectorSpec;
+        connector = this.makeConnector(co.type, merge(co.options, connectorArgs));
       }
-      else if (isArray(connectorSpec)) {
-          if (connectorSpec.length === 1) {
-            connector = this.makeConnector(connectorSpec[0], connectorArgs);
-          } else {
-            connector = this.makeConnector(connectorSpec[0], merge(connectorSpec[1], connectorArgs));
-          }
-        }
       if (typeId != null) {
         connector.typeId = typeId;
       }
@@ -5495,27 +5471,28 @@ function (_OverlayCapableCompon) {
     value: function prepareEndpoint(ep, typeId) {
       var _this3 = this;
       var endpointArgs = {
-        _jsPlumb: this.instance,
         cssClass: this.cssClass,
         endpoint: this
       };
       var endpoint;
-      if (isString(ep)) {
-        endpoint = EndpointFactory.get(this, ep, endpointArgs);
-      } else if (isArray(ep)) {
-        endpointArgs = merge(ep[1], endpointArgs);
-        endpoint = EndpointFactory.get(this, ep[0], endpointArgs);
-      } else if (ep instanceof EndpointRepresentation) {
+      if (isAssignableFrom(ep, EndpointRepresentation)) {
         endpoint = ep.clone();
+      } else if (isString(ep)) {
+        endpoint = EndpointFactory.get(this, ep, endpointArgs);
+      } else {
+        var fep = ep;
+        endpointArgs = merge(fep.options, endpointArgs);
+        endpoint = EndpointFactory.get(this, fep.type, endpointArgs);
       }
       endpoint.clone = function () {
         if (isString(ep)) {
           return EndpointFactory.get(_this3, ep, endpointArgs);
-        } else if (isArray(ep)) {
-          endpointArgs = merge(ep[1], endpointArgs);
-          return EndpointFactory.get(_this3, ep[0], endpointArgs);
-        } else if (ep instanceof EndpointRepresentation) {
+        } else if (isAssignableFrom(ep, EndpointRepresentation)) {
           return ep.clone();
+        } else {
+          var _fep = ep;
+          endpointArgs = merge(_fep.options, endpointArgs);
+          endpoint = EndpointFactory.get(_this3, _fep.type, endpointArgs);
         }
       };
       endpoint.typeId = typeId;
@@ -5630,9 +5607,12 @@ function (_UINode) {
   }, {
     key: "getEndpoint",
     value: function getEndpoint(conn, endpointIndex) {
-      return this.endpoint || [DotEndpoint.dotEndpointType, {
-        radius: 10
-      }];
+      return this.endpoint || {
+        type: DotEndpoint.type,
+        options: {
+          radius: 10
+        }
+      };
     }
   }, {
     key: "add",
@@ -5833,10 +5813,9 @@ function () {
       _this._cleanupDetachedConnection(p.connection);
     });
     instance.bind(EVENT_CONNECTION_MOVED, function (p) {
-      var originalEndpoint = p.index === 0 ? p.originalSourceEndpoint : p.originalTargetEndpoint,
-          originalElement = originalEndpoint.element,
+      var originalElement = p.originalEndpoint.element,
           originalGroup = _this.getGroupFor(originalElement),
-          newEndpoint = p.index === 0 ? p.newSourceEndpoint : p.newTargetEndpoint,
+          newEndpoint = p.connection.endpoints[p.index],
           newElement = newEndpoint.element,
           newGroup = _this.getGroupFor(newElement),
           connMap = p.index === 0 ? _this._connectionSourceMap : _this._connectionTargetMap,
@@ -7755,11 +7734,11 @@ function (_EventGenerator) {
     _defineProperty(_assertThisInitialized(_this), "_zoom", 1);
     _this.geometry = new jsPlumbGeometry();
     _this.Defaults = {
-      anchor: "Bottom",
+      anchor: AnchorLocations.Bottom,
       anchors: [null, null],
       connectionsDetachable: true,
       connectionOverlays: [],
-      connector: "Bezier",
+      connector: Bezier.type,
       container: null,
       endpoint: "Dot",
       endpointOverlays: [],
@@ -7817,11 +7796,14 @@ function (_EventGenerator) {
     value: function convertToFullOverlaySpec(spec) {
       var o = null;
       if (isString(spec)) {
-        o = [spec, {}];
+        o = {
+          type: spec,
+          options: {}
+        };
       } else {
         o = spec;
       }
-      o[1].id = o[1].id || uuid();
+      o.options.id = o.options.id || uuid();
       return o;
     }
   }, {
@@ -7960,13 +7942,13 @@ function (_EventGenerator) {
           oldEndpoint = c.endpoints[idx];
       var evtParams = {
         index: idx,
-        originalSource: c.source,
-        originalTarget: c.target,
+        originalEndpoint: oldEndpoint,
         originalSourceId: idx === 0 ? cId : c.sourceId,
         newSourceId: c.sourceId,
         originalTargetId: idx === 1 ? cId : c.targetId,
         newTargetId: c.targetId,
-        connection: c
+        connection: c,
+        newEndpoint: oldEndpoint
       };
       if (el instanceof Endpoint) {
         ep = el;
@@ -7991,6 +7973,7 @@ function (_EventGenerator) {
         }
       }
       if (ep != null) {
+        evtParams.newEndpoint = ep;
         oldEndpoint.detachFromConnection(c);
         c.endpoints[idx] = ep;
         c[_st.el] = ep.element;
@@ -7999,21 +7982,20 @@ function (_EventGenerator) {
         this.fireMoveEvent(evtParams);
         this.paintConnection(c);
       }
-      evtParams.element = el;
       return evtParams;
     }
   }, {
     key: "setSource",
     value: function setSource(connection, el) {
       var p = this._set(connection, el, 0);
-      Connection.updateConnectedClass(this, connection, p.originalSource, true);
-      this.sourceOrTargetChanged(p.originalSourceId, p.newSourceId, connection, p.element, 0);
+      Connection.updateConnectedClass(this, connection, p.originalEndpoint.element, true);
+      this.sourceOrTargetChanged(p.originalSourceId, p.newSourceId, connection, p.newEndpoint.element, 0);
     }
   }, {
     key: "setTarget",
     value: function setTarget(connection, el) {
       var p = this._set(connection, el, 1);
-      Connection.updateConnectedClass(this, connection, p.originalTarget, true);
+      Connection.updateConnectedClass(this, connection, p.originalEndpoint.element, true);
       connection.updateConnectedClass(false);
     }
   }, {
@@ -9095,7 +9077,7 @@ function (_EventGenerator) {
         var to = {};
         for (var i = 0; i < type.overlays.length; i++) {
           var fo = this.convertToFullOverlaySpec(type.overlays[i]);
-          to[fo[1].id] = fo;
+          to[fo.options.id] = fo;
         }
         this._connectionTypes.get(id).overlays = to;
       }
@@ -9115,7 +9097,7 @@ function (_EventGenerator) {
         var to = {};
         for (var i = 0; i < type.overlays.length; i++) {
           var fo = this.convertToFullOverlaySpec(type.overlays[i]);
-          to[fo[1].id] = fo;
+          to[fo.options.id] = fo;
         }
         this._endpointTypes.get(id).overlays = to;
       }
@@ -9454,6 +9436,7 @@ function (_Overlay) {
     _defineProperty(_assertThisInitialized(_this), "length", void 0);
     _defineProperty(_assertThisInitialized(_this), "foldback", void 0);
     _defineProperty(_assertThisInitialized(_this), "direction", void 0);
+    _defineProperty(_assertThisInitialized(_this), "location", void 0);
     _defineProperty(_assertThisInitialized(_this), "paintStyle", void 0);
     _defineProperty(_assertThisInitialized(_this), "type", ArrowOverlay.arrowType);
     _defineProperty(_assertThisInitialized(_this), "cachedDimensions", void 0);
@@ -9465,6 +9448,7 @@ function (_Overlay) {
     _this.paintStyle = p.paintStyle || {
       "strokeWidth": 1
     };
+    _this.location = p.location == null ? _this.location : isArray(p.location) ? p.location[0] : p.location;
     return _this;
   }
   _createClass(ArrowOverlay, [{
@@ -9660,12 +9644,12 @@ function (_Anchor) {
   return FloatingAnchor;
 }(Anchor);
 
-register();
-register$1();
-register$2();
-register$5();
-register$3();
-register$4();
-register$6();
+EndpointFactory.register(DotEndpoint.type, DotEndpoint);
+EndpointFactory.register(BlankEndpoint.type, BlankEndpoint);
+EndpointFactory.register(RectangleEndpoint.type, RectangleEndpoint);
+Connectors.register(Bezier.type, Bezier);
+Connectors.register(StraightConnector.type, StraightConnector);
+Connectors.register(FlowchartConnector.type, FlowchartConnector);
+Connectors.register(StateMachine.type, StateMachine);
 
-export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, Anchors, ArcSegment, ArrowOverlay, BLOCK, BezierSegment, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DefaultRouter, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FloatingAnchor, GROUP_KEY, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DROP, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JTK_ID, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PROPERTY_POSITION, PlainArrowOverlay, SCOPE_PREFIX, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, extend, fastTrim, filterList, findWithFunction, forEach, fromArray, functionChain, getFromSetWithFunction, getWithFunction, getsert, gradientAtPoint, gradientAtPointAlongPathFrom, isArray, isArrowOverlay, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, jsPlumbGeometry, lineIntersection, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, optional, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, populate, register, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, rotatePointXY, setToArray, sortHelper, suggest, uuid, wrap };
+export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, AnchorLocations, Anchors, ArcSegment, ArrowOverlay, BLOCK, Bezier, BezierSegment, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DefaultRouter, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FloatingAnchor, FlowchartConnector, GROUP_KEY, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DROP, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JTK_ID, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PROPERTY_POSITION, PlainArrowOverlay, RectangleEndpoint, SCOPE_PREFIX, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, StateMachine, StraightConnector, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, extend, fastTrim, filterList, findWithFunction, forEach, fromArray, functionChain, getFromSetWithFunction, getWithFunction, getsert, gradientAtPoint, gradientAtPointAlongPathFrom, isArray, isArrowOverlay, isAssignableFrom, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, jsPlumbGeometry, lineIntersection, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, optional, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, populate, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, rotatePointXY, setToArray, sortHelper, suggest, uuid, wrap };

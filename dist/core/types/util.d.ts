@@ -38,7 +38,7 @@ export declare function populate(model: any, values: any, functionPrefix?: strin
  * @param a
  * @param f
  */
-export declare function forEach<T>(a: Array<T>, f: (_a: T) => any): Array<T>;
+export declare function forEach<T>(a: ArrayLike<T>, f: (_a: T) => any): void;
 /**
  * Search each entry in the given array for an entry for which the function `f` returns true. This is a stand-in replacement for the
  * `findIndex` method which is available on `Array` in modern browsers, but not IE11.
@@ -128,4 +128,17 @@ export interface Optional<T> {
     map: (fn: MapFunction<T, any>) => any;
 }
 export declare function optional<T>(obj: T): Optional<T>;
+/**
+ * Get, or insert then get, a value from the map.
+ * @param map Map to get the value from.
+ * @param key Key of the value to retrieve
+ * @param valueGenerator Method used to generate a value for the key if it is not currently in the map.
+ */
 export declare function getsert<K, V>(map: Map<K, V>, key: K, valueGenerator: () => V): V;
+/**
+ * Returns true if the given `object` can be considered to be an instance of the class `cls`.  This is done by
+ * testing the proto chain of the object and checking at each level to see if the proto is an instance of the given class.
+ * @param object Object to test
+ * @param cls Class to test for.
+ */
+export declare function isAssignableFrom(object: any, cls: any): boolean;

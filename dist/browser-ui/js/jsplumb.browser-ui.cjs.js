@@ -1244,8 +1244,8 @@ function (_Base) {
               this._parent.appendChild(this._dragEl);
             } else {
               var b = offsetRelativeToRoot(this._elementToDrag);
-              this._dragEl.style.left = b[0] + "px";
-              this._dragEl.style.top = b[1] + "px";
+              this._dragEl.style.left = b.left + "px";
+              this._dragEl.style.top = b.top + "px";
               document.body.appendChild(this._dragEl);
             }
           } else {
@@ -2534,9 +2534,7 @@ function () {
       var endpointToFloat = this.ep.dragProxy || this.ep.endpoint;
       if (this.ep.dragProxy == null && this.ep.connectionType != null) {
         var aae = this.instance.deriveEndpointAndAnchorSpec(this.ep.connectionType);
-        if (aae.endpoints[1]) {
-          endpointToFloat = aae.endpoints[1];
-        }
+        endpointToFloat = aae.endpoints[1];
       }
       var centerAnchor = core.makeAnchorFromSpec(this.instance, "Center");
       centerAnchor.isFloating = true;
@@ -2997,11 +2995,9 @@ function () {
           newSourceId: idx === 0 ? dropEndpoint.elementId : this.jpc.sourceId,
           originalTargetId: idx === 1 ? suspendedElementId : this.jpc.targetId,
           newTargetId: idx === 1 ? dropEndpoint.elementId : this.jpc.targetId,
-          originalSourceEndpoint: idx === 0 ? this.jpc.suspendedEndpoint : this.jpc.endpoints[0],
-          newSourceEndpoint: idx === 0 ? dropEndpoint : this.jpc.endpoints[0],
-          originalTargetEndpoint: idx === 1 ? this.jpc.suspendedEndpoint : this.jpc.endpoints[1],
-          newTargetEndpoint: idx === 1 ? dropEndpoint : this.jpc.endpoints[1],
-          connection: this.jpc
+          originalEndpoint: this.jpc.suspendedEndpoint,
+          connection: this.jpc,
+          newEndpoint: dropEndpoint
         }, originalEvent);
       }
       if (idx === 1) {
@@ -4425,7 +4421,7 @@ function (_JsPlumbInstance) {
               y: absolutePosition[1]
             };
           } else if (component instanceof core.EndpointRepresentation) {
-            var locToUse = o.location.constructor === Array ? o.location : o.endpointLocation || [o.location, o.location];
+            var locToUse = core.isArray(o.location) ? o.location : [o.location, o.location];
             cxy = {
               x: locToUse[0] * component.w,
               y: locToUse[1] * component.h
@@ -4772,6 +4768,8 @@ function ready(f) {
 exports.BrowserJsPlumbInstance = BrowserJsPlumbInstance;
 exports.Collicat = Collicat;
 exports.Drag = Drag;
+exports.EVENT_CONNECTION_ABORT = EVENT_CONNECTION_ABORT;
+exports.EVENT_CONNECTION_DRAG = EVENT_CONNECTION_DRAG;
 exports.EVENT_DRAG_MOVE = EVENT_DRAG_MOVE;
 exports.EVENT_DRAG_START = EVENT_DRAG_START;
 exports.EVENT_DRAG_STOP = EVENT_DRAG_STOP;

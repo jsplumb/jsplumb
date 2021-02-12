@@ -1,11 +1,11 @@
 import { Anchor } from "./anchor";
-import { AnchorOptions } from "../factory/anchor-factory";
+import { AnchorOptions, AnchorSpec } from "../factory/anchor-factory";
 import { PointArray, Rotations } from '../common';
 import { JsPlumbInstance } from "../core";
 export interface DynamicAnchorOptions extends AnchorOptions {
     selector?: (xy: PointArray, wh: PointArray, txy: PointArray, twh: PointArray, rotation: Rotations, targetRotation: Rotations, anchors: Array<Anchor>) => Anchor;
     elementId?: string;
-    anchors: Array<Anchor>;
+    anchors: Array<Anchor | AnchorSpec>;
 }
 export declare class DynamicAnchor extends Anchor {
     instance: JsPlumbInstance;

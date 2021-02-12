@@ -5,6 +5,7 @@ import { Connection } from "./connection-impl";
 import { AnchorPlacement } from "../router/router";
 export declare class Bezier extends AbstractBezierConnector {
     connection: Connection;
+    static type: string;
     type: string;
     majorAnchor: number;
     minorAnchor: number;
@@ -13,4 +14,3 @@ export declare class Bezier extends AbstractBezierConnector {
     protected _findControlPoint(point: any, sourceAnchorPosition: any, targetAnchorPosition: any, soo: any, too: any): any[];
     _computeBezier(paintInfo: PaintGeometry, p: ConnectorComputeParams, sp: AnchorPlacement, tp: AnchorPlacement, _w: number, _h: number): void;
 }
-export declare function register(): void;
