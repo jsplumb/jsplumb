@@ -12,8 +12,7 @@ import * as Constants from "../constants"
 export interface OverlayOptions extends Record<string, any> {
     id?:string
     cssClass?: string
-    location?: number; // 0.5
-    endpointLoc?:[number, number]
+    location?: number | number[] // 0.5
     events?:Dictionary<(value:any, event?:any)=>any>
 }
 
@@ -27,7 +26,6 @@ export interface ArrowOverlayOptions extends OverlayOptions {
 
 export interface LabelOverlayOptions extends OverlayOptions {
     label: string
-    endpointLocation?:[ number, number ]
     labelLocationAttribute?:string
 }
 
@@ -46,8 +44,7 @@ export abstract class Overlay extends EventGenerator {
     cssClass:string
 
     visible:boolean = true
-    location: number
-    endpointLocation:[number, number]
+    location: number | Array<number>
 
     events?:Dictionary<(value:any, event?:any)=>any>
 
