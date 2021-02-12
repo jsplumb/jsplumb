@@ -1,6 +1,7 @@
 import {ArrowOverlayOptions, Overlay} from "./overlay"
 import {JsPlumbInstance} from "../core"
 import { PointArray } from '../common'
+import { isArray } from '../util'
 import {Component} from '../component/component'
 import { OverlayFactory } from '../factory/overlay-factory'
 import {AbstractConnector} from "../connector/abstract-connector"
@@ -15,6 +16,7 @@ export class ArrowOverlay extends Overlay {
     length:number
     foldback:number
     direction:number
+    location:number
 
     paintStyle:PaintStyle
 
@@ -34,6 +36,8 @@ export class ArrowOverlay extends Overlay {
         this.direction = (p.direction || 1) < 0 ? -1 : 1
         this.foldback = p.foldback || 0.623
         this.paintStyle = p.paintStyle || { "strokeWidth": 1 }
+
+        this.location = p.location == null ? this.location : isArray(p.location) ? (p.location as number[])[0] : p.location as number
     }
 
     draw(component:Component, currentConnectionPaintStyle:PaintStyle, absolutePosition?: [number, number]): any {
