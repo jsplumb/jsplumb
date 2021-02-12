@@ -69,10 +69,8 @@ export interface ConnectionMovedParams<E = any>  {
     newSourceId:string
     originalTargetId:string
     newTargetId:string
-    originalSourceEndpoint?:Endpoint<E>
-    newSourceEndpoint?:Endpoint<E>
-    originalTargetEndpoint?:Endpoint<E>
-    newTargetEndpoint?:Endpoint<E>
+    originalEndpoint:Endpoint<E>
+    newEndpoint:Endpoint<E>
 }
 
 export interface TypeDescriptor {
