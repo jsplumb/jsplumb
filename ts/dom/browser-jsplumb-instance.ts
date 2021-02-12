@@ -69,7 +69,7 @@ import {
     isCustomOverlay,
     DeleteConnectionOptions,
     forEach,
-    fromArray
+    fromArray, isArray
 } from '@jsplumb/core'
 
 import { _attr,
@@ -1002,7 +1002,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
                 if (absolutePosition) {
                     cxy = {x: absolutePosition[0], y: absolutePosition[1]}
                 } else if (component instanceof EndpointRepresentation) {
-                    let locToUse: [number, number] = o.location.constructor === Array ? ((<unknown>o.location) as [number, number]) : o.endpointLocation || [o.location, o.location]
+                    let locToUse:Array<number> = isArray(o.location) ? o.location as Array<number> : [o.location, o.location] as Array<number>
                     cxy = {
                         x: locToUse[0] * component.w,
                         y: locToUse[1] * component.h
