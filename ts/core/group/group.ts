@@ -100,7 +100,7 @@ export class UIGroup<E = any> extends UINode<E> {
     }
 
     getEndpoint (conn:Connection, endpointIndex:number):EndpointSpec {
-        return this.endpoint || [ DotEndpoint.type, { radius:10 }]
+        return this.endpoint || { type:DotEndpoint.type, options:{ radius:10 }}
     }
 
     add(_el:any, doNotFireEvent?:boolean):void {
