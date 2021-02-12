@@ -1,7 +1,7 @@
 import {jsPlumbDefaults} from "./defaults"
 
 import {Connection} from "./connector/connection-impl"
-import {Endpoint} from "./endpoint/endpoint"
+import {Endpoint, EndpointSpec} from "./endpoint/endpoint"
 import {FullOverlaySpec, OverlaySpec} from "./overlay/overlay"
 import {AnchorPlacement, RedrawResult} from "./router/router"
 import {
@@ -53,7 +53,7 @@ import { LabelOverlay } from './overlay/label-overlay'
 import { AbstractConnector } from './connector/abstract-connector'
 import { OverlayCapableComponent } from './component/overlay-capable-component'
 import { PaintStyle} from './styles'
-import {AnchorComputeParams} from "./factory/anchor-factory"
+import {AnchorComputeParams, AnchorSpec} from "./factory/anchor-factory"
 
 function _scopeMatch(e1:Endpoint, e2:Endpoint):boolean {
     let s1 = e1.scope.split(/\s/), s2 = e2.scope.split(/\s/)
@@ -844,8 +844,14 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return ep
     }
 
-    deriveEndpointAndAnchorSpec(type:string, dontPrependDefault?:boolean):any {
-        let bits = ((dontPrependDefault ? "" : "default ") + type).split(/[\s]/), eps = null, ep = null, a = null, as = null
+    deriveEndpointAndAnchorSpec(type:string, dontPrependDefault?:boolean):{endpoints:[EndpointSpec, EndpointSpec], anchors:[AnchorSpec, AnchorSpec]} {
+
+        let bits = ((dontPrependDefault ? "" : "default ") + type).split(/[\s]/),
+            eps = null,
+            ep = null,
+            a:AnchorSpec = null,
+            as = null
+
         for (let i = 0; i < bits.length; i++) {
             let _t = this.getType(bits[i], "connection")
             if (_t) {
