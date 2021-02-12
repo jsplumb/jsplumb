@@ -11,7 +11,6 @@ import { JsPlumbInstance } from "../core"
 import { Connection } from '../connector/connection-impl'
 
 export interface FlowchartConnectorOptions extends ConnectorOptions {
-    stub?:[number,number],
     alwaysRespectStubs?:boolean
     midpoint?:number
     cornerRadius?:number
