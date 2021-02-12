@@ -173,7 +173,7 @@ export abstract class Component extends EventGenerator {
                 // if a string, convert to object representation so that we can store the typeid on it.
                 // also assign an id.
                 let fo = this.instance.convertToFullOverlaySpec(o[i])
-                oo[fo[1].id] = fo
+                oo[fo.options.id] = fo
             }
         }
 
