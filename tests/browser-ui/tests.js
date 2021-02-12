@@ -1745,7 +1745,7 @@ var testSuite = function () {
     test(": _jsPlumb.addEndpoint (simple case)", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         var e16 = _jsPlumb.addEndpoint(d16, {anchor: [0, 0.5, 0, -1]});
-        var e17 = _jsPlumb.addEndpoint(d17, {anchor: "TopCenter"});
+        var e17 = _jsPlumb.addEndpoint(d17, {anchor: "Top"});
         equal(e16.anchor.x, 0);
         equal(e16.anchor.y, 0.5);
         equal(e17.anchor.x, 0.5);
@@ -1759,7 +1759,7 @@ var testSuite = function () {
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        var e17 = _jsPlumb.addEndpoint(d17, {anchor: ["TopCenter", "BottomCenter"]});
+        var e17 = _jsPlumb.addEndpoint(d17, {anchor: ["Top", "Bottom"]});
         equal(e16.anchor.isDynamic, true, "Endpoint 16 has a dynamic anchor");
         equal(e17.anchor.isDynamic, true, "Endpoint 17 has a dynamic anchor");
     });
@@ -1767,7 +1767,7 @@ var testSuite = function () {
     test(": _jsPlumb.addEndpoint (simple case, two arg method)", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         var e16 = _jsPlumb.addEndpoint(d16, {isSource: true, isTarget: false}, {anchor: [0, 0.5, 0, -1]});
-        var e17 = _jsPlumb.addEndpoint(d17, {isTarget: true, isSource: false}, {anchor: "TopCenter"});
+        var e17 = _jsPlumb.addEndpoint(d17, {isTarget: true, isSource: false}, {anchor: "Top"});
         equal(e16.anchor.x, 0);
         equal(e16.anchor.y, 0.5);
         equal(false, e16.isTarget);
@@ -1783,7 +1783,7 @@ var testSuite = function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         var e16 = _jsPlumb.addEndpoints(d16, [
             {isSource: true, isTarget: false, anchor: [0, 0.5, 0, -1] },
-            { isTarget: true, isSource: false, anchor: "TopCenter" }
+            { isTarget: true, isSource: false, anchor: "Top" }
         ]);
         equal(e16[0].anchor.x, 0);
         equal(e16[0].anchor.y, 0.5);
@@ -1804,7 +1804,7 @@ var testSuite = function () {
 
     test(": _jsPlumb.addEndpoints (with reference params)", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
-        var refParams = {anchor: "RightMiddle"};
+        var refParams = {anchor: "Right"};
         var e16 = _jsPlumb.addEndpoints(d16, [
             {isSource: true, isTarget: false},
             { isTarget: true, isSource: false }
@@ -1825,7 +1825,7 @@ var testSuite = function () {
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        var e17 = _jsPlumb.addEndpoint(d17, {isTarget: true, isSource: false}, {anchor: ["TopCenter", "BottomCenter"]});
+        var e17 = _jsPlumb.addEndpoint(d17, {isTarget: true, isSource: false}, {anchor: ["Top", "Bottom"]});
         equal(e16.anchor.isDynamic, true, "Endpoint 16 has a dynamic anchor");
         equal(e17.anchor.isDynamic, true, "Endpoint 17 has a dynamic anchor");
     });
@@ -2016,7 +2016,7 @@ var testSuite = function () {
 
     test(" : _jsPlumb.connect, passing 'anchors' array", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
-            c = _jsPlumb.connect({source: d1, target: d2, anchors: ["LeftMiddle", "RightMiddle"]});
+            c = _jsPlumb.connect({source: d1, target: d2, anchors: ["Left", "Right"]});
 
         equal(c.endpoints[0].anchor.x, 0, "source anchor is at x=0");
         equal(c.endpoints[0].anchor.y, 0.5, "source anchor is at y=0.5");
@@ -2205,7 +2205,7 @@ var testSuite = function () {
 
     test(": _jsPlumb.connect (anchors registered correctly; source and target anchors given, as strings)", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
-        var conn = _jsPlumb.connect({ source: d16, target: d17, connector: "Straight", anchors: ["LeftMiddle", "RightMiddle"] });
+        var conn = _jsPlumb.connect({ source: d16, target: d17, connector: "Straight", anchors: ["Left", "Right"] });
         assertConnectionByScopeCount(_jsPlumb.defaultScope, 1, _jsPlumb);
         equal(conn.getConnector().type, "Straight", "Straight connector chosen for connection");
         equal(0, conn.endpoints[0].anchor.x, "source anchor x");
@@ -2327,7 +2327,7 @@ var testSuite = function () {
 
     test(": _jsPlumb.connect (by Endpoints, anchors as string test)", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
-        var a16 = "TopCenter", a17 = "BottomCenter";
+        var a16 = "Top", a17 = "Bottom";
         var e16 = _jsPlumb.addEndpoint(d16, {anchor: a16});
         var e17 = _jsPlumb.addEndpoint(d17, {anchor: a17});
         var conn = _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" });
@@ -2363,7 +2363,7 @@ var testSuite = function () {
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        var e17 = _jsPlumb.addEndpoint(d17, {anchor: ["TopCenter", "BottomCenter"]});
+        var e17 = _jsPlumb.addEndpoint(d17, {anchor: ["Top", "Bottom"]});
         var conn = _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" });
         assertConnectionByScopeCount(_jsPlumb.defaultScope, 1, _jsPlumb);
         equal(e16.connections[0].getConnector().type, "Straight", "Straight connector chosen for connection");
@@ -2377,7 +2377,7 @@ var testSuite = function () {
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        var e17 = _jsPlumb.addEndpoint(d17, {anchor: ["TopCenter", "BottomCenter"]});
+        var e17 = _jsPlumb.addEndpoint(d17, {anchor: ["Top", "Bottom"]});
         var conn = _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" });
         assertConnectionByScopeCount(_jsPlumb.defaultScope, 1, _jsPlumb);
         equal(e16.connections[0].getConnector().type, "Straight", "Straight connector chosen for connection");
@@ -2482,7 +2482,7 @@ var testSuite = function () {
         var endpoint = { isSource: true };
         var e1 = _jsPlumb.addEndpoint(d1, endpoint);
         var e2 = _jsPlumb.addEndpoint(d2, endpoint);
-        var anchors = [ "TopCenter", "BottomCenter" ];
+        var anchors = [ "Top", "Bottom" ];
         _jsPlumb.connect({sourceEndpoint: e1, targetEndpoint: e2, dynamicAnchors: anchors});
         support.assertEndpointCount(d1, 1, _jsPlumb);
         support.assertEndpointCount(d2, 1, _jsPlumb);
@@ -2496,7 +2496,7 @@ var testSuite = function () {
         var endpoint = { isSource: true };
         var e1 = _jsPlumb.addEndpoint(d1, endpoint);
         var e2 = _jsPlumb.addEndpoint(d2, endpoint);
-        var anchors = [ "TopCenter", "BottomCenter" ];
+        var anchors = [ "Top", "Bottom" ];
         _jsPlumb.connect({source: e1, target: e2, dynamicAnchors: anchors});
         support.assertEndpointCount(d1, 1, _jsPlumb);
         support.assertEndpointCount(d2, 1, _jsPlumb);
@@ -2643,7 +2643,7 @@ var testSuite = function () {
         var connection1 = _jsPlumb.connect({
             source: d1,
             target: d2,
-            anchors: ["BottomCenter", [ 0.75, 0, 0, -1 ]],
+            anchors: ["Bottom", [ 0.75, 0, 0, -1 ]],
             overlays: [
                 { type:"Label", options:{label: "CONNECTION 1", location: 0.3, id:"l"}},
                 { type:"Arrow", options:arrowSpec }
@@ -2673,7 +2673,7 @@ var testSuite = function () {
         var connection1 = _jsPlumb.connect({
             source: d1,
             target: d2,
-            anchors: ["BottomCenter", [ 0.75, 0, 0, -1 ]],
+            anchors: ["Bottom", [ 0.75, 0, 0, -1 ]],
             overlays: [
                 { type:"Label", options:{label: "CONNECTION 1", location: 0.3, id: "aLabel"}},
                 { type:"Arrow", options:arrowSpec }
@@ -2853,7 +2853,7 @@ var testSuite = function () {
         var connection1 = _jsPlumb.connect({
             source: d1,
             target: d2,
-            anchors: ["BottomCenter", [ 0.75, 0, 0, -1 ]],
+            anchors: ["Bottom", [ 0.75, 0, 0, -1 ]],
             overlays: [
                 { type:"Label", options:{label: "CONNECTION 1", location: 0.3, id: "aLabel"}},
                 { type:"Arrow", options:arrowSpec }
@@ -2906,7 +2906,7 @@ var testSuite = function () {
         var connection1 = _jsPlumb.connect({
             source: d1,
             target: d2,
-            anchors: ["BottomCenter", [ 0.75, 0, 0, -1 ]],
+            anchors: ["Bottom", [ 0.75, 0, 0, -1 ]],
             overlays: [
                 { type:"Label", options:{label: "CONNECTION 1", location: 0.3, id: "aLabel"}},
                 { type:"Arrow", options:arrowSpec }
@@ -2926,7 +2926,7 @@ var testSuite = function () {
         var connection1 = _jsPlumb.connect({
             source: d1,
             target: d2,
-            anchors: ["BottomCenter", [ 0.75, 0, 0, -1 ]],
+            anchors: ["Bottom", [ 0.75, 0, 0, -1 ]],
             overlays: [
                 { type:"Label", options:{label: "CONNECTION 1", location: 0.3, id:"l"}},
                 { type:"Arrow", options:jsPlumb.extend(arrowSpec, loc)}
@@ -2950,7 +2950,7 @@ var testSuite = function () {
         var connection1 = _jsPlumb.connect({
             source: d1,
             target: d2,
-            anchors: ["BottomCenter", [ 0.75, 0, 0, -1 ]],
+            anchors: ["Bottom", [ 0.75, 0, 0, -1 ]],
             overlays: [
                 { type:"Label", options:{label: "CONNECTION 1", location: 0.3, cssClass: "PPPP", id:"l"}},
                 { type:"Arrow", options:jsPlumb.extend(arrowSpec, loc)}
@@ -3837,7 +3837,7 @@ var testSuite = function () {
 
 
     test(" importDefaults", function () {
-        _jsPlumb.Defaults.anchors = ["LeftMiddle", "RightMiddle"];
+        _jsPlumb.Defaults.anchors = ["Left", "Right"];
         var d1 = support.addDiv("d1"),
             d2 = support.addDiv(d2),
             c = _jsPlumb.connect({source: d1, target: d2}),

@@ -28,7 +28,7 @@ var testSuite = function () {
         var connection1 = _jsPlumb.connect({
             source: d1,
             target: d2,
-            anchors: ["BottomCenter", [ 0.75, 0, 0, -1 ]],
+            anchors: ["Bottom", [ 0.75, 0, 0, -1 ]],
             overlays: [
                 { type:"Label", options:{label: "CONNECTION 1", location: 0.3, id:"l"}},
                 { type:"Arrow", options:arrowSpec }
@@ -51,7 +51,7 @@ var testSuite = function () {
         var connection1 = _jsPlumb.connect({
             source: d1,
             target: d2,
-            anchors: ["BottomCenter", [ 0.75, 0, 0, -1 ]],
+            anchors: ["Bottom", [ 0.75, 0, 0, -1 ]],
             overlays: [
                 { type:"Diamond", options:{ id:"d"} },
                 { type: "PlainArrow", options:{ id:"a"} }
@@ -78,7 +78,7 @@ var testSuite = function () {
         var connection1 = _jsPlumb.connect({
             source: d1,
             target: d2,
-            anchors: ["BottomCenter", [ 0.75, 0, 0, -1 ]],
+            anchors: ["Bottom", [ 0.75, 0, 0, -1 ]],
             overlays: [
                 { type:"Label", options:{label: "CONNECTION 1", location: 0.3, id: "aLabel"}},
                 { type:"Arrow", options:arrowSpec }
@@ -315,7 +315,7 @@ var testSuite = function () {
         var connection1 = _jsPlumb.connect({
             source: d1,
             target: d2,
-            anchors: ["BottomCenter", [ 0.75, 0, 0, -1 ]],
+            anchors: ["Bottom", [ 0.75, 0, 0, -1 ]],
             overlays: [
                 { type:"Label", options:{label: "CONNECTION 1", location: 0.3, id: "aLabel"}},
                 { type:"Arrow", options:arrowSpec }
@@ -364,7 +364,7 @@ var testSuite = function () {
         var connection1 = _jsPlumb.connect({
             source: d1,
             target: d2,
-            anchors: ["BottomCenter", [ 0.75, 0, 0, -1 ]],
+            anchors: ["Bottom", [ 0.75, 0, 0, -1 ]],
             overlays: [
                 { type:"Label", options:{label: "CONNECTION 1", location: 0.3, id: "aLabel"}},
                 { type:"Arrow", options:arrowSpec }
@@ -384,7 +384,7 @@ var testSuite = function () {
         var connection1 = _jsPlumb.connect({
             source: d1,
             target: d2,
-            anchors: ["BottomCenter", [ 0.75, 0, 0, -1 ]],
+            anchors: ["Bottom", [ 0.75, 0, 0, -1 ]],
             overlays: [
                 { type:"Label", options:{label: "CONNECTION 1", location: 0.3, id:"l"}},
                 { type:"Arrow", options:jsPlumb.extend(arrowSpec, loc)}
@@ -408,7 +408,7 @@ var testSuite = function () {
         var connection1 = _jsPlumb.connect({
             source: d1,
             target: d2,
-            anchors: ["BottomCenter", [ 0.75, 0, 0, -1 ]],
+            anchors: ["Bottom", [ 0.75, 0, 0, -1 ]],
             overlays: [
                 { type:"Label", options:{label: "CONNECTION 1", location: 0.3, cssClass: "PPPP", id:"l"}},
                 { type:"Arrow", options:jsPlumb.extend(arrowSpec, loc) }

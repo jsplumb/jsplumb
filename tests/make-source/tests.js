@@ -25,13 +25,13 @@ var testSuite = function () {
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+        _jsPlumb.makeSource(d17, { isSource: true, anchor: "Left"  }); // give it a non-default anchor, we will check this below.
         _jsPlumb.connect({source: d17, target: e16});
         support.assertEndpointCount(d16, 1);
         support.assertEndpointCount(d17, 1);
         var e = _jsPlumb.getEndpoints(d17);
-        equal(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
-        equal(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
+        equal(e[0].anchor.x, 0, "anchor is Left"); //here we should be seeing the anchor we setup via makeTarget
+        equal(e[0].anchor.y, 0.5, "anchor is Left"); //here we should be seeing the anchor we setup via makeTarget
     });
 
 
@@ -41,14 +41,14 @@ var testSuite = function () {
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+        _jsPlumb.makeSource(d17, { isSource: true, anchor: "Left"  }); // give it a non-default anchor, we will check this below.
         _jsPlumb.connect({source: d17, target: e16});
         _jsPlumb.connect({source: d17, target: e16});
         support.assertEndpointCount(d16, 1);
         support.assertEndpointCount(d17, 2);
         var e = _jsPlumb.getEndpoints(d17);
-        equal(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
-        equal(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
+        equal(e[0].anchor.x, 0, "anchor is Left"); //here we should be seeing the anchor we setup via makeTarget
+        equal(e[0].anchor.y, 0.5, "anchor is Left"); //here we should be seeing the anchor we setup via makeTarget
     });
 
     test(": makeSource/makeTarget scope", function () {
@@ -104,7 +104,7 @@ var testSuite = function () {
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle", parameters: { foo: "bar"}  }); // give it a non-default anchor, we will check this below.
+        _jsPlumb.makeSource(d17, { isSource: true, anchor: "Left", parameters: { foo: "bar"}  }); // give it a non-default anchor, we will check this below.
         _jsPlumb.connect({source: d17, target: e16});
         support.assertEndpointCount(d16, 1);
         support.assertEndpointCount(d17, 1);
@@ -118,21 +118,21 @@ var testSuite = function () {
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle", uniqueEndpoint: true, maxConnections: -1  }); // give it a non-default anchor, we will check this below.
+        _jsPlumb.makeSource(d17, { isSource: true, anchor: "Left", uniqueEndpoint: true, maxConnections: -1  }); // give it a non-default anchor, we will check this below.
         _jsPlumb.connect({source: d17, target: e16});
         _jsPlumb.connect({source: d17, target: e16});
         support.assertEndpointCount(d16, 1);
         support.assertEndpointCount(d17, 1);
         var e = _jsPlumb.getEndpoints(d17);
-        equal(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
-        equal(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
+        equal(e[0].anchor.x, 0, "anchor is Left"); //here we should be seeing the anchor we setup via makeTarget
+        equal(e[0].anchor.y, 0.5, "anchor is Left"); //here we should be seeing the anchor we setup via makeTarget
         equal(e[0].connections.length, 2, "endpoint on d17 has two connections");
     });
 
     test(": makeSource, create endpoint immediately", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         _jsPlumb.makeTarget(d16, {isSource: false, isTarget: true, maxConnections: -1});
-        _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle", createEndpoint: true, maxConnections: -1  }); // give it a non-default anchor, we will check this below.
+        _jsPlumb.makeSource(d17, { isSource: true, anchor: "Left", createEndpoint: true, maxConnections: -1  }); // give it a non-default anchor, we will check this below.
 
         // _jsPlumb.connect({source: "d17", target: e16});
         // _jsPlumb.connect({source: "d17", target: e16});
@@ -150,15 +150,15 @@ var testSuite = function () {
         support.assertEndpointCount(d16, 2);
 
         var e = _jsPlumb.getEndpoints(d17);
-        equal(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
-        equal(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
+        equal(e[0].anchor.x, 0, "anchor is Left"); //here we should be seeing the anchor we setup via makeTarget
+        equal(e[0].anchor.y, 0.5, "anchor is Left"); //here we should be seeing the anchor we setup via makeTarget
         equal(e[0].connections.length, 2, "endpoint on d17 has two connections");
     });
 
     test(": makeTarget, create endpoint immediately", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         _jsPlumb.makeTarget(d16, {isSource: false, isTarget: true, createEndpoint: true, maxConnections: -1});
-        _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle", maxConnections: -1  }); // give it a non-default anchor, we will check this below.
+        _jsPlumb.makeSource(d17, { isSource: true, anchor: "Left", maxConnections: -1  }); // give it a non-default anchor, we will check this below.
 
 
         // even though there has been no connections made the endpoint should exist.
@@ -176,7 +176,7 @@ var testSuite = function () {
     test(": makeSource/makeTarget, create endpoint immediately", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         _jsPlumb.makeTarget(d16, {isSource: false, isTarget: true, createEndpoint: true, maxConnections: -1});
-        _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle", createEndpoint: true,  maxConnections: -1  }); // give it a non-default anchor, we will check this below.
+        _jsPlumb.makeSource(d17, { isSource: true, anchor: "Left", createEndpoint: true,  maxConnections: -1  }); // give it a non-default anchor, we will check this below.
 
 
         // even though there has been no connections made the endpoint should exist.
@@ -205,13 +205,13 @@ var testSuite = function () {
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+        _jsPlumb.makeSource(d17, { isSource: true, anchor: "Left"  }); // give it a non-default anchor, we will check this below.
         _jsPlumb.connect({source: d17, target: e16, newConnection: true});
         support.assertEndpointCount(d16, 1, _jsPlumb);
         support.assertEndpointCount(d17, 1, _jsPlumb);
         var e = _jsPlumb.getEndpoints(d17);
-        equal(e[0].anchor.x, 0.5, "anchor is BottomCenter"); //here we should be seeing the default anchor
-        equal(e[0].anchor.y, 1, "anchor is BottomCenter"); //here we should be seeing the default anchor
+        equal(e[0].anchor.x, 0.5, "anchor is Bottom"); //here we should be seeing the default anchor
+        equal(e[0].anchor.y, 1, "anchor is Bottom"); //here we should be seeing the default anchor
     });
 
     // makeSource, then disable it. should not be able to make a connection from it.
@@ -221,7 +221,7 @@ var testSuite = function () {
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+        _jsPlumb.makeSource(d17, { isSource: true, anchor: "Left"  }); // give it a non-default anchor, we will check this below.
         _jsPlumb.setSourceEnabled(d17, false);
         _jsPlumb.connect({source: d17, target: e16});
         support.assertEndpointCount(d16, 1, _jsPlumb);
@@ -235,7 +235,7 @@ var testSuite = function () {
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+        _jsPlumb.makeSource(d17, { isSource: true, anchor: "Left"  }); // give it a non-default anchor, we will check this below.
         _jsPlumb.setSourceEnabled(d17, false);
         _jsPlumb.connect({source: d17, target: e16});
         support.assertEndpointCount(d16, 1, _jsPlumb);
@@ -249,7 +249,7 @@ var testSuite = function () {
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+        _jsPlumb.makeSource(d17, { isSource: true, anchor: "Left"  }); // give it a non-default anchor, we will check this below.
         _jsPlumb.toggleSourceEnabled(d17);
         _jsPlumb.connect({source: d17, target: e16});
         support.assertEndpointCount(d16, 1, _jsPlumb);
@@ -268,7 +268,7 @@ var testSuite = function () {
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+        _jsPlumb.makeSource(d17, { isSource: true, anchor: "Left"  }); // give it a non-default anchor, we will check this below.
         _jsPlumb.toggleSourceEnabled(d17);
         _jsPlumb.connect({source: d17, target: e16});
         support.assertEndpointCount(d16, 1, _jsPlumb);
@@ -285,7 +285,7 @@ var testSuite = function () {
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+        _jsPlumb.makeSource(d17, { isSource: true, anchor: "Left"  }); // give it a non-default anchor, we will check this below.
         ok(_jsPlumb.isSource(d17) == true, "d17 is recognised as connection source");
         ok(_jsPlumb.isSourceEnabled(d17) == true, "d17 is recognised as enabled");
         _jsPlumb.setSourceEnabled(d17, false);
@@ -308,7 +308,7 @@ var testSuite = function () {
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        _jsPlumb.makeTarget(d17, { anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+        _jsPlumb.makeTarget(d17, { anchor: "Left"  }); // give it a non-default anchor, we will check this below.
         var originallyEnabled = _jsPlumb.setTargetEnabled(d17, false);
         _jsPlumb.connect({source: e16, target: d17});
         support.assertEndpointCount(d16, 1, _jsPlumb);
@@ -331,7 +331,7 @@ var testSuite = function () {
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        _jsPlumb.makeTarget(d17, { anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+        _jsPlumb.makeTarget(d17, { anchor: "Left"  }); // give it a non-default anchor, we will check this below.
         var originallyEnabled = _jsPlumb.setTargetEnabled(d17, false);
         _jsPlumb.connect({source: e16, target: d17});
         support.assertEndpointCount(d16, 1, _jsPlumb);
@@ -355,7 +355,7 @@ var testSuite = function () {
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        _jsPlumb.makeTarget(d17, { anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+        _jsPlumb.makeTarget(d17, { anchor: "Left"  }); // give it a non-default anchor, we will check this below.
         _jsPlumb.setTargetEnabled(d17, false);
         _jsPlumb.connect({source: e16, target: d17});
         support.assertEndpointCount(d16, 1, _jsPlumb);
@@ -369,7 +369,7 @@ var testSuite = function () {
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        _jsPlumb.makeTarget(d17, { anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+        _jsPlumb.makeTarget(d17, { anchor: "Left"  }); // give it a non-default anchor, we will check this below.
         _jsPlumb.toggleTargetEnabled(d17);
         _jsPlumb.connect({source: e16, target: d17});
         support.assertEndpointCount(d16, 1, _jsPlumb);
@@ -388,7 +388,7 @@ var testSuite = function () {
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        _jsPlumb.makeTarget(d17, { anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+        _jsPlumb.makeTarget(d17, { anchor: "Left"  }); // give it a non-default anchor, we will check this below.
         _jsPlumb.toggleTargetEnabled(d17);
         _jsPlumb.connect({source: e16, target: d17});
         support.assertEndpointCount(d16, 1, _jsPlumb);
@@ -401,7 +401,7 @@ var testSuite = function () {
 
     test(": jsPlumb.isTarget and jsPlumb.isTargetEnabled", function () {
         var d17 = support.addDiv("d17");
-        _jsPlumb.makeTarget(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+        _jsPlumb.makeTarget(d17, { isSource: true, anchor: "Left"  }); // give it a non-default anchor, we will check this below.
         ok(_jsPlumb.isTarget(d17) === true, "d17 is recognised as connection target");
         ok(_jsPlumb.isTargetEnabled(d17) === true, "d17 is recognised as enabled");
         _jsPlumb.setTargetEnabled(d17, false);
@@ -618,7 +618,7 @@ var testSuite = function () {
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+        _jsPlumb.makeSource(d17, { isSource: true, anchor: "Left"  }); // give it a non-default anchor, we will check this below.
         ok(_jsPlumb.isSource(d17) === true, "d17 is currently a source");
         // unmake source
         _jsPlumb.unmakeSource(d17);
@@ -637,7 +637,7 @@ var testSuite = function () {
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        _jsPlumb.makeTarget(d17, { isSource: true, anchor: "LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+        _jsPlumb.makeTarget(d17, { isSource: true, anchor: "Left"  }); // give it a non-default anchor, we will check this below.
         ok(_jsPlumb.isTarget(d17) === true, "d17 is currently a target");
         // unmake target
         _jsPlumb.unmakeTarget(d17);
@@ -668,7 +668,7 @@ var testSuite = function () {
     test(": connectorOverlays", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
 
-        _jsPlumb.makeSource(d17, { isSource: true, anchor: "LeftMiddle", connectorOverlays:[
+        _jsPlumb.makeSource(d17, { isSource: true, anchor: "Left", connectorOverlays:[
                 { type:"Label", options:{label:"FOO", id:"overlay"}}
         ]  });
 
@@ -696,7 +696,7 @@ var testSuite = function () {
 
         _jsPlumb.makeSource(d16, {
             isSource: true,
-            anchor: "LeftMiddle",
+            anchor: "Left",
             filter:".source"
         });
 
@@ -723,14 +723,14 @@ var testSuite = function () {
 
         _jsPlumb.makeSource(d16, {
             isSource: true,
-            anchor: "LeftMiddle",
+            anchor: "Left",
             filter:".source",
             filterExclude:true
         });
 
         _jsPlumb.makeSource(d16, {
             isSource: true,
-            anchor: "LeftMiddle",
+            anchor: "Left",
             portId:"port2"
         });
 
@@ -753,7 +753,7 @@ var testSuite = function () {
 
         _jsPlumb.makeSource(d16, {
             isSource: true,
-            anchor: "LeftMiddle"
+            anchor: "Left"
         });
 
         _jsPlumb.makeTarget(d17, {
@@ -780,7 +780,7 @@ var testSuite = function () {
 
         _jsPlumb.makeSource(d16, {
             isSource: true,
-            anchor: "LeftMiddle"
+            anchor: "Left"
         });
 
         _jsPlumb.makeTarget(d17, {
@@ -809,14 +809,14 @@ var testSuite = function () {
 
         _jsPlumb.makeSource(d16, {
             isSource: true,
-            anchor: "LeftMiddle",
+            anchor: "Left",
             filter:".source",
             portId:"port1"
         });
 
         _jsPlumb.makeSource(d16, {
             isSource: true,
-            anchor: "LeftMiddle",
+            anchor: "Left",
             filter:".source2",
             portId:"port2"
         });
@@ -858,7 +858,7 @@ var testSuite = function () {
 
         _jsPlumb.makeSource(d16, {
             isSource: true,
-            anchor: "LeftMiddle",
+            anchor: "Left",
             filter:".source",
             portId:"port1",
             endpoint:"Blank"
@@ -866,7 +866,7 @@ var testSuite = function () {
 
         _jsPlumb.makeSource(d16, {
             isSource: true,
-            anchor: "LeftMiddle",
+            anchor: "Left",
             filter:".source2",
             portId:"port2"
         });
@@ -913,7 +913,7 @@ var testSuite = function () {
 
         _jsPlumb.makeSource(d16, {
             isSource: true,
-            anchor: "LeftMiddle"
+            anchor: "Left"
         });
 
         _jsPlumb.makeTarget(d16, {
@@ -925,7 +925,7 @@ var testSuite = function () {
 
         _jsPlumb.makeSource(d17, {
             isSource: true,
-            anchor: "LeftMiddle"
+            anchor: "Left"
         });
 
         _jsPlumb.makeTarget(d17, {
@@ -942,7 +942,7 @@ var testSuite = function () {
 
         _jsPlumb.makeSource(d16, {
             isSource: true,
-            anchor: "LeftMiddle",
+            anchor: "Left",
             // allowLooopback defaults to true
         });
 
@@ -955,7 +955,7 @@ var testSuite = function () {
 
         _jsPlumb.makeSource(d17, {
             isSource: true,
-            anchor: "LeftMiddle",
+            anchor: "Left",
             allowLoopback:false
         });
 
