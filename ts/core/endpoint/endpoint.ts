@@ -7,7 +7,7 @@ import {ConnectorSpec} from "../connector/abstract-connector"
 import {Connection} from "../connector/connection-impl"
 import { EndpointFactory } from "../factory/endpoint-factory"
 import { EndpointRepresentation } from './endpoints'
-import { extend, isArray, merge, isString } from '../util'
+import {extend, merge, isString, isAssignableFrom} from '../util'
 import { JsPlumbInstance } from '../core'
 import { OverlayCapableComponent } from '../component/overlay-capable-component'
 
@@ -15,7 +15,8 @@ import { OverlayCapableComponent } from '../component/overlay-capable-component'
 export type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndpointId
 export type UserDefinedEndpointId = string
 export type EndpointParams = any
-export type EndpointSpec = EndpointId | [EndpointId, EndpointParams]
+export type FullEndpointSpec = {type:EndpointId, options:EndpointParams}
+export type EndpointSpec = EndpointId | FullEndpointSpec
 
 
 export interface InternalEndpointOptions<E> extends EndpointOptions<E> {
@@ -26,7 +27,7 @@ export interface EndpointOptions<E = any> extends ComponentOptions {
     preparedAnchor?:Anchor
     anchor?: AnchorSpec
     anchors?:[ AnchorSpec, AnchorSpec ]
-    endpoint?: EndpointSpec | Endpoint<E>
+    endpoint?: EndpointSpec | EndpointRepresentation<E>
     enabled?: boolean;//= true
     paintStyle?: PaintStyle
     hoverPaintStyle?: PaintStyle
@@ -418,21 +419,21 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
     prepareEndpoint<C>(ep:EndpointSpec | EndpointRepresentation<C>, typeId?:string):EndpointRepresentation<C> {
 
         let endpointArgs = {
-            _jsPlumb: this.instance,
             cssClass: this.cssClass,
             endpoint: this
         }
 
         let endpoint:EndpointRepresentation<C>
 
-        if (isString(ep)) {
+        if(isAssignableFrom(ep, EndpointRepresentation)) {
+            endpoint = (ep as EndpointRepresentation<any>).clone()
+        } else if (isString(ep)) {
             endpoint = EndpointFactory.get(this, ep as string, endpointArgs)
         }
-        else if (isArray(ep)) {
-            endpointArgs = merge(ep[1], endpointArgs)
-            endpoint = EndpointFactory.get(this, ep[0] as string, endpointArgs)
-        } else if (ep instanceof EndpointRepresentation) {
-            endpoint = (ep as EndpointRepresentation<any>).clone()
+        else {
+            const fep = ep as FullEndpointSpec
+            endpointArgs = merge(fep.options, endpointArgs)
+            endpoint = EndpointFactory.get(this, fep.type, endpointArgs)
         }
 
         // assign a clone function using a copy of endpointArgs. this is used when a drag starts: the endpoint that was dragged is cloned,
@@ -444,11 +445,12 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
             if (isString(ep)) {
                 return EndpointFactory.get(this, ep as string, endpointArgs)
             }
-            else if (isArray(ep)) {
-                endpointArgs = merge(ep[1], endpointArgs)
-                return EndpointFactory.get(this, ep[0] as string, endpointArgs)
-            } else if (ep instanceof EndpointRepresentation) {
+            else if (isAssignableFrom(ep, EndpointRepresentation)) {
                 return (ep as EndpointRepresentation<any>).clone()
+            } else {
+                const fep = ep as FullEndpointSpec
+                endpointArgs = merge(fep.options, endpointArgs)
+                endpoint = EndpointFactory.get(this, fep.type, endpointArgs)
             }
         }
 
