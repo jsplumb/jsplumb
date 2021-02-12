@@ -8,7 +8,7 @@ import {findWithFunction} from "../util"
 export interface DynamicAnchorOptions extends AnchorOptions {
     selector?:(xy:PointArray, wh:PointArray, txy:PointArray, twh:PointArray, rotation:Rotations, targetRotation:Rotations, anchors:Array<Anchor>) => Anchor
     elementId?:string
-    anchors:Array<Anchor>
+    anchors:Array<Anchor|AnchorSpec>
 }
 
 // helper method to calculate the distance between the centers of the two elements.
