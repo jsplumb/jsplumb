@@ -1,7 +1,7 @@
 
 import { JsPlumbInstance } from "../core"
 import {Dictionary, jsPlumbElement, TypeDescriptor} from '../common'
-import {AbstractConnector} from "./abstract-connector"
+import {AbstractConnector, ConnectorWithOptions} from "./abstract-connector"
 import {Endpoint} from "../endpoint/endpoint"
 import {PaintStyle} from "../styles"
 import {OverlayCapableComponent} from "../component/overlay-capable-component"
@@ -449,14 +449,10 @@ export class Connection<E = any> extends OverlayCapableComponent {
 
         if (isString(connectorSpec)) {
             connector = this.makeConnector(connectorSpec as string, connectorArgs)
-        } // lets you use a string as shorthand.
-        else if (isArray(connectorSpec)) {
-            if (connectorSpec.length === 1) {
-                connector = this.makeConnector(connectorSpec[0], connectorArgs)
-            }
-            else {
-                connector = this.makeConnector((connectorSpec as Array<any>)[0], merge((connectorSpec as Array<any>)[1], connectorArgs))
-            }
+        }
+        else {
+            const co = connectorSpec as ConnectorWithOptions
+            connector = this.makeConnector(co.type, merge(co.options, connectorArgs))
         }
         if (typeId != null) {
             connector.typeId = typeId
