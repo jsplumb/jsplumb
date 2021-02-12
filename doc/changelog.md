@@ -1,6 +1,14 @@
 ## 4.0.0-RC52
 
+- Converted `AnchorLocations` into a string enum, so you can now specify anchor locations in a type-safe way:
+
+```
+anchor: AnchorLocations.Top
+```
+
 ### Breaking
+
+- The `TopCenter`, `BottomCenter`, `LeftMiddle` and `RightMiddle` anchor locations have been removed. They have, for quite some time, been aliases to `Top`, `Bottom`, `Left` and `Right`, being a hangover from jsPlumb's early days. 
 
 - The format of the various "spec" object used to define the appearance of various parts of the UI has changed. This came about after I actually tried to write an app against the Typescript API and ran into a few vagaries of how Typescript infers types, which together required more boilerplate in the UI than is desirable.
 
