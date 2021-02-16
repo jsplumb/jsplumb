@@ -1,3 +1,9 @@
+## 4.0.0-RC54
+
+16th February 2021
+
+- Exported a few touch event methods
+
 ## 4.0.0-RC53
 
 12th February 2021
@@ -18,7 +24,7 @@ anchor: AnchorLocations.Top
 
 - The `TopCenter`, `BottomCenter`, `LeftMiddle` and `RightMiddle` anchor locations have been removed. They have, for quite some time, been aliases to `Top`, `Bottom`, `Left` and `Right`, being a hangover from jsPlumb's early days. 
 
-- The format of the various "spec" object used to define the appearance of various parts of the UI has changed. This came about after I actually tried to write an app against the Typescript API and ran into a few vagaries of how Typescript infers types, which together required more boilerplate in the UI than is desirable.
+- The format of the various "spec" objects used to define the appearance of parts of the UI has changed. This came about after I actually tried to write an app against the Typescript API and ran into a few vagaries of how Typescript infers types, which together required more boilerplate in the UI than is desirable.
 
 #### ConnectorSpec
  
