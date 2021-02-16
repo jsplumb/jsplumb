@@ -1,5 +1,8 @@
 import { PointArray } from "@jsplumb/core";
 export declare function pageLocation(e: Event): PointArray;
+export declare function getTouch(touches: TouchList, idx: number): Touch;
+export declare function touches(e: any): TouchList;
+export declare function touchCount(e: Event): number;
 export interface EventManagerOptions {
     clickThreshold?: number;
     dblClickThreshold?: number;

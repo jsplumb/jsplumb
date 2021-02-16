@@ -506,28 +506,27 @@ var SCREEN = "screen";
 var CLIENT = "client";
 function _genLoc(e, prefix) {
   if (e == null) return [0, 0];
-  var ts = _touches(e),
-      t = _getTouch(ts, 0);
+  var ts = touches(e),
+      t = getTouch(ts, 0);
   return [t[prefix + "X"], t[prefix + "Y"]];
 }
 function pageLocation(e) {
-  if (e == null) return [0, 0];
   return _genLoc(e, PAGE);
 }
-function _screenLocation(e) {
+function screenLocation(e) {
   return _genLoc(e, SCREEN);
 }
-function _clientLocation(e) {
+function clientLocation(e) {
   return _genLoc(e, CLIENT);
 }
-function _getTouch(touches, idx) {
+function getTouch(touches, idx) {
   return touches.item ? touches.item(idx) : touches[idx];
 }
-function _touches(e) {
+function touches(e) {
   return e.touches && e.touches.length > 0 ? e.touches : e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches : e.targetTouches && e.targetTouches.length > 0 ? e.targetTouches : [e];
 }
-function _touchCount(e) {
-  return _touches(e).length;
+function touchCount(e) {
+  return touches(e).length;
 }
 function _bind(obj, type, fn, originalFn) {
   _store(obj, type, fn);
@@ -715,7 +714,7 @@ function () {
                     currentTarget,
                     pathInfo;
                 tt.taps++;
-                var tc = _touchCount(e);
+                var tc = touchCount(e);
                 for (var eventId in _tapProfiles) {
                   if (_tapProfiles.hasOwnProperty(eventId)) {
                     var p = _tapProfiles[eventId];
@@ -851,8 +850,8 @@ function () {
       var eventToBind = isTouchDevice && !isMouseDevice && touchMap[event] ? touchMap[event] : event,
           bindingAMouseEvent = !(isTouchDevice && !isMouseDevice && touchMap[event]);
       var pl = pageLocation(originalEvent),
-          sl = _screenLocation(originalEvent),
-          cl = _clientLocation(originalEvent);
+          sl = screenLocation(originalEvent),
+          cl = clientLocation(originalEvent);
       _each(el, function (_el) {
         var evt;
         originalEvent = originalEvent || {
@@ -3691,15 +3690,15 @@ function _genLoc$1(prefix, e) {
   if (e == null) {
     return [0, 0];
   }
-  var ts = _touches$1(e),
-      t = _getTouch$1(ts, 0);
+  var ts = _touches(e),
+      t = _getTouch(ts, 0);
   return [t[prefix + "X"], t[prefix + "Y"]];
 }
 var _pageLocation = _genLoc$1.bind(null, "page");
-function _getTouch$1(touches, idx) {
+function _getTouch(touches, idx) {
   return touches.item ? touches.item(idx) : touches[idx];
 }
-function _touches$1(e) {
+function _touches(e) {
   var _e = e;
   return _e.touches && _e.touches.length > 0 ? _e.touches : _e.changedTouches && _e.changedTouches.length > 0 ? _e.changedTouches : _e.targetTouches && _e.targetTouches.length > 0 ? _e.targetTouches : [_e];
 }
