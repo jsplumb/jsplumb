@@ -125,35 +125,34 @@ const CLIENT = "client"
 
 function _genLoc (e:Event, prefix:string):PointArray {
     if (e == null) return [ 0, 0 ]
-    const ts = _touches(e), t = _getTouch(ts, 0)
+    const ts = touches(e), t = getTouch(ts, 0)
     return [t[prefix + "X"], t[prefix + "Y"]]
 }
 export function pageLocation (e:Event):PointArray {
-    if (e == null) return [ 0, 0 ]
     return _genLoc(e, PAGE)
 }
 
-function _screenLocation (e:Event):PointArray {
+function screenLocation (e:Event):PointArray {
     return _genLoc(e, SCREEN)
 }
 
-function _clientLocation (e:Event):PointArray {
+function clientLocation (e:Event):PointArray {
     return _genLoc(e, CLIENT)
 }
 
-function _getTouch (touches:TouchList, idx:number):Touch {
+export function getTouch (touches:TouchList, idx:number):Touch {
     return touches.item ? touches.item(idx) : touches[idx]
 }
 
-function _touches (e:any):TouchList {
+export function touches (e:any):TouchList {
     return e.touches && e.touches.length > 0 ? e.touches :
         e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches :
             e.targetTouches && e.targetTouches.length > 0 ? e.targetTouches :
                 [ e ]
 }
 
-function _touchCount (e:Event):number {
-    return _touches(e).length
+export function touchCount (e:Event):number {
+    return touches(e).length
 }
 
 function _bind (obj:any, type:string, fn:any, originalFn?:any) {
@@ -368,7 +367,7 @@ class TapHandler {
                             if (tt.down) {
                                 let target = _t(e), currentTarget, pathInfo
                                 tt.taps++
-                                const tc = _touchCount(e)
+                                const tc = touchCount(e)
                                 for (let eventId in _tapProfiles) {
                                     if (_tapProfiles.hasOwnProperty(eventId)) {
                                         const p = _tapProfiles[eventId]
@@ -516,7 +515,7 @@ export class EventManager {
         let eventToBind = (isTouchDevice && !isMouseDevice && touchMap[event]) ? touchMap[event] : event,
             bindingAMouseEvent = !(isTouchDevice && !isMouseDevice && touchMap[event])
 
-        const pl = pageLocation(originalEvent), sl = _screenLocation(originalEvent), cl = _clientLocation(originalEvent)
+        const pl = pageLocation(originalEvent), sl = screenLocation(originalEvent), cl = clientLocation(originalEvent)
         _each(el, (_el:jsPlumbDOMElement) => {
             let evt
             originalEvent = originalEvent || {
