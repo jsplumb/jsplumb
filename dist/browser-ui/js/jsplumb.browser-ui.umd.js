@@ -4780,6 +4780,7 @@
   exports.findParent = findParent;
   exports.getClass = getClass;
   exports.getEventSource = getEventSource;
+  exports.getTouch = getTouch;
   exports.hasClass = hasClass;
   exports.matchesSelector = matchesSelector;
   exports.newInstance = newInstance;
@@ -4790,6 +4791,8 @@
   exports.removeClass = removeClass;
   exports.sizeElement = sizeElement;
   exports.toggleClass = toggleClass;
+  exports.touchCount = touchCount;
+  exports.touches = touches;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 

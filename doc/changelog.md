@@ -1,3 +1,10 @@
+## 4.0.0-RC55
+
+16th February 2021
+
+- Exported a few touch event methods
+
+
 ## 4.0.0-RC54
 
 16th February 2021

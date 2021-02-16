@@ -4760,4 +4760,4 @@ function ready(f) {
   _do();
 }
 
-export { BrowserJsPlumbInstance, Collicat, Drag, EVENT_CONNECTION_ABORT, EVENT_CONNECTION_DRAG, EVENT_DRAG_MOVE, EVENT_DRAG_START, EVENT_DRAG_STOP, EventManager, addClass, consume, createElement, createElementNS, findParent, getClass, getEventSource, hasClass, matchesSelector, newInstance, offsetRelativeToRoot, pageLocation, ready, registerEndpointRenderer, removeClass, sizeElement, toggleClass };
+export { BrowserJsPlumbInstance, Collicat, Drag, EVENT_CONNECTION_ABORT, EVENT_CONNECTION_DRAG, EVENT_DRAG_MOVE, EVENT_DRAG_START, EVENT_DRAG_STOP, EventManager, addClass, consume, createElement, createElementNS, findParent, getClass, getEventSource, getTouch, hasClass, matchesSelector, newInstance, offsetRelativeToRoot, pageLocation, ready, registerEndpointRenderer, removeClass, sizeElement, toggleClass, touchCount, touches };
