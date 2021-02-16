@@ -72,7 +72,7 @@
         },
         spacing:100,
         endpoint:{
-            endpoint: [ "Dot", { radius:10 } ],
+            endpoint: { type:"Dot", options:{ radius:10 } },
             paintStyle:{ fill:"#456", outlineStroke:"black", outlineWidth:2 },
             connectorPaintStyle:{strokeWidth:1, stroke:"red"},
             connectorHoverStyle:{stroke:"#943"},
@@ -189,8 +189,8 @@
                     },
                     connector:"Bezier",
                     overlays:[
-                        [ "Arrow", {location:0.7} ],
-                        [ "Arrow", {location:0.3} ]
+                        { type:"Arrow", options:{location:0.7} },
+                        { type:"Arrow", options:{location:0.3} }
                     ]
                 }));
             }
