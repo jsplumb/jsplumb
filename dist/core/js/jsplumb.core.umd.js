@@ -7311,6 +7311,10 @@
     return ConnectionSelection;
   }(SelectionBase);
 
+  var Transaction = function Transaction() {
+    _classCallCheck(this, Transaction);
+    _defineProperty(this, "affectedElements", new Set());
+  };
   function EMPTY_POSITION() {
     return {
       x: 0,
@@ -7403,7 +7407,7 @@
       _classCallCheck(this, Viewport);
       _this = _possibleConstructorReturn(this, _getPrototypeOf(Viewport).call(this));
       _this.instance = instance;
-      _defineProperty(_assertThisInitialized(_this), "_eventsSuspended", false);
+      _defineProperty(_assertThisInitialized(_this), "_currentTransaction", null);
       _defineProperty(_assertThisInitialized(_this), "_sortedElements", {
         xmin: [],
         xmax: [],
@@ -7431,13 +7435,8 @@
         }
       }
     }, {
-      key: "_fireUpdate",
-      value: function _fireUpdate(payload) {
-        this.fire(EVENT_UPDATE, payload || {});
-      }
-    }, {
       key: "_updateBounds",
-      value: function _updateBounds(id, updatedElement) {
+      value: function _updateBounds(id, updatedElement, doNotRecalculateBounds) {
         if (updatedElement != null) {
           this._clearElementIndex(id, this._sortedElements.xmin);
           this._clearElementIndex(id, this._sortedElements.xmax);
@@ -7447,7 +7446,9 @@
           Viewport._updateElementIndex(id, updatedElement.t.x + updatedElement.t.w, this._sortedElements.xmax, true);
           Viewport._updateElementIndex(id, updatedElement.t.y, this._sortedElements.ymin, false);
           Viewport._updateElementIndex(id, updatedElement.t.y + updatedElement.t.h, this._sortedElements.ymax, true);
-          this._recalculateBounds();
+          if (doNotRecalculateBounds !== true) {
+            this._recalculateBounds();
+          }
         }
       }
     }, {
@@ -7460,38 +7461,44 @@
       }
     }, {
       key: "_finaliseUpdate",
-      value: function _finaliseUpdate(id, e) {
+      value: function _finaliseUpdate(id, e, doNotRecalculateBounds) {
         e.t = rotate(e.x, e.y, e.w, e.h, e.r);
         this._transformedElementMap.set(id, e.t);
-        this._updateBounds(id, e);
+        this._updateBounds(id, e, doNotRecalculateBounds);
       }
     }, {
       key: "shouldFireEvent",
       value: function shouldFireEvent(event, value, originalEvent) {
-        return !this._eventsSuspended;
+        return true;
       }
     }, {
       key: "startTransaction",
       value: function startTransaction() {
-        this._eventsSuspended = true;
+        if (this._currentTransaction != null) {
+          throw new Error("Viewport: cannot start transaction; a transaction is currently active.");
+        }
+        this._currentTransaction = new Transaction();
       }
     }, {
       key: "endTransaction",
-      value: function endTransaction(doNotFireUpdate) {
-        this._eventsSuspended = false;
-        if (!doNotFireUpdate) {
-          this._fireUpdate();
+      value: function endTransaction() {
+        var _this2 = this;
+        if (this._currentTransaction != null) {
+          this._currentTransaction.affectedElements.forEach(function (id) {
+            var entry = _this2.getPosition(id);
+            _this2._finaliseUpdate(id, entry, true);
+          });
+          this._recalculateBounds();
+          this._currentTransaction = null;
         }
       }
     }, {
       key: "updateElements",
       value: function updateElements(entries) {
-        var _this2 = this;
-        this.startTransaction();
+        var _this3 = this;
         forEach(entries, function (e) {
-          return _this2.updateElement(e.id, e.x, e.y, e.width, e.height, e.rotation);
+          return _this3.updateElement(e.id, e.x, e.y, e.width, e.height, e.rotation);
         });
-        this.endTransaction();
       }
     }, {
       key: "updateElement",
@@ -7517,7 +7524,11 @@
         e.c[1] = e.y + e.h / 2;
         e.x2 = e.x + e.w;
         e.y2 = e.y + e.h;
-        this._finaliseUpdate(id, e);
+        if (this._currentTransaction == null) {
+          this._finaliseUpdate(id, e);
+        } else {
+          this._currentTransaction.affectedElements.add(id);
+        }
         return e;
       }
     }, {

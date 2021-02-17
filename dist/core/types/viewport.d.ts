@@ -26,7 +26,7 @@ export declare class Viewport<T extends {
     E: unknown;
 }> extends EventGenerator {
     instance: JsPlumbInstance<T>;
-    private _eventsSuspended;
+    private _currentTransaction;
     constructor(instance: JsPlumbInstance<T>);
     _sortedElements: Record<string, Array<[string, number]>>;
     _elementMap: Map<string, ViewportElement<T["E"]>>;
@@ -34,13 +34,12 @@ export declare class Viewport<T extends {
     _bounds: Record<string, number>;
     private _clearElementIndex;
     private static _updateElementIndex;
-    private _fireUpdate;
     private _updateBounds;
     private _recalculateBounds;
     private _finaliseUpdate;
     shouldFireEvent(event: string, value: unknown, originalEvent?: Event): boolean;
     startTransaction(): void;
-    endTransaction(doNotFireUpdate?: boolean): void;
+    endTransaction(): void;
     updateElements(entries: Array<{
         id: string;
         x: number;
