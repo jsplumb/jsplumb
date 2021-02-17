@@ -1,9 +1,14 @@
+## 4.0.0-RC56
+
+17th February 2021
+
+- Added support for transactions to the viewport: a set of updates can be applied to a viewport without recomputing the bounds until all the updates have been made.
+
 ## 4.0.0-RC55
 
 16th February 2021
 
 - Exported a few touch event methods
-
 
 ## 4.0.0-RC54
 
