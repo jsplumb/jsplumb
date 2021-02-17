@@ -132,6 +132,99 @@ var testSuite = function () {
 
     });
 
+    test('bounds not updated and elements not translated while a transaction is in effect', function() {
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+        d1.style.width = "200px";
+        d1.style.height = "210px";
+
+        d2.style.width = "300px";
+        d2.style.height= "310px";
+
+        d1.style.left = "50px";
+        d1.style.top = "60px";
+
+        d2.style.left = "500px";
+        d2.style.top = "510px";
+
+        var e1 = _jsPlumb.manage(d1, "d1")
+        var e2 = _jsPlumb.manage(d2, "d2")
+        equal(e1.viewportElement.x, 50, "e1 x is correct")
+        equal(e1.viewportElement.y, 60, "e1 y is correct")
+        equal(e1.viewportElement.w, 200, "e1 w is correct")
+        equal(e1.viewportElement.h, 210, "e1 h is correct")
+        equal(e1.viewportElement.x2, 250, "e1 x2 is correct")
+        equal(e1.viewportElement.y2, 270, "e1 y2 is correct")
+        equal(e1.viewportElement.t.x, 50, "e1 x is correct in finalised object")
+        equal(e1.viewportElement.t.y, 60, "e1 y is correct in finalised object")
+        equal(e1.viewportElement.t.w, 200, "e1 w is correct in finalised object")
+        equal(e1.viewportElement.t.h, 210, "e1 h is correct in finalised object")
+        equal(e1.viewportElement.t.x2, 250, "e1 x2 is correct in finalised object")
+        equal(e1.viewportElement.t.y2, 270, "e1 y2 is correct in finalised object")
+
+        equal(_jsPlumb.viewport.getX(), 50, "viewport min x is 50")
+        equal(_jsPlumb.viewport.getY(), 60, "viewport min y is 60")
+        equal(_jsPlumb.viewport.getBoundsWidth(), 750, "viewport width is 750")
+        equal(_jsPlumb.viewport.getBoundsHeight(), 760, "viewport min y is 760")
+
+        // Start a transaction. Once the transaction is in effect, updating any elements will only cause their x/y/w/h/r properties to change,
+        // but they will not be finalised, and the bounds of the viewport will not be recomputed, until the transaction is ended.
+        _jsPlumb.viewport.startTransaction()
+
+        // so, update d1
+        _jsPlumb.viewport.updateElement("d1", 600, 610)
+        e1 = _jsPlumb.viewport.getPosition("d1")
+
+        // check that the x/y/w/h/x2/y2 properties have been changed
+        equal(e1.x, 600, "e1 x is correct after change")
+        equal(e1.y, 610, "e1 y is correct after change")
+        equal(e1.w, 200, "e1 w is unchanged")
+        equal(e1.h, 210, "e1 h is unchanged")
+        equal(e1.x2, 800, "e1 x2 is correct after change")
+        equal(e1.y2, 820, "e1 y2 is correct after change")
+
+        // ...but that the finalised properties have not been changed
+        equal(e1.t.x, 50, "e1 x is unchanged in finalised object; a transaction is active")
+        equal(e1.t.y, 60, "e1 y is unchanged in finalised object; a transaction is active")
+        equal(e1.t.w, 200, "e1 w is unchanged")
+        equal(e1.t.h, 210, "e1 h is unchanged")
+        equal(e1.t.x2, 250, "e1 x2 is unchanged in finalised object; a transaction is active")
+        equal(e1.t.y2, 270, "e1 y2 is unchanged in finalised object; a transaction is active")
+
+        // ....and also that the viewport's bounds have not been recomputed.
+        equal(_jsPlumb.viewport.getX(), 50, "viewport min x is 50 (unchanged; a transaction is in effect)")
+        equal(_jsPlumb.viewport.getY(), 60, "viewport min y is 60 (unchanged; a transaction is in effect)")
+        equal(_jsPlumb.viewport.getBoundsWidth(), 750, "viewport width is 750 (unchanged; a transaction is in effect)")
+        equal(_jsPlumb.viewport.getBoundsHeight(), 760, "viewport height is 760 (unchanged; a transaction is in effect)")
+
+        // end the transaction
+        _jsPlumb.viewport.endTransaction()
+
+        e1 = _jsPlumb.viewport.getPosition("d1")
+        // check that the values in the finalised object have been updated.
+        equal(e1.t.x, 600, "e1 x is now changed in finalised object; the transaction was ended")
+        equal(e1.t.y, 610, "e1 y is now changed in finalised object; the transaction was ended")
+        equal(e1.t.w, 200, "e1 w is unchanged")
+        equal(e1.t.h, 210, "e1 h is unchanged")
+        equal(e1.t.x2, 800, "e1 x2 is now changed in finalised object; the transaction was ended")
+        equal(e1.t.y2, 820, "e1 y2 is now changed in finalised object; the transaction was ended")
+
+        // the viewport's bounds should also have been recomputed now.
+        equal(_jsPlumb.viewport.getX(), 500, "viewport min x is now 300 (d2 is leftmost)")
+        equal(_jsPlumb.viewport.getY(), 510, "viewport min y is 510 (d2 is topmost)")
+        equal(_jsPlumb.viewport.getBoundsWidth(), 300, "viewport width is now 300")
+        equal(_jsPlumb.viewport.getBoundsHeight(), 310, "viewport height is now 310")
+    });
+
+    test("only one transaction can be active at a single time", function() {
+        try {
+            _jsPlumb.viewport.startTransaction()
+            _jsPlumb.viewport.startTransaction()
+            ok(false, "Starting a second transaction did not cause the viewport to throw an error")
+        } catch {
+            ok(true,"starting a second transaction caused the viewport to throw an error")
+        }
+    })
+
 
 
 
