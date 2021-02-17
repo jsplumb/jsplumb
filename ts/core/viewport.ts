@@ -2,7 +2,6 @@ import {Size, PointArray, Offset} from "./common"
 import {EventGenerator} from "./event-generator"
 import {findWithFunction, getsert, forEach} from './util'
 import {JsPlumbInstance} from "./core"
-import {EVENT_UPDATE} from "./constants"
 
 export interface ViewportPosition {
     x:number
@@ -32,6 +31,10 @@ export interface TranslatedViewportElementBase<E> extends ViewportElementBase<E>
 // use Omit once we can upgrade past ~3.4.0
 //export type TranslatedViewportElement<E> = Omit<TranslatedViewportElementBase<E>, "dirty">
 export type TranslatedViewportElement<E> = Pick<TranslatedViewportElementBase<E>, Exclude<keyof TranslatedViewportElementBase<E>, "dirty">>
+
+class Transaction {
+    affectedElements:Set<string> = new Set()
+}
 
 function EMPTY_POSITION<E>():ViewportElement<E> {
     return { x:0, y:0, w:0, h:0, r:0, c:[0,0], x2:0, y2:0, t:{x:0, y:0, c:[0,0], w:0, h:0, r:0, x2:0, y2:0, cr:0, sr:0 }, dirty:true }
@@ -119,7 +122,8 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
 
 // --------------- PRIVATE  ------------------------------------------
 
-    private _eventsSuspended:boolean = false
+    //private _eventsSuspended:boolean = false
+    private _currentTransaction:Transaction = null
 
     constructor(public instance:JsPlumbInstance<T>) {
         super()
@@ -164,11 +168,7 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
         insertSorted([id, value], array, entryComparator, sortDescending)
     }
 
-    private _fireUpdate(payload?:any) {
-        this.fire(EVENT_UPDATE, payload || {})
-    }
-
-    private _updateBounds (id:string, updatedElement:ViewportElement<T["E"]>) {
+    private _updateBounds (id:string, updatedElement:ViewportElement<T["E"]>, doNotRecalculateBounds?:boolean) {
         if (updatedElement != null) {
 
             this._clearElementIndex(id, this._sortedElements.xmin)
@@ -181,7 +181,9 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
             Viewport._updateElementIndex(id, updatedElement.t.y, this._sortedElements.ymin, false)
             Viewport._updateElementIndex(id, updatedElement.t.y + updatedElement.t.h, this._sortedElements.ymax, true)
 
-            this._recalculateBounds()
+            if (doNotRecalculateBounds !== true) {
+                this._recalculateBounds()
+            }
 
         } else {
             // a full update?
@@ -196,34 +198,43 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
     }
 
 
-    private _finaliseUpdate (id:string, e:ViewportElement<T["E"]>) {
+    private _finaliseUpdate (id:string, e:ViewportElement<T["E"]>, doNotRecalculateBounds?:boolean) {
         e.t = rotate(e.x, e.y, e.w, e.h, e.r)
         this._transformedElementMap.set(id, e.t)
 
-        this._updateBounds(id, e)
+        this._updateBounds(id, e, doNotRecalculateBounds)
     }
 
     shouldFireEvent(event: string, value: unknown, originalEvent?: Event): boolean {
-        return !this._eventsSuspended
+        return true
     }
 
 // ---------------------- PUBLIC -----------------------------
 
     startTransaction() {
-        this._eventsSuspended = true
+        if (this._currentTransaction != null) {
+            throw new Error("Viewport: cannot start transaction; a transaction is currently active.")
+        }
+        this._currentTransaction = new Transaction()
     }
 
-    endTransaction(doNotFireUpdate?:boolean) {
-        this._eventsSuspended = false
-        if (!doNotFireUpdate) {
-            this._fireUpdate()
+    endTransaction() {
+
+        if (this._currentTransaction != null) {
+            // recompute elements, holding off on computing bounds for the entire viewport until the end.
+            this._currentTransaction.affectedElements.forEach( (id:string) => {
+                const entry = this.getPosition(id)
+                this._finaliseUpdate(id, entry, true)
+            })
+            // recompute bounds for the viewport.
+            this._recalculateBounds()
+            this._currentTransaction = null
         }
     }
 
     updateElements (entries:Array<{id:string, x:number, y:number, width:number, height:number, rotation:number}>) {
-        this.startTransaction()
+
         forEach(entries, (e) => this.updateElement(e.id, e.x, e.y, e.width, e.height, e.rotation))
-        this.endTransaction()
     }
 
     /**
@@ -267,7 +278,11 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
         e.x2 = e.x + e.w
         e.y2 = e.y + e.h
 
-        this._finaliseUpdate(id, e)
+        if (this._currentTransaction == null) {
+            this._finaliseUpdate(id, e)
+        } else {
+            this._currentTransaction.affectedElements.add(id)
+        }
 
         return e
     }
