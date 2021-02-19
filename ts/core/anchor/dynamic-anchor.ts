@@ -19,14 +19,15 @@ function _distance(anchor:Anchor, cx:number, cy:number, xy:PointArray, wh:PointA
 
     if(rotation != null && rotation.length > 0) {
         const rotated = anchor.instance.applyRotations([ax,ay, 0, 0], rotation)
-        ax = rotated[0]
-        ay = rotated[1]
+        ax = rotated.x
+        ay = rotated.y
     }
 
     return (Math.sqrt(Math.pow(cx - ax, 2) + Math.pow(cy - ay, 2)) + Math.sqrt(Math.pow(acx - ax, 2) + Math.pow(acy - ay, 2)))
 }
 
-const DEFAULT_ANCHOR_SELECTOR = (xy:PointArray, wh:PointArray, txy:PointArray, twh:PointArray,
+const DEFAULT_ANCHOR_SELECTOR = (xy:PointArray, wh:PointArray,
+                                 txy:PointArray, twh:PointArray,
                                  rotation:Rotations,
                                  targetRotation:Rotations,
                                  anchors:Array<Anchor>) => {
