@@ -156,7 +156,7 @@ export class ElementDragHandler implements DragHandler {
     onDrag(params:DragEventParams):void {
 
         const el = params.drag.getDragElement()
-        const finalPos = params.finalPos || params.pos
+        const finalPos = params.pos
         const elSize = this.instance.getSize(el)
         const ui = { left:finalPos.x, top:finalPos.y }
 
