@@ -1,3 +1,13 @@
+## 4.0.0-RC58
+
+20th February 2021
+
+### Breaking (mostly internal)
+
+- The drag code and the viewport both now use coordinates in the form `{x:.., y:..}` (a `PointXY`) rather than `[x,y]` (a `PointArray`). For most people this change will be transparent, but if you have any drag listeners registered you will need to update them, as the positions reported by these callbacks are all in `PointXY` format now.
+
+- Method signatures for drag callbacks have been updated to more correctly model the arguments that are passed.
+
 ## 4.0.0-RC57
 
 19th February 2021
