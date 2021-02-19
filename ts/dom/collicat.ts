@@ -2,7 +2,7 @@
  A Typescript port of Katavorio, without Droppables or Posses, as the code
  does that for itself now.
 */
-import { BoundingBox, Dictionary, PointArray, extend, IS, uuid } from '@jsplumb/core'
+import {BoundingBox, Dictionary, PointArray, extend, IS, uuid, PointXY} from '@jsplumb/core'
 import {addClass, consume, matchesSelector, removeClass, offsetRelativeToRoot} from "./browser-util"
 import {EventManager, pageLocation} from "./event-manager"
 import {DragEventCallbackOptions, jsPlumbDOMElement} from "./browser-jsplumb-instance"
@@ -40,9 +40,9 @@ function _getSize(el:HTMLElement):PointArray {
     ]
 }
 
-function _setPosition(el:HTMLElement, pos:PointArray) {
-    el.style.left = pos[0] + "px"
-    el.style.top = pos[1] + "px"
+function _setPosition(el:HTMLElement, pos:PointXY) {
+    el.style.left = pos.x + "px"
+    el.style.top = pos.y + "px"
 }
 
 export interface DragSelector {
@@ -235,7 +235,7 @@ export class Drag extends Base {
     scroll:boolean
 
     private _downAt:PointArray
-    private _posAtDown:PointArray
+    private _posAtDown:PointXY
     private _pagePosAtDown:PointArray
     private _pageDelta:PointArray = [0,0]
     private _moving: boolean
@@ -517,9 +517,12 @@ export class Drag extends Base {
     }
 
     mark(payload:any) {
-        this._posAtDown = _getPosition(this._dragEl)
+
+        const p = _getPosition(this._dragEl)
+        this._posAtDown = {x:p[0], y:p[1]}
+
         this._pagePosAtDown = getOffsetRect(this._dragEl)
-        this._pageDelta = [this._pagePosAtDown[0] - this._posAtDown[0], this._pagePosAtDown[1] - this._posAtDown[1]]
+        this._pageDelta = [this._pagePosAtDown[0] - this._posAtDown.x, this._pagePosAtDown[1] - this._posAtDown.y]
         this._size = _getSize(this._dragEl)
         addClass(this._dragEl, this.k.css.drag)
 
@@ -548,7 +551,7 @@ export class Drag extends Base {
 
     moveBy (dx:number, dy:number, e?:MouseEvent) {
 
-        let desiredLoc = this.toGrid([this._posAtDown[0] + dx, this._posAtDown[1] + dy]),
+        let desiredLoc = this.toGrid([this._posAtDown.x + dx, this._posAtDown.y + dy]),
             cPos = this._doConstrain(desiredLoc, this._dragEl, this._constrainRect, this._size)
 
         // if we should use a ghost proxy...
@@ -606,7 +609,7 @@ export class Drag extends Base {
             pageRect = { x:rect.x + this._pageDelta[0], y:rect.y + this._pageDelta[1], w:rect.w, h:rect.h},
             focusDropElement = null
 
-        _setPosition(this._dragEl, [cPos[0] + this._ghostDx, cPos[1] + this._ghostDy])
+        _setPosition(this._dragEl, {x:cPos[0] + this._ghostDx, y:cPos[1] + this._ghostDy})
 
         this._dispatch("drag", {el:this.el, pos:cPos, e:e, drag:this})
 
