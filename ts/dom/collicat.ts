@@ -259,7 +259,7 @@ export class Drag extends Base {
     private _pageDelta:PointXY = {x:0, y:0}
     private _moving: boolean
     private _initialScroll:PointXY = {x:0, y:0}
-    private _size:Size
+    _size:Size
     private _currentParentPosition:PointXY
     private _ghostParentPosition:PointXY
 
