@@ -146,6 +146,6 @@ export type Constructable<T> = { new(...args: any[]): T }
 
 export type Timestamp = string
 
-export interface Rotation {r:number, c:PointArray}
+export interface Rotation {r:number, c:PointXY}
 export type Rotations = Array<Rotation>
 
