@@ -1,3 +1,9 @@
+## 4.0.0-RC57
+
+19th February 2021
+
+- Internal refactoring of the geometry functions.
+
 ## 4.0.0-RC56
 
 17th February 2021

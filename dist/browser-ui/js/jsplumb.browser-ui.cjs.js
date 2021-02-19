@@ -1968,7 +1968,7 @@ function () {
       var _one = function _one(el, bounds, e) {
         var ancestorsOfIntersectingGroups = new Set();
         core.forEach(_this3._groupLocations, function (groupLoc) {
-          if (!ancestorsOfIntersectingGroups.has(groupLoc.group.id) && _this3.instance.geometry.intersects(bounds, groupLoc.r)) {
+          if (!ancestorsOfIntersectingGroups.has(groupLoc.group.id) && core.intersects(bounds, groupLoc.r)) {
             if (groupLoc.group !== _this3._currentDragParentGroup) {
               _this3.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
             }
@@ -2694,7 +2694,7 @@ function () {
             idx,
             _cont;
         for (var i = 0; i < this.endpointDropTargets.length; i++) {
-          if (this.instance.geometry.intersects(boundingRect, this.endpointDropTargets[i].r)) {
+          if (core.intersects(boundingRect, this.endpointDropTargets[i].r)) {
             newDropTarget = this.endpointDropTargets[i];
             break;
           }
@@ -3241,7 +3241,7 @@ function () {
       var parent = el.parentNode,
           container = this.instance.getContainer(),
           parentList;
-      while (parent != null && parent !== container) {
+      while (parent != null && parent !== container && parent !== document) {
         parentList = this.getList(parent);
         if (parentList != null) {
           return parentList;

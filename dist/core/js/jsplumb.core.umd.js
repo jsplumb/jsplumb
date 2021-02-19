@@ -874,6 +874,92 @@
     return false;
   }
 
+  var segmentMultipliers = [null, [1, -1], [1, 1], [-1, 1], [-1, -1]];
+  var inverseSegmentMultipliers = [null, [-1, -1], [-1, 1], [1, 1], [1, -1]];
+  var TWO_PI = 2 * Math.PI;
+  function pointXYFromArray(a) {
+    return {
+      x: a[0],
+      y: a[1]
+    };
+  }
+  function gradient(p1, p2) {
+    if (p2.x === p1.x) return p2.y > p1.y ? Infinity : -Infinity;else if (p2.y === p1.y) return p2.x > p1.x ? 0 : -0;else return (p2.y - p1.y) / (p2.x - p1.x);
+  }
+  function normal(p1, p2) {
+    return -1 / gradient(p1, p2);
+  }
+  function lineLength(p1, p2) {
+    return Math.sqrt(Math.pow(p2.y - p1.y, 2) + Math.pow(p2.x - p1.x, 2));
+  }
+  function quadrant(p1, p2) {
+    if (p2.x > p1.x) {
+      return p2.y > p1.y ? 2 : 1;
+    } else if (p2.x == p1.x) {
+      return p2.y > p1.y ? 2 : 1;
+    } else {
+      return p2.y > p1.y ? 3 : 4;
+    }
+  }
+  function theta(p1, p2) {
+    var m = gradient(p1, p2),
+        t = Math.atan(m),
+        s = quadrant(p1, p2);
+    if (s == 4 || s == 3) t += Math.PI;
+    if (t < 0) t += 2 * Math.PI;
+    return t;
+  }
+  function intersects(r1, r2) {
+    var x1 = r1.x,
+        x2 = r1.x + r1.w,
+        y1 = r1.y,
+        y2 = r1.y + r1.h,
+        a1 = r2.x,
+        a2 = r2.x + r2.w,
+        b1 = r2.y,
+        b2 = r2.y + r2.h;
+    return x1 <= a1 && a1 <= x2 && y1 <= b1 && b1 <= y2 || x1 <= a2 && a2 <= x2 && y1 <= b1 && b1 <= y2 || x1 <= a1 && a1 <= x2 && y1 <= b2 && b2 <= y2 || x1 <= a2 && a1 <= x2 && y1 <= b2 && b2 <= y2 || a1 <= x1 && x1 <= a2 && b1 <= y1 && y1 <= b2 || a1 <= x2 && x2 <= a2 && b1 <= y1 && y1 <= b2 || a1 <= x1 && x1 <= a2 && b1 <= y2 && y2 <= b2 || a1 <= x2 && x1 <= a2 && b1 <= y2 && y2 <= b2;
+  }
+  function encloses(r1, r2, allowSharedEdges) {
+    var x1 = r1.x,
+        x2 = r1.x + r1.w,
+        y1 = r1.y,
+        y2 = r1.y + r1.h,
+        a1 = r2.x,
+        a2 = r2.x + r2.w,
+        b1 = r2.y,
+        b2 = r2.y + r2.h,
+        c = function c(v1, v2, v3, v4) {
+      return allowSharedEdges ? v1 <= v2 && v3 >= v4 : v1 < v2 && v3 > v4;
+    };
+    return c(x1, a1, x2, a2) && c(y1, b1, y2, b2);
+  }
+  function pointOnLine(fromPoint, toPoint, distance) {
+    var m = gradient(fromPoint, toPoint),
+        s = quadrant(fromPoint, toPoint),
+        segmentMultiplier = distance > 0 ? segmentMultipliers[s] : inverseSegmentMultipliers[s],
+        theta = Math.atan(m),
+        y = Math.abs(distance * Math.sin(theta)) * segmentMultiplier[1],
+        x = Math.abs(distance * Math.cos(theta)) * segmentMultiplier[0];
+    return {
+      x: fromPoint.x + x,
+      y: fromPoint.y + y
+    };
+  }
+  function perpendicularLineTo(fromPoint, toPoint, length) {
+    var m = gradient(fromPoint, toPoint),
+        theta2 = Math.atan(-1 / m),
+        y = length / 2 * Math.sin(theta2),
+        x = length / 2 * Math.cos(theta2);
+    return [{
+      x: toPoint.x + x,
+      y: toPoint.y + y
+    }, {
+      x: toPoint.x - x,
+      y: toPoint.y - y
+    }];
+  }
+
   var AbstractConnector =
   function () {
     function AbstractConnector(instance, connection, params) {
@@ -1102,7 +1188,7 @@
       key: "_prepareCompute",
       value: function _prepareCompute(params) {
         this.strokeWidth = params.strokeWidth;
-        var segment = this.instance.geometry.quadrant(this.instance.geometry.pointXYFromArray(params.sourcePos), this.instance.geometry.pointXYFromArray(params.targetPos)),
+        var segment = quadrant(pointXYFromArray(params.sourcePos), pointXYFromArray(params.targetPos)),
             swapX = params.targetPos[0] < params.sourcePos[0],
             swapY = params.targetPos[1] < params.sourcePos[1],
             lw = params.strokeWidth || 1,
@@ -1258,7 +1344,7 @@
       key: "_recalc",
       value: function _recalc() {
         this.length = Math.sqrt(Math.pow(this.x2 - this.x1, 2) + Math.pow(this.y2 - this.y1, 2));
-        this.m = this.instance.geometry.gradient({
+        this.m = gradient({
           x: this.x1,
           y: this.y1
         }, {
@@ -1311,7 +1397,7 @@
           };
         } else {
           var l = absolute ? location > 0 ? location : this.length + location : location * this.length;
-          return this.instance.geometry.pointOnLine({
+          return pointOnLine({
             x: this.x1,
             y: this.y1
           }, {
@@ -1339,7 +1425,7 @@
         if (distance <= 0 && Math.abs(distance) > 1) {
           distance *= -1;
         }
-        return this.instance.geometry.pointOnLine(p, farAwayPoint, distance);
+        return pointOnLine(p, farAwayPoint, distance);
       }
     }, {
       key: "within",
@@ -1378,14 +1464,14 @@
           out.x = this.within(this.x1, this.x2, _x1) ? _x1 : this.closest(this.x1, this.x2, _x1);
           out.y = this.within(this.y1, this.y2, _y1) ? _y1 : this.closest(this.y1, this.y2, _y1);
         }
-        var fractionInSegment = this.instance.geometry.lineLength({
+        var fractionInSegment = lineLength({
           x: out.x,
           y: out.y
         }, {
           x: this.x1,
           y: this.y1
         });
-        out.d = this.instance.geometry.lineLength({
+        out.d = lineLength({
           x: x,
           y: y
         }, out);
@@ -1400,7 +1486,7 @@
     }, {
       key: "lineIntersection",
       value: function lineIntersection(_x1, _y1, _x2, _y2) {
-        var m2 = Math.abs(this.instance.geometry.gradient({
+        var m2 = Math.abs(gradient({
           x: _x1,
           y: _y1
         }, {
@@ -1514,120 +1600,6 @@
   }(AbstractConnector);
   _defineProperty(StraightConnector, "type", "Straight");
 
-  var segmentMultipliers = [null, [1, -1], [1, 1], [-1, 1], [-1, -1]];
-  var inverseSegmentMultipliers = [null, [-1, -1], [-1, 1], [1, 1], [1, -1]];
-  var TWO_PI = 2 * Math.PI;
-  var jsPlumbGeometry =
-  function () {
-    function jsPlumbGeometry() {
-      _classCallCheck(this, jsPlumbGeometry);
-    }
-    _createClass(jsPlumbGeometry, [{
-      key: "pointXYFromArray",
-      value: function pointXYFromArray(a) {
-        return {
-          x: a[0],
-          y: a[1]
-        };
-      }
-    }, {
-      key: "gradient",
-      value: function gradient(p1, p2) {
-        if (p2.x === p1.x) return p2.y > p1.y ? Infinity : -Infinity;else if (p2.y === p1.y) return p2.x > p1.x ? 0 : -0;else return (p2.y - p1.y) / (p2.x - p1.x);
-      }
-    }, {
-      key: "normal",
-      value: function normal(p1, p2) {
-        return -1 / this.gradient(p1, p2);
-      }
-    }, {
-      key: "lineLength",
-      value: function lineLength(p1, p2) {
-        return Math.sqrt(Math.pow(p2.y - p1.y, 2) + Math.pow(p2.x - p1.x, 2));
-      }
-    }, {
-      key: "quadrant",
-      value: function quadrant(p1, p2) {
-        if (p2.x > p1.x) {
-          return p2.y > p1.y ? 2 : 1;
-        } else if (p2.x == p1.x) {
-          return p2.y > p1.y ? 2 : 1;
-        } else {
-          return p2.y > p1.y ? 3 : 4;
-        }
-      }
-    }, {
-      key: "theta",
-      value: function theta(p1, p2) {
-        var m = this.gradient(p1, p2),
-            t = Math.atan(m),
-            s = this.quadrant(p1, p2);
-        if (s == 4 || s == 3) t += Math.PI;
-        if (t < 0) t += 2 * Math.PI;
-        return t;
-      }
-    }, {
-      key: "intersects",
-      value: function intersects(r1, r2) {
-        var x1 = r1.x,
-            x2 = r1.x + r1.w,
-            y1 = r1.y,
-            y2 = r1.y + r1.h,
-            a1 = r2.x,
-            a2 = r2.x + r2.w,
-            b1 = r2.y,
-            b2 = r2.y + r2.h;
-        return x1 <= a1 && a1 <= x2 && y1 <= b1 && b1 <= y2 || x1 <= a2 && a2 <= x2 && y1 <= b1 && b1 <= y2 || x1 <= a1 && a1 <= x2 && y1 <= b2 && b2 <= y2 || x1 <= a2 && a1 <= x2 && y1 <= b2 && b2 <= y2 || a1 <= x1 && x1 <= a2 && b1 <= y1 && y1 <= b2 || a1 <= x2 && x2 <= a2 && b1 <= y1 && y1 <= b2 || a1 <= x1 && x1 <= a2 && b1 <= y2 && y2 <= b2 || a1 <= x2 && x1 <= a2 && b1 <= y2 && y2 <= b2;
-      }
-    }, {
-      key: "encloses",
-      value: function encloses(r1, r2, allowSharedEdges) {
-        var x1 = r1.x,
-            x2 = r1.x + r1.w,
-            y1 = r1.y,
-            y2 = r1.y + r1.h,
-            a1 = r2.x,
-            a2 = r2.x + r2.w,
-            b1 = r2.y,
-            b2 = r2.y + r2.h,
-            c = function c(v1, v2, v3, v4) {
-          return allowSharedEdges ? v1 <= v2 && v3 >= v4 : v1 < v2 && v3 > v4;
-        };
-        return c(x1, a1, x2, a2) && c(y1, b1, y2, b2);
-      }
-    }, {
-      key: "pointOnLine",
-      value: function pointOnLine(fromPoint, toPoint, distance) {
-        var m = this.gradient(fromPoint, toPoint),
-            s = this.quadrant(fromPoint, toPoint),
-            segmentMultiplier = distance > 0 ? segmentMultipliers[s] : inverseSegmentMultipliers[s],
-            theta = Math.atan(m),
-            y = Math.abs(distance * Math.sin(theta)) * segmentMultiplier[1],
-            x = Math.abs(distance * Math.cos(theta)) * segmentMultiplier[0];
-        return {
-          x: fromPoint.x + x,
-          y: fromPoint.y + y
-        };
-      }
-    }, {
-      key: "perpendicularLineTo",
-      value: function perpendicularLineTo(fromPoint, toPoint, length) {
-        var m = this.gradient(fromPoint, toPoint),
-            theta2 = Math.atan(-1 / m),
-            y = length / 2 * Math.sin(theta2),
-            x = length / 2 * Math.cos(theta2);
-        return [{
-          x: toPoint.x + x,
-          y: toPoint.y + y
-        }, {
-          x: toPoint.x - x,
-          y: toPoint.y - y
-        }];
-      }
-    }]);
-    return jsPlumbGeometry;
-  }();
-
   var VERY_SMALL_VALUE = 0.0000000001;
   function gentleRound(n) {
     var f = Math.floor(n),
@@ -1698,7 +1670,7 @@
     _createClass(ArcSegment, [{
       key: "_calcAngle",
       value: function _calcAngle(_x, _y) {
-        return this.instance.geometry.theta({
+        return theta({
           x: this.cx,
           y: this.cy
         }, {
@@ -1756,7 +1728,7 @@
       key: "gradientAtPoint",
       value: function gradientAtPoint(location, absolute) {
         var p = this.pointOnPath(location, absolute);
-        var m = this.instance.geometry.normal({
+        var m = normal({
           x: this.cx,
           y: this.cy
         }, p);
@@ -6940,7 +6912,7 @@
             candidates.push({
               source: FACES[sf],
               target: FACES[tf],
-              dist: this.instance.geometry.lineLength(midpoints.source[FACES[sf]], midpoints.target[FACES[tf]])
+              dist: lineLength(midpoints.source[FACES[sf]], midpoints.target[FACES[tf]])
             });
           }
         }
@@ -7744,9 +7716,7 @@
       _defineProperty(_assertThisInitialized(_this), "_container", void 0);
       _defineProperty(_assertThisInitialized(_this), "_managedElements", {});
       _defineProperty(_assertThisInitialized(_this), "DEFAULT_SCOPE", void 0);
-      _defineProperty(_assertThisInitialized(_this), "geometry", void 0);
       _defineProperty(_assertThisInitialized(_this), "_zoom", 1);
-      _this.geometry = new jsPlumbGeometry();
       _this.Defaults = {
         anchor: exports.AnchorLocations.Bottom,
         anchors: [null, null],
@@ -9475,11 +9445,11 @@
             var fromLoc = this.location < 0 ? 1 : 0;
             hxy = connector.pointAlongPathFrom(fromLoc, this.location, false);
             mid = connector.pointAlongPathFrom(fromLoc, this.location - this.direction * this.length / 2, false);
-            txy = this.instance.geometry.pointOnLine(hxy, mid, this.length);
+            txy = pointOnLine(hxy, mid, this.length);
           } else if (this.location === 1) {
             hxy = connector.pointOnPath(this.location);
             mid = connector.pointAlongPathFrom(this.location, -this.length);
-            txy = this.instance.geometry.pointOnLine(hxy, mid, this.length);
+            txy = pointOnLine(hxy, mid, this.length);
             if (this.direction === -1) {
               var _ = txy;
               txy = hxy;
@@ -9488,7 +9458,7 @@
           } else if (this.location === 0) {
             txy = connector.pointOnPath(this.location);
             mid = connector.pointAlongPathFrom(this.location, this.length);
-            hxy = this.instance.geometry.pointOnLine(txy, mid, this.length);
+            hxy = pointOnLine(txy, mid, this.length);
             if (this.direction === -1) {
               var __ = txy;
               txy = hxy;
@@ -9497,10 +9467,10 @@
           } else {
             hxy = connector.pointAlongPathFrom(this.location, this.direction * this.length / 2);
             mid = connector.pointOnPath(this.location);
-            txy = this.instance.geometry.pointOnLine(hxy, mid, this.length);
+            txy = pointOnLine(hxy, mid, this.length);
           }
-          tail = this.instance.geometry.perpendicularLineTo(hxy, txy, this.width);
-          cxy = this.instance.geometry.pointOnLine(hxy, txy, this.foldback * this.length);
+          tail = perpendicularLineTo(hxy, txy, this.width);
+          cxy = pointOnLine(hxy, txy, this.foldback * this.length);
           var d = {
             hxy: hxy,
             tail: tail,
@@ -9819,6 +9789,7 @@
   exports.dist = dist;
   exports.distanceFromCurve = distanceFromCurve;
   exports.each = each;
+  exports.encloses = encloses;
   exports.extend = extend;
   exports.fastTrim = fastTrim;
   exports.filterList = filterList;
@@ -9829,8 +9800,10 @@
   exports.getFromSetWithFunction = getFromSetWithFunction;
   exports.getWithFunction = getWithFunction;
   exports.getsert = getsert;
+  exports.gradient = gradient;
   exports.gradientAtPoint = gradientAtPoint;
   exports.gradientAtPointAlongPathFrom = gradientAtPointAlongPathFrom;
+  exports.intersects = intersects;
   exports.isArray = isArray;
   exports.isArrowOverlay = isArrowOverlay;
   exports.isAssignableFrom = isAssignableFrom;
@@ -9848,8 +9821,8 @@
   exports.isPlainArrowOverlay = isPlainArrowOverlay;
   exports.isPoint = isPoint;
   exports.isString = isString;
-  exports.jsPlumbGeometry = jsPlumbGeometry;
   exports.lineIntersection = lineIntersection;
+  exports.lineLength = lineLength;
   exports.locationAlongCurveFrom = locationAlongCurveFrom;
   exports.log = log;
   exports.logEnabled = logEnabled;
@@ -9858,12 +9831,17 @@
   exports.merge = merge;
   exports.mergeWithParents = mergeWithParents;
   exports.nearestPointOnCurve = nearestPointOnCurve;
+  exports.normal = normal;
   exports.optional = optional;
+  exports.perpendicularLineTo = perpendicularLineTo;
   exports.perpendicularToPathAt = perpendicularToPathAt;
   exports.pointAlongCurveFrom = pointAlongCurveFrom;
   exports.pointAlongPath = pointAlongPath;
   exports.pointOnCurve = pointOnCurve;
+  exports.pointOnLine = pointOnLine;
+  exports.pointXYFromArray = pointXYFromArray;
   exports.populate = populate;
+  exports.quadrant = quadrant;
   exports.remove = remove;
   exports.removeWithFunction = removeWithFunction;
   exports.replace = replace;
@@ -9873,6 +9851,7 @@
   exports.setToArray = setToArray;
   exports.sortHelper = sortHelper;
   exports.suggest = suggest;
+  exports.theta = theta;
   exports.uuid = uuid;
   exports.wrap = wrap;
 

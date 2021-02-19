@@ -9,7 +9,6 @@ import { EventGenerator } from "./event-generator";
 import { EndpointOptions } from "./endpoint/endpoint";
 import { AddGroupOptions, GroupManager } from "./group/group-manager";
 import { UIGroup } from "./group/group";
-import { jsPlumbGeometryHelpers } from "./geom";
 import { Router } from "./router/router";
 import { EndpointSelection } from "./selection/endpoint-selection";
 import { ConnectionSelection } from "./selection/connection-selection";
@@ -100,7 +99,6 @@ export declare abstract class JsPlumbInstance<T extends {
     protected _managedElements: Dictionary<ManagedElement<T["E"]>>;
     private DEFAULT_SCOPE;
     readonly defaultScope: string;
-    geometry: jsPlumbGeometryHelpers;
     private _zoom;
     readonly currentZoom: number;
     constructor(_instanceIndex: number, defaults?: jsPlumbDefaults<T["E"]>);

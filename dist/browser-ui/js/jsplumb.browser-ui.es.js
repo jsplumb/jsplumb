@@ -1,4 +1,4 @@
-import { fastTrim, forEach, isArray, log, NONE, EVENT_CONTEXTMENU, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, EVENT_CLICK, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, uuid, IS, extend, PARENT_GROUP_KEY, wrap, isString, optional, getFromSetWithFunction, GROUP_KEY, cls, each, makeAnchorFromSpec, findWithFunction, IS_GROUP_KEY, SOURCE, TARGET, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, SELECTOR_MANAGED_ELEMENT, Connection, Endpoint, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, UNDEFINED, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, fromArray, ATTRIBUTE_NOT_DRAGGABLE, TRUE as TRUE$1, FALSE as FALSE$1, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, LabelOverlay, CustomOverlay, EndpointRepresentation, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/core';
+import { fastTrim, forEach, isArray, log, NONE, EVENT_CONTEXTMENU, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, EVENT_CLICK, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, uuid, IS, extend, PARENT_GROUP_KEY, wrap, isString, optional, getFromSetWithFunction, intersects, GROUP_KEY, cls, each, makeAnchorFromSpec, findWithFunction, IS_GROUP_KEY, SOURCE, TARGET, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, SELECTOR_MANAGED_ELEMENT, Connection, Endpoint, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, UNDEFINED, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, fromArray, ATTRIBUTE_NOT_DRAGGABLE, TRUE as TRUE$1, FALSE as FALSE$1, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, LabelOverlay, CustomOverlay, EndpointRepresentation, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/core';
 
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -1964,7 +1964,7 @@ function () {
       var _one = function _one(el, bounds, e) {
         var ancestorsOfIntersectingGroups = new Set();
         forEach(_this3._groupLocations, function (groupLoc) {
-          if (!ancestorsOfIntersectingGroups.has(groupLoc.group.id) && _this3.instance.geometry.intersects(bounds, groupLoc.r)) {
+          if (!ancestorsOfIntersectingGroups.has(groupLoc.group.id) && intersects(bounds, groupLoc.r)) {
             if (groupLoc.group !== _this3._currentDragParentGroup) {
               _this3.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
             }
@@ -2690,7 +2690,7 @@ function () {
             idx,
             _cont;
         for (var i = 0; i < this.endpointDropTargets.length; i++) {
-          if (this.instance.geometry.intersects(boundingRect, this.endpointDropTargets[i].r)) {
+          if (intersects(boundingRect, this.endpointDropTargets[i].r)) {
             newDropTarget = this.endpointDropTargets[i];
             break;
           }
@@ -3237,7 +3237,7 @@ function () {
       var parent = el.parentNode,
           container = this.instance.getContainer(),
           parentList;
-      while (parent != null && parent !== container) {
+      while (parent != null && parent !== container && parent !== document) {
         parentList = this.getList(parent);
         if (parentList != null) {
           return parentList;

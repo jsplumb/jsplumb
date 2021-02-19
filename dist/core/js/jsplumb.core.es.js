@@ -868,6 +868,92 @@ function isAssignableFrom(object, cls) {
   return false;
 }
 
+var segmentMultipliers = [null, [1, -1], [1, 1], [-1, 1], [-1, -1]];
+var inverseSegmentMultipliers = [null, [-1, -1], [-1, 1], [1, 1], [1, -1]];
+var TWO_PI = 2 * Math.PI;
+function pointXYFromArray(a) {
+  return {
+    x: a[0],
+    y: a[1]
+  };
+}
+function gradient(p1, p2) {
+  if (p2.x === p1.x) return p2.y > p1.y ? Infinity : -Infinity;else if (p2.y === p1.y) return p2.x > p1.x ? 0 : -0;else return (p2.y - p1.y) / (p2.x - p1.x);
+}
+function normal(p1, p2) {
+  return -1 / gradient(p1, p2);
+}
+function lineLength(p1, p2) {
+  return Math.sqrt(Math.pow(p2.y - p1.y, 2) + Math.pow(p2.x - p1.x, 2));
+}
+function quadrant(p1, p2) {
+  if (p2.x > p1.x) {
+    return p2.y > p1.y ? 2 : 1;
+  } else if (p2.x == p1.x) {
+    return p2.y > p1.y ? 2 : 1;
+  } else {
+    return p2.y > p1.y ? 3 : 4;
+  }
+}
+function theta(p1, p2) {
+  var m = gradient(p1, p2),
+      t = Math.atan(m),
+      s = quadrant(p1, p2);
+  if (s == 4 || s == 3) t += Math.PI;
+  if (t < 0) t += 2 * Math.PI;
+  return t;
+}
+function intersects(r1, r2) {
+  var x1 = r1.x,
+      x2 = r1.x + r1.w,
+      y1 = r1.y,
+      y2 = r1.y + r1.h,
+      a1 = r2.x,
+      a2 = r2.x + r2.w,
+      b1 = r2.y,
+      b2 = r2.y + r2.h;
+  return x1 <= a1 && a1 <= x2 && y1 <= b1 && b1 <= y2 || x1 <= a2 && a2 <= x2 && y1 <= b1 && b1 <= y2 || x1 <= a1 && a1 <= x2 && y1 <= b2 && b2 <= y2 || x1 <= a2 && a1 <= x2 && y1 <= b2 && b2 <= y2 || a1 <= x1 && x1 <= a2 && b1 <= y1 && y1 <= b2 || a1 <= x2 && x2 <= a2 && b1 <= y1 && y1 <= b2 || a1 <= x1 && x1 <= a2 && b1 <= y2 && y2 <= b2 || a1 <= x2 && x1 <= a2 && b1 <= y2 && y2 <= b2;
+}
+function encloses(r1, r2, allowSharedEdges) {
+  var x1 = r1.x,
+      x2 = r1.x + r1.w,
+      y1 = r1.y,
+      y2 = r1.y + r1.h,
+      a1 = r2.x,
+      a2 = r2.x + r2.w,
+      b1 = r2.y,
+      b2 = r2.y + r2.h,
+      c = function c(v1, v2, v3, v4) {
+    return allowSharedEdges ? v1 <= v2 && v3 >= v4 : v1 < v2 && v3 > v4;
+  };
+  return c(x1, a1, x2, a2) && c(y1, b1, y2, b2);
+}
+function pointOnLine(fromPoint, toPoint, distance) {
+  var m = gradient(fromPoint, toPoint),
+      s = quadrant(fromPoint, toPoint),
+      segmentMultiplier = distance > 0 ? segmentMultipliers[s] : inverseSegmentMultipliers[s],
+      theta = Math.atan(m),
+      y = Math.abs(distance * Math.sin(theta)) * segmentMultiplier[1],
+      x = Math.abs(distance * Math.cos(theta)) * segmentMultiplier[0];
+  return {
+    x: fromPoint.x + x,
+    y: fromPoint.y + y
+  };
+}
+function perpendicularLineTo(fromPoint, toPoint, length) {
+  var m = gradient(fromPoint, toPoint),
+      theta2 = Math.atan(-1 / m),
+      y = length / 2 * Math.sin(theta2),
+      x = length / 2 * Math.cos(theta2);
+  return [{
+    x: toPoint.x + x,
+    y: toPoint.y + y
+  }, {
+    x: toPoint.x - x,
+    y: toPoint.y - y
+  }];
+}
+
 var AbstractConnector =
 function () {
   function AbstractConnector(instance, connection, params) {
@@ -1096,7 +1182,7 @@ function () {
     key: "_prepareCompute",
     value: function _prepareCompute(params) {
       this.strokeWidth = params.strokeWidth;
-      var segment = this.instance.geometry.quadrant(this.instance.geometry.pointXYFromArray(params.sourcePos), this.instance.geometry.pointXYFromArray(params.targetPos)),
+      var segment = quadrant(pointXYFromArray(params.sourcePos), pointXYFromArray(params.targetPos)),
           swapX = params.targetPos[0] < params.sourcePos[0],
           swapY = params.targetPos[1] < params.sourcePos[1],
           lw = params.strokeWidth || 1,
@@ -1252,7 +1338,7 @@ function (_AbstractSegment) {
     key: "_recalc",
     value: function _recalc() {
       this.length = Math.sqrt(Math.pow(this.x2 - this.x1, 2) + Math.pow(this.y2 - this.y1, 2));
-      this.m = this.instance.geometry.gradient({
+      this.m = gradient({
         x: this.x1,
         y: this.y1
       }, {
@@ -1305,7 +1391,7 @@ function (_AbstractSegment) {
         };
       } else {
         var l = absolute ? location > 0 ? location : this.length + location : location * this.length;
-        return this.instance.geometry.pointOnLine({
+        return pointOnLine({
           x: this.x1,
           y: this.y1
         }, {
@@ -1333,7 +1419,7 @@ function (_AbstractSegment) {
       if (distance <= 0 && Math.abs(distance) > 1) {
         distance *= -1;
       }
-      return this.instance.geometry.pointOnLine(p, farAwayPoint, distance);
+      return pointOnLine(p, farAwayPoint, distance);
     }
   }, {
     key: "within",
@@ -1372,14 +1458,14 @@ function (_AbstractSegment) {
         out.x = this.within(this.x1, this.x2, _x1) ? _x1 : this.closest(this.x1, this.x2, _x1);
         out.y = this.within(this.y1, this.y2, _y1) ? _y1 : this.closest(this.y1, this.y2, _y1);
       }
-      var fractionInSegment = this.instance.geometry.lineLength({
+      var fractionInSegment = lineLength({
         x: out.x,
         y: out.y
       }, {
         x: this.x1,
         y: this.y1
       });
-      out.d = this.instance.geometry.lineLength({
+      out.d = lineLength({
         x: x,
         y: y
       }, out);
@@ -1394,7 +1480,7 @@ function (_AbstractSegment) {
   }, {
     key: "lineIntersection",
     value: function lineIntersection(_x1, _y1, _x2, _y2) {
-      var m2 = Math.abs(this.instance.geometry.gradient({
+      var m2 = Math.abs(gradient({
         x: _x1,
         y: _y1
       }, {
@@ -1508,120 +1594,6 @@ function (_AbstractConnector) {
 }(AbstractConnector);
 _defineProperty(StraightConnector, "type", "Straight");
 
-var segmentMultipliers = [null, [1, -1], [1, 1], [-1, 1], [-1, -1]];
-var inverseSegmentMultipliers = [null, [-1, -1], [-1, 1], [1, 1], [1, -1]];
-var TWO_PI = 2 * Math.PI;
-var jsPlumbGeometry =
-function () {
-  function jsPlumbGeometry() {
-    _classCallCheck(this, jsPlumbGeometry);
-  }
-  _createClass(jsPlumbGeometry, [{
-    key: "pointXYFromArray",
-    value: function pointXYFromArray(a) {
-      return {
-        x: a[0],
-        y: a[1]
-      };
-    }
-  }, {
-    key: "gradient",
-    value: function gradient(p1, p2) {
-      if (p2.x === p1.x) return p2.y > p1.y ? Infinity : -Infinity;else if (p2.y === p1.y) return p2.x > p1.x ? 0 : -0;else return (p2.y - p1.y) / (p2.x - p1.x);
-    }
-  }, {
-    key: "normal",
-    value: function normal(p1, p2) {
-      return -1 / this.gradient(p1, p2);
-    }
-  }, {
-    key: "lineLength",
-    value: function lineLength(p1, p2) {
-      return Math.sqrt(Math.pow(p2.y - p1.y, 2) + Math.pow(p2.x - p1.x, 2));
-    }
-  }, {
-    key: "quadrant",
-    value: function quadrant(p1, p2) {
-      if (p2.x > p1.x) {
-        return p2.y > p1.y ? 2 : 1;
-      } else if (p2.x == p1.x) {
-        return p2.y > p1.y ? 2 : 1;
-      } else {
-        return p2.y > p1.y ? 3 : 4;
-      }
-    }
-  }, {
-    key: "theta",
-    value: function theta(p1, p2) {
-      var m = this.gradient(p1, p2),
-          t = Math.atan(m),
-          s = this.quadrant(p1, p2);
-      if (s == 4 || s == 3) t += Math.PI;
-      if (t < 0) t += 2 * Math.PI;
-      return t;
-    }
-  }, {
-    key: "intersects",
-    value: function intersects(r1, r2) {
-      var x1 = r1.x,
-          x2 = r1.x + r1.w,
-          y1 = r1.y,
-          y2 = r1.y + r1.h,
-          a1 = r2.x,
-          a2 = r2.x + r2.w,
-          b1 = r2.y,
-          b2 = r2.y + r2.h;
-      return x1 <= a1 && a1 <= x2 && y1 <= b1 && b1 <= y2 || x1 <= a2 && a2 <= x2 && y1 <= b1 && b1 <= y2 || x1 <= a1 && a1 <= x2 && y1 <= b2 && b2 <= y2 || x1 <= a2 && a1 <= x2 && y1 <= b2 && b2 <= y2 || a1 <= x1 && x1 <= a2 && b1 <= y1 && y1 <= b2 || a1 <= x2 && x2 <= a2 && b1 <= y1 && y1 <= b2 || a1 <= x1 && x1 <= a2 && b1 <= y2 && y2 <= b2 || a1 <= x2 && x1 <= a2 && b1 <= y2 && y2 <= b2;
-    }
-  }, {
-    key: "encloses",
-    value: function encloses(r1, r2, allowSharedEdges) {
-      var x1 = r1.x,
-          x2 = r1.x + r1.w,
-          y1 = r1.y,
-          y2 = r1.y + r1.h,
-          a1 = r2.x,
-          a2 = r2.x + r2.w,
-          b1 = r2.y,
-          b2 = r2.y + r2.h,
-          c = function c(v1, v2, v3, v4) {
-        return allowSharedEdges ? v1 <= v2 && v3 >= v4 : v1 < v2 && v3 > v4;
-      };
-      return c(x1, a1, x2, a2) && c(y1, b1, y2, b2);
-    }
-  }, {
-    key: "pointOnLine",
-    value: function pointOnLine(fromPoint, toPoint, distance) {
-      var m = this.gradient(fromPoint, toPoint),
-          s = this.quadrant(fromPoint, toPoint),
-          segmentMultiplier = distance > 0 ? segmentMultipliers[s] : inverseSegmentMultipliers[s],
-          theta = Math.atan(m),
-          y = Math.abs(distance * Math.sin(theta)) * segmentMultiplier[1],
-          x = Math.abs(distance * Math.cos(theta)) * segmentMultiplier[0];
-      return {
-        x: fromPoint.x + x,
-        y: fromPoint.y + y
-      };
-    }
-  }, {
-    key: "perpendicularLineTo",
-    value: function perpendicularLineTo(fromPoint, toPoint, length) {
-      var m = this.gradient(fromPoint, toPoint),
-          theta2 = Math.atan(-1 / m),
-          y = length / 2 * Math.sin(theta2),
-          x = length / 2 * Math.cos(theta2);
-      return [{
-        x: toPoint.x + x,
-        y: toPoint.y + y
-      }, {
-        x: toPoint.x - x,
-        y: toPoint.y - y
-      }];
-    }
-  }]);
-  return jsPlumbGeometry;
-}();
-
 var VERY_SMALL_VALUE = 0.0000000001;
 function gentleRound(n) {
   var f = Math.floor(n),
@@ -1692,7 +1664,7 @@ function (_AbstractSegment) {
   _createClass(ArcSegment, [{
     key: "_calcAngle",
     value: function _calcAngle(_x, _y) {
-      return this.instance.geometry.theta({
+      return theta({
         x: this.cx,
         y: this.cy
       }, {
@@ -1750,7 +1722,7 @@ function (_AbstractSegment) {
     key: "gradientAtPoint",
     value: function gradientAtPoint(location, absolute) {
       var p = this.pointOnPath(location, absolute);
-      var m = this.instance.geometry.normal({
+      var m = normal({
         x: this.cx,
         y: this.cy
       }, p);
@@ -6935,7 +6907,7 @@ function () {
           candidates.push({
             source: FACES[sf],
             target: FACES[tf],
-            dist: this.instance.geometry.lineLength(midpoints.source[FACES[sf]], midpoints.target[FACES[tf]])
+            dist: lineLength(midpoints.source[FACES[sf]], midpoints.target[FACES[tf]])
           });
         }
       }
@@ -7739,9 +7711,7 @@ function (_EventGenerator) {
     _defineProperty(_assertThisInitialized(_this), "_container", void 0);
     _defineProperty(_assertThisInitialized(_this), "_managedElements", {});
     _defineProperty(_assertThisInitialized(_this), "DEFAULT_SCOPE", void 0);
-    _defineProperty(_assertThisInitialized(_this), "geometry", void 0);
     _defineProperty(_assertThisInitialized(_this), "_zoom", 1);
-    _this.geometry = new jsPlumbGeometry();
     _this.Defaults = {
       anchor: AnchorLocations.Bottom,
       anchors: [null, null],
@@ -9470,11 +9440,11 @@ function (_Overlay) {
           var fromLoc = this.location < 0 ? 1 : 0;
           hxy = connector.pointAlongPathFrom(fromLoc, this.location, false);
           mid = connector.pointAlongPathFrom(fromLoc, this.location - this.direction * this.length / 2, false);
-          txy = this.instance.geometry.pointOnLine(hxy, mid, this.length);
+          txy = pointOnLine(hxy, mid, this.length);
         } else if (this.location === 1) {
           hxy = connector.pointOnPath(this.location);
           mid = connector.pointAlongPathFrom(this.location, -this.length);
-          txy = this.instance.geometry.pointOnLine(hxy, mid, this.length);
+          txy = pointOnLine(hxy, mid, this.length);
           if (this.direction === -1) {
             var _ = txy;
             txy = hxy;
@@ -9483,7 +9453,7 @@ function (_Overlay) {
         } else if (this.location === 0) {
           txy = connector.pointOnPath(this.location);
           mid = connector.pointAlongPathFrom(this.location, this.length);
-          hxy = this.instance.geometry.pointOnLine(txy, mid, this.length);
+          hxy = pointOnLine(txy, mid, this.length);
           if (this.direction === -1) {
             var __ = txy;
             txy = hxy;
@@ -9492,10 +9462,10 @@ function (_Overlay) {
         } else {
           hxy = connector.pointAlongPathFrom(this.location, this.direction * this.length / 2);
           mid = connector.pointOnPath(this.location);
-          txy = this.instance.geometry.pointOnLine(hxy, mid, this.length);
+          txy = pointOnLine(hxy, mid, this.length);
         }
-        tail = this.instance.geometry.perpendicularLineTo(hxy, txy, this.width);
-        cxy = this.instance.geometry.pointOnLine(hxy, txy, this.foldback * this.length);
+        tail = perpendicularLineTo(hxy, txy, this.width);
+        cxy = pointOnLine(hxy, txy, this.foldback * this.length);
         var d = {
           hxy: hxy,
           tail: tail,
@@ -9661,4 +9631,4 @@ Connectors.register(StraightConnector.type, StraightConnector);
 Connectors.register(FlowchartConnector.type, FlowchartConnector);
 Connectors.register(StateMachine.type, StateMachine);
 
-export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, AnchorLocations, Anchors, ArcSegment, ArrowOverlay, BLOCK, Bezier, BezierSegment, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DefaultRouter, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FloatingAnchor, FlowchartConnector, GROUP_KEY, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DROP, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JTK_ID, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PROPERTY_POSITION, PlainArrowOverlay, RectangleEndpoint, SCOPE_PREFIX, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, StateMachine, StraightConnector, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, extend, fastTrim, filterList, findWithFunction, forEach, fromArray, functionChain, getFromSetWithFunction, getWithFunction, getsert, gradientAtPoint, gradientAtPointAlongPathFrom, isArray, isArrowOverlay, isAssignableFrom, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, jsPlumbGeometry, lineIntersection, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, optional, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, populate, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, rotatePointXY, setToArray, sortHelper, suggest, uuid, wrap };
+export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, AnchorLocations, Anchors, ArcSegment, ArrowOverlay, BLOCK, Bezier, BezierSegment, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DefaultRouter, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FloatingAnchor, FlowchartConnector, GROUP_KEY, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DROP, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JTK_ID, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PROPERTY_POSITION, PlainArrowOverlay, RectangleEndpoint, SCOPE_PREFIX, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, StateMachine, StraightConnector, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, encloses, extend, fastTrim, filterList, findWithFunction, forEach, fromArray, functionChain, getFromSetWithFunction, getWithFunction, getsert, gradient, gradientAtPoint, gradientAtPointAlongPathFrom, intersects, isArray, isArrowOverlay, isAssignableFrom, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, lineIntersection, lineLength, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, normal, optional, perpendicularLineTo, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, pointOnLine, pointXYFromArray, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, rotatePointXY, setToArray, sortHelper, suggest, theta, uuid, wrap };
