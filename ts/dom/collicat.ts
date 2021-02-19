@@ -5,7 +5,7 @@
 import {BoundingBox, Dictionary, PointArray, extend, IS, uuid, PointXY, Size} from '@jsplumb/core'
 import {addClass, consume, matchesSelector, removeClass, offsetRelativeToRoot} from "./browser-util"
 import {EventManager, pageLocation, toPointXY} from "./event-manager"
-import {DragEventCallbackOptions, jsPlumbDOMElement} from "./browser-jsplumb-instance"
+import {jsPlumbDOMElement} from "./browser-jsplumb-instance"
 
 
 function getOffsetRect (elem:jsPlumbDOMElement):PointXY {
@@ -56,7 +56,7 @@ export interface DragStartEventParams {
     el:jsPlumbDOMElement
     pos:PointXY
     drag:Drag
-    finalPos?:PointXY
+    //finalPos?:PointXY
 }
 
 export interface DragEventParams extends DragStartEventParams { }
@@ -207,10 +207,10 @@ function getConstrainingRectangle(el:jsPlumbDOMElement):{w:number, h:number} {
 
 export interface DragHandlerOptions {
     selector?:string
-    start?:(p:DragEventCallbackOptions) => any
-    stop?:(p:DragEventCallbackOptions) => any
-    drag?:(p:DragEventCallbackOptions) => any
-    beforeStart?:(beforeStartParams:any) => void
+    start?:(p:DragStartEventParams) => any
+    stop?:(p:DragStopEventParams) => any
+    drag?:(p:DragEventParams) => any
+    beforeStart?:(beforeStartParams:BeforeStartEventParams) => void
     dragInit?:(el:Element) => any
     dragAbort?:(el:Element) => any
     ghostProxy?:GhostProxyGenerator | boolean
@@ -669,10 +669,6 @@ export class Drag extends Base {
             this._activeSelectorParams.dragAbort ? this._activeSelectorParams.dragAbort(this._elementToDrag) : null
         }
     }
-
-    // private notifyStart (e:MouseEvent) {
-    //     this._dispatch<StartEventParams>("start", {el:this.el, pos:_getPosition(this._dragEl), e:e, drag:this})
-    // }
 
     private _dispatch<T>(evt:string, value:T) {
         let result = null
