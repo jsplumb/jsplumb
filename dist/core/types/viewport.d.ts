@@ -1,4 +1,4 @@
-import { Size, PointArray, Offset } from "./common";
+import { Size, Offset, PointXY } from "./common";
 import { EventGenerator } from "./event-generator";
 import { JsPlumbInstance } from "./core";
 export interface ViewportPosition {
@@ -9,7 +9,7 @@ export interface ViewportElementBase<E> extends ViewportPosition {
     w: number;
     h: number;
     r: number;
-    c: PointArray;
+    c: PointXY;
     x2: number;
     y2: number;
     dirty: boolean;
@@ -33,7 +33,7 @@ export declare class Viewport<T extends {
     _transformedElementMap: Map<string, TranslatedViewportElement<T["E"]>>;
     _bounds: Record<string, number>;
     private _clearElementIndex;
-    private static _updateElementIndex;
+    private _updateElementIndex;
     private _updateBounds;
     private _recalculateBounds;
     private _finaliseUpdate;

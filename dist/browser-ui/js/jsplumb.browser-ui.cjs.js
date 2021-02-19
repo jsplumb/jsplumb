@@ -136,24 +136,8 @@ function _slicedToArray(arr, i) {
   return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
 }
 
-function _toConsumableArray(arr) {
-  return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
-}
-
-function _arrayWithoutHoles(arr) {
-  if (Array.isArray(arr)) {
-    for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
-
-    return arr2;
-  }
-}
-
 function _arrayWithHoles(arr) {
   if (Array.isArray(arr)) return arr;
-}
-
-function _iterableToArray(iter) {
-  if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
 }
 
 function _iterableToArrayLimit(arr, i) {
@@ -180,10 +164,6 @@ function _iterableToArrayLimit(arr, i) {
   }
 
   return _arr;
-}
-
-function _nonIterableSpread() {
-  throw new TypeError("Invalid attempt to spread non-iterable instance");
 }
 
 function _nonIterableRest() {
@@ -518,6 +498,12 @@ function screenLocation(e) {
 }
 function clientLocation(e) {
   return _genLoc(e, CLIENT);
+}
+function toPointXY(p) {
+  return {
+    x: p[0],
+    y: p[1]
+  };
 }
 function getTouch(touches, idx) {
   return touches.item ? touches.item(idx) : touches[idx];
@@ -890,7 +876,10 @@ function () {
 
 function getOffsetRect(elem) {
   var o = offsetRelativeToRoot(elem);
-  return [o.left, o.top];
+  return {
+    x: o.left,
+    y: o.top
+  };
 }
 function findDelegateElement(parentElement, childElement, selector) {
   if (matchesSelector(childElement, selector, parentElement)) {
@@ -907,14 +896,17 @@ function findDelegateElement(parentElement, childElement, selector) {
   }
 }
 function _getPosition(el) {
-  return [el.offsetLeft, el.offsetTop];
+  return {
+    x: el.offsetLeft,
+    y: el.offsetTop
+  };
 }
 function _getSize(el) {
   return [el.offsetWidth, el.offsetHeight];
 }
 function _setPosition(el, pos) {
-  el.style.left = pos[0] + "px";
-  el.style.top = pos[1] + "px";
+  el.style.left = pos.x + "px";
+  el.style.top = pos.y + "px";
 }
 function findMatchingSelector(availableSelectors, parentElement, childElement) {
   var el = null;
@@ -1043,7 +1035,10 @@ function () {
   return Base;
 }();
 function getConstrainingRectangle(el) {
-  return [el.parentNode.scrollWidth, el.parentNode.scrollHeight];
+  return {
+    w: el.parentNode.scrollWidth,
+    h: el.parentNode.scrollHeight
+  };
 }
 var Drag =
 function (_Base) {
@@ -1060,9 +1055,15 @@ function (_Base) {
     _defineProperty(_assertThisInitialized(_this), "_downAt", void 0);
     _defineProperty(_assertThisInitialized(_this), "_posAtDown", void 0);
     _defineProperty(_assertThisInitialized(_this), "_pagePosAtDown", void 0);
-    _defineProperty(_assertThisInitialized(_this), "_pageDelta", [0, 0]);
+    _defineProperty(_assertThisInitialized(_this), "_pageDelta", {
+      x: 0,
+      y: 0
+    });
     _defineProperty(_assertThisInitialized(_this), "_moving", void 0);
-    _defineProperty(_assertThisInitialized(_this), "_initialScroll", [0, 0]);
+    _defineProperty(_assertThisInitialized(_this), "_initialScroll", {
+      x: 0,
+      y: 0
+    });
     _defineProperty(_assertThisInitialized(_this), "_size", void 0);
     _defineProperty(_assertThisInitialized(_this), "_currentParentPosition", void 0);
     _defineProperty(_assertThisInitialized(_this), "_ghostParentPosition", void 0);
@@ -1238,8 +1239,8 @@ function (_Base) {
             this._dragEl.style.position = "absolute";
             if (this._parent != null) {
               var _p2 = _getPosition(this.el);
-              this._dragEl.style.left = _p2[0] + "px";
-              this._dragEl.style.top = _p2[1] + "px";
+              this._dragEl.style.left = _p2.x + "px";
+              this._dragEl.style.top = _p2.y + "px";
               this._parent.appendChild(this._dragEl);
             } else {
               var b = offsetRelativeToRoot(this._elementToDrag);
@@ -1253,9 +1254,12 @@ function (_Base) {
           if (this.consumeStartEvent) {
             consume(e);
           }
-          this._downAt = pageLocation(e);
+          this._downAt = toPointXY(pageLocation(e));
           if (this._dragEl && this._dragEl.parentNode) {
-            this._initialScroll = [this._dragEl.parentNode.scrollLeft, this._dragEl.parentNode.scrollTop];
+            this._initialScroll = {
+              x: this._dragEl.parentNode.scrollLeft,
+              y: this._dragEl.parentNode.scrollTop
+            };
           }
           this.k.eventManager.on(document, "mousemove", this.moveListener);
           this.k.eventManager.on(document, "mouseup", this.upListener);
@@ -1294,12 +1298,12 @@ function (_Base) {
         }
         if (this._downAt) {
           var _pos = pageLocation(e),
-              dx = _pos[0] - this._downAt[0],
-              dy = _pos[1] - this._downAt[1],
+              dx = _pos[0] - this._downAt.x,
+              dy = _pos[1] - this._downAt.y,
               _z = this._ignoreZoom ? 1 : this.k.getZoom();
           if (this._dragEl && this._dragEl.parentNode) {
-            dx += this._dragEl.parentNode.scrollLeft - this._initialScroll[0];
-            dy += this._dragEl.parentNode.scrollTop - this._initialScroll[1];
+            dx += this._dragEl.parentNode.scrollLeft - this._initialScroll.x;
+            dy += this._dragEl.parentNode.scrollTop - this._initialScroll.y;
           }
           dx /= _z;
           dy /= _z;
@@ -1312,15 +1316,13 @@ function (_Base) {
     value: function mark(payload) {
       this._posAtDown = _getPosition(this._dragEl);
       this._pagePosAtDown = getOffsetRect(this._dragEl);
-      this._pageDelta = [this._pagePosAtDown[0] - this._posAtDown[0], this._pagePosAtDown[1] - this._posAtDown[1]];
+      this._pageDelta = {
+        x: this._pagePosAtDown.x - this._posAtDown.x,
+        y: this._pagePosAtDown.y - this._posAtDown.y
+      };
       this._size = _getSize(this._dragEl);
       addClass(this._dragEl, this.k.css.drag);
-      var cs;
-      cs = getConstrainingRectangle(this._dragEl);
-      this._constrainRect = {
-        w: cs[0],
-        h: cs[1]
-      };
+      this._constrainRect = getConstrainingRectangle(this._dragEl);
       this._ghostDx = 0;
       this._ghostDy = 0;
     }
@@ -1340,10 +1342,13 @@ function (_Base) {
   }, {
     key: "moveBy",
     value: function moveBy(dx, dy, e) {
-      var desiredLoc = this.toGrid([this._posAtDown[0] + dx, this._posAtDown[1] + dy]),
+      var desiredLoc = this.toGrid({
+        x: this._posAtDown.x + dx,
+        y: this._posAtDown.y + dy
+      }),
           cPos = this._doConstrain(desiredLoc, this._dragEl, this._constrainRect, this._size);
       if (this._useGhostProxy(this.el, this._dragEl)) {
-        if (desiredLoc[0] !== cPos[0] || desiredLoc[1] !== cPos[1]) {
+        if (desiredLoc.x !== cPos.x || desiredLoc.y !== cPos.y) {
           if (!this._isConstrained) {
             var gp = this._ghostProxyFunction(this._elementToDrag);
             addClass(gp, _classes.ghostProxy);
@@ -1351,8 +1356,8 @@ function (_Base) {
               this._ghostProxyParent.appendChild(gp);
               this._currentParentPosition = getOffsetRect(this._elementToDrag.parentNode);
               this._ghostParentPosition = getOffsetRect(this._ghostProxyParent);
-              this._ghostDx = this._currentParentPosition[0] - this._ghostParentPosition[0];
-              this._ghostDy = this._currentParentPosition[1] - this._ghostParentPosition[1];
+              this._ghostDx = this._currentParentPosition.x - this._ghostParentPosition.x;
+              this._ghostDy = this._currentParentPosition.y - this._ghostParentPosition.y;
             } else {
               this._elementToDrag.parentNode.appendChild(gp);
             }
@@ -1373,18 +1378,15 @@ function (_Base) {
         }
       }
       var rect = {
-        x: cPos[0],
-        y: cPos[1],
+        x: cPos.x,
+        y: cPos.y,
         w: this._size[0],
         h: this._size[1]
-      },
-          pageRect = {
-        x: rect.x + this._pageDelta[0],
-        y: rect.y + this._pageDelta[1],
-        w: rect.w,
-        h: rect.h
       };
-      _setPosition(this._dragEl, [cPos[0] + this._ghostDx, cPos[1] + this._ghostDy]);
+      _setPosition(this._dragEl, {
+        x: cPos.x + this._ghostDx,
+        y: cPos.y + this._ghostDy
+      });
       this._dispatch("drag", {
         el: this.el,
         pos: cPos,
@@ -1414,16 +1416,10 @@ function (_Base) {
         if (sel.length > 0) {
           for (var i = 0; i < sel.length; i++) {
             var _p3 = _getPosition(sel[i].el);
-            positions.push([sel[i].el, {
-              left: _p3[0],
-              top: _p3[1]
-            }, sel[i]]);
+            positions.push([sel[i].el, _p3, sel[i]]);
           }
         } else {
-          positions.push([this._dragEl, {
-            left: dPos[0],
-            top: dPos[1]
-          }, this]);
+          positions.push([this._dragEl, dPos, this]);
         }
         this._dispatch("stop", {
           el: this._dragEl,
@@ -1436,16 +1432,6 @@ function (_Base) {
       } else if (!this._moving) {
         this._activeSelectorParams.dragAbort ? this._activeSelectorParams.dragAbort(this._elementToDrag) : null;
       }
-    }
-  }, {
-    key: "notifyStart",
-    value: function notifyStart(e) {
-      this._dispatch("start", {
-        el: this.el,
-        pos: _getPosition(this._dragEl),
-        e: e,
-        drag: this
-      });
     }
   }, {
     key: "_dispatch",
@@ -1468,15 +1454,18 @@ function (_Base) {
   }, {
     key: "_snap",
     value: function _snap(pos, gridX, gridY, thresholdX, thresholdY) {
-      var _dx = Math.floor(pos[0] / gridX),
+      var _dx = Math.floor(pos.x / gridX),
           _dxl = gridX * _dx,
           _dxt = _dxl + gridX,
-          _x = Math.abs(pos[0] - _dxl) <= thresholdX ? _dxl : Math.abs(_dxt - pos[0]) <= thresholdX ? _dxt : pos[0];
-      var _dy = Math.floor(pos[1] / gridY),
+          x = Math.abs(pos.x - _dxl) <= thresholdX ? _dxl : Math.abs(_dxt - pos.x) <= thresholdX ? _dxt : pos.x;
+      var _dy = Math.floor(pos.y / gridY),
           _dyl = gridY * _dy,
           _dyt = _dyl + gridY,
-          _y = Math.abs(pos[1] - _dyl) <= thresholdY ? _dyl : Math.abs(_dyt - pos[1]) <= thresholdY ? _dyt : pos[1];
-      return [_x, _y];
+          y = Math.abs(pos.y - _dyl) <= thresholdY ? _dyl : Math.abs(_dyt - pos.y) <= thresholdY ? _dyt : pos.y;
+      return {
+        x: x,
+        y: y
+      };
     }
   }, {
     key: "resolveGrid",
@@ -1515,14 +1504,20 @@ function (_Base) {
   }, {
     key: "_negativeFilter",
     value: function _negativeFilter(pos) {
-      return this._allowNegative === false ? [Math.max(0, pos[0]), Math.max(0, pos[1])] : pos;
+      return this._allowNegative === false ? {
+        x: Math.max(0, pos.x),
+        y: Math.max(0, pos.y)
+      } : pos;
     }
   }, {
     key: "_setConstrain",
     value: function _setConstrain(value) {
       var _this2 = this;
       this._constrain = typeof value === "function" ? value : value ? function (pos, dragEl, _constrainRect, _size) {
-        return _this2._negativeFilter([Math.max(0, Math.min(_constrainRect.w - _size[0], pos[0])), Math.max(0, Math.min(_constrainRect.h - _size[1], pos[1]))]);
+        return _this2._negativeFilter({
+          x: Math.max(0, Math.min(_constrainRect.w - _size[0], pos.x)),
+          y: Math.max(0, Math.min(_constrainRect.h - _size[1], pos.y))
+        });
       } : function (pos) {
         return _this2._negativeFilter(pos);
       };
@@ -1716,9 +1711,9 @@ function _isInsideParent(instance, _el, pos) {
   var p = _el.parentNode,
       s = instance.getSize(p),
       ss = instance.getSize(_el),
-      leftEdge = pos[0],
+      leftEdge = pos.x,
       rightEdge = leftEdge + ss[0],
-      topEdge = pos[1],
+      topEdge = pos.y,
       bottomEdge = topEdge + ss[1];
   return rightEdge > 0 && leftEdge < s[0] && bottomEdge > 0 && topEdge < s[1];
 }
@@ -1896,14 +1891,14 @@ function () {
       };
       var dragElement = params.drag.getDragElement();
       _one(dragElement, {
-        left: params.finalPos[0],
-        top: params.finalPos[1]
+        left: params.finalPos.x,
+        top: params.finalPos.y
       });
       this._dragSelectionOffsets.forEach(function (v, k) {
         if (v[1] !== params.el) {
           var pp = {
-            left: params.finalPos[0] + v[0].left,
-            top: params.finalPos[1] + v[0].top
+            left: params.finalPos.x + v[0].left,
+            top: params.finalPos.y + v[0].top
           };
           _one(v[1], pp);
         }
@@ -1954,11 +1949,11 @@ function () {
     value: function onDrag(params) {
       var _this3 = this;
       var el = params.drag.getDragElement();
-      var finalPos = params.finalPos || params.pos;
+      var finalPos = params.pos;
       var elSize = this.instance.getSize(el);
       var ui = {
-        left: finalPos[0],
-        top: finalPos[1]
+        left: finalPos.x,
+        top: finalPos.y
       };
       this._intersectingGroups.length = 0;
       if (this._dragOffset != null) {
@@ -2535,7 +2530,7 @@ function () {
         var aae = this.instance.deriveEndpointAndAnchorSpec(this.ep.connectionType);
         endpointToFloat = aae.endpoints[1];
       }
-      var centerAnchor = core.makeAnchorFromSpec(this.instance, "Center");
+      var centerAnchor = core.makeAnchorFromSpec(this.instance, core.AnchorLocations.Center);
       centerAnchor.isFloating = true;
       this.floatingEndpoint = _makeFloatingEndpoint(this.ep.getPaintStyle(), centerAnchor, endpointToFloat, canvasElement, this.placeholderInfo.element, this.instance, this.ep.scope);
       this.floatingAnchor = this.floatingEndpoint.anchor;
@@ -2681,12 +2676,11 @@ function () {
         return true;
       }
       if (this.placeholderInfo.element) {
-        var _this$instance;
         var floatingElementSize = this.instance.getSize(this.floatingElement);
-        (_this$instance = this.instance).setElementPosition.apply(_this$instance, [this.placeholderInfo.element].concat(_toConsumableArray(params.pos)));
+        this.instance.setElementPosition(this.placeholderInfo.element, params.pos.x, params.pos.y);
         var boundingRect = {
-          x: params.pos[0],
-          y: params.pos[1],
+          x: params.pos.x,
+          y: params.pos.y,
           w: floatingElementSize[0],
           h: floatingElementSize[1]
         },
@@ -2914,8 +2908,8 @@ function () {
         if (dropEndpoint.anchor.positionFinder != null) {
           var finalPos = p.finalPos || p.pos;
           var dropPosition = {
-            left: finalPos[0],
-            top: finalPos[1]
+            left: finalPos.x,
+            top: finalPos.y
           };
           var elPosition = this.instance.getOffset(this.currentDropTarget.el),
               elSize = this.instance.getSize(this.currentDropTarget.el),
@@ -3103,8 +3097,8 @@ function (_ElementDragHandler) {
           var o1 = this.instance.getOffset(currentGroup.getContentArea());
           var o2 = this.instance.getOffset(originalGroup.getContentArea());
           var o = {
-            left: o2.left + params.pos[0] - o1.left,
-            top: o2.top + params.pos[1] - o1.top
+            left: o2.left + params.pos.x - o1.left,
+            top: o2.top + params.pos.y - o1.top
           };
           originalElement.style.left = o.left + "px";
           originalElement.style.top = o.top + "px";
@@ -3119,9 +3113,9 @@ function (_ElementDragHandler) {
       var p = _el.offsetParent,
           s = this.instance.getSize(p),
           ss = this.instance.getSize(_el),
-          leftEdge = pos[0],
+          leftEdge = pos.x,
           rightEdge = leftEdge + ss[0],
-          topEdge = pos[1],
+          topEdge = pos.y,
           bottomEdge = topEdge + ss[1];
       return rightEdge > 0 && leftEdge < s[0] && bottomEdge > 0 && topEdge < s[1];
     }
@@ -3782,15 +3776,18 @@ function (_JsPlumbInstance) {
     _this.dragManager.addHandler(new EndpointDragHandler(_assertThisInitialized(_this)));
     var groupDragOptions = {
       constrain: function constrain(desiredLoc, dragEl, constrainRect, size) {
-        var x = desiredLoc[0],
-            y = desiredLoc[1];
+        var x = desiredLoc.x,
+            y = desiredLoc.y;
         if (dragEl[core.PARENT_GROUP_KEY] && dragEl[core.PARENT_GROUP_KEY].constrain) {
-          x = Math.max(desiredLoc[0], 0);
-          y = Math.max(desiredLoc[1], 0);
+          x = Math.max(desiredLoc.x, 0);
+          y = Math.max(desiredLoc.y, 0);
           x = Math.min(x, constrainRect.w - size[0]);
           y = Math.min(y, constrainRect.h - size[1]);
         }
-        return [x, y];
+        return {
+          x: x,
+          y: y
+        };
       }
     };
     _this.dragManager.addHandler(new GroupDragHandler(_assertThisInitialized(_this)), groupDragOptions);
@@ -4790,6 +4787,7 @@ exports.ready = ready;
 exports.registerEndpointRenderer = registerEndpointRenderer;
 exports.removeClass = removeClass;
 exports.sizeElement = sizeElement;
+exports.toPointXY = toPointXY;
 exports.toggleClass = toggleClass;
 exports.touchCount = touchCount;
 exports.touches = touches;

@@ -2,13 +2,28 @@
  A Typescript port of Katavorio, without Droppables or Posses, as the code
  does that for itself now.
 */
-import { BoundingBox, Dictionary, PointArray } from '@jsplumb/core';
+import { BoundingBox, Dictionary, PointArray, PointXY, Size } from '@jsplumb/core';
 import { EventManager } from "./event-manager";
-import { DragEventCallbackOptions, jsPlumbDOMElement } from "./browser-jsplumb-instance";
+import { jsPlumbDOMElement } from "./browser-jsplumb-instance";
 export interface DragSelector {
     filter?: string;
     filterExclude?: boolean;
     selector: string;
+}
+export interface DragStartEventParams {
+    e: MouseEvent;
+    el: jsPlumbDOMElement;
+    pos: PointXY;
+    drag: Drag;
+}
+export interface DragEventParams extends DragStartEventParams {
+}
+export declare type RevertEventParams = jsPlumbDOMElement;
+export interface BeforeStartEventParams extends DragStartEventParams {
+}
+export interface DragStopEventParams extends DragEventParams {
+    finalPos: PointXY;
+    selection: Array<[jsPlumbDOMElement, PointXY, any]>;
 }
 declare abstract class Base {
     protected el: jsPlumbDOMElement;
@@ -28,10 +43,10 @@ declare abstract class Base {
 export declare type GhostProxyGenerator = (el: Element) => Element;
 export interface DragHandlerOptions {
     selector?: string;
-    start?: (p: DragEventCallbackOptions) => any;
-    stop?: (p: DragEventCallbackOptions) => any;
-    drag?: (p: DragEventCallbackOptions) => any;
-    beforeStart?: (beforeStartParams: any) => void;
+    start?: (p: DragStartEventParams) => any;
+    stop?: (p: DragStopEventParams) => any;
+    drag?: (p: DragEventParams) => any;
+    beforeStart?: (beforeStartParams: BeforeStartEventParams) => void;
     dragInit?: (el: Element) => any;
     dragAbort?: (el: Element) => any;
     ghostProxy?: GhostProxyGenerator | boolean;
@@ -72,7 +87,7 @@ export declare class Drag extends Base {
     private _pageDelta;
     private _moving;
     private _initialScroll;
-    private _size;
+    _size: Size;
     private _currentParentPosition;
     private _ghostParentPosition;
     private _dragEl;
@@ -113,17 +128,16 @@ export declare class Drag extends Base {
     private _upListener;
     private _downListener;
     private _moveListener;
-    mark(payload: any): void;
-    unmark(e: MouseEvent): void;
+    private mark;
+    private unmark;
     moveBy(dx: number, dy: number, e?: MouseEvent): void;
     abort(): void;
     getDragElement(retrieveOriginalElement?: boolean): any;
     stop(e?: MouseEvent, force?: boolean): void;
-    private notifyStart;
     private _dispatch;
     private _snap;
     private resolveGrid;
-    toGrid(pos: PointArray): PointArray;
+    toGrid(pos: PointXY): PointXY;
     setUseGhostProxy(val: boolean): void;
     private _negativeFilter;
     private _setConstrain;
@@ -148,8 +162,8 @@ export declare class Drag extends Base {
     addSelector(params: DragHandlerOptions, atStart?: boolean): void;
     destroy(): void;
 }
-export declare type ConstrainFunction = (desiredLoc: PointArray, dragEl: HTMLElement, constrainRect: BoundingBox, size: PointArray) => PointArray;
-export declare type RevertFunction = (dragEl: HTMLElement, pos: PointArray) => boolean;
+export declare type ConstrainFunction = (desiredLoc: PointXY, dragEl: HTMLElement, constrainRect: BoundingBox, size: Size) => PointXY;
+export declare type RevertFunction = (dragEl: HTMLElement, pos: PointXY) => boolean;
 export interface CollicatOptions {
     zoom?: number;
     css?: Dictionary<string>;

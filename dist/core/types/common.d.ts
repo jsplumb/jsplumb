@@ -145,6 +145,6 @@ export declare type Constructable<T> = {
 export declare type Timestamp = string;
 export interface Rotation {
     r: number;
-    c: PointArray;
+    c: PointXY;
 }
 export declare type Rotations = Array<Rotation>;

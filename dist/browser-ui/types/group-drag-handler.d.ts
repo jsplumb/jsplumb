@@ -1,7 +1,7 @@
 import { ElementDragHandler } from "./element-drag-handler";
-import { DragEventParams, GhostProxyingDragHandler, DragStopEventParams } from "./drag-manager";
+import { GhostProxyingDragHandler } from "./drag-manager";
 import { BrowserJsPlumbInstance, jsPlumbDOMElement } from "./browser-jsplumb-instance";
-import { Drag } from "./collicat";
+import { DragEventParams, Drag, DragStopEventParams } from "./collicat";
 export declare class GroupDragHandler extends ElementDragHandler implements GhostProxyingDragHandler {
     protected instance: BrowserJsPlumbInstance;
     selector: string;

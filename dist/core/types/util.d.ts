@@ -1,4 +1,4 @@
-import { Dictionary, PointArray, PointXY, SortFunction } from './common';
+import { Dictionary, PointXY, SortFunction } from './common';
 export declare function filterList(list: Array<any> | string, value: any, missingIsFalse?: boolean): boolean;
 export declare function extend<T>(o1: T, o2: T, keys?: string[]): T;
 export declare function isArray(a: any): boolean;
@@ -90,14 +90,13 @@ export declare function uuid(): string;
  * @param point
  * @param center
  * @param rotation
- * @return An array consisting of the rotated point, followed by cos theta and sin theta.
+ * @return An object consisting of the rotated point, followed by cos theta and sin theta.
  */
-export declare function rotatePoint(point: Array<number>, center: PointArray, rotation: number): [number, number, number, number];
+export declare function rotatePoint(point: PointXY, center: PointXY, rotation: number): RotatedPointXY;
 export interface RotatedPointXY extends PointXY {
     cr: number;
     sr: number;
 }
-export declare function rotatePointXY(point: PointXY, center: PointXY, rotation: number): RotatedPointXY;
 export declare function rotateAnchorOrientation(orientation: [number, number], rotation: any): [number, number];
 export declare function fastTrim(s: string): string;
 export declare function each(obj: any, fn: Function): void;
@@ -142,3 +141,4 @@ export declare function getsert<K, V>(map: Map<K, V>, key: K, valueGenerator: ()
  * @param cls Class to test for.
  */
 export declare function isAssignableFrom(object: any, cls: any): boolean;
+export declare function insertSorted<T>(value: T, array: Array<T>, comparator: (v1: T, v2: T) => number, sortDescending?: boolean): void;

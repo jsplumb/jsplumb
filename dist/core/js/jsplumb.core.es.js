@@ -698,23 +698,25 @@ function uuid() {
   return lut[d0 & 0xff] + lut[d0 >> 8 & 0xff] + lut[d0 >> 16 & 0xff] + lut[d0 >> 24 & 0xff] + '-' + lut[d1 & 0xff] + lut[d1 >> 8 & 0xff] + '-' + lut[d1 >> 16 & 0x0f | 0x40] + lut[d1 >> 24 & 0xff] + '-' + lut[d2 & 0x3f | 0x80] + lut[d2 >> 8 & 0xff] + '-' + lut[d2 >> 16 & 0xff] + lut[d2 >> 24 & 0xff] + lut[d3 & 0xff] + lut[d3 >> 8 & 0xff] + lut[d3 >> 16 & 0xff] + lut[d3 >> 24 & 0xff];
 }
 function rotatePoint(point, center, rotation) {
-  var radial = [point[0] - center[0], point[1] - center[1]],
+  var radial = [point.x - center.x, point.y - center.y],
       cr = Math.cos(rotation / 360 * Math.PI * 2),
       sr = Math.sin(rotation / 360 * Math.PI * 2);
-  return [radial[0] * cr - radial[1] * sr + center[0], radial[1] * cr + radial[0] * sr + center[1], cr, sr];
-}
-function rotatePointXY(point, center, rotation) {
-  var r = rotatePoint([point.x, point.y], [center.x, center.y], rotation);
   return {
-    x: r[0],
-    y: r[1],
-    cr: r[2],
-    sr: r[3]
+    x: radial[0] * cr - radial[1] * sr + center.x,
+    y: radial[1] * cr + radial[0] * sr + center.y,
+    cr: cr,
+    sr: sr
   };
 }
 function rotateAnchorOrientation(orientation, rotation) {
-  var r = rotatePoint(orientation, [0, 0], rotation);
-  return [Math.round(r[0]), Math.round(r[1])];
+  var r = rotatePoint({
+    x: orientation[0],
+    y: orientation[1]
+  }, {
+    x: 0,
+    y: 0
+  }, rotation);
+  return [Math.round(r.x), Math.round(r.y)];
 }
 function fastTrim(s) {
   if (s == null) {
@@ -866,6 +868,26 @@ function isAssignableFrom(object, cls) {
     }
   }
   return false;
+}
+function insertSorted(value, array, comparator, sortDescending) {
+  if (array.length === 0) {
+    array.push(value);
+  } else {
+    var flip = sortDescending ? -1 : 1;
+    var min = 0;
+    var max = array.length;
+    var index = Math.floor((min + max) / 2);
+    while (max > min) {
+      var c = comparator(value, array[index]) * flip;
+      if (c < 0) {
+        max = index;
+      } else {
+        min = index + 1;
+      }
+      index = Math.floor((min + max) / 2);
+    }
+    array.splice(index, 0, value);
+  }
 }
 
 var segmentMultipliers = [null, [1, -1], [1, 1], [-1, 1], [-1, -1]];
@@ -4202,8 +4224,8 @@ function _distance(anchor, cx, cy, xy, wh, rotation, targetRotation) {
       acy = xy[1] + wh[1] / 2;
   if (rotation != null && rotation.length > 0) {
     var rotated = anchor.instance.applyRotations([ax, ay, 0, 0], rotation);
-    ax = rotated[0];
-    ay = rotated[1];
+    ax = rotated.x;
+    ay = rotated.y;
   }
   return Math.sqrt(Math.pow(cx - ax, 2) + Math.pow(cy - ay, 2)) + Math.sqrt(Math.pow(acx - ax, 2) + Math.pow(acy - ay, 2));
 }
@@ -6432,9 +6454,12 @@ function placeAnchorsOnLine(element, connections, horizontal, otherMultiplier, r
         y = element.y + dy,
         yp = dy / element.h;
     if (element.r !== 0 && element.r != null) {
-      var rotated = rotatePoint([x, y], element.c, element.r);
-      x = rotated[0];
-      y = rotated[1];
+      var rotated = rotatePoint({
+        x: x,
+        y: y
+      }, element.c, element.r);
+      x = rotated.x;
+      y = rotated.y;
     }
     a.push([x, y, xp, yp, connections[i][1], connections[i][2]]);
   }
@@ -6516,15 +6541,21 @@ function () {
       var rotation = params.rotation;
       if (rotation != null && rotation.length > 0) {
         var o = anchor._unrotatedOrientation.slice(),
-            current = candidate.slice();
+            s = candidate.slice(),
+            current = {
+          x: s[0],
+          y: s[1],
+          cr: 0,
+          sr: 0
+        };
         forEach(rotation, function (r) {
           current = rotatePoint(current, r.c, r.r);
-          var _o = [Math.round(o[0] * current[2] - o[1] * current[3]), Math.round(o[1] * current[2] + o[0] * current[3])];
+          var _o = [Math.round(o[0] * current.cr - o[1] * current.sr), Math.round(o[1] * current.cr + o[0] * current.sr)];
           o = _o.slice();
         });
         anchor.orientation[0] = o[0];
         anchor.orientation[1] = o[1];
-        anchor.lastReturnValue = [current[0], current[1], anchor.x, anchor.y];
+        anchor.lastReturnValue = [current.x, current.y, anchor.x, anchor.y];
       } else {
         anchor.orientation[0] = anchor._unrotatedOrientation[0];
         anchor.orientation[1] = anchor._unrotatedOrientation[1];
@@ -6870,8 +6901,8 @@ function () {
           a: ["top", "top"]
         };
       }
-      var theta = Math.atan2(td.c[1] - sd.c[1], td.c[0] - sd.c[0]),
-          theta2 = Math.atan2(sd.c[1] - td.c[1], sd.c[0] - td.c[0]);
+      var theta = Math.atan2(td.c.y - sd.c.y, td.c.x - sd.c.x),
+          theta2 = Math.atan2(sd.c.y - td.c.y, sd.c.x - td.c.x);
       var candidates = [],
           midpoints = {};
       (function (types, dim) {
@@ -6879,18 +6910,18 @@ function () {
           midpoints[types[i]] = {
             "left": {
               x: dim[i][0].x,
-              y: dim[i][0].c[1]
+              y: dim[i][0].c.y
             },
             "right": {
               x: dim[i][0].x + dim[i][0].w,
-              y: dim[i][0].c[1]
+              y: dim[i][0].c.y
             },
             "top": {
-              x: dim[i][0].c[0],
+              x: dim[i][0].c.x,
               y: dim[i][0].y
             },
             "bottom": {
-              x: dim[i][0].c[0],
+              x: dim[i][0].c.x,
               y: dim[i][0].y + dim[i][0].h
             }
           };
@@ -7289,13 +7320,19 @@ function EMPTY_POSITION() {
     w: 0,
     h: 0,
     r: 0,
-    c: [0, 0],
+    c: {
+      x: 0,
+      y: 0
+    },
     x2: 0,
     y2: 0,
     t: {
       x: 0,
       y: 0,
-      c: [0, 0],
+      c: {
+        x: 0,
+        y: 0
+      },
       w: 0,
       h: 0,
       r: 0,
@@ -7312,17 +7349,20 @@ function rotate(x, y, w, h, r) {
       cr = Math.cos(r / 360 * Math.PI * 2),
       sr = Math.sin(r / 360 * Math.PI * 2),
       _point = function _point(x, y) {
-    return [center[0] + Math.round((x - center[0]) * cr - (y - center[1]) * sr), center[1] + Math.round((y - center[1]) * cr - (x - center[0]) * sr)];
+    return {
+      x: center[0] + Math.round((x - center[0]) * cr - (y - center[1]) * sr),
+      y: center[1] + Math.round((y - center[1]) * cr - (x - center[0]) * sr)
+    };
   };
   var p1 = _point(x, y),
       p2 = _point(x + w, y),
       p3 = _point(x + w, y + h),
       p4 = _point(x, y + h),
       c = _point(x + w / 2, y + h / 2);
-  var xmin = Math.min(p1[0], p2[0], p3[0], p4[0]),
-      xmax = Math.max(p1[0], p2[0], p3[0], p4[0]),
-      ymin = Math.min(p1[1], p2[1], p3[1], p4[1]),
-      ymax = Math.max(p1[1], p2[1], p3[1], p4[1]);
+  var xmin = Math.min(p1.x, p2.x, p3.x, p4.x),
+      xmax = Math.max(p1.x, p2.x, p3.x, p4.x),
+      ymin = Math.min(p1.y, p2.y, p3.y, p4.y),
+      ymax = Math.max(p1.y, p2.y, p3.y, p4.y);
   return {
     x: xmin,
     y: ymin,
@@ -7336,36 +7376,15 @@ function rotate(x, y, w, h, r) {
     sr: sr
   };
 }
-var entryComparator = function entryComparator(value, arrayEntry, sortDescending) {
+var entryComparator = function entryComparator(value, arrayEntry) {
   var c = 0;
   if (arrayEntry[1] > value[1]) {
     c = -1;
   } else if (arrayEntry[1] < value[1]) {
     c = 1;
   }
-  if (sortDescending) {
-    c *= -1;
-  }
   return c;
 };
-function insertSorted(value, array, comparator, sortDescending) {
-  if (array.length === 0) {
-    array.push(value);
-  } else {
-    var min = 0;
-    var max = array.length;
-    var index = Math.floor((min + max) / 2);
-    while (max > min) {
-      if (comparator(value, array[index], sortDescending) < 0) {
-        max = index;
-      } else {
-        min = index + 1;
-      }
-      index = Math.floor((min + max) / 2);
-    }
-    array.splice(index, 0, value);
-  }
-}
 var Viewport =
 function (_EventGenerator) {
   _inherits(Viewport, _EventGenerator);
@@ -7402,6 +7421,11 @@ function (_EventGenerator) {
       }
     }
   }, {
+    key: "_updateElementIndex",
+    value: function _updateElementIndex(id, value, array, sortDescending) {
+      insertSorted([id, value], array, entryComparator, sortDescending);
+    }
+  }, {
     key: "_updateBounds",
     value: function _updateBounds(id, updatedElement, doNotRecalculateBounds) {
       if (updatedElement != null) {
@@ -7409,10 +7433,10 @@ function (_EventGenerator) {
         this._clearElementIndex(id, this._sortedElements.xmax);
         this._clearElementIndex(id, this._sortedElements.ymin);
         this._clearElementIndex(id, this._sortedElements.ymax);
-        Viewport._updateElementIndex(id, updatedElement.t.x, this._sortedElements.xmin, false);
-        Viewport._updateElementIndex(id, updatedElement.t.x + updatedElement.t.w, this._sortedElements.xmax, true);
-        Viewport._updateElementIndex(id, updatedElement.t.y, this._sortedElements.ymin, false);
-        Viewport._updateElementIndex(id, updatedElement.t.y + updatedElement.t.h, this._sortedElements.ymax, true);
+        this._updateElementIndex(id, updatedElement.t.x, this._sortedElements.xmin, false);
+        this._updateElementIndex(id, updatedElement.t.x + updatedElement.t.w, this._sortedElements.xmax, true);
+        this._updateElementIndex(id, updatedElement.t.y, this._sortedElements.ymin, false);
+        this._updateElementIndex(id, updatedElement.t.y + updatedElement.t.h, this._sortedElements.ymax, true);
         if (doNotRecalculateBounds !== true) {
           this._recalculateBounds();
         }
@@ -7487,8 +7511,8 @@ function (_EventGenerator) {
       if (rotation != null) {
         e.r = rotation || 0;
       }
-      e.c[0] = e.x + e.w / 2;
-      e.c[1] = e.y + e.h / 2;
+      e.c.x = e.x + e.w / 2;
+      e.c.y = e.y + e.h / 2;
       e.x2 = e.x + e.w;
       e.y2 = e.y + e.h;
       if (this._currentTransaction == null) {
@@ -7609,11 +7633,6 @@ function (_EventGenerator) {
     key: "isEmpty",
     value: function isEmpty() {
       return this._elementMap.size === 0;
-    }
-  }], [{
-    key: "_updateElementIndex",
-    value: function _updateElementIndex(id, value, array, sortDescending) {
-      insertSorted([id, value], array, entryComparator, sortDescending);
     }
   }]);
   return Viewport;
@@ -8250,7 +8269,13 @@ function (_EventGenerator) {
   }, {
     key: "applyRotations",
     value: function applyRotations(point, rotations) {
-      var current = point.slice();
+      var sl = point.slice();
+      var current = {
+        x: sl[0],
+        y: sl[1],
+        cr: 0,
+        sr: 0
+      };
       forEach(rotations, function (rotation) {
         current = rotatePoint(current, rotation.c, rotation.r);
       });
@@ -8260,10 +8285,7 @@ function (_EventGenerator) {
     key: "applyRotationsXY",
     value: function applyRotationsXY(point, rotations) {
       forEach(rotations, function (rotation) {
-        point = rotatePointXY(point, {
-          x: rotation.c[0],
-          y: rotation.c[1]
-        }, rotation.r);
+        point = rotatePoint(point, rotation.c, rotation.r);
       });
       return point;
     }
@@ -8494,21 +8516,6 @@ function (_EventGenerator) {
         _this6._endpointTypes.clear();
         _this6.connections.length = 0;
       });
-    }
-  }, {
-    key: "uuid",
-    value: function uuid$1() {
-      return uuid();
-    }
-  }, {
-    key: "rotatePoint",
-    value: function rotatePoint$1(point, center, rotation) {
-      return rotatePoint(point, center, rotation);
-    }
-  }, {
-    key: "rotateAnchorOrientation",
-    value: function rotateAnchorOrientation$1(orientation, rotation) {
-      return rotateAnchorOrientation(orientation, rotation);
     }
   }, {
     key: "destroy",
@@ -9631,4 +9638,4 @@ Connectors.register(StraightConnector.type, StraightConnector);
 Connectors.register(FlowchartConnector.type, FlowchartConnector);
 Connectors.register(StateMachine.type, StateMachine);
 
-export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, AnchorLocations, Anchors, ArcSegment, ArrowOverlay, BLOCK, Bezier, BezierSegment, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DefaultRouter, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FloatingAnchor, FlowchartConnector, GROUP_KEY, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DROP, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JTK_ID, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PROPERTY_POSITION, PlainArrowOverlay, RectangleEndpoint, SCOPE_PREFIX, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, StateMachine, StraightConnector, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, encloses, extend, fastTrim, filterList, findWithFunction, forEach, fromArray, functionChain, getFromSetWithFunction, getWithFunction, getsert, gradient, gradientAtPoint, gradientAtPointAlongPathFrom, intersects, isArray, isArrowOverlay, isAssignableFrom, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, lineIntersection, lineLength, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, normal, optional, perpendicularLineTo, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, pointOnLine, pointXYFromArray, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, rotatePointXY, setToArray, sortHelper, suggest, theta, uuid, wrap };
+export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, AnchorLocations, Anchors, ArcSegment, ArrowOverlay, BLOCK, Bezier, BezierSegment, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DefaultRouter, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FloatingAnchor, FlowchartConnector, GROUP_KEY, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DROP, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JTK_ID, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PROPERTY_POSITION, PlainArrowOverlay, RectangleEndpoint, SCOPE_PREFIX, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, StateMachine, StraightConnector, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, encloses, extend, fastTrim, filterList, findWithFunction, forEach, fromArray, functionChain, getFromSetWithFunction, getWithFunction, getsert, gradient, gradientAtPoint, gradientAtPointAlongPathFrom, insertSorted, intersects, isArray, isArrowOverlay, isAssignableFrom, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, lineIntersection, lineLength, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, normal, optional, perpendicularLineTo, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, pointOnLine, pointXYFromArray, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, sortHelper, suggest, theta, uuid, wrap };

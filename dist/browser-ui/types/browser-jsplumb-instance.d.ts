@@ -1,7 +1,7 @@
 import { jsPlumbDefaults, Dictionary, Offset, PointArray, Size, jsPlumbElement, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, OverlayCapableComponent, Segment, LabelOverlay, Connection, Component, DeleteConnectionOptions } from '@jsplumb/core';
 import { DragManager } from "./drag-manager";
 import { EventManager } from "./event-manager";
-import { Drag } from './collicat';
+import { Drag, DragStartEventParams, DragEventParams, DragStopEventParams } from './collicat';
 import { JsPlumbList, JsPlumbListManager, JsPlumbListOptions } from "./lists";
 export interface UIComponent {
     canvas: HTMLElement;
@@ -12,32 +12,11 @@ export declare type EndpointHelperFunctions<E> = {
     updateNode: (ep: E, node: SVGElement) => void;
 };
 export declare function registerEndpointRenderer<C>(name: string, fns: EndpointHelperFunctions<C>): void;
-export interface DragEventCallbackOptions {
-    /**
-     * Associated Drag instance
-     */
-    drag: {
-        _size: [number, number];
-        getDragElement: () => Element;
-    };
-    /**
-     * Current mouse event for the drag
-     */
-    e: MouseEvent;
-    /**
-     * Element being dragged
-     */
-    el: Element;
-    /**
-     * x,y location of the element. provided on the `drag` event only.
-     */
-    pos?: [number, number];
-}
 export interface DragOptions {
     containment?: string;
-    start?: (params: DragEventCallbackOptions) => void;
-    drag?: (params: DragEventCallbackOptions) => void;
-    stop?: (params: DragEventCallbackOptions) => void;
+    start?: (params: DragStartEventParams) => void;
+    drag?: (params: DragEventParams) => void;
+    stop?: (params: DragStopEventParams) => void;
     cursor?: string;
     zIndex?: number;
     grid?: [number, number];

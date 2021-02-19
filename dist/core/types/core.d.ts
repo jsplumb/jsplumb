@@ -3,6 +3,7 @@ import { Connection } from "./connector/connection-impl";
 import { Endpoint, EndpointSpec } from "./endpoint/endpoint";
 import { FullOverlaySpec, OverlaySpec } from "./overlay/overlay";
 import { AnchorPlacement, RedrawResult } from "./router/router";
+import { RotatedPointXY } from "./util";
 import { Dictionary, UpdateOffsetOptions, Offset, Size, jsPlumbElement, PointArray, ConnectParams, // <--
 SourceDefinition, TargetDefinition, BehaviouralTypeDescriptor, TypeDescriptor, Rotations, PointXY, ConnectionMovedParams } from './common';
 import { EventGenerator } from "./event-generator";
@@ -176,7 +177,7 @@ export declare abstract class JsPlumbInstance<T extends {
     rotate(element: T["E"], rotation: number, doNotRepaint?: boolean): RedrawResult;
     getRotation(elementId: string): number;
     getRotations(elementId: string): Rotations;
-    applyRotations(point: [number, number, number, number], rotations: Rotations): number[];
+    applyRotations(point: [number, number, number, number], rotations: Rotations): RotatedPointXY;
     applyRotationsXY(point: PointXY, rotations: Rotations): PointXY;
     /**
      * Internal method to create an Endpoint from the given options, perhaps with the given id. Do not use this method
@@ -227,18 +228,6 @@ export declare abstract class JsPlumbInstance<T extends {
      * use `destroy()`.
      */
     reset(): void;
-    /**
-     *
-     */
-    uuid(): string;
-    /**
-     * Rotate the given point around the given center.
-     * @param point
-     * @param center
-     * @param rotation
-     */
-    rotatePoint(point: Array<number>, center: PointArray, rotation: number): [number, number, number, number];
-    rotateAnchorOrientation(orientation: [number, number], rotation: any): [number, number];
     /**
      * Clears the instance and unbinds any listeners on the instance. After you call this method you cannot use this
      * instance of jsPlumb again.

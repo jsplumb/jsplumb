@@ -704,23 +704,25 @@
     return lut[d0 & 0xff] + lut[d0 >> 8 & 0xff] + lut[d0 >> 16 & 0xff] + lut[d0 >> 24 & 0xff] + '-' + lut[d1 & 0xff] + lut[d1 >> 8 & 0xff] + '-' + lut[d1 >> 16 & 0x0f | 0x40] + lut[d1 >> 24 & 0xff] + '-' + lut[d2 & 0x3f | 0x80] + lut[d2 >> 8 & 0xff] + '-' + lut[d2 >> 16 & 0xff] + lut[d2 >> 24 & 0xff] + lut[d3 & 0xff] + lut[d3 >> 8 & 0xff] + lut[d3 >> 16 & 0xff] + lut[d3 >> 24 & 0xff];
   }
   function rotatePoint(point, center, rotation) {
-    var radial = [point[0] - center[0], point[1] - center[1]],
+    var radial = [point.x - center.x, point.y - center.y],
         cr = Math.cos(rotation / 360 * Math.PI * 2),
         sr = Math.sin(rotation / 360 * Math.PI * 2);
-    return [radial[0] * cr - radial[1] * sr + center[0], radial[1] * cr + radial[0] * sr + center[1], cr, sr];
-  }
-  function rotatePointXY(point, center, rotation) {
-    var r = rotatePoint([point.x, point.y], [center.x, center.y], rotation);
     return {
-      x: r[0],
-      y: r[1],
-      cr: r[2],
-      sr: r[3]
+      x: radial[0] * cr - radial[1] * sr + center.x,
+      y: radial[1] * cr + radial[0] * sr + center.y,
+      cr: cr,
+      sr: sr
     };
   }
   function rotateAnchorOrientation(orientation, rotation) {
-    var r = rotatePoint(orientation, [0, 0], rotation);
-    return [Math.round(r[0]), Math.round(r[1])];
+    var r = rotatePoint({
+      x: orientation[0],
+      y: orientation[1]
+    }, {
+      x: 0,
+      y: 0
+    }, rotation);
+    return [Math.round(r.x), Math.round(r.y)];
   }
   function fastTrim(s) {
     if (s == null) {
@@ -872,6 +874,26 @@
       }
     }
     return false;
+  }
+  function insertSorted(value, array, comparator, sortDescending) {
+    if (array.length === 0) {
+      array.push(value);
+    } else {
+      var flip = sortDescending ? -1 : 1;
+      var min = 0;
+      var max = array.length;
+      var index = Math.floor((min + max) / 2);
+      while (max > min) {
+        var c = comparator(value, array[index]) * flip;
+        if (c < 0) {
+          max = index;
+        } else {
+          min = index + 1;
+        }
+        index = Math.floor((min + max) / 2);
+      }
+      array.splice(index, 0, value);
+    }
   }
 
   var segmentMultipliers = [null, [1, -1], [1, 1], [-1, 1], [-1, -1]];
@@ -4208,8 +4230,8 @@
         acy = xy[1] + wh[1] / 2;
     if (rotation != null && rotation.length > 0) {
       var rotated = anchor.instance.applyRotations([ax, ay, 0, 0], rotation);
-      ax = rotated[0];
-      ay = rotated[1];
+      ax = rotated.x;
+      ay = rotated.y;
     }
     return Math.sqrt(Math.pow(cx - ax, 2) + Math.pow(cy - ay, 2)) + Math.sqrt(Math.pow(acx - ax, 2) + Math.pow(acy - ay, 2));
   }
@@ -6437,9 +6459,12 @@
           y = element.y + dy,
           yp = dy / element.h;
       if (element.r !== 0 && element.r != null) {
-        var rotated = rotatePoint([x, y], element.c, element.r);
-        x = rotated[0];
-        y = rotated[1];
+        var rotated = rotatePoint({
+          x: x,
+          y: y
+        }, element.c, element.r);
+        x = rotated.x;
+        y = rotated.y;
       }
       a.push([x, y, xp, yp, connections[i][1], connections[i][2]]);
     }
@@ -6521,15 +6546,21 @@
         var rotation = params.rotation;
         if (rotation != null && rotation.length > 0) {
           var o = anchor._unrotatedOrientation.slice(),
-              current = candidate.slice();
+              s = candidate.slice(),
+              current = {
+            x: s[0],
+            y: s[1],
+            cr: 0,
+            sr: 0
+          };
           forEach(rotation, function (r) {
             current = rotatePoint(current, r.c, r.r);
-            var _o = [Math.round(o[0] * current[2] - o[1] * current[3]), Math.round(o[1] * current[2] + o[0] * current[3])];
+            var _o = [Math.round(o[0] * current.cr - o[1] * current.sr), Math.round(o[1] * current.cr + o[0] * current.sr)];
             o = _o.slice();
           });
           anchor.orientation[0] = o[0];
           anchor.orientation[1] = o[1];
-          anchor.lastReturnValue = [current[0], current[1], anchor.x, anchor.y];
+          anchor.lastReturnValue = [current.x, current.y, anchor.x, anchor.y];
         } else {
           anchor.orientation[0] = anchor._unrotatedOrientation[0];
           anchor.orientation[1] = anchor._unrotatedOrientation[1];
@@ -6875,8 +6906,8 @@
             a: ["top", "top"]
           };
         }
-        var theta = Math.atan2(td.c[1] - sd.c[1], td.c[0] - sd.c[0]),
-            theta2 = Math.atan2(sd.c[1] - td.c[1], sd.c[0] - td.c[0]);
+        var theta = Math.atan2(td.c.y - sd.c.y, td.c.x - sd.c.x),
+            theta2 = Math.atan2(sd.c.y - td.c.y, sd.c.x - td.c.x);
         var candidates = [],
             midpoints = {};
         (function (types, dim) {
@@ -6884,18 +6915,18 @@
             midpoints[types[i]] = {
               "left": {
                 x: dim[i][0].x,
-                y: dim[i][0].c[1]
+                y: dim[i][0].c.y
               },
               "right": {
                 x: dim[i][0].x + dim[i][0].w,
-                y: dim[i][0].c[1]
+                y: dim[i][0].c.y
               },
               "top": {
-                x: dim[i][0].c[0],
+                x: dim[i][0].c.x,
                 y: dim[i][0].y
               },
               "bottom": {
-                x: dim[i][0].c[0],
+                x: dim[i][0].c.x,
                 y: dim[i][0].y + dim[i][0].h
               }
             };
@@ -7294,13 +7325,19 @@
       w: 0,
       h: 0,
       r: 0,
-      c: [0, 0],
+      c: {
+        x: 0,
+        y: 0
+      },
       x2: 0,
       y2: 0,
       t: {
         x: 0,
         y: 0,
-        c: [0, 0],
+        c: {
+          x: 0,
+          y: 0
+        },
         w: 0,
         h: 0,
         r: 0,
@@ -7317,17 +7354,20 @@
         cr = Math.cos(r / 360 * Math.PI * 2),
         sr = Math.sin(r / 360 * Math.PI * 2),
         _point = function _point(x, y) {
-      return [center[0] + Math.round((x - center[0]) * cr - (y - center[1]) * sr), center[1] + Math.round((y - center[1]) * cr - (x - center[0]) * sr)];
+      return {
+        x: center[0] + Math.round((x - center[0]) * cr - (y - center[1]) * sr),
+        y: center[1] + Math.round((y - center[1]) * cr - (x - center[0]) * sr)
+      };
     };
     var p1 = _point(x, y),
         p2 = _point(x + w, y),
         p3 = _point(x + w, y + h),
         p4 = _point(x, y + h),
         c = _point(x + w / 2, y + h / 2);
-    var xmin = Math.min(p1[0], p2[0], p3[0], p4[0]),
-        xmax = Math.max(p1[0], p2[0], p3[0], p4[0]),
-        ymin = Math.min(p1[1], p2[1], p3[1], p4[1]),
-        ymax = Math.max(p1[1], p2[1], p3[1], p4[1]);
+    var xmin = Math.min(p1.x, p2.x, p3.x, p4.x),
+        xmax = Math.max(p1.x, p2.x, p3.x, p4.x),
+        ymin = Math.min(p1.y, p2.y, p3.y, p4.y),
+        ymax = Math.max(p1.y, p2.y, p3.y, p4.y);
     return {
       x: xmin,
       y: ymin,
@@ -7341,36 +7381,15 @@
       sr: sr
     };
   }
-  var entryComparator = function entryComparator(value, arrayEntry, sortDescending) {
+  var entryComparator = function entryComparator(value, arrayEntry) {
     var c = 0;
     if (arrayEntry[1] > value[1]) {
       c = -1;
     } else if (arrayEntry[1] < value[1]) {
       c = 1;
     }
-    if (sortDescending) {
-      c *= -1;
-    }
     return c;
   };
-  function insertSorted(value, array, comparator, sortDescending) {
-    if (array.length === 0) {
-      array.push(value);
-    } else {
-      var min = 0;
-      var max = array.length;
-      var index = Math.floor((min + max) / 2);
-      while (max > min) {
-        if (comparator(value, array[index], sortDescending) < 0) {
-          max = index;
-        } else {
-          min = index + 1;
-        }
-        index = Math.floor((min + max) / 2);
-      }
-      array.splice(index, 0, value);
-    }
-  }
   var Viewport =
   function (_EventGenerator) {
     _inherits(Viewport, _EventGenerator);
@@ -7407,6 +7426,11 @@
         }
       }
     }, {
+      key: "_updateElementIndex",
+      value: function _updateElementIndex(id, value, array, sortDescending) {
+        insertSorted([id, value], array, entryComparator, sortDescending);
+      }
+    }, {
       key: "_updateBounds",
       value: function _updateBounds(id, updatedElement, doNotRecalculateBounds) {
         if (updatedElement != null) {
@@ -7414,10 +7438,10 @@
           this._clearElementIndex(id, this._sortedElements.xmax);
           this._clearElementIndex(id, this._sortedElements.ymin);
           this._clearElementIndex(id, this._sortedElements.ymax);
-          Viewport._updateElementIndex(id, updatedElement.t.x, this._sortedElements.xmin, false);
-          Viewport._updateElementIndex(id, updatedElement.t.x + updatedElement.t.w, this._sortedElements.xmax, true);
-          Viewport._updateElementIndex(id, updatedElement.t.y, this._sortedElements.ymin, false);
-          Viewport._updateElementIndex(id, updatedElement.t.y + updatedElement.t.h, this._sortedElements.ymax, true);
+          this._updateElementIndex(id, updatedElement.t.x, this._sortedElements.xmin, false);
+          this._updateElementIndex(id, updatedElement.t.x + updatedElement.t.w, this._sortedElements.xmax, true);
+          this._updateElementIndex(id, updatedElement.t.y, this._sortedElements.ymin, false);
+          this._updateElementIndex(id, updatedElement.t.y + updatedElement.t.h, this._sortedElements.ymax, true);
           if (doNotRecalculateBounds !== true) {
             this._recalculateBounds();
           }
@@ -7492,8 +7516,8 @@
         if (rotation != null) {
           e.r = rotation || 0;
         }
-        e.c[0] = e.x + e.w / 2;
-        e.c[1] = e.y + e.h / 2;
+        e.c.x = e.x + e.w / 2;
+        e.c.y = e.y + e.h / 2;
         e.x2 = e.x + e.w;
         e.y2 = e.y + e.h;
         if (this._currentTransaction == null) {
@@ -7614,11 +7638,6 @@
       key: "isEmpty",
       value: function isEmpty() {
         return this._elementMap.size === 0;
-      }
-    }], [{
-      key: "_updateElementIndex",
-      value: function _updateElementIndex(id, value, array, sortDescending) {
-        insertSorted([id, value], array, entryComparator, sortDescending);
       }
     }]);
     return Viewport;
@@ -8255,7 +8274,13 @@
     }, {
       key: "applyRotations",
       value: function applyRotations(point, rotations) {
-        var current = point.slice();
+        var sl = point.slice();
+        var current = {
+          x: sl[0],
+          y: sl[1],
+          cr: 0,
+          sr: 0
+        };
         forEach(rotations, function (rotation) {
           current = rotatePoint(current, rotation.c, rotation.r);
         });
@@ -8265,10 +8290,7 @@
       key: "applyRotationsXY",
       value: function applyRotationsXY(point, rotations) {
         forEach(rotations, function (rotation) {
-          point = rotatePointXY(point, {
-            x: rotation.c[0],
-            y: rotation.c[1]
-          }, rotation.r);
+          point = rotatePoint(point, rotation.c, rotation.r);
         });
         return point;
       }
@@ -8499,21 +8521,6 @@
           _this6._endpointTypes.clear();
           _this6.connections.length = 0;
         });
-      }
-    }, {
-      key: "uuid",
-      value: function uuid$1() {
-        return uuid();
-      }
-    }, {
-      key: "rotatePoint",
-      value: function rotatePoint$1(point, center, rotation) {
-        return rotatePoint(point, center, rotation);
-      }
-    }, {
-      key: "rotateAnchorOrientation",
-      value: function rotateAnchorOrientation$1(orientation, rotation) {
-        return rotateAnchorOrientation(orientation, rotation);
       }
     }, {
       key: "destroy",
@@ -9803,6 +9810,7 @@
   exports.gradient = gradient;
   exports.gradientAtPoint = gradientAtPoint;
   exports.gradientAtPointAlongPathFrom = gradientAtPointAlongPathFrom;
+  exports.insertSorted = insertSorted;
   exports.intersects = intersects;
   exports.isArray = isArray;
   exports.isArrowOverlay = isArrowOverlay;
@@ -9847,7 +9855,6 @@
   exports.replace = replace;
   exports.rotateAnchorOrientation = rotateAnchorOrientation;
   exports.rotatePoint = rotatePoint;
-  exports.rotatePointXY = rotatePointXY;
   exports.setToArray = setToArray;
   exports.sortHelper = sortHelper;
   exports.suggest = suggest;
