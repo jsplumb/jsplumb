@@ -39,7 +39,6 @@ import * as Constants from "./constants"
 import {EndpointOptions, InternalEndpointOptions} from "./endpoint/endpoint"
 import {AddGroupOptions, GroupManager} from "./group/group-manager"
 import {UIGroup} from "./group/group"
-import {jsPlumbGeometry, jsPlumbGeometryHelpers} from "./geom"
 
 import {DefaultRouter} from "./router/default-router"
 import {Router} from "./router/router"
@@ -199,16 +198,12 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     private DEFAULT_SCOPE:string
     get defaultScope() { return this.DEFAULT_SCOPE }
 
-    public geometry:jsPlumbGeometryHelpers
-
     private _zoom:number = 1
     get currentZoom() { return  this._zoom }
 
     constructor(public readonly _instanceIndex:number, defaults?:jsPlumbDefaults<T["E"]>) {
 
         super()
-
-        this.geometry = new jsPlumbGeometry()
 
         this.Defaults = {
             anchor: AnchorLocations.Bottom,

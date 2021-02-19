@@ -1,6 +1,7 @@
 import {AbstractSegment, PointNearPath, SegmentBounds} from "./abstract-segment"
 import { PointArray, PointXY } from '../common'
 import { JsPlumbInstance } from "../core"
+import {gradient, lineLength, pointOnLine} from "../geom"
 
 export type StraightSegmentCoordinates = { x1:number, y1:number, x2:number, y2:number}
 
@@ -21,7 +22,7 @@ export class StraightSegment extends AbstractSegment {
 
     private _recalc ():void {
         this.length = Math.sqrt(Math.pow(this.x2 - this.x1, 2) + Math.pow(this.y2 - this.y1, 2))
-        this.m = this.instance.geometry.gradient({x: this.x1, y: this.y1}, {x: this.x2, y: this.y2})
+        this.m = gradient({x: this.x1, y: this.y1}, {x: this.x2, y: this.y2})
         this.m2 = -1 / this.m
     }
 
@@ -67,7 +68,7 @@ export class StraightSegment extends AbstractSegment {
         }
         else {
             let l = absolute ? location > 0 ? location : this.length + location : location * this.length
-            return this.instance.geometry.pointOnLine({x: this.x1, y: this.y1}, {x: this.x2, y: this.y2}, l)
+            return pointOnLine({x: this.x1, y: this.y1}, {x: this.x2, y: this.y2}, l)
         }
     }
 
@@ -98,7 +99,7 @@ export class StraightSegment extends AbstractSegment {
             distance *= -1
         }
 
-        return this.instance.geometry.pointOnLine(p, farAwayPoint, distance)
+        return pointOnLine(p, farAwayPoint, distance)
     }
 
     // is c between a and b?
@@ -151,8 +152,8 @@ export class StraightSegment extends AbstractSegment {
             out.y = this.within(this.y1, this.y2, _y1) ? _y1 : this.closest(this.y1, this.y2, _y1);//_y1
         }
 
-        let fractionInSegment = this.instance.geometry.lineLength({x:out.x, y:out.y }, { x:this.x1, y:this.y1 })
-        out.d = this.instance.geometry.lineLength({x:x, y:y}, out)
+        let fractionInSegment = lineLength({x:out.x, y:out.y }, { x:this.x1, y:this.y1 })
+        out.d = lineLength({x:x, y:y}, out)
         out.l = fractionInSegment / length
         return out
     }
@@ -170,7 +171,7 @@ export class StraightSegment extends AbstractSegment {
      * @returns {Array}
      */
     lineIntersection (_x1:number, _y1:number, _x2:number, _y2:number):Array<PointArray> {
-        let m2 = Math.abs(this.instance.geometry.gradient({x: _x1, y: _y1}, {x: _x2, y: _y2})),
+        let m2 = Math.abs(gradient({x: _x1, y: _y1}, {x: _x2, y: _y2})),
             m1 = Math.abs(this.m),
             b = m1 === Infinity ? this.x1 : this.y1 - (m1 * this.x1),
             out:Array<PointArray> = [],

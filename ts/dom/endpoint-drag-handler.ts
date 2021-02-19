@@ -34,7 +34,7 @@ import {
     SourceDefinition,
     SourceOrTargetDefinition, TARGET,
     TargetDefinition, AnchorSpec,
-    forEach, EndpointSpec
+    forEach, EndpointSpec, intersects
 } from "@jsplumb/core"
 
 function _makeFloatingEndpoint (paintStyle:PaintStyle,
@@ -587,7 +587,7 @@ export class EndpointDragHandler implements DragHandler {
 
             for (let i = 0; i < this.endpointDropTargets.length; i++) {
 
-                if (this.instance.geometry.intersects(boundingRect, this.endpointDropTargets[i].r)) {
+                if (intersects(boundingRect, this.endpointDropTargets[i].r)) {
                     newDropTarget = this.endpointDropTargets[i]
                     break
                 }

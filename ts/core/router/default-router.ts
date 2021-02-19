@@ -13,6 +13,7 @@ import { Anchor } from '../anchor/anchor'
 
 import * as Constants from '../constants'
 import {FloatingAnchor} from "../anchor/floating-anchor"
+import {lineLength} from "../geom"
 
 function placeAnchorsOnLine<E>(element:ViewportElement<E>, connections:Array<any>, horizontal:boolean, otherMultiplier:number, reverse:boolean):Array<ContinuousAnchorPlacement> {
 
@@ -617,7 +618,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
                 candidates.push({
                     source: FACES[sf],
                     target: FACES[tf],
-                    dist: this.instance.geometry.lineLength(midpoints.source[FACES[sf]], midpoints.target[FACES[tf]])
+                    dist: lineLength(midpoints.source[FACES[sf]], midpoints.target[FACES[tf]])
                 })
             }
         }

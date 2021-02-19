@@ -7,6 +7,7 @@ import { Connection} from '../connector/connection-impl'
 import { ComponentOptions} from '../component/component'
 import { Orientation} from '../factory/anchor-factory'
 import { Endpoint} from '../endpoint/endpoint'
+import {pointXYFromArray, quadrant} from "../geom"
 
 export type UserDefinedConnectorId = string
 export type ConnectorId = "Bezier" | "StateMachine" | "Flowchart" | "Straight" | UserDefinedConnectorId
@@ -313,7 +314,7 @@ export abstract class AbstractConnector implements Connector {
 
     private _prepareCompute (params:ConnectorComputeParams):PaintGeometry {
         this.strokeWidth = params.strokeWidth
-        let segment = this.instance.geometry.quadrant(this.instance.geometry.pointXYFromArray(params.sourcePos), this.instance.geometry.pointXYFromArray(params.targetPos)),
+        let segment = quadrant(pointXYFromArray(params.sourcePos), pointXYFromArray(params.targetPos)),
             swapX = params.targetPos[0] < params.sourcePos[0],
             swapY = params.targetPos[1] < params.sourcePos[1],
             lw = params.strokeWidth || 1,

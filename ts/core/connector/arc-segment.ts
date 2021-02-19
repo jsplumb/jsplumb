@@ -1,7 +1,7 @@
 import {AbstractSegment} from "./abstract-segment"
 import { PointXY } from '../common'
 import { JsPlumbInstance } from "../core"
-import {TWO_PI} from "../geom"
+import {normal, theta, TWO_PI} from "../geom"
 
 const VERY_SMALL_VALUE = 0.0000000001
 
@@ -85,7 +85,7 @@ export class ArcSegment extends AbstractSegment {
 
 
     private _calcAngle (_x:number, _y:number):number {
-        return this.instance.geometry.theta({x:this.cx, y:this.cy}, {x:_x, y:_y})
+        return theta({x:this.cx, y:this.cy}, {x:_x, y:_y})
     }
 
     private _calcAngleForLocation (segment:ArcSegment, location:number):number {
@@ -135,7 +135,7 @@ export class ArcSegment extends AbstractSegment {
      */
     gradientAtPoint (location:number, absolute?:boolean):number {
         let p = this.pointOnPath(location, absolute)
-        let m = this.instance.geometry.normal({x:this.cx, y:this.cy }, p)
+        let m = normal({x:this.cx, y:this.cy }, p)
         if (!this.anticlockwise && (m === Infinity || m === -Infinity)) {
             m *= -1
         }

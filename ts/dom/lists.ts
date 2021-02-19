@@ -137,7 +137,7 @@ export class JsPlumbListManager {
 
     findParentList(el:jsPlumbDOMElement):JsPlumbList {
         let parent = el.parentNode, container = this.instance.getContainer(), parentList
-        while(parent != null && parent !== container) {
+        while(parent != null && parent !== container && (parent as any) !== document) {
             parentList = this.getList(parent)
             if (parentList != null) {
                 return parentList

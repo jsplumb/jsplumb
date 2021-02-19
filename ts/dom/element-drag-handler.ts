@@ -21,7 +21,7 @@ import {
     RedrawResult,
     UIGroup,
     forEach,
-    getFromSetWithFunction
+    getFromSetWithFunction, intersects
 } from "@jsplumb/core"
 
 type IntersectingGroup = {
@@ -174,7 +174,7 @@ export class ElementDragHandler implements DragHandler {
             const ancestorsOfIntersectingGroups = new Set<string>()
 
             forEach(this._groupLocations,(groupLoc:GroupLocation) => {
-                if (!ancestorsOfIntersectingGroups.has(groupLoc.group.id) && this.instance.geometry.intersects(bounds, groupLoc.r)) {
+                if (!ancestorsOfIntersectingGroups.has(groupLoc.group.id) && intersects(bounds, groupLoc.r)) {
 
                     // when a group intersects it should only get the hover class if one of its descendants does not also intersect.
                     // groupLocations is already sorted by level of nesting
