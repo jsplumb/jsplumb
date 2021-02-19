@@ -239,10 +239,10 @@ export class Drag extends Base {
     private _pagePosAtDown:PointXY
     private _pageDelta:PointXY = {x:0, y:0}
     private _moving: boolean
-    private _initialScroll:PointArray = [0,0]
+    private _initialScroll:PointXY = {x:0, y:0}
     private _size:Size
-    private _currentParentPosition:PointArray
-    private _ghostParentPosition:PointArray
+    private _currentParentPosition:PointXY
+    private _ghostParentPosition:PointXY
 
     private _dragEl:any
     private _multipleDrop:boolean
@@ -463,13 +463,11 @@ export class Drag extends Base {
                 this._downAt = toPointXY(pageLocation(e))
 
                 if (this._dragEl && this._dragEl.parentNode) {
-                    this._initialScroll = [this._dragEl.parentNode.scrollLeft, this._dragEl.parentNode.scrollTop]
+                    this._initialScroll = {x:this._dragEl.parentNode.scrollLeft, y:this._dragEl.parentNode.scrollTop}
                 }
-                //
+
                 this.k.eventManager.on(document, "mousemove", this.moveListener)
                 this.k.eventManager.on(document, "mouseup", this.upListener)
-
-                //k.markSelection(this)
 
                 addClass(document.body as any, _classes.noSelect)
                 this._dispatch("beforeStart", {el:this.el, pos:this._posAtDown, e:e, drag:this})
@@ -505,8 +503,8 @@ export class Drag extends Base {
 
                 if (this._dragEl && this._dragEl.parentNode)
                 {
-                    dx += this._dragEl.parentNode.scrollLeft - this._initialScroll[0]
-                    dy += this._dragEl.parentNode.scrollTop - this._initialScroll[1]
+                    dx += this._dragEl.parentNode.scrollLeft - this._initialScroll.x
+                    dy += this._dragEl.parentNode.scrollTop - this._initialScroll.y
                 }
 
                 dx /= z
@@ -570,11 +568,11 @@ export class Drag extends Base {
                         // find offset between drag el's parent the ghost parent
                         // this._currentParentPosition = _getPosition(this._elementToDrag.parentNode, true)
                         // this._ghostParentPosition = _getPosition(this._ghostProxyParent, true)
-                        this._currentParentPosition = getOffsetRect(this._elementToDrag.parentNode)
-                        this._ghostParentPosition = getOffsetRect(this._ghostProxyParent)
+                        this._currentParentPosition = toPointXY(getOffsetRect(this._elementToDrag.parentNode))
+                        this._ghostParentPosition = toPointXY(getOffsetRect(this._ghostProxyParent))
 
-                        this._ghostDx = this._currentParentPosition[0] - this._ghostParentPosition[0]
-                        this._ghostDy = this._currentParentPosition[1] - this._ghostParentPosition[1]
+                        this._ghostDx = this._currentParentPosition.x - this._ghostParentPosition.x
+                        this._ghostDy = this._currentParentPosition.y - this._ghostParentPosition.y
 
                     } else {
                         this._elementToDrag.parentNode.appendChild(gp)
