@@ -2,9 +2,9 @@
  A Typescript port of Katavorio, without Droppables or Posses, as the code
  does that for itself now.
 */
-import {BoundingBox, Dictionary, PointArray, extend, IS, uuid, PointXY} from '@jsplumb/core'
+import {BoundingBox, Dictionary, PointArray, extend, IS, uuid, PointXY, Size} from '@jsplumb/core'
 import {addClass, consume, matchesSelector, removeClass, offsetRelativeToRoot} from "./browser-util"
-import {EventManager, pageLocation} from "./event-manager"
+import {EventManager, pageLocation, toPointXY} from "./event-manager"
 import {DragEventCallbackOptions, jsPlumbDOMElement} from "./browser-jsplumb-instance"
 
 
@@ -234,13 +234,13 @@ export class Drag extends Base {
     clone:boolean
     scroll:boolean
 
-    private _downAt:PointArray
+    private _downAt:PointXY
     private _posAtDown:PointXY
-    private _pagePosAtDown:PointArray
-    private _pageDelta:PointArray = [0,0]
+    private _pagePosAtDown:PointXY
+    private _pageDelta:PointXY = {x:0, y:0}
     private _moving: boolean
     private _initialScroll:PointArray = [0,0]
-    private _size:PointArray
+    private _size:Size
     private _currentParentPosition:PointArray
     private _ghostParentPosition:PointArray
 
@@ -459,7 +459,8 @@ export class Drag extends Base {
                     consume(e)
                 }
 
-                this._downAt = pageLocation(e)
+
+                this._downAt = toPointXY(pageLocation(e))
 
                 if (this._dragEl && this._dragEl.parentNode) {
                     this._initialScroll = [this._dragEl.parentNode.scrollLeft, this._dragEl.parentNode.scrollTop]
@@ -498,8 +499,8 @@ export class Drag extends Base {
             // again that we are currently dragging.
             if (this._downAt) {
                 let pos = pageLocation(e),
-                    dx = pos[0] - this._downAt[0],
-                    dy = pos[1] - this._downAt[1],
+                    dx = pos[0] - this._downAt.x,
+                    dy = pos[1] - this._downAt.y,
                     z = this._ignoreZoom ? 1 : this.k.getZoom()
 
                 if (this._dragEl && this._dragEl.parentNode)
@@ -516,13 +517,12 @@ export class Drag extends Base {
         }
     }
 
-    mark(payload:any) {
+    private mark(payload:any) {
 
-        const p = _getPosition(this._dragEl)
-        this._posAtDown = {x:p[0], y:p[1]}
+        this._posAtDown = toPointXY(_getPosition(this._dragEl))
 
-        this._pagePosAtDown = getOffsetRect(this._dragEl)
-        this._pageDelta = [this._pagePosAtDown[0] - this._posAtDown.x, this._pagePosAtDown[1] - this._posAtDown.y]
+        this._pagePosAtDown = toPointXY(getOffsetRect(this._dragEl))
+        this._pageDelta = {x:this._pagePosAtDown.x - this._posAtDown.x, y:this._pagePosAtDown.y - this._posAtDown.y}
         this._size = _getSize(this._dragEl)
         addClass(this._dragEl, this.k.css.drag)
 
@@ -534,7 +534,7 @@ export class Drag extends Base {
         this._ghostDy = 0
     }
 
-    unmark(e:MouseEvent) {
+    private unmark(e:MouseEvent) {
 
         if (this._isConstrained && this._useGhostProxy(this._elementToDrag, this._dragEl)) {
             this._ghostProxyOffsets = [this._dragEl.offsetLeft - this._ghostDx, this._dragEl.offsetTop - this._ghostDy]
@@ -606,7 +606,7 @@ export class Drag extends Base {
         }
 
         var rect = { x:cPos[0], y:cPos[1], w:this._size[0], h:this._size[1]},
-            pageRect = { x:rect.x + this._pageDelta[0], y:rect.y + this._pageDelta[1], w:rect.w, h:rect.h},
+            pageRect = { x:rect.x + this._pageDelta.x, y:rect.y + this._pageDelta.y, w:rect.w, h:rect.h},
             focusDropElement = null
 
         _setPosition(this._dragEl, {x:cPos[0] + this._ghostDx, y:cPos[1] + this._ghostDy})
