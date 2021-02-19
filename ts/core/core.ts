@@ -11,10 +11,10 @@ import {
     functionChain,
     isString,
     log,
-    removeWithFunction, rotateAnchorOrientation, rotatePoint,
+    removeWithFunction, rotatePoint,
     uuid,
     extend,
-    filterList, addToDictionary, rotatePointXY, forEach
+    filterList, addToDictionary, forEach, RotatedPointXY
 } from "./util"
 
 import {
@@ -807,7 +807,8 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     }
 
     applyRotations(point:[number, number, number, number], rotations:Rotations) {
-        let current:Array<number> = point.slice()
+        const sl = point.slice()
+        let current:RotatedPointXY = {x:sl[0], y:sl[1], cr:0, sr:0}
         forEach(rotations,(rotation) => {
             current = rotatePoint(current, rotation.c, rotation.r)
         })
@@ -816,7 +817,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     applyRotationsXY(point:PointXY, rotations:Rotations) {
         forEach(rotations, (rotation) => {
-            point = rotatePointXY(point, {x:rotation.c[0], y:rotation.c[1]}, rotation.r)
+            point = rotatePoint(point, rotation.c, rotation.r)
         })
         return point
     }
@@ -1085,29 +1086,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             this._endpointTypes.clear()
             this.connections.length = 0
         })
-    }
-
-// ------ these are exposed for library packages to use; it allows them to be built without needing to include the utils --------
-
-    /**
-     *
-     */
-    uuid(): string {
-        return uuid()
-    }
-
-    /**
-     * Rotate the given point around the given center.
-     * @param point
-     * @param center
-     * @param rotation
-     */
-    rotatePoint(point:Array<number>, center:PointArray, rotation:number):[number, number, number, number] {
-        return rotatePoint(point, center, rotation)
-    }
-
-    rotateAnchorOrientation(orientation:[number, number], rotation:any):[number, number] {
-        return rotateAnchorOrientation(orientation, rotation)
     }
 
 // ---------------------------------------------------------------------------------
