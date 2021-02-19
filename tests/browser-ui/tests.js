@@ -5666,5 +5666,18 @@ var testSuite = function () {
 
 
     })
+
+    test("insert sorted", function() {
+        var a = [1,2,3,4,6]
+        jsPlumb.insertSorted(5, a, function(a, b) { return a - b})
+        equal(5, a[4], "value '5' inserted in the correct place")
+    })
+
+    test("insert sorted, descending", function() {
+        var a = [6,4,3,2,1]
+        jsPlumb.insertSorted(5, a, function(a, b) { return a - b}, true)
+        equal(5, a[1], "value '5' inserted in the correct place")
+    })
+
 };
 
