@@ -8,9 +8,9 @@ import {EventManager, pageLocation, toPointXY} from "./event-manager"
 import {DragEventCallbackOptions, jsPlumbDOMElement} from "./browser-jsplumb-instance"
 
 
-function getOffsetRect (elem:jsPlumbDOMElement):PointArray {
+function getOffsetRect (elem:jsPlumbDOMElement):PointXY {
     const o = offsetRelativeToRoot(elem)
-    return [ o.left, o.top ]
+    return {x:o.left, y:o.top }
 }
 
 function findDelegateElement(parentElement:jsPlumbDOMElement, childElement:jsPlumbDOMElement, selector:string) {
@@ -28,13 +28,13 @@ function findDelegateElement(parentElement:jsPlumbDOMElement, childElement:jsPlu
     }
 }
 
-function _getPosition(el:HTMLElement):PointArray {
-    return [
-        el.offsetLeft, el.offsetTop
-    ]
+function _getPosition(el:HTMLElement):PointXY {
+    return {
+        x: el.offsetLeft, y: el.offsetTop
+    }
 }
 
-function _getSize(el:HTMLElement):PointArray {
+function _getSize(el:HTMLElement):Size {
     return [
         el.offsetWidth, el.offsetHeight
     ]
@@ -49,6 +49,25 @@ export interface DragSelector {
     filter?:string
     filterExclude?:boolean
     selector:string
+}
+
+export interface DragStartEventParams {
+    e:MouseEvent
+    el:jsPlumbDOMElement
+    pos:PointXY
+    drag:Drag
+    finalPos?:PointXY
+}
+
+export interface DragEventParams extends DragStartEventParams { }
+
+export type RevertEventParams = jsPlumbDOMElement
+
+export interface BeforeStartEventParams extends DragStartEventParams {}
+
+export interface DragStopEventParams extends DragEventParams {
+    finalPos:PointXY
+    selection:Array<[jsPlumbDOMElement, PointXY, any]>
 }
 
 /**
@@ -182,8 +201,8 @@ abstract class Base {
 
 export type GhostProxyGenerator = (el:Element) => Element
 
-function getConstrainingRectangle(el:jsPlumbDOMElement):PointArray {
-    return [(<any>el.parentNode).scrollWidth, (<any>el.parentNode).scrollHeight]
+function getConstrainingRectangle(el:jsPlumbDOMElement):{w:number, h:number} {
+    return {w:(<any>el.parentNode).scrollWidth, h:(<any>el.parentNode).scrollHeight}
 }
 
 export interface DragHandlerOptions {
@@ -244,7 +263,7 @@ export class Drag extends Base {
     private _currentParentPosition:PointXY
     private _ghostParentPosition:PointXY
 
-    private _dragEl:any
+    private _dragEl:jsPlumbDOMElement
     private _multipleDrop:boolean
 
     private _ghostProxyOffsets:any
@@ -388,7 +407,7 @@ export class Drag extends Base {
             } else {
                 if (this._revertFunction && this._revertFunction(this._dragEl, _getPosition(this._dragEl)) === true) {
                     _setPosition(this._dragEl, this._posAtDown)
-                    this._dispatch("revert", this._dragEl)
+                    this._dispatch<RevertEventParams>("revert", this._dragEl)
                 }
             }
 
@@ -438,8 +457,8 @@ export class Drag extends Base {
 
                     if (this._parent != null) {
                         const p = _getPosition(this.el)
-                        this._dragEl.style.left = p[0] + "px"
-                        this._dragEl.style.top = p[1] + "px"
+                        this._dragEl.style.left = p.x + "px"
+                        this._dragEl.style.top = p.y + "px"
                         this._parent.appendChild(this._dragEl)
                     } else {
                         // the clone node is added to the body; getOffsetRect gives us a value
@@ -470,7 +489,7 @@ export class Drag extends Base {
                 this.k.eventManager.on(document, "mouseup", this.upListener)
 
                 addClass(document.body as any, _classes.noSelect)
-                this._dispatch("beforeStart", {el:this.el, pos:this._posAtDown, e:e, drag:this})
+                this._dispatch<BeforeStartEventParams>("beforeStart", {el:this.el, pos:this._posAtDown, e:e, drag:this})
             }
             else if (this._consumeFilteredEvents) {
                 consume(e)
@@ -481,7 +500,7 @@ export class Drag extends Base {
     private _moveListener(e:MouseEvent) {
         if (this._downAt) {
             if (!this._moving) {
-                const dispatchResult = this._dispatch("start", {el:this.el, pos:this._posAtDown, e:e, drag:this})
+                const dispatchResult = this._dispatch<DragStartEventParams>("start", {el:this.el, pos:this._posAtDown, e:e, drag:this})
                 if (dispatchResult !== false) {
                     if (!this._downAt) {
                         return
@@ -517,16 +536,14 @@ export class Drag extends Base {
 
     private mark(payload:any) {
 
-        this._posAtDown = toPointXY(_getPosition(this._dragEl))
+        this._posAtDown = _getPosition(this._dragEl)
 
-        this._pagePosAtDown = toPointXY(getOffsetRect(this._dragEl))
+        this._pagePosAtDown = getOffsetRect(this._dragEl)
         this._pageDelta = {x:this._pagePosAtDown.x - this._posAtDown.x, y:this._pagePosAtDown.y - this._posAtDown.y}
         this._size = _getSize(this._dragEl)
         addClass(this._dragEl, this.k.css.drag)
 
-        let cs:PointArray
-        cs = getConstrainingRectangle(this._dragEl)
-        this._constrainRect = {w: cs[0], h: cs[1]}
+        this._constrainRect = getConstrainingRectangle(this._dragEl)
 
         this._ghostDx = 0
         this._ghostDy = 0
@@ -549,27 +566,25 @@ export class Drag extends Base {
 
     moveBy (dx:number, dy:number, e?:MouseEvent) {
 
-        let desiredLoc = this.toGrid([this._posAtDown.x + dx, this._posAtDown.y + dy]),
-            cPos = this._doConstrain(desiredLoc, this._dragEl, this._constrainRect, this._size)
+        let desiredLoc = this.toGrid({x:this._posAtDown.x + dx, y:this._posAtDown.y + dy}),
+            cPos:PointXY = this._doConstrain(desiredLoc, this._dragEl, this._constrainRect, this._size)
 
         // if we should use a ghost proxy...
         if (this._useGhostProxy(this.el, this._dragEl)) {
             // and the element has been dragged outside of its parent bounds
-            if (desiredLoc[0] !== cPos[0] || desiredLoc[1] !== cPos[1]) {
+            if (desiredLoc.x !== cPos.x || desiredLoc.y !== cPos.y) {
 
                 // ...if ghost proxy not yet created
                 if (!this._isConstrained) {
                     // create it
-                    let gp = this._ghostProxyFunction(this._elementToDrag)
+                    let gp = this._ghostProxyFunction(this._elementToDrag) as jsPlumbDOMElement
                     addClass(gp, _classes.ghostProxy)
 
                     if (this._ghostProxyParent) {
                         this._ghostProxyParent.appendChild(gp)
                         // find offset between drag el's parent the ghost parent
-                        // this._currentParentPosition = _getPosition(this._elementToDrag.parentNode, true)
-                        // this._ghostParentPosition = _getPosition(this._ghostProxyParent, true)
-                        this._currentParentPosition = toPointXY(getOffsetRect(this._elementToDrag.parentNode))
-                        this._ghostParentPosition = toPointXY(getOffsetRect(this._ghostProxyParent))
+                        this._currentParentPosition = getOffsetRect(this._elementToDrag.parentNode)
+                        this._ghostParentPosition = getOffsetRect(this._ghostProxyParent)
 
                         this._ghostDx = this._currentParentPosition.x - this._ghostParentPosition.x
                         this._ghostDy = this._currentParentPosition.y - this._ghostParentPosition.y
@@ -603,13 +618,11 @@ export class Drag extends Base {
             }
         }
 
-        var rect = { x:cPos[0], y:cPos[1], w:this._size[0], h:this._size[1]},
-            pageRect = { x:rect.x + this._pageDelta.x, y:rect.y + this._pageDelta.y, w:rect.w, h:rect.h},
-            focusDropElement = null
+        const rect = { x:cPos.x, y:cPos.y, w:this._size[0], h:this._size[1]}
 
-        _setPosition(this._dragEl, {x:cPos[0] + this._ghostDx, y:cPos[1] + this._ghostDy})
+        _setPosition(this._dragEl, {x:cPos.x + this._ghostDx, y:cPos.y + this._ghostDy})
 
-        this._dispatch("drag", {el:this.el, pos:cPos, e:e, drag:this})
+        this._dispatch<DragEventParams>("drag", {el:this.el, pos:cPos, e:e, drag:this})
 
         /* test to see if the parent needs to be scrolled (future)
          if (scroll) {
@@ -630,21 +643,21 @@ export class Drag extends Base {
 
     stop (e?:MouseEvent, force?:boolean) {
         if (force || this._moving) {
-            let positions = [],
+            let positions:Array<[jsPlumbDOMElement, PointXY, any]> = [],
                 sel:Array<any> = [],
                 dPos = _getPosition(this._dragEl)
 
             if (sel.length > 0) {
                 for (let i = 0; i < sel.length; i++) {
                     const p = _getPosition(sel[i].el)
-                    positions.push([ sel[i].el, { left: p[0], top: p[1] }, sel[i] ])
+                    positions.push([ sel[i].el, p, sel[i] ])
                 }
             }
             else {
-                positions.push([ this._dragEl, {left:dPos[0], top:dPos[1]}, this ])
+                positions.push([ this._dragEl, dPos, this ])
             }
 
-            this._dispatch("stop", {
+            this._dispatch<DragStopEventParams>("stop", {
                 el: this._dragEl,
                 pos: this._ghostProxyOffsets || dPos,
                 finalPos:dPos,
@@ -657,11 +670,11 @@ export class Drag extends Base {
         }
     }
 
-    private notifyStart (e:MouseEvent) {
-        this._dispatch("start", {el:this.el, pos:_getPosition(this._dragEl), e:e, drag:this})
-    }
+    // private notifyStart (e:MouseEvent) {
+    //     this._dispatch<StartEventParams>("start", {el:this.el, pos:_getPosition(this._dragEl), e:e, drag:this})
+    // }
 
-    private _dispatch(evt:string, value:any) {
+    private _dispatch<T>(evt:string, value:T) {
         let result = null
         if (this._activeSelectorParams && this._activeSelectorParams[evt]) {
             result = this._activeSelectorParams[evt](value)
@@ -680,19 +693,19 @@ export class Drag extends Base {
         return result
     }
 
-    private _snap (pos:PointArray, gridX:number, gridY:number, thresholdX:number, thresholdY:number):PointArray {
+    private _snap (pos:PointXY, gridX:number, gridY:number, thresholdX:number, thresholdY:number):PointXY {
 
-        let _dx = Math.floor(pos[0] / gridX),
+        let _dx = Math.floor(pos.x / gridX),
             _dxl = gridX * _dx,
             _dxt = _dxl + gridX,
-            _x = Math.abs(pos[0] - _dxl) <= thresholdX ? _dxl : Math.abs(_dxt - pos[0]) <= thresholdX ? _dxt : pos[0]
+            x = Math.abs(pos.x - _dxl) <= thresholdX ? _dxl : Math.abs(_dxt - pos.x) <= thresholdX ? _dxt : pos.x
 
-        let _dy = Math.floor(pos[1] / gridY),
+        let _dy = Math.floor(pos.y / gridY),
             _dyl = gridY * _dy,
             _dyt = _dyl + gridY,
-            _y = Math.abs(pos[1] - _dyl) <= thresholdY ? _dyl : Math.abs(_dyt - pos[1]) <= thresholdY ? _dyt : pos[1]
+            y = Math.abs(pos.y - _dyl) <= thresholdY ? _dyl : Math.abs(_dyt - pos.y) <= thresholdY ? _dyt : pos.y
 
-        return [ _x, _y]
+        return {x,y}
     }
 
     private resolveGrid():[ PointArray, number, number ] {
@@ -707,7 +720,7 @@ export class Drag extends Base {
         return out
     }
 
-    toGrid (pos:PointArray):PointArray {
+    toGrid (pos:PointXY):PointXY {
 
         const [grid, thresholdX, thresholdY] = this.resolveGrid()
 
@@ -747,17 +760,17 @@ export class Drag extends Base {
         this._useGhostProxy = val ? TRUE : FALSE
     }
 
-    private _negativeFilter (pos:PointArray):PointArray {
-        return (this._allowNegative === false) ? [ Math.max (0, pos[0]), Math.max(0, pos[1]) ] : pos
+    private _negativeFilter (pos:PointXY):PointXY {
+        return (this._allowNegative === false) ? {x: Math.max (0, pos.x), y:Math.max(0, pos.y) } : pos
     }
 
     private _setConstrain (value:ConstrainFunction | boolean) {
-        this._constrain = typeof value === "function" ? value as ConstrainFunction : value ? (pos:PointArray, dragEl:any, _constrainRect:any, _size:PointArray):PointArray => {
-            return this._negativeFilter([
-                Math.max(0, Math.min(_constrainRect.w - _size[0], pos[0])),
-                Math.max(0, Math.min(_constrainRect.h - _size[1], pos[1]))
-            ])
-        }: (pos:PointArray):PointArray => { return this._negativeFilter(pos); }
+        this._constrain = typeof value === "function" ? value as ConstrainFunction : value ? (pos:PointXY, dragEl:any, _constrainRect:any, _size:Size):PointXY => {
+            return this._negativeFilter({
+                x: Math.max(0, Math.min(_constrainRect.w - _size[0], pos.x)),
+                y: Math.max(0, Math.min(_constrainRect.h - _size[1], pos.y))
+            })
+        }: (pos:PointXY):PointXY => { return this._negativeFilter(pos); }
     }
 
     /**
@@ -769,7 +782,7 @@ export class Drag extends Base {
         this._setConstrain(value)
     }
 
-    private _doConstrain(pos:PointArray, dragEl:any, _constrainRect:any, _size:PointArray) {
+    private _doConstrain(pos:PointXY, dragEl:any, _constrainRect:any, _size:Size) {
         if (this._activeSelectorParams != null && this._activeSelectorParams.constrain && typeof this._activeSelectorParams.constrain === "function") {
             return this._activeSelectorParams.constrain(pos, dragEl, _constrainRect, _size)
         } else {
@@ -860,8 +873,8 @@ export class Drag extends Base {
 
 }
 
-export type ConstrainFunction = (desiredLoc:PointArray, dragEl:HTMLElement, constrainRect:BoundingBox, size:PointArray) => PointArray
-export type RevertFunction = (dragEl:HTMLElement, pos:PointArray) => boolean
+export type ConstrainFunction = (desiredLoc:PointXY, dragEl:HTMLElement, constrainRect:BoundingBox, size:Size) => PointXY
+export type RevertFunction = (dragEl:HTMLElement, pos:PointXY) => boolean
 
 export interface CollicatOptions {
     zoom?:number

@@ -1,16 +1,23 @@
 import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
 
-import { PARENT_GROUP_KEY, extend, wrap, Dictionary, PointArray, forEach } from '@jsplumb/core'
+import {PARENT_GROUP_KEY, extend, wrap, Dictionary, forEach, PointXY} from '@jsplumb/core'
 
-import {Collicat, Drag, DragHandlerOptions, GhostProxyGenerator} from "./collicat"
+import {
+    BeforeStartEventParams,
+    Collicat,
+    Drag, DragEventParams,
+    DragHandlerOptions,
+    DragStartEventParams, DragStopEventParams,
+    GhostProxyGenerator
+} from "./collicat"
 
-function _isInsideParent(instance:BrowserJsPlumbInstance, _el:HTMLElement, pos:PointArray):boolean {
+function _isInsideParent(instance:BrowserJsPlumbInstance, _el:HTMLElement, pos:PointXY):boolean {
     const p = <any>_el.parentNode,
         s = instance.getSize(p),
         ss = instance.getSize(_el),
-        leftEdge = pos[0],
+        leftEdge = pos.x,
         rightEdge = leftEdge + ss[0],
-        topEdge = pos[1],
+        topEdge = pos.y,
         bottomEdge = topEdge + ss[1]
 
     return rightEdge > 0 && leftEdge < s[0] && bottomEdge > 0 && topEdge < s[1]
@@ -46,7 +53,7 @@ export interface DragHandler {
     reset:() => void
     init:(drag:Drag) => void
 
-    onBeforeStart?:(beforeStartParams:any) => void
+    onBeforeStart?:(beforeStartParams:BeforeStartEventParams) => void
 }
 
 export interface GhostProxyingDragHandler extends DragHandler {
@@ -56,21 +63,6 @@ export interface GhostProxyingDragHandler extends DragHandler {
 
 type DragFilterSpec = [ Function|string, boolean ]
 
-export interface DragStartEventParams {
-    e:MouseEvent
-    el:Element
-    finalPos?:PointArray
-    drag:Drag
-}
-
-export interface DragEventParams extends DragStartEventParams {
-    pos:PointArray
-}
-
-export interface DragStopEventParams extends DragEventParams {
-    finalPos:PointArray
-    selection:Array<any>
-}
 
 export class DragManager {
 
@@ -103,7 +95,7 @@ export class DragManager {
                 hover: "jtk-drag-hover",
                 ghostProxy: "jtk-ghost-proxy"
             },
-            revert: (dragEl:Element, pos:PointArray):boolean => {
+            revert: (dragEl:Element, pos:PointXY):boolean => {
                 const _el = <any>dragEl
                 // if drag el not removed from DOM (pruned by a group), and it has a group which has revert:true, then revert.
                 return _el.parentNode != null && _el[PARENT_GROUP_KEY] && _el[PARENT_GROUP_KEY].revert ? !_isInsideParent(this.instance, _el, pos) : false
@@ -120,9 +112,9 @@ export class DragManager {
 
         this.handlers.push(handler)
 
-        o.start = wrap(o.start, (p:any) => { return handler.onStart(p); })
-        o.drag = wrap(o.drag, (p:any) => { return handler.onDrag(p); })
-        o.stop = wrap(o.stop, (p:any) => { return handler.onStop(p); })
+        o.start = wrap(o.start, (p:DragStartEventParams) => { return handler.onStart(p); })
+        o.drag = wrap(o.drag, (p:DragEventParams) => { return handler.onDrag(p); })
+        o.stop = wrap(o.stop, (p:DragStopEventParams) => { return handler.onStop(p); })
         o.beforeStart = (handler.onBeforeStart || function(p:any) {}).bind(handler)
         o.dragInit = (el:Element) => handler.onDragInit(el)
         o.dragAbort = (el:Element) => handler.onDragAbort(el)

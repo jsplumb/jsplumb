@@ -69,7 +69,7 @@ import {
     isCustomOverlay,
     DeleteConnectionOptions,
     forEach,
-    fromArray, isArray
+    fromArray, isArray, PointXY
 } from '@jsplumb/core'
 
 import { _attr,
@@ -298,17 +298,17 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
         this.dragManager.addHandler(new EndpointDragHandler(this))
         const groupDragOptions:DragHandlerOptions = {
-            constrain: (desiredLoc:PointArray, dragEl:HTMLElement, constrainRect:BoundingBox, size:PointArray):PointArray => {
-                let x = desiredLoc[0], y = desiredLoc[1]
+            constrain: (desiredLoc:PointXY, dragEl:HTMLElement, constrainRect:BoundingBox, size:Size):PointXY=> {
+                let x = desiredLoc.x, y = desiredLoc.y
 
                 if ((<any>dragEl)[PARENT_GROUP_KEY] && (<any>dragEl)[PARENT_GROUP_KEY].constrain) {
-                    x = Math.max(desiredLoc[0], 0)
-                    y = Math.max(desiredLoc[1], 0)
+                    x = Math.max(desiredLoc.x, 0)
+                    y = Math.max(desiredLoc.y, 0)
                     x = Math.min(x, constrainRect.w - size[0])
                     y = Math.min(y, constrainRect.h - size[1])
                 }
 
-                return [x, y]
+                return {x, y}
             }
         }
         this.dragManager.addHandler(new GroupDragHandler(this), groupDragOptions)

@@ -1,9 +1,9 @@
 
 import {ElementDragHandler} from "./element-drag-handler"
-import {DragEventParams, EVENT_REVERT, GhostProxyingDragHandler, DragStopEventParams} from "./drag-manager"
+import {EVENT_REVERT, GhostProxyingDragHandler} from "./drag-manager"
 import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance"
-import {Drag} from "./collicat"
-import {PARENT_GROUP_KEY, PointArray, UIGroup} from "@jsplumb/core"
+import {DragEventParams, Drag, DragStopEventParams} from "./collicat"
+import {PARENT_GROUP_KEY, PointXY, UIGroup} from "@jsplumb/core"
 
 
 export class GroupDragHandler extends ElementDragHandler implements GhostProxyingDragHandler {
@@ -65,7 +65,7 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
             if (originalGroup.ghost) {
                 const o1 = this.instance.getOffset(currentGroup.getContentArea())
                 const o2 = this.instance.getOffset(originalGroup.getContentArea())
-                const o = { left:o2.left + params.pos[0] - o1.left, top:o2.top + params.pos[1]-o1.top}
+                const o = { left:o2.left + params.pos.x - o1.left, top:o2.top + params.pos.y - o1.top}
                 originalElement.style.left = o.left + "px"
                 originalElement.style.top = o.top + "px"
             }
@@ -76,13 +76,13 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
         return out
     }
 
-    private _isInsideParent(_el:jsPlumbDOMElement, pos:PointArray):boolean {
+    private _isInsideParent(_el:jsPlumbDOMElement, pos:PointXY):boolean {
         let p = _el.offsetParent,
             s = this.instance.getSize(p),
             ss = this.instance.getSize(_el),
-            leftEdge = pos[0],
+            leftEdge = pos.x,
             rightEdge = leftEdge + ss[0],
-            topEdge = pos[1],
+            topEdge = pos.y,
             bottomEdge = topEdge + ss[1]
 
         return rightEdge > 0 && leftEdge < s[0] && bottomEdge > 0 && topEdge < s[1]

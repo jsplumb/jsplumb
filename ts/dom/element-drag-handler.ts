@@ -2,26 +2,25 @@ import {
     ATTR_NOT_DRAGGABLE,
     CLASS_DRAG_ACTIVE,
     CLASS_DRAG_HOVER, CLASS_DRAG_SELECTED,
-    CLASS_DRAGGED, DragEventParams,
+    CLASS_DRAGGED,
     DragHandler,
     EVENT_DRAG_MOVE, EVENT_DRAG_START,
-    EVENT_DRAG_STOP, DragStopEventParams
+    EVENT_DRAG_STOP,
 } from "./drag-manager"
 
 import {BrowserJsPlumbInstance, DragGroupSpec, jsPlumbDOMElement} from "./browser-jsplumb-instance"
 
-import {Drag} from "./collicat"
+import {DragEventParams,Drag,DragStopEventParams} from "./collicat"
 import {
     BoundingBox,
     Dictionary,
     GROUP_KEY, isString, JsPlumbInstance,
     Offset, optional,
     PARENT_GROUP_KEY,
-    PointArray,
     RedrawResult,
     UIGroup,
     forEach,
-    getFromSetWithFunction, intersects
+    getFromSetWithFunction, intersects, PointXY
 } from "@jsplumb/core"
 
 type IntersectingGroup = {
@@ -94,13 +93,13 @@ export class ElementDragHandler implements DragHandler {
         }
 
         const dragElement = params.drag.getDragElement()
-        _one(dragElement, {left:params.finalPos[0], top:params.finalPos[1]})
+        _one(dragElement, {left:params.finalPos.x, top:params.finalPos.y})
 
         this._dragSelectionOffsets.forEach( (v:[Offset, jsPlumbDOMElement], k:string) => {
             if (v[1] !== params.el) {
                 const pp = {
-                    left:params.finalPos[0] + v[0].left,
-                    top:params.finalPos[1] + v[0].top
+                    left:params.finalPos.x + v[0].left,
+                    top:params.finalPos.y + v[0].top
                 }
                 _one(v[1], pp)
             }
@@ -159,7 +158,7 @@ export class ElementDragHandler implements DragHandler {
         const el = params.drag.getDragElement()
         const finalPos = params.finalPos || params.pos
         const elSize = this.instance.getSize(el)
-        const ui = { left:finalPos[0], top:finalPos[1] }
+        const ui = { left:finalPos.x, top:finalPos.y }
 
         this._intersectingGroups.length = 0
 
@@ -228,7 +227,7 @@ export class ElementDragHandler implements DragHandler {
 
     }
 
-    onStart(params:{e:MouseEvent, el:jsPlumbDOMElement, finalPos:PointArray, drag:Drag}):boolean {
+    onStart(params:{e:MouseEvent, el:jsPlumbDOMElement, pos:PointXY, drag:Drag}):boolean {
 
         const el = params.drag.getDragElement() as jsPlumbDOMElement
         const elOffset = this.instance.getOffset(el)

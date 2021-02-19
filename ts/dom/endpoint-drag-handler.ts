@@ -1,18 +1,19 @@
 import {
     CLASS_DRAG_ACTIVE,
-    CLASS_DRAG_HOVER, DragEventParams,
-    DragHandler, DragStartEventParams,
+    CLASS_DRAG_HOVER,
+    DragHandler,
     EVENT_MOUSEDOWN,
     EVENT_MOUSEUP,
     EVENT_CONNECTION_ABORT,
-    EVENT_CONNECTION_DRAG,
-    DragStopEventParams
+    EVENT_CONNECTION_DRAG
 } from "./drag-manager"
 import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance"
 
 import {consume, createElement, findParent} from "./browser-util"
 
-import {Drag} from "./collicat"
+import {Drag, DragStartEventParams,
+    DragStopEventParams, DragEventParams} from "./collicat"
+
 import {
     addToDictionary,
     FloatingAnchor,
@@ -34,8 +35,9 @@ import {
     SourceDefinition,
     SourceOrTargetDefinition, TARGET,
     TargetDefinition, AnchorSpec,
-    forEach, EndpointSpec, intersects
+    forEach, EndpointSpec, intersects, PointXY, AnchorLocations
 } from "@jsplumb/core"
+import {AnchorPlacement} from "@jsplumb/core/router/router"
 
 function _makeFloatingEndpoint (paintStyle:PaintStyle,
                                 referenceAnchor:Anchor,
@@ -396,7 +398,7 @@ export class EndpointDragHandler implements DragHandler {
             const aae = this.instance.deriveEndpointAndAnchorSpec(this.ep.connectionType)
             endpointToFloat = aae.endpoints[1]
         }
-        const centerAnchor = makeAnchorFromSpec(this.instance, "Center")
+        const centerAnchor = makeAnchorFromSpec(this.instance, AnchorLocations.Center)
         centerAnchor.isFloating = true
 
         this.floatingEndpoint = _makeFloatingEndpoint(this.ep.getPaintStyle(), centerAnchor, endpointToFloat, canvasElement, this.placeholderInfo.element, this.instance, this.ep.scope)
@@ -580,9 +582,9 @@ export class EndpointDragHandler implements DragHandler {
 
             let floatingElementSize = this.instance.getSize(this.floatingElement)
 
-            this.instance.setElementPosition(this.placeholderInfo.element, ...params.pos)
+            this.instance.setElementPosition(this.placeholderInfo.element, params.pos.x, params.pos.y)
 
-            let boundingRect = { x:params.pos[0], y:params.pos[1], w:floatingElementSize[0], h:floatingElementSize[1]},
+            let boundingRect = { x:params.pos.x, y:params.pos.y, w:floatingElementSize[0], h:floatingElementSize[1]},
                 newDropTarget, idx, _cont
 
             for (let i = 0; i < this.endpointDropTargets.length; i++) {
@@ -895,8 +897,8 @@ export class EndpointDragHandler implements DragHandler {
 
             if (dropEndpoint.anchor.positionFinder != null) {
 
-                let finalPos:any = p.finalPos || p.pos
-                let dropPosition = { left:finalPos[0], top:finalPos[1] }
+                let finalPos:PointXY = p.finalPos || p.pos
+                let dropPosition = { left:finalPos.x, top:finalPos.y }
 
                 let elPosition = this.instance.getOffset(this.currentDropTarget.el),
                     elSize = this.instance.getSize(this.currentDropTarget.el),
