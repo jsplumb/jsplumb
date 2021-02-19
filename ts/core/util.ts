@@ -455,19 +455,19 @@ export function uuid():string {
  * @param point
  * @param center
  * @param rotation
- * @return An array consisting of the rotated point, followed by cos theta and sin theta.
+ * @return An object consisting of the rotated point, followed by cos theta and sin theta.
  */
-export function rotatePoint(point:Array<number>, center:PointArray, rotation:number):[number, number, number, number] {
-    const radial = [ point[0] - center[0], point[1]- center[1]],
+export function rotatePoint(point:PointXY, center:PointXY, rotation:number):RotatedPointXY {
+    const radial = [point.x - center.x, point.y - center.y],
         cr = Math.cos(rotation / 360 * Math.PI * 2),
         sr = Math.sin(rotation / 360 * Math.PI * 2)
 
-    return [
-        (radial[0] * cr) - (radial[1] * sr) + center[0],
-        (radial[1] * cr) + (radial[0] * sr) + center[1],
+    return {
+        x:(radial[0] * cr) - (radial[1] * sr) + center.x,
+        y: (radial[1] * cr) + (radial[0] * sr) + center.y,
         cr,
         sr
-    ]
+    }
 }
 
 export interface RotatedPointXY extends PointXY {
@@ -475,21 +475,12 @@ export interface RotatedPointXY extends PointXY {
     sr:number
 }
 
-export function rotatePointXY(point:PointXY, center:PointXY, rotation:number):RotatedPointXY {
-    const r = rotatePoint([point.x, point.y], [center.x, center.y], rotation)
-    return {
-        x:r[0],
-        y:r[1],
-        cr:r[2],
-        sr:r[3]
-    }
-}
 
 export function rotateAnchorOrientation(orientation:[number, number], rotation:any):[number, number] {
-    const r = rotatePoint(orientation, [0,0], rotation)
+    const r = rotatePoint({x:orientation[0], y:orientation[1]}, {x:0, y:0}, rotation)
     return [
-        Math.round(r[0]),
-        Math.round(r[1])
+        Math.round(r.x),
+        Math.round(r.y)
     ]
 }
 
@@ -694,4 +685,27 @@ export function isAssignableFrom(object:any, cls:any) {
         }
     }
     return false
+}
+
+export function insertSorted<T>(value:T, array:Array<T>, comparator:(v1:T, v2:T) => number, sortDescending?:boolean) {
+
+    if (array.length === 0) {
+        array.push(value)
+    } else {
+        const flip =  sortDescending ? -1 : 1
+        let min = 0
+        let max = array.length
+        let index = Math.floor((min + max) / 2)
+        while (max > min) {
+            const c = comparator(value, array[index]) * flip
+            if (c < 0) {
+                max = index
+            } else {
+                min = index + 1
+            }
+            index = Math.floor((min + max) / 2)
+        }
+
+        array.splice(index, 0, value)
+    }
 }
