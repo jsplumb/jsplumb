@@ -1,6 +1,6 @@
-import {Size, PointArray, Offset} from "./common"
+import {Size, Offset, PointXY} from "./common"
 import {EventGenerator} from "./event-generator"
-import {findWithFunction, getsert, forEach} from './util'
+import {findWithFunction, getsert, forEach, insertSorted} from './util'
 import {JsPlumbInstance} from "./core"
 
 export interface ViewportPosition {
@@ -12,12 +12,11 @@ export interface ViewportElementBase<E> extends ViewportPosition {
     w:number
     h:number
     r:number
-    c:PointArray
+    c:PointXY
     x2:number
     y2:number
     dirty:boolean
 }
-
 
 export interface ViewportElement<E> extends ViewportElementBase<E> {
     t:TranslatedViewportElement<E>
@@ -37,7 +36,7 @@ class Transaction {
 }
 
 function EMPTY_POSITION<E>():ViewportElement<E> {
-    return { x:0, y:0, w:0, h:0, r:0, c:[0,0], x2:0, y2:0, t:{x:0, y:0, c:[0,0], w:0, h:0, r:0, x2:0, y2:0, cr:0, sr:0 }, dirty:true }
+    return { x:0, y:0, w:0, h:0, r:0, c:{x:0,y:0}, x2:0, y2:0, t:{x:0, y:0, c:{x:0,y:0}, w:0, h:0, r:0, x2:0, y2:0, cr:0, sr:0 }, dirty:true }
 }
 
 //
@@ -47,11 +46,11 @@ function rotate<E>(x:number, y:number, w:number, h:number, r:number):TranslatedV
 
     const center=[x + (w/2),y + (h/2)],
         cr = Math.cos(r / 360 * Math.PI * 2), sr = Math.sin(r / 360 * Math.PI * 2),
-        _point = (x:number, y:number):PointArray => {``
-            return [
-                center[0] + Math.round( ((x-center[0])*cr) - ( (y-center[1]) * sr) ),
-                center[1] + Math.round( ((y-center[1])*cr) - ( (x-center[0]) * sr) )
-            ];
+        _point = (x:number, y:number):PointXY => {``
+            return {
+                x: center[0] + Math.round(((x - center[0]) * cr) - ((y - center[1]) * sr)),
+                y: center[1] + Math.round(((y - center[1]) * cr) - ((x - center[0]) * sr))
+            };
         }
 
     const p1 = _point(x, y),
@@ -60,10 +59,10 @@ function rotate<E>(x:number, y:number, w:number, h:number, r:number):TranslatedV
         p4 = _point(x, y+h),
         c = _point(x + (w/2), y + (h/2))
 
-    const xmin = Math.min(p1[0], p2[0], p3[0], p4[0]),
-        xmax = Math.max(p1[0], p2[0], p3[0], p4[0]),
-        ymin = Math.min(p1[1], p2[1], p3[1], p4[1]),
-        ymax = Math.max(p1[1], p2[1], p3[1], p4[1])
+    const xmin = Math.min(p1.x, p2.x, p3.x, p4.x),
+        xmax = Math.max(p1.x, p2.x, p3.x, p4.x),
+        ymin = Math.min(p1.y, p2.y, p3.y, p4.y),
+        ymax = Math.max(p1.y, p2.y, p3.y, p4.y)
 
     return {
         x:xmin,
@@ -79,7 +78,7 @@ function rotate<E>(x:number, y:number, w:number, h:number, r:number):TranslatedV
     }
 }
 
-const entryComparator = (value:[string, any], arrayEntry:[string, any], sortDescending?:boolean) => {
+const entryComparator = (value:[string, any], arrayEntry:[string, any]) => {
 
     let c = 0
 
@@ -89,33 +88,7 @@ const entryComparator = (value:[string, any], arrayEntry:[string, any], sortDesc
         c = 1
     }
 
-    if (sortDescending) {
-        c *= -1
-    }
-
     return c
-}
-
-function insertSorted<T>(value:[string, T], array:Array<[string, T]>, comparator:any, sortDescending?:boolean) {
-
-    if (array.length === 0) {
-        array.push(value)
-    } else {
-
-        let min = 0
-        let max = array.length
-        let index = Math.floor((min + max) / 2)
-        while (max > min) {
-            if (comparator(value, array[index], sortDescending) < 0) {
-                max = index
-            } else {
-                min = index + 1
-            }
-            index = Math.floor((min + max) / 2)
-        }
-
-        array.splice(index, 0, value)
-    }
 }
 
 export class Viewport<T extends{E:unknown}> extends EventGenerator {
@@ -164,8 +137,8 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
         }
     }
 
-    private static _updateElementIndex<T>(id:string, value:T, array:Array<[string, T]>, sortDescending?:boolean) {
-        insertSorted([id, value], array, entryComparator, sortDescending)
+    private _updateElementIndex(id:string, value:number, array:Array<[string, number]>, sortDescending?:boolean) {
+        insertSorted<[string, number]>([id, value], array, entryComparator, sortDescending)
     }
 
     private _updateBounds (id:string, updatedElement:ViewportElement<T["E"]>, doNotRecalculateBounds?:boolean) {
@@ -176,10 +149,10 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
             this._clearElementIndex(id, this._sortedElements.ymin)
             this._clearElementIndex(id, this._sortedElements.ymax)
 
-            Viewport._updateElementIndex(id, updatedElement.t.x, this._sortedElements.xmin, false)
-            Viewport._updateElementIndex(id, updatedElement.t.x + updatedElement.t.w, this._sortedElements.xmax, true)
-            Viewport._updateElementIndex(id, updatedElement.t.y, this._sortedElements.ymin, false)
-            Viewport._updateElementIndex(id, updatedElement.t.y + updatedElement.t.h, this._sortedElements.ymax, true)
+            this._updateElementIndex(id, updatedElement.t.x, this._sortedElements.xmin, false)
+            this._updateElementIndex(id, updatedElement.t.x + updatedElement.t.w, this._sortedElements.xmax, true)
+            this._updateElementIndex(id, updatedElement.t.y, this._sortedElements.ymin, false)
+            this._updateElementIndex(id, updatedElement.t.y + updatedElement.t.h, this._sortedElements.ymax, true)
 
             if (doNotRecalculateBounds !== true) {
                 this._recalculateBounds()
@@ -272,8 +245,8 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
             e.r = rotation || 0
         }
 
-        e.c[0] = e.x + (e.w / 2)
-        e.c[1] = e.y + (e.h / 2)
+        e.c.x = e.x + (e.w / 2)
+        e.c.y = e.y + (e.h / 2)
 
         e.x2 = e.x + e.w
         e.y2 = e.y + e.h
