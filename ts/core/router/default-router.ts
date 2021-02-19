@@ -7,7 +7,7 @@ import {ViewportElement} from "../viewport"
 import {ConnectionDetachedParams, Dictionary, Offset, PointArray, PointXY, Rotations, SortFunction} from "../common"
 import {AnchorComputeParams, AnchorOrientationHint, Face, Orientation} from "../factory/anchor-factory"
 import { DynamicAnchor } from "../anchor/dynamic-anchor"
-import {findWithFunction, removeWithFunction, rotatePoint, sortHelper, uuid, forEach} from "../util"
+import {findWithFunction, removeWithFunction, rotatePoint, sortHelper, uuid, forEach, RotatedPointXY} from "../util"
 import {ContinuousAnchor} from "../anchor/continuous-anchor"
 import { Anchor } from '../anchor/anchor'
 
@@ -31,9 +31,9 @@ function placeAnchorsOnLine<E>(element:ViewportElement<E>, connections:Array<any
         let dy = (horizontal ? other : val), y = element.y + dy, yp = dy / element.h
 
         if (element.r !== 0 && element.r != null) {
-            const rotated = rotatePoint([x, y], element.c, element.r);
-            x = rotated[0];
-            y = rotated[1];
+            const rotated = rotatePoint({x, y}, element.c, element.r);
+            x = rotated.x;
+            y = rotated.y;
         }
 
         a.push([ x, y, xp, yp, connections[i][1], connections[i][2] ])
@@ -151,18 +151,20 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
         const rotation = params.rotation;
         if (rotation != null && rotation.length > 0) {
 
-            let o = anchor._unrotatedOrientation.slice(), current = candidate.slice()
+            let o = anchor._unrotatedOrientation.slice(),
+                s = candidate.slice(),
+                current:RotatedPointXY = {x:s[0], y:s[1], cr:0, sr:0}
 
             forEach(rotation, (r) => {
                 current = rotatePoint(current, r.c, r.r)
-                let _o = [ Math.round((o[0] * current[2]) - (o[1] * current[3])),
-                        Math.round((o[1] * current[2]) + (o[0] * current[3])) ]
+                let _o = [ Math.round((o[0] * current.cr) - (o[1] * current.sr)),
+                        Math.round((o[1] * current.cr) + (o[0] * current.sr)) ]
                 o = _o.slice()
             })
 
             anchor.orientation[0] = o[0]
             anchor.orientation[1] = o[1]
-            anchor.lastReturnValue = [current[0], current[1], anchor.x, anchor.y]
+            anchor.lastReturnValue = [current.x, current.y, anchor.x, anchor.y]
 
         } else {
             anchor.orientation[0] = anchor._unrotatedOrientation[0];
@@ -578,8 +580,8 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
 
         // since we only support rotation around the center of an element these two lines don't have to take rotation
         // into account.
-        let theta = Math.atan2((td.c[1] - sd.c[1]), (td.c[0]- sd.c[0])),
-            theta2 = Math.atan2((sd.c[1] - td.c[1]), (sd.c[0] - td.c[0]))
+        let theta = Math.atan2((td.c.y - sd.c.y), (td.c.x- sd.c.x)),
+            theta2 = Math.atan2((sd.c.y - td.c.y), (sd.c.x - td.c.x))
 
 // --------------------------------------------------------------------------------------
 
@@ -595,10 +597,10 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
         ;( (types:Array<string>, dim:Array<[ViewportElement<T["E"]>, Rotations]>) => {
             for (let i = 0; i < types.length; i++) {
                 midpoints[types[i]] = {
-                    "left": {x:dim[i][0].x, y:dim[i][0].c[1] },
-                    "right": {x:dim[i][0].x + dim[i][0].w, y:dim[i][0].c[1] },
-                    "top": {x:dim[i][0].c[0], y:dim[i][0].y },
-                    "bottom": {x:dim[i][0].c[0], y:dim[i][0].y + dim[i][0].h}
+                    "left": {x:dim[i][0].x, y:dim[i][0].c.y },
+                    "right": {x:dim[i][0].x + dim[i][0].w, y:dim[i][0].c.y },
+                    "top": {x:dim[i][0].c.x, y:dim[i][0].y },
+                    "bottom": {x:dim[i][0].c.x, y:dim[i][0].y + dim[i][0].h}
                 }
 
 
