@@ -3,9 +3,7 @@ import {EventGenerator} from "./event-generator"
 import {findWithFunction, getsert, forEach, insertSorted} from './util'
 import {JsPlumbInstance} from "./core"
 
-export interface ViewportPosition {
-    x:number
-    y:number
+export interface ViewportPosition extends PointXY {
 }
 
 export interface ViewportElementBase<E> extends ViewportPosition {
