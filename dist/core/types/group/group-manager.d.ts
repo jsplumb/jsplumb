@@ -1,4 +1,4 @@
-import { Dictionary, Offset } from '../common';
+import { Dictionary, PointXY } from '../common';
 import { JsPlumbInstance } from "../core";
 import { UIGroup } from "./group";
 export interface AddGroupOptions {
@@ -17,10 +17,10 @@ export declare class GroupManager<E> {
     getGroup(groupId: string | UIGroup<E>): UIGroup<E>;
     getGroupFor(el: E): UIGroup<E>;
     getGroups(): Array<UIGroup<E>>;
-    removeGroup(group: string | UIGroup<E>, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): Dictionary<Offset>;
+    removeGroup(group: string | UIGroup<E>, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): Dictionary<PointXY>;
     removeAllGroups(deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): void;
     forEach(f: (g: UIGroup<E>) => any): void;
-    orphan(el: E): [string, Offset];
+    orphan(el: E): [string, PointXY];
     private _setGroupVisible;
     _updateConnectionsForGroup(group: UIGroup<E>): void;
     private _collapseConnection;

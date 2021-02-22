@@ -2,7 +2,7 @@ import {
     ConnectionDetachedParams,
     ConnectionEstablishedParams,
     Dictionary, jsPlumbElement,
-    Offset,
+    PointXY,
     ConnectionMovedParams
 } from '../common'
 
@@ -20,7 +20,7 @@ interface GroupMemberEventParams<E> {
 }
 
 interface GroupMemberAddedParams<E> extends GroupMemberEventParams<E> {
-    pos:Offset
+    pos:PointXY
 }
 
 interface GroupMemberRemovedParams<E> extends GroupMemberEventParams<E> {
@@ -199,10 +199,10 @@ export class GroupManager<E> {
         return g
     }
 
-    removeGroup(group:string | UIGroup<E>, deleteMembers?:boolean, manipulateView?:boolean, doNotFireEvent?:boolean):Dictionary<Offset> {
+    removeGroup(group:string | UIGroup<E>, deleteMembers?:boolean, manipulateView?:boolean, doNotFireEvent?:boolean):Dictionary<PointXY> {
         let actualGroup = this.getGroup(group)
         this.expandGroup(actualGroup, true) // this reinstates any original connections and removes all proxies, but does not fire an event.
-        let newPositions:Dictionary<Offset> = {}
+        let newPositions:Dictionary<PointXY> = {}
         // remove `group` from child nodes
         forEach(actualGroup.children,(_el:E) => {
             const entry = this.instance.getManagedElements()[this.instance.getId(_el)]
@@ -255,7 +255,7 @@ export class GroupManager<E> {
 
     // it would be nice to type `_el` as an element here, but the type of the element is currently specified by the
     // concrete implementation of jsplumb (of which there is 'DOM',  a browser implementation, at the moment.)
-    orphan(el:E):[string, Offset] {
+    orphan(el:E):[string, PointXY] {
         const jel = el as unknown as jsPlumbElement<E>
         if (jel._jsPlumbParentGroup) {
             const group = jel._jsPlumbParentGroup
@@ -265,8 +265,8 @@ export class GroupManager<E> {
             (jel as any).parentNode.removeChild(jel)
 
             if (group.group) {
-                pos.left += groupPos.left
-                pos.top += groupPos.top
+                pos.x += groupPos.x
+                pos.y += groupPos.y
                 group.group.getContentArea().appendChild(el); // set as child of parent group, if there is one.
             } else {
                 this.instance.appendElement(el, this.instance.getContainer()); // set back as child of container
@@ -658,7 +658,7 @@ export class GroupManager<E> {
                     }
 
                     let elId = this.instance.getId(el)
-                    let newPosition = { left: elpos.left - cpos.left, top: elpos.top - cpos.top }
+                    let newPosition = { x: elpos.x - cpos.x, y: elpos.y - cpos.y }
 
                     this.instance.setPosition(el, newPosition)
 

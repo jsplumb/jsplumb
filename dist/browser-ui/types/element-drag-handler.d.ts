@@ -1,11 +1,11 @@
 import { DragHandler } from "./drag-manager";
 import { BrowserJsPlumbInstance, DragGroupSpec, jsPlumbDOMElement } from "./browser-jsplumb-instance";
 import { DragEventParams, Drag, DragStopEventParams } from "./collicat";
-import { Offset, RedrawResult, PointXY } from "@jsplumb/core";
+import { RedrawResult, PointXY } from "@jsplumb/core";
 export interface DragStopPayload {
     el: Element;
     e: MouseEvent;
-    pos: Offset;
+    pos: PointXY;
     r: RedrawResult;
 }
 export declare class ElementDragHandler implements DragHandler {

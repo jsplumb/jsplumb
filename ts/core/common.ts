@@ -113,8 +113,6 @@ export interface SourceOrTargetDefinition {
 export interface SourceDefinition extends SourceOrTargetDefinition { }
 export interface TargetDefinition extends SourceOrTargetDefinition { }
 
-export interface Offset {left:number, top:number}
-
 export interface Size { w:number, h:number }
 
 export type PointArray = [ number, number ]
@@ -129,7 +127,7 @@ export interface UpdateOffsetOptions {
     elId?:string
 }
 
-export interface ExtendedOffset extends Offset {
+export interface ExtendedOffset extends PointXY {
     width?:number
     height?:number
     centerx?:number

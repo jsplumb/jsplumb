@@ -1,4 +1,4 @@
-import { Size, Offset, PointXY } from "./common";
+import { Size, PointXY } from "./common";
 import { EventGenerator } from "./event-generator";
 import { JsPlumbInstance } from "./core";
 export interface ViewportPosition extends PointXY {
@@ -59,7 +59,7 @@ export declare class Viewport<T extends {
     updateElement(id: string, x: number, y: number, width: number, height: number, rotation: number): ViewportElement<T["E"]>;
     refreshElement(elId: string): ViewportElement<T["E"]>;
     protected getSize(el: T["E"]): Size;
-    protected getOffset(el: T["E"]): Offset;
+    protected getOffset(el: T["E"]): PointXY;
     /**
      * Creates an empty entry for an element with the given ID.
      * @param id

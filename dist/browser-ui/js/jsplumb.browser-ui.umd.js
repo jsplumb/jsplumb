@@ -339,8 +339,8 @@
     top = box.top + scrollTop - clientTop,
         left = box.left + scrollLeft - clientLeft;
     return {
-      left: Math.round(left),
-      top: Math.round(top)
+      x: Math.round(left),
+      y: Math.round(top)
     };
   }
 
@@ -875,11 +875,7 @@
   }();
 
   function getOffsetRect(elem) {
-    var o = offsetRelativeToRoot(elem);
-    return {
-      x: o.left,
-      y: o.top
-    };
+    return offsetRelativeToRoot(elem);
   }
   function findDelegateElement(parentElement, childElement, selector) {
     if (matchesSelector(childElement, selector, parentElement)) {
@@ -1247,8 +1243,8 @@
                 this._parent.appendChild(this._dragEl);
               } else {
                 var b = offsetRelativeToRoot(this._elementToDrag);
-                this._dragEl.style.left = b.left + "px";
-                this._dragEl.style.top = b.top + "px";
+                this._dragEl.style.left = b.x + "px";
+                this._dragEl.style.top = b.y + "px";
                 document.body.appendChild(this._dragEl);
               }
             } else {
@@ -1877,7 +1873,7 @@
       value: function onStop(params) {
         var _this = this;
         var _one = function _one(_el, pos) {
-          var redrawResult = _this.instance.setElementPosition(_el, pos.left, pos.top);
+          var redrawResult = _this.instance.setElementPosition(_el, pos.x, pos.y);
           _this.instance.fire(EVENT_DRAG_STOP, {
             el: _el,
             e: params.e,
@@ -1893,15 +1889,12 @@
           }).removeClass(_this.instance.elementDraggingClass + " " + _this.instance.targetElementDraggingClass, true);
         };
         var dragElement = params.drag.getDragElement();
-        _one(dragElement, {
-          left: params.finalPos.x,
-          top: params.finalPos.y
-        });
+        _one(dragElement, params.finalPos);
         this._dragSelectionOffsets.forEach(function (v, k) {
           if (v[1] !== params.el) {
             var pp = {
-              left: params.finalPos.x + v[0].left,
-              top: params.finalPos.y + v[0].top
+              x: params.finalPos.x + v[0].x,
+              y: params.finalPos.y + v[0].y
             };
             _one(v[1], pp);
           }
@@ -1955,13 +1948,13 @@
         var finalPos = params.pos;
         var elSize = this.instance.getSize(el);
         var ui = {
-          left: finalPos.x,
-          top: finalPos.y
+          x: finalPos.x,
+          y: finalPos.y
         };
         this._intersectingGroups.length = 0;
         if (this._dragOffset != null) {
-          ui.left += this._dragOffset.left;
-          ui.top += this._dragOffset.top;
+          ui.x += this._dragOffset.x;
+          ui.y += this._dragOffset.y;
         }
         var _one = function _one(el, bounds, e) {
           var ancestorsOfIntersectingGroups = new Set();
@@ -1987,14 +1980,14 @@
             el: el,
             e: params.e,
             pos: {
-              left: bounds.x,
-              top: bounds.y
+              x: bounds.x,
+              y: bounds.y
             }
           });
         };
         var elBounds = {
-          x: ui.left,
-          y: ui.top,
+          x: ui.x,
+          y: ui.y,
           w: elSize.w,
           h: elSize.h
         };
@@ -2002,8 +1995,8 @@
         this._dragSelectionOffsets.forEach(function (v, k) {
           var s = _this3._dragSizes.get(k);
           var _b = {
-            x: elBounds.x + v[0].left,
-            y: elBounds.y + v[0].top,
+            x: elBounds.x + v[0].x,
+            y: elBounds.y + v[0].y,
             w: s.w,
             h: s.h
           };
@@ -2014,8 +2007,8 @@
         this._currentDragGroupOffsets.forEach(function (v, k) {
           var s = _this3._currentDragGroupSizes.get(k);
           var _b = {
-            x: elBounds.x + v[0].left,
-            y: elBounds.y + v[0].top,
+            x: elBounds.x + v[0].x,
+            y: elBounds.y + v[0].y,
             w: s.w,
             h: s.h
           };
@@ -2049,8 +2042,8 @@
             var id = _this4.instance.getId(jel);
             var off = _this4.instance.getOffset(jel);
             _this4._dragSelectionOffsets.set(id, [{
-              left: off.left - elOffset.left,
-              top: off.top - elOffset.top
+              x: off.x - elOffset.x,
+              y: off.y - elOffset.y
             }, jel]);
             _this4._dragSizes.set(id, _this4.instance.getSize(jel));
           });
@@ -2067,8 +2060,8 @@
                         s = _this4.instance.getSize(groupEl),
                         o = _this4.instance.getOffset(groupEl),
                         boundingRect = {
-                      x: o.left,
-                      y: o.top,
+                      x: o.x,
+                      y: o.y,
                       w: s.w,
                       h: s.h
                     };
@@ -2120,8 +2113,8 @@
             this._currentDragGroup.members.forEach(function (jel) {
               var off = _this4.instance.getOffset(jel.el);
               _this4._currentDragGroupOffsets.set(jel.elId, [{
-                left: off.left - elOffset.left,
-                top: off.top - elOffset.top
+                x: off.x - elOffset.x,
+                y: off.y - elOffset.y
               }, jel.el]);
               _this4._currentDragGroupSizes.set(jel.elId, _this4.instance.getSize(jel.el));
               _one(jel.el);
@@ -2550,8 +2543,8 @@
               var o = _this.instance.getOffset(candidate),
                   s = _this.instance.getSize(candidate);
               boundingRect = {
-                x: o.left,
-                y: o.top,
+                x: o.x,
+                y: o.y,
                 w: s.w,
                 h: s.h
               };
@@ -2575,8 +2568,8 @@
           var o = _this.instance.getOffset(candidate),
               s = _this.instance.getSize(candidate);
           boundingRect = {
-            x: o.left,
-            y: o.top,
+            x: o.x,
+            y: o.y,
             w: s.w,
             h: s.h
           };
@@ -2911,8 +2904,8 @@
           if (dropEndpoint.anchor.positionFinder != null) {
             var finalPos = p.finalPos || p.pos;
             var dropPosition = {
-              left: finalPos.x,
-              top: finalPos.y
+              x: finalPos.x,
+              y: finalPos.y
             };
             var elPosition = this.instance.getOffset(this.currentDropTarget.el),
                 elSize = this.instance.getSize(this.currentDropTarget.el),
@@ -3100,11 +3093,11 @@
             var o1 = this.instance.getOffset(currentGroup.getContentArea());
             var o2 = this.instance.getOffset(originalGroup.getContentArea());
             var o = {
-              left: o2.left + params.pos.x - o1.left,
-              top: o2.top + params.pos.y - o1.top
+              x: o2.x + params.pos.x - o1.x,
+              y: o2.y + params.pos.y - o1.y
             };
-            originalElement.style.left = o.left + "px";
-            originalElement.style.top = o.top + "px";
+            originalElement.style.left = o.x + "px";
+            originalElement.style.top = o.y + "px";
           }
         }
         this.instance.revalidate(originalElement);
@@ -3994,19 +3987,19 @@
         var jel = el;
         var container = this.getContainer();
         var out = {
-          left: jel.offsetLeft,
-          top: jel.offsetTop
+          x: jel.offsetLeft,
+          y: jel.offsetTop
         },
             op = el !== container && jel.offsetParent !== container ? jel.offsetParent : null,
             _maybeAdjustScroll = function _maybeAdjustScroll(offsetParent) {
           if (offsetParent != null && offsetParent !== document.body && (offsetParent.scrollTop > 0 || offsetParent.scrollLeft > 0)) {
-            out.left -= offsetParent.scrollLeft;
-            out.top -= offsetParent.scrollTop;
+            out.x -= offsetParent.scrollLeft;
+            out.y -= offsetParent.scrollTop;
           }
         };
         while (op != null) {
-          out.left += op.offsetLeft;
-          out.top += op.offsetTop;
+          out.x += op.offsetLeft;
+          out.y += op.offsetTop;
           _maybeAdjustScroll(op);
           op = op.offsetParent === container ? null : op.offsetParent;
         }
@@ -4014,8 +4007,8 @@
           var pp = jel.offsetParent != null ? this.getStyle(jel.offsetParent, core.PROPERTY_POSITION) : core.STATIC,
               p = this.getStyle(jel, core.PROPERTY_POSITION);
           if (p !== core.ABSOLUTE && p !== core.FIXED && pp !== core.ABSOLUTE && pp !== core.FIXED) {
-            out.left -= container.scrollLeft;
-            out.top -= container.scrollTop;
+            out.x -= container.scrollLeft;
+            out.y -= container.scrollTop;
           }
         }
         return out;
@@ -4057,8 +4050,8 @@
       key: "setPosition",
       value: function setPosition(el, p) {
         var jel = el;
-        jel.style.left = p.left + "px";
-        jel.style.top = p.top + "px";
+        jel.style.left = p.x + "px";
+        jel.style.top = p.y + "px";
       }
     }, {
       key: "setDraggable",

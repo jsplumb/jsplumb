@@ -1,4 +1,4 @@
-import { jsPlumbDefaults, Dictionary, Offset, PointArray, Size, jsPlumbElement, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, OverlayCapableComponent, Segment, LabelOverlay, Connection, Component, DeleteConnectionOptions } from '@jsplumb/core';
+import { jsPlumbDefaults, Dictionary, PointArray, Size, jsPlumbElement, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, OverlayCapableComponent, Segment, LabelOverlay, Connection, Component, DeleteConnectionOptions, PointXY } from '@jsplumb/core';
 import { DragManager } from "./drag-manager";
 import { EventManager } from "./event-manager";
 import { Drag, DragStartEventParams, DragEventParams, DragStopEventParams } from './collicat';
@@ -112,12 +112,12 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     on(el: Element, event: string, callbackOrSelector: Function | string, callback?: Function): this;
     off(el: Element, event: string, callback: Function): this;
     trigger(el: Element, event: string, originalEvent?: Event, payload?: any): void;
-    getOffsetRelativeToRoot(el: Element): Offset;
-    getOffset(el: Element): Offset;
+    getOffsetRelativeToRoot(el: Element): PointXY;
+    getOffset(el: Element): PointXY;
     getSize(el: Element): Size;
     getStyle(el: Element, prop: string): any;
     getSelector(ctx: string | Element, spec: string): Array<jsPlumbDOMElement>;
-    setPosition(el: Element, p: Offset): void;
+    setPosition(el: Element, p: PointXY): void;
     static getPositionOnElement(evt: Event, el: Element, zoom: number): PointArray;
     setDraggable(element: Element, draggable: boolean): void;
     isDraggable(el: Element): boolean;

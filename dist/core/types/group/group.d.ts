@@ -1,4 +1,4 @@
-import { Dictionary, Offset } from '../common';
+import { Dictionary, PointXY } from '../common';
 import { JsPlumbInstance } from "../core";
 import { Connection } from '../connector/connection-impl';
 import { AnchorSpec } from "../factory/anchor-factory";
@@ -57,7 +57,7 @@ export declare class UIGroup<E = any> extends UINode<E> {
     add(_el: any, doNotFireEvent?: boolean): void;
     remove(el: E | Array<E>, manipulateDOM?: boolean, doNotFireEvent?: boolean, doNotUpdateConnections?: boolean, targetGroup?: UIGroup<E>): void;
     removeAll(manipulateDOM?: boolean, doNotFireEvent?: boolean): void;
-    orphanAll(): Dictionary<Offset>;
+    orphanAll(): Dictionary<PointXY>;
     addGroup(group: UIGroup<E>): boolean;
     removeGroup(group: UIGroup<E>): void;
     getGroups(): Array<UIGroup<E>>;

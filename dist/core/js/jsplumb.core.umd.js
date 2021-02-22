@@ -5711,8 +5711,8 @@
           this.instance.appendElement(group.el, this.getContentArea());
           group.group = this;
           var newPosition = {
-            left: elpos.left - cpos.left,
-            top: elpos.top - cpos.top
+            x: elpos.x - cpos.x,
+            y: elpos.y - cpos.y
           };
           this.instance.setPosition(group.el, newPosition);
           this.instance.fire(EVENT_NESTED_GROUP_ADDED, {
@@ -5998,8 +5998,8 @@
           var pos = this.instance.getOffset(el);
           jel.parentNode.removeChild(jel);
           if (group.group) {
-            pos.left += groupPos.left;
-            pos.top += groupPos.top;
+            pos.x += groupPos.x;
+            pos.y += groupPos.y;
             group.group.getContentArea().appendChild(el);
           } else {
             this.instance.appendElement(el, this.instance.getContainer());
@@ -6332,8 +6332,8 @@
               }
               var elId = _this8.instance.getId(el);
               var newPosition = {
-                left: elpos.left - cpos.left,
-                top: elpos.top - cpos.top
+                x: elpos.x - cpos.x,
+                y: elpos.y - cpos.y
               };
               _this8.instance.setPosition(el, newPosition);
               _this8._updateConnectionsForGroup(actualGroup);
@@ -6766,14 +6766,14 @@
           var ep = this.instance.endpointsByElement[elementId] || [];
           timestamp = timestamp || uuid();
           offsetToUI = offsetToUI || {
-            left: 0,
-            top: 0
+            x: 0,
+            y: 0
           };
           var offsetToUse = null;
           if (ui) {
             offsetToUse = {
-              left: ui.x + offsetToUI.left,
-              top: ui.y + offsetToUI.top
+              left: ui.x + offsetToUI.x,
+              top: ui.y + offsetToUI.y
             };
           }
           var orientationCache = {};
@@ -7541,7 +7541,7 @@
         if (s != null) {
           var size = this.getSize(s);
           var offset = this.getOffset(s);
-          return this.updateElement(elId, offset.left, offset.top, size.w, size.h, null);
+          return this.updateElement(elId, offset.x, offset.y, size.w, size.h, null);
         } else {
           return null;
         }
@@ -9299,18 +9299,18 @@
         if (!timestamp || endpoint.timestamp !== timestamp) {
           var info = this.viewport.getPosition(endpoint.elementId);
           var xy = params.offset ? {
-            left: params.offset.x,
-            top: params.offset.y
+            x: params.offset.x,
+            y: params.offset.y
           } : {
-            left: info.x,
-            top: info.y
+            x: info.x,
+            y: info.y
           };
           if (xy != null) {
             var ap = params.anchorLoc;
             if (ap == null) {
               var wh = [info.w, info.h],
                   anchorParams = {
-                xy: [xy.left, xy.top],
+                xy: [xy.x, xy.y],
                 wh: wh,
                 element: endpoint,
                 timestamp: timestamp

@@ -35,9 +35,8 @@ import {
     SourceDefinition,
     SourceOrTargetDefinition, TARGET,
     TargetDefinition, AnchorSpec,
-    forEach, EndpointSpec, intersects, PointXY, AnchorLocations, Size, Offset
+    forEach, EndpointSpec, intersects, PointXY, AnchorLocations, Size
 } from "@jsplumb/core"
-import {AnchorPlacement} from "@jsplumb/core/router/router"
 
 function _makeFloatingEndpoint (paintStyle:PaintStyle,
                                 referenceAnchor:Anchor,
@@ -258,7 +257,7 @@ export class EndpointDragHandler implements DragHandler {
      * @param ips
      * @private
      */
-    private _makeDraggablePlaceholder(ipco:Offset, ips:Size):HTMLElement {
+    private _makeDraggablePlaceholder(ipco:PointXY, ips:Size):HTMLElement {
 
         this.placeholderInfo = this.placeholderInfo || {}
 
@@ -418,7 +417,7 @@ export class EndpointDragHandler implements DragHandler {
             if ((this.jpc != null || candidate !== canvasElement) && candidate !== this.floatingElement) {
                 if ( (isSourceDrag && candidate.jtk.endpoint.isSource) || (!isSourceDrag && candidate.jtk.endpoint.isTarget) ) {
                     const o = this.instance.getOffset(candidate), s = this.instance.getSize(candidate)
-                    boundingRect = {x: o.left, y: o.top, w: s.w, h: s.h}
+                    boundingRect = {x: o.x, y: o.y, w: s.w, h: s.h}
                     this.endpointDropTargets.push({el: candidate, r: boundingRect, endpoint: candidate.jtk.endpoint})
                     this.instance.addClass(candidate, CLASS_DRAG_ACTIVE)
                 }
@@ -439,7 +438,7 @@ export class EndpointDragHandler implements DragHandler {
         forEach(matchingElements, (candidate:any) => {
 
             const o = this.instance.getOffset(candidate), s = this.instance.getSize(candidate)
-            boundingRect = {x: o.left, y: o.top, w: s.w, h: s.h}
+            boundingRect = {x: o.x, y: o.y, w: s.w, h: s.h}
             let d: any = {el: candidate, r: boundingRect}
 
             // look for at least one target definition that is not disabled on the given element.
@@ -898,7 +897,7 @@ export class EndpointDragHandler implements DragHandler {
             if (dropEndpoint.anchor.positionFinder != null) {
 
                 let finalPos:PointXY = p.finalPos || p.pos
-                let dropPosition = { left:finalPos.x, top:finalPos.y }
+                let dropPosition = { x:finalPos.x, y:finalPos.y }
 
                 let elPosition = this.instance.getOffset(this.currentDropTarget.el),
                     elSize = this.instance.getSize(this.currentDropTarget.el),

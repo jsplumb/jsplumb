@@ -1,4 +1,4 @@
-import {Size, Offset, PointXY} from "./common"
+import {Size, PointXY} from "./common"
 import {EventGenerator} from "./event-generator"
 import {findWithFunction, getsert, forEach, insertSorted} from './util'
 import {JsPlumbInstance} from "./core"
@@ -265,7 +265,7 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
 
             const size = this.getSize(s)
             const offset = this.getOffset(s)
-            return this.updateElement(elId, offset.left, offset.top, size.w, size.h, null)
+            return this.updateElement(elId, offset.x, offset.y, size.w, size.h, null)
         } else {
             return null
         }
@@ -275,7 +275,7 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
         return this.instance.getSize(el)
     }
 
-    protected getOffset(el:T["E"]):Offset {
+    protected getOffset(el:T["E"]):PointXY {
         return  this.instance.getOffset(el)
     }
 

@@ -4,7 +4,7 @@ import { JsPlumbInstance } from "../core"
 import { Connection } from '../connector/connection-impl'
 import { Endpoint } from '../endpoint/endpoint'
 import {ViewportElement} from "../viewport"
-import {ConnectionDetachedParams, Dictionary, Offset, PointArray, PointXY, Rotations, SortFunction} from "../common"
+import {ConnectionDetachedParams, Dictionary, PointArray, PointXY, Rotations, SortFunction} from "../common"
 import {AnchorComputeParams, AnchorOrientationHint, Face, Orientation} from "../factory/anchor-factory"
 import { DynamicAnchor } from "../anchor/dynamic-anchor"
 import {findWithFunction, removeWithFunction, rotatePoint, sortHelper, uuid, forEach, RotatedPointXY} from "../util"
@@ -397,7 +397,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
         (endpoint as any)._continuousAnchorEdge = edgeId
     }
 
-    redraw (elementId:string, ui?:ViewportElement<T["E"]>, timestamp?:string, offsetToUI?:Offset):RedrawResult {
+    redraw (elementId:string, ui?:ViewportElement<T["E"]>, timestamp?:string, offsetToUI?:PointXY):RedrawResult {
 
         let connectionsToPaint:Set<Connection> = new Set(),
             endpointsToPaint:Set<Endpoint> = new Set(),
@@ -412,13 +412,13 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
             // offsetToUI are values that would have been calculated in the dragManager when registering
             // an endpoint for an element that had a parent (somewhere in the hierarchy) that had been
             // registered as draggable.
-            offsetToUI = offsetToUI || {left: 0, top: 0}
+            offsetToUI = offsetToUI || {x: 0, y: 0}
             let offsetToUse = null
             // TODO updateOffset should take an OffsetAndSize object, not a ViewportElement.
             if (ui) {
                 offsetToUse = {
-                    left: ui.x + offsetToUI.left,
-                    top: ui.y + offsetToUI.top
+                    left: ui.x + offsetToUI.x,
+                    top: ui.y + offsetToUI.y
                 }
             }
 

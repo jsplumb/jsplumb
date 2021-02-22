@@ -1,7 +1,7 @@
 import {
     jsPlumbDefaults,
     Dictionary,
-    Offset,
+
     PointArray,
     Size,
     BoundingBox,
@@ -496,24 +496,24 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         return offsetRelativeToRoot(el)
     }
 
-    getOffset(el:Element):Offset {
+    getOffset(el:Element):PointXY {
         const jel = el as unknown as jsPlumbDOMElement
         const container = this.getContainer()
-        let out: Offset = {
-                left: jel.offsetLeft,
-                top: jel.offsetTop
+        let out: PointXY = {
+                x: jel.offsetLeft,
+                y: jel.offsetTop
             },
             op = ((el !== container && jel.offsetParent !== container) ? jel.offsetParent : null) as HTMLElement,
             _maybeAdjustScroll = (offsetParent: HTMLElement) => {
                 if (offsetParent != null && offsetParent !== document.body && (offsetParent.scrollTop > 0 || offsetParent.scrollLeft > 0)) {
-                    out.left -= offsetParent.scrollLeft
-                    out.top -= offsetParent.scrollTop
+                    out.x -= offsetParent.scrollLeft
+                    out.y -= offsetParent.scrollTop
                 }
             }
 
         while (op != null) {
-            out.left += op.offsetLeft
-            out.top += op.offsetTop
+            out.x += op.offsetLeft
+            out.y += op.offsetTop
             _maybeAdjustScroll(op)
             op = (op.offsetParent === container ? null : op.offsetParent) as HTMLElement
         }
@@ -523,8 +523,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             let pp = jel.offsetParent != null ? this.getStyle(jel.offsetParent as HTMLElement, PROPERTY_POSITION) : STATIC,
                 p = this.getStyle(jel, PROPERTY_POSITION)
             if (p !== ABSOLUTE && p !== FIXED && pp !== ABSOLUTE && pp !== FIXED) {
-                out.left -= container.scrollLeft
-                out.top -= container.scrollTop
+                out.x -= container.scrollLeft
+                out.y -= container.scrollTop
             }
         }
 
@@ -563,10 +563,10 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         return sel
     }
 
-    setPosition(el:Element, p:Offset):void {
+    setPosition(el:Element, p:PointXY):void {
         const jel = el as jsPlumbDOMElement
-        jel.style.left = p.left + "px"
-        jel.style.top = p.top + "px"
+        jel.style.left = p.x + "px"
+        jel.style.top = p.y + "px"
     }
 
     static getPositionOnElement(evt:Event, el:Element, zoom:number):PointArray {

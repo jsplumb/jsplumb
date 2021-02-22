@@ -15,7 +15,7 @@ import {
     BoundingBox,
     Dictionary,
     GROUP_KEY, isString, JsPlumbInstance,
-    Offset, optional,
+    optional,
     PARENT_GROUP_KEY,
     RedrawResult,
     UIGroup,
@@ -41,14 +41,14 @@ type DragGroup = { id:string, members:Set<DragGroupMemberSpec>}
 export interface DragStopPayload {
     el:Element
     e:MouseEvent
-    pos:Offset
+    pos:PointXY
     r:RedrawResult
 }
 
 export class ElementDragHandler implements DragHandler {
 
     selector: string = "> [jtk-managed]"
-    private _dragOffset:Offset = null
+    private _dragOffset:PointXY = null
     private _groupLocations:Array<GroupLocation> = []
     private _intersectingGroups:Array<IntersectingGroup> = []
     private _currentDragParentGroup:UIGroup<Element> = null
@@ -57,11 +57,11 @@ export class ElementDragHandler implements DragHandler {
     private _dragGroupMap:Dictionary<DragGroup> = {}
 
     private _currentDragGroup:DragGroup = null
-    private _currentDragGroupOffsets:Map<string, [Offset, jsPlumbDOMElement]> = new Map()
+    private _currentDragGroupOffsets:Map<string, [PointXY, jsPlumbDOMElement]> = new Map()
     private _currentDragGroupSizes:Map<string, Size> = new Map()
 
     private _dragSelection: Array<jsPlumbDOMElement> = []
-    private _dragSelectionOffsets:Map<string, [Offset, jsPlumbDOMElement]> = new Map()
+    private _dragSelectionOffsets:Map<string, [PointXY, jsPlumbDOMElement]> = new Map()
     private _dragSizes:Map<string, Size> = new Map()
 
     protected drag:Drag
@@ -75,9 +75,9 @@ export class ElementDragHandler implements DragHandler {
 
     onStop(params:DragStopEventParams):void {
 
-        const _one = (_el:Element, pos:Offset) => {
+        const _one = (_el:Element, pos:PointXY) => {
 
-            const redrawResult = this.instance.setElementPosition(_el, pos.left, pos.top)
+            const redrawResult = this.instance.setElementPosition(_el, pos.x, pos.y)
 
             this.instance.fire<DragStopPayload>(EVENT_DRAG_STOP, {
                 el:_el,
@@ -93,13 +93,13 @@ export class ElementDragHandler implements DragHandler {
         }
 
         const dragElement = params.drag.getDragElement()
-        _one(dragElement, {left:params.finalPos.x, top:params.finalPos.y})
+        _one(dragElement,  params.finalPos)//{x:params.finalPos.x, y:params.finalPos.y})
 
-        this._dragSelectionOffsets.forEach( (v:[Offset, jsPlumbDOMElement], k:string) => {
+        this._dragSelectionOffsets.forEach( (v:[PointXY, jsPlumbDOMElement], k:string) => {
             if (v[1] !== params.el) {
                 const pp = {
-                    left:params.finalPos.x + v[0].left,
-                    top:params.finalPos.y + v[0].top
+                    x:params.finalPos.x + v[0].x,
+                    y:params.finalPos.y + v[0].y
                 }
                 _one(v[1], pp)
             }
@@ -158,13 +158,13 @@ export class ElementDragHandler implements DragHandler {
         const el = params.drag.getDragElement()
         const finalPos = params.pos
         const elSize = this.instance.getSize(el)
-        const ui = { left:finalPos.x, top:finalPos.y }
+        const ui = { x:finalPos.x, y:finalPos.y }
 
         this._intersectingGroups.length = 0
 
         if (this._dragOffset != null) {
-            ui.left += this._dragOffset.left
-            ui.top += this._dragOffset.top
+            ui.x += this._dragOffset.x
+            ui.y += this._dragOffset.y
         }
 
         const _one = (el:any, bounds:BoundingBox, e:Event) => {
@@ -202,24 +202,24 @@ export class ElementDragHandler implements DragHandler {
             this.instance.fire(EVENT_DRAG_MOVE, {
                 el:el,
                 e:params.e,
-                pos:{left:bounds.x,top:bounds.y}
+                pos:{x:bounds.x,y:bounds.y}
             })
         }
 
-        const elBounds = { x:ui.left, y:ui.top, w:elSize.w, h:elSize.h }
+        const elBounds = { x:ui.x, y:ui.y, w:elSize.w, h:elSize.h }
         _one(el, elBounds, params.e)
 
-        this._dragSelectionOffsets.forEach((v:[Offset, jsPlumbDOMElement], k:string) => {
+        this._dragSelectionOffsets.forEach((v:[PointXY, jsPlumbDOMElement], k:string) => {
             const s = this._dragSizes.get(k)
-            let _b:BoundingBox = {x:elBounds.x + v[0].left, y:elBounds.y + v[0].top, w:s.w, h:s.h}
+            let _b:BoundingBox = {x:elBounds.x + v[0].x, y:elBounds.y + v[0].y, w:s.w, h:s.h}
             v[1].style.left = _b.x + "px"
             v[1].style.top = _b.y + "px"
             _one(v[1], _b, params.e)
         })
 
-        this._currentDragGroupOffsets.forEach((v:[Offset, jsPlumbDOMElement], k:string) => {
+        this._currentDragGroupOffsets.forEach((v:[PointXY, jsPlumbDOMElement], k:string) => {
             const s = this._currentDragGroupSizes.get(k)
-            let _b:BoundingBox = {x:elBounds.x + v[0].left, y:elBounds.y + v[0].top, w:s.w, h:s.h}
+            let _b:BoundingBox = {x:elBounds.x + v[0].x, y:elBounds.y + v[0].y, w:s.w, h:s.h}
             v[1].style.left = _b.x + "px"
             v[1].style.top = _b.y + "px"
             _one(v[1], _b, params.e)
@@ -255,7 +255,7 @@ export class ElementDragHandler implements DragHandler {
             forEach(this._dragSelection,(jel:jsPlumbDOMElement) => {
                 let id = this.instance.getId(jel)
                 let off = this.instance.getOffset(jel)
-                this._dragSelectionOffsets.set(id, [ { left:off.left - elOffset.left, top:off.top - elOffset.top }, jel])
+                this._dragSelectionOffsets.set(id, [ { x:off.x- elOffset.x, y:off.y - elOffset.y }, jel])
                 this._dragSizes.set(id, this.instance.getSize(jel))
             })
 
@@ -285,7 +285,7 @@ export class ElementDragHandler implements DragHandler {
                                 let groupEl = group.el,
                                     s = this.instance.getSize(groupEl),
                                     o = this.instance.getOffset(groupEl),
-                                    boundingRect = {x: o.left, y: o.top, w: s.w, h: s.h}
+                                    boundingRect = {x: o.x, y: o.y, w: s.w, h: s.h}
 
                                 this._groupLocations.push({el: groupEl, r: boundingRect, group: group})
 
@@ -337,7 +337,7 @@ export class ElementDragHandler implements DragHandler {
                 this._currentDragGroupSizes.clear()
                 this._currentDragGroup.members.forEach((jel) => {
                     let off = this.instance.getOffset(jel.el)
-                    this._currentDragGroupOffsets.set(jel.elId, [ { left:off.left - elOffset.left, top:off.top - elOffset.top }, jel.el as jsPlumbDOMElement])
+                    this._currentDragGroupOffsets.set(jel.elId, [ { x:off.x- elOffset.x, y:off.y - elOffset.y}, jel.el as jsPlumbDOMElement])
                     this._currentDragGroupSizes.set(jel.elId, this.instance.getSize(jel.el))
                     _one(jel.el)
                 })

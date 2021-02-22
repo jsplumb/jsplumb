@@ -9,8 +9,9 @@ import {jsPlumbDOMElement} from "./browser-jsplumb-instance"
 
 
 function getOffsetRect (elem:jsPlumbDOMElement):PointXY {
-    const o = offsetRelativeToRoot(elem)
-    return {x:o.left, y:o.top }
+    // const o = offsetRelativeToRoot(elem)
+    // return {x:o.left, y:o.top }
+    return offsetRelativeToRoot(elem)
 }
 
 function findDelegateElement(parentElement:jsPlumbDOMElement, childElement:jsPlumbDOMElement, selector:string) {
@@ -464,8 +465,8 @@ export class Drag extends Base {
                         // the clone node is added to the body; getOffsetRect gives us a value
                         // relative to the body.
                         const b = offsetRelativeToRoot(this._elementToDrag)
-                        this._dragEl.style.left = b.left + "px"
-                        this._dragEl.style.top = b.top + "px"
+                        this._dragEl.style.left = b.x + "px"
+                        this._dragEl.style.top = b.y + "px"
 
                         document.body.appendChild(this._dragEl)
                     }

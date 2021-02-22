@@ -4,7 +4,7 @@ import { Endpoint, EndpointSpec } from "./endpoint/endpoint";
 import { FullOverlaySpec, OverlaySpec } from "./overlay/overlay";
 import { AnchorPlacement, RedrawResult } from "./router/router";
 import { RotatedPointXY } from "./util";
-import { Dictionary, UpdateOffsetOptions, Offset, Size, jsPlumbElement, PointArray, ConnectParams, // <--
+import { Dictionary, UpdateOffsetOptions, Size, jsPlumbElement, PointArray, ConnectParams, // <--
 SourceDefinition, TargetDefinition, BehaviouralTypeDescriptor, TypeDescriptor, Rotations, PointXY, ConnectionMovedParams } from './common';
 import { EventGenerator } from "./event-generator";
 import { EndpointOptions } from "./endpoint/endpoint";
@@ -352,9 +352,9 @@ export declare abstract class JsPlumbInstance<T extends {
     abstract getSelector(ctx: string | T["E"], spec?: string): Array<T["E"]>;
     abstract getStyle(el: T["E"], prop: string): any;
     abstract getSize(el: T["E"]): Size;
-    abstract getOffset(el: T["E"]): Offset;
-    abstract getOffsetRelativeToRoot(el: T["E"] | string): Offset;
-    abstract setPosition(el: T["E"], p: Offset): void;
+    abstract getOffset(el: T["E"]): PointXY;
+    abstract getOffsetRelativeToRoot(el: T["E"] | string): PointXY;
+    abstract setPosition(el: T["E"], p: PointXY): void;
     abstract on(el: T["E"], event: string, callbackOrSelector: Function | string, callback?: Function): void;
     abstract off(el: T["E"], event: string, callback: Function): void;
     abstract trigger(el: T["E"], event: string, originalEvent?: Event, payload?: any): void;

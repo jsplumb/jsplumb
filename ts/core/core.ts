@@ -20,7 +20,6 @@ import {
 import {
     Dictionary,
     UpdateOffsetOptions,
-    Offset,
     Size,
     jsPlumbElement,
     PointArray,
@@ -1920,12 +1919,12 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         if (!timestamp || endpoint.timestamp !== timestamp) {
 
             let info = this.viewport.getPosition(endpoint.elementId)
-            let xy = params.offset ? {left:params.offset.x, top:params.offset.y} : {left:info.x, top:info.y }
+            let xy = params.offset ? {x:params.offset.x, y:params.offset.y} : {x:info.x, y:info.y }
             if (xy != null) {
                 let ap = params.anchorLoc
                 if (ap == null) {
                     let wh:PointArray = [info.w, info.h],
-                        anchorParams:AnchorComputeParams = { xy: [ xy.left, xy.top ], wh: wh, element: endpoint, timestamp: timestamp }
+                        anchorParams:AnchorComputeParams = { xy: [ xy.x, xy.y ], wh: wh, element: endpoint, timestamp: timestamp }
                     if (recalc && endpoint.anchor.isDynamic && endpoint.connections.length > 0) {
                         let c = findConnectionToUseForDynamicAnchor(endpoint),
                             oIdx = c.endpoints[0] === endpoint ? 1 : 0,
@@ -2070,10 +2069,10 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     abstract getSize(el:T["E"]):Size
 
-    abstract getOffset(el:T["E"]):Offset
-    abstract getOffsetRelativeToRoot(el:T["E"]|string):Offset
+    abstract getOffset(el:T["E"]):PointXY
+    abstract getOffsetRelativeToRoot(el:T["E"]|string):PointXY
 
-    abstract setPosition(el:T["E"], p:Offset):void
+    abstract setPosition(el:T["E"], p:PointXY):void
 
     abstract on (el:T["E"], event:string, callbackOrSelector:Function | string, callback?:Function):void
     abstract off (el:T["E"], event:string, callback:Function):void

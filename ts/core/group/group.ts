@@ -1,5 +1,5 @@
 
-import { Dictionary, Offset} from '../common'
+import { Dictionary, PointXY} from '../common'
 import { JsPlumbInstance } from "../core"
 import { Connection } from '../connector/connection-impl'
 import { AnchorSpec } from "../factory/anchor-factory"
@@ -160,9 +160,9 @@ export class UIGroup<E = any> extends UINode<E> {
         this.manager._updateConnectionsForGroup(this)
     }
 
-    orphanAll ():Dictionary<Offset> {
+    orphanAll ():Dictionary<PointXY> {
 
-        let orphanedPositions:Dictionary<Offset> = {}
+        let orphanedPositions:Dictionary<PointXY> = {}
 
         for (let i = 0; i < this.children.length; i++) {
             let newPosition = this.manager.orphan(this.children[i])
@@ -206,7 +206,7 @@ export class UIGroup<E = any> extends UINode<E> {
             this.instance.appendElement(group.el, this.getContentArea())
 
             group.group = this
-            let newPosition = {left: elpos.left - cpos.left, top: elpos.top - cpos.top}
+            let newPosition = {x: elpos.x - cpos.x, y: elpos.y - cpos.y}
 
             this.instance.setPosition(group.el, newPosition)
 
