@@ -1824,8 +1824,8 @@ var testSuite = function () {
         equal(parseInt(d.style.top, 10), 150);
 
         // test event fired
-        equal(150, pos.left, "event x position correct");
-        equal(150, pos.top, "event y position correct");
+        equal(150, pos.x, "event x position correct");
+        equal(150, pos.y, "event y position correct");
         equal(d, nodeDragged, "event el correct");
         ok(evt != null, "event original event was supplied");
         ok(dragStarted, "drag start event was fired");

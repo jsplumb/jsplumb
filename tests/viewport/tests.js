@@ -76,8 +76,8 @@ var testSuite = function () {
 
         // map of element ids to offsets
         var offsets = {}
-        offsets[d1Id] = {left:400, top:600}
-        offsets[d2Id] = {left:1400, top:2000}
+        offsets[d1Id] = {x:400, y:600}
+        offsets[d2Id] = {x:1400, y:2000}
 
         _jsPlumb.viewport.getOffset = function(el) {
             return offsets[_jsPlumb.getId(el)]
@@ -110,8 +110,8 @@ var testSuite = function () {
 
         // map of element ids to offsets
         var offsets = {}
-        offsets[d1Id] = {left:400, top:600}
-        offsets[d2Id] = {left:1400, top:2000}
+        offsets[d1Id] = {x:400, y:600}
+        offsets[d2Id] = {x:1400, y:2000}
 
         _jsPlumb.viewport.getSize = function(el) {
             return {w: 300, h:600 }

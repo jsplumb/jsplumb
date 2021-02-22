@@ -60,8 +60,8 @@ var testSuite = function () {
         targetGroup = _jsPlumb.getGroup(targetGroup);
         var tgo = _jsPlumb.getOffset(targetGroup.el),
             tgs = _jsPlumb.getSize(targetGroup.el),
-            tx = tgo.left + (tgs.w / 2),
-            ty = tgo.top + (tgs.h / 2);
+            tx = tgo.x + (tgs.w / 2),
+            ty = tgo.y + (tgs.h / 2);
 
         //
         //

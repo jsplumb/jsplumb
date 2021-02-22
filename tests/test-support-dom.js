@@ -34,8 +34,8 @@ if (Array.prototype.forEach == null) {
     var _makeEvt = function (_jsPlumb, el) {
         var o = _jsPlumb.getOffset(el),
             s = _jsPlumb.getSize(el),
-            l = o.left + (s.w / 2),
-            t = o.top + (s.h / 2);
+            l = o.x + (s.w / 2),
+            t = o.y + (s.h / 2);
 
         return {
             clientX: l,
