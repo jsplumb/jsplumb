@@ -1,4 +1,4 @@
-import { Offset, PointArray} from '../common'
+import {Offset, Size} from '../common'
 import { JsPlumbInstance } from "../core"
 import {EventGenerator} from "../event-generator"
 import { AnchorId, AnchorOptions, AnchorOrientationHint, Orientation } from "../factory/anchor-factory"
@@ -23,7 +23,7 @@ export class Anchor extends EventGenerator {
 
     _unrotatedOrientation:Orientation
 
-    positionFinder:(dropPosition:Offset, elPosition:Offset, elSize:PointArray, constructorParams:any) => any
+    positionFinder:(dropPosition:Offset, elPosition:Offset, elSize:Size, constructorParams:any) => any
 
     clone:() => Anchor
 
