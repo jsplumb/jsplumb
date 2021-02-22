@@ -106,7 +106,10 @@ export interface Offset {
     left: number;
     top: number;
 }
-export declare type Size = [number, number];
+export interface Size {
+    w: number;
+    h: number;
+}
 export declare type PointArray = [number, number];
 export interface PointXY {
     x: number;

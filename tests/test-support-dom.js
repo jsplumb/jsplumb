@@ -34,8 +34,8 @@ if (Array.prototype.forEach == null) {
     var _makeEvt = function (_jsPlumb, el) {
         var o = _jsPlumb.getOffset(el),
             s = _jsPlumb.getSize(el),
-            l = o.left + (s[0] / 2),
-            t = o.top + (s[1] / 2);
+            l = o.left + (s.w / 2),
+            t = o.top + (s.h / 2);
 
         return {
             clientX: l,
@@ -113,7 +113,7 @@ if (Array.prototype.forEach == null) {
         if (events.beforeMouseMove) {
             events.beforeMouseMove();
         }
-        _t(document, "mousemove", x + (size[0] / 2), y + (size[1] / 2));
+        _t(document, "mousemove", x + (size.w / 2), y + (size.h / 2));
         if (events.beforeMouseUp) {
             events.beforeMouseUp();
         }
@@ -225,7 +225,7 @@ if (Array.prototype.forEach == null) {
                 var d1 = document.createElement("div");
                 d1.style.position = "absolute";
                 d1.innerHTML = id;
-                if (parent) parent.appendChild(d1); else document.getElementById("container").appendChild(d1);
+                if (parent) parent.appendChild(d1); else _jsPlumb.getContainer().appendChild(d1);
                 d1.setAttribute("id", id);
                 d1.style.left = (x != null ? x : (Math.floor(Math.random() * 1000))) + "px";
                 d1.style.top = (y!= null ? y : (Math.floor(Math.random() * 1000))) + "px";
@@ -254,6 +254,10 @@ if (Array.prototype.forEach == null) {
                 //equal(_jsPlumb.anchorManager.getEndpointsFor(elId).length, count, "anchor manager has " + count + ((count > 1 || count == 0) ? " endpoints" : " endpoint") + " for " + elId);
             };
 
+            var _registerDiv = function(div) {
+                _divs.push(div)
+            }
+
             return {
                 getAttribute:function(el, att) {
                     return el.getAttribute(att);
@@ -261,6 +265,8 @@ if (Array.prototype.forEach == null) {
 
                 isTargetAttribute: "jtk-target",
                 isSourceAttribute: "jtk-source",
+
+                registerDiv:_registerDiv,
 
                 droppableClass:"jtk-droppable",
 
@@ -354,7 +360,8 @@ if (Array.prototype.forEach == null) {
                     var d1 = Math.random() * 0xffffffff | 0;
                     var d2 = Math.random() * 0xffffffff | 0;
                     var d3 = Math.random() * 0xffffffff | 0;
-                    return lut[d0 & 0xff] + lut[d0 >> 8 & 0xff] + lut[d0 >> 16 & 0xff] + lut[d0 >> 24 & 0xff] + '-' + lut[d1 & 0xff] + lut[d1 >> 8 & 0xff] + '-' + lut[d1 >> 16 & 0x0f | 0x40] + lut[d1 >> 24 & 0xff] + '-' + lut[d2 & 0x3f | 0x80] + lut[d2 >> 8 & 0xff] + '-' + lut[d2 >> 16 & 0xff] + lut[d2 >> 24 & 0xff] + lut[d3 & 0xff] + lut[d3 >> 8 & 0xff] + lut[d3 >> 16 & 0xff] + lut[d3 >> 24 & 0xff];
+                    var u = lut[d0 & 0xff] + lut[d0 >> 8 & 0xff] + lut[d0 >> 16 & 0xff] + lut[d0 >> 24 & 0xff] + '-' + lut[d1 & 0xff] + lut[d1 >> 8 & 0xff] + '-' + lut[d1 >> 16 & 0x0f | 0x40] + lut[d1 >> 24 & 0xff] + '-' + lut[d2 & 0x3f | 0x80] + lut[d2 >> 8 & 0xff] + '-' + lut[d2 >> 16 & 0xff] + lut[d2 >> 24 & 0xff] + lut[d3 & 0xff] + lut[d3 >> 8 & 0xff] + lut[d3 >> 16 & 0xff] + lut[d3 >> 24 & 0xff];
+                    return "j" + u.replace(/-/g, "")
                 }
             }
         }

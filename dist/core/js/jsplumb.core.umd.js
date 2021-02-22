@@ -704,12 +704,15 @@
     return lut[d0 & 0xff] + lut[d0 >> 8 & 0xff] + lut[d0 >> 16 & 0xff] + lut[d0 >> 24 & 0xff] + '-' + lut[d1 & 0xff] + lut[d1 >> 8 & 0xff] + '-' + lut[d1 >> 16 & 0x0f | 0x40] + lut[d1 >> 24 & 0xff] + '-' + lut[d2 & 0x3f | 0x80] + lut[d2 >> 8 & 0xff] + '-' + lut[d2 >> 16 & 0xff] + lut[d2 >> 24 & 0xff] + lut[d3 & 0xff] + lut[d3 >> 8 & 0xff] + lut[d3 >> 16 & 0xff] + lut[d3 >> 24 & 0xff];
   }
   function rotatePoint(point, center, rotation) {
-    var radial = [point.x - center.x, point.y - center.y],
+    var radial = {
+      x: point.x - center.x,
+      y: point.y - center.y
+    },
         cr = Math.cos(rotation / 360 * Math.PI * 2),
         sr = Math.sin(rotation / 360 * Math.PI * 2);
     return {
-      x: radial[0] * cr - radial[1] * sr + center.x,
-      y: radial[1] * cr + radial[0] * sr + center.y,
+      x: radial.x * cr - radial.y * sr + center.x,
+      y: radial.y * cr + radial.x * sr + center.y,
       cr: cr,
       sr: sr
     };
@@ -6530,7 +6533,7 @@
       key: "floatingAnchorCompute",
       value: function floatingAnchorCompute(anchor, params) {
         var xy = params.xy;
-        anchor._lastResult = [xy[0] + anchor.size[0] / 2, xy[1] + anchor.size[1] / 2, 0, 0];
+        anchor._lastResult = [xy[0] + anchor.size.w / 2, xy[1] + anchor.size.h / 2, 0, 0];
         return anchor._lastResult;
       }
     }, {
@@ -7350,13 +7353,16 @@
     };
   }
   function rotate(x, y, w, h, r) {
-    var center = [x + w / 2, y + h / 2],
+    var center = {
+      x: x + w / 2,
+      y: y + h / 2
+    },
         cr = Math.cos(r / 360 * Math.PI * 2),
         sr = Math.sin(r / 360 * Math.PI * 2),
         _point = function _point(x, y) {
       return {
-        x: center[0] + Math.round((x - center[0]) * cr - (y - center[1]) * sr),
-        y: center[1] + Math.round((y - center[1]) * cr - (x - center[0]) * sr)
+        x: center.x + Math.round((x - center.x) * cr - (y - center.y) * sr),
+        y: center.y + Math.round((y - center.y) * cr - (x - center.x) * sr)
       };
     };
     var p1 = _point(x, y),
@@ -7535,7 +7541,7 @@
         if (s != null) {
           var size = this.getSize(s);
           var offset = this.getOffset(s);
-          return this.updateElement(elId, offset.left, offset.top, size[0], size[1], null);
+          return this.updateElement(elId, offset.left, offset.top, size.w, size.h, null);
         } else {
           return null;
         }
@@ -9608,7 +9614,7 @@
       key: "compute",
       value: function compute(params) {
         var xy = params.xy;
-        this._lastResult = [xy[0] + this.size[0] / 2, xy[1] + this.size[1] / 2, 0, 0];
+        this._lastResult = [xy[0] + this.size.w / 2, xy[1] + this.size.h / 2, 0, 0];
         return this._lastResult;
       }
     }, {

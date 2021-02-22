@@ -135,7 +135,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
 
     private floatingAnchorCompute(anchor:FloatingAnchor, params:AnchorComputeParams):AnchorPlacement {
         let xy = params.xy
-        anchor._lastResult = [ xy[0] + (anchor.size[0] / 2), xy[1] + (anchor.size[1] / 2), 0, 0 ] as AnchorPlacement; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
+        anchor._lastResult = [ xy[0] + (anchor.size.w / 2), xy[1] + (anchor.size.h / 2), 0, 0 ] as AnchorPlacement; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
         return anchor._lastResult
     }
 

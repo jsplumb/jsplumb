@@ -1,3 +1,11 @@
+## 4.0.0-RC59
+
+22nd February 2021
+
+### Breaking
+
+- It is not permitted to use the `document` or `document.body` as the `container` element for a JsPlumbInstance now.  It is very unlikely anyone was doing this, but now jsPlumb is explicitly forbidding it.
+
 ## 4.0.0-RC58
 
 20th February 2021

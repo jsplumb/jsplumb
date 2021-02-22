@@ -902,7 +902,10 @@ function _getPosition(el) {
   };
 }
 function _getSize(el) {
-  return [el.offsetWidth, el.offsetHeight];
+  return {
+    w: el.offsetWidth,
+    h: el.offsetHeight
+  };
 }
 function _setPosition(el, pos) {
   el.style.left = pos.x + "px";
@@ -1380,8 +1383,8 @@ function (_Base) {
       var rect = {
         x: cPos.x,
         y: cPos.y,
-        w: this._size[0],
-        h: this._size[1]
+        w: this._size.w,
+        h: this._size.h
       };
       _setPosition(this._dragEl, {
         x: cPos.x + this._ghostDx,
@@ -1515,8 +1518,8 @@ function (_Base) {
       var _this2 = this;
       this._constrain = typeof value === "function" ? value : value ? function (pos, dragEl, _constrainRect, _size) {
         return _this2._negativeFilter({
-          x: Math.max(0, Math.min(_constrainRect.w - _size[0], pos.x)),
-          y: Math.max(0, Math.min(_constrainRect.h - _size[1], pos.y))
+          x: Math.max(0, Math.min(_constrainRect.w - _size.w, pos.x)),
+          y: Math.max(0, Math.min(_constrainRect.h - _size.h, pos.y))
         });
       } : function (pos) {
         return _this2._negativeFilter(pos);
@@ -1712,10 +1715,10 @@ function _isInsideParent(instance, _el, pos) {
       s = instance.getSize(p),
       ss = instance.getSize(_el),
       leftEdge = pos.x,
-      rightEdge = leftEdge + ss[0],
+      rightEdge = leftEdge + ss.w,
       topEdge = pos.y,
-      bottomEdge = topEdge + ss[1];
-  return rightEdge > 0 && leftEdge < s[0] && bottomEdge > 0 && topEdge < s[1];
+      bottomEdge = topEdge + ss.h;
+  return rightEdge > 0 && leftEdge < s.w && bottomEdge > 0 && topEdge < s.h;
 }
 var CLASS_DRAG_SELECTED = "jtk-drag-selected";
 var CLASS_DRAG_ACTIVE = "jtk-drag-active";
@@ -1992,8 +1995,8 @@ function () {
       var elBounds = {
         x: ui.left,
         y: ui.top,
-        w: elSize[0],
-        h: elSize[1]
+        w: elSize.w,
+        h: elSize.h
       };
       _one(el, elBounds, params.e);
       this._dragSelectionOffsets.forEach(function (v, k) {
@@ -2001,8 +2004,8 @@ function () {
         var _b = {
           x: elBounds.x + v[0].left,
           y: elBounds.y + v[0].top,
-          w: s[0],
-          h: s[1]
+          w: s.w,
+          h: s.h
         };
         v[1].style.left = _b.x + "px";
         v[1].style.top = _b.y + "px";
@@ -2013,8 +2016,8 @@ function () {
         var _b = {
           x: elBounds.x + v[0].left,
           y: elBounds.y + v[0].top,
-          w: s[0],
-          h: s[1]
+          w: s.w,
+          h: s.h
         };
         v[1].style.left = _b.x + "px";
         v[1].style.top = _b.y + "px";
@@ -2066,8 +2069,8 @@ function () {
                       boundingRect = {
                     x: o.left,
                     y: o.top,
-                    w: s[0],
-                    h: s[1]
+                    w: s.w,
+                    h: s.h
                   };
                   _this4._groupLocations.push({
                     el: groupEl,
@@ -2437,8 +2440,8 @@ function () {
       this.instance.appendElement(n, this.instance.getContainer());
       var id = this.instance.getId(n);
       this.instance.setPosition(n, ipco);
-      n.style.width = ips[0] + "px";
-      n.style.height = ips[1] + "px";
+      n.style.width = ips.w + "px";
+      n.style.height = ips.h + "px";
       this.instance.manage(n);
       this.placeholderInfo.id = id;
       this.placeholderInfo.element = n;
@@ -2549,8 +2552,8 @@ function () {
             boundingRect = {
               x: o.left,
               y: o.top,
-              w: s[0],
-              h: s[1]
+              w: s.w,
+              h: s.h
             };
             _this.endpointDropTargets.push({
               el: candidate,
@@ -2574,8 +2577,8 @@ function () {
         boundingRect = {
           x: o.left,
           y: o.top,
-          w: s[0],
-          h: s[1]
+          w: s.w,
+          h: s.h
         };
         var d = {
           el: candidate,
@@ -2681,8 +2684,8 @@ function () {
         var boundingRect = {
           x: params.pos.x,
           y: params.pos.y,
-          w: floatingElementSize[0],
-          h: floatingElementSize[1]
+          w: floatingElementSize.w,
+          h: floatingElementSize.h
         },
             newDropTarget,
             idx,
@@ -3114,10 +3117,10 @@ function (_ElementDragHandler) {
           s = this.instance.getSize(p),
           ss = this.instance.getSize(_el),
           leftEdge = pos.x,
-          rightEdge = leftEdge + ss[0],
+          rightEdge = leftEdge + ss.w,
           topEdge = pos.y,
-          bottomEdge = topEdge + ss[1];
-      return rightEdge > 0 && leftEdge < s[0] && bottomEdge > 0 && topEdge < s[1];
+          bottomEdge = topEdge + ss.h;
+      return rightEdge > 0 && leftEdge < s.w && bottomEdge > 0 && topEdge < s.h;
     }
   }, {
     key: "_pruneOrOrphan",
@@ -3781,8 +3784,8 @@ function (_JsPlumbInstance) {
         if (dragEl[core.PARENT_GROUP_KEY] && dragEl[core.PARENT_GROUP_KEY].constrain) {
           x = Math.max(desiredLoc.x, 0);
           y = Math.max(desiredLoc.y, 0);
-          x = Math.min(x, constrainRect.w - size[0]);
-          y = Math.min(y, constrainRect.h - size[1]);
+          x = Math.min(x, constrainRect.w - size.w);
+          y = Math.min(y, constrainRect.h - size.h);
         }
         return {
           x: x,
@@ -4020,7 +4023,10 @@ function (_JsPlumbInstance) {
   }, {
     key: "getSize",
     value: function getSize(el) {
-      return [el.offsetWidth, el.offsetHeight];
+      return {
+        w: el.offsetWidth,
+        h: el.offsetHeight
+      };
     }
   }, {
     key: "getStyle",
@@ -4124,6 +4130,9 @@ function (_JsPlumbInstance) {
     key: "setContainer",
     value: function setContainer(newContainer) {
       var _this2 = this;
+      if (newContainer === document || newContainer === document.body) {
+        throw new Error("Cannot set document or document.body as container element");
+      }
       this._detachEventDelegates();
       if (this.dragManager != null) {
         this.dragManager.reset();
