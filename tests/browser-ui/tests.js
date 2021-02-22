@@ -3256,28 +3256,52 @@ var testSuite = function () {
     });
 
     // tests of the functionality that allows a user to specify that they want elements appended to the document body
-    test(" _jsPlumb.setContainer, specified with a selector", function () {
-        _jsPlumb.setContainer(document.body);
-        equal(document.getElementById("container").childNodes.length, 0, "container has no nodes");
-        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
-        equal(document.getElementById("container").childNodes.length, 2, "container has two div elements");  // the divs we added have been added to the 'container' div.
-        // but we have told _jsPlumb to add its canvas to the body, so this connect call should not add another few elements to the container:
-        _jsPlumb.connect({source: d1, target: d2});
-        equal(document.getElementById("container").childNodes.length, 2, "container still has two div elements");
-    });
+    // test(" _jsPlumb.setContainer, specified with a selector", function () {
+    //     _jsPlumb.setContainer(document.body);
+    //     equal(document.getElementById("container").childNodes.length, 0, "container has no nodes");
+    //     var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+    //     equal(document.getElementById("container").childNodes.length, 2, "container has two div elements");  // the divs we added have been added to the 'container' div.
+    //     // but we have told _jsPlumb to add its canvas to the body, so this connect call should not add another few elements to the container:
+    //     _jsPlumb.connect({source: d1, target: d2});
+    //     equal(document.getElementById("container").childNodes.length, 2, "container still has two div elements");
+    // });
 
     // tests of the functionality that allows a user to specify that they want elements appended to some specific container.
-    test(" _jsPlumb.setContainer, specified with DOM element", function () {
-        _jsPlumb.setContainer(document.getElementsByTagName("body")[0]);
-        equal(0, document.getElementById("container").childNodes.length);
-        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
-        equal(2, document.getElementById("container").childNodes.length, "two divs added to the container");  // the divs we added have been added to the 'container' div.
-        // but we have told _jsPlumb to add its canvas to the body, so this connect call should not add another few elements to the container:
-        var bodyElementCount = document.body.childNodes.length;
-        _jsPlumb.connect({source: d1, target: d2});
-        equal(2, document.getElementById("container").childNodes.length, "still only two children in container; elements were added to the body by _jsPlumb");
-        // test to see if 3 elements have been added
-        equal(bodyElementCount + 3, document.body.childNodes.length, "3 new elements added to the document body");
+    // test(" _jsPlumb.setContainer, specified with DOM element", function () {
+    //     var newContainer = support.addDiv("newContainer", document.body)
+    //
+    //     //_jsPlumb.setContainer(document.getElementsByTagName("body")[0]);
+    //     _jsPlumb.setContainer(newContainer);
+    //
+    //     equal(0, document.getElementById("container").childNodes.length);
+    //     var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+    //     equal(2, newContainer.childNodes.length, "two divs added to the container");  // the divs we added have been added to the 'container' div.
+    //     // but we have told _jsPlumb to add its canvas to the body, so this connect call should not add another few elements to the container:
+    //     var bodyElementCount = document.body.childNodes.length;
+    //     _jsPlumb.connect({source: d1, target: d2});
+    //     equal(2, document.getElementById("container").childNodes.length, "still only two children in container; elements were added to the body by _jsPlumb");
+    //     // test to see if 3 elements have been added
+    //     equal(bodyElementCount + 3, document.body.childNodes.length, "3 new elements added to the document body");
+    // });
+
+    test(" _jsPlumb.setContainer, cannot specify document or body", function () {
+
+        try {
+            _jsPlumb.setContainer(document)
+            ok(false, "Not allowed to set document as container")
+        }
+        catch (e) {
+            ok(true, "Not allowed to set document as container")
+        }
+
+        try {
+            _jsPlumb.setContainer(document.body)
+            ok(false, "Not allowed to set document body as container")
+        }
+        catch (e) {
+            ok(true, "Not allowed to set document body as container")
+        }
+
     });
 
     test(" _jsPlumb.setContainer, moves managed nodes", function () {

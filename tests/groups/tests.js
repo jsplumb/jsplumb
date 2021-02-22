@@ -60,8 +60,8 @@ var testSuite = function () {
         targetGroup = _jsPlumb.getGroup(targetGroup);
         var tgo = _jsPlumb.getOffset(targetGroup.el),
             tgs = _jsPlumb.getSize(targetGroup.el),
-            tx = tgo.left + (tgs[0] / 2),
-            ty = tgo.top + (tgs[1] / 2);
+            tx = tgo.left + (tgs.w / 2),
+            ty = tgo.top + (tgs.h / 2);
 
         //
         //
@@ -453,8 +453,8 @@ var testSuite = function () {
         equal(_jsPlumb.getGroup("one").children.length, 2, "2 members in group one");
         // check the node has not actually moved.
         var c1_2_pos = getNodePosition(c1_2);
-        equal(groupOneSize[0] - c1_2_size[0], c1_2_pos[0], "c1_2 left position constrained by parent");
-        equal(groupOneSize[1] - c1_2_size[1], c1_2_pos[1], "c1_2 top position constrained by parent");
+        equal(groupOneSize.w - c1_2_size.w, c1_2_pos[0], "c1_2 left position constrained by parent");
+        equal(groupOneSize.h - c1_2_size.h, c1_2_pos[1], "c1_2 top position constrained by parent");
 
         // try dragging 2_2 right out of the box and dropping it.
         //var c22o = _jsPlumb.getOffset(c2_2);

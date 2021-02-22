@@ -47,7 +47,7 @@ var testSuite = function () {
 
         _jsPlumb.viewport.getSize = function(el) {
             gsc2++;
-            return [ 300, 600 ]
+            return { w:300, h:600 }
         };
 
         var e1 = _jsPlumb.addEndpoint(d1, {anchor:"Center"})
@@ -114,7 +114,7 @@ var testSuite = function () {
         offsets[d2Id] = {left:1400, top:2000}
 
         _jsPlumb.viewport.getSize = function(el) {
-            return [ 300, 600 ]
+            return {w: 300, h:600 }
         };
 
         _jsPlumb.viewport.getOffset = function(el) {

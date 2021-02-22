@@ -1,5 +1,5 @@
 QUnit.config.reorder = false;
-var defaults = null, support, _jsPlumb, divs = []
+var defaults = null, support, _jsPlumb, divs = [], container
 
 function makeAList(count, x, y) {
     var parent = support.addDiv(support.uuid(), null, null, x, y)
@@ -66,8 +66,12 @@ var testSuite = function () {
                 }
                 catch (e) {}
             }
+
+            container.parentNode && container.parentNode.removeChild(container)
         },
         setup: function () {
+            container = document.createElement("j" + jsPlumb.uuid().replace(/-/g, ""))
+            document.body.appendChild(container)
             _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
             support = jsPlumbTestSupport.getInstance(_jsPlumb);
             defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
@@ -106,13 +110,15 @@ var testSuite = function () {
 
         setTimeout(function() {
             QUnit.start()
-            //equal(0, lastTargetChild._jsPlumbProxies.length, "zero proxies for last target child; it is now in the viewport")
             equal(null, lastTargetChild._jsPlumbProxies, "zero proxies for last target child; it is now in the viewport")
         }, 0)
 
     });
 
     asyncTest(': configure two lists, connect them via the mouse, scroll.', function () {
+
+       // var r = []
+
         var lists = makeTwoLists()
         var l1 = lists[0]
         var l2 = lists[1]
@@ -152,7 +158,9 @@ var testSuite = function () {
             // drag a connection to the last target, and observe the connection was successful
             support.dragConnection(secondSourceChild, lastTargetChild);
             equal(2, _jsPlumb.select().length, "2 connections in the instance after dragging connection to last target child");
-        }, 0)
+
+
+        }, 100)
 
     });
 

@@ -2,6 +2,9 @@
 
 QUnit.config.reorder = false;
 
+
+console.log(window.top)
+
 /**
  * @name Test
  * @class
