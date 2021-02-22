@@ -3,7 +3,6 @@ import {AnchorSpec} from "./factory/anchor-factory"
 import {PaintStyle} from "./styles"
 import {OverlaySpec} from "./overlay/overlay"
 import {ConnectorSpec} from "./connector/abstract-connector"
-import {Offset, Size} from "./common"
 
 export interface ListSpec {
     endpoint?: EndpointSpec
