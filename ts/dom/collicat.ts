@@ -480,7 +480,7 @@ export class Drag extends Base {
                 }
 
 
-                this._downAt = toPointXY(pageLocation(e))
+                this._downAt = pageLocation(e)
 
                 if (this._dragEl && this._dragEl.parentNode) {
                     this._initialScroll = {x:this._dragEl.parentNode.scrollLeft, y:this._dragEl.parentNode.scrollTop}
@@ -516,9 +516,9 @@ export class Drag extends Base {
             // it is possible that the start event caused the drag to be aborted. So we check
             // again that we are currently dragging.
             if (this._downAt) {
-                let pos = pageLocation(e),
-                    dx = pos[0] - this._downAt.x,
-                    dy = pos[1] - this._downAt.y,
+                let pos:PointXY = pageLocation(e),
+                    dx = pos.x - this._downAt.x,
+                    dy = pos.y - this._downAt.y,
                     z = this._ignoreZoom ? 1 : this.k.getZoom()
 
                 if (this._dragEl && this._dragEl.parentNode)

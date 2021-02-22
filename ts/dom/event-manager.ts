@@ -5,7 +5,7 @@ import {
     EVENT_FOCUS,
     EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEOUT, EVENT_MOUSEOVER,
     EVENT_MOUSEUP, EVENT_TAP,
-    PointArray,
+    PointArray, PointXY,
     uuid
 } from "@jsplumb/core"
 
@@ -123,20 +123,20 @@ const PAGE = "page"
 const SCREEN = "screen"
 const CLIENT = "client"
 
-function _genLoc (e:Event, prefix:string):PointArray {
-    if (e == null) return [ 0, 0 ]
+function _genLoc (e:Event, prefix:string):PointXY {
+    if (e == null) return {x:0, y:0 }
     const ts = touches(e), t = getTouch(ts, 0)
-    return [t[prefix + "X"], t[prefix + "Y"]]
+    return {x:t[prefix + "X"], y:t[prefix + "Y"]}
 }
-export function pageLocation (e:Event):PointArray {
+export function pageLocation (e:Event):PointXY {
     return _genLoc(e, PAGE)
 }
 
-function screenLocation (e:Event):PointArray {
+function screenLocation (e:Event):PointXY {
     return _genLoc(e, SCREEN)
 }
 
-function clientLocation (e:Event):PointArray {
+function clientLocation (e:Event):PointXY {
     return _genLoc(e, CLIENT)
 }
 
@@ -293,7 +293,7 @@ const SmartClickHandler:Handler = (obj:any, evt:string, fn:FunctionFacade, child
                 obj.__tau = pageLocation(e)
             },
             click = (e:Event) => {
-                if (obj.__tad && obj.__tau && obj.__tad[0] === obj.__tau[0] && obj.__tad[1] === obj.__tau[1]) {
+                if (obj.__tad && obj.__tau && obj.__tad.x === obj.__tau.x && obj.__tad.y === obj.__tau.y) {
                     for (let i = 0; i < obj.__taSmartClicks.length; i++)
                         obj.__taSmartClicks[i].apply(_t(e), [ e ])
                 }
@@ -521,10 +521,10 @@ export class EventManager {
         _each(el, (_el:jsPlumbDOMElement) => {
             let evt
             originalEvent = originalEvent || {
-                screenX: sl[0],
-                screenY: sl[1],
-                clientX: cl[0],
-                clientY: cl[1]
+                screenX: sl.x,
+                screenY: sl.y,
+                clientX: cl.x,
+                clientY: cl.y
             }
 
             const _decorate = (_evt:any) => {
@@ -536,17 +536,17 @@ export class EventManager {
             const eventGenerators = {
                 "TouchEvent": (evt:any) => {
 
-                    const touchList = _touchAndList(_el, pl[0], pl[1], sl[0], sl[1], cl[0], cl[1]),
+                    const touchList = _touchAndList(_el, pl.x, pl.y, sl.x, sl.y, cl.x, cl.y),
                         init = evt.initTouchEvent || evt.initEvent
 
-                    init(eventToBind, true, true, window, null, sl[0], sl[1],
-                        cl[0], cl[1], false, false, false, false,
+                    init(eventToBind, true, true, window, null, sl.x, sl.y,
+                        cl.x, cl.y, false, false, false, false,
                         touchList, touchList, touchList, 1, 0)
                 },
                 "MouseEvents": (evt:any) => {
                     evt.initMouseEvent(eventToBind, true, true, window, 0,
-                        sl[0], sl[1],
-                        cl[0], cl[1],
+                        sl.x, sl.y,
+                        cl.x, cl.y,
                         false, false, false, false, 1, _el)
                 }
             }
