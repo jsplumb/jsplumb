@@ -1,5 +1,5 @@
-import { PointArray } from "@jsplumb/core";
-export declare function pageLocation(e: Event): PointArray;
+import { PointArray, PointXY } from "@jsplumb/core";
+export declare function pageLocation(e: Event): PointXY;
 export declare function toPointXY(p: PointArray): {
     x: number;
     y: number;

@@ -485,10 +485,16 @@ var PAGE = "page";
 var SCREEN = "screen";
 var CLIENT = "client";
 function _genLoc(e, prefix) {
-  if (e == null) return [0, 0];
+  if (e == null) return {
+    x: 0,
+    y: 0
+  };
   var ts = touches(e),
       t = getTouch(ts, 0);
-  return [t[prefix + "X"], t[prefix + "Y"]];
+  return {
+    x: t[prefix + "X"],
+    y: t[prefix + "Y"]
+  };
 }
 function pageLocation(e) {
   return _genLoc(e, PAGE);
@@ -620,7 +626,7 @@ var SmartClickHandler = function SmartClickHandler(obj, evt, fn, children) {
       obj.__tau = pageLocation(e);
     },
         click = function click(e) {
-      if (obj.__tad && obj.__tau && obj.__tad[0] === obj.__tau[0] && obj.__tad[1] === obj.__tau[1]) {
+      if (obj.__tad && obj.__tau && obj.__tad.x === obj.__tau.x && obj.__tad.y === obj.__tau.y) {
         for (var i = 0; i < obj.__taSmartClicks.length; i++) {
           obj.__taSmartClicks[i].apply(_t(e), [e]);
         }
@@ -841,10 +847,10 @@ function () {
       _each(el, function (_el) {
         var evt;
         originalEvent = originalEvent || {
-          screenX: sl[0],
-          screenY: sl[1],
-          clientX: cl[0],
-          clientY: cl[1]
+          screenX: sl.x,
+          screenY: sl.y,
+          clientX: cl.x,
+          clientY: cl.y
         };
         var _decorate = function _decorate(_evt) {
           if (payload) {
@@ -853,12 +859,12 @@ function () {
         };
         var eventGenerators = {
           "TouchEvent": function TouchEvent(evt) {
-            var touchList = _touchAndList(_el, pl[0], pl[1], sl[0], sl[1], cl[0], cl[1]),
+            var touchList = _touchAndList(_el, pl.x, pl.y, sl.x, sl.y, cl.x, cl.y),
                 init = evt.initTouchEvent || evt.initEvent;
-            init(eventToBind, true, true, window, null, sl[0], sl[1], cl[0], cl[1], false, false, false, false, touchList, touchList, touchList, 1, 0);
+            init(eventToBind, true, true, window, null, sl.x, sl.y, cl.x, cl.y, false, false, false, false, touchList, touchList, touchList, 1, 0);
           },
           "MouseEvents": function MouseEvents(evt) {
-            evt.initMouseEvent(eventToBind, true, true, window, 0, sl[0], sl[1], cl[0], cl[1], false, false, false, false, 1, _el);
+            evt.initMouseEvent(eventToBind, true, true, window, 0, sl.x, sl.y, cl.x, cl.y, false, false, false, false, 1, _el);
           }
         };
         var ite = !bindingAMouseEvent && !originalIsMouse && isTouchDevice && touchMap[event],
@@ -1253,7 +1259,7 @@ function (_Base) {
           if (this.consumeStartEvent) {
             consume(e);
           }
-          this._downAt = toPointXY(pageLocation(e));
+          this._downAt = pageLocation(e);
           if (this._dragEl && this._dragEl.parentNode) {
             this._initialScroll = {
               x: this._dragEl.parentNode.scrollLeft,
@@ -1297,8 +1303,8 @@ function (_Base) {
         }
         if (this._downAt) {
           var _pos = pageLocation(e),
-              dx = _pos[0] - this._downAt.x,
-              dy = _pos[1] - this._downAt.y,
+              dx = _pos.x - this._downAt.x,
+              dy = _pos.y - this._downAt.y,
               _z = this._ignoreZoom ? 1 : this.k.getZoom();
           if (this._dragEl && this._dragEl.parentNode) {
             dx += this._dragEl.parentNode.scrollLeft - this._initialScroll.x;
