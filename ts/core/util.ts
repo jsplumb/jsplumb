@@ -458,13 +458,13 @@ export function uuid():string {
  * @return An object consisting of the rotated point, followed by cos theta and sin theta.
  */
 export function rotatePoint(point:PointXY, center:PointXY, rotation:number):RotatedPointXY {
-    const radial = [point.x - center.x, point.y - center.y],
+    const radial = {x:point.x - center.x, y:point.y - center.y},
         cr = Math.cos(rotation / 360 * Math.PI * 2),
         sr = Math.sin(rotation / 360 * Math.PI * 2)
 
     return {
-        x:(radial[0] * cr) - (radial[1] * sr) + center.x,
-        y: (radial[1] * cr) + (radial[0] * sr) + center.y,
+        x:(radial.x * cr) - (radial.y * sr) + center.x,
+        y: (radial.y * cr) + (radial.x * sr) + center.y,
         cr,
         sr
     }

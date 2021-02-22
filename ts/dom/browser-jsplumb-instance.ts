@@ -287,8 +287,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
                 if ((<any>dragEl)[PARENT_GROUP_KEY] && (<any>dragEl)[PARENT_GROUP_KEY].constrain) {
                     x = Math.max(desiredLoc.x, 0)
                     y = Math.max(desiredLoc.y, 0)
-                    x = Math.min(x, constrainRect.w - size[0])
-                    y = Math.min(y, constrainRect.h - size[1])
+                    x = Math.min(x, constrainRect.w - size.w)
+                    y = Math.min(y, constrainRect.h - size.h)
                 }
 
                 return {x, y}
@@ -532,7 +532,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     }
 
     getSize(el:Element):Size {
-        return [ (el as jsPlumbDOMElement).offsetWidth, (el as jsPlumbDOMElement).offsetHeight ]
+        return { w:(el as jsPlumbDOMElement).offsetWidth, h:(el as jsPlumbDOMElement).offsetHeight }
     }
 
     getStyle(el:Element, prop:string):any {
@@ -670,6 +670,11 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
 
     setContainer(newContainer: Element): void {
+
+        if ((newContainer  as any) === document || newContainer === document.body) {
+            throw new Error("Cannot set document or document.body as container element")
+        }
+
         this._detachEventDelegates()
         if (this.dragManager != null) {
             this.dragManager.reset()

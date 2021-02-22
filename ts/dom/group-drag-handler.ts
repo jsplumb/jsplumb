@@ -81,11 +81,11 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
             s = this.instance.getSize(p),
             ss = this.instance.getSize(_el),
             leftEdge = pos.x,
-            rightEdge = leftEdge + ss[0],
+            rightEdge = leftEdge + ss.w,
             topEdge = pos.y,
-            bottomEdge = topEdge + ss[1]
+            bottomEdge = topEdge + ss.h
 
-        return rightEdge > 0 && leftEdge < s[0] && bottomEdge > 0 && topEdge < s[1]
+        return rightEdge > 0 && leftEdge < s.w && bottomEdge > 0 && topEdge < s.h
     }
 
     private _pruneOrOrphan(params:DragStopEventParams) {

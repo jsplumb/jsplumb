@@ -16,11 +16,11 @@ function _isInsideParent(instance:BrowserJsPlumbInstance, _el:HTMLElement, pos:P
         s = instance.getSize(p),
         ss = instance.getSize(_el),
         leftEdge = pos.x,
-        rightEdge = leftEdge + ss[0],
+        rightEdge = leftEdge + ss.w,
         topEdge = pos.y,
-        bottomEdge = topEdge + ss[1]
+        bottomEdge = topEdge + ss.h
 
-    return rightEdge > 0 && leftEdge < s[0] && bottomEdge > 0 && topEdge < s[1]
+    return rightEdge > 0 && leftEdge < s.w && bottomEdge > 0 && topEdge < s.h
 }
 
 export const CLASS_DRAG_SELECTED = "jtk-drag-selected"

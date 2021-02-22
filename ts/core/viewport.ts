@@ -42,12 +42,12 @@ function EMPTY_POSITION<E>():ViewportElement<E> {
 //
 function rotate<E>(x:number, y:number, w:number, h:number, r:number):TranslatedViewportElement<E> {
 
-    const center=[x + (w/2),y + (h/2)],
+    const center={x:x + (w/2), y:y + (h/2)},
         cr = Math.cos(r / 360 * Math.PI * 2), sr = Math.sin(r / 360 * Math.PI * 2),
         _point = (x:number, y:number):PointXY => {``
             return {
-                x: center[0] + Math.round(((x - center[0]) * cr) - ((y - center[1]) * sr)),
-                y: center[1] + Math.round(((y - center[1]) * cr) - ((x - center[0]) * sr))
+                x: center.x + Math.round(((x - center.x) * cr) - ((y - center.y) * sr)),
+                y: center.y + Math.round(((y - center.y) * cr) - ((x - center.x) * sr))
             };
         }
 
@@ -265,7 +265,7 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
 
             const size = this.getSize(s)
             const offset = this.getOffset(s)
-            return this.updateElement(elId, offset.left, offset.top, size[0], size[1], null)
+            return this.updateElement(elId, offset.left, offset.top, size.w, size.h, null)
         } else {
             return null
         }

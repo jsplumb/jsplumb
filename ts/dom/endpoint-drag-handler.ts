@@ -35,7 +35,7 @@ import {
     SourceDefinition,
     SourceOrTargetDefinition, TARGET,
     TargetDefinition, AnchorSpec,
-    forEach, EndpointSpec, intersects, PointXY, AnchorLocations
+    forEach, EndpointSpec, intersects, PointXY, AnchorLocations, Size, Offset
 } from "@jsplumb/core"
 import {AnchorPlacement} from "@jsplumb/core/router/router"
 
@@ -258,7 +258,7 @@ export class EndpointDragHandler implements DragHandler {
      * @param ips
      * @private
      */
-    private _makeDraggablePlaceholder(ipco:any, ips:any):HTMLElement {
+    private _makeDraggablePlaceholder(ipco:Offset, ips:Size):HTMLElement {
 
         this.placeholderInfo = this.placeholderInfo || {}
 
@@ -266,8 +266,8 @@ export class EndpointDragHandler implements DragHandler {
         this.instance.appendElement(n, this.instance.getContainer())
         let id = this.instance.getId(n)
         this.instance.setPosition(n, ipco)
-        n.style.width = ips[0] + "px"
-        n.style.height = ips[1] + "px"
+        n.style.width = ips.w + "px"
+        n.style.height = ips.h + "px"
         this.instance.manage(n); // TRANSIENT MANAGE
         // create and assign an id, and initialize the offset.
         this.placeholderInfo.id = id
@@ -411,14 +411,14 @@ export class EndpointDragHandler implements DragHandler {
         const scope = this.ep.scope
         const isSourceDrag = this.jpc && this.jpc.endpoints[0] === this.ep
         
-        let boundingRect
+        let boundingRect:BoundingBox
         // get the list of potential drop targets for this endpoint, which excludes the source of the new connection.
         const matchingEndpoints = this.instance.getContainer().querySelectorAll(".jtk-endpoint[jtk-scope-" + this.ep.scope + "]")
         forEach(matchingEndpoints, (candidate:any) => {
             if ((this.jpc != null || candidate !== canvasElement) && candidate !== this.floatingElement) {
                 if ( (isSourceDrag && candidate.jtk.endpoint.isSource) || (!isSourceDrag && candidate.jtk.endpoint.isTarget) ) {
                     const o = this.instance.getOffset(candidate), s = this.instance.getSize(candidate)
-                    boundingRect = {x: o.left, y: o.top, w: s[0], h: s[1]}
+                    boundingRect = {x: o.left, y: o.top, w: s.w, h: s.h}
                     this.endpointDropTargets.push({el: candidate, r: boundingRect, endpoint: candidate.jtk.endpoint})
                     this.instance.addClass(candidate, CLASS_DRAG_ACTIVE)
                 }
@@ -439,7 +439,7 @@ export class EndpointDragHandler implements DragHandler {
         forEach(matchingElements, (candidate:any) => {
 
             const o = this.instance.getOffset(candidate), s = this.instance.getSize(candidate)
-            boundingRect = {x: o.left, y: o.top, w: s[0], h: s[1]}
+            boundingRect = {x: o.left, y: o.top, w: s.w, h: s.h}
             let d: any = {el: candidate, r: boundingRect}
 
             // look for at least one target definition that is not disabled on the given element.
@@ -584,7 +584,7 @@ export class EndpointDragHandler implements DragHandler {
 
             this.instance.setElementPosition(this.placeholderInfo.element, params.pos.x, params.pos.y)
 
-            let boundingRect = { x:params.pos.x, y:params.pos.y, w:floatingElementSize[0], h:floatingElementSize[1]},
+            let boundingRect = { x:params.pos.x, y:params.pos.y, w:floatingElementSize.w, h:floatingElementSize.h},
                 newDropTarget, idx, _cont
 
             for (let i = 0; i < this.endpointDropTargets.length; i++) {

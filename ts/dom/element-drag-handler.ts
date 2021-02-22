@@ -20,7 +20,7 @@ import {
     RedrawResult,
     UIGroup,
     forEach,
-    getFromSetWithFunction, intersects, PointXY
+    getFromSetWithFunction, intersects, PointXY, Size
 } from "@jsplumb/core"
 
 type IntersectingGroup = {
@@ -58,11 +58,11 @@ export class ElementDragHandler implements DragHandler {
 
     private _currentDragGroup:DragGroup = null
     private _currentDragGroupOffsets:Map<string, [Offset, jsPlumbDOMElement]> = new Map()
-    private _currentDragGroupSizes:Map<string, [number, number]> = new Map()
+    private _currentDragGroupSizes:Map<string, Size> = new Map()
 
     private _dragSelection: Array<jsPlumbDOMElement> = []
     private _dragSelectionOffsets:Map<string, [Offset, jsPlumbDOMElement]> = new Map()
-    private _dragSizes:Map<string, [number, number]> = new Map()
+    private _dragSizes:Map<string, Size> = new Map()
 
     protected drag:Drag
 
@@ -206,12 +206,12 @@ export class ElementDragHandler implements DragHandler {
             })
         }
 
-        const elBounds = { x:ui.left, y:ui.top, w:elSize[0], h:elSize[1] }
+        const elBounds = { x:ui.left, y:ui.top, w:elSize.w, h:elSize.h }
         _one(el, elBounds, params.e)
 
         this._dragSelectionOffsets.forEach((v:[Offset, jsPlumbDOMElement], k:string) => {
             const s = this._dragSizes.get(k)
-            let _b:BoundingBox = {x:elBounds.x + v[0].left, y:elBounds.y + v[0].top, w:s[0], h:s[1]}
+            let _b:BoundingBox = {x:elBounds.x + v[0].left, y:elBounds.y + v[0].top, w:s.w, h:s.h}
             v[1].style.left = _b.x + "px"
             v[1].style.top = _b.y + "px"
             _one(v[1], _b, params.e)
@@ -219,7 +219,7 @@ export class ElementDragHandler implements DragHandler {
 
         this._currentDragGroupOffsets.forEach((v:[Offset, jsPlumbDOMElement], k:string) => {
             const s = this._currentDragGroupSizes.get(k)
-            let _b:BoundingBox = {x:elBounds.x + v[0].left, y:elBounds.y + v[0].top, w:s[0], h:s[1]}
+            let _b:BoundingBox = {x:elBounds.x + v[0].left, y:elBounds.y + v[0].top, w:s.w, h:s.h}
             v[1].style.left = _b.x + "px"
             v[1].style.top = _b.y + "px"
             _one(v[1], _b, params.e)
@@ -285,7 +285,7 @@ export class ElementDragHandler implements DragHandler {
                                 let groupEl = group.el,
                                     s = this.instance.getSize(groupEl),
                                     o = this.instance.getOffset(groupEl),
-                                    boundingRect = {x: o.left, y: o.top, w: s[0], h: s[1]}
+                                    boundingRect = {x: o.left, y: o.top, w: s.w, h: s.h}
 
                                 this._groupLocations.push({el: groupEl, r: boundingRect, group: group})
 
