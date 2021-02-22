@@ -35,9 +35,9 @@ function _getPosition(el:HTMLElement):PointXY {
 }
 
 function _getSize(el:HTMLElement):Size {
-    return [
-        el.offsetWidth, el.offsetHeight
-    ]
+    return {
+        w: el.offsetWidth, h: el.offsetHeight
+    }
 }
 
 function _setPosition(el:HTMLElement, pos:PointXY) {
@@ -618,7 +618,7 @@ export class Drag extends Base {
             }
         }
 
-        const rect = { x:cPos.x, y:cPos.y, w:this._size[0], h:this._size[1]}
+        const rect = { x:cPos.x, y:cPos.y, w:this._size.w, h:this._size.h}
 
         _setPosition(this._dragEl, {x:cPos.x + this._ghostDx, y:cPos.y + this._ghostDy})
 
@@ -763,8 +763,8 @@ export class Drag extends Base {
     private _setConstrain (value:ConstrainFunction | boolean) {
         this._constrain = typeof value === "function" ? value as ConstrainFunction : value ? (pos:PointXY, dragEl:any, _constrainRect:any, _size:Size):PointXY => {
             return this._negativeFilter({
-                x: Math.max(0, Math.min(_constrainRect.w - _size[0], pos.x)),
-                y: Math.max(0, Math.min(_constrainRect.h - _size[1], pos.y))
+                x: Math.max(0, Math.min(_constrainRect.w - _size.w, pos.x)),
+                y: Math.max(0, Math.min(_constrainRect.h - _size.h, pos.y))
             })
         }: (pos:PointXY):PointXY => { return this._negativeFilter(pos); }
     }
