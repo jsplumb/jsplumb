@@ -168,7 +168,7 @@ export class EndpointDragHandler implements DragHandler {
             let tempEndpointParams:any = {}
             extend(tempEndpointParams, def)
             tempEndpointParams.isTemporarySource = true
-            tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0, 0]
+            tempEndpointParams.anchor = [ elxy.x, elxy.y , 0, 0]
 
             if (def.scope) {
                 tempEndpointParams.scope = def.scope
