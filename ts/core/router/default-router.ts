@@ -1,4 +1,4 @@
-import {Router, ContinuousAnchorPlacement, RedrawResult, AnchorPlacement} from "./router"
+import {Router, RedrawResult, AnchorPlacement} from "./router"
 
 import { JsPlumbInstance } from "../core"
 import { Connection } from '../connector/connection-impl'
@@ -14,6 +14,8 @@ import { Anchor } from '../anchor/anchor'
 import * as Constants from '../constants'
 import {FloatingAnchor} from "../anchor/floating-anchor"
 import {lineLength} from "../geom"
+
+type ContinuousAnchorPlacement = { x:number, y:number, xLoc:number, yLoc:number, c:ConnectionFacade  }
 
 function placeAnchorsOnLine<E>(element:ViewportElement<E>, connections:Array<AnchorListEntry>, horizontal:boolean, otherMultiplier:number, reverse:boolean):Array<ContinuousAnchorPlacement> {
 
@@ -36,20 +38,20 @@ function placeAnchorsOnLine<E>(element:ViewportElement<E>, connections:Array<Anc
             y = rotated.y;
         }
 
-        a.push({ x, y, xLoc:xp, yLoc:yp, c:connections[i][1] })
+        a.push({ x, y, xLoc:xp, yLoc:yp, c:connections[i].c })
     }
 
     return a
 }
 
 function rightAndBottomSort (a:AnchorListEntry, b:AnchorListEntry):number {
-    return b[0][0] - a[0][0]
+    return b.theta - a.theta
 }
 
 // used by edgeSortFunctions
 function leftAndTopSort(a:AnchorListEntry, b:AnchorListEntry):number {
-    let p1 = a[0][0] < 0 ? -Math.PI - a[0][0] : Math.PI - a[0][0],
-        p2 = b[0][0] < 0 ? -Math.PI - b[0][0] : Math.PI - b[0][0]
+    let p1 = a.theta < 0 ? -Math.PI - a.theta : Math.PI - a.theta,
+        p2 = b.theta < 0 ? -Math.PI - b.theta : Math.PI - b.theta
 
     return p1 - p2
 }
@@ -74,14 +76,15 @@ interface OrientationResult {
 }
 
 // internal data models for the anchor manager
-type AnchorListEntry = [ PointArray, Connection, boolean, string, string ]
+//type AnchorListEntry = [ PointArray, Connection, boolean, string, string ]
+type AnchorListEntry = {theta:number, order:number, c:ConnectionFacade, b:boolean, elId:string, epId:string }
 type AnchorLists = { top: Array<AnchorListEntry>, right: Array<AnchorListEntry>, bottom: Array<AnchorListEntry>, left: Array<AnchorListEntry> }
 type AnchorDictionary = Dictionary<AnchorLists>
 
 /*
  * Default router. Defers to an AnchorManager for placement of anchors, and connector paint routines for paths.
  * Currently this is a placeholder and acts as a facade to the pre-existing anchor manager. The Toolkit edition
- * will make use of concept to provide more advanced routing.
+ * will make use of this concept to provide more advanced routing.
  *
  * Copyright (c) 2010 - 2021 jsPlumb (hello@jsplumbtoolkit.com)
  *
@@ -342,48 +345,48 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
     // all connections found along the way (those that are connected to one of the faces this function
     // operates on) are added to the connsToPaint list, as are their endpoints. in this way we know to repaint
     // them wthout having to calculate anything else about them.
-    private _updateAnchorList (lists:AnchorLists, theta:number, order:number, conn:ConnectionFacade, aBoolean:boolean, otherElId:string, idx:number, reverse:boolean, edgeId:string, connsToPaint:Set<Connection>, endpointsToPaint:Set<Endpoint>) {
+    private _updateAnchorList (lists:AnchorLists, theta:number, order:number, conn:ConnectionFacade, aBoolean:boolean, otherElId:string, idx:number, reverse:boolean, edgeId:string, connsToPaint:Set<ConnectionFacade>, endpointsToPaint:Set<Endpoint>) {
         // first try to find the exact match, but keep track of the first index of a matching element id along the way.s
         let exactIdx = -1,
             firstMatchingElIdx = -1,
             endpoint = conn.endpoints[idx],
             endpointId = endpoint.id,
             oIdx = [1, 0][idx],
-            values = [
-                [ theta, order ],
-                conn,
-                aBoolean,
-                otherElId,
-                endpointId
-            ],
+            values:AnchorListEntry = {
+                theta, order,
+                c:conn,
+                b:aBoolean,
+                elId:otherElId,
+                epId:endpointId
+            },
             listToAddTo = lists[edgeId],
-            listToRemoveFrom = (endpoint as any)._continuousAnchorEdge ? lists[(endpoint as any)._continuousAnchorEdge] : null,
-            candidate:Connection
+            listToRemoveFrom:Array<AnchorListEntry> = (endpoint as any)._continuousAnchorEdge ? lists[(endpoint as any)._continuousAnchorEdge] : null,
+            candidate:ConnectionFacade
 
         if (listToRemoveFrom) {
-            let rIdx = findWithFunction(listToRemoveFrom, function (e) {
-                return e[4] === endpointId
+            let rIdx = findWithFunction(listToRemoveFrom, (e:AnchorListEntry) => {
+                return e.epId === endpointId
             })
             if (rIdx !== -1) {
                 listToRemoveFrom.splice(rIdx, 1)
                 // get all connections from this list
                 for (let i = 0; i < listToRemoveFrom.length; i++) {
-                    candidate = listToRemoveFrom[i][1]
+                    candidate = listToRemoveFrom[i].c
 
                     connsToPaint.add(candidate)
-                    endpointsToPaint.add(listToRemoveFrom[i][1].endpoints[idx])
-                    endpointsToPaint.add(listToRemoveFrom[i][1].endpoints[oIdx])
+                    endpointsToPaint.add(listToRemoveFrom[i].c.endpoints[idx])
+                    endpointsToPaint.add(listToRemoveFrom[i].c.endpoints[oIdx])
                 }
             }
         }
 
         for (let i = 0; i < listToAddTo.length; i++) {
-            candidate = listToAddTo[i][1]
+            candidate = listToAddTo[i].c
 
             connsToPaint.add(candidate)
 
-            endpointsToPaint.add(listToAddTo[i][1].endpoints[idx])
-            endpointsToPaint.add(listToAddTo[i][1].endpoints[oIdx])
+            endpointsToPaint.add(listToAddTo[i].c.endpoints[idx])
+            endpointsToPaint.add(listToAddTo[i].c.endpoints[oIdx])
         }
         if (exactIdx !== -1) {
             listToAddTo[exactIdx] = values
