@@ -1,8 +1,6 @@
 import {
     jsPlumbDefaults,
     Dictionary,
-
-    PointArray,
     Size,
     BoundingBox,
     jsPlumbElement,
@@ -91,7 +89,7 @@ import {
     removeClass,
     toggleClass
 } from "./browser-util"
-import {EventManager} from "./event-manager"
+import {EventManager, pageLocation} from "./event-manager"
 
 import {
     Drag,
@@ -164,27 +162,6 @@ export interface jsPlumbDOMElement extends HTMLElement, jsPlumbElement<Element> 
 }
 
 export type DragGroupSpec = string | { id:string, active:boolean }
-
-function _genLoc (prefix:string, e?:Event):PointArray {
-    if (e == null) {
-        return [ 0, 0 ]
-    }
-    let ts = _touches(e), t = _getTouch(ts, 0)
-    return [t[prefix + "X"], t[prefix + "Y"]]
-}
-
-const _pageLocation = _genLoc.bind(null, "page")
-
-function _getTouch (touches:any, idx:number):Touch {
-    return touches.item ? touches.item(idx) : touches[idx]
-}
-function _touches (e:Event):Array<Touch> {
-    let _e = <any>e
-    return _e.touches && _e.touches.length > 0 ? _e.touches :
-        _e.changedTouches && _e.changedTouches.length > 0 ? _e.changedTouches :
-            _e.targetTouches && _e.targetTouches.length > 0 ? _e.targetTouches :
-                [ _e ]
-}
 
 function setVisible(component: UIComponent, v:boolean) {
     if (component.canvas) {
@@ -569,7 +546,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         jel.style.top = p.y + "px"
     }
 
-    static getPositionOnElement(evt:Event, el:Element, zoom:number):PointArray {
+    static getPositionOnElement(evt:Event, el:Element, zoom:number):PointXY {
         const jel = el as jsPlumbDOMElement
         let box:any = typeof el.getBoundingClientRect !== UNDEFINED ? el.getBoundingClientRect() : { left: 0, top: 0, width: 0, height: 0 },
             body = document.body,
@@ -582,13 +559,13 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             psl = 0,
             top = box.top + scrollTop - clientTop + (pst * zoom),
             left = box.left + scrollLeft - clientLeft + (psl * zoom),
-            cl = _pageLocation(evt),
+            cl = pageLocation(evt),
             w = box.width || (jel.offsetWidth * zoom),
             h = box.height || (jel.offsetHeight * zoom),
-            x = (cl[0] - left) / w,
-            y = (cl[1] - top) / h
+            x = (cl.x - left) / w,
+            y = (cl.y  - top) / h
 
-        return [ x, y ]
+        return { x, y }
     }
 
     setDraggable(element:Element, draggable:boolean) {
@@ -978,17 +955,17 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     }
 
     // TODO remove `any` here,
-    drawOverlay(o: Overlay, component: any, paintStyle: PaintStyle, absolutePosition?: [number, number]): any {
+    drawOverlay(o: Overlay, component: any, paintStyle: PaintStyle, absolutePosition?: PointXY): any {
         if (o.type === LabelOverlay.labelType || o.type === CustomOverlay.customType) {
 
             //  TO DO - move to a static method, or a shared method, etc.  (? future me doesnt know what that means.)
 
             let td = HTMLElementOverlay._getDimensions(o as any);
-            if (td != null && td.length === 2) {
+            if (td != null && td.w != null && td.h != null) {
 
                 let cxy = {x: 0, y: 0}
                 if (absolutePosition) {
-                    cxy = {x: absolutePosition[0], y: absolutePosition[1]}
+                    cxy = {x: absolutePosition.x, y: absolutePosition.y}
                 } else if (component instanceof EndpointRepresentation) {
                     let locToUse:Array<number> = isArray(o.location) ? o.location as Array<number> : [o.location, o.location] as Array<number>
                     cxy = {
@@ -1004,16 +981,16 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
                     cxy = (<any>component).pointOnPath(loc as number, absolute);  // a connection
                 }
 
-                let minx = cxy.x - (td[0] / 2),
-                    miny = cxy.y - (td[1] / 2)
+                let minx = cxy.x - (td.w / 2),
+                    miny = cxy.y - (td.h / 2)
 
                 return {
                     component: o,
                     d: {minx: minx, miny: miny, td: td, cxy: cxy},
                     minX: minx,
-                    maxX: minx + td[0],
+                    maxX: minx + td.w,
                     minY: miny,
-                    maxY: miny + td[1]
+                    maxY: miny + td.h
                 }
             }
             else {
