@@ -121,19 +121,22 @@ export type BoundingBox = { x:number, y:number, w:number, h:number, center?:Poin
 export type RectangleXY = BoundingBox
 export type LineXY = [ PointXY, PointXY ]
 
+/**
+ * Subtracts p2 from p1, returning a new point.
+ * @param p1
+ * @param p2
+ */
+export function pointSubtract(p1:PointXY, p2:PointXY):PointXY {
+    return {
+        x:p1.x - p2.x,
+        y:p1.y - p2.y
+    }
+}
+
 export interface UpdateOffsetOptions {
     timestamp?:string
     recalc?:boolean
     elId?:string
-}
-
-export interface ExtendedOffset extends PointXY {
-    width?:number
-    height?:number
-    centerx?:number
-    centery?:number
-    bottom?:number
-    right?:number
 }
 
 export interface Dictionary<T> {
@@ -143,8 +146,6 @@ export interface Dictionary<T> {
 export type SortFunction<T> = (a:T,b:T) => number
 
 export type Constructable<T> = { new(...args: any[]): T }
-
-export type Timestamp = string
 
 export interface Rotation {r:number, c:PointXY}
 export type Rotations = Array<Rotation>
