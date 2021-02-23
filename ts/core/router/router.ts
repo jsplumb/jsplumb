@@ -11,7 +11,6 @@ export interface RedrawResult {
 }
 
 export type AnchorPlacement = [ number, number, number, number ]
-export type ContinuousAnchorPlacement = { x:number, y:number, xLoc:number, yLoc:number, c:Connection  }
 
 export interface Router<T extends {E:unknown}> {
 
