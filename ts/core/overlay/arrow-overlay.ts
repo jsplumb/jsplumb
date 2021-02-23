@@ -1,6 +1,6 @@
 import {ArrowOverlayOptions, Overlay} from "./overlay"
 import {JsPlumbInstance} from "../core"
-import { PointArray } from '../common'
+import {PointArray, PointXY} from '../common'
 import { isArray } from '../util'
 import {Component} from '../component/component'
 import { OverlayFactory } from '../factory/overlay-factory'
@@ -41,7 +41,7 @@ export class ArrowOverlay extends Overlay {
         this.location = p.location == null ? this.location : isArray(p.location) ? (p.location as number[])[0] : p.location as number
     }
 
-    draw(component:Component, currentConnectionPaintStyle:PaintStyle, absolutePosition?: [number, number]): any {
+    draw(component:Component, currentConnectionPaintStyle:PaintStyle, absolutePosition?: PointXY): any {
 
         if (component instanceof AbstractConnector) {
 
