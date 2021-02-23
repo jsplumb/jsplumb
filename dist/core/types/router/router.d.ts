@@ -9,7 +9,13 @@ export interface RedrawResult {
     e: Set<Endpoint>;
 }
 export declare type AnchorPlacement = [number, number, number, number];
-export declare type ContinuousAnchorPlacement = [number, number, number, number, Connection, Connection];
+export declare type ContinuousAnchorPlacement = {
+    x: number;
+    y: number;
+    xLoc: number;
+    yLoc: number;
+    c: Connection;
+};
 export interface Router<T extends {
     E: unknown;
 }> {

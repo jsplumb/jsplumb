@@ -4232,10 +4232,10 @@ function (_EventGenerator) {
 }(EventGenerator);
 
 function _distance(anchor, cx, cy, xy, wh, rotation, targetRotation) {
-  var ax = xy[0] + anchor.x * wh[0],
-      ay = xy[1] + anchor.y * wh[1],
-      acx = xy[0] + wh[0] / 2,
-      acy = xy[1] + wh[1] / 2;
+  var ax = xy.x + anchor.x * wh.w,
+      ay = xy.y + anchor.y * wh.h,
+      acx = xy.x + wh.w / 2,
+      acy = xy.y + wh.h / 2;
   if (rotation != null && rotation.length > 0) {
     var rotated = anchor.instance.applyRotations([ax, ay, 0, 0], rotation);
     ax = rotated.x;
@@ -4244,8 +4244,8 @@ function _distance(anchor, cx, cy, xy, wh, rotation, targetRotation) {
   return Math.sqrt(Math.pow(cx - ax, 2) + Math.pow(cy - ay, 2)) + Math.sqrt(Math.pow(acx - ax, 2) + Math.pow(acy - ay, 2));
 }
 var DEFAULT_ANCHOR_SELECTOR = function DEFAULT_ANCHOR_SELECTOR(xy, wh, txy, twh, rotation, targetRotation, anchors) {
-  var cx = txy[0] + twh[0] / 2,
-      cy = txy[1] + twh[1] / 2;
+  var cx = txy.x + twh.w / 2,
+      cy = txy.y + twh.h / 2;
   var minIdx = -1,
       minDist = Infinity;
   for (var i = 0; i < anchors.length; i++) {
@@ -6474,7 +6474,13 @@ function placeAnchorsOnLine(element, connections, horizontal, otherMultiplier, r
       x = rotated.x;
       y = rotated.y;
     }
-    a.push([x, y, xp, yp, connections[i][1], connections[i][2]]);
+    a.push({
+      x: x,
+      y: y,
+      xLoc: xp,
+      yLoc: yp,
+      c: connections[i][1]
+    });
   }
   return a;
 }
@@ -6538,7 +6544,7 @@ function () {
     key: "floatingAnchorCompute",
     value: function floatingAnchorCompute(anchor, params) {
       var xy = params.xy;
-      anchor._lastResult = [xy[0] + anchor.size.w / 2, xy[1] + anchor.size.h / 2, 0, 0];
+      anchor._lastResult = [xy.x + anchor.size.w / 2, xy.y + anchor.size.h / 2, 0, 0];
       return anchor._lastResult;
     }
   }, {
@@ -6550,7 +6556,7 @@ function () {
       if (timestamp && timestamp === anchor.timestamp) {
         return anchor.lastReturnValue;
       }
-      var candidate = [xy[0] + anchor.x * wh[0] + anchor.offsets[0], xy[1] + anchor.y * wh[1] + anchor.offsets[1], anchor.x, anchor.y];
+      var candidate = [xy.x + anchor.x * wh.w + anchor.offsets[0], xy.y + anchor.y * wh.h + anchor.offsets[1], anchor.x, anchor.y];
       var rotation = params.rotation;
       if (rotation != null && rotation.length > 0) {
         var o = anchor._unrotatedOrientation.slice(),
@@ -6640,15 +6646,15 @@ function () {
           sE = connection.endpoints[0],
           tE = connection.endpoints[1];
       var sAnchorP = this.getEndpointLocation(sE, {
-        xy: [sourceInfo.x, sourceInfo.y],
-        wh: [sourceInfo.w, sourceInfo.h],
+        xy: sourceInfo,
+        wh: sourceInfo,
         element: sE,
         timestamp: timestamp,
         rotation: this.instance.getRotations(connection.sourceId)
       }),
           tAnchorP = this.getEndpointLocation(tE, {
-        xy: [targetInfo.x, targetInfo.y],
-        wh: [targetInfo.w, targetInfo.h],
+        xy: targetInfo,
+        wh: targetInfo,
         element: tE,
         timestamp: timestamp,
         rotation: this.instance.getRotations(connection.targetId)
@@ -6677,11 +6683,11 @@ function () {
           reverse = desc === "right" || desc === "top",
               anchors = placeAnchorsOnLine(cd, sc, isHorizontal, otherMultiplier, reverse);
           var _setAnchorLocation = function _setAnchorLocation(endpoint, anchorPos) {
-            _this2.continuousAnchorLocations[endpoint.id] = [anchorPos[0], anchorPos[1], anchorPos[2], anchorPos[3]];
+            _this2.continuousAnchorLocations[endpoint.id] = [anchorPos.x, anchorPos.y, anchorPos.xLoc, anchorPos.yLoc];
             _this2.continuousAnchorOrientations[endpoint.id] = orientation;
           };
           for (var i = 0; i < anchors.length; i++) {
-            var c = anchors[i][4],
+            var c = anchors[i].c,
                 weAreSource = c.endpoints[0].elementId === elementId,
                 weAreTarget = c.endpoints[1].elementId === elementId;
             if (weAreSource) {
@@ -9313,10 +9319,9 @@ function (_EventGenerator) {
         if (xy != null) {
           var ap = params.anchorLoc;
           if (ap == null) {
-            var wh = [info.w, info.h],
-                anchorParams = {
-              xy: [xy.x, xy.y],
-              wh: wh,
+            var anchorParams = {
+              xy: xy,
+              wh: info,
               element: endpoint,
               timestamp: timestamp
             };
@@ -9327,8 +9332,8 @@ function (_EventGenerator) {
                   oInfo = this.viewport.getPosition(oId);
               anchorParams.index = oIdx === 0 ? 1 : 0;
               anchorParams.connection = _c3;
-              anchorParams.txy = [oInfo.x, oInfo.y];
-              anchorParams.twh = [oInfo.w, oInfo.h];
+              anchorParams.txy = oInfo;
+              anchorParams.twh = oInfo;
               anchorParams.tElement = _c3.endpoints[oIdx];
               anchorParams.tRotation = this.getRotations(oId);
             } else if (endpoint.connections.length > 0) {

@@ -1,6 +1,6 @@
 import { Connection } from "../connector/connection-impl";
 import { Endpoint } from "../endpoint/endpoint";
-import { PointArray, Rotations } from "../common";
+import { PointXY, Rotations, Size } from "../common";
 import { JsPlumbInstance } from "../core";
 import { Anchor } from "../anchor/anchor";
 import { AnchorPlacement } from "../router/router";
@@ -11,10 +11,10 @@ export declare type Axis = [Face, Face];
 export declare const X_AXIS_FACES: Axis;
 export declare const Y_AXIS_FACES: Axis;
 export declare type AnchorComputeParams = {
-    xy?: PointArray;
-    wh?: PointArray;
-    txy?: PointArray;
-    twh?: PointArray;
+    xy?: PointXY;
+    wh?: Size;
+    txy?: PointXY;
+    twh?: Size;
     element?: Endpoint;
     timestamp?: string;
     index?: number;
