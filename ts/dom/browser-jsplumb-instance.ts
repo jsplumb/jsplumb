@@ -258,10 +258,10 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
         this.dragManager.addHandler(new EndpointDragHandler(this))
         const groupDragOptions:DragHandlerOptions = {
-            constrain: (desiredLoc:PointXY, dragEl:HTMLElement, constrainRect:BoundingBox, size:Size):PointXY=> {
+            constrain: (desiredLoc:PointXY, dragEl:jsPlumbDOMElement, constrainRect:BoundingBox, size:Size):PointXY=> {
                 let x = desiredLoc.x, y = desiredLoc.y
 
-                if ((<any>dragEl)[PARENT_GROUP_KEY] && (<any>dragEl)[PARENT_GROUP_KEY].constrain) {
+                if (dragEl._jsPlumbParentGroup && dragEl._jsPlumbParentGroup.constrain) {
                     x = Math.max(desiredLoc.x, 0)
                     y = Math.max(desiredLoc.y, 0)
                     x = Math.min(x, constrainRect.w - size.w)
