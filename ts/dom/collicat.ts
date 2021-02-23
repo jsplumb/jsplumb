@@ -2,9 +2,9 @@
  A Typescript port of Katavorio, without Droppables or Posses, as the code
  does that for itself now.
 */
-import {BoundingBox, Dictionary, PointArray, extend, IS, uuid, PointXY, Size} from '@jsplumb/core'
+import {BoundingBox, Dictionary, extend, IS, uuid, PointXY, Size} from '@jsplumb/core'
 import {addClass, consume, matchesSelector, removeClass, offsetRelativeToRoot} from "./browser-util"
-import {EventManager, pageLocation, toPointXY} from "./event-manager"
+import {EventManager, pageLocation} from "./event-manager"
 import {jsPlumbDOMElement} from "./browser-jsplumb-instance"
 
 
@@ -206,6 +206,8 @@ function getConstrainingRectangle(el:jsPlumbDOMElement):{w:number, h:number} {
     return {w:(<any>el.parentNode).scrollWidth, h:(<any>el.parentNode).scrollHeight}
 }
 
+export type Grid = [number, number]
+
 export interface DragHandlerOptions {
     selector?:string
     start?:(p:DragStartEventParams) => any
@@ -223,7 +225,7 @@ export interface DragHandlerOptions {
     filter?:string
     filterExclude?:boolean
     snapThreshold?:number
-    grid?:PointArray
+    grid?:Grid
     allowNegative?:boolean
 }
 
@@ -278,7 +280,7 @@ export class Drag extends Base {
     _availableSelectors:Array<DragParams> = []
     _ghostProxyFunction:GhostProxyGenerator
     _snapThreshold:number
-    _grid:PointArray
+    _grid:Grid
     _allowNegative:boolean
     _constrain:ConstrainFunction
     _revertFunction:RevertFunction
@@ -705,8 +707,8 @@ export class Drag extends Base {
         return {x,y}
     }
 
-    private resolveGrid():[ PointArray, number, number ] {
-        let out:[ PointArray, number, number ] = [ this._grid, this._snapThreshold ? this._snapThreshold : DEFAULT_GRID_X / 2, this._snapThreshold ? this._snapThreshold : DEFAULT_GRID_Y / 2 ]
+    private resolveGrid():[ Grid, number, number ] {
+        let out:[ Grid, number, number ] = [ this._grid, this._snapThreshold ? this._snapThreshold : DEFAULT_GRID_X / 2, this._snapThreshold ? this._snapThreshold : DEFAULT_GRID_Y / 2 ]
         if(this._activeSelectorParams != null && this._activeSelectorParams.grid != null) {
             out[0] = this._activeSelectorParams.grid
             if (this._activeSelectorParams.snapThreshold != null) {
