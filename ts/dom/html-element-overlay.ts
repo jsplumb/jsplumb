@@ -1,11 +1,11 @@
 
 import {createElement} from './browser-util'
 import {jsPlumbDOMElement} from "./browser-jsplumb-instance"
-import {Component, JsPlumbInstance, Overlay, PointArray} from "@jsplumb/core"
+import {Component, JsPlumbInstance, Overlay, Size} from "../core"
 
 interface HTMLElementOverlayHolder extends Overlay {
     canvas:jsPlumbDOMElement
-    cachedDimensions:PointArray
+    cachedDimensions:Size
 } 
 
 export class HTMLElementOverlay {
@@ -59,9 +59,9 @@ export class HTMLElementOverlay {
         delete o.cachedDimensions
     }
 
-    static _getDimensions(o:HTMLElementOverlayHolder, forceRefresh?:boolean):PointArray {
+    static _getDimensions(o:HTMLElementOverlayHolder, forceRefresh?:boolean):Size {
         if (o.cachedDimensions == null || forceRefresh) {
-            o.cachedDimensions = [1,1]
+            o.cachedDimensions = {w:1,h:1}
         }
         return o.cachedDimensions
     }
