@@ -1,11 +1,11 @@
 import {Connection} from "../connector/connection-impl"
 import {Endpoint} from "../endpoint/endpoint"
-import {Dictionary, PointArray, Rotations} from "../common"
+import {Dictionary, PointXY, Rotations, Size} from "../common"
 import { JsPlumbInstance } from "../core"
 
 import {Anchor} from "../anchor/anchor"
 import {DynamicAnchor} from "../anchor/dynamic-anchor"
-import {extend, IS, isArray, isNumber, isString} from "../util"
+import {extend, isArray, isNumber, isString} from "../util"
 import {ContinuousAnchor, ContinuousAnchorOptions} from "../anchor/continuous-anchor"
 import {AnchorPlacement} from "../router/router"
 
@@ -19,10 +19,10 @@ export const X_AXIS_FACES:Axis = ["left", "right"]
 export const Y_AXIS_FACES:Axis = ["top", "bottom"]
 
 export type AnchorComputeParams = {
-    xy?: PointArray
-    wh?: PointArray
-    txy?:PointArray
-    twh?:PointArray
+    xy?: PointXY
+    wh?: Size
+    txy?:PointXY
+    twh?:Size
     element?:Endpoint
     timestamp?: string
     index?:number
