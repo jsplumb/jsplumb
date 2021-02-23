@@ -62,7 +62,7 @@
  *
  *
  */
-import {BoundingBox, LineXY, PointArray, PointXY} from "./common"
+import {BoundingBox, LineXY, PointXY} from "./common"
 
 export type Curve = Array<PointXY>
 export type PointOnPath = { point:PointXY, location:number }
@@ -525,7 +525,7 @@ export function perpendicularToPathAt (curve:Curve, location:number, length:numb
  * @param curve
  * @returns {Array}
  */
-export function lineIntersection (x1:number, y1:number, x2:number, y2:number, curve:Curve):Array<PointArray> {
+export function lineIntersection (x1:number, y1:number, x2:number, y2:number, curve:Curve):Array<PointXY> {
     let a = y2 - y1,
         b = x1 - x2,
         c = (x1 * (y1 - y2)) + (y1 * (x2-x1)),
@@ -537,7 +537,7 @@ export function lineIntersection (x1:number, y1:number, x2:number, y2:number, cu
             (a*coeffs[0][3])+(b*coeffs[1][3]) + c
         ],
         r = _cubicRoots.apply(null, p),
-        intersections:Array<PointArray> = []
+        intersections:Array<PointXY> = []
 
     if (r != null) {
 
@@ -545,10 +545,10 @@ export function lineIntersection (x1:number, y1:number, x2:number, y2:number, cu
             let t = r[i],
                 t2 = Math.pow(t, 2),
                 t3 = Math.pow(t, 3),
-                x:PointArray = [
-                    (coeffs[0][0] * t3) + (coeffs[0][1] * t2) + (coeffs[0][2] * t) + coeffs[0][3],
-                    (coeffs[1][0] * t3) + (coeffs[1][1] * t2) + (coeffs[1][2] * t) + coeffs[1][3]
-                ]
+                x:PointXY = {
+                    x: (coeffs[0][0] * t3) + (coeffs[0][1] * t2) + (coeffs[0][2] * t) + coeffs[0][3],
+                    y: (coeffs[1][0] * t3) + (coeffs[1][1] * t2) + (coeffs[1][2] * t) + coeffs[1][3]
+                }
 
             // check bounds of the line
             let s
@@ -577,8 +577,8 @@ export function lineIntersection (x1:number, y1:number, x2:number, y2:number, cu
  * @param curve
  * @returns {Array}
  */
-export function boxIntersection (x:number, y:number, w:number, h:number, curve:Curve):Array<PointArray> {
-    let i:Array<PointArray> = []
+export function boxIntersection (x:number, y:number, w:number, h:number, curve:Curve):Array<PointXY> {
+    let i:Array<PointXY> = []
     i.push.apply(i, lineIntersection(x, y, x + w, y, curve))
     i.push.apply(i, lineIntersection(x + w, y, x + w, y + h, curve))
     i.push.apply(i, lineIntersection(x + w, y + h, x, y + h, curve))
@@ -592,8 +592,8 @@ export function boxIntersection (x:number, y:number, w:number, h:number, curve:C
  * @param curve
  * @returns {Array}
  */
-export function boundingBoxIntersection (boundingBox:BoundingBox, curve:Curve):Array<PointArray> {
-    let i:Array<PointArray> = []
+export function boundingBoxIntersection (boundingBox:BoundingBox, curve:Curve):Array<PointXY> {
+    let i:Array<PointXY> = []
     i.push.apply(i, lineIntersection(boundingBox.x, boundingBox.y, boundingBox.x + boundingBox.w, boundingBox.y, curve))
     i.push.apply(i, lineIntersection(boundingBox.x + boundingBox.w, boundingBox.y, boundingBox.x + boundingBox.w, boundingBox.y + boundingBox.h, curve))
     i.push.apply(i, lineIntersection(boundingBox.x + boundingBox.w, boundingBox.y + boundingBox.h, boundingBox.x, boundingBox.y + boundingBox.h, curve))

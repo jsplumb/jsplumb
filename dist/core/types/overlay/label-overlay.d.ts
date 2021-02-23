@@ -1,7 +1,7 @@
 import { LabelOverlayOptions, Overlay } from "./overlay";
 import { Component } from "../component/component";
 import { JsPlumbInstance } from "../core";
-import { PointArray } from '../common';
+import { Size } from '../common';
 export declare class LabelOverlay extends Overlay {
     instance: JsPlumbInstance;
     component: Component;
@@ -9,11 +9,11 @@ export declare class LabelOverlay extends Overlay {
     labelText: string;
     static labelType: string;
     type: string;
-    cachedDimensions: PointArray;
+    cachedDimensions: Size;
     constructor(instance: JsPlumbInstance, component: Component, p: LabelOverlayOptions);
     getLabel(): string;
     setLabel(l: string | Function): void;
-    getDimensions(): PointArray;
+    getDimensions(): Size;
     updateFrom(d: any): void;
 }
 export declare function isLabelOverlay(o: Overlay): o is LabelOverlay;

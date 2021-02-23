@@ -4,7 +4,7 @@ import { JsPlumbInstance } from "../core"
 import { Connection } from '../connector/connection-impl'
 import { Endpoint } from '../endpoint/endpoint'
 import {ViewportElement} from "../viewport"
-import {ConnectionDetachedParams, Dictionary, PointArray, PointXY, Rotations, SortFunction} from "../common"
+import {ConnectionDetachedParams, Dictionary, PointXY, Rotations, SortFunction} from "../common"
 import {AnchorComputeParams, AnchorOrientationHint, Face, Orientation} from "../factory/anchor-factory"
 import { DynamicAnchor } from "../anchor/dynamic-anchor"
 import {findWithFunction, removeWithFunction, rotatePoint, sortHelper, uuid, forEach, RotatedPointXY} from "../util"
@@ -76,7 +76,6 @@ interface OrientationResult {
 }
 
 // internal data models for the anchor manager
-//type AnchorListEntry = [ PointArray, Connection, boolean, string, string ]
 type AnchorListEntry = {theta:number, order:number, c:ConnectionFacade, b:boolean, elId:string, epId:string }
 type AnchorLists = { top: Array<AnchorListEntry>, right: Array<AnchorListEntry>, bottom: Array<AnchorListEntry>, left: Array<AnchorListEntry> }
 type AnchorDictionary = Dictionary<AnchorLists>

@@ -106,7 +106,6 @@ export interface Size {
     w: number;
     h: number;
 }
-export declare type PointArray = [number, number];
 export interface PointXY {
     x: number;
     y: number;

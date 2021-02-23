@@ -1,4 +1,4 @@
-import {BoundingBox, PointArray, PointXY} from "../common"
+import {BoundingBox, PointXY} from "../common"
 
 export interface SegmentParams {
     x1:number
@@ -51,9 +51,9 @@ export interface Segment {
     type:string
 
     getBounds ():SegmentBounds
-    lineIntersection (x1:number, y1:number, x2:number, y2:number):Array<PointArray>
-    boxIntersection (x:number, y:number, w:number, h:number):Array<PointArray>
-    boundingBoxIntersection (box:BoundingBox):Array<PointArray>
+    lineIntersection (x1:number, y1:number, x2:number, y2:number):Array<PointXY>
+    boxIntersection (x:number, y:number, w:number, h:number):Array<PointXY>
+    boundingBoxIntersection (box:BoundingBox):Array<PointXY>
     getLength():number
     pointOnPath (location:number, absolute?:boolean):PointXY
     gradientAtPoint (location:number, absolute?:boolean):number
@@ -108,9 +108,9 @@ export abstract class AbstractSegment implements Segment {
      * @param {number} y1
      * @param {number} x2
      * @param {number} y2
-     * @returns {Array<PointArray>}
+     * @returns {Array<PointXY>}
      */
-    lineIntersection (x1:number, y1:number, x2:number, y2:number):Array<PointArray> {
+    lineIntersection (x1:number, y1:number, x2:number, y2:number):Array<PointXY> {
         return []
     }
 
@@ -121,10 +121,10 @@ export abstract class AbstractSegment implements Segment {
      * @param {number} y
      * @param {number} w
      * @param {number} h
-     * @returns {Array<PointArray>}
+     * @returns {Array<PointXY>}
      */
-    boxIntersection (x:number, y:number, w:number, h:number):Array<PointArray> {
-        let a:Array<PointArray> = []
+    boxIntersection (x:number, y:number, w:number, h:number):Array<PointXY> {
+        let a:Array<PointXY> = []
         a.push.apply(a, this.lineIntersection(x, y, x + w, y))
         a.push.apply(a, this.lineIntersection(x + w, y, x + w, y + h))
         a.push.apply(a, this.lineIntersection(x + w, y + h, x, y + h))
@@ -138,7 +138,7 @@ export abstract class AbstractSegment implements Segment {
      * @param {BoundingBox} box
      * @returns {Array<[number, number]>}
      */
-    boundingBoxIntersection (box:BoundingBox):Array<PointArray> {
+    boundingBoxIntersection (box:BoundingBox):Array<PointXY> {
         return this.boxIntersection(box.x, box.y, box.w, box.h)
     }
 }

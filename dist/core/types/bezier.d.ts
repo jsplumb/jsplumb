@@ -62,7 +62,7 @@
  *
  *
  */
-import { BoundingBox, LineXY, PointArray, PointXY } from "./common";
+import { BoundingBox, LineXY, PointXY } from "./common";
 export declare type Curve = Array<PointXY>;
 export declare type PointOnPath = {
     point: PointXY;
@@ -143,7 +143,7 @@ export declare function perpendicularToPathAt(curve: Curve, location: number, le
  * @param curve
  * @returns {Array}
  */
-export declare function lineIntersection(x1: number, y1: number, x2: number, y2: number, curve: Curve): Array<PointArray>;
+export declare function lineIntersection(x1: number, y1: number, x2: number, y2: number, curve: Curve): Array<PointXY>;
 /**
  * Calculates all intersections of the given box with the given curve.
  * @param x X position of top left corner of box
@@ -153,11 +153,11 @@ export declare function lineIntersection(x1: number, y1: number, x2: number, y2:
  * @param curve
  * @returns {Array}
  */
-export declare function boxIntersection(x: number, y: number, w: number, h: number, curve: Curve): Array<PointArray>;
+export declare function boxIntersection(x: number, y: number, w: number, h: number, curve: Curve): Array<PointXY>;
 /**
  * Calculates all intersections of the given bounding box with the given curve.
  * @param boundingBox Bounding box, in { x:.., y:..., w:..., h:... } format.
  * @param curve
  * @returns {Array}
  */
-export declare function boundingBoxIntersection(boundingBox: BoundingBox, curve: Curve): Array<PointArray>;
+export declare function boundingBoxIntersection(boundingBox: BoundingBox, curve: Curve): Array<PointXY>;

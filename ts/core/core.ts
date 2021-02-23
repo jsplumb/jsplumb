@@ -22,7 +22,6 @@ import {
     UpdateOffsetOptions,
     Size,
     jsPlumbElement,
-    PointArray,
     ConnectParams,  // <--
     SourceDefinition,
     TargetDefinition,

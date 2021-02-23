@@ -1,5 +1,5 @@
 import {AbstractSegment, PointNearPath, SegmentBounds} from "./abstract-segment"
-import { PointArray, PointXY } from '../common'
+import { PointXY } from '../common'
 import { JsPlumbInstance } from "../core"
 import {gradient, lineLength, pointOnLine} from "../geom"
 
@@ -170,11 +170,11 @@ export class StraightSegment extends AbstractSegment {
      * @param _y2
      * @returns {Array}
      */
-    lineIntersection (_x1:number, _y1:number, _x2:number, _y2:number):Array<PointArray> {
+    lineIntersection (_x1:number, _y1:number, _x2:number, _y2:number):Array<PointXY> {
         let m2 = Math.abs(gradient({x: _x1, y: _y1}, {x: _x2, y: _y2})),
             m1 = Math.abs(this.m),
             b = m1 === Infinity ? this.x1 : this.y1 - (m1 * this.x1),
-            out:Array<PointArray> = [],
+            out:Array<PointXY> = [],
             b2 = m2 === Infinity ? _x1 : _y1 - (m2 * _x1)
 
         // if lines parallel, no intersection
@@ -182,12 +182,12 @@ export class StraightSegment extends AbstractSegment {
             // perpendicular, segment horizontal
             if(m2 === Infinity  && m1 === 0) {
                 if (this._pointLiesBetween(_x1, this.x1, this.x2) && this._pointLiesBetween(this.y1, _y1, _y2)) {
-                    out.push([ _x1, this.y1 ]);  // we return X on the incident line and Y from the segment
+                    out.push({x: _x1, y:this.y1 })  // we return X on the incident line and Y from the segment
                 }
             } else if(m2 === 0 && m1 === Infinity) {
                 // perpendicular, segment vertical
                 if(this._pointLiesBetween(_y1, this.y1, this.y2) && this._pointLiesBetween(this.x1, _x1, _x2)) {
-                    out.push([this.x1, _y1]);  // we return X on the segment and Y from the incident line
+                    out.push({x:this.x1, y:_y1})  // we return X on the segment and Y from the incident line
                 }
             } else {
                 let X, Y
@@ -197,7 +197,7 @@ export class StraightSegment extends AbstractSegment {
                     if (this._pointLiesBetween(X, this.x1, this.x2)) {
                         Y = (m1 * _x1) + b
                         if (this._pointLiesBetween(Y, _y1, _y2)) {
-                            out.push([ X, Y ])
+                            out.push({x: X, y:Y })
                         }
                     }
                 } else if (m2 === 0) {
@@ -206,7 +206,7 @@ export class StraightSegment extends AbstractSegment {
                     if (this._pointLiesBetween(Y, this.y1, this.y2)) {
                         X = (_y1 - b) / m1
                         if (this._pointLiesBetween(X, _x1, _x2)) {
-                            out.push([ X, Y ])
+                            out.push({x: X, y:Y })
                         }
                     }
                 } else {
@@ -218,7 +218,7 @@ export class StraightSegment extends AbstractSegment {
                     X = (b2 - b) / (m1 - m2)
                     Y = (m1 * X) + b
                     if(this._pointLiesBetween(X, this.x1, this.x2) && this._pointLiesBetween(Y, this.y1, this.y2)) {
-                        out.push([ X,  Y])
+                        out.push({x: X, y:Y})
                     }
                 }
             }
@@ -236,8 +236,8 @@ export class StraightSegment extends AbstractSegment {
      * @param h height of box
      * @returns {Array}
      */
-    boxIntersection (x:number, y:number, w:number, h:number):Array<PointArray> {
-        let a:Array<PointArray> = []
+    boxIntersection (x:number, y:number, w:number, h:number):Array<PointXY> {
+        let a:Array<PointXY> = []
         a.push.apply(a, this.lineIntersection(x, y, x + w, y))
         a.push.apply(a, this.lineIntersection(x + w, y, x + w, y + h))
         a.push.apply(a, this.lineIntersection(x + w, y + h, x, y + h))

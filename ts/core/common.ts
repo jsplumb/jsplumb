@@ -115,7 +115,6 @@ export interface TargetDefinition extends SourceOrTargetDefinition { }
 
 export interface Size { w:number, h:number }
 
-export type PointArray = [ number, number ]
 export interface PointXY { x:number, y:number, theta?:number }
 export type BoundingBox = { x:number, y:number, w:number, h:number, center?:PointXY }
 export type RectangleXY = BoundingBox

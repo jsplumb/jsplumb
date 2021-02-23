@@ -1523,11 +1523,17 @@ function (_AbstractSegment) {
       if (m2 !== m1) {
         if (m2 === Infinity && m1 === 0) {
           if (this._pointLiesBetween(_x1, this.x1, this.x2) && this._pointLiesBetween(this.y1, _y1, _y2)) {
-            out.push([_x1, this.y1]);
+            out.push({
+              x: _x1,
+              y: this.y1
+            });
           }
         } else if (m2 === 0 && m1 === Infinity) {
           if (this._pointLiesBetween(_y1, this.y1, this.y2) && this._pointLiesBetween(this.x1, _x1, _x2)) {
-            out.push([this.x1, _y1]);
+            out.push({
+              x: this.x1,
+              y: _y1
+            });
           }
         } else {
           var X, Y;
@@ -1536,7 +1542,10 @@ function (_AbstractSegment) {
             if (this._pointLiesBetween(X, this.x1, this.x2)) {
               Y = m1 * _x1 + b;
               if (this._pointLiesBetween(Y, _y1, _y2)) {
-                out.push([X, Y]);
+                out.push({
+                  x: X,
+                  y: Y
+                });
               }
             }
           } else if (m2 === 0) {
@@ -1544,14 +1553,20 @@ function (_AbstractSegment) {
             if (this._pointLiesBetween(Y, this.y1, this.y2)) {
               X = (_y1 - b) / m1;
               if (this._pointLiesBetween(X, _x1, _x2)) {
-                out.push([X, Y]);
+                out.push({
+                  x: X,
+                  y: Y
+                });
               }
             }
           } else {
             X = (b2 - b) / (m1 - m2);
             Y = m1 * X + b;
             if (this._pointLiesBetween(X, this.x1, this.x2) && this._pointLiesBetween(Y, this.y1, this.y2)) {
-              out.push([X, Y]);
+              out.push({
+                x: X,
+                y: Y
+              });
             }
           }
         }
@@ -2614,7 +2629,10 @@ function lineIntersection(x1, y1, x2, y2, curve) {
       var _t = r[i],
           t2 = Math.pow(_t, 2),
           t3 = Math.pow(_t, 3),
-          x = [coeffs[0][0] * t3 + coeffs[0][1] * t2 + coeffs[0][2] * _t + coeffs[0][3], coeffs[1][0] * t3 + coeffs[1][1] * t2 + coeffs[1][2] * _t + coeffs[1][3]];
+          x = {
+        x: coeffs[0][0] * t3 + coeffs[0][1] * t2 + coeffs[0][2] * _t + coeffs[0][3],
+        y: coeffs[1][0] * t3 + coeffs[1][1] * t2 + coeffs[1][2] * _t + coeffs[1][3]
+      };
       var s = void 0;
       if (x2 - x1 !== 0) {
         s = (x[0] - x1) / (x2 - x1);
@@ -3854,7 +3872,10 @@ function (_Overlay) {
   }, {
     key: "getDimensions",
     value: function getDimensions() {
-      return [1, 1];
+      return {
+        w: 1,
+        h: 1
+      };
     }
   }, {
     key: "updateFrom",
@@ -4302,7 +4323,7 @@ function (_Anchor) {
     key: "setAnchorCoordinates",
     value: function setAnchorCoordinates(coords) {
       var idx = findWithFunction(this.anchors, function (a) {
-        return a.x === coords[0] && a.y === coords[1];
+        return a.x === coords.x && a.y === coords.y;
       });
       if (idx !== -1) {
         this.setAnchor(this.anchors[idx]);
@@ -6479,17 +6500,17 @@ function placeAnchorsOnLine(element, connections, horizontal, otherMultiplier, r
       y: y,
       xLoc: xp,
       yLoc: yp,
-      c: connections[i][1]
+      c: connections[i].c
     });
   }
   return a;
 }
 function rightAndBottomSort(a, b) {
-  return b[0][0] - a[0][0];
+  return b.theta - a.theta;
 }
 function leftAndTopSort(a, b) {
-  var p1 = a[0][0] < 0 ? -Math.PI - a[0][0] : Math.PI - a[0][0],
-      p2 = b[0][0] < 0 ? -Math.PI - b[0][0] : Math.PI - b[0][0];
+  var p1 = a.theta < 0 ? -Math.PI - a.theta : Math.PI - a.theta,
+      p2 = b.theta < 0 ? -Math.PI - b.theta : Math.PI - b.theta;
   return p1 - p2;
 }
 var edgeSortFunctions = {
@@ -6736,29 +6757,36 @@ function () {
       var endpoint = conn.endpoints[idx],
           endpointId = endpoint.id,
           oIdx = [1, 0][idx],
-          values = [[theta, order], conn, aBoolean, otherElId, endpointId],
+          values = {
+        theta: theta,
+        order: order,
+        c: conn,
+        b: aBoolean,
+        elId: otherElId,
+        epId: endpointId
+      },
           listToAddTo = lists[edgeId],
           listToRemoveFrom = endpoint._continuousAnchorEdge ? lists[endpoint._continuousAnchorEdge] : null,
           candidate;
       if (listToRemoveFrom) {
         var rIdx = findWithFunction(listToRemoveFrom, function (e) {
-          return e[4] === endpointId;
+          return e.epId === endpointId;
         });
         if (rIdx !== -1) {
           listToRemoveFrom.splice(rIdx, 1);
           for (var i = 0; i < listToRemoveFrom.length; i++) {
-            candidate = listToRemoveFrom[i][1];
+            candidate = listToRemoveFrom[i].c;
             connsToPaint.add(candidate);
-            endpointsToPaint.add(listToRemoveFrom[i][1].endpoints[idx]);
-            endpointsToPaint.add(listToRemoveFrom[i][1].endpoints[oIdx]);
+            endpointsToPaint.add(listToRemoveFrom[i].c.endpoints[idx]);
+            endpointsToPaint.add(listToRemoveFrom[i].c.endpoints[oIdx]);
           }
         }
       }
       for (var _i = 0; _i < listToAddTo.length; _i++) {
-        candidate = listToAddTo[_i][1];
+        candidate = listToAddTo[_i].c;
         connsToPaint.add(candidate);
-        endpointsToPaint.add(listToAddTo[_i][1].endpoints[idx]);
-        endpointsToPaint.add(listToAddTo[_i][1].endpoints[oIdx]);
+        endpointsToPaint.add(listToAddTo[_i].c.endpoints[idx]);
+        endpointsToPaint.add(listToAddTo[_i].c.endpoints[oIdx]);
       }
       {
         var insertIdx = reverse ?  0 : listToAddTo.length;

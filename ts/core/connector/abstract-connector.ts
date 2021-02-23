@@ -1,5 +1,5 @@
 import {isArray, log} from "../util"
-import { PointArray, PointXY, TypeDescriptor} from '../common'
+import { PointXY, TypeDescriptor} from '../common'
 import { JsPlumbInstance } from "../core"
 import {EMPTY_BOUNDS, Segment, SegmentBounds} from "./abstract-segment"
 import {AnchorPlacement} from "../router/router"
@@ -200,24 +200,24 @@ export abstract class AbstractConnector implements Connector {
         return out
     }
 
-    lineIntersection (x1:number, y1:number, x2:number, y2:number):Array<PointArray> {
-        let out:Array<PointArray> = []
+    lineIntersection (x1:number, y1:number, x2:number, y2:number):Array<PointXY> {
+        let out:Array<PointXY> = []
         for (let i = 0; i < this.segments.length; i++) {
             out.push.apply(out, this.segments[i].lineIntersection(x1, y1, x2, y2))
         }
         return out
     }
 
-    boxIntersection (x:number, y:number, w:number, h:number):Array<PointArray> {
-        let out:Array<PointArray> = []
+    boxIntersection (x:number, y:number, w:number, h:number):Array<PointXY> {
+        let out:Array<PointXY> = []
         for (let i = 0; i < this.segments.length; i++) {
             out.push.apply(out, this.segments[i].boxIntersection(x, y, w, h))
         }
         return out
     }
 
-    boundingBoxIntersection (box:any):Array<PointArray> {
-        let out:Array<PointArray> = []
+    boundingBoxIntersection (box:any):Array<PointXY> {
+        let out:Array<PointXY> = []
         for (let i = 0; i < this.segments.length; i++) {
             out.push.apply(out, this.segments[i].boundingBoxIntersection(box))
         }

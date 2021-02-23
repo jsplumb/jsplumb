@@ -1,6 +1,6 @@
 import {ArrowOverlayOptions, Overlay} from "./overlay"
 import {JsPlumbInstance} from "../core"
-import {PointArray, PointXY} from '../common'
+import { PointXY, Size } from '../common'
 import { isArray } from '../util'
 import {Component} from '../component/component'
 import { OverlayFactory } from '../factory/overlay-factory'
@@ -24,7 +24,7 @@ export class ArrowOverlay extends Overlay {
     static arrowType = "Arrow"
     type:string = ArrowOverlay.arrowType
 
-    cachedDimensions:PointArray
+    cachedDimensions:Size
 
     constructor(public instance:JsPlumbInstance, public component:Component,
                 p:ArrowOverlayOptions) {

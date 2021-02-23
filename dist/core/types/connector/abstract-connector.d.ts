@@ -1,4 +1,4 @@
-import { PointArray, PointXY, TypeDescriptor } from '../common';
+import { PointXY, TypeDescriptor } from '../common';
 import { JsPlumbInstance } from "../core";
 import { Segment, SegmentBounds } from "./abstract-segment";
 import { AnchorPlacement } from "../router/router";
@@ -135,9 +135,9 @@ export declare abstract class AbstractConnector implements Connector {
      *   s   -   the segment itself.
      */
     findSegmentForPoint(x: number, y: number): SegmentForPoint;
-    lineIntersection(x1: number, y1: number, x2: number, y2: number): Array<PointArray>;
-    boxIntersection(x: number, y: number, w: number, h: number): Array<PointArray>;
-    boundingBoxIntersection(box: any): Array<PointArray>;
+    lineIntersection(x1: number, y1: number, x2: number, y2: number): Array<PointXY>;
+    boxIntersection(x: number, y: number, w: number, h: number): Array<PointXY>;
+    boundingBoxIntersection(box: any): Array<PointXY>;
     _updateSegmentProportions(): void;
     /**
      * returns [segment, proportion of travel in segment, segment index] for the segment

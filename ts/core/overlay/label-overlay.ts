@@ -4,7 +4,7 @@ import {isFunction} from "../util"
 import {Component} from "../component/component"
 import {JsPlumbInstance} from "../core"
 import {OverlayFactory} from "../factory/overlay-factory"
-import { PointArray } from '../common'
+import {Size} from '../common'
 
 export class LabelOverlay extends Overlay {
 
@@ -14,7 +14,7 @@ export class LabelOverlay extends Overlay {
     static labelType = "Label"
     type:string = LabelOverlay.labelType
 
-    cachedDimensions:PointArray
+    cachedDimensions:Size
 
     constructor(public instance:JsPlumbInstance, public component:Component,
                 p:LabelOverlayOptions) {
@@ -38,7 +38,7 @@ export class LabelOverlay extends Overlay {
         this.instance.updateLabel(this)
     }
 
-    getDimensions():PointArray { return [1,1];}
+    getDimensions():Size { return {w:1,h:1} }
 
 
     updateFrom(d: any): void {

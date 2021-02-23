@@ -728,7 +728,7 @@ export class Drag extends Base {
         }
     }
 
-    // snap (x:number, y:number):PointArray {
+    // snap (x:number, y:number):PointXY{
     //
     //     const [grid, thresholdX, thresholdY] = this.resolveGrid()
     //

@@ -1,7 +1,7 @@
 import { Anchor } from "./anchor"
 import { AnchorOptions, AnchorSpec, makeAnchorFromSpec } from "../factory/anchor-factory"
 
-import {PointArray, PointXY, Rotations, Size} from '../common'
+import {PointXY, Rotations, Size} from '../common'
 import { JsPlumbInstance } from "../core"
 import {findWithFunction} from "../util"
 
@@ -96,8 +96,8 @@ export class DynamicAnchor extends Anchor {
         return (this._curAnchor && this._curAnchor.getCssClass()) || ""
     }
 
-    setAnchorCoordinates (coords: PointArray) {
-        const idx = findWithFunction(this.anchors, (a:Anchor) => a.x === coords[0] && a.y === coords[1])
+    setAnchorCoordinates (coords: PointXY) {
+        const idx = findWithFunction(this.anchors, (a:Anchor) => a.x === coords.x && a.y === coords.y)
         if (idx !== -1) {
             this.setAnchor(this.anchors[idx])
             return true

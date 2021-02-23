@@ -1,6 +1,6 @@
 import { ArrowOverlayOptions, Overlay } from "./overlay";
 import { JsPlumbInstance } from "../core";
-import { PointArray, PointXY } from '../common';
+import { PointXY, Size } from '../common';
 import { Component } from '../component/component';
 import { PaintStyle } from '../styles';
 export declare class ArrowOverlay extends Overlay {
@@ -14,7 +14,7 @@ export declare class ArrowOverlay extends Overlay {
     paintStyle: PaintStyle;
     static arrowType: string;
     type: string;
-    cachedDimensions: PointArray;
+    cachedDimensions: Size;
     constructor(instance: JsPlumbInstance, component: Component, p: ArrowOverlayOptions);
     draw(component: Component, currentConnectionPaintStyle: PaintStyle, absolutePosition?: PointXY): any;
     updateFrom(d: any): void;

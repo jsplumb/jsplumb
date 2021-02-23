@@ -1,5 +1,5 @@
 import { AbstractSegment, PointNearPath, SegmentBounds } from "./abstract-segment";
-import { PointArray, PointXY } from '../common';
+import { PointXY } from '../common';
 import { JsPlumbInstance } from "../core";
 export declare type StraightSegmentCoordinates = {
     x1: number;
@@ -56,7 +56,7 @@ export declare class StraightSegment extends AbstractSegment {
      * @param _y2
      * @returns {Array}
      */
-    lineIntersection(_x1: number, _y1: number, _x2: number, _y2: number): Array<PointArray>;
+    lineIntersection(_x1: number, _y1: number, _x2: number, _y2: number): Array<PointXY>;
     /**
      * Calculates all intersections of the given box with this segment. By default this method simply calls `lineIntersection` with each of the four
      * faces of the box; subclasses can override this if they think there's a faster way to compute the entire box at once.
@@ -66,5 +66,5 @@ export declare class StraightSegment extends AbstractSegment {
      * @param h height of box
      * @returns {Array}
      */
-    boxIntersection(x: number, y: number, w: number, h: number): Array<PointArray>;
+    boxIntersection(x: number, y: number, w: number, h: number): Array<PointXY>;
 }

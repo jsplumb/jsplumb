@@ -1,6 +1,6 @@
 import { Anchor } from "./anchor";
 import { AnchorOptions, AnchorSpec } from "../factory/anchor-factory";
-import { PointArray, PointXY, Rotations, Size } from '../common';
+import { PointXY, Rotations, Size } from '../common';
 import { JsPlumbInstance } from "../core";
 export declare type AnchorSelectorFunction = (xy: PointXY, wh: Size, txy: PointXY, twh: Size, rotation: Rotations, targetRotation: Rotations, anchors: Array<Anchor>) => Anchor;
 export interface DynamicAnchorOptions extends AnchorOptions {
@@ -18,5 +18,5 @@ export declare class DynamicAnchor extends Anchor {
     getAnchors(): Array<Anchor>;
     setAnchor(a: Anchor): void;
     getCssClass(): string;
-    setAnchorCoordinates(coords: PointArray): boolean;
+    setAnchorCoordinates(coords: PointXY): boolean;
 }

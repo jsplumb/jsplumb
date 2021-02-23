@@ -1,5 +1,5 @@
 import {AbstractSegment, PointNearPath, SegmentBounds} from "./abstract-segment"
-import { PointArray, PointXY } from '../common'
+import { PointXY } from '../common'
 import { JsPlumbInstance } from "../core"
 import {
     computeBezierLength,
@@ -115,7 +115,7 @@ export class BezierSegment extends AbstractSegment {
         }
     }
 
-    lineIntersection (x1:number, y1:number, x2:number, y2:number):Array<PointArray> {
+    lineIntersection (x1:number, y1:number, x2:number, y2:number):Array<PointXY> {
         return lineIntersection(x1, y1, x2, y2, this.curve)
     }
 }

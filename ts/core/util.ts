@@ -1,4 +1,4 @@
-import {Dictionary, PointArray, PointXY, SortFunction} from './common'
+import {Dictionary, PointXY, SortFunction} from './common'
 
 export function filterList (list:Array<any> | string, value:any, missingIsFalse?:boolean):boolean {
     if (list === "*") {
