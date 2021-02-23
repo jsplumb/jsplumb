@@ -1,18 +1,8 @@
-/**
- A Typescript port of Katavorio, without Droppables or Posses, as the code
- does that for itself now.
-*/
 import {BoundingBox, Dictionary, extend, IS, uuid, PointXY, Size} from '@jsplumb/core'
 import {addClass, consume, matchesSelector, removeClass, offsetRelativeToRoot} from "./browser-util"
 import {EventManager, pageLocation} from "./event-manager"
 import {jsPlumbDOMElement} from "./browser-jsplumb-instance"
-
-
-function getOffsetRect (elem:jsPlumbDOMElement):PointXY {
-    // const o = offsetRelativeToRoot(elem)
-    // return {x:o.left, y:o.top }
-    return offsetRelativeToRoot(elem)
-}
+import {EVENT_MOUSEUP, EVENT_MOUSEDOWN, EVENT_MOUSEMOVE, EVENT_REVERT} from "./drag-manager"
 
 function findDelegateElement(parentElement:jsPlumbDOMElement, childElement:jsPlumbDOMElement, selector:string) {
     if (matchesSelector(childElement, selector, parentElement)) {
@@ -46,18 +36,11 @@ function _setPosition(el:HTMLElement, pos:PointXY) {
     el.style.top = pos.y + "px"
 }
 
-export interface DragSelector {
-    filter?:string
-    filterExclude?:boolean
-    selector:string
-}
-
 export interface DragStartEventParams {
     e:MouseEvent
     el:jsPlumbDOMElement
     pos:PointXY
     drag:Drag
-    //finalPos?:PointXY
 }
 
 export interface DragEventParams extends DragStartEventParams { }
@@ -68,7 +51,7 @@ export interface BeforeStartEventParams extends DragStartEventParams {}
 
 export interface DragStopEventParams extends DragEventParams {
     finalPos:PointXY
-    selection:Array<[jsPlumbDOMElement, PointXY, any]>
+    selection:Array<[jsPlumbDOMElement, PointXY, Drag]>
 }
 
 /**
@@ -107,6 +90,17 @@ function findMatchingSelector(availableSelectors:Array<DragParams>, parentElemen
     return null
 }
 
+export const EVENT_START = "start"
+export const EVENT_BEFORE_START = "beforeStart"
+export const EVENT_DRAG = "drag"
+export const EVENT_DROP = "drop"
+export const EVENT_OVER = "over"
+export const EVENT_OUT = "out"
+export const EVENT_STOP = "stop"
+const ATTRIBUTE_DRAGGABLE = "katavorio-draggable"
+
+const CLASS_DRAGGABLE = ATTRIBUTE_DRAGGABLE
+
 const DEFAULT_GRID_X = 10
 const DEFAULT_GRID_Y = 10
 const TRUE = function() { return true; }
@@ -114,18 +108,19 @@ const FALSE = function() { return false; }
 
 const _classes:Dictionary<string> = {
     delegatedDraggable:"katavorio-delegated-draggable",  // elements that are the delegated drag handler for a bunch of other elements
-    draggable:"katavorio-draggable",    // draggable elements
-    droppable:"katavorio-droppable",    // droppable elements
+    draggable:CLASS_DRAGGABLE,    // draggable elements
     drag : "katavorio-drag",            // elements currently being dragged
     selected:"katavorio-drag-selected", // elements in current drag selection
-    active : "katavorio-drag-active",   // droppables that are targets of a currently dragged element
-    hover : "katavorio-drag-hover",     // droppables over which a matching drag element is hovering
+    //active : "katavorio-drag-active",   // droppables that are targets of a currently dragged element
+    //hover : "katavorio-drag-hover",     // droppables over which a matching drag element is hovering
     noSelect : "katavorio-drag-no-select", // added to the body to provide a hook to suppress text selection
     ghostProxy:"katavorio-ghost-proxy",  // added to a ghost proxy element in use when a drag has exited the bounds of its parent.
     clonedDrag:"katavorio-clone-drag"     // added to a node that is a clone of an element created at the start of a drag
 }
 
-const _events = [ "stop", "start", "drag", "drop", "over", "out", "beforeStart" ]
+
+
+const _events = [ EVENT_STOP, EVENT_START, EVENT_DRAG, EVENT_DROP, EVENT_OVER, EVENT_OUT, EVENT_BEFORE_START ]
 const _devNull = function() {}
 
 const _each = function(obj:any, fn:any) {
@@ -139,7 +134,7 @@ const _each = function(obj:any, fn:any) {
 // filters out events on all input elements, like textarea, checkbox, input, select.
 // Collicat has a default list of these.
 //
-const _inputFilter = function(e:Event, el:any, collicat:Collicat) {
+const _inputFilter = function(e:Event, el:HTMLElement, collicat:Collicat) {
     const t = (e.srcElement || e.target) as jsPlumbDOMElement
     return !matchesSelector(t, collicat.getInputFilterSelector(), el)
 }
@@ -152,7 +147,7 @@ abstract class Base {
     private enabled = true
     scopes:Array<string> = []
 
-    constructor(protected el:jsPlumbDOMElement, protected k:Collicat) { }
+    protected constructor(protected el:jsPlumbDOMElement, protected k:Collicat) { }
 
     setEnabled(e:boolean) {
         this.enabled = e
@@ -203,7 +198,7 @@ abstract class Base {
 export type GhostProxyGenerator = (el:Element) => Element
 
 function getConstrainingRectangle(el:jsPlumbDOMElement):{w:number, h:number} {
-    return {w:(<any>el.parentNode).scrollWidth, h:(<any>el.parentNode).scrollHeight}
+    return { w:el.parentNode.scrollWidth, h:el.parentNode.scrollHeight }
 }
 
 export type Grid = [number, number]
@@ -218,7 +213,7 @@ export interface DragHandlerOptions {
     dragAbort?:(el:Element) => any
     ghostProxy?:GhostProxyGenerator | boolean
     makeGhostProxy?:GhostProxyGenerator
-    useGhostProxy?:(container:any, dragEl:any) => boolean
+    useGhostProxy?:(container:any, dragEl:jsPlumbDOMElement) => boolean
     ghostProxyParent?:Element
     constrain?:ConstrainFunction | boolean
     revert?:RevertFunction
@@ -269,7 +264,7 @@ export class Drag extends Base {
     private _dragEl:jsPlumbDOMElement
     private _multipleDrop:boolean
 
-    private _ghostProxyOffsets:any
+    private _ghostProxyOffsets:PointXY
     private _ghostDx:number
     private _ghostDy:number
 
@@ -286,16 +281,14 @@ export class Drag extends Base {
     _revertFunction:RevertFunction
     _canDrag:Function
     private _consumeFilteredEvents:boolean
-    private _parent:any
+    private _parent:jsPlumbDOMElement
     private _ignoreZoom:boolean
 
     // a map of { spec -> [ fn, exclusion ] } entries.
     _filters:Dictionary<[Function, any]> = {}
 
     _constrainRect:{w:number, h:number}
-    _matchingDroppables:Array<any> = []
-    _intersectingDroppables:Array<any> = []
-    _elementToDrag:any
+    _elementToDrag:jsPlumbDOMElement
 
     downListener:(e:MouseEvent) => void
     moveListener:(e:MouseEvent) => void
@@ -360,7 +353,7 @@ export class Drag extends Base {
         }
 
         if (params.selector) {
-            let draggableId = this.el.getAttribute("katavorio-draggable")
+            let draggableId = this.el.getAttribute(ATTRIBUTE_DRAGGABLE)
             if (draggableId == null) {
                 draggableId = "" + new Date().getTime()
                 this.el.setAttribute("katavorio-draggable", draggableId)
@@ -370,9 +363,9 @@ export class Drag extends Base {
         }
 
         this._snapThreshold = params.snapThreshold
-        this._setConstrain(typeof params.constrain === "function" ? params.constrain  : (params.constrain || params.containment))
+        this.setConstrain(typeof params.constrain === "function" ? params.constrain  : (params.constrain || params.containment))
 
-        this.k.eventManager.on(this.el, "mousedown", this.downListener)
+        this.k.eventManager.on(this.el, EVENT_MOUSEDOWN, this.downListener)
     }
 
     on (evt:string, fn:Function) {
@@ -383,8 +376,8 @@ export class Drag extends Base {
 
     off (evt:string, fn:Function) {
         if (this.listeners[evt]) {
-            var l = []
-            for (var i = 0; i < this.listeners[evt].length; i++) {
+            const l = []
+            for (let i = 0; i < this.listeners[evt].length; i++) {
                 if (this.listeners[evt][i] !== fn) {
                     l.push(this.listeners[evt][i])
                 }
@@ -397,8 +390,8 @@ export class Drag extends Base {
         if (this._downAt) {
 
             this._downAt = null
-            this.k.eventManager.off(document, "mousemove", this.moveListener)
-            this.k.eventManager.off(document, "mouseup", this.upListener)
+            this.k.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener)
+            this.k.eventManager.off(document, EVENT_MOUSEUP, this.upListener)
             removeClass(document.body as any, _classes.noSelect)
             this.unmark(e)
             this.stop(e)
@@ -410,7 +403,7 @@ export class Drag extends Base {
             } else {
                 if (this._revertFunction && this._revertFunction(this._dragEl, _getPosition(this._dragEl)) === true) {
                     _setPosition(this._dragEl, this._posAtDown)
-                    this._dispatch<RevertEventParams>("revert", this._dragEl)
+                    this._dispatch<RevertEventParams>(EVENT_REVERT, this._dragEl)
                 }
             }
 
@@ -436,7 +429,7 @@ export class Drag extends Base {
                 const match = findMatchingSelector(this._availableSelectors, this.el, eventTarget)
                 if (match != null) {
                     this._activeSelectorParams = match[0]
-                    this._elementToDrag = match[1]
+                    this._elementToDrag = match[1] as jsPlumbDOMElement
                 }
 
                 if(this._activeSelectorParams == null || this._elementToDrag == null) {
@@ -488,11 +481,11 @@ export class Drag extends Base {
                     this._initialScroll = {x:this._dragEl.parentNode.scrollLeft, y:this._dragEl.parentNode.scrollTop}
                 }
 
-                this.k.eventManager.on(document, "mousemove", this.moveListener)
-                this.k.eventManager.on(document, "mouseup", this.upListener)
+                this.k.eventManager.on(document, EVENT_MOUSEMOVE, this.moveListener)
+                this.k.eventManager.on(document, EVENT_MOUSEUP, this.upListener)
 
                 addClass(document.body as any, _classes.noSelect)
-                this._dispatch<BeforeStartEventParams>("beforeStart", {el:this.el, pos:this._posAtDown, e:e, drag:this})
+                this._dispatch<BeforeStartEventParams>(EVENT_BEFORE_START, {el:this.el, pos:this._posAtDown, e:e, drag:this})
             }
             else if (this._consumeFilteredEvents) {
                 consume(e)
@@ -503,7 +496,7 @@ export class Drag extends Base {
     private _moveListener(e:MouseEvent) {
         if (this._downAt) {
             if (!this._moving) {
-                const dispatchResult = this._dispatch<DragStartEventParams>("start", {el:this.el, pos:this._posAtDown, e:e, drag:this})
+                const dispatchResult = this._dispatch<DragStartEventParams>(EVENT_START, {el:this.el, pos:this._posAtDown, e:e, drag:this})
                 if (dispatchResult !== false) {
                     if (!this._downAt) {
                         return
@@ -541,7 +534,7 @@ export class Drag extends Base {
 
         this._posAtDown = _getPosition(this._dragEl)
 
-        this._pagePosAtDown = getOffsetRect(this._dragEl)
+        this._pagePosAtDown = offsetRelativeToRoot(this._dragEl)
         this._pageDelta = {x:this._pagePosAtDown.x - this._posAtDown.x, y:this._pagePosAtDown.y - this._posAtDown.y}
         this._size = _getSize(this._dragEl)
         addClass(this._dragEl, this.k.css.drag)
@@ -555,7 +548,7 @@ export class Drag extends Base {
     private unmark(e:MouseEvent) {
 
         if (this._isConstrained && this._useGhostProxy(this._elementToDrag, this._dragEl)) {
-            this._ghostProxyOffsets = [this._dragEl.offsetLeft - this._ghostDx, this._dragEl.offsetTop - this._ghostDy]
+            this._ghostProxyOffsets = {x:this._dragEl.offsetLeft - this._ghostDx, y:this._dragEl.offsetTop - this._ghostDy}
             this._dragEl.parentNode.removeChild(this._dragEl)
             this._dragEl = this._elementToDrag
         }
@@ -586,8 +579,8 @@ export class Drag extends Base {
                     if (this._ghostProxyParent) {
                         this._ghostProxyParent.appendChild(gp)
                         // find offset between drag el's parent the ghost parent
-                        this._currentParentPosition = getOffsetRect(this._elementToDrag.parentNode)
-                        this._ghostParentPosition = getOffsetRect(this._ghostProxyParent)
+                        this._currentParentPosition = offsetRelativeToRoot(this._elementToDrag.parentNode)
+                        this._ghostParentPosition = offsetRelativeToRoot(this._ghostProxyParent)
 
                         this._ghostDx = this._currentParentPosition.x - this._ghostParentPosition.x
                         this._ghostDy = this._currentParentPosition.y - this._ghostParentPosition.y
@@ -621,8 +614,6 @@ export class Drag extends Base {
             }
         }
 
-        const rect = { x:cPos.x, y:cPos.y, w:this._size.w, h:this._size.h}
-
         _setPosition(this._dragEl, {x:cPos.x + this._ghostDx, y:cPos.y + this._ghostDy})
 
         this._dispatch<DragEventParams>("drag", {el:this.el, pos:cPos, e:e, drag:this})
@@ -646,10 +637,11 @@ export class Drag extends Base {
 
     stop (e?:MouseEvent, force?:boolean) {
         if (force || this._moving) {
-            let positions:Array<[jsPlumbDOMElement, PointXY, any]> = [],
+            let positions:Array<[jsPlumbDOMElement, PointXY, Drag]> = [],
                 sel:Array<any> = [],
                 dPos = _getPosition(this._dragEl)
 
+            // TODO unreachable..sel was just created.
             if (sel.length > 0) {
                 for (let i = 0; i < sel.length; i++) {
                     const p = _getPosition(sel[i].el)
@@ -763,8 +755,13 @@ export class Drag extends Base {
         return (this._allowNegative === false) ? {x: Math.max (0, pos.x), y:Math.max(0, pos.y) } : pos
     }
 
-    private _setConstrain (value:ConstrainFunction | boolean) {
-        this._constrain = typeof value === "function" ? value as ConstrainFunction : value ? (pos:PointXY, dragEl:any, _constrainRect:any, _size:Size):PointXY => {
+    /**
+     * Sets whether or not the Drag is constrained. A value of 'true' means constrain to parent bounds; a function
+     * will be executed and returns true if the position is allowed.
+     * @param value
+     */
+    setConstrain (value:ConstrainFunction | boolean) {
+        this._constrain = typeof value === "function" ? value as ConstrainFunction : value ? (pos:PointXY, dragEl:jsPlumbDOMElement, _constrainRect:BoundingBox, _size:Size):PointXY => {
             return this._negativeFilter({
                 x: Math.max(0, Math.min(_constrainRect.w - _size.w, pos.x)),
                 y: Math.max(0, Math.min(_constrainRect.h - _size.h, pos.y))
@@ -772,16 +769,8 @@ export class Drag extends Base {
         }: (pos:PointXY):PointXY => { return this._negativeFilter(pos); }
     }
 
-    /**
-     * Sets whether or not the Drag is constrained. A value of 'true' means constrain to parent bounds; a function
-     * will be executed and returns true if the position is allowed.
-     * @param value
-     */
-    setConstrain (value:boolean) {
-        this._setConstrain(value)
-    }
 
-    private _doConstrain(pos:PointXY, dragEl:any, _constrainRect:any, _size:Size) {
+    private _doConstrain(pos:PointXY, dragEl:jsPlumbDOMElement, _constrainRect:Size, _size:Size) {
         if (this._activeSelectorParams != null && this._activeSelectorParams.constrain && typeof this._activeSelectorParams.constrain === "function") {
             return this._activeSelectorParams.constrain(pos, dragEl, _constrainRect, _size)
         } else {
@@ -862,9 +851,9 @@ export class Drag extends Base {
     }
 
     destroy() {
-        this.k.eventManager.off(this.el, "mousedown", this.downListener)
-        this.k.eventManager.off(document, "mousemove", this.moveListener)
-        this.k.eventManager.off(document, "mouseup", this.upListener)
+        this.k.eventManager.off(this.el, EVENT_MOUSEDOWN, this.downListener)
+        this.k.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener)
+        this.k.eventManager.off(document, EVENT_MOUSEUP, this.upListener)
         this.downListener = null
         this.upListener = null
         this.moveListener = null
@@ -872,7 +861,7 @@ export class Drag extends Base {
 
 }
 
-export type ConstrainFunction = (desiredLoc:PointXY, dragEl:HTMLElement, constrainRect:BoundingBox, size:Size) => PointXY
+export type ConstrainFunction = (desiredLoc:PointXY, dragEl:HTMLElement, constrainRect:Size, size:Size) => PointXY
 export type RevertFunction = (dragEl:HTMLElement, pos:PointXY) => boolean
 
 export interface CollicatOptions {
