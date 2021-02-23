@@ -1923,8 +1923,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             if (xy != null) {
                 let ap = params.anchorLoc
                 if (ap == null) {
-                    let wh:PointArray = [info.w, info.h],
-                        anchorParams:AnchorComputeParams = { xy: [ xy.x, xy.y ], wh: wh, element: endpoint, timestamp: timestamp }
+                    let anchorParams:AnchorComputeParams = { xy, wh: info, element: endpoint, timestamp: timestamp }
                     if (recalc && endpoint.anchor.isDynamic && endpoint.connections.length > 0) {
                         let c = findConnectionToUseForDynamicAnchor(endpoint),
                             oIdx = c.endpoints[0] === endpoint ? 1 : 0,
@@ -1933,8 +1932,8 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
                         anchorParams.index = oIdx === 0 ? 1 : 0
                         anchorParams.connection = c
-                        anchorParams.txy = [ oInfo.x, oInfo.y]
-                        anchorParams.twh = [oInfo.w, oInfo.h]
+                        anchorParams.txy = oInfo
+                        anchorParams.twh = oInfo
                         anchorParams.tElement = c.endpoints[oIdx]
                         anchorParams.tRotation = this.getRotations(oId)
 
