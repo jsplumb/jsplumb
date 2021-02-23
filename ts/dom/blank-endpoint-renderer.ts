@@ -1,8 +1,7 @@
 import {registerEndpointRenderer} from "./browser-jsplumb-instance"
 import { _attr, _node, ElementAttributes } from './svg-util'
 
-import {PaintStyle} from "@jsplumb/core"
-import {BlankEndpoint} from "@jsplumb/core/endpoint/blank-endpoint"
+import {PaintStyle, BlankEndpoint} from "@jsplumb/core"
 
 const BLANK_ATTRIBUTES:ElementAttributes = {
     "width": 10,
