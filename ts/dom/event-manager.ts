@@ -5,7 +5,7 @@ import {
     EVENT_FOCUS,
     EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEOUT, EVENT_MOUSEOVER,
     EVENT_MOUSEUP, EVENT_TAP,
-    PointArray, PointXY,
+    PointXY,
     uuid
 } from "@jsplumb/core"
 
