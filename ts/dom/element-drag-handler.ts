@@ -112,7 +112,7 @@ export class ElementDragHandler implements DragHandler {
             let targetGroup = this._intersectingGroups[0].group
             let intersectingElement = this._intersectingGroups[0].intersectingElement as jsPlumbDOMElement
 
-            let currentGroup = (<any>intersectingElement)[PARENT_GROUP_KEY]
+            let currentGroup = intersectingElement._jsPlumbParentGroup
 
             if (currentGroup !== targetGroup) {
                 if (currentGroup != null) {
@@ -128,7 +128,7 @@ export class ElementDragHandler implements DragHandler {
     }
 
     private _cleanup() {
-        forEach(this._groupLocations,(groupLoc:any) => {
+        forEach(this._groupLocations,(groupLoc:GroupLocation) => {
             this.instance.removeClass(groupLoc.el, CLASS_DRAG_ACTIVE)
             this.instance.removeClass(groupLoc.el, CLASS_DRAG_HOVER)
         })
