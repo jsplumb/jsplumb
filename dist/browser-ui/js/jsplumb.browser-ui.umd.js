@@ -874,9 +874,6 @@
     return EventManager;
   }();
 
-  function getOffsetRect(elem) {
-    return offsetRelativeToRoot(elem);
-  }
   function findDelegateElement(parentElement, childElement, selector) {
     if (matchesSelector(childElement, selector, parentElement)) {
       return childElement;
@@ -926,6 +923,15 @@
     }
     return null;
   }
+  var EVENT_START = "start";
+  var EVENT_BEFORE_START = "beforeStart";
+  var EVENT_DRAG = "drag";
+  var EVENT_DROP = "drop";
+  var EVENT_OVER = "over";
+  var EVENT_OUT = "out";
+  var EVENT_STOP = "stop";
+  var ATTRIBUTE_DRAGGABLE = "katavorio-draggable";
+  var CLASS_DRAGGABLE = ATTRIBUTE_DRAGGABLE;
   var DEFAULT_GRID_X = 10;
   var DEFAULT_GRID_Y = 10;
   var TRUE = function TRUE() {
@@ -936,17 +942,14 @@
   };
   var _classes = {
     delegatedDraggable: "katavorio-delegated-draggable",
-    draggable: "katavorio-draggable",
-    droppable: "katavorio-droppable",
+    draggable: CLASS_DRAGGABLE,
     drag: "katavorio-drag",
     selected: "katavorio-drag-selected",
-    active: "katavorio-drag-active",
-    hover: "katavorio-drag-hover",
     noSelect: "katavorio-drag-no-select",
     ghostProxy: "katavorio-ghost-proxy",
     clonedDrag: "katavorio-clone-drag"
   };
-  var _events = ["stop", "start", "drag", "drop", "over", "out", "beforeStart"];
+  var _events = [EVENT_STOP, EVENT_START, EVENT_DRAG, EVENT_DROP, EVENT_OVER, EVENT_OUT, EVENT_BEFORE_START];
   var _devNull = function _devNull() {};
   var _each$1 = function _each(obj, fn) {
     if (obj == null) return;
@@ -1088,8 +1091,6 @@
       _defineProperty(_assertThisInitialized(_this), "_ignoreZoom", void 0);
       _defineProperty(_assertThisInitialized(_this), "_filters", {});
       _defineProperty(_assertThisInitialized(_this), "_constrainRect", void 0);
-      _defineProperty(_assertThisInitialized(_this), "_matchingDroppables", []);
-      _defineProperty(_assertThisInitialized(_this), "_intersectingDroppables", []);
       _defineProperty(_assertThisInitialized(_this), "_elementToDrag", void 0);
       _defineProperty(_assertThisInitialized(_this), "downListener", void 0);
       _defineProperty(_assertThisInitialized(_this), "moveListener", void 0);
@@ -1149,7 +1150,7 @@
         };
       }
       if (params.selector) {
-        var draggableId = _this.el.getAttribute("katavorio-draggable");
+        var draggableId = _this.el.getAttribute(ATTRIBUTE_DRAGGABLE);
         if (draggableId == null) {
           draggableId = "" + new Date().getTime();
           _this.el.setAttribute("katavorio-draggable", draggableId);
@@ -1157,8 +1158,8 @@
         _this._availableSelectors.push(params);
       }
       _this._snapThreshold = params.snapThreshold;
-      _this._setConstrain(typeof params.constrain === "function" ? params.constrain : params.constrain || params.containment);
-      _this.k.eventManager.on(_this.el, "mousedown", _this.downListener);
+      _this.setConstrain(typeof params.constrain === "function" ? params.constrain : params.constrain || params.containment);
+      _this.k.eventManager.on(_this.el, EVENT_MOUSEDOWN, _this.downListener);
       return _this;
     }
     _createClass(Drag, [{
@@ -1186,8 +1187,8 @@
       value: function _upListener(e) {
         if (this._downAt) {
           this._downAt = null;
-          this.k.eventManager.off(document, "mousemove", this.moveListener);
-          this.k.eventManager.off(document, "mouseup", this.upListener);
+          this.k.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener);
+          this.k.eventManager.off(document, EVENT_MOUSEUP, this.upListener);
           removeClass(document.body, _classes.noSelect);
           this.unmark(e);
           this.stop(e);
@@ -1198,7 +1199,7 @@
           } else {
             if (this._revertFunction && this._revertFunction(this._dragEl, _getPosition(this._dragEl)) === true) {
               _setPosition(this._dragEl, this._posAtDown);
-              this._dispatch("revert", this._dragEl);
+              this._dispatch(EVENT_REVERT, this._dragEl);
             }
           }
         }
@@ -1260,10 +1261,10 @@
                 y: this._dragEl.parentNode.scrollTop
               };
             }
-            this.k.eventManager.on(document, "mousemove", this.moveListener);
-            this.k.eventManager.on(document, "mouseup", this.upListener);
+            this.k.eventManager.on(document, EVENT_MOUSEMOVE, this.moveListener);
+            this.k.eventManager.on(document, EVENT_MOUSEUP, this.upListener);
             addClass(document.body, _classes.noSelect);
-            this._dispatch("beforeStart", {
+            this._dispatch(EVENT_BEFORE_START, {
               el: this.el,
               pos: this._posAtDown,
               e: e,
@@ -1279,7 +1280,7 @@
       value: function _moveListener(e) {
         if (this._downAt) {
           if (!this._moving) {
-            var dispatchResult = this._dispatch("start", {
+            var dispatchResult = this._dispatch(EVENT_START, {
               el: this.el,
               pos: this._posAtDown,
               e: e,
@@ -1314,7 +1315,7 @@
       key: "mark",
       value: function mark(payload) {
         this._posAtDown = _getPosition(this._dragEl);
-        this._pagePosAtDown = getOffsetRect(this._dragEl);
+        this._pagePosAtDown = offsetRelativeToRoot(this._dragEl);
         this._pageDelta = {
           x: this._pagePosAtDown.x - this._posAtDown.x,
           y: this._pagePosAtDown.y - this._posAtDown.y
@@ -1329,7 +1330,10 @@
       key: "unmark",
       value: function unmark(e) {
         if (this._isConstrained && this._useGhostProxy(this._elementToDrag, this._dragEl)) {
-          this._ghostProxyOffsets = [this._dragEl.offsetLeft - this._ghostDx, this._dragEl.offsetTop - this._ghostDy];
+          this._ghostProxyOffsets = {
+            x: this._dragEl.offsetLeft - this._ghostDx,
+            y: this._dragEl.offsetTop - this._ghostDy
+          };
           this._dragEl.parentNode.removeChild(this._dragEl);
           this._dragEl = this._elementToDrag;
         } else {
@@ -1353,8 +1357,8 @@
               addClass(gp, _classes.ghostProxy);
               if (this._ghostProxyParent) {
                 this._ghostProxyParent.appendChild(gp);
-                this._currentParentPosition = getOffsetRect(this._elementToDrag.parentNode);
-                this._ghostParentPosition = getOffsetRect(this._ghostProxyParent);
+                this._currentParentPosition = offsetRelativeToRoot(this._elementToDrag.parentNode);
+                this._ghostParentPosition = offsetRelativeToRoot(this._ghostProxyParent);
                 this._ghostDx = this._currentParentPosition.x - this._ghostParentPosition.x;
                 this._ghostDy = this._currentParentPosition.y - this._ghostParentPosition.y;
               } else {
@@ -1376,12 +1380,6 @@
             }
           }
         }
-        var rect = {
-          x: cPos.x,
-          y: cPos.y,
-          w: this._size.w,
-          h: this._size.h
-        };
         _setPosition(this._dragEl, {
           x: cPos.x + this._ghostDx,
           y: cPos.y + this._ghostDy
@@ -1509,8 +1507,8 @@
         } : pos;
       }
     }, {
-      key: "_setConstrain",
-      value: function _setConstrain(value) {
+      key: "setConstrain",
+      value: function setConstrain(value) {
         var _this2 = this;
         this._constrain = typeof value === "function" ? value : value ? function (pos, dragEl, _constrainRect, _size) {
           return _this2._negativeFilter({
@@ -1520,11 +1518,6 @@
         } : function (pos) {
           return _this2._negativeFilter(pos);
         };
-      }
-    }, {
-      key: "setConstrain",
-      value: function setConstrain(value) {
-        this._setConstrain(value);
       }
     }, {
       key: "_doConstrain",
@@ -1608,9 +1601,9 @@
     }, {
       key: "destroy",
       value: function destroy() {
-        this.k.eventManager.off(this.el, "mousedown", this.downListener);
-        this.k.eventManager.off(document, "mousemove", this.moveListener);
-        this.k.eventManager.off(document, "mouseup", this.upListener);
+        this.k.eventManager.off(this.el, EVENT_MOUSEDOWN, this.downListener);
+        this.k.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener);
+        this.k.eventManager.off(document, EVENT_MOUSEUP, this.upListener);
         this.downListener = null;
         this.upListener = null;
         this.moveListener = null;
@@ -1725,6 +1718,7 @@
   var EVENT_DRAG_STOP = "drag:stop";
   var EVENT_DRAG_START = "drag:start";
   var EVENT_MOUSEDOWN = "mousedown";
+  var EVENT_MOUSEMOVE = "mousemove";
   var EVENT_MOUSEUP = "mouseup";
   var EVENT_REVERT = "revert";
   var EVENT_ZOOM = "zoom";
@@ -1902,7 +1896,7 @@
         if (this._intersectingGroups.length > 0) {
           var targetGroup = this._intersectingGroups[0].group;
           var intersectingElement = this._intersectingGroups[0].intersectingElement;
-          var currentGroup = intersectingElement[core.PARENT_GROUP_KEY];
+          var currentGroup = intersectingElement._jsPlumbParentGroup;
           if (currentGroup !== targetGroup) {
             if (currentGroup != null) {
               if (currentGroup.overrideDrop(intersectingElement, targetGroup)) {
@@ -3761,7 +3755,7 @@
         constrain: function constrain(desiredLoc, dragEl, constrainRect, size) {
           var x = desiredLoc.x,
               y = desiredLoc.y;
-          if (dragEl[core.PARENT_GROUP_KEY] && dragEl[core.PARENT_GROUP_KEY].constrain) {
+          if (dragEl._jsPlumbParentGroup && dragEl._jsPlumbParentGroup.constrain) {
             x = Math.max(desiredLoc.x, 0);
             y = Math.max(desiredLoc.y, 0);
             x = Math.min(x, constrainRect.w - size.w);
@@ -4756,11 +4750,18 @@
   exports.BrowserJsPlumbInstance = BrowserJsPlumbInstance;
   exports.Collicat = Collicat;
   exports.Drag = Drag;
+  exports.EVENT_BEFORE_START = EVENT_BEFORE_START;
   exports.EVENT_CONNECTION_ABORT = EVENT_CONNECTION_ABORT;
   exports.EVENT_CONNECTION_DRAG = EVENT_CONNECTION_DRAG;
+  exports.EVENT_DRAG = EVENT_DRAG;
   exports.EVENT_DRAG_MOVE = EVENT_DRAG_MOVE;
   exports.EVENT_DRAG_START = EVENT_DRAG_START;
   exports.EVENT_DRAG_STOP = EVENT_DRAG_STOP;
+  exports.EVENT_DROP = EVENT_DROP;
+  exports.EVENT_OUT = EVENT_OUT;
+  exports.EVENT_OVER = EVENT_OVER;
+  exports.EVENT_START = EVENT_START;
+  exports.EVENT_STOP = EVENT_STOP;
   exports.EventManager = EventManager;
   exports.addClass = addClass;
   exports.consume = consume;

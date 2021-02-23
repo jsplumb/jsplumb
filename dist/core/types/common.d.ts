@@ -121,18 +121,16 @@ export declare type BoundingBox = {
 };
 export declare type RectangleXY = BoundingBox;
 export declare type LineXY = [PointXY, PointXY];
+/**
+ * Subtracts p2 from p1, returning a new point.
+ * @param p1
+ * @param p2
+ */
+export declare function pointSubtract(p1: PointXY, p2: PointXY): PointXY;
 export interface UpdateOffsetOptions {
     timestamp?: string;
     recalc?: boolean;
     elId?: string;
-}
-export interface ExtendedOffset extends PointXY {
-    width?: number;
-    height?: number;
-    centerx?: number;
-    centery?: number;
-    bottom?: number;
-    right?: number;
 }
 export interface Dictionary<T> {
     [Key: string]: T;
@@ -141,7 +139,6 @@ export declare type SortFunction<T> = (a: T, b: T) => number;
 export declare type Constructable<T> = {
     new (...args: any[]): T;
 };
-export declare type Timestamp = string;
 export interface Rotation {
     r: number;
     c: PointXY;

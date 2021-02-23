@@ -3166,6 +3166,13 @@ var SELECTOR_MANAGED_ELEMENT = "[jtk-managed]";
 var SELECTOR_OVERLAY = cls(CLASS_OVERLAY);
 var SCOPE_PREFIX = "jtk-scope-";
 
+function pointSubtract(p1, p2) {
+  return {
+    x: p1.x - p2.x,
+    y: p1.y - p2.y
+  };
+}
+
 var EventGenerator =
 function () {
   function EventGenerator() {
@@ -9664,6 +9671,7 @@ exports.ArrowOverlay = ArrowOverlay;
 exports.BLOCK = BLOCK;
 exports.Bezier = Bezier;
 exports.BezierSegment = BezierSegment;
+exports.BlankEndpoint = BlankEndpoint;
 exports.CHECK_CONDITION = CHECK_CONDITION;
 exports.CHECK_DROP_ALLOWED = CHECK_DROP_ALLOWED;
 exports.CLASS_CONNECTOR = CLASS_CONNECTOR;
@@ -9851,6 +9859,7 @@ exports.pointAlongCurveFrom = pointAlongCurveFrom;
 exports.pointAlongPath = pointAlongPath;
 exports.pointOnCurve = pointOnCurve;
 exports.pointOnLine = pointOnLine;
+exports.pointSubtract = pointSubtract;
 exports.pointXYFromArray = pointXYFromArray;
 exports.populate = populate;
 exports.quadrant = quadrant;
