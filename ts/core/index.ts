@@ -45,6 +45,7 @@ export * from './factory/endpoint-factory'
 export * from './endpoint/endpoints'
 export * from './endpoint/dot-endpoint'
 export * from './endpoint/rectangle-endpoint'
+export * from './endpoint/blank-endpoint'
 
 export * from "./selection/endpoint-selection"
 
