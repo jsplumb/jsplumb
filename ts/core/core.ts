@@ -2086,7 +2086,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     abstract setOverlayVisible(o: Overlay, visible:boolean):void
     abstract destroyOverlay(o: Overlay, force?:boolean):void
     abstract updateLabel(o:LabelOverlay):void
-    abstract drawOverlay(overlay:Overlay, component:any, paintStyle:PaintStyle, absolutePosition?:PointArray):any
+    abstract drawOverlay(overlay:Overlay, component:any, paintStyle:PaintStyle, absolutePosition?:PointXY):any
     abstract reattachOverlay(o:Overlay, c:OverlayCapableComponent):void
 
     abstract setOverlayHover(o:Overlay, hover:boolean):void
