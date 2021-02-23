@@ -1,6 +1,6 @@
 import {Component, ComponentOptions} from "./component"
 import {FullOverlaySpec, LabelOverlayOptions, Overlay, OverlaySpec} from "../overlay/overlay"
-import { Dictionary, PointArray} from '../common'
+import {Dictionary, PointXY} from '../common'
 import { JsPlumbInstance } from "../core"
 import {LabelOverlay} from "../overlay/label-overlay"
 import {extend, isFunction, isString, uuid} from "../util"
@@ -54,7 +54,7 @@ export abstract class OverlayCapableComponent extends Component {
     defaultLabelLocation:number | [number, number] = 0.5
 
     overlays:Dictionary<Overlay> = {}
-    overlayPositions:Dictionary<PointArray> = {}
+    overlayPositions:Dictionary<PointXY> = {}
     overlayPlacements:Dictionary<{minX:number, maxX:number, minY:number, maxY:number}> = {}
 
     constructor(public instance:JsPlumbInstance, params: OverlayComponentOptions) {
@@ -219,11 +219,11 @@ export abstract class OverlayCapableComponent extends Component {
         this[v ? "showOverlays" : "hideOverlays"]()
     }
 
-    setAbsoluteOverlayPosition(overlay:Overlay, xy:PointArray) {
+    setAbsoluteOverlayPosition(overlay:Overlay, xy:PointXY) {
         this.overlayPositions[overlay.id] = xy
     }
 
-    getAbsoluteOverlayPosition(overlay:Overlay):PointArray {
+    getAbsoluteOverlayPosition(overlay:Overlay):PointXY {
         return this.overlayPositions ? this.overlayPositions[overlay.id] : null
     }
 
