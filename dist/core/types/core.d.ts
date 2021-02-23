@@ -4,7 +4,7 @@ import { Endpoint, EndpointSpec } from "./endpoint/endpoint";
 import { FullOverlaySpec, OverlaySpec } from "./overlay/overlay";
 import { AnchorPlacement, RedrawResult } from "./router/router";
 import { RotatedPointXY } from "./util";
-import { Dictionary, UpdateOffsetOptions, Size, jsPlumbElement, PointArray, ConnectParams, // <--
+import { Dictionary, UpdateOffsetOptions, Size, jsPlumbElement, ConnectParams, // <--
 SourceDefinition, TargetDefinition, BehaviouralTypeDescriptor, TypeDescriptor, Rotations, PointXY, ConnectionMovedParams } from './common';
 import { EventGenerator } from "./event-generator";
 import { EndpointOptions } from "./endpoint/endpoint";
@@ -365,7 +365,7 @@ export declare abstract class JsPlumbInstance<T extends {
     abstract setOverlayVisible(o: Overlay, visible: boolean): void;
     abstract destroyOverlay(o: Overlay, force?: boolean): void;
     abstract updateLabel(o: LabelOverlay): void;
-    abstract drawOverlay(overlay: Overlay, component: any, paintStyle: PaintStyle, absolutePosition?: PointArray): any;
+    abstract drawOverlay(overlay: Overlay, component: any, paintStyle: PaintStyle, absolutePosition?: PointXY): any;
     abstract reattachOverlay(o: Overlay, c: OverlayCapableComponent): void;
     abstract setOverlayHover(o: Overlay, hover: boolean): void;
     abstract setHover(component: Component, hover: boolean): void;

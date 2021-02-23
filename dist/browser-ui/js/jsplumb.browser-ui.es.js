@@ -501,12 +501,6 @@ function screenLocation(e) {
 function clientLocation(e) {
   return _genLoc(e, CLIENT);
 }
-function toPointXY(p) {
-  return {
-    x: p[0],
-    y: p[1]
-  };
-}
 function getTouch(touches, idx) {
   return touches.item ? touches.item(idx) : touches[idx];
 }
@@ -2372,7 +2366,7 @@ function () {
         var tempEndpointParams = {};
         extend(tempEndpointParams, def);
         tempEndpointParams.isTemporarySource = true;
-        tempEndpointParams.anchor = [elxy[0], elxy[1], 0, 0];
+        tempEndpointParams.anchor = [elxy.x, elxy.y, 0, 0];
         if (def.scope) {
           tempEndpointParams.scope = def.scope;
         }
@@ -3410,7 +3404,10 @@ function () {
     key: "_getDimensions",
     value: function _getDimensions(o, forceRefresh) {
       if (o.cachedDimensions == null || forceRefresh) {
-        o.cachedDimensions = [1, 1];
+        o.cachedDimensions = {
+          w: 1,
+          h: 1
+        };
       }
       return o.cachedDimensions;
     }
@@ -3677,22 +3674,6 @@ function () {
 var endpointMap = {};
 function registerEndpointRenderer(name, fns) {
   endpointMap[name] = fns;
-}
-function _genLoc$1(prefix, e) {
-  if (e == null) {
-    return [0, 0];
-  }
-  var ts = _touches(e),
-      t = _getTouch(ts, 0);
-  return [t[prefix + "X"], t[prefix + "Y"]];
-}
-var _pageLocation = _genLoc$1.bind(null, "page");
-function _getTouch(touches, idx) {
-  return touches.item ? touches.item(idx) : touches[idx];
-}
-function _touches(e) {
-  var _e = e;
-  return _e.touches && _e.touches.length > 0 ? _e.touches : _e.changedTouches && _e.changedTouches.length > 0 ? _e.changedTouches : _e.targetTouches && _e.targetTouches.length > 0 ? _e.targetTouches : [_e];
 }
 function setVisible(component, v) {
   if (component.canvas) {
@@ -4410,15 +4391,15 @@ function (_JsPlumbInstance) {
     value: function drawOverlay(o, component, paintStyle, absolutePosition) {
       if (o.type === LabelOverlay.labelType || o.type === CustomOverlay.customType) {
         var td = HTMLElementOverlay._getDimensions(o);
-        if (td != null && td.length === 2) {
+        if (td != null && td.w != null && td.h != null) {
           var cxy = {
             x: 0,
             y: 0
           };
           if (absolutePosition) {
             cxy = {
-              x: absolutePosition[0],
-              y: absolutePosition[1]
+              x: absolutePosition.x,
+              y: absolutePosition.y
             };
           } else if (component instanceof EndpointRepresentation) {
             var locToUse = isArray(o.location) ? o.location : [o.location, o.location];
@@ -4435,8 +4416,8 @@ function (_JsPlumbInstance) {
             }
             cxy = component.pointOnPath(loc, absolute);
           }
-          var minx = cxy.x - td[0] / 2,
-              miny = cxy.y - td[1] / 2;
+          var minx = cxy.x - td.w / 2,
+              miny = cxy.y - td.h / 2;
           return {
             component: o,
             d: {
@@ -4446,9 +4427,9 @@ function (_JsPlumbInstance) {
               cxy: cxy
             },
             minX: minx,
-            maxX: minx + td[0],
+            maxX: minx + td.w,
             minY: miny,
-            maxY: miny + td[1]
+            maxY: miny + td.h
           };
         } else {
           return {
@@ -4678,12 +4659,15 @@ function (_JsPlumbInstance) {
           psl = 0,
           top = box.top + scrollTop - clientTop + pst * zoom,
           left = box.left + scrollLeft - clientLeft + psl * zoom,
-          cl = _pageLocation(evt),
+          cl = pageLocation(evt),
           w = box.width || jel.offsetWidth * zoom,
           h = box.height || jel.offsetHeight * zoom,
-          x = (cl[0] - left) / w,
-          y = (cl[1] - top) / h;
-      return [x, y];
+          x = (cl.x - left) / w,
+          y = (cl.y - top) / h;
+      return {
+        x: x,
+        y: y
+      };
     }
   }]);
   return BrowserJsPlumbInstance;
@@ -4765,4 +4749,4 @@ function ready(f) {
   _do();
 }
 
-export { BrowserJsPlumbInstance, Collicat, Drag, EVENT_CONNECTION_ABORT, EVENT_CONNECTION_DRAG, EVENT_DRAG_MOVE, EVENT_DRAG_START, EVENT_DRAG_STOP, EventManager, addClass, consume, createElement, createElementNS, findParent, getClass, getEventSource, getTouch, hasClass, matchesSelector, newInstance, offsetRelativeToRoot, pageLocation, ready, registerEndpointRenderer, removeClass, sizeElement, toPointXY, toggleClass, touchCount, touches };
+export { BrowserJsPlumbInstance, Collicat, Drag, EVENT_CONNECTION_ABORT, EVENT_CONNECTION_DRAG, EVENT_DRAG_MOVE, EVENT_DRAG_START, EVENT_DRAG_STOP, EventManager, addClass, consume, createElement, createElementNS, findParent, getClass, getEventSource, getTouch, hasClass, matchesSelector, newInstance, offsetRelativeToRoot, pageLocation, ready, registerEndpointRenderer, removeClass, sizeElement, toggleClass, touchCount, touches };

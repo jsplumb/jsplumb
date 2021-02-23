@@ -2,7 +2,7 @@
  A Typescript port of Katavorio, without Droppables or Posses, as the code
  does that for itself now.
 */
-import { BoundingBox, Dictionary, PointArray, PointXY, Size } from '@jsplumb/core';
+import { BoundingBox, Dictionary, PointXY, Size } from '@jsplumb/core';
 import { EventManager } from "./event-manager";
 import { jsPlumbDOMElement } from "./browser-jsplumb-instance";
 export interface DragSelector {
@@ -41,6 +41,7 @@ declare abstract class Base {
     toggleScope(scopes: string): void;
 }
 export declare type GhostProxyGenerator = (el: Element) => Element;
+export declare type Grid = [number, number];
 export interface DragHandlerOptions {
     selector?: string;
     start?: (p: DragStartEventParams) => any;
@@ -58,7 +59,7 @@ export interface DragHandlerOptions {
     filter?: string;
     filterExclude?: boolean;
     snapThreshold?: number;
-    grid?: PointArray;
+    grid?: Grid;
     allowNegative?: boolean;
 }
 export interface DragParams extends DragHandlerOptions {
@@ -102,7 +103,7 @@ export declare class Drag extends Base {
     _availableSelectors: Array<DragParams>;
     _ghostProxyFunction: GhostProxyGenerator;
     _snapThreshold: number;
-    _grid: PointArray;
+    _grid: Grid;
     _allowNegative: boolean;
     _constrain: ConstrainFunction;
     _revertFunction: RevertFunction;

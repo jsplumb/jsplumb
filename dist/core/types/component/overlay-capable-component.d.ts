@@ -1,6 +1,6 @@
 import { Component, ComponentOptions } from "./component";
 import { Overlay, OverlaySpec } from "../overlay/overlay";
-import { Dictionary, PointArray } from '../common';
+import { Dictionary, PointXY } from '../common';
 import { JsPlumbInstance } from "../core";
 import { LabelOverlay } from "../overlay/label-overlay";
 export interface OverlayComponentOptions extends ComponentOptions {
@@ -12,7 +12,7 @@ export declare abstract class OverlayCapableComponent extends Component {
     instance: JsPlumbInstance;
     defaultLabelLocation: number | [number, number];
     overlays: Dictionary<Overlay>;
-    overlayPositions: Dictionary<PointArray>;
+    overlayPositions: Dictionary<PointXY>;
     overlayPlacements: Dictionary<{
         minX: number;
         maxX: number;
@@ -41,8 +41,8 @@ export declare abstract class OverlayCapableComponent extends Component {
     setLabel(l: string | Function | LabelOverlay): void;
     destroy(force?: boolean): void;
     setVisible(v: boolean): void;
-    setAbsoluteOverlayPosition(overlay: Overlay, xy: PointArray): void;
-    getAbsoluteOverlayPosition(overlay: Overlay): PointArray;
+    setAbsoluteOverlayPosition(overlay: Overlay, xy: PointXY): void;
+    getAbsoluteOverlayPosition(overlay: Overlay): PointXY;
     private _clazzManip;
     addClass(clazz: string, dontUpdateOverlays?: boolean): void;
     removeClass(clazz: string, dontUpdateOverlays?: boolean): void;

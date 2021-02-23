@@ -1,4 +1,4 @@
-import { jsPlumbDefaults, Dictionary, PointArray, Size, jsPlumbElement, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, OverlayCapableComponent, Segment, LabelOverlay, Connection, Component, DeleteConnectionOptions, PointXY } from '@jsplumb/core';
+import { jsPlumbDefaults, Dictionary, Size, jsPlumbElement, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, OverlayCapableComponent, Segment, LabelOverlay, Connection, Component, DeleteConnectionOptions, PointXY } from '@jsplumb/core';
 import { DragManager } from "./drag-manager";
 import { EventManager } from "./event-manager";
 import { Drag, DragStartEventParams, DragEventParams, DragStopEventParams } from './collicat';
@@ -118,7 +118,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     getStyle(el: Element, prop: string): any;
     getSelector(ctx: string | Element, spec: string): Array<jsPlumbDOMElement>;
     setPosition(el: Element, p: PointXY): void;
-    static getPositionOnElement(evt: Event, el: Element, zoom: number): PointArray;
+    static getPositionOnElement(evt: Event, el: Element, zoom: number): PointXY;
     setDraggable(element: Element, draggable: boolean): void;
     isDraggable(el: Element): boolean;
     toggleDraggable(el: Element): boolean;
@@ -186,7 +186,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     reattachOverlay(o: Overlay, c: OverlayCapableComponent): void;
     setOverlayHover(o: Overlay, hover: boolean): void;
     destroyOverlay(o: Overlay): void;
-    drawOverlay(o: Overlay, component: any, paintStyle: PaintStyle, absolutePosition?: [number, number]): any;
+    drawOverlay(o: Overlay, component: any, paintStyle: PaintStyle, absolutePosition?: PointXY): any;
     updateLabel(o: LabelOverlay): void;
     setHover(component: Component, hover: boolean): void;
     paintConnector(connector: AbstractConnector, paintStyle: PaintStyle, extents?: any): void;

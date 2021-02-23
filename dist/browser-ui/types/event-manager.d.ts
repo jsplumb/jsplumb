@@ -1,9 +1,5 @@
-import { PointArray, PointXY } from "@jsplumb/core";
+import { PointXY } from "@jsplumb/core";
 export declare function pageLocation(e: Event): PointXY;
-export declare function toPointXY(p: PointArray): {
-    x: number;
-    y: number;
-};
 export declare function getTouch(touches: TouchList, idx: number): Touch;
 export declare function touches(e: any): TouchList;
 export declare function touchCount(e: Event): number;

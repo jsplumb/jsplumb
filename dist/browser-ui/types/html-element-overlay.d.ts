@@ -1,8 +1,8 @@
 import { jsPlumbDOMElement } from "./browser-jsplumb-instance";
-import { Component, JsPlumbInstance, Overlay, PointArray } from "@jsplumb/core";
+import { Component, JsPlumbInstance, Overlay, Size } from "../core";
 interface HTMLElementOverlayHolder extends Overlay {
     canvas: jsPlumbDOMElement;
-    cachedDimensions: PointArray;
+    cachedDimensions: Size;
 }
 export declare class HTMLElementOverlay {
     instance: JsPlumbInstance;
@@ -12,6 +12,6 @@ export declare class HTMLElementOverlay {
     static createElement(o: HTMLElementOverlayHolder): Element;
     static getElement(o: HTMLElementOverlayHolder, component?: Component, elementCreator?: (c: Component) => Element): Element;
     static destroy(o: HTMLElementOverlayHolder): void;
-    static _getDimensions(o: HTMLElementOverlayHolder, forceRefresh?: boolean): PointArray;
+    static _getDimensions(o: HTMLElementOverlayHolder, forceRefresh?: boolean): Size;
 }
 export {};
