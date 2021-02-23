@@ -140,8 +140,6 @@ function clientLocation (e:Event):PointXY {
     return _genLoc(e, CLIENT)
 }
 
-export function toPointXY(p:PointArray) { return { x:p[0], y:p[1] }}
-
 export function getTouch (touches:TouchList, idx:number):Touch {
     return touches.item ? touches.item(idx) : touches[idx]
 }
