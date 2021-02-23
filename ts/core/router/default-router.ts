@@ -15,7 +15,7 @@ import * as Constants from '../constants'
 import {FloatingAnchor} from "../anchor/floating-anchor"
 import {lineLength} from "../geom"
 
-function placeAnchorsOnLine<E>(element:ViewportElement<E>, connections:Array<any>, horizontal:boolean, otherMultiplier:number, reverse:boolean):Array<ContinuousAnchorPlacement> {
+function placeAnchorsOnLine<E>(element:ViewportElement<E>, connections:Array<AnchorListEntry>, horizontal:boolean, otherMultiplier:number, reverse:boolean):Array<ContinuousAnchorPlacement> {
 
     const sizeInAxis = horizontal ? element.w : element.h
     const sizeInOtherAxis = horizontal ? element.h : element.w
@@ -36,7 +36,7 @@ function placeAnchorsOnLine<E>(element:ViewportElement<E>, connections:Array<any
             y = rotated.y;
         }
 
-        a.push([ x, y, xp, yp, connections[i][1], connections[i][2] ])
+        a.push({ x, y, xLoc:xp, yLoc:yp, c:connections[i][1] })
     }
 
     return a
@@ -135,7 +135,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
 
     private floatingAnchorCompute(anchor:FloatingAnchor, params:AnchorComputeParams):AnchorPlacement {
         let xy = params.xy
-        anchor._lastResult = [ xy[0] + (anchor.size.w / 2), xy[1] + (anchor.size.h / 2), 0, 0 ] as AnchorPlacement; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
+        anchor._lastResult = [ xy.x + (anchor.size.w / 2), xy.y + (anchor.size.h / 2), 0, 0 ] as AnchorPlacement; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
         return anchor._lastResult
     }
 
@@ -146,7 +146,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
             return anchor.lastReturnValue
         }
 
-        const candidate:[ number, number, number, number ] = [ xy[0] + (anchor.x * wh[0]) + anchor.offsets[0], xy[1] + (anchor.y * wh[1]) + anchor.offsets[1], anchor.x, anchor.y ]
+        const candidate:[ number, number, number, number ] = [ xy.x + (anchor.x * wh.w) + anchor.offsets[0], xy.y + (anchor.y * wh.h) + anchor.offsets[1], anchor.x, anchor.y ]
 
         const rotation = params.rotation;
         if (rotation != null && rotation.length > 0) {
@@ -242,15 +242,15 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
             sE = connection.endpoints[0], tE = connection.endpoints[1]
 
         let sAnchorP = this.getEndpointLocation(sE, {
-                    xy: [sourceInfo.x, sourceInfo.y],
-                    wh: [sourceInfo.w, sourceInfo.h],
+                    xy: sourceInfo,
+                    wh: sourceInfo,
                     element: sE,
                     timestamp: timestamp,
                     rotation:this.instance.getRotations(connection.sourceId)
             }),
             tAnchorP = this.getEndpointLocation(tE, {
-                xy: [targetInfo.x, targetInfo.y],
-                wh: [targetInfo.w, targetInfo.h],
+                xy: targetInfo,
+                wh: targetInfo,
                 element: tE,
                 timestamp: timestamp,
                 rotation:this.instance.getRotations(connection.targetId)
@@ -285,12 +285,12 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
 
                     // takes a computed anchor position and adjusts it for parent offset and scroll, then stores it.
                     let _setAnchorLocation = (endpoint:Endpoint, anchorPos:ContinuousAnchorPlacement) => {
-                        this.continuousAnchorLocations[endpoint.id] = [ anchorPos[0], anchorPos[1], anchorPos[2], anchorPos[3] ]
+                        this.continuousAnchorLocations[endpoint.id] = [ anchorPos.x, anchorPos.y, anchorPos.xLoc, anchorPos.yLoc ]
                         this.continuousAnchorOrientations[endpoint.id] = orientation
                     }
 
                     for (let i = 0; i < anchors.length; i++) {
-                        let c = anchors[i][4], weAreSource = c.endpoints[0].elementId === elementId, weAreTarget = c.endpoints[1].elementId === elementId
+                        let c = anchors[i].c, weAreSource = c.endpoints[0].elementId === elementId, weAreTarget = c.endpoints[1].elementId === elementId
                         if (weAreSource) {
                             _setAnchorLocation(c.endpoints[0], anchors[i])
                         }
