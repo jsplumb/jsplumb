@@ -1,7 +1,6 @@
 
 
-import {sizeElement} from "./browser-util"
-import { _attr, _pos  } from './svg-util'
+import { _attr, _pos, _size  } from './svg-util'
 import {PaintStyle} from "@jsplumb/core"
 
 export class SvgComponent {
@@ -24,7 +23,7 @@ export class SvgComponent {
             }
 
             if (useDivWrapper) {
-                sizeElement((connector as any).canvas, xy[0], xy[1], wh[0], wh[1])
+                _size((connector as any).canvas, xy[0], xy[1], wh[0], wh[1])
                 xy[0] = 0
                 xy[1] = 0
                 p = _pos([ 0, 0 ])

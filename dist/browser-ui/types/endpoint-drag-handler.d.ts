@@ -1,5 +1,6 @@
 import { DragHandler } from "./drag-manager";
-import { BrowserJsPlumbInstance, jsPlumbDOMElement } from "./browser-jsplumb-instance";
+import { BrowserJsPlumbInstance } from "./browser-jsplumb-instance";
+import { jsPlumbDOMElement } from './element-facade';
 import { Drag, DragStartEventParams, DragStopEventParams, DragEventParams } from "./collicat";
 import { FloatingAnchor, BoundingBox, Connection, Dictionary, Endpoint, EndpointRepresentation } from "@jsplumb/core";
 export declare class EndpointDragHandler implements DragHandler {

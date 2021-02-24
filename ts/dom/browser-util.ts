@@ -1,4 +1,4 @@
-import {jsPlumbDOMElement} from "./browser-jsplumb-instance"
+import { jsPlumbDOMElement} from './element-facade'
 import {Dictionary, fastTrim, forEach, isArray, log, PointXY} from "@jsplumb/core"
 
 
@@ -28,36 +28,12 @@ export function consume (e:Event, doNotPreventDefault?:boolean) {
     }
 }
 
-/*
- * Function: sizeElement
- * Helper to size and position an element. You would typically use
- * this when writing your own Connector or Endpoint implementation.
- *
- * Parameters:
- *  x - [int] x position for the element origin
- *  y - [int] y position for the element origin
- *  w - [int] width of the element
- *  h - [int] height of the element
- *
- */
-export function sizeElement (el:jsPlumbDOMElement, x:number, y:number, w:number, h:number) {
-    if (el) {
-        el.style.height = h + "px"
-        ;(<any>el).height = h
-        el.style.width = w + "px"
-        ;(<any>el).width = w
-        el.style.left = x + "px"
-        el.style.top = y + "px"
-    }
-}
-
 export function findParent(el:jsPlumbDOMElement, selector:string, container:HTMLElement):jsPlumbDOMElement {
-    let pn:any = el
-    while (pn != null && pn !== container) {
-        if (matchesSelector(pn, selector)) {
-            return pn
+    while (el != null && el !== container) {
+        if (matchesSelector(el, selector)) {
+            return el
         } else {
-            pn = pn.parentNode
+            el = el.parentNode
         }
     }
 }

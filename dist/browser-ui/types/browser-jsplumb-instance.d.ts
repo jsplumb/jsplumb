@@ -1,7 +1,8 @@
-import { jsPlumbDefaults, Dictionary, Size, jsPlumbElement, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, OverlayCapableComponent, Segment, LabelOverlay, Connection, Component, DeleteConnectionOptions, PointXY } from '@jsplumb/core';
+import { jsPlumbDefaults, Dictionary, Size, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, OverlayCapableComponent, Segment, LabelOverlay, Connection, Component, DeleteConnectionOptions, PointXY } from '@jsplumb/core';
 import { DragManager } from "./drag-manager";
+import { jsPlumbDOMElement } from './element-facade';
 import { EventManager } from "./event-manager";
-import { Drag, DragStartEventParams, DragEventParams, DragStopEventParams } from './collicat';
+import { DragStartEventParams, DragEventParams, DragStopEventParams } from './collicat';
 import { JsPlumbList, JsPlumbListManager, JsPlumbListOptions } from "./lists";
 export interface UIComponent {
     canvas: HTMLElement;
@@ -39,16 +40,6 @@ export interface jsPlumbDOMInformation {
 export declare type ElementType = {
     E: Element;
 };
-export interface jsPlumbDOMElement extends HTMLElement, jsPlumbElement<Element> {
-    _isJsPlumbGroup: boolean;
-    _jsPlumbOrphanedEndpoints: Array<Endpoint>;
-    offsetParent: jsPlumbDOMElement;
-    parentNode: jsPlumbDOMElement;
-    jtk: jsPlumbDOMInformation;
-    _jsPlumbScrollHandler?: Function;
-    _katavorioDrag?: Drag;
-    cloneNode: (deep?: boolean) => jsPlumbDOMElement;
-}
 export declare type DragGroupSpec = string | {
     id: string;
     active: boolean;

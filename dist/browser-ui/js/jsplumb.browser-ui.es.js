@@ -186,23 +186,12 @@ function consume(e, doNotPreventDefault) {
     e.preventDefault();
   }
 }
-function sizeElement(el, x, y, w, h) {
-  if (el) {
-    el.style.height = h + "px";
-    el.height = h;
-    el.style.width = w + "px";
-    el.width = w;
-    el.style.left = x + "px";
-    el.style.top = y + "px";
-  }
-}
 function findParent(el, selector, container) {
-  var pn = el;
-  while (pn != null && pn !== container) {
-    if (matchesSelector(pn, selector)) {
-      return pn;
+  while (el != null && el !== container) {
+    if (matchesSelector(el, selector)) {
+      return el;
     } else {
-      pn = pn.parentNode;
+      el = el.parentNode;
     }
   }
 }
@@ -397,6 +386,14 @@ function _appendAtIndex(svg, path, idx) {
   } else {
     svg.appendChild(path);
   }
+}
+function _size(svg, x, y, w, h) {
+  svg.style.width = w + "px";
+  svg.style.height = h + "px";
+  svg.style.left = x + "px";
+  svg.style.top = y + "px";
+  svg.height = h;
+  svg.width = w;
 }
 
 function _touch(target, pageX, pageY, screenX, screenY, clientX, clientY) {
@@ -3497,7 +3494,7 @@ function () {
           wh[1] = extents.ymax + (extents.ymin < 0 ? -extents.ymin : 0);
         }
         if (useDivWrapper) {
-          sizeElement(connector.canvas, xy[0], xy[1], wh[0], wh[1]);
+          _size(connector.canvas, xy[0], xy[1], wh[0], wh[1]);
           xy[0] = 0;
           xy[1] = 0;
           p = _pos([0, 0]);
@@ -3630,7 +3627,7 @@ function () {
           ep.instance.setAttribute(canvas, "jtk-scope-" + scopes[i], "true");
         }
         if (!ep.instance._suspendDrawing) {
-          sizeElement(canvas, 0, 0, 1, 1);
+          _size(canvas, 0, 0, 1, 1);
         }
         ep.instance.appendElement(canvas, ep.instance.getContainer());
         canvas.appendChild(svg);
@@ -4743,4 +4740,4 @@ function ready(f) {
   _do();
 }
 
-export { BrowserJsPlumbInstance, Collicat, Drag, EVENT_BEFORE_START, EVENT_CONNECTION_ABORT, EVENT_CONNECTION_DRAG, EVENT_DRAG, EVENT_DRAG_MOVE, EVENT_DRAG_START, EVENT_DRAG_STOP, EVENT_DROP, EVENT_OUT, EVENT_OVER, EVENT_START, EVENT_STOP, EventManager, addClass, consume, createElement, createElementNS, findParent, getClass, getEventSource, getTouch, hasClass, matchesSelector, newInstance, offsetRelativeToRoot, pageLocation, ready, registerEndpointRenderer, removeClass, sizeElement, toggleClass, touchCount, touches };
+export { BrowserJsPlumbInstance, Collicat, Drag, EVENT_BEFORE_START, EVENT_CONNECTION_ABORT, EVENT_CONNECTION_DRAG, EVENT_DRAG, EVENT_DRAG_MOVE, EVENT_DRAG_START, EVENT_DRAG_STOP, EVENT_DROP, EVENT_OUT, EVENT_OVER, EVENT_START, EVENT_STOP, EventManager, addClass, consume, createElement, createElementNS, findParent, getClass, getEventSource, getTouch, hasClass, matchesSelector, newInstance, offsetRelativeToRoot, pageLocation, ready, registerEndpointRenderer, removeClass, toggleClass, touchCount, touches };

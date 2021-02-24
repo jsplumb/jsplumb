@@ -1,7 +1,7 @@
 
 
 import {createElementNS} from './browser-util'
-import { jsPlumbDOMElement } from './browser-jsplumb-instance'
+import { jsPlumbDOMElement} from './element-facade'
 import {Component, Dictionary, NONE, forEach} from "@jsplumb/core"
 
 const svgAttributeMap = {
@@ -87,4 +87,13 @@ export function _appendAtIndex (svg:SVGElement, path:jsPlumbDOMElement, idx:numb
     else {
         svg.appendChild(path)
     }
+}
+
+export function _size(svg:SVGElement, x:number, y:number, w:number, h:number) {
+    svg.style.width = w + "px"
+    svg.style.height = h + "px"
+    svg.style.left = x + "px"
+    svg.style.top = y + "px";
+    (svg as any).height = h;
+    (svg as any).width = w
 }

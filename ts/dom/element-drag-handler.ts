@@ -8,7 +8,8 @@ import {
     EVENT_DRAG_STOP,
 } from "./drag-manager"
 
-import {BrowserJsPlumbInstance, DragGroupSpec, jsPlumbDOMElement} from "./browser-jsplumb-instance"
+import {BrowserJsPlumbInstance, DragGroupSpec} from "./browser-jsplumb-instance"
+import { jsPlumbDOMElement} from './element-facade'
 
 import {DragEventParams,Drag,DragStopEventParams} from "./collicat"
 import {
@@ -35,7 +36,7 @@ type GroupLocation = {
     group: UIGroup<Element>
 }
 
-type DragGroupMemberSpec = { el:Element, elId:string, active:boolean }
+type DragGroupMemberSpec = { el:jsPlumbDOMElement, elId:string, active:boolean }
 type DragGroup = { id:string, members:Set<DragGroupMemberSpec>}
 
 export interface DragStopPayload {
@@ -167,7 +168,7 @@ export class ElementDragHandler implements DragHandler {
             ui.y += this._dragOffset.y
         }
 
-        const _one = (el:any, bounds:BoundingBox, e:Event) => {
+        const _one = (el:HTMLElement, bounds:BoundingBox, e:Event) => {
 
             // keep track of the ancestors of each intersecting group we find. if
             const ancestorsOfIntersectingGroups = new Set<string>()
@@ -259,7 +260,7 @@ export class ElementDragHandler implements DragHandler {
                 this._dragSizes.set(id, this.instance.getSize(jel))
             })
 
-            const _one = (_el:any):any => {
+            const _one = (_el:jsPlumbDOMElement):any => {
 
                 // if drag el not a group
                 if (!_el._isJsPlumbGroup || this.instance.allowNestedGroups) {
@@ -335,7 +336,7 @@ export class ElementDragHandler implements DragHandler {
             if (this._currentDragGroup != null) {
                 this._currentDragGroupOffsets.clear()
                 this._currentDragGroupSizes.clear()
-                this._currentDragGroup.members.forEach((jel) => {
+                this._currentDragGroup.members.forEach((jel:DragGroupMemberSpec) => {
                     let off = this.instance.getOffset(jel.el)
                     this._currentDragGroupOffsets.set(jel.elId, [ { x:off.x- elOffset.x, y:off.y - elOffset.y}, jel.el as jsPlumbDOMElement])
                     this._currentDragGroupSizes.set(jel.elId, this.instance.getSize(jel.el))
@@ -410,7 +411,7 @@ export class ElementDragHandler implements DragHandler {
 
         forEach(els,(el:Element) => {
             const elId = this.instance.getId(el)
-            dragGroup.members.add({elId:elId, el:el, active:details.active})
+            dragGroup.members.add({elId:elId, el:el as jsPlumbDOMElement, active:details.active})
             this._dragGroupByElementIdMap[elId] = dragGroup
         })
     }
@@ -437,15 +438,15 @@ export class ElementDragHandler implements DragHandler {
         const elementIds = els.map(el => this.instance.getId(el))
         forEach(elementIds,(id:string) => {
             optional<DragGroup>(this._dragGroupByElementIdMap[id]).map(dragGroup => {
-                optional(getFromSetWithFunction(dragGroup.members,(m:any) => m.elId === id)).map ( member => {
+                optional(getFromSetWithFunction(dragGroup.members,(m:DragGroupMemberSpec) => m.elId === id)).map ( member => {
                     member.active = state
                 })
             })
         })
     }
 
-    private isActiveDragGroupMember(dragGroup:DragGroup, el:any): boolean {
-        const details = getFromSetWithFunction(dragGroup.members, (m:any) => m.el === el)
+    private isActiveDragGroupMember(dragGroup:DragGroup, el:HTMLElement): boolean {
+        const details = getFromSetWithFunction(dragGroup.members, (m:DragGroupMemberSpec) => m.el === el)
         if (details !== null) {
             return details.active === true
         } else {

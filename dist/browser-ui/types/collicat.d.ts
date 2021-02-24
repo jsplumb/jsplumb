@@ -1,6 +1,6 @@
 import { Dictionary, PointXY, Size } from '@jsplumb/core';
 import { EventManager } from "./event-manager";
-import { jsPlumbDOMElement } from "./browser-jsplumb-instance";
+import { jsPlumbDOMElement } from './element-facade';
 export interface DragStartEventParams {
     e: MouseEvent;
     el: jsPlumbDOMElement;

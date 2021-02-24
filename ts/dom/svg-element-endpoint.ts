@@ -1,8 +1,8 @@
 import {SvgComponent} from "./svg-component"
 import {EndpointHelperFunctions} from "./browser-jsplumb-instance"
-import { createElement, sizeElement } from './browser-util'
+import { createElement } from './browser-util'
 
-import { _node, _applyStyles } from './svg-util'
+import {_node, _applyStyles, _size} from './svg-util'
 import {EndpointRepresentation, extend, PaintStyle} from "@jsplumb/core"
 
 /**
@@ -16,7 +16,7 @@ export abstract class SvgEndpoint<C> {
         if ((ep as any).canvas != null) {
             return (ep as any).canvas
         } else {
-            const svg:any = _node("svg", {
+            const svg = _node("svg", {
                 "style": "",
                 "width": "0",
                 "height": "0",
@@ -24,7 +24,6 @@ export abstract class SvgEndpoint<C> {
                 "position": "absolute"
             });
             (ep as any).svg = svg
-
 
             const canvas:any = createElement("div", { position : "absolute" });
             (ep as any).canvas = canvas
@@ -38,7 +37,7 @@ export abstract class SvgEndpoint<C> {
             }
 
             if (!ep.instance._suspendDrawing) {
-                sizeElement(canvas, 0, 0, 1, 1)
+                _size(canvas, 0, 0, 1, 1)
             }
 
             ep.instance.appendElement(canvas, ep.instance.getContainer())

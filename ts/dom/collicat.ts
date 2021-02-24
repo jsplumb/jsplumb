@@ -1,7 +1,7 @@
 import {BoundingBox, Dictionary, extend, IS, uuid, PointXY, Size} from '@jsplumb/core'
 import {addClass, consume, matchesSelector, removeClass, offsetRelativeToRoot} from "./browser-util"
 import {EventManager, pageLocation} from "./event-manager"
-import {jsPlumbDOMElement} from "./browser-jsplumb-instance"
+import { jsPlumbDOMElement} from './element-facade'
 import {EVENT_MOUSEUP, EVENT_MOUSEDOWN, EVENT_MOUSEMOVE, EVENT_REVERT} from "./drag-manager"
 
 function findDelegateElement(parentElement:jsPlumbDOMElement, childElement:jsPlumbDOMElement, selector:string) {

@@ -1,4 +1,5 @@
-import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance"
+import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
+import { jsPlumbDOMElement} from './element-facade'
 import {
     EndpointSpec,
     Endpoint,

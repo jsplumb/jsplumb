@@ -9,7 +9,7 @@ import {
     uuid
 } from "@jsplumb/core"
 
-import { jsPlumbDOMElement } from './browser-jsplumb-instance'
+import { jsPlumbDOMElement} from './element-facade'
 
 /**
  * Creates a Touch object.

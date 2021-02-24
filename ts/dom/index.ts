@@ -21,6 +21,7 @@ export * from './collicat'
 export { EVENT_DRAG_START, EVENT_DRAG_MOVE, EVENT_DRAG_STOP, EVENT_CONNECTION_DRAG, EVENT_CONNECTION_ABORT} from './drag-manager'
 export { EventManager, pageLocation, touches, touchCount, getTouch } from './event-manager'
 export * from "./browser-util"
+export { jsPlumbDOMElement } from './element-facade'
 
 export function newInstance(defaults?:BrowserJsPlumbDefaults): BrowserJsPlumbInstance {
     return new BrowserJsPlumbInstance(getInstanceIndex(), defaults)

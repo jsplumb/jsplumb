@@ -3,7 +3,6 @@ import {
     Dictionary,
     Size,
     BoundingBox,
-    jsPlumbElement,
     TypeDescriptor,
     JsPlumbInstance,
     IS,
@@ -42,7 +41,6 @@ import {
     CLASS_ENDPOINT,
     CLASS_OVERLAY,
     ATTRIBUTE_MANAGED,
-    PARENT_GROUP_KEY,
     TRUE,
     FALSE,
     ABSOLUTE,
@@ -79,6 +77,7 @@ import {DragManager} from "./drag-manager"
 import {ElementDragHandler} from "./element-drag-handler"
 import {EndpointDragHandler} from "./endpoint-drag-handler"
 import {GroupDragHandler} from "./group-drag-handler"
+import { jsPlumbDOMElement} from './element-facade'
 import {
     addClass,
     consume,
@@ -150,16 +149,7 @@ export interface jsPlumbDOMInformation {
 
 export type ElementType = {E:Element}
 
-export interface jsPlumbDOMElement extends HTMLElement, jsPlumbElement<Element> {
-    _isJsPlumbGroup: boolean
-    _jsPlumbOrphanedEndpoints:Array<Endpoint>
-    offsetParent: jsPlumbDOMElement
-    parentNode: jsPlumbDOMElement
-    jtk:jsPlumbDOMInformation
-    _jsPlumbScrollHandler?:Function
-    _katavorioDrag?:Drag
-    cloneNode:(deep?:boolean) => jsPlumbDOMElement
-}
+
 
 export type DragGroupSpec = string | { id:string, active:boolean }
 

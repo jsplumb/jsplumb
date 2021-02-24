@@ -7,7 +7,8 @@ import {
     EVENT_CONNECTION_ABORT,
     EVENT_CONNECTION_DRAG
 } from "./drag-manager"
-import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance"
+import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
+import { jsPlumbDOMElement} from './element-facade'
 
 import {consume, createElement, findParent} from "./browser-util"
 

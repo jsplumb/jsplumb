@@ -1,5 +1,6 @@
 import { DragHandler } from "./drag-manager";
-import { BrowserJsPlumbInstance, DragGroupSpec, jsPlumbDOMElement } from "./browser-jsplumb-instance";
+import { BrowserJsPlumbInstance, DragGroupSpec } from "./browser-jsplumb-instance";
+import { jsPlumbDOMElement } from './element-facade';
 import { DragEventParams, Drag, DragStopEventParams } from "./collicat";
 import { RedrawResult, PointXY } from "@jsplumb/core";
 export interface DragStopPayload {

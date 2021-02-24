@@ -1,4 +1,4 @@
-import { jsPlumbDOMElement } from './browser-jsplumb-instance';
+import { jsPlumbDOMElement } from './element-facade';
 import { Component, Dictionary } from "@jsplumb/core";
 export declare const STROKE_DASHARRAY = "stroke-dasharray";
 export declare const DASHSTYLE = "dashstyle";
@@ -12,3 +12,4 @@ export declare function _node(name: string, attributes?: ElementAttributes): jsP
 export declare function _pos(d: [number, number]): string;
 export declare function _applyStyles(parent: any, node: SVGElement, style: any, dimensions: any, uiComponent: Component): void;
 export declare function _appendAtIndex(svg: SVGElement, path: jsPlumbDOMElement, idx: number): void;
+export declare function _size(svg: SVGElement, x: number, y: number, w: number, h: number): void;

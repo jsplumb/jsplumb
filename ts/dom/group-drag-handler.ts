@@ -1,7 +1,8 @@
 
 import {ElementDragHandler} from "./element-drag-handler"
 import {EVENT_REVERT, GhostProxyingDragHandler} from "./drag-manager"
-import {BrowserJsPlumbInstance, jsPlumbDOMElement} from "./browser-jsplumb-instance"
+import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
+import { jsPlumbDOMElement} from './element-facade'
 import {DragEventParams, Drag, DragStopEventParams} from "./collicat"
 import {PARENT_GROUP_KEY, PointXY, UIGroup} from "@jsplumb/core"
 
