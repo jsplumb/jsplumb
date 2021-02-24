@@ -88,6 +88,9 @@ var testSuite = function () {
         equal("Label", connection1.getOverlays()["aLabel"].type);
         equal("aLabel", connection1.getOverlays()["aLabel"].id);
 
+        equal("aLabel", _jsPlumb.getAttribute(connection1.getOverlays()["aLabel"].canvas, "jtk-overlay-id"), "label id set on element of label overlay as jtk-overlay-id attribute")
+        equal("anArrow", _jsPlumb.getAttribute(connection1.getOverlays()["anArrow"].path, "jtk-overlay-id"), "arrow id set on element of arrow overlay as jtk-overlay-id attribute")
+
         equal("Arrow", connection1.getOverlays()["anArrow"].type);
         equal(0.7, connection1.overlays["anArrow"].location);
         equal(40, connection1.overlays["anArrow"].width);
