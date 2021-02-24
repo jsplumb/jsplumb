@@ -1,5 +1,5 @@
 import { jsPlumbDOMElement} from './element-facade'
-import {Dictionary, fastTrim, forEach, isArray, log, PointXY} from "@jsplumb/core"
+import {Dictionary, fastTrim, forEach, isArray, log, PointXY, Size} from "@jsplumb/core"
 
 
 // These are utility functions for use inside a Browser.
@@ -187,7 +187,7 @@ export function createElementNS(ns:string, tag:string, style?:Dictionary<any>, c
     return e
 }
 
-export function offsetRelativeToRoot(el:any):PointXY {
+export function offsetRelativeToRoot(el:HTMLElement):PointXY {
     const box = el.getBoundingClientRect(),
         body = document.body,
         docElem = document.documentElement,
@@ -205,5 +205,9 @@ export function offsetRelativeToRoot(el:any):PointXY {
         x:Math.round(left),
         y:Math.round(top)
     }
+}
+
+export function size(el:HTMLElement):Size {
+    return { w:el.offsetWidth, h:el.offsetHeight }
 }
 

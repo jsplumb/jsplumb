@@ -85,7 +85,7 @@ import {
     getClass,
     getEventSource,
     hasClass, offsetRelativeToRoot,
-    removeClass,
+    removeClass, size,
     toggleClass
 } from "./browser-util"
 import {EventManager, pageLocation} from "./event-manager"
@@ -501,7 +501,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     }
 
     getSize(el:Element):Size {
-        return { w:(el as jsPlumbDOMElement).offsetWidth, h:(el as jsPlumbDOMElement).offsetHeight }
+        return size(el as any)
     }
 
     getStyle(el:Element, prop:string):any {
