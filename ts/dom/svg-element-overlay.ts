@@ -1,13 +1,15 @@
 
 import { _attr, _node, _appendAtIndex } from './svg-util'
 import {Connection, Endpoint, Overlay} from "@jsplumb/core"
-import { jsPlumbDOMElement} from './element-facade'
 
-export abstract class SVGElementOverlay {
+export abstract class SVGElementOverlay extends Overlay {
 
-    static ensurePath(o:any):jsPlumbDOMElement {
+    path:SVGElement
+
+    static ensurePath(o:SVGElementOverlay):SVGElement {
+
         if (o.path == null) {
-            o.path = _node("path", {})
+            o.path = _node("path", {"jtk-overlay-id": o.id})
             let parent:SVGElement = null
 
             if (o.component instanceof Connection) {
@@ -30,7 +32,7 @@ export abstract class SVGElementOverlay {
         return o.path
     }
 
-    static paint(o:any, path:string, params:any, extents:any):void {
+    static paint(o:SVGElementOverlay, path:string, params:any, extents:any):void {
 
         this.ensurePath(o)
 
