@@ -9295,7 +9295,7 @@
     }, {
       key: "removeGroup",
       value: function removeGroup(group, deleteMembers, manipulateView, doNotFireEvent) {
-        this.groupManager.removeGroup(group, deleteMembers, manipulateView, doNotFireEvent);
+        return this.groupManager.removeGroup(group, deleteMembers, manipulateView, doNotFireEvent);
       }
     }, {
       key: "removeAllGroups",

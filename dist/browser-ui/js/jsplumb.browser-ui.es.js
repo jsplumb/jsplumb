@@ -1,4 +1,4 @@
-import { fastTrim, forEach, isArray, log, NONE, EVENT_CONTEXTMENU, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, EVENT_CLICK, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, uuid, IS, extend, PARENT_GROUP_KEY, wrap, isString, optional, getFromSetWithFunction, intersects, GROUP_KEY, cls, each, makeAnchorFromSpec, AnchorLocations, findWithFunction, IS_GROUP_KEY, SOURCE, TARGET, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, SELECTOR_MANAGED_ELEMENT, Connection, Endpoint, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, UNDEFINED, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, fromArray, ATTRIBUTE_NOT_DRAGGABLE, TRUE as TRUE$1, FALSE as FALSE$1, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE as EVENT_MOUSEMOVE$1, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, LabelOverlay, CustomOverlay, EndpointRepresentation, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/core';
+import { fastTrim, forEach, isArray, log, NONE, EVENT_CONTEXTMENU, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, EVENT_CLICK, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, uuid, IS, extend, PARENT_GROUP_KEY, wrap, isString, optional, getFromSetWithFunction, intersects, GROUP_KEY, cls, each, makeAnchorFromSpec, AnchorLocations, findWithFunction, IS_GROUP_KEY, SOURCE, TARGET, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, SELECTOR_MANAGED_ELEMENT, Connection, Endpoint, Overlay, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, UNDEFINED, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, fromArray, ATTRIBUTE_NOT_DRAGGABLE, TRUE as TRUE$1, FALSE as FALSE$1, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE as EVENT_MOUSEMOVE$1, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, LabelOverlay, CustomOverlay, EndpointRepresentation, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/core';
 
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -3354,7 +3354,9 @@ function () {
   _createClass(HTMLElementOverlay, null, [{
     key: "createElement",
     value: function createElement$1(o) {
-      return createElement("div", {}, o.instance.overlayClass + " " + (o.cssClass ? o.cssClass : ""));
+      var el = createElement("div", {}, o.instance.overlayClass + " " + (o.cssClass ? o.cssClass : ""));
+      o.instance.setAttribute(el, "jtk-overlay-id", o.id);
+      return el;
     }
   }, {
     key: "getElement",
@@ -3407,15 +3409,26 @@ function () {
 }();
 
 var SVGElementOverlay =
-function () {
+function (_Overlay) {
+  _inherits(SVGElementOverlay, _Overlay);
   function SVGElementOverlay() {
+    var _getPrototypeOf2;
+    var _this;
     _classCallCheck(this, SVGElementOverlay);
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+    _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(SVGElementOverlay)).call.apply(_getPrototypeOf2, [this].concat(args)));
+    _defineProperty(_assertThisInitialized(_this), "path", void 0);
+    return _this;
   }
   _createClass(SVGElementOverlay, null, [{
     key: "ensurePath",
     value: function ensurePath(o) {
       if (o.path == null) {
-        o.path = _node("path", {});
+        o.path = _node("path", {
+          "jtk-overlay-id": o.id
+        });
         var parent = null;
         if (o.component instanceof Connection) {
           var connector = o.component.getConnector();
@@ -3469,7 +3482,7 @@ function () {
     }
   }]);
   return SVGElementOverlay;
-}();
+}(Overlay);
 
 var SvgComponent =
 function () {
@@ -3665,6 +3678,9 @@ function () {
 var endpointMap = {};
 function registerEndpointRenderer(name, fns) {
   endpointMap[name] = fns;
+}
+function isSVGElementOverlay(o) {
+  return isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o);
 }
 function setVisible(component, v) {
   if (component.canvas) {
@@ -4272,7 +4288,7 @@ function (_JsPlumbInstance) {
     value: function addOverlayClass(o, clazz) {
       if (isLabelOverlay(o)) {
         o.instance.addClass(getLabelElement(o), clazz);
-      } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
+      } else if (isSVGElementOverlay(o)) {
         o.instance.addClass(SVGElementOverlay.ensurePath(o), clazz);
       } else if (isCustomOverlay(o)) {
         o.instance.addClass(getCustomElement(o), clazz);
@@ -4285,7 +4301,7 @@ function (_JsPlumbInstance) {
     value: function removeOverlayClass(o, clazz) {
       if (isLabelOverlay(o)) {
         o.instance.removeClass(getLabelElement(o), clazz);
-      } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
+      } else if (isSVGElementOverlay(o)) {
         o.instance.removeClass(SVGElementOverlay.ensurePath(o), clazz);
       } else if (isCustomOverlay(o)) {
         o.instance.removeClass(getCustomElement(o), clazz);
@@ -4301,7 +4317,7 @@ function (_JsPlumbInstance) {
         var XY = o.component.getXY();
         o.canvas.style.left = XY.x + params.d.minx + "px";
         o.canvas.style.top = XY.y + params.d.miny + "px";
-      } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
+      } else if (isSVGElementOverlay(o)) {
         var path = isNaN(params.d.cxy.x) || isNaN(params.d.cxy.y) ? "M 0 0" : "M" + params.d.hxy.x + "," + params.d.hxy.y + " L" + params.d.tail[0].x + "," + params.d.tail[0].y + " L" + params.d.cxy.x + "," + params.d.cxy.y + " L" + params.d.tail[1].x + "," + params.d.tail[1].y + " L" + params.d.hxy.x + "," + params.d.hxy.y;
         SVGElementOverlay.paint(o, path, params, extents);
       } else if (isCustomOverlay(o)) {
@@ -4326,7 +4342,7 @@ function (_JsPlumbInstance) {
         s(getLabelElement(o));
       } else if (isCustomOverlay(o)) {
         s(getCustomElement(o));
-      } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
+      } else if (isSVGElementOverlay(o)) {
         s(o.path);
       }
     }
@@ -4337,7 +4353,7 @@ function (_JsPlumbInstance) {
         o.instance.appendElement(getLabelElement(o), this.getContainer());
       } else if (isCustomOverlay(o)) {
         o.instance.appendElement(getCustomElement(o), this.getContainer());
-      } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
+      } else if (isSVGElementOverlay(o)) {
         this.appendElement(SVGElementOverlay.ensurePath(o), c.connector.canvas);
       }
     }
@@ -4350,7 +4366,7 @@ function (_JsPlumbInstance) {
         canvas = getLabelElement(o);
       } else if (isCustomOverlay(o)) {
         canvas = getCustomElement(o);
-      } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
+      } else if (isSVGElementOverlay(o)) {
         canvas = SVGElementOverlay.ensurePath(o);
       }
       if (canvas != null) {

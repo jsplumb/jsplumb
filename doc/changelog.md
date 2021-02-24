@@ -1,3 +1,21 @@
+## 4.0.0-RC61
+
+24th February 2021
+
+### Potentially breaking
+
+- The `PointArray` type, mostly used internally, has been completely removed, and all instances of its usage have been replaced with `PointXY`.
+
+### New
+
+- The ID of an overlay is written into the DOM as a `jtk-overlay-id` attribute (this is really just for internal use)
+
+## 4.0.0-RC60
+
+22nd February 2021
+
+- Internal event location members use `PointXY` instead of `PointArray`
+
 ## 4.0.0-RC59
 
 22nd February 2021
@@ -6,11 +24,7 @@
 
 - It is not permitted to use the `document` or `document.body` as the `container` element for a JsPlumbInstance now.  It is very unlikely anyone was doing this, but now jsPlumb is explicitly forbidding it.
 
-- The `Offset` type was removed, and all instances of its usage were replaced by `PointXY`.  From the perspective of a user of the API this probably has little effect, but there is one public method whose return value has changed: the `getOffset(..)` method of `JsPlumbInstance` now returns a `PointXY` instead of an `Offset`
-
-### Potentially breaking
-
-- The `PointArray` type, mostly used internally, has been completely removed, and all instances of its usage have been replaced with `PointXY`.  
+- The `Offset` type was removed, and all instances of its usage were replaced by `PointXY`.  From the perspective of a user of the API this probably has little effect, but there is one public method whose return value has changed: the `getOffset(..)` method of `JsPlumbInstance` now returns a `PointXY` instead of an `Offset`  
 
 ## 4.0.0-RC58
 

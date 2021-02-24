@@ -165,7 +165,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     removeList(el: Element): void;
     rotate(element: Element, rotation: number, doNotRepaint?: boolean): RedrawResult;
     svg: {
-        node: (name: string, attributes?: Dictionary<string | number>) => jsPlumbDOMElement;
+        node: (name: string, attributes?: Dictionary<string | number>) => SVGElement;
         attr: (node: SVGElement, attributes: Dictionary<string | number>) => void;
         pos: (d: [number, number]) => string;
     };
