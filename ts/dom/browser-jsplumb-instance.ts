@@ -149,7 +149,9 @@ export interface jsPlumbDOMInformation {
 
 export type ElementType = {E:Element}
 
-
+function isSVGElementOverlay(o:Overlay): o is SVGElementOverlay {
+    return isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)
+}
 
 export type DragGroupSpec = string | { id:string, active:boolean }
 
@@ -821,7 +823,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
         if (isLabelOverlay(o)) {
             o.instance.addClass(getLabelElement(o), clazz)
-        } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
+        } else if (isSVGElementOverlay(o)) {
             o.instance.addClass(SVGElementOverlay.ensurePath(o), clazz)
         } else if (isCustomOverlay(o)) {
             o.instance.addClass(getCustomElement(o), clazz)
@@ -834,7 +836,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     removeOverlayClass(o: Overlay, clazz: string): void {
         if (isLabelOverlay(o)) {
             o.instance.removeClass(getLabelElement(o), clazz)
-        } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
+        } else if (isSVGElementOverlay(o)) {
             o.instance.removeClass(SVGElementOverlay.ensurePath(o), clazz)
         } else if (isCustomOverlay(o)) {
             o.instance.removeClass(getCustomElement(o), clazz)
@@ -855,7 +857,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             (o as any).canvas.style.left = XY.x + params.d.minx + "px";
             (o as any).canvas.style.top = XY.y + params.d.miny + "px"
 
-        } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
+        } else if (isSVGElementOverlay(o)) {
 
             const path = (isNaN(params.d.cxy.x) || isNaN(params.d.cxy.y)) ? "M 0 0" : "M" + params.d.hxy.x + "," + params.d.hxy.y +
                 " L" + params.d.tail[0].x + "," + params.d.tail[0].y +
@@ -889,8 +891,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
         else if (isCustomOverlay(o)) {
             s(getCustomElement(o))
-        } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
-            s((o as any).path)
+        } else if (isSVGElementOverlay(o)) {
+            s(o.path)
         }
     }
 
@@ -900,7 +902,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         } else if (isCustomOverlay(o)) {
             o.instance.appendElement(getCustomElement(o), this.getContainer())
         }
-        else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)){
+        else if (isSVGElementOverlay(o)){
             this.appendElement(SVGElementOverlay.ensurePath(o), (c as any).connector.canvas)
         }
     }
@@ -915,7 +917,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         } else if (isCustomOverlay(o)) {
             canvas = getCustomElement(o)
         }
-        else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)){
+        else if (isSVGElementOverlay(o)){
             canvas = SVGElementOverlay.ensurePath(o)
         }
 
