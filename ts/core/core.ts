@@ -1875,8 +1875,8 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     expandGroup (group:string | UIGroup<T["E"]>) { this.groupManager.expandGroup(group); }
     toggleGroup (group:string | UIGroup<T["E"]>) { this.groupManager.toggleGroup(group); }
 
-    removeGroup(group:string | UIGroup<T["E"]>, deleteMembers?:boolean, manipulateView?:boolean, doNotFireEvent?:boolean) {
-        this.groupManager.removeGroup(group, deleteMembers, manipulateView, doNotFireEvent)
+    removeGroup(group:string | UIGroup<T["E"]>, deleteMembers?:boolean, manipulateView?:boolean, doNotFireEvent?:boolean):Dictionary<PointXY> {
+        return this.groupManager.removeGroup(group, deleteMembers, manipulateView, doNotFireEvent)
     }
 
     removeAllGroups(deleteMembers?:boolean, manipulateView?:boolean) {
