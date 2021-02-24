@@ -29,11 +29,11 @@ export function _attr (node:SVGElement, attributes:ElementAttributes) {
     }
 }
 
-export function _node(name:string, attributes?:ElementAttributes):jsPlumbDOMElement {
+export function _node(name:string, attributes?:ElementAttributes):SVGElement {
     attributes = attributes || {}
     attributes.version = "1.1"
     attributes.xmlns = ns.svg
-    return (<unknown>createElementNS(ns.svg, name, null, null, attributes)) as jsPlumbDOMElement
+    return (<unknown>createElementNS(ns.svg, name, null, null, attributes)) as SVGElement
 }
 
 export function _pos (d:[number, number]):string {
@@ -80,7 +80,7 @@ export function _applyStyles(parent:any, node:SVGElement, style:any, dimensions:
     }
 }
 
-export function _appendAtIndex (svg:SVGElement, path:jsPlumbDOMElement, idx:number) {
+export function _appendAtIndex (svg:SVGElement, path:SVGElement, idx:number) {
     if (svg.childNodes.length > idx) {
         svg.insertBefore(path, svg.childNodes[idx])
     }
