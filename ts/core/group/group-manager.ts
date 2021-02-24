@@ -241,7 +241,7 @@ export class GroupManager<E> {
         return newPositions; // this will be null in the case of remove, but be a map of {id->[x,y]} in the case of orphan
     }
 
-    removeAllGroups (deleteMembers?:boolean, manipulateView?:boolean, doNotFireEvent?:boolean) {
+    removeAllGroups (deleteMembers?:boolean, manipulateView?:boolean, doNotFireEvent?:boolean):void {
         for (let g in this.groupMap) {
             this.removeGroup(this.groupMap[g], deleteMembers, manipulateView, doNotFireEvent)
         }
