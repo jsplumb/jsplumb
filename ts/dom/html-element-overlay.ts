@@ -17,8 +17,11 @@ export class HTMLElementOverlay {
     }
 
     static createElement(o:HTMLElementOverlayHolder):Element {
-        return createElement("div", {}, o.instance.overlayClass + " " +
+        const el = createElement("div", {}, o.instance.overlayClass + " " +
             (o.cssClass ? o.cssClass : ""))
+
+        o.instance.setAttribute(el, "jtk-overlay-id", o.id)
+        return el
     }
 
     static getElement (o:HTMLElementOverlayHolder, component?:Component, elementCreator?:(c:Component) => Element):Element{
