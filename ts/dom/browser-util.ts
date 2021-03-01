@@ -187,7 +187,7 @@ export function createElementNS(ns:string, tag:string, style?:Dictionary<any>, c
     return e
 }
 
-export function offsetRelativeToRoot(el:HTMLElement):PointXY {
+export function offsetRelativeToRoot(el:Element):PointXY {
     const box = el.getBoundingClientRect(),
         body = document.body,
         docElem = document.documentElement,
