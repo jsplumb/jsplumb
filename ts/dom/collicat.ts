@@ -285,7 +285,7 @@ export class Drag extends Base {
     private _ignoreZoom:boolean
 
     // a map of { spec -> [ fn, exclusion ] } entries.
-    _filters:Dictionary<[Function, any]> = {}
+    _filters:Dictionary<[Function, boolean]> = {}
 
     _constrainRect:{w:number, h:number}
     _elementToDrag:jsPlumbDOMElement
