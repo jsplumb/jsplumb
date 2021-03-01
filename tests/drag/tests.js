@@ -456,6 +456,51 @@ var testSuite = function () {
 
     });
 
+    /**
+     * Add a CSS3 selector filter to the instance. It should then prevent anything with that selector from being draggable,
+     * even if it would otherwise have been draggable.
+     */
+    test("filter on container (ignore drag at draggable level), container is changed", function() {
+
+        var node = _addDiv("someNode", 50, 50);
+        node.classList.add("someSelector");
+        node.style.position = "absolute";
+        _jsPlumb.manage(node);
+
+        equal(50, parseInt(node.style.left, 10), "child node is left 50");
+        equal(50, parseInt(node.style.top, 10), "child node is top 50");
+
+        support.dragNodeBy(node, 50,50);
+
+        equal(100, parseInt(node.style.left, 10), "child node is left 100");
+        equal(100, parseInt(node.style.top, 10), "child node is top 100");
+
+        _jsPlumb.addDragFilter(".someSelector");
+
+        support.dragNodeBy(node, 50,50); // should not drag this time, as its selector has been added to the list to exclude.
+
+        equal(100, parseInt(node.style.left, 10), "child node is still left 100 because .someSelector is filtered");
+        equal(100, parseInt(node.style.top, 10), "child node is still top 100 because .someSelector is filtered");
+
+
+        var newContainer = support.addDiv("someNewContainer", document.body, "", 0,0,1000,1000);
+        _jsPlumb.setContainer(newContainer)
+
+        support.dragNodeBy(node, 50,50); // should not drag this time, as its selector has been added to the list to exclude.
+
+        equal(100, parseInt(node.style.left, 10), "child node is still left 100 because .someSelector is still filtered after container is changed");
+        equal(100, parseInt(node.style.top, 10), "child node is still top 100 because .someSelector is still filtered after container is changed");
+
+
+        _jsPlumb.removeDragFilter(".someSelector");
+
+        support.dragNodeBy(node, 50,50); // should drag this time, as its selector has been added to the list to exclude.
+
+        equal(150, parseInt(node.style.left, 10), "child node is left 150 after .someSelector filter removed");
+        equal(150, parseInt(node.style.top, 10), "child node is top 150 after .someSelector filter removed");
+
+    });
+
     test("filter on selector (ignore drag at selector level)", function() {
         expect(0);
         // not sure if this needs to be supported or not.
