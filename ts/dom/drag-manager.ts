@@ -153,15 +153,29 @@ export class DragManager {
         }
     }
 
-    reset():void {
+    setFilters(filters:Array<[string, boolean]>) {
+        forEach(filters, (f) => {
+            this.drag.addFilter(f[0], f[1])
+        })
+    }
+
+    reset():Array<[string, boolean]> {
+
+        let out:Array<[string, boolean]> = []
 
         forEach(this.handlers,(handler:DragHandler) => { handler.reset(); })
 
         if (this.drag != null) {
+            const currentFilters = this.drag._filters
+
+            for(let f in currentFilters) {
+                out.push([f, currentFilters[f][1]])
+            }
             this.collicat.destroyDraggable(this.instance.getContainer())
         }
 
         delete this.drag
+        return out
     }
 
 }
