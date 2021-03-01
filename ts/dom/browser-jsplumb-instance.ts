@@ -645,8 +645,9 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
 
         this._detachEventDelegates()
+        let dragFilters:Array<[string, boolean]>
         if (this.dragManager != null) {
-            this.dragManager.reset()
+            dragFilters = this.dragManager.reset()
         }
 
         this.setAttribute(newContainer, ATTRIBUTE_CONTAINER, uuid().replace("-", ""))
@@ -675,6 +676,9 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             this.dragManager.addHandler(new GroupDragHandler(this))
             this.elementDragHandler = new ElementDragHandler(this)
             this.dragManager.addHandler(this.elementDragHandler)
+            if (dragFilters != null) {
+                this.dragManager.setFilters(dragFilters)
+            }
         }
     }
 
