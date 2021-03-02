@@ -481,6 +481,12 @@ export class Drag extends Base {
                     this._initialScroll = {x:this._dragEl.parentNode.scrollLeft, y:this._dragEl.parentNode.scrollTop}
                 }
 
+                this._posAtDown = _getPosition(this._dragEl)
+
+                this._pagePosAtDown = offsetRelativeToRoot(this._dragEl)
+                this._pageDelta = {x:this._pagePosAtDown.x - this._posAtDown.x, y:this._pagePosAtDown.y - this._posAtDown.y}
+                this._size = _getSize(this._dragEl)
+
                 this.k.eventManager.on(document, EVENT_MOUSEMOVE, this.moveListener)
                 this.k.eventManager.on(document, EVENT_MOUSEUP, this.upListener)
 
