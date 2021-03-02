@@ -71,6 +71,8 @@ export declare class EndpointDragHandler implements DragHandler {
      * behave as a target.
      * @private
      */
+    private _getSourceDefinitionFromElement;
+    private _getSourceDefinitionFromInstance;
     private _getSourceDefinition;
     /**
      * Lookup a target definition on the given element.
@@ -78,6 +80,8 @@ export declare class EndpointDragHandler implements DragHandler {
      * @param evt Associated mouse event - for instance, the event that started a drag.
      * @private
      */
+    private _getTargetDefinitionFromElement;
+    private _getTargetDefinitionFromInstance;
     private _getTargetDefinition;
     private _getDropEndpoint;
     private _doForceReattach;

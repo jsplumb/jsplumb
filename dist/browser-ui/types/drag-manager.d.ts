@@ -45,5 +45,6 @@ export declare class DragManager {
     addHandler(handler: DragHandler, dragOptions?: DragHandlerOptions): void;
     addFilter(filter: Function | string, exclude?: boolean): void;
     removeFilter(filter: Function | string): void;
-    reset(): void;
+    setFilters(filters: Array<[string, boolean]>): void;
+    reset(): Array<[string, boolean]>;
 }

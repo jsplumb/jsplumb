@@ -90,6 +90,15 @@ export interface BehaviouralTypeDescriptor extends TypeDescriptor {
     connectionType?: string;
     portId?: string;
     allowLoopback?: boolean;
+    rank?: number;
+    maxConnections?: number;
+}
+export interface SourceBehaviouralTypeDescriptor extends BehaviouralTypeDescriptor {
+    createEndpoint?: boolean;
+}
+export interface TargetBehaviouralTypeDescriptor extends BehaviouralTypeDescriptor {
+    dropOptions?: any;
+    createEndpoint?: boolean;
 }
 export interface SourceOrTargetDefinition {
     enabled?: boolean;
@@ -99,6 +108,7 @@ export interface SourceOrTargetDefinition {
     uniqueEndpoint?: boolean;
 }
 export interface SourceDefinition extends SourceOrTargetDefinition {
+    def: SourceBehaviouralTypeDescriptor;
 }
 export interface TargetDefinition extends SourceOrTargetDefinition {
 }

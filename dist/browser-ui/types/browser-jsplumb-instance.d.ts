@@ -1,4 +1,4 @@
-import { jsPlumbDefaults, Dictionary, Size, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, OverlayCapableComponent, Segment, LabelOverlay, Connection, Component, DeleteConnectionOptions, PointXY } from '@jsplumb/core';
+import { jsPlumbDefaults, Dictionary, Size, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, OverlayCapableComponent, Segment, LabelOverlay, Connection, Component, DeleteConnectionOptions, PointXY, BehaviouralTypeDescriptor, SourceSelector } from '@jsplumb/core';
 import { DragManager } from "./drag-manager";
 import { jsPlumbDOMElement } from './element-facade';
 import { EventManager } from "./event-manager";
@@ -197,4 +197,6 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     setEndpointHover(endpoint: Endpoint, h: boolean, doNotCascade?: boolean): void;
     setEndpointVisible(ep: Endpoint, v: boolean): void;
     deleteConnection(connection: Connection, params?: DeleteConnectionOptions): boolean;
+    addSourceSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): SourceSelector;
+    removeSourceSelector(selector: SourceSelector): void;
 }

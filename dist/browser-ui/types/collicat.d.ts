@@ -109,7 +109,7 @@ export declare class Drag extends Base {
     private _consumeFilteredEvents;
     private _parent;
     private _ignoreZoom;
-    _filters: Dictionary<[Function, any]>;
+    _filters: Dictionary<[Function, boolean]>;
     _constrainRect: {
         w: number;
         h: number;

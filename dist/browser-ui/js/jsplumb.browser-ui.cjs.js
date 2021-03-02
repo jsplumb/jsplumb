@@ -332,6 +332,12 @@ function offsetRelativeToRoot(el) {
     y: Math.round(top)
   };
 }
+function size(el) {
+  return {
+    w: el.offsetWidth,
+    h: el.offsetHeight
+  };
+}
 
 var svgAttributeMap = {
   "stroke-linejoin": "stroke-linejoin",
@@ -1815,15 +1821,29 @@ function () {
       }
     }
   }, {
+    key: "setFilters",
+    value: function setFilters(filters) {
+      var _this3 = this;
+      core.forEach(filters, function (f) {
+        _this3.drag.addFilter(f[0], f[1]);
+      });
+    }
+  }, {
     key: "reset",
     value: function reset() {
+      var out = [];
       core.forEach(this.handlers, function (handler) {
         handler.reset();
       });
       if (this.drag != null) {
+        var currentFilters = this.drag._filters;
+        for (var f in currentFilters) {
+          out.push([f, currentFilters[f][1]]);
+        }
         this.collicat.destroyDraggable(this.instance.getContainer());
       }
       delete this.drag;
+      return out;
     }
   }]);
   return DragManager;
@@ -2323,8 +2343,8 @@ function () {
     var container = instance.getContainer();
     this.mousedownHandler = this._mousedownHandler.bind(this);
     this.mouseupHandler = this._mouseupHandler.bind(this);
-    instance.on(container, EVENT_MOUSEDOWN, "[jtk-source]", this.mousedownHandler);
-    instance.on(container, EVENT_MOUSEUP, "[jtk-source]", this.mouseupHandler);
+    instance.on(container, EVENT_MOUSEDOWN, "[jtk-managed]", this.mousedownHandler);
+    instance.on(container, EVENT_MOUSEUP, "[jtk-managed]", this.mouseupHandler);
   }
   _createClass(EndpointDragHandler, [{
     key: "_mousedownHandler",
@@ -2551,6 +2571,9 @@ function () {
       var selectors = [];
       if (!isSourceDrag) {
         selectors.push("[jtk-target][jtk-scope-" + this.ep.scope + "]");
+        Array.prototype.push.apply(selectors, this.instance.targetSelectors.map(function (ts) {
+          return ts.selector;
+        }));
       } else {
         selectors.push("[jtk-source][jtk-scope-" + this.ep.scope + "]");
       }
@@ -2568,25 +2591,40 @@ function () {
           el: candidate,
           r: boundingRect
         };
-        var targetDefinitionIdx = isSourceDrag ? -1 : core.findWithFunction(candidate._jsPlumbTargetDefinitions, function (tdef) {
-          return tdef.enabled !== false && (tdef.def.allowLoopback !== false || candidate !== _this.ep.element) && (_this._activeDefinition == null || _this._activeDefinition.def.allowLoopback !== false || candidate !== _this.ep.element);
-        });
-        var sourceDefinitionIdx = isSourceDrag ? core.findWithFunction(candidate._jsPlumbSourceDefinitions, function (sdef) {
-          return sdef.enabled !== false && (sdef.def.allowLoopback !== false || candidate !== _this.ep.element) && (_this._activeDefinition == null || _this._activeDefinition.def.allowLoopback !== false || candidate !== _this.ep.element);
-        }) : -1;
-        if (targetDefinitionIdx !== -1) {
-          if (candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank != null) {
-            d.rank = candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank;
+        if (isSourceDrag) {
+          var sourceDefinitionIdx = core.findWithFunction(candidate._jsPlumbSourceDefinitions, function (sdef) {
+            return sdef.enabled !== false && (sdef.def.allowLoopback !== false || candidate !== _this.ep.element) && (_this._activeDefinition == null || _this._activeDefinition.def.allowLoopback !== false || candidate !== _this.ep.element);
+          });
+          if (sourceDefinitionIdx !== -1) {
+            if (candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank != null) {
+              d.rank = candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank;
+            }
+            _this.endpointDropTargets.push(d);
+            _this.instance.addClass(candidate, CLASS_DRAG_ACTIVE);
           }
-          _this.endpointDropTargets.push(d);
-          _this.instance.addClass(candidate, CLASS_DRAG_ACTIVE);
-        }
-        if (sourceDefinitionIdx !== -1) {
-          if (candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank != null) {
-            d.rank = candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank;
+        } else {
+          var targetDefinitionIdx = core.findWithFunction(candidate._jsPlumbTargetDefinitions, function (tdef) {
+            return tdef.enabled !== false && (tdef.def.allowLoopback !== false || candidate !== _this.ep.element) && (_this._activeDefinition == null || _this._activeDefinition.def.allowLoopback !== false || candidate !== _this.ep.element);
+          });
+          if (targetDefinitionIdx !== -1) {
+            if (candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank != null) {
+              d.rank = candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank;
+            }
+            _this.endpointDropTargets.push(d);
+            _this.instance.addClass(candidate, CLASS_DRAG_ACTIVE);
+          } else {
+            var targetDef = core.getWithFunction(_this.instance.targetSelectors, function (tSel) {
+              return tSel.isEnabled() && (tSel.def.def.allowLoopback !== false || candidate !== _this.ep.element) && (_this._activeDefinition == null || _this._activeDefinition.def.allowLoopback !== false || candidate !== _this.ep.element);
+            });
+            if (targetDef != null) {
+              d.el = findParent(d.el, "[jtk-managed]", _this.instance.getContainer());
+              if (targetDef.def.def.rank != null) {
+                d.rank = targetDef.def.def.rank;
+              }
+              _this.endpointDropTargets.push(d);
+              _this.instance.addClass(candidate, CLASS_DRAG_ACTIVE);
+            }
           }
-          _this.endpointDropTargets.push(d);
-          _this.instance.addClass(candidate, CLASS_DRAG_ACTIVE);
         }
       });
       this.endpointDropTargets.sort(function (a, b) {
@@ -2823,8 +2861,8 @@ function () {
       }
     }
   }, {
-    key: "_getSourceDefinition",
-    value: function _getSourceDefinition(fromElement, evt, ignoreFilter) {
+    key: "_getSourceDefinitionFromElement",
+    value: function _getSourceDefinitionFromElement(fromElement, evt, ignoreFilter) {
       var sourceDef;
       if (fromElement._jsPlumbSourceDefinitions) {
         for (var i = 0; i < fromElement._jsPlumbSourceDefinitions.length; i++) {
@@ -2843,8 +2881,27 @@ function () {
       }
     }
   }, {
-    key: "_getTargetDefinition",
-    value: function _getTargetDefinition(fromElement, evt) {
+    key: "_getSourceDefinitionFromInstance",
+    value: function _getSourceDefinitionFromInstance(fromElement, evt, ignoreFilter) {
+      var selector;
+      for (var i = 0; i < this.instance.sourceSelectors.length; i++) {
+        selector = this.instance.sourceSelectors[i];
+        if (selector.isEnabled()) {
+          var r = selectorFilter(evt, fromElement, selector.selector, this.instance, selector.exclude);
+          if (r !== false) {
+            return selector.def;
+          }
+        }
+      }
+    }
+  }, {
+    key: "_getSourceDefinition",
+    value: function _getSourceDefinition(fromElement, evt, ignoreFilter) {
+      return this._getSourceDefinitionFromElement(fromElement, evt, ignoreFilter) || this._getSourceDefinitionFromInstance(fromElement, evt, ignoreFilter);
+    }
+  }, {
+    key: "_getTargetDefinitionFromElement",
+    value: function _getTargetDefinitionFromElement(fromElement, evt) {
       var targetDef;
       if (fromElement._jsPlumbTargetDefinitions) {
         for (var i = 0; i < fromElement._jsPlumbTargetDefinitions.length; i++) {
@@ -2861,6 +2918,26 @@ function () {
           }
         }
       }
+    }
+  }, {
+    key: "_getTargetDefinitionFromInstance",
+    value: function _getTargetDefinitionFromInstance(fromElement, evt, ignoreFilter) {
+      var selector;
+      for (var i = 0; i < this.instance.targetSelectors.length; i++) {
+        selector = this.instance.targetSelectors[i];
+        if (selector.isEnabled()) {
+          var r = selectorFilter(evt, fromElement, selector.selector, this.instance, selector.exclude);
+          if (r !== false) {
+            return selector.def;
+          }
+        }
+      }
+      return null;
+    }
+  }, {
+    key: "_getTargetDefinition",
+    value: function _getTargetDefinition(fromElement, evt) {
+      return this._getTargetDefinitionFromElement(fromElement, evt) || this._getTargetDefinitionFromInstance(fromElement, evt);
     }
   }, {
     key: "_getDropEndpoint",
@@ -4010,10 +4087,7 @@ function (_JsPlumbInstance) {
   }, {
     key: "getSize",
     value: function getSize(el) {
-      return {
-        w: el.offsetWidth,
-        h: el.offsetHeight
-      };
+      return size(el);
     }
   }, {
     key: "getStyle",
@@ -4121,8 +4195,9 @@ function (_JsPlumbInstance) {
         throw new Error("Cannot set document or document.body as container element");
       }
       this._detachEventDelegates();
+      var dragFilters;
       if (this.dragManager != null) {
-        this.dragManager.reset();
+        dragFilters = this.dragManager.reset();
       }
       this.setAttribute(newContainer, core.ATTRIBUTE_CONTAINER, core.uuid().replace("-", ""));
       var currentContainer = this.getContainer();
@@ -4144,6 +4219,9 @@ function (_JsPlumbInstance) {
         this.dragManager.addHandler(new GroupDragHandler(this));
         this.elementDragHandler = new ElementDragHandler(this);
         this.dragManager.addHandler(this.elementDragHandler);
+        if (dragFilters != null) {
+          this.dragManager.setFilters(dragFilters);
+        }
       }
     }
   }, {
@@ -4650,6 +4728,18 @@ function (_JsPlumbInstance) {
         return false;
       }
     }
+  }, {
+    key: "addSourceSelector",
+    value: function addSourceSelector(selector, params, exclude) {
+      this.addDragFilter(selector);
+      return _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "addSourceSelector", this).call(this, selector, params, exclude);
+    }
+  }, {
+    key: "removeSourceSelector",
+    value: function removeSourceSelector(selector) {
+      this.removeDragFilter(selector.selector);
+      _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "removeSourceSelector", this).call(this, selector);
+    }
   }], [{
     key: "getPositionOnElement",
     value: function getPositionOnElement(evt, el, zoom) {
@@ -4792,6 +4882,7 @@ exports.pageLocation = pageLocation;
 exports.ready = ready;
 exports.registerEndpointRenderer = registerEndpointRenderer;
 exports.removeClass = removeClass;
+exports.size = size;
 exports.toggleClass = toggleClass;
 exports.touchCount = touchCount;
 exports.touches = touches;

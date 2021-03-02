@@ -7690,6 +7690,53 @@
     return Viewport;
   }(EventGenerator);
 
+  var ConnectionDragSelector =
+  function () {
+    function ConnectionDragSelector(selector, def) {
+      var exclude = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+      _classCallCheck(this, ConnectionDragSelector);
+      this.selector = selector;
+      this.def = def;
+      this.exclude = exclude;
+    }
+    _createClass(ConnectionDragSelector, [{
+      key: "setEnabled",
+      value: function setEnabled(enabled) {
+        this.def.enabled = enabled;
+      }
+    }, {
+      key: "isEnabled",
+      value: function isEnabled() {
+        return this.def.enabled !== false;
+      }
+    }]);
+    return ConnectionDragSelector;
+  }();
+  var SourceSelector =
+  function (_ConnectionDragSelect) {
+    _inherits(SourceSelector, _ConnectionDragSelect);
+    function SourceSelector(selector, def, exclude) {
+      var _this;
+      _classCallCheck(this, SourceSelector);
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(SourceSelector).call(this, selector, def, exclude));
+      _this.def = def;
+      return _this;
+    }
+    return SourceSelector;
+  }(ConnectionDragSelector);
+  var TargetSelector =
+  function (_ConnectionDragSelect2) {
+    _inherits(TargetSelector, _ConnectionDragSelect2);
+    function TargetSelector(selector, def, exclude) {
+      var _this2;
+      _classCallCheck(this, TargetSelector);
+      _this2 = _possibleConstructorReturn(this, _getPrototypeOf(TargetSelector).call(this, selector, def, exclude));
+      _this2.def = def;
+      return _this2;
+    }
+    return TargetSelector;
+  }(ConnectionDragSelector);
+
   function _scopeMatch(e1, e2) {
     var s1 = e1.scope.split(/\s/),
         s2 = e2.scope.split(/\s/);
@@ -7772,6 +7819,8 @@
       _defineProperty(_assertThisInitialized(_this), "connections", []);
       _defineProperty(_assertThisInitialized(_this), "endpointsByElement", {});
       _defineProperty(_assertThisInitialized(_this), "endpointsByUUID", new Map());
+      _defineProperty(_assertThisInitialized(_this), "sourceSelectors", []);
+      _defineProperty(_assertThisInitialized(_this), "targetSelectors", []);
       _defineProperty(_assertThisInitialized(_this), "allowNestedGroups", void 0);
       _defineProperty(_assertThisInitialized(_this), "_curIdStamp", 1);
       _defineProperty(_assertThisInitialized(_this), "viewport", new Viewport(_assertThisInitialized(_this)));
@@ -8567,6 +8616,8 @@
           _this6._connectionTypes.clear();
           _this6._endpointTypes.clear();
           _this6.connections.length = 0;
+          _this6.sourceSelectors.length = 0;
+          _this6.targetSelectors.length = 0;
         });
       }
     }, {
@@ -8926,22 +8977,15 @@
         }
       }
     }, {
-      key: "makeSource",
-      value: function makeSource(el, params, referenceParams) {
-        var p = extend({
-          _jsPlumb: this
-        }, referenceParams);
+      key: "_createSourceDefinition",
+      value: function _createSourceDefinition(params, referenceParams) {
+        var p = extend({}, referenceParams);
         extend(p, params);
         p.connectionType = p.connectionType || DEFAULT;
         var aae = this.deriveEndpointAndAnchorSpec(p.connectionType);
         p.endpoint = p.endpoint || aae.endpoints[0];
         p.anchor = p.anchor || aae.anchors[0];
         var maxConnections = p.maxConnections || -1;
-        this.manage(el);
-        this.setAttribute(el, ATTRIBUTE_SOURCE, "");
-        this._writeScopeAttribute(el, p.scope || this.Defaults.scope);
-        this.setAttribute(el, [ATTRIBUTE_SOURCE, p.connectionType].join("-"), "");
-        el._jsPlumbSourceDefinitions = el._jsPlumbSourceDefinitions || [];
         var _def = {
           def: extend({}, p),
           uniqueEndpoint: p.uniqueEndpoint,
@@ -8949,6 +8993,18 @@
           enabled: true,
           endpoint: null
         };
+        return _def;
+      }
+    }, {
+      key: "makeSource",
+      value: function makeSource(el, params, referenceParams) {
+        var p = extend(extend({}, params), referenceParams || {});
+        var _def = this._createSourceDefinition(params, referenceParams);
+        this.manage(el);
+        this.setAttribute(el, ATTRIBUTE_SOURCE, "");
+        this._writeScopeAttribute(el, p.scope || this.Defaults.scope);
+        this.setAttribute(el, [ATTRIBUTE_SOURCE, p.connectionType].join("-"), "");
+        el._jsPlumbSourceDefinitions = el._jsPlumbSourceDefinitions || [];
         if (p.createEndpoint) {
           _def.uniqueEndpoint = true;
           _def.endpoint = this.addEndpoint(el, _def.def);
@@ -8956,6 +9012,38 @@
         }
         el._jsPlumbSourceDefinitions.push(_def);
         return this;
+      }
+    }, {
+      key: "addSourceSelector",
+      value: function addSourceSelector(selector, params) {
+        var exclude = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+        var _def = this._createSourceDefinition(params);
+        var sel = new SourceSelector(selector, _def, exclude);
+        this.sourceSelectors.push(sel);
+        return sel;
+      }
+    }, {
+      key: "removeSourceSelector",
+      value: function removeSourceSelector(selector) {
+        removeWithFunction(this.sourceSelectors, function (s) {
+          return s === selector;
+        });
+      }
+    }, {
+      key: "removeTargetSelector",
+      value: function removeTargetSelector(selector) {
+        removeWithFunction(this.targetSelectors, function (s) {
+          return s === selector;
+        });
+      }
+    }, {
+      key: "addTargetSelector",
+      value: function addTargetSelector(selector, params) {
+        var exclude = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+        var _def = this._createTargetDefinition(params);
+        var sel = new TargetSelector(selector, _def, exclude);
+        this.targetSelectors.push(sel);
+        return sel;
       }
     }, {
       key: "_getScope",
@@ -9007,24 +9095,13 @@
         this._setScope(el, scope, TARGET_DEFINITION_LIST);
       }
     }, {
-      key: "makeTarget",
-      value: function makeTarget(el, params, referenceParams) {
-        var jel = el;
-        var p = extend({
-          _jsPlumb: this
-        }, referenceParams);
+      key: "_createTargetDefinition",
+      value: function _createTargetDefinition(params, referenceParams) {
+        var p = extend({}, referenceParams);
         extend(p, params);
         p.connectionType = p.connectionType || DEFAULT;
         var maxConnections = p.maxConnections || -1;
         var dropOptions = extend({}, p.dropOptions || {});
-        this.manage(el);
-        this.setAttribute(el, ATTRIBUTE_TARGET, "");
-        this._writeScopeAttribute(el, p.scope || this.Defaults.scope);
-        this.setAttribute(el, [ATTRIBUTE_TARGET, p.connectionType].join("-"), "");
-        jel._jsPlumbTargetDefinitions = jel._jsPlumbTargetDefinitions || [];
-        if (jel._jsPlumbGroup && dropOptions.rank == null) {
-          dropOptions.rank = -1;
-        }
         var _def = {
           def: extend({}, p),
           uniqueEndpoint: p.uniqueEndpoint,
@@ -9032,6 +9109,19 @@
           enabled: true,
           endpoint: null
         };
+        return _def;
+      }
+    }, {
+      key: "makeTarget",
+      value: function makeTarget(el, params, referenceParams) {
+        var jel = el;
+        var _def = this._createTargetDefinition(params, referenceParams);
+        var p = extend(extend({}, params), referenceParams || {});
+        this.manage(el);
+        this.setAttribute(el, ATTRIBUTE_TARGET, "");
+        this._writeScopeAttribute(el, p.scope || this.Defaults.scope);
+        this.setAttribute(el, [ATTRIBUTE_TARGET, p.connectionType].join("-"), "");
+        jel._jsPlumbTargetDefinitions = jel._jsPlumbTargetDefinitions || [];
         if (p.createEndpoint) {
           _def.uniqueEndpoint = true;
           _def.endpoint = this.addEndpoint(el, _def.def);
@@ -9720,6 +9810,7 @@
   exports.CMD_SHOW = CMD_SHOW;
   exports.Component = Component;
   exports.Connection = Connection;
+  exports.ConnectionDragSelector = ConnectionDragSelector;
   exports.ConnectionSelection = ConnectionSelection;
   exports.Connectors = Connectors;
   exports.ContinuousAnchor = ContinuousAnchor;
@@ -9813,6 +9904,7 @@
   exports.SOURCE_DEFINITION_LIST = SOURCE_DEFINITION_LIST;
   exports.SOURCE_INDEX = SOURCE_INDEX;
   exports.STATIC = STATIC;
+  exports.SourceSelector = SourceSelector;
   exports.StateMachine = StateMachine;
   exports.StraightConnector = StraightConnector;
   exports.StraightSegment = StraightSegment;
@@ -9821,6 +9913,7 @@
   exports.TARGET_INDEX = TARGET_INDEX;
   exports.TRUE = TRUE;
   exports.TWO_PI = TWO_PI;
+  exports.TargetSelector = TargetSelector;
   exports.UIGroup = UIGroup;
   exports.UINode = UINode;
   exports.UNDEFINED = UNDEFINED;

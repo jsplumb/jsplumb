@@ -1,3 +1,11 @@
+## 4.0.0-RC62
+
+1st March 2021
+
+- Internal refactoring - moved some methods between modules. 
+- Fixed issue with drag filters being removed when `setContainer` is called.
+- Added support for instance-wide specs of connection source/target points, using `addSourceSelector` and `addTargetSelector`. These methods can be used in place of the previous `makeSource` and `makeTarget` methods in many cases, and will be more performant as they don't need to register a bunch of stuff on each element.
+
 ## 4.0.0-RC61
 
 24th February 2021

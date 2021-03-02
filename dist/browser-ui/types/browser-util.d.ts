@@ -1,5 +1,5 @@
 import { jsPlumbDOMElement } from './element-facade';
-import { Dictionary, PointXY } from "@jsplumb/core";
+import { Dictionary, PointXY, Size } from "@jsplumb/core";
 export declare function matchesSelector(el: jsPlumbDOMElement, selector: string, ctx?: HTMLElement): boolean;
 export declare function consume(e: Event, doNotPreventDefault?: boolean): void;
 export declare function findParent(el: jsPlumbDOMElement, selector: string, container: HTMLElement): jsPlumbDOMElement;
@@ -11,4 +11,5 @@ export declare function removeClass(el: Element, clazz: string): void;
 export declare function toggleClass(el: Element, clazz: string): void;
 export declare function createElement(tag: string, style?: Dictionary<any>, clazz?: string, atts?: Dictionary<string>): jsPlumbDOMElement;
 export declare function createElementNS(ns: string, tag: string, style?: Dictionary<any>, clazz?: string, atts?: Dictionary<string | number>): jsPlumbDOMElement;
-export declare function offsetRelativeToRoot(el: any): PointXY;
+export declare function offsetRelativeToRoot(el: Element): PointXY;
+export declare function size(el: HTMLElement): Size;

@@ -29,6 +29,7 @@ export * from './endpoint/dot-endpoint';
 export * from './endpoint/rectangle-endpoint';
 export * from './endpoint/blank-endpoint';
 export * from "./selection/endpoint-selection";
+export * from './source-selector';
 export * from "./overlay/overlay";
 export * from "./overlay/label-overlay";
 export * from "./overlay/arrow-overlay";

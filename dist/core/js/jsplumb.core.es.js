@@ -7685,6 +7685,53 @@ function (_EventGenerator) {
   return Viewport;
 }(EventGenerator);
 
+var ConnectionDragSelector =
+function () {
+  function ConnectionDragSelector(selector, def) {
+    var exclude = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+    _classCallCheck(this, ConnectionDragSelector);
+    this.selector = selector;
+    this.def = def;
+    this.exclude = exclude;
+  }
+  _createClass(ConnectionDragSelector, [{
+    key: "setEnabled",
+    value: function setEnabled(enabled) {
+      this.def.enabled = enabled;
+    }
+  }, {
+    key: "isEnabled",
+    value: function isEnabled() {
+      return this.def.enabled !== false;
+    }
+  }]);
+  return ConnectionDragSelector;
+}();
+var SourceSelector =
+function (_ConnectionDragSelect) {
+  _inherits(SourceSelector, _ConnectionDragSelect);
+  function SourceSelector(selector, def, exclude) {
+    var _this;
+    _classCallCheck(this, SourceSelector);
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(SourceSelector).call(this, selector, def, exclude));
+    _this.def = def;
+    return _this;
+  }
+  return SourceSelector;
+}(ConnectionDragSelector);
+var TargetSelector =
+function (_ConnectionDragSelect2) {
+  _inherits(TargetSelector, _ConnectionDragSelect2);
+  function TargetSelector(selector, def, exclude) {
+    var _this2;
+    _classCallCheck(this, TargetSelector);
+    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(TargetSelector).call(this, selector, def, exclude));
+    _this2.def = def;
+    return _this2;
+  }
+  return TargetSelector;
+}(ConnectionDragSelector);
+
 function _scopeMatch(e1, e2) {
   var s1 = e1.scope.split(/\s/),
       s2 = e2.scope.split(/\s/);
@@ -7767,6 +7814,8 @@ function (_EventGenerator) {
     _defineProperty(_assertThisInitialized(_this), "connections", []);
     _defineProperty(_assertThisInitialized(_this), "endpointsByElement", {});
     _defineProperty(_assertThisInitialized(_this), "endpointsByUUID", new Map());
+    _defineProperty(_assertThisInitialized(_this), "sourceSelectors", []);
+    _defineProperty(_assertThisInitialized(_this), "targetSelectors", []);
     _defineProperty(_assertThisInitialized(_this), "allowNestedGroups", void 0);
     _defineProperty(_assertThisInitialized(_this), "_curIdStamp", 1);
     _defineProperty(_assertThisInitialized(_this), "viewport", new Viewport(_assertThisInitialized(_this)));
@@ -8562,6 +8611,8 @@ function (_EventGenerator) {
         _this6._connectionTypes.clear();
         _this6._endpointTypes.clear();
         _this6.connections.length = 0;
+        _this6.sourceSelectors.length = 0;
+        _this6.targetSelectors.length = 0;
       });
     }
   }, {
@@ -8921,22 +8972,15 @@ function (_EventGenerator) {
       }
     }
   }, {
-    key: "makeSource",
-    value: function makeSource(el, params, referenceParams) {
-      var p = extend({
-        _jsPlumb: this
-      }, referenceParams);
+    key: "_createSourceDefinition",
+    value: function _createSourceDefinition(params, referenceParams) {
+      var p = extend({}, referenceParams);
       extend(p, params);
       p.connectionType = p.connectionType || DEFAULT;
       var aae = this.deriveEndpointAndAnchorSpec(p.connectionType);
       p.endpoint = p.endpoint || aae.endpoints[0];
       p.anchor = p.anchor || aae.anchors[0];
       var maxConnections = p.maxConnections || -1;
-      this.manage(el);
-      this.setAttribute(el, ATTRIBUTE_SOURCE, "");
-      this._writeScopeAttribute(el, p.scope || this.Defaults.scope);
-      this.setAttribute(el, [ATTRIBUTE_SOURCE, p.connectionType].join("-"), "");
-      el._jsPlumbSourceDefinitions = el._jsPlumbSourceDefinitions || [];
       var _def = {
         def: extend({}, p),
         uniqueEndpoint: p.uniqueEndpoint,
@@ -8944,6 +8988,18 @@ function (_EventGenerator) {
         enabled: true,
         endpoint: null
       };
+      return _def;
+    }
+  }, {
+    key: "makeSource",
+    value: function makeSource(el, params, referenceParams) {
+      var p = extend(extend({}, params), referenceParams || {});
+      var _def = this._createSourceDefinition(params, referenceParams);
+      this.manage(el);
+      this.setAttribute(el, ATTRIBUTE_SOURCE, "");
+      this._writeScopeAttribute(el, p.scope || this.Defaults.scope);
+      this.setAttribute(el, [ATTRIBUTE_SOURCE, p.connectionType].join("-"), "");
+      el._jsPlumbSourceDefinitions = el._jsPlumbSourceDefinitions || [];
       if (p.createEndpoint) {
         _def.uniqueEndpoint = true;
         _def.endpoint = this.addEndpoint(el, _def.def);
@@ -8951,6 +9007,38 @@ function (_EventGenerator) {
       }
       el._jsPlumbSourceDefinitions.push(_def);
       return this;
+    }
+  }, {
+    key: "addSourceSelector",
+    value: function addSourceSelector(selector, params) {
+      var exclude = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+      var _def = this._createSourceDefinition(params);
+      var sel = new SourceSelector(selector, _def, exclude);
+      this.sourceSelectors.push(sel);
+      return sel;
+    }
+  }, {
+    key: "removeSourceSelector",
+    value: function removeSourceSelector(selector) {
+      removeWithFunction(this.sourceSelectors, function (s) {
+        return s === selector;
+      });
+    }
+  }, {
+    key: "removeTargetSelector",
+    value: function removeTargetSelector(selector) {
+      removeWithFunction(this.targetSelectors, function (s) {
+        return s === selector;
+      });
+    }
+  }, {
+    key: "addTargetSelector",
+    value: function addTargetSelector(selector, params) {
+      var exclude = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+      var _def = this._createTargetDefinition(params);
+      var sel = new TargetSelector(selector, _def, exclude);
+      this.targetSelectors.push(sel);
+      return sel;
     }
   }, {
     key: "_getScope",
@@ -9002,24 +9090,13 @@ function (_EventGenerator) {
       this._setScope(el, scope, TARGET_DEFINITION_LIST);
     }
   }, {
-    key: "makeTarget",
-    value: function makeTarget(el, params, referenceParams) {
-      var jel = el;
-      var p = extend({
-        _jsPlumb: this
-      }, referenceParams);
+    key: "_createTargetDefinition",
+    value: function _createTargetDefinition(params, referenceParams) {
+      var p = extend({}, referenceParams);
       extend(p, params);
       p.connectionType = p.connectionType || DEFAULT;
       var maxConnections = p.maxConnections || -1;
       var dropOptions = extend({}, p.dropOptions || {});
-      this.manage(el);
-      this.setAttribute(el, ATTRIBUTE_TARGET, "");
-      this._writeScopeAttribute(el, p.scope || this.Defaults.scope);
-      this.setAttribute(el, [ATTRIBUTE_TARGET, p.connectionType].join("-"), "");
-      jel._jsPlumbTargetDefinitions = jel._jsPlumbTargetDefinitions || [];
-      if (jel._jsPlumbGroup && dropOptions.rank == null) {
-        dropOptions.rank = -1;
-      }
       var _def = {
         def: extend({}, p),
         uniqueEndpoint: p.uniqueEndpoint,
@@ -9027,6 +9104,19 @@ function (_EventGenerator) {
         enabled: true,
         endpoint: null
       };
+      return _def;
+    }
+  }, {
+    key: "makeTarget",
+    value: function makeTarget(el, params, referenceParams) {
+      var jel = el;
+      var _def = this._createTargetDefinition(params, referenceParams);
+      var p = extend(extend({}, params), referenceParams || {});
+      this.manage(el);
+      this.setAttribute(el, ATTRIBUTE_TARGET, "");
+      this._writeScopeAttribute(el, p.scope || this.Defaults.scope);
+      this.setAttribute(el, [ATTRIBUTE_TARGET, p.connectionType].join("-"), "");
+      jel._jsPlumbTargetDefinitions = jel._jsPlumbTargetDefinitions || [];
       if (p.createEndpoint) {
         _def.uniqueEndpoint = true;
         _def.endpoint = this.addEndpoint(el, _def.def);
@@ -9684,4 +9774,4 @@ Connectors.register(StraightConnector.type, StraightConnector);
 Connectors.register(FlowchartConnector.type, FlowchartConnector);
 Connectors.register(StateMachine.type, StateMachine);
 
-export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, AnchorLocations, Anchors, ArcSegment, ArrowOverlay, BLOCK, Bezier, BezierSegment, BlankEndpoint, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DefaultRouter, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FloatingAnchor, FlowchartConnector, GROUP_KEY, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DROP, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JTK_ID, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PROPERTY_POSITION, PlainArrowOverlay, RectangleEndpoint, SCOPE_PREFIX, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, StateMachine, StraightConnector, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, encloses, extend, fastTrim, filterList, findWithFunction, forEach, fromArray, functionChain, getFromSetWithFunction, getWithFunction, getsert, gradient, gradientAtPoint, gradientAtPointAlongPathFrom, insertSorted, intersects, isArray, isArrowOverlay, isAssignableFrom, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, lineIntersection, lineLength, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, normal, optional, perpendicularLineTo, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, pointOnLine, pointSubtract, pointXYFromArray, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, sortHelper, suggest, theta, uuid, wrap };
+export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, AnchorLocations, Anchors, ArcSegment, ArrowOverlay, BLOCK, Bezier, BezierSegment, BlankEndpoint, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DefaultRouter, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FloatingAnchor, FlowchartConnector, GROUP_KEY, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DROP, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JTK_ID, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PROPERTY_POSITION, PlainArrowOverlay, RectangleEndpoint, SCOPE_PREFIX, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, SourceSelector, StateMachine, StraightConnector, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, TargetSelector, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, encloses, extend, fastTrim, filterList, findWithFunction, forEach, fromArray, functionChain, getFromSetWithFunction, getWithFunction, getsert, gradient, gradientAtPoint, gradientAtPointAlongPathFrom, insertSorted, intersects, isArray, isArrowOverlay, isAssignableFrom, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, lineIntersection, lineLength, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, normal, optional, perpendicularLineTo, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, pointOnLine, pointSubtract, pointXYFromArray, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, sortHelper, suggest, theta, uuid, wrap };

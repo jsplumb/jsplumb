@@ -5,7 +5,7 @@ import { FullOverlaySpec, OverlaySpec } from "./overlay/overlay";
 import { AnchorPlacement, RedrawResult } from "./router/router";
 import { RotatedPointXY } from "./util";
 import { Dictionary, UpdateOffsetOptions, Size, jsPlumbElement, ConnectParams, // <--
-SourceDefinition, TargetDefinition, BehaviouralTypeDescriptor, TypeDescriptor, Rotations, PointXY, ConnectionMovedParams } from './common';
+SourceDefinition, TargetDefinition, BehaviouralTypeDescriptor, TypeDescriptor, Rotations, PointXY, ConnectionMovedParams, SourceBehaviouralTypeDescriptor, TargetBehaviouralTypeDescriptor } from './common';
 import { EventGenerator } from "./event-generator";
 import { EndpointOptions } from "./endpoint/endpoint";
 import { AddGroupOptions, GroupManager } from "./group/group-manager";
@@ -22,6 +22,7 @@ import { AbstractConnector } from './connector/abstract-connector';
 import { OverlayCapableComponent } from './component/overlay-capable-component';
 import { PaintStyle } from './styles';
 import { AnchorSpec } from "./factory/anchor-factory";
+import { SourceSelector, TargetSelector } from "./source-selector";
 export declare type ElementSelectionSpecifier<E> = E | Array<E> | '*';
 export declare type SelectionList = '*' | Array<string>;
 export interface AbstractSelectOptions<E> {
@@ -89,6 +90,8 @@ export declare abstract class JsPlumbInstance<T extends {
     readonly connections: Array<Connection>;
     endpointsByElement: Dictionary<Array<Endpoint>>;
     private readonly endpointsByUUID;
+    sourceSelectors: Array<SourceSelector>;
+    targetSelectors: Array<SourceSelector>;
     allowNestedGroups: boolean;
     private _curIdStamp;
     readonly viewport: Viewport<T>;
@@ -274,7 +277,29 @@ export declare abstract class JsPlumbInstance<T extends {
     unmakeEverySource(connectionType?: string): void;
     unmakeEveryTarget(connectionType?: string): void;
     private _writeScopeAttribute;
-    makeSource(el: jsPlumbElement<T["E"]>, params?: BehaviouralTypeDescriptor, referenceParams?: any): JsPlumbInstance;
+    protected _createSourceDefinition(params?: SourceBehaviouralTypeDescriptor, referenceParams?: SourceBehaviouralTypeDescriptor): SourceDefinition;
+    makeSource(el: jsPlumbElement<T["E"]>, params?: SourceBehaviouralTypeDescriptor, referenceParams?: SourceBehaviouralTypeDescriptor): JsPlumbInstance;
+    /**
+     * Registers a selector for connection drag on the instance. This is a newer version of the `makeSource` functionality
+     * that has been in jsPlumb since the early days. With this approach, rather than calling `makeSource` on every element, you
+     * can register a CSS selector on the instance that identifies something that is common to your elements. This will only respond to
+     * mouse events on elements that are managed by the instance.
+     * @param selector CSS3 selector identifying child element(s) of some managed element that should act as a connection source.
+     * @param params Options for the source: connector type, behaviour, etc.
+     * @param exclude If true, the selector defines an 'exclusion': anything _except_ elements that match this.
+     */
+    addSourceSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): SourceSelector;
+    /**
+     * Unregister the given source selector.
+     * @param selector
+     */
+    removeSourceSelector(selector: SourceSelector): void;
+    /**
+     * Unregister the given target selector.
+     * @param selector
+     */
+    removeTargetSelector(selector: TargetSelector): void;
+    addTargetSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): TargetSelector;
     private _getScope;
     getSourceScope(el: T["E"]): string;
     getTargetScope(el: T["E"]): string;
@@ -283,13 +308,14 @@ export declare abstract class JsPlumbInstance<T extends {
     setSourceScope(el: T["E"], scope: string): void;
     setTargetScope(el: T["E"], scope: string): void;
     setScope(el: T["E"], scope: string): void;
+    private _createTargetDefinition;
     /**
      * Make the given element a connection target.
      * @param el
      * @param params
      * @param referenceParams
      */
-    makeTarget(el: T["E"], params: BehaviouralTypeDescriptor, referenceParams?: any): JsPlumbInstance;
+    makeTarget(el: T["E"], params?: TargetBehaviouralTypeDescriptor, referenceParams?: TargetBehaviouralTypeDescriptor): JsPlumbInstance;
     show(el: T["E"], changeEndpoints?: boolean): JsPlumbInstance;
     hide(el: T["E"], changeEndpoints?: boolean): JsPlumbInstance;
     private _setVisible;
