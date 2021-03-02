@@ -39,12 +39,32 @@ type GroupLocation = {
 type DragGroupMemberSpec = { el:jsPlumbDOMElement, elId:string, active:boolean }
 type DragGroup = { id:string, members:Set<DragGroupMemberSpec>}
 
-export interface DragStopPayload {
+/**
+ * Base payload for drag events. Contains the element being dragged, the corresponding mouse event, the current position, and the position when drag started.
+ */
+export interface DragPayload {
     el:Element
     e:MouseEvent
     pos:PointXY
+    originalPosition:PointXY
+}
+
+/**
+ * Payload for `drag:stop` event. In addition to the base payload, contains a redraw result object, listing all the connections and endpoints that were affected by the drag.
+ */
+export interface DragStopPayload extends DragPayload {
     r:RedrawResult
 }
+
+/**
+ * Payload for `drag:move` event.
+ */
+export interface DragMovePayload extends DragPayload { }
+
+/**
+ * Payload for `drag:start` event.
+ */
+export interface DragStartPayload extends DragPayload { }
 
 export class ElementDragHandler implements DragHandler {
 
@@ -66,6 +86,7 @@ export class ElementDragHandler implements DragHandler {
     private _dragSizes:Map<string, Size> = new Map()
 
     protected drag:Drag
+    originalPosition:PointXY
 
     constructor(protected instance:BrowserJsPlumbInstance) {}
 
@@ -84,7 +105,8 @@ export class ElementDragHandler implements DragHandler {
                 el:_el,
                 e:params.e,
                 pos:pos,
-                r:redrawResult
+                r:redrawResult,
+                originalPosition:this.originalPosition
             })
 
             this.instance.removeClass(_el, CLASS_DRAGGED)
@@ -200,10 +222,11 @@ export class ElementDragHandler implements DragHandler {
 
             this.instance.setElementPosition(el, bounds.x, bounds.y)
 
-            this.instance.fire(EVENT_DRAG_MOVE, {
+            this.instance.fire<DragMovePayload>(EVENT_DRAG_MOVE, {
                 el:el,
                 e:params.e,
-                pos:{x:bounds.x,y:bounds.y}
+                pos:{x:bounds.x,y:bounds.y},
+                originalPosition:this.originalPosition
             })
         }
 
@@ -232,6 +255,8 @@ export class ElementDragHandler implements DragHandler {
 
         const el = params.drag.getDragElement() as jsPlumbDOMElement
         const elOffset = this.instance.getOffset(el)
+
+        this.originalPosition = {x:params.pos.x, y:params.pos.y}
 
         if (el._jsPlumbParentGroup) {
             this._dragOffset = this.instance.getOffset(el.offsetParent)
@@ -314,9 +339,11 @@ export class ElementDragHandler implements DragHandler {
 
                 // if this event listener returns false it will be piped all the way back to the drag manager and cause
                 // the drag to be aborted.
-                return this.instance.fire(EVENT_DRAG_START, {
+                return this.instance.fire<DragStartPayload>(EVENT_DRAG_START, {
                     el:_el,
-                    e:params.e
+                    e:params.e,
+                    originalPosition:this.originalPosition,
+                    pos:this.originalPosition
                 })
             }
 
