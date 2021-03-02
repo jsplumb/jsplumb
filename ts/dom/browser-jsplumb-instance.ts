@@ -65,7 +65,7 @@ import {
     isCustomOverlay,
     DeleteConnectionOptions,
     forEach,
-    fromArray, isArray, PointXY
+    fromArray, isArray, PointXY, BehaviouralTypeDescriptor, SourceSelector
 } from '@jsplumb/core'
 
 import { _attr,
@@ -1187,5 +1187,16 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         } else {
             return false
         }
+    }
+
+    addSourceSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?:boolean): SourceSelector {
+        this.addDragFilter(selector)
+        return super.addSourceSelector(selector, params, exclude)
+    }
+
+
+    removeSourceSelector(selector: SourceSelector) {
+        this.removeDragFilter(selector.selector)
+        super.removeSourceSelector(selector)
     }
 }
