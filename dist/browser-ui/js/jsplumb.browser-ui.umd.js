@@ -1264,6 +1264,13 @@
                 y: this._dragEl.parentNode.scrollTop
               };
             }
+            this._posAtDown = _getPosition(this._dragEl);
+            this._pagePosAtDown = offsetRelativeToRoot(this._dragEl);
+            this._pageDelta = {
+              x: this._pagePosAtDown.x - this._posAtDown.x,
+              y: this._pagePosAtDown.y - this._posAtDown.y
+            };
+            this._size = _getSize(this._dragEl);
             this.k.eventManager.on(document, EVENT_MOUSEMOVE, this.moveListener);
             this.k.eventManager.on(document, EVENT_MOUSEUP, this.upListener);
             addClass(document.body, _classes.noSelect);
@@ -1868,6 +1875,7 @@
       _defineProperty(this, "_dragSelectionOffsets", new Map());
       _defineProperty(this, "_dragSizes", new Map());
       _defineProperty(this, "drag", void 0);
+      _defineProperty(this, "originalPosition", void 0);
     }
     _createClass(ElementDragHandler, [{
       key: "onDragInit",
@@ -1889,7 +1897,8 @@
             el: _el,
             e: params.e,
             pos: pos,
-            r: redrawResult
+            r: redrawResult,
+            originalPosition: _this.originalPosition
           });
           _this.instance.removeClass(_el, CLASS_DRAGGED);
           _this.instance.select({
@@ -1993,7 +2002,8 @@
             pos: {
               x: bounds.x,
               y: bounds.y
-            }
+            },
+            originalPosition: _this3.originalPosition
           });
         };
         var elBounds = {
@@ -2034,6 +2044,10 @@
         var _this4 = this;
         var el = params.drag.getDragElement();
         var elOffset = this.instance.getOffset(el);
+        this.originalPosition = {
+          x: params.pos.x,
+          y: params.pos.y
+        };
         if (el._jsPlumbParentGroup) {
           this._dragOffset = this.instance.getOffset(el.offsetParent);
           this._currentDragParentGroup = el._jsPlumbParentGroup;
@@ -2105,7 +2119,9 @@
             }).addClass(_this4.instance.elementDraggingClass + " " + _this4.instance.targetElementDraggingClass, true);
             return _this4.instance.fire(EVENT_DRAG_START, {
               el: _el,
-              e: params.e
+              e: params.e,
+              originalPosition: _this4.originalPosition,
+              pos: _this4.originalPosition
             });
           };
           var elId = this.instance.getId(el);
