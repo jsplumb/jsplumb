@@ -36,7 +36,7 @@ import {
     SourceDefinition,
     SourceOrTargetDefinition, TARGET,
     TargetDefinition, AnchorSpec,
-    forEach, EndpointSpec, intersects, PointXY, AnchorLocations, Size
+    forEach, EndpointSpec, intersects, PointXY, AnchorLocations, Size, TargetSelector, getWithFunction
 } from "@jsplumb/core"
 
 function _makeFloatingEndpoint (paintStyle:PaintStyle,
@@ -114,8 +114,8 @@ export class EndpointDragHandler implements DragHandler {
         this.mousedownHandler = this._mousedownHandler.bind(this)
         this.mouseupHandler = this._mouseupHandler.bind(this)
 
-        instance.on(container , EVENT_MOUSEDOWN, "[jtk-source]", this.mousedownHandler)
-        instance.on(container, EVENT_MOUSEUP, "[jtk-source]", this.mouseupHandler)
+        instance.on(container , EVENT_MOUSEDOWN, "[jtk-managed]", this.mousedownHandler)
+        instance.on(container, EVENT_MOUSEUP, "[jtk-managed]", this.mouseupHandler)
 
     }
 
@@ -431,9 +431,19 @@ export class EndpointDragHandler implements DragHandler {
 
         if (!isSourceDrag) {
             selectors.push("[jtk-target][jtk-scope-" + this.ep.scope + "]")
+            // add the instance-wide target selectors
+            Array.prototype.push.apply(selectors, (this.instance.targetSelectors.map((ts) => ts.selector)))
+
         } else {
             selectors.push("[jtk-source][jtk-scope-" + this.ep.scope + "]")
         }
+
+        const _findTargetDefinition = (candidate:jsPlumbDOMElement) => {
+            let targetDefinitionIdx = isSourceDrag ? -1 : findWithFunction(candidate._jsPlumbTargetDefinitions, (tdef: TargetDefinition) => {
+                return tdef.enabled !== false && (tdef.def.allowLoopback !== false || candidate !== this.ep.element) && (this._activeDefinition == null || this._activeDefinition.def.allowLoopback !== false || candidate !== this.ep.element)
+            })
+        }
+
 
         const matchingElements = this.instance.getContainer().querySelectorAll(selectors.join(","))
         forEach(matchingElements, (candidate:any) => {
@@ -442,33 +452,55 @@ export class EndpointDragHandler implements DragHandler {
             boundingRect = {x: o.x, y: o.y, w: s.w, h: s.h}
             let d: any = {el: candidate, r: boundingRect}
 
-            // look for at least one target definition that is not disabled on the given element.
-            let targetDefinitionIdx = isSourceDrag ? -1 : findWithFunction((candidate as jsPlumbDOMElement)._jsPlumbTargetDefinitions, (tdef: TargetDefinition) => {
-                return tdef.enabled !== false && (tdef.def.allowLoopback !== false || candidate !== this.ep.element) && (this._activeDefinition == null || this._activeDefinition.def.allowLoopback !== false || candidate !== this.ep.element)
-            })
+            if (isSourceDrag) {
+                // look for at least one source definition that is not disabled on the given element.
+                let sourceDefinitionIdx = findWithFunction((candidate  as jsPlumbDOMElement)._jsPlumbSourceDefinitions, (sdef: SourceDefinition) => {
+                    return sdef.enabled !== false  && (sdef.def.allowLoopback !== false || candidate !== this.ep.element) && (this._activeDefinition == null || this._activeDefinition.def.allowLoopback !== false || candidate !== this.ep.element)
+                })
 
-            // look for at least one source definition that is not disabled on the given element.
-            let sourceDefinitionIdx = isSourceDrag ? findWithFunction((candidate  as jsPlumbDOMElement)._jsPlumbSourceDefinitions, (sdef: SourceDefinition) => {
-                return sdef.enabled !== false  && (sdef.def.allowLoopback !== false || candidate !== this.ep.element) && (this._activeDefinition == null || this._activeDefinition.def.allowLoopback !== false || candidate !== this.ep.element)
-            }) : -1
-
-            // if there is at least one enabled target definition (if appropriate), add this element to the drop targets
-            if (targetDefinitionIdx !== -1) {
-                if (candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank != null) {
-                    d.rank = candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank
+                // if there is at least one enabled source definition (if appropriate), add this element to the drop targets
+                if (sourceDefinitionIdx !== -1) {
+                    if (candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank != null) {
+                        d.rank = candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank
+                    }
+                    this.endpointDropTargets.push(d)
+                    this.instance.addClass(candidate, CLASS_DRAG_ACTIVE) // TODO get from defaults.
                 }
-                this.endpointDropTargets.push(d)
-                this.instance.addClass(candidate, CLASS_DRAG_ACTIVE); // TODO get from defaults.
+
+            } else {
+                // look for at least one target definition that is not disabled on the given element.
+                let targetDefinitionIdx = findWithFunction((candidate as jsPlumbDOMElement)._jsPlumbTargetDefinitions, (tdef: TargetDefinition) => {
+                    return tdef.enabled !== false && (tdef.def.allowLoopback !== false || candidate !== this.ep.element) && (this._activeDefinition == null || this._activeDefinition.def.allowLoopback !== false || candidate !== this.ep.element)
+                })
+
+                // if there is at least one enabled target definition (if appropriate), add this element to the drop targets
+                if (targetDefinitionIdx !== -1) {
+                    if (candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank != null) {
+                        d.rank = candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank
+                    }
+                    this.endpointDropTargets.push(d)
+                    this.instance.addClass(candidate, CLASS_DRAG_ACTIVE) // TODO get from defaults.
+                } else {
+                    // look for a target definition on the instance
+                    const targetDef = getWithFunction(this.instance.targetSelectors,  (tSel:TargetSelector) => {
+                        return tSel.isEnabled() && (tSel.def.def.allowLoopback !== false || candidate !== this.ep.element) && (this._activeDefinition == null || this._activeDefinition.def.allowLoopback !== false || candidate !== this.ep.element)
+                    })
+
+                    if (targetDef != null) {
+
+                        // for instance wide selectors, reset the drop target to be the node/group in which the target with the
+                        // matching selector resides.
+                        d.el = findParent(d.el, "[jtk-managed]", this.instance.getContainer())
+
+                        if (targetDef.def.def.rank != null) {
+                            d.rank = targetDef.def.def.rank
+                        }
+                        this.endpointDropTargets.push(d)
+                        this.instance.addClass(candidate, CLASS_DRAG_ACTIVE) // TODO get from defaults.
+                    }
+                }
             }
 
-            // if there is at least one enabled source definition (if appropriate), add this element to the drop targets
-            if (sourceDefinitionIdx !== -1) {
-                if (candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank != null) {
-                    d.rank = candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank
-                }
-                this.endpointDropTargets.push(d)
-                this.instance.addClass(candidate, CLASS_DRAG_ACTIVE); // TODO get from defaults.
-            }
         })
 
         this.endpointDropTargets.sort((a:any, b:any) =>{
@@ -805,7 +837,7 @@ export class EndpointDragHandler implements DragHandler {
      * behave as a target.
      * @private
      */
-    private _getSourceDefinition(fromElement:jsPlumbDOMElement, evt?:Event, ignoreFilter?:boolean):SourceDefinition {
+    private _getSourceDefinitionFromElement(fromElement:jsPlumbDOMElement, evt?:Event, ignoreFilter?:boolean):SourceDefinition {
         let sourceDef
         if (fromElement._jsPlumbSourceDefinitions) {
             for (let i = 0; i < fromElement._jsPlumbSourceDefinitions.length; i++) {
@@ -824,13 +856,30 @@ export class EndpointDragHandler implements DragHandler {
         }
     }
 
+    private _getSourceDefinitionFromInstance(fromElement:jsPlumbDOMElement, evt?:Event, ignoreFilter?:boolean):SourceDefinition {
+        let selector
+        for (let i = 0; i < this.instance.sourceSelectors.length; i++) {
+            selector = this.instance.sourceSelectors[i]
+            if (selector.isEnabled()) {
+                let r = selectorFilter(evt, fromElement, selector.selector, this.instance, selector.exclude)
+                if (r !== false) {
+                    return selector.def
+                }
+            }
+        }
+    }
+
+    private _getSourceDefinition(fromElement:jsPlumbDOMElement, evt?:Event, ignoreFilter?:boolean):SourceDefinition {
+        return this._getSourceDefinitionFromElement(fromElement, evt, ignoreFilter) || this._getSourceDefinitionFromInstance(fromElement, evt, ignoreFilter)
+    }
+
     /**
      * Lookup a target definition on the given element.
      * @param fromElement Element to lookup the source definition
      * @param evt Associated mouse event - for instance, the event that started a drag.
      * @private
      */
-    private _getTargetDefinition(fromElement:jsPlumbDOMElement, evt?:Event):TargetDefinition {
+    private _getTargetDefinitionFromElement(fromElement:jsPlumbDOMElement, evt?:Event):TargetDefinition {
         let targetDef
         if (fromElement._jsPlumbTargetDefinitions) {
             for (let i = 0; i < fromElement._jsPlumbTargetDefinitions.length; i++) {
@@ -847,6 +896,25 @@ export class EndpointDragHandler implements DragHandler {
                 }
             }
         }
+    }
+
+    //
+    private _getTargetDefinitionFromInstance(fromElement:jsPlumbDOMElement, evt?:Event, ignoreFilter?:boolean):TargetDefinition {
+        let selector
+        for (let i = 0; i < this.instance.targetSelectors.length; i++) {
+            selector = this.instance.targetSelectors[i]
+            if (selector.isEnabled()) {
+                let r = selectorFilter(evt, fromElement, selector.selector, this.instance, selector.exclude)
+                if (r !== false) {
+                    return selector.def
+                }
+            }
+        }
+        return null
+    }
+
+    private _getTargetDefinition(fromElement:jsPlumbDOMElement, evt?:Event):TargetDefinition {
+        return this._getTargetDefinitionFromElement(fromElement, evt) || this._getTargetDefinitionFromInstance(fromElement, evt)
     }
 
     private _getDropEndpoint(p:any, jpc:Connection):Endpoint {
@@ -953,37 +1021,6 @@ export class EndpointDragHandler implements DragHandler {
             [ this.instance, CHECK_CONDITION, [ INTERCEPT_BEFORE_DETACH, this.jpc ] ]
         ])
     }
-
-    // private _maybeReattach(idx:number, originalEvent?:Event):void {
-    //
-    //     this.instance.setHover(this.jpc, false)
-    //
-    //     if (this.jpc.suspendedEndpoint) {
-    //
-    //         // this.jpc._forceDetach ||  <-- why was this one of the tests in the line below?
-    //         if (this.jpc.isReattach() || this.jpc._forceReattach || !this.instance.deleteConnection(this.jpc, {originalEvent: originalEvent})) {
-    //
-    //             this.jpc.endpoints[idx] = this.jpc.suspendedEndpoint
-    //             this.instance.setHover(this.jpc, false)
-    //             this.jpc._forceDetach = true
-    //             this.jpc.suspendedEndpoint.addConnection(this.jpc)
-    //             this.instance.sourceOrTargetChanged(this.jpc.floatingId, this.jpc.suspendedEndpoint.elementId, this.jpc, this.jpc.suspendedEndpoint.element, idx)
-    //             this.instance.repaint(this.jpc.source)
-    //             this.jpc._forceDetach = false
-    //         }
-    //         else {
-    //             // TODO: not reattaching and not deleting. what should happen? seems nothing, after the rewrite
-    //         }
-    //
-    //     } else {
-    //
-    //         this.instance.deleteEndpoint(this.jpc.endpoints[idx])
-    //
-    //         if (this.jpc.pending) {
-    //             this.instance.fire<Connection>(EVENT_CONNECTION_ABORT, this.jpc, originalEvent)
-    //         }
-    //     }
-    // }
 
     private _discard(idx:number, originalEvent?:Event) {
 
