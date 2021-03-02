@@ -29,7 +29,12 @@ import {
     BehaviouralTypeDescriptor,  // <--
     InternalConnectParams,
     TypeDescriptor,
-    Rotation, Rotations, PointXY, ConnectionMovedParams
+    Rotation,
+    Rotations,
+    PointXY,
+    ConnectionMovedParams,
+    SourceBehaviouralTypeDescriptor,
+    TargetBehaviouralTypeDescriptor
 } from './common'
 
 import { EventGenerator } from "./event-generator"
@@ -53,6 +58,7 @@ import { Bezier } from './connector/bezier-connector'
 import { OverlayCapableComponent } from './component/overlay-capable-component'
 import { PaintStyle} from './styles'
 import {AnchorComputeParams, AnchorSpec, AnchorLocations } from "./factory/anchor-factory"
+import {SourceSelector, TargetSelector} from "./source-selector"
 
 function _scopeMatch(e1:Endpoint, e2:Endpoint):boolean {
     let s1 = e1.scope.split(/\s/), s2 = e2.scope.split(/\s/)
@@ -178,6 +184,9 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     readonly connections:Array<Connection> = []
     endpointsByElement:Dictionary<Array<Endpoint>> = {}
     private readonly endpointsByUUID:Map<string, Endpoint> = new Map()
+
+    sourceSelectors:Array<SourceSelector> = []
+    targetSelectors:Array<SourceSelector> = []
 
     public allowNestedGroups:boolean
 
@@ -1083,6 +1092,8 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             this._connectionTypes.clear()
             this._endpointTypes.clear()
             this.connections.length = 0
+            this.sourceSelectors.length = 0
+            this.targetSelectors.length = 0
         })
     }
 
@@ -1502,22 +1513,14 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         }
     }
 
-    makeSource(el:jsPlumbElement<T["E"]>, params?:BehaviouralTypeDescriptor, referenceParams?:any):JsPlumbInstance {
-        let p = extend({_jsPlumb: this}, referenceParams)
+    protected _createSourceDefinition(params?:SourceBehaviouralTypeDescriptor, referenceParams?:SourceBehaviouralTypeDescriptor):SourceDefinition {
+        let p:SourceBehaviouralTypeDescriptor = extend({}, referenceParams)
         extend(p, params)
         p.connectionType = p.connectionType || Constants.DEFAULT
         let aae = this.deriveEndpointAndAnchorSpec(p.connectionType)
         p.endpoint = p.endpoint || aae.endpoints[0]
         p.anchor = p.anchor || aae.anchors[0]
         let maxConnections = p.maxConnections || -1
-
-        this.manage(el)
-        this.setAttribute(el, Constants.ATTRIBUTE_SOURCE, "")
-        this._writeScopeAttribute(el, (p.scope || this.Defaults.scope))
-        this.setAttribute(el, [ Constants.ATTRIBUTE_SOURCE, p.connectionType].join("-"), "")
-
-        el._jsPlumbSourceDefinitions = el._jsPlumbSourceDefinitions || []
-
         let _def:SourceDefinition = {
             def:extend({}, p),
             uniqueEndpoint: p.uniqueEndpoint,
@@ -1525,6 +1528,21 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             enabled: true,
             endpoint:null as Endpoint
         }
+        return _def
+    }
+
+    makeSource(el:jsPlumbElement<T["E"]>, params?:SourceBehaviouralTypeDescriptor, referenceParams?:SourceBehaviouralTypeDescriptor):JsPlumbInstance {
+
+        let p:SourceBehaviouralTypeDescriptor = extend(extend({}, params), referenceParams || {})
+
+        const _def = this._createSourceDefinition(params, referenceParams)
+
+        this.manage(el)
+        this.setAttribute(el, Constants.ATTRIBUTE_SOURCE, "")
+        this._writeScopeAttribute(el, (p.scope || this.Defaults.scope))
+        this.setAttribute(el, [ Constants.ATTRIBUTE_SOURCE, p.connectionType].join("-"), "")
+
+        el._jsPlumbSourceDefinitions = el._jsPlumbSourceDefinitions || []
 
         if (p.createEndpoint) {
             _def.uniqueEndpoint = true
@@ -1535,6 +1553,49 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         el._jsPlumbSourceDefinitions.push(_def)
 
         return this
+    }
+
+    /**
+     * Registers a selector for connection drag on the instance. This is a newer version of the `makeSource` functionality
+     * that has been in jsPlumb since the early days. With this approach, rather than calling `makeSource` on every element, you
+     * can register a CSS selector on the instance that identifies something that is common to your elements. This will only respond to
+     * mouse events on elements that are managed by the instance.
+     * @param selector CSS3 selector identifying child element(s) of some managed element that should act as a connection source.
+     * @param params Options for the source: connector type, behaviour, etc.
+     * @param exclude If true, the selector defines an 'exclusion': anything _except_ elements that match this.
+     */
+    addSourceSelector(selector:string, params?:BehaviouralTypeDescriptor, exclude = false):SourceSelector {
+
+        const _def = this._createSourceDefinition(params)
+        const sel = new SourceSelector(selector, _def, exclude)
+        this.sourceSelectors.push(sel)
+
+        return sel
+    }
+
+    /**
+     * Unregister the given source selector.
+     * @param selector
+     */
+    removeSourceSelector(selector:SourceSelector) {
+        removeWithFunction(this.sourceSelectors, (s:SourceSelector) => s === selector)
+    }
+
+    /**
+     * Unregister the given target selector.
+     * @param selector
+     */
+    removeTargetSelector(selector:TargetSelector) {
+        removeWithFunction(this.targetSelectors, (s:TargetSelector) => s === selector)
+    }
+
+    addTargetSelector(selector:string, params?:BehaviouralTypeDescriptor, exclude = false):TargetSelector {
+
+        const _def = this._createTargetDefinition(params)
+        const sel = new TargetSelector(selector, _def, exclude)
+        this.targetSelectors.push(sel)
+
+        return sel
     }
 
     private _getScope(el:T["E"], defKey:string):string {
@@ -1576,23 +1637,57 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         this._setScope(el, scope, Constants.TARGET_DEFINITION_LIST)
     }
 
-    /**
-     * Make the given element a connection target.
-     * @param el
-     * @param params
-     * @param referenceParams
-     */
-    makeTarget (el:T["E"], params:BehaviouralTypeDescriptor, referenceParams?:any):JsPlumbInstance {
+    private _createTargetDefinition(params?:TargetBehaviouralTypeDescriptor, referenceParams?:TargetBehaviouralTypeDescriptor):TargetDefinition {
 
-        let jel = el as unknown as jsPlumbElement<T["E"]>
         // put jsplumb ref into params without altering the params passed in
-        let p = extend({_jsPlumb: this}, referenceParams)
+        let p:TargetBehaviouralTypeDescriptor = extend({}, referenceParams)
         extend(p, params)
         p.connectionType  = p.connectionType || Constants.DEFAULT
 
         let maxConnections = p.maxConnections || -1;//,
 
         let dropOptions = extend({}, p.dropOptions || {})
+        // store the definition
+        let _def:TargetDefinition = {
+            def: extend({}, p),
+            uniqueEndpoint: p.uniqueEndpoint,
+            maxConnections: maxConnections,
+            enabled: true,
+            endpoint:null as Endpoint
+        }
+
+        return _def
+    }
+
+    /**
+     * Make the given element a connection target.
+     * @param el
+     * @param params
+     * @param referenceParams
+     */
+    makeTarget (el:T["E"], params?:TargetBehaviouralTypeDescriptor, referenceParams?:TargetBehaviouralTypeDescriptor):JsPlumbInstance {
+
+        let jel = el as unknown as jsPlumbElement<T["E"]>
+        let _def:TargetDefinition = this._createTargetDefinition(params, referenceParams)
+        let p:TargetBehaviouralTypeDescriptor = extend(extend({}, params), referenceParams || {})
+
+        // let jel = el as unknown as jsPlumbElement<T["E"]>
+        // // put jsplumb ref into params without altering the params passed in
+        // let p:TargetBehaviouralTypeDescriptor = extend({}, referenceParams)
+        // extend(p, params)
+        // p.connectionType  = p.connectionType || Constants.DEFAULT
+        //
+        // let maxConnections = p.maxConnections || -1;//,
+        //
+        // let dropOptions = extend({}, p.dropOptions || {})
+        // // store the definition
+        // let _def:TargetDefinition = {
+        //     def: extend({}, p),
+        //     uniqueEndpoint: p.uniqueEndpoint,
+        //     maxConnections: maxConnections,
+        //     enabled: true,
+        //     endpoint:null as Endpoint
+        // }
 
         this.manage(el)
         this.setAttribute(el, Constants.ATTRIBUTE_TARGET, "")
@@ -1603,18 +1698,11 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
         // if this is a group and the user has not mandated a rank, set to -1 so that Nodes takes
         // precedence.
-        if (jel._jsPlumbGroup && dropOptions.rank == null) {
-            dropOptions.rank = -1
-        }
+        // if (jel._jsPlumbGroup && dropOptions.rank == null) {
+        //     dropOptions.rank = -1
+        // }
 
-        // store the definition
-        let _def = {
-            def: extend({}, p),
-            uniqueEndpoint: p.uniqueEndpoint,
-            maxConnections: maxConnections,
-            enabled: true,
-            endpoint:null as Endpoint
-        }
+
 
         if (p.createEndpoint) {
             _def.uniqueEndpoint = true
