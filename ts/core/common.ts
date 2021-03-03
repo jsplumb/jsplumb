@@ -1,5 +1,5 @@
 import {UIGroup} from "./group/group"
-import {Endpoint} from "./endpoint/endpoint"
+import {Endpoint, EndpointStyle} from "./endpoint/endpoint"
 import {EndpointSpec} from "./endpoint/endpoint"
 import {AnchorSpec} from "./factory/anchor-factory"
 import {ConnectorSpec} from "./connector/abstract-connector"
@@ -33,10 +33,10 @@ export interface ConnectParams {
     connector?: ConnectorSpec
     overlays?:Array<OverlaySpec>
     endpoints?:[EndpointSpec, EndpointSpec]
-    endpointStyles?:[PaintStyle, PaintStyle]
-    endpointHoverStyles?:[PaintStyle, PaintStyle]
-    endpointStyle?:PaintStyle
-    endpointHoverStyle?:PaintStyle
+    endpointStyles?:[EndpointStyle, EndpointStyle]
+    endpointHoverStyles?:[EndpointStyle, EndpointStyle]
+    endpointStyle?:EndpointStyle
+    endpointHoverStyle?:EndpointStyle
     ports?:[string, string]
 }
 
