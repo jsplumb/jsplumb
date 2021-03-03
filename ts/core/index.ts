@@ -4,8 +4,8 @@ import {RectangleEndpoint} from "./endpoint/rectangle-endpoint"
 
 import {StraightConnector} from "./connector/straight-connector"
 import {FlowchartConnector} from "./connector/flowchart-connector"
-import {Bezier} from "./connector/bezier-connector"
-import {StateMachine} from "./connector/statemachine-connector"
+import {BezierConnector} from "./connector/bezier-connector"
+import {StatemachineConnector} from "./connector/statemachine-connector"
 
 import { Connectors } from './connector/connectors'
 import {EndpointFactory} from "./factory/endpoint-factory"
@@ -75,8 +75,8 @@ EndpointFactory.register(DotEndpoint.type, DotEndpoint)
 EndpointFactory.register(BlankEndpoint.type, BlankEndpoint)
 EndpointFactory.register(RectangleEndpoint.type, RectangleEndpoint)
 
-Connectors.register(Bezier.type, Bezier)
+Connectors.register(BezierConnector.type, BezierConnector)
 Connectors.register(StraightConnector.type, StraightConnector)
 Connectors.register(FlowchartConnector.type, FlowchartConnector)
-Connectors.register(StateMachine.type, StateMachine)
+Connectors.register(StatemachineConnector.type, StatemachineConnector)
 

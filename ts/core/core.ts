@@ -54,7 +54,7 @@ import { Segment } from './connector/abstract-segment'
 import { Overlay } from './overlay/overlay'
 import { LabelOverlay } from './overlay/label-overlay'
 import { AbstractConnector } from './connector/abstract-connector'
-import { Bezier } from './connector/bezier-connector'
+import { BezierConnector } from './connector/bezier-connector'
 import { OverlayCapableComponent } from './component/overlay-capable-component'
 import { PaintStyle} from './styles'
 import {AnchorComputeParams, AnchorSpec, AnchorLocations } from "./factory/anchor-factory"
@@ -217,7 +217,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             anchors: [ null, null ],
             connectionsDetachable: true,
             connectionOverlays: [ ],
-            connector: Bezier.type,
+            connector: BezierConnector.type,
             container: null,
             endpoint: DotEndpoint.type,
             endpointOverlays: [ ],

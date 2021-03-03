@@ -1,4 +1,4 @@
-import {EndpointSpec} from "./endpoint/endpoint"
+import {EndpointSpec, EndpointStyle} from "./endpoint/endpoint"
 import {AnchorSpec} from "./factory/anchor-factory"
 import {PaintStyle} from "./styles"
 import {OverlaySpec} from "./overlay/overlay"
@@ -16,10 +16,10 @@ export interface jsPlumbDefaults<E> {
     paintStyle?: PaintStyle
     hoverPaintStyle?: PaintStyle
 
-    endpointStyle?: PaintStyle
-    endpointHoverStyle?: PaintStyle
-    endpointStyles?: [ PaintStyle, PaintStyle ]
-    endpointHoverStyles?: [ PaintStyle, PaintStyle ],
+    endpointStyle?: EndpointStyle
+    endpointHoverStyle?: EndpointStyle
+    endpointStyles?: [ EndpointStyle, EndpointStyle ]
+    endpointHoverStyles?: [ EndpointStyle, EndpointStyle ],
 
     connectionsDetachable?: boolean
     reattachConnections?: boolean

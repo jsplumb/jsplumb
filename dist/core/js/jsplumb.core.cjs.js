@@ -2823,15 +2823,15 @@ function (_AbstractSegment) {
 }(AbstractSegment);
 _defineProperty(BezierSegment, "segmentType", "Bezier");
 
-var Bezier =
+var BezierConnector =
 function (_AbstractBezierConnec) {
-  _inherits(Bezier, _AbstractBezierConnec);
-  function Bezier(instance, connection, params) {
+  _inherits(BezierConnector, _AbstractBezierConnec);
+  function BezierConnector(instance, connection, params) {
     var _this;
-    _classCallCheck(this, Bezier);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Bezier).call(this, instance, connection, params));
+    _classCallCheck(this, BezierConnector);
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(BezierConnector).call(this, instance, connection, params));
     _this.connection = connection;
-    _defineProperty(_assertThisInitialized(_this), "type", Bezier.type);
+    _defineProperty(_assertThisInitialized(_this), "type", BezierConnector.type);
     _defineProperty(_assertThisInitialized(_this), "majorAnchor", void 0);
     _defineProperty(_assertThisInitialized(_this), "minorAnchor", void 0);
     params = params || {};
@@ -2839,7 +2839,7 @@ function (_AbstractBezierConnec) {
     _this.minorAnchor = 10;
     return _this;
   }
-  _createClass(Bezier, [{
+  _createClass(BezierConnector, [{
     key: "getCurviness",
     value: function getCurviness() {
       return this.majorAnchor;
@@ -2907,9 +2907,9 @@ function (_AbstractBezierConnec) {
       });
     }
   }]);
-  return Bezier;
+  return BezierConnector;
 }(AbstractBezierConnector);
-_defineProperty(Bezier, "type", "Bezier");
+_defineProperty(BezierConnector, "type", "Bezier");
 
 function _segment(x1, y1, x2, y2) {
   if (x1 <= x2 && y2 <= y1) {
@@ -2959,15 +2959,15 @@ function _findControlPoint(midx, midy, segment, sourceEdge, targetEdge, dx, dy, 
     }
   }
 }
-var StateMachine =
+var StatemachineConnector =
 function (_AbstractBezierConnec) {
-  _inherits(StateMachine, _AbstractBezierConnec);
-  function StateMachine(instance, connection, params) {
+  _inherits(StatemachineConnector, _AbstractBezierConnec);
+  function StatemachineConnector(instance, connection, params) {
     var _this;
-    _classCallCheck(this, StateMachine);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(StateMachine).call(this, instance, connection, params));
+    _classCallCheck(this, StatemachineConnector);
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(StatemachineConnector).call(this, instance, connection, params));
     _this.connection = connection;
-    _defineProperty(_assertThisInitialized(_this), "type", StateMachine.type);
+    _defineProperty(_assertThisInitialized(_this), "type", StatemachineConnector.type);
     _defineProperty(_assertThisInitialized(_this), "_controlPoint", void 0);
     _defineProperty(_assertThisInitialized(_this), "proximityLimit", void 0);
     _this.curviness = params.curviness || 10;
@@ -2976,7 +2976,7 @@ function (_AbstractBezierConnec) {
     _this.clockwise = params.orientation && params.orientation === "clockwise";
     return _this;
   }
-  _createClass(StateMachine, [{
+  _createClass(StatemachineConnector, [{
     key: "_computeBezier",
     value: function _computeBezier(paintInfo, params, sp, tp, w, h) {
       var _sx = params.sourcePos[0] < params.targetPos[0] ? 0 : w,
@@ -3038,9 +3038,9 @@ function (_AbstractBezierConnec) {
       });
     }
   }]);
-  return StateMachine;
+  return StatemachineConnector;
 }(AbstractBezierConnector);
-_defineProperty(StateMachine, "type", "StateMachine");
+_defineProperty(StatemachineConnector, "type", "StateMachine");
 
 var connectorMap = {};
 var Connectors = {
@@ -7835,7 +7835,7 @@ function (_EventGenerator) {
       anchors: [null, null],
       connectionsDetachable: true,
       connectionOverlays: [],
-      connector: Bezier.type,
+      connector: BezierConnector.type,
       container: null,
       endpoint: DotEndpoint.type,
       endpointOverlays: [],
@@ -9772,10 +9772,10 @@ function (_Anchor) {
 EndpointFactory.register(DotEndpoint.type, DotEndpoint);
 EndpointFactory.register(BlankEndpoint.type, BlankEndpoint);
 EndpointFactory.register(RectangleEndpoint.type, RectangleEndpoint);
-Connectors.register(Bezier.type, Bezier);
+Connectors.register(BezierConnector.type, BezierConnector);
 Connectors.register(StraightConnector.type, StraightConnector);
 Connectors.register(FlowchartConnector.type, FlowchartConnector);
-Connectors.register(StateMachine.type, StateMachine);
+Connectors.register(StatemachineConnector.type, StatemachineConnector);
 
 exports.ABSOLUTE = ABSOLUTE;
 exports.ATTRIBUTE_CONTAINER = ATTRIBUTE_CONTAINER;
@@ -9792,7 +9792,7 @@ exports.Anchors = Anchors;
 exports.ArcSegment = ArcSegment;
 exports.ArrowOverlay = ArrowOverlay;
 exports.BLOCK = BLOCK;
-exports.Bezier = Bezier;
+exports.BezierConnector = BezierConnector;
 exports.BezierSegment = BezierSegment;
 exports.BlankEndpoint = BlankEndpoint;
 exports.CHECK_CONDITION = CHECK_CONDITION;
@@ -9903,7 +9903,7 @@ exports.SOURCE_DEFINITION_LIST = SOURCE_DEFINITION_LIST;
 exports.SOURCE_INDEX = SOURCE_INDEX;
 exports.STATIC = STATIC;
 exports.SourceSelector = SourceSelector;
-exports.StateMachine = StateMachine;
+exports.StatemachineConnector = StatemachineConnector;
 exports.StraightConnector = StraightConnector;
 exports.StraightSegment = StraightSegment;
 exports.TARGET = TARGET;

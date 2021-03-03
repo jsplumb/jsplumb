@@ -3,7 +3,7 @@ import { PaintGeometry, ConnectorComputeParams } from "./abstract-connector";
 import { JsPlumbInstance } from "../core";
 import { Connection } from "./connection-impl";
 import { AnchorPlacement } from "../router/router";
-export declare class Bezier extends AbstractBezierConnector {
+export declare class BezierConnector extends AbstractBezierConnector {
     connection: Connection;
     static type: string;
     type: string;

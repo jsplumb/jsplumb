@@ -5,7 +5,7 @@ import { Connection } from "./connection-impl";
 import { AnchorPlacement } from "../router/router";
 export interface StateMachineOptions extends AbstractBezierOptions {
 }
-export declare class StateMachine extends AbstractBezierConnector {
+export declare class StatemachineConnector extends AbstractBezierConnector {
     connection: Connection;
     static type: string;
     type: string;

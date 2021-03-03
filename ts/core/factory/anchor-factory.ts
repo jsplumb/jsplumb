@@ -62,7 +62,7 @@ export enum AnchorLocations {
 export type AnchorId = keyof typeof AnchorLocations
 
 export type FullAnchorSpec = {type:AnchorId, options:AnchorOptions}
-export type AnchorSpec = AnchorId | FullAnchorSpec | AnchorPlacement
+export type AnchorSpec = AnchorId | FullAnchorSpec | AnchorPlacement | Array<AnchorPlacement>
 
 const anchorMap:Dictionary<(instance:JsPlumbInstance, args:any) => Anchor> = {}
 

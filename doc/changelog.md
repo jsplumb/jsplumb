@@ -1,3 +1,13 @@
+## 4.0.0-RC65
+
+3rd March 2021
+
+- updated defaults to use `EndpointStyle` for endpoints rather than `PaintStyle`
+
+### Breaking
+
+- Renamed `Bezier` to `BezierConnector` and `StateMachine` to `StateMachineConnector`, for consistency with the other connector types (this is only a breaking change for people using Typescript and referencing `Bezier`)
+
 ## 4.0.0-RC64
 
 3rd March 2021
