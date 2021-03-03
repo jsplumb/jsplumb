@@ -1,6 +1,6 @@
 import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
 
-import {PARENT_GROUP_KEY, extend, wrap, Dictionary, forEach, PointXY} from '@jsplumb/core'
+import {PARENT_GROUP_KEY, extend, wrap, Dictionary, forEach, PointXY, getWithFunction} from '@jsplumb/core'
 
 import {
     BeforeStartEventParams,
@@ -75,7 +75,7 @@ export class DragManager {
     // elementids mapped to the draggable to which they belong.
     _draggablesForElements:Dictionary<any> = {}
 
-    handlers:Array<DragHandler> = []
+    handlers:Array<{handler:DragHandler, options:DragHandlerOptions}> = []
 
     private _filtersToAdd:Array<DragFilterSpec> = []
 
@@ -110,8 +110,6 @@ export class DragManager {
     addHandler(handler:DragHandler, dragOptions?:DragHandlerOptions):void {
         const o = extend<DragHandlerOptions>({selector:handler.selector} as any, (dragOptions || {}) as any)
 
-        this.handlers.push(handler)
-
         o.start = wrap(o.start, (p:DragStartEventParams) => { return handler.onStart(p); })
         o.drag = wrap(o.drag, (p:DragEventParams) => { return handler.onDrag(p); })
         o.stop = wrap(o.stop, (p:DragStopEventParams) => { return handler.onStop(p); })
@@ -135,6 +133,8 @@ export class DragManager {
         } else {
             this.drag.addSelector(o)
         }
+
+        this.handlers.push({handler:handler, options:o})
 
         handler.init(this.drag)
     }
@@ -163,7 +163,7 @@ export class DragManager {
 
         let out:Array<[string, boolean]> = []
 
-        forEach(this.handlers,(handler:DragHandler) => { handler.reset(); })
+        forEach(this.handlers,(p:{handler:DragHandler, options:DragHandlerOptions}) => { p.handler.reset() })
 
         if (this.drag != null) {
             const currentFilters = this.drag._filters
@@ -176,6 +176,14 @@ export class DragManager {
 
         delete this.drag
         return out
+    }
+
+    setOption(handler:DragHandler, options:DragHandlerOptions) {
+        debugger
+        const handlerAndOptions = getWithFunction(this.handlers, (p) => p.handler === handler)
+        if (handlerAndOptions != null) {
+            extend(handlerAndOptions.options, options || {})
+        }
     }
 
 }
