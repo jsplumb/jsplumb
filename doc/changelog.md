@@ -1,3 +1,9 @@
+## 4.0.0-RC64
+
+3rd March 2021
+
+- Introduced `EndpointStyle` interface, which extends `PaintStyle` and allows for arbitrary additional parameters.
+
 ## 4.0.0-RC63
 
 3rd March 2021
