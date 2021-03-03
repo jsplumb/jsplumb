@@ -367,12 +367,31 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         this._attachEventDelegates()
     }
 
+    /**
+     * Adds a filter to the list of filters used to determine whether or not a given event should start an element drag.
+     * @param filter CSS3 selector, or function that takes an element and returns true/false
+     * @param exclude If true, the filter is inverted: anything _but_ this value.
+     */
     addDragFilter(filter:Function|string, exclude?:boolean) {
         this.dragManager.addFilter(filter, exclude)
     }
 
+    /**
+     * Removes a filter from the list of filters used to determine whether or not a given event should start an element drag.
+     * @param filter CSS3 selector, or function that takes an element and returns true/false
+     */
     removeDragFilter(filter:Function|string) {
         this.dragManager.removeFilter(filter)
+    }
+
+    /**
+     * Sets the grid that should be used when dragging elements.
+     * @param grid [x, y] grid.
+     */
+    setDragGrid(grid:[number, number]) {
+        this.dragManager.setOption(this.elementDragHandler, {
+            grid:grid
+        })
     }
 
     removeElement(element:Element):void {
