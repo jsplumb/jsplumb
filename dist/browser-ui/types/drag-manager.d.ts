@@ -39,7 +39,10 @@ export declare class DragManager {
     _dlist: Array<any>;
     _elementsWithEndpoints: Dictionary<any>;
     _draggablesForElements: Dictionary<any>;
-    handlers: Array<DragHandler>;
+    handlers: Array<{
+        handler: DragHandler;
+        options: DragHandlerOptions;
+    }>;
     private _filtersToAdd;
     constructor(instance: BrowserJsPlumbInstance);
     addHandler(handler: DragHandler, dragOptions?: DragHandlerOptions): void;
@@ -47,4 +50,5 @@ export declare class DragManager {
     removeFilter(filter: Function | string): void;
     setFilters(filters: Array<[string, boolean]>): void;
     reset(): Array<[string, boolean]>;
+    setOption(handler: DragHandler, options: DragHandlerOptions): void;
 }

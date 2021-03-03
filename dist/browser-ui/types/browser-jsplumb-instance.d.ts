@@ -84,8 +84,22 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     elementsDraggable: boolean;
     private elementDragHandler;
     constructor(_instanceIndex: number, defaults?: BrowserJsPlumbDefaults);
+    /**
+     * Adds a filter to the list of filters used to determine whether or not a given event should start an element drag.
+     * @param filter CSS3 selector, or function that takes an element and returns true/false
+     * @param exclude If true, the filter is inverted: anything _but_ this value.
+     */
     addDragFilter(filter: Function | string, exclude?: boolean): void;
+    /**
+     * Removes a filter from the list of filters used to determine whether or not a given event should start an element drag.
+     * @param filter CSS3 selector, or function that takes an element and returns true/false
+     */
     removeDragFilter(filter: Function | string): void;
+    /**
+     * Sets the grid that should be used when dragging elements.
+     * @param grid [x, y] grid.
+     */
+    setDragGrid(grid: [number, number]): void;
     removeElement(element: Element): void;
     appendElement(el: Element, parent: Element): void;
     getChildElements(el: Element): Array<Element>;

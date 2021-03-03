@@ -1777,7 +1777,6 @@ function () {
       var o = core.extend({
         selector: handler.selector
       }, dragOptions || {});
-      this.handlers.push(handler);
       o.start = core.wrap(o.start, function (p) {
         return handler.onStart(p);
       });
@@ -1809,6 +1808,10 @@ function () {
       } else {
         this.drag.addSelector(o);
       }
+      this.handlers.push({
+        handler: handler,
+        options: o
+      });
       handler.init(this.drag);
     }
   }, {
@@ -1839,8 +1842,8 @@ function () {
     key: "reset",
     value: function reset() {
       var out = [];
-      core.forEach(this.handlers, function (handler) {
-        handler.reset();
+      core.forEach(this.handlers, function (p) {
+        p.handler.reset();
       });
       if (this.drag != null) {
         var currentFilters = this.drag._filters;
@@ -1851,6 +1854,17 @@ function () {
       }
       delete this.drag;
       return out;
+    }
+  }, {
+    key: "setOption",
+    value: function setOption(handler, options) {
+      debugger;
+      var handlerAndOptions = core.getWithFunction(this.handlers, function (p) {
+        return p.handler === handler;
+      });
+      if (handlerAndOptions != null) {
+        core.extend(handlerAndOptions.options, options || {});
+      }
     }
   }]);
   return DragManager;
@@ -3958,6 +3972,13 @@ function (_JsPlumbInstance) {
     key: "removeDragFilter",
     value: function removeDragFilter(filter) {
       this.dragManager.removeFilter(filter);
+    }
+  }, {
+    key: "setDragGrid",
+    value: function setDragGrid(grid) {
+      this.dragManager.setOption(this.elementDragHandler, {
+        grid: grid
+      });
     }
   }, {
     key: "removeElement",
