@@ -1,3 +1,9 @@
+## 4.0.0-RC63
+
+3rd March 2021
+
+- added setDragGrid method
+
 ## 4.0.0-RC62
 
 3rd March 2021
