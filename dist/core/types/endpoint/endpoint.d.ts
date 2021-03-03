@@ -16,6 +16,8 @@ export declare type FullEndpointSpec = {
     options: EndpointParams;
 };
 export declare type EndpointSpec = EndpointId | FullEndpointSpec;
+export interface EndpointStyle extends PaintStyle, Record<string, any> {
+}
 export interface InternalEndpointOptions<E> extends EndpointOptions<E> {
     isTemporarySource?: boolean;
 }
