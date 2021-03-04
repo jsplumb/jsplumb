@@ -96,7 +96,7 @@ export class UIGroup<E = any> extends UINode<E> {
     // this function, and getEndpoint below, are stubs for a future setup in which we can choose endpoint
     // and anchor based upon the connection and the index (source/target) of the endpoint to be proxied.
     getAnchor (conn:Connection, endpointIndex:number):AnchorSpec {
-        return this.anchor || ContinuousAnchor.continuousAnchorType
+        return this.anchor || ContinuousAnchor.type
     }
 
     getEndpoint (conn:Connection, endpointIndex:number):EndpointSpec {
