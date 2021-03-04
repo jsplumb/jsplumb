@@ -4,7 +4,7 @@ import {EVENT_REVERT, GhostProxyingDragHandler} from "./drag-manager"
 import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
 import { jsPlumbDOMElement} from './element-facade'
 import {DragEventParams, Drag, DragStopEventParams} from "./collicat"
-import {PARENT_GROUP_KEY, PointXY, UIGroup} from "@jsplumb/core"
+import {PointXY, UIGroup} from "@jsplumb/core"
 
 
 export class GroupDragHandler extends ElementDragHandler implements GhostProxyingDragHandler {
@@ -54,11 +54,12 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
 
     onStop(params: DragStopEventParams) {
 
+        const jel = params.el as unknown as jsPlumbDOMElement
         const originalElement = params.drag.getDragElement(true)
 
-        let originalGroup:UIGroup<Element> = params.el[PARENT_GROUP_KEY],
+        let originalGroup:UIGroup<Element> = jel._jsPlumbParentGroup,
             out = super.onStop(params),
-            currentGroup:UIGroup<Element> = params.el[PARENT_GROUP_KEY]
+            currentGroup:UIGroup<Element> = jel._jsPlumbParentGroup
 
         if (currentGroup === originalGroup) {
             this._pruneOrOrphan(params)
@@ -94,7 +95,7 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
         const jel = params.el as unknown as jsPlumbDOMElement
         let orphanedPosition = null
         if (!this._isInsideParent(jel, params.pos)) {
-            let group = params.el[PARENT_GROUP_KEY]
+            let group = jel._jsPlumbParentGroup
             if (group.prune) {
                 if (jel._isJsPlumbGroup) {
                     // remove the group from the instance
