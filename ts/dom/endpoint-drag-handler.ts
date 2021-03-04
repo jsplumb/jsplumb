@@ -30,7 +30,7 @@ import {
     EVENT_MAX_CONNECTIONS,
     extend,
     findWithFunction, functionChain, IS, IS_DETACH_ALLOWED,
-    IS_GROUP_KEY, isString,
+    isString,
     makeAnchorFromSpec,
     PaintStyle, SOURCE,
     SourceDefinition,
@@ -505,9 +505,9 @@ export class EndpointDragHandler implements DragHandler {
 
         this.endpointDropTargets.sort((a:any, b:any) =>{
 
-            if (a.el[IS_GROUP_KEY] && !b.el[IS_GROUP_KEY]) {
+            if (a.el._isJsPlumbGroup && !b.el._isJsPlumbGroup) {
                 return 1
-            } else if (!a.el[IS_GROUP_KEY] && b.el[IS_GROUP_KEY]) {
+            } else if (!a.el._isJsPlumbGroup && b.el._isJsPlumbGroup) {
                 return -1
             } else {
                 if (a.rank != null && b.rank != null) {
