@@ -8,7 +8,7 @@ import {
 
 import { JsPlumbInstance } from "../core"
 
-import {UIGroup} from "./group"
+import {UIGroup, GroupOptions} from "./group"
 import * as Constants from "../constants"
 import {IS, removeWithFunction, suggest, forEach } from "../util"
 import {Connection} from "../connector/connection-impl"
@@ -27,9 +27,8 @@ interface GroupMemberRemovedParams<E> extends GroupMemberEventParams<E> {
     targetGroup?:UIGroup<E>
 }
 
-export interface AddGroupOptions {
-    id:string,
-    el:any,
+export interface AddGroupOptions extends GroupOptions {
+    el:any
     collapsed?:boolean
 }
 
