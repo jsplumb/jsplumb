@@ -240,11 +240,6 @@ function () {
       this.instance.removeEndpointClass(this.endpoint, c);
     }
   }, {
-    key: "clone",
-    value: function clone() {
-      return null;
-    }
-  }, {
     key: "compute",
     value: function compute(anchorPoint, orientation, endpointStyle) {
       this.computedValue = this._compute(anchorPoint, orientation, endpointStyle);
@@ -279,6 +274,13 @@ function (_EndpointRepresentati) {
     return _this;
   }
   _createClass(DotEndpoint, [{
+    key: "getParams",
+    value: function getParams() {
+      return {
+        radius: this.radius
+      };
+    }
+  }, {
     key: "_compute",
     value: function _compute(anchorPoint, orientation, endpointStyle) {
       var x = anchorPoint[0] - this.radius,
@@ -316,6 +318,11 @@ function (_EndpointRepresentati) {
     return _possibleConstructorReturn(this, _getPrototypeOf(BlankEndpoint).call(this, endpoint));
   }
   _createClass(BlankEndpoint, [{
+    key: "getParams",
+    value: function getParams() {
+      return {};
+    }
+  }, {
     key: "_compute",
     value: function _compute(anchorPoint, orientation, endpointStyle) {
       this.x = anchorPoint[0];
@@ -349,6 +356,14 @@ function (_EndpointRepresentati) {
     return _this;
   }
   _createClass(RectangleEndpoint, [{
+    key: "getParams",
+    value: function getParams() {
+      return {
+        width: this.width,
+        height: this.height
+      };
+    }
+  }, {
     key: "_compute",
     value: function _compute(anchorPoint, orientation, endpointStyle) {
       var width = endpointStyle.width || this.width,
@@ -3073,6 +3088,9 @@ var EndpointFactory = {
   },
   register: function register(name, ep) {
     endpointMap[name] = ep;
+  },
+  clone: function clone(epr) {
+    return EndpointFactory.get(epr.endpoint, epr.getType(), epr.getParams());
   }
 };
 
@@ -5495,14 +5513,14 @@ function (_OverlayCapableCompon) {
   }, {
     key: "prepareEndpoint",
     value: function prepareEndpoint(ep, typeId) {
-      var _this3 = this;
       var endpointArgs = {
         cssClass: this.cssClass,
         endpoint: this
       };
       var endpoint;
       if (isAssignableFrom(ep, EndpointRepresentation)) {
-        endpoint = ep.clone();
+        var epr = ep;
+        endpoint = EndpointFactory.clone(epr);
       } else if (isString(ep)) {
         endpoint = EndpointFactory.get(this, ep, endpointArgs);
       } else {
@@ -5510,17 +5528,6 @@ function (_OverlayCapableCompon) {
         endpointArgs = merge(fep.options, endpointArgs);
         endpoint = EndpointFactory.get(this, fep.type, endpointArgs);
       }
-      endpoint.clone = function () {
-        if (isString(ep)) {
-          return EndpointFactory.get(_this3, ep, endpointArgs);
-        } else if (isAssignableFrom(ep, EndpointRepresentation)) {
-          return ep.clone();
-        } else {
-          var _fep = ep;
-          endpointArgs = merge(_fep.options, endpointArgs);
-          endpoint = EndpointFactory.get(_this3, _fep.type, endpointArgs);
-        }
-      };
       endpoint.typeId = typeId;
       return endpoint;
     }
@@ -9099,7 +9106,6 @@ function (_EventGenerator) {
       extend(p, params);
       p.connectionType = p.connectionType || DEFAULT;
       var maxConnections = p.maxConnections || -1;
-      var dropOptions = extend({}, p.dropOptions || {});
       var _def = {
         def: extend({}, p),
         uniqueEndpoint: p.uniqueEndpoint,
@@ -9112,9 +9118,9 @@ function (_EventGenerator) {
   }, {
     key: "makeTarget",
     value: function makeTarget(el, params, referenceParams) {
+      var p = extend(extend({}, params), referenceParams || {});
       var jel = el;
       var _def = this._createTargetDefinition(params, referenceParams);
-      var p = extend(extend({}, params), referenceParams || {});
       this.manage(el);
       this.setAttribute(el, ATTRIBUTE_TARGET, "");
       this._writeScopeAttribute(el, p.scope || this.Defaults.scope);

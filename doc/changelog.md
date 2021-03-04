@@ -1,3 +1,9 @@
+## 4.0.0-RC66
+
+4th March 2021
+
+- internal refactoring to remove extra closures being created each time an Endpoint is added
+
 ## 4.0.0-RC65
 
 3rd March 2021

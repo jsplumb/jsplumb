@@ -97,7 +97,6 @@ export interface SourceBehaviouralTypeDescriptor extends BehaviouralTypeDescript
     createEndpoint?: boolean;
 }
 export interface TargetBehaviouralTypeDescriptor extends BehaviouralTypeDescriptor {
-    dropOptions?: any;
     createEndpoint?: boolean;
 }
 export interface SourceOrTargetDefinition {
@@ -111,6 +110,7 @@ export interface SourceDefinition extends SourceOrTargetDefinition {
     def: SourceBehaviouralTypeDescriptor;
 }
 export interface TargetDefinition extends SourceOrTargetDefinition {
+    def: TargetBehaviouralTypeDescriptor;
 }
 export interface Size {
     w: number;

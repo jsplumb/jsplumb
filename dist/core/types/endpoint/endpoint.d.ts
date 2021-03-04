@@ -21,6 +21,11 @@ export interface EndpointStyle extends PaintStyle, Record<string, any> {
 export interface InternalEndpointOptions<E> extends EndpointOptions<E> {
     isTemporarySource?: boolean;
 }
+export interface EndpointDropOptions {
+    hoverClass?: string;
+    activeClass?: string;
+    rank?: number;
+}
 export interface EndpointOptions<E = any> extends ComponentOptions {
     preparedAnchor?: Anchor;
     anchor?: AnchorSpec;
@@ -43,6 +48,7 @@ export interface EndpointOptions<E = any> extends ComponentOptions {
     isTarget?: boolean;
     reattach?: boolean;
     parameters?: object;
+    dropOptions?: EndpointDropOptions;
     data?: any;
     isTemporarySource?: boolean;
     connectionType?: string;
