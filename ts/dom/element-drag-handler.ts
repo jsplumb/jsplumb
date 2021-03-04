@@ -17,7 +17,6 @@ import {
     Dictionary,
     GROUP_KEY, isString, JsPlumbInstance,
     optional,
-    PARENT_GROUP_KEY,
     RedrawResult,
     UIGroup,
     forEach,
@@ -290,9 +289,9 @@ export class ElementDragHandler implements DragHandler {
                 // if drag el not a group
                 if (!_el._isJsPlumbGroup || this.instance.allowNestedGroups) {
 
-                    const isNotInAGroup = !_el[PARENT_GROUP_KEY]
-                    const membersAreDroppable = isNotInAGroup || _el[PARENT_GROUP_KEY].dropOverride !== true
-                    const isGhostOrNotConstrained = !isNotInAGroup && (_el[PARENT_GROUP_KEY].ghost || _el[PARENT_GROUP_KEY].constrain !== true)
+                    const isNotInAGroup = !_el._jsPlumbParentGroup
+                    const membersAreDroppable = isNotInAGroup || _el._jsPlumbParentGroup.dropOverride !== true
+                    const isGhostOrNotConstrained = !isNotInAGroup && (_el._jsPlumbParentGroup.ghost || _el._jsPlumbParentGroup.constrain !== true)
 
                     // in order that there could be other groups this element can be dragged to, it must satisfy these conditions:
                     // it's not in a group, OR
