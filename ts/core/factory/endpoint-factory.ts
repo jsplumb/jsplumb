@@ -16,5 +16,9 @@ export const EndpointFactory = {
 
     register:(name:string, ep:Constructable<EndpointRepresentation<any>>) => {
         endpointMap[name] = ep
+    },
+
+    clone:<C>(epr:EndpointRepresentation<C>):EndpointRepresentation<C> => {
+        return EndpointFactory.get(epr.endpoint, epr.getType(), epr.getParams())
     }
 }
