@@ -11,7 +11,6 @@ import {extend, merge, isString, isAssignableFrom} from '../util'
 import { JsPlumbInstance } from '../core'
 import { OverlayCapableComponent } from '../component/overlay-capable-component'
 
-
 export type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndpointId
 export type UserDefinedEndpointId = string
 export type EndpointParams = any
@@ -23,6 +22,8 @@ export interface EndpointStyle extends PaintStyle, Record<string, any> {}
 export interface InternalEndpointOptions<E> extends EndpointOptions<E> {
     isTemporarySource?:boolean
 }
+
+export interface EndpointDropOptions {hoverClass?:string, activeClass?:string, rank?:number}
 
 export interface EndpointOptions<E = any> extends ComponentOptions {
     preparedAnchor?:Anchor
@@ -46,6 +47,7 @@ export interface EndpointOptions<E = any> extends ComponentOptions {
     isTarget?: boolean//= false
     reattach?: boolean//= false
     parameters?: object
+    dropOptions?:EndpointDropOptions
 
     data?:any
 
@@ -427,7 +429,10 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         let endpoint:EndpointRepresentation<C>
 
         if(isAssignableFrom(ep, EndpointRepresentation)) {
-            endpoint = (ep as EndpointRepresentation<any>).clone()
+
+            const epr = (ep as EndpointRepresentation<C>)
+            endpoint = EndpointFactory.clone(epr)
+
         } else if (isString(ep)) {
             endpoint = EndpointFactory.get(this, ep as string, endpointArgs)
         }
@@ -435,24 +440,6 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
             const fep = ep as FullEndpointSpec
             endpointArgs = merge(fep.options, endpointArgs)
             endpoint = EndpointFactory.get(this, fep.type, endpointArgs)
-        }
-
-        // assign a clone function using a copy of endpointArgs. this is used when a drag starts: the endpoint that was dragged is cloned,
-        // and the clone is left in its place while the original one goes off on a magical journey.
-        // the copy is to get around a closure problem, in which endpointArgs ends up getting shared by
-        // the whole world.
-        endpoint.clone = () => {
-            // TODO this, and the code above, can be refactored to be more dry.
-            if (isString(ep)) {
-                return EndpointFactory.get(this, ep as string, endpointArgs)
-            }
-            else if (isAssignableFrom(ep, EndpointRepresentation)) {
-                return (ep as EndpointRepresentation<any>).clone()
-            } else {
-                const fep = ep as FullEndpointSpec
-                endpointArgs = merge(fep.options, endpointArgs)
-                endpoint = EndpointFactory.get(this, fep.type, endpointArgs)
-            }
         }
 
         endpoint.typeId = typeId
