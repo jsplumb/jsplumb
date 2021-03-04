@@ -22,9 +22,9 @@ const antiClockwiseOptions:Dictionary<Face> = {"top": "left", "right": "top", "l
 
 export class ContinuousAnchor extends Anchor {
 
-    static continuousAnchorType:AnchorId = "Continuous"
+    static type:AnchorId = "Continuous"
 
-    type:AnchorId  = ContinuousAnchor.continuousAnchorType
+    type:AnchorId  = ContinuousAnchor.type
     isDynamic:boolean = true
     isContinuous:boolean = true
 
