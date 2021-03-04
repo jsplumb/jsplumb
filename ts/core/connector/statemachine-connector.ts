@@ -87,10 +87,10 @@ function _findControlPoint (midx:number, midy:number, segment:number, sourceEdge
 
 export interface StateMachineOptions extends AbstractBezierOptions  { }
 
-export class StatemachineConnector extends AbstractBezierConnector {
+export class StateMachineConnector extends AbstractBezierConnector {
 
     static type = "StateMachine"
-    type = StatemachineConnector.type
+    type = StateMachineConnector.type
 
     _controlPoint:[ number, number ]
     proximityLimit:number
