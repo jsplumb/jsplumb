@@ -6,13 +6,17 @@ import {AnchorPlacement} from "../router/router"
 
 export type ComputedDotEndpoint = [ number, number, number, number, number ]
 
+export interface DotEndpointParams {
+    radius?:number
+}
+
 export class DotEndpoint extends EndpointRepresentation<ComputedDotEndpoint> {
 
     radius:number
     defaultOffset:number
     defaultInnerRadius:number
 
-    constructor(endpoint:Endpoint, params?:any) {
+    constructor(endpoint:Endpoint, params?:DotEndpointParams) {
         
         super(endpoint)
         
@@ -20,6 +24,10 @@ export class DotEndpoint extends EndpointRepresentation<ComputedDotEndpoint> {
         this.radius = params.radius || 5
         this.defaultOffset = 0.5 * this.radius
         this.defaultInnerRadius = this.radius / 3
+    }
+
+    getParams(): Record<string, any> {
+        return { radius: this.radius }
     }
 
     // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.

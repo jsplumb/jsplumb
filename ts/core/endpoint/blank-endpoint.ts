@@ -1,18 +1,22 @@
 import {EndpointRepresentation} from "./endpoints"
 import {Orientation} from "../factory/anchor-factory"
-import {EndpointFactory} from "../factory/endpoint-factory"
 import {Endpoint} from "./endpoint"
 import {AnchorPlacement} from "../router/router"
 
 export type ComputedBlankEndpoint = [ number, number, number, number  ]
 
+export interface BlankEndpointParams {}
+
 export class BlankEndpoint extends EndpointRepresentation<ComputedBlankEndpoint> {
 
-    constructor(endpoint:Endpoint, params?:any) {
+    constructor(endpoint:Endpoint, params?:BlankEndpointParams) {
         super(endpoint)
     }
 
-    //
+    getParams(): Record<string, any> {
+        return {}
+    }
+
     // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
     // it would be much more lightweight as we'd not need to create a class for each one.
     _compute(anchorPoint:AnchorPlacement, orientation:Orientation, endpointStyle:any):ComputedBlankEndpoint {

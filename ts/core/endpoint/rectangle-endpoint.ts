@@ -5,18 +5,30 @@ import {AnchorPlacement} from "../router/router"
 
 export type ComputedRectangleEndpoint = [ number, number, number, number ]
 
+export interface RectangleEndpointParams {
+    width?:number
+    height?:number
+}
+
 export class RectangleEndpoint extends EndpointRepresentation<ComputedRectangleEndpoint> {
 
     width:number
     height:number
 
-    constructor(endpoint:Endpoint, params?:any) {
+    constructor(endpoint:Endpoint, params?:RectangleEndpointParams) {
 
         super(endpoint)
 
         params = params || {}
         this.width = params.width || 10
         this.height = params.height || 10
+    }
+
+    getParams(): Record<string, any> {
+        return {
+            width: this.width,
+            height:this.height
+        }
     }
 
     // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
