@@ -971,7 +971,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
     // TODO remove `any` here,
     drawOverlay(o: Overlay, component: any, paintStyle: PaintStyle, absolutePosition?: PointXY): any {
-        if (o.type === LabelOverlay.labelType || o.type === CustomOverlay.customType) {
+        if (isLabelOverlay(o) || isCustomOverlay(o)) {
 
             //  TO DO - move to a static method, or a shared method, etc.  (? future me doesnt know what that means.)
 
