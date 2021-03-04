@@ -30,9 +30,14 @@ export abstract class EndpointRepresentation<C> {
     // it would be much more lightweight as we'd not need to create a class for each one.
     abstract _compute(anchorPoint:AnchorPlacement, orientation:Orientation, endpointStyle:any):C
 
-    constructor(public endpoint:Endpoint) {
-        this.instance = endpoint.instance
+    /**
+     * Subclasses must implement this for the clone functionality: they return an object containing the type specific
+     * constructor values for the given endpoint.
+     */
+    abstract getParams():Record<string, any>
 
+    protected constructor(public endpoint:Endpoint) {
+        this.instance = endpoint.instance
         if (endpoint.cssClass) {
             this.classes.push(endpoint.cssClass)
         }
@@ -46,10 +51,6 @@ export abstract class EndpointRepresentation<C> {
     removeClass(c:string) {
         this.classes = this.classes.filter((_c:string) => _c !== c)
         this.instance.removeEndpointClass(this.endpoint, c)
-    }
-
-    clone():EndpointRepresentation<C> {
-        return null
     }
 
     compute(anchorPoint:AnchorPlacement, orientation:Orientation, endpointStyle:any) {
