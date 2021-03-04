@@ -1,7 +1,7 @@
 import {jsPlumbDefaults} from "./defaults"
 
 import {Connection} from "./connector/connection-impl"
-import {Endpoint, EndpointSpec} from "./endpoint/endpoint"
+import {Endpoint, EndpointDropOptions, EndpointSpec} from "./endpoint/endpoint"
 import { DotEndpoint } from './endpoint/dot-endpoint'
 import {FullOverlaySpec, OverlaySpec} from "./overlay/overlay"
 import {AnchorPlacement, RedrawResult} from "./router/router"
@@ -1646,7 +1646,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
         let maxConnections = p.maxConnections || -1;//,
 
-        let dropOptions = extend({}, p.dropOptions || {})
         // store the definition
         let _def:TargetDefinition = {
             def: extend({}, p),
@@ -1667,27 +1666,10 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      */
     makeTarget (el:T["E"], params?:TargetBehaviouralTypeDescriptor, referenceParams?:TargetBehaviouralTypeDescriptor):JsPlumbInstance {
 
-        let jel = el as unknown as jsPlumbElement<T["E"]>
-        let _def:TargetDefinition = this._createTargetDefinition(params, referenceParams)
         let p:TargetBehaviouralTypeDescriptor = extend(extend({}, params), referenceParams || {})
 
-        // let jel = el as unknown as jsPlumbElement<T["E"]>
-        // // put jsplumb ref into params without altering the params passed in
-        // let p:TargetBehaviouralTypeDescriptor = extend({}, referenceParams)
-        // extend(p, params)
-        // p.connectionType  = p.connectionType || Constants.DEFAULT
-        //
-        // let maxConnections = p.maxConnections || -1;//,
-        //
-        // let dropOptions = extend({}, p.dropOptions || {})
-        // // store the definition
-        // let _def:TargetDefinition = {
-        //     def: extend({}, p),
-        //     uniqueEndpoint: p.uniqueEndpoint,
-        //     maxConnections: maxConnections,
-        //     enabled: true,
-        //     endpoint:null as Endpoint
-        // }
+        let jel = el as unknown as jsPlumbElement<T["E"]>
+        let _def:TargetDefinition = this._createTargetDefinition(params, referenceParams)
 
         this.manage(el)
         this.setAttribute(el, Constants.ATTRIBUTE_TARGET, "")
@@ -1697,12 +1679,12 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         jel._jsPlumbTargetDefinitions = jel._jsPlumbTargetDefinitions || []
 
         // if this is a group and the user has not mandated a rank, set to -1 so that Nodes takes
-        // precedence.
+        // precedence.  TODO in 4.x since we dont make individual elements draggable/droppable, does this still
+        // need to be considered?
+
         // if (jel._jsPlumbGroup && dropOptions.rank == null) {
         //     dropOptions.rank = -1
         // }
-
-
 
         if (p.createEndpoint) {
             _def.uniqueEndpoint = true
