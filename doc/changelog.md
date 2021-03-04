@@ -1,3 +1,11 @@
+## 4.0.0-RC67
+
+4th March 2021
+
+- changed all overlay type members to be `type`, which is now standard across connectors/endpoints/overlays
+- changed Continuous anchor type member to be `type`
+- Update `AddGroupOptions` to now extend `GroupOptions`
+
 ## 4.0.0-RC66
 
 4th March 2021
