@@ -1,6 +1,6 @@
 import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
 
-import {PARENT_GROUP_KEY, extend, wrap, Dictionary, forEach, PointXY, getWithFunction} from '@jsplumb/core'
+import {extend, wrap, Dictionary, forEach, PointXY, getWithFunction} from '@jsplumb/core'
 
 import {
     BeforeStartEventParams,
@@ -98,7 +98,7 @@ export class DragManager {
             revert: (dragEl:Element, pos:PointXY):boolean => {
                 const _el = <any>dragEl
                 // if drag el not removed from DOM (pruned by a group), and it has a group which has revert:true, then revert.
-                return _el.parentNode != null && _el[PARENT_GROUP_KEY] && _el[PARENT_GROUP_KEY].revert ? !_isInsideParent(this.instance, _el, pos) : false
+                return _el.parentNode != null && _el._jsPlumbParentGroup && _el._jsPlumbParentGroup.revert ? !_isInsideParent(this.instance, _el, pos) : false
             }
         })
 
