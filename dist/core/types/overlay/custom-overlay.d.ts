@@ -6,7 +6,7 @@ export declare class CustomOverlay extends Overlay {
     component: Component;
     create: (c: Component) => any;
     constructor(instance: JsPlumbInstance, component: Component, p: CustomOverlayOptions);
-    static customType: string;
+    static type: string;
     type: string;
     updateFrom(d: any): void;
 }

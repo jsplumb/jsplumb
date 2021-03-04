@@ -2974,15 +2974,15 @@ function _findControlPoint(midx, midy, segment, sourceEdge, targetEdge, dx, dy, 
     }
   }
 }
-var StatemachineConnector =
+var StateMachineConnector =
 function (_AbstractBezierConnec) {
-  _inherits(StatemachineConnector, _AbstractBezierConnec);
-  function StatemachineConnector(instance, connection, params) {
+  _inherits(StateMachineConnector, _AbstractBezierConnec);
+  function StateMachineConnector(instance, connection, params) {
     var _this;
-    _classCallCheck(this, StatemachineConnector);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(StatemachineConnector).call(this, instance, connection, params));
+    _classCallCheck(this, StateMachineConnector);
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(StateMachineConnector).call(this, instance, connection, params));
     _this.connection = connection;
-    _defineProperty(_assertThisInitialized(_this), "type", StatemachineConnector.type);
+    _defineProperty(_assertThisInitialized(_this), "type", StateMachineConnector.type);
     _defineProperty(_assertThisInitialized(_this), "_controlPoint", void 0);
     _defineProperty(_assertThisInitialized(_this), "proximityLimit", void 0);
     _this.curviness = params.curviness || 10;
@@ -2991,7 +2991,7 @@ function (_AbstractBezierConnec) {
     _this.clockwise = params.orientation && params.orientation === "clockwise";
     return _this;
   }
-  _createClass(StatemachineConnector, [{
+  _createClass(StateMachineConnector, [{
     key: "_computeBezier",
     value: function _computeBezier(paintInfo, params, sp, tp, w, h) {
       var _sx = params.sourcePos[0] < params.targetPos[0] ? 0 : w,
@@ -3053,9 +3053,9 @@ function (_AbstractBezierConnec) {
       });
     }
   }]);
-  return StatemachineConnector;
+  return StateMachineConnector;
 }(AbstractBezierConnector);
-_defineProperty(StatemachineConnector, "type", "StateMachine");
+_defineProperty(StateMachineConnector, "type", "StateMachine");
 
 var connectorMap = {};
 var Connectors = {
@@ -3863,7 +3863,7 @@ function (_Overlay) {
     _this.component = component;
     _defineProperty(_assertThisInitialized(_this), "label", void 0);
     _defineProperty(_assertThisInitialized(_this), "labelText", void 0);
-    _defineProperty(_assertThisInitialized(_this), "type", LabelOverlay.labelType);
+    _defineProperty(_assertThisInitialized(_this), "type", LabelOverlay.type);
     _defineProperty(_assertThisInitialized(_this), "cachedDimensions", void 0);
     p = p || {
       label: ""
@@ -3905,9 +3905,9 @@ function (_Overlay) {
   }]);
   return LabelOverlay;
 }(Overlay);
-_defineProperty(LabelOverlay, "labelType", "Label");
+_defineProperty(LabelOverlay, "type", "Label");
 function isLabelOverlay(o) {
-  return o.type === LabelOverlay.labelType;
+  return o.type === LabelOverlay.type;
 }
 OverlayFactory.register("Label", LabelOverlay);
 
@@ -4380,7 +4380,7 @@ function (_Anchor) {
     _classCallCheck(this, ContinuousAnchor);
     _this = _possibleConstructorReturn(this, _getPrototypeOf(ContinuousAnchor).call(this, instance, anchorParams));
     _this.instance = instance;
-    _defineProperty(_assertThisInitialized(_this), "type", ContinuousAnchor.continuousAnchorType);
+    _defineProperty(_assertThisInitialized(_this), "type", ContinuousAnchor.type);
     _defineProperty(_assertThisInitialized(_this), "isDynamic", true);
     _defineProperty(_assertThisInitialized(_this), "isContinuous", true);
     _defineProperty(_assertThisInitialized(_this), "clockwise", void 0);
@@ -4483,7 +4483,7 @@ function (_Anchor) {
   }]);
   return ContinuousAnchor;
 }(Anchor);
-_defineProperty(ContinuousAnchor, "continuousAnchorType", "Continuous");
+_defineProperty(ContinuousAnchor, "type", "Continuous");
 
 var X_AXIS_FACES = ["left", "right"];
 var Y_AXIS_FACES = ["top", "bottom"];
@@ -5635,7 +5635,7 @@ function (_UINode) {
   }, {
     key: "getAnchor",
     value: function getAnchor(conn, endpointIndex) {
-      return this.anchor || ContinuousAnchor.continuousAnchorType;
+      return this.anchor || ContinuousAnchor.type;
     }
   }, {
     key: "getEndpoint",
@@ -9569,7 +9569,7 @@ function (_Overlay) {
     _defineProperty(_assertThisInitialized(_this), "direction", void 0);
     _defineProperty(_assertThisInitialized(_this), "location", void 0);
     _defineProperty(_assertThisInitialized(_this), "paintStyle", void 0);
-    _defineProperty(_assertThisInitialized(_this), "type", ArrowOverlay.arrowType);
+    _defineProperty(_assertThisInitialized(_this), "type", ArrowOverlay.type);
     _defineProperty(_assertThisInitialized(_this), "cachedDimensions", void 0);
     p = p || {};
     _this.width = p.width || DEFAULT_WIDTH;
@@ -9645,9 +9645,9 @@ function (_Overlay) {
   }]);
   return ArrowOverlay;
 }(Overlay);
-_defineProperty(ArrowOverlay, "arrowType", "Arrow");
+_defineProperty(ArrowOverlay, "type", "Arrow");
 function isArrowOverlay(o) {
-  return o.type === ArrowOverlay.arrowType;
+  return o.type === ArrowOverlay.type;
 }
 OverlayFactory.register("Arrow", ArrowOverlay);
 
@@ -9659,15 +9659,15 @@ function (_ArrowOverlay) {
     _classCallCheck(this, PlainArrowOverlay);
     _this = _possibleConstructorReturn(this, _getPrototypeOf(PlainArrowOverlay).call(this, instance, component, p));
     _this.instance = instance;
-    _defineProperty(_assertThisInitialized(_this), "type", PlainArrowOverlay.arrowType);
+    _defineProperty(_assertThisInitialized(_this), "type", PlainArrowOverlay.type);
     _this.foldback = 1;
     return _this;
   }
   return PlainArrowOverlay;
 }(ArrowOverlay);
-_defineProperty(PlainArrowOverlay, "arrowType", "PlainArrow");
+_defineProperty(PlainArrowOverlay, "type", "PlainArrow");
 function isPlainArrowOverlay(o) {
-  return o.type === PlainArrowOverlay.arrowType;
+  return o.type === PlainArrowOverlay.type;
 }
 OverlayFactory.register("PlainArrow", PlainArrowOverlay);
 
@@ -9679,16 +9679,16 @@ function (_ArrowOverlay) {
     _classCallCheck(this, DiamondOverlay);
     _this = _possibleConstructorReturn(this, _getPrototypeOf(DiamondOverlay).call(this, instance, component, p));
     _this.instance = instance;
-    _defineProperty(_assertThisInitialized(_this), "type", DiamondOverlay.arrowType);
+    _defineProperty(_assertThisInitialized(_this), "type", DiamondOverlay.type);
     _this.length = _this.length / 2;
     _this.foldback = 2;
     return _this;
   }
   return DiamondOverlay;
 }(ArrowOverlay);
-_defineProperty(DiamondOverlay, "arrowType", "Diamond");
+_defineProperty(DiamondOverlay, "type", "Diamond");
 function isDiamondOverlay(o) {
-  return o.type === DiamondOverlay.arrowType;
+  return o.type === DiamondOverlay.type;
 }
 OverlayFactory.register("Diamond", DiamondOverlay);
 
@@ -9702,7 +9702,7 @@ function (_Overlay) {
     _this.instance = instance;
     _this.component = component;
     _defineProperty(_assertThisInitialized(_this), "create", void 0);
-    _defineProperty(_assertThisInitialized(_this), "type", CustomOverlay.customType);
+    _defineProperty(_assertThisInitialized(_this), "type", CustomOverlay.type);
     _this.create = p.create;
     return _this;
   }
@@ -9712,9 +9712,9 @@ function (_Overlay) {
   }]);
   return CustomOverlay;
 }(Overlay);
-_defineProperty(CustomOverlay, "customType", "Custom");
+_defineProperty(CustomOverlay, "type", "Custom");
 function isCustomOverlay(o) {
-  return o.type === CustomOverlay.customType;
+  return o.type === CustomOverlay.type;
 }
 OverlayFactory.register("Custom", CustomOverlay);
 
@@ -9781,7 +9781,7 @@ EndpointFactory.register(RectangleEndpoint.type, RectangleEndpoint);
 Connectors.register(BezierConnector.type, BezierConnector);
 Connectors.register(StraightConnector.type, StraightConnector);
 Connectors.register(FlowchartConnector.type, FlowchartConnector);
-Connectors.register(StatemachineConnector.type, StatemachineConnector);
+Connectors.register(StateMachineConnector.type, StateMachineConnector);
 
 exports.ABSOLUTE = ABSOLUTE;
 exports.ATTRIBUTE_CONTAINER = ATTRIBUTE_CONTAINER;
@@ -9909,7 +9909,7 @@ exports.SOURCE_DEFINITION_LIST = SOURCE_DEFINITION_LIST;
 exports.SOURCE_INDEX = SOURCE_INDEX;
 exports.STATIC = STATIC;
 exports.SourceSelector = SourceSelector;
-exports.StatemachineConnector = StatemachineConnector;
+exports.StateMachineConnector = StateMachineConnector;
 exports.StraightConnector = StraightConnector;
 exports.StraightSegment = StraightSegment;
 exports.TARGET = TARGET;

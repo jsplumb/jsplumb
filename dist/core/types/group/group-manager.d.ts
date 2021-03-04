@@ -1,8 +1,7 @@
 import { Dictionary, PointXY } from '../common';
 import { JsPlumbInstance } from "../core";
-import { UIGroup } from "./group";
-export interface AddGroupOptions {
-    id: string;
+import { UIGroup, GroupOptions } from "./group";
+export interface AddGroupOptions extends GroupOptions {
     el: any;
     collapsed?: boolean;
 }

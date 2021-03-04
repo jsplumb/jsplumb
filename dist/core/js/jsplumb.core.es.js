@@ -2970,15 +2970,15 @@ function _findControlPoint(midx, midy, segment, sourceEdge, targetEdge, dx, dy, 
     }
   }
 }
-var StatemachineConnector =
+var StateMachineConnector =
 function (_AbstractBezierConnec) {
-  _inherits(StatemachineConnector, _AbstractBezierConnec);
-  function StatemachineConnector(instance, connection, params) {
+  _inherits(StateMachineConnector, _AbstractBezierConnec);
+  function StateMachineConnector(instance, connection, params) {
     var _this;
-    _classCallCheck(this, StatemachineConnector);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(StatemachineConnector).call(this, instance, connection, params));
+    _classCallCheck(this, StateMachineConnector);
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(StateMachineConnector).call(this, instance, connection, params));
     _this.connection = connection;
-    _defineProperty(_assertThisInitialized(_this), "type", StatemachineConnector.type);
+    _defineProperty(_assertThisInitialized(_this), "type", StateMachineConnector.type);
     _defineProperty(_assertThisInitialized(_this), "_controlPoint", void 0);
     _defineProperty(_assertThisInitialized(_this), "proximityLimit", void 0);
     _this.curviness = params.curviness || 10;
@@ -2987,7 +2987,7 @@ function (_AbstractBezierConnec) {
     _this.clockwise = params.orientation && params.orientation === "clockwise";
     return _this;
   }
-  _createClass(StatemachineConnector, [{
+  _createClass(StateMachineConnector, [{
     key: "_computeBezier",
     value: function _computeBezier(paintInfo, params, sp, tp, w, h) {
       var _sx = params.sourcePos[0] < params.targetPos[0] ? 0 : w,
@@ -3049,9 +3049,9 @@ function (_AbstractBezierConnec) {
       });
     }
   }]);
-  return StatemachineConnector;
+  return StateMachineConnector;
 }(AbstractBezierConnector);
-_defineProperty(StatemachineConnector, "type", "StateMachine");
+_defineProperty(StateMachineConnector, "type", "StateMachine");
 
 var connectorMap = {};
 var Connectors = {
@@ -3859,7 +3859,7 @@ function (_Overlay) {
     _this.component = component;
     _defineProperty(_assertThisInitialized(_this), "label", void 0);
     _defineProperty(_assertThisInitialized(_this), "labelText", void 0);
-    _defineProperty(_assertThisInitialized(_this), "type", LabelOverlay.labelType);
+    _defineProperty(_assertThisInitialized(_this), "type", LabelOverlay.type);
     _defineProperty(_assertThisInitialized(_this), "cachedDimensions", void 0);
     p = p || {
       label: ""
@@ -3901,9 +3901,9 @@ function (_Overlay) {
   }]);
   return LabelOverlay;
 }(Overlay);
-_defineProperty(LabelOverlay, "labelType", "Label");
+_defineProperty(LabelOverlay, "type", "Label");
 function isLabelOverlay(o) {
-  return o.type === LabelOverlay.labelType;
+  return o.type === LabelOverlay.type;
 }
 OverlayFactory.register("Label", LabelOverlay);
 
@@ -4376,7 +4376,7 @@ function (_Anchor) {
     _classCallCheck(this, ContinuousAnchor);
     _this = _possibleConstructorReturn(this, _getPrototypeOf(ContinuousAnchor).call(this, instance, anchorParams));
     _this.instance = instance;
-    _defineProperty(_assertThisInitialized(_this), "type", ContinuousAnchor.continuousAnchorType);
+    _defineProperty(_assertThisInitialized(_this), "type", ContinuousAnchor.type);
     _defineProperty(_assertThisInitialized(_this), "isDynamic", true);
     _defineProperty(_assertThisInitialized(_this), "isContinuous", true);
     _defineProperty(_assertThisInitialized(_this), "clockwise", void 0);
@@ -4479,7 +4479,7 @@ function (_Anchor) {
   }]);
   return ContinuousAnchor;
 }(Anchor);
-_defineProperty(ContinuousAnchor, "continuousAnchorType", "Continuous");
+_defineProperty(ContinuousAnchor, "type", "Continuous");
 
 var X_AXIS_FACES = ["left", "right"];
 var Y_AXIS_FACES = ["top", "bottom"];
@@ -5632,7 +5632,7 @@ function (_UINode) {
   }, {
     key: "getAnchor",
     value: function getAnchor(conn, endpointIndex) {
-      return this.anchor || ContinuousAnchor.continuousAnchorType;
+      return this.anchor || ContinuousAnchor.type;
     }
   }, {
     key: "getEndpoint",
@@ -9566,7 +9566,7 @@ function (_Overlay) {
     _defineProperty(_assertThisInitialized(_this), "direction", void 0);
     _defineProperty(_assertThisInitialized(_this), "location", void 0);
     _defineProperty(_assertThisInitialized(_this), "paintStyle", void 0);
-    _defineProperty(_assertThisInitialized(_this), "type", ArrowOverlay.arrowType);
+    _defineProperty(_assertThisInitialized(_this), "type", ArrowOverlay.type);
     _defineProperty(_assertThisInitialized(_this), "cachedDimensions", void 0);
     p = p || {};
     _this.width = p.width || DEFAULT_WIDTH;
@@ -9642,9 +9642,9 @@ function (_Overlay) {
   }]);
   return ArrowOverlay;
 }(Overlay);
-_defineProperty(ArrowOverlay, "arrowType", "Arrow");
+_defineProperty(ArrowOverlay, "type", "Arrow");
 function isArrowOverlay(o) {
-  return o.type === ArrowOverlay.arrowType;
+  return o.type === ArrowOverlay.type;
 }
 OverlayFactory.register("Arrow", ArrowOverlay);
 
@@ -9656,15 +9656,15 @@ function (_ArrowOverlay) {
     _classCallCheck(this, PlainArrowOverlay);
     _this = _possibleConstructorReturn(this, _getPrototypeOf(PlainArrowOverlay).call(this, instance, component, p));
     _this.instance = instance;
-    _defineProperty(_assertThisInitialized(_this), "type", PlainArrowOverlay.arrowType);
+    _defineProperty(_assertThisInitialized(_this), "type", PlainArrowOverlay.type);
     _this.foldback = 1;
     return _this;
   }
   return PlainArrowOverlay;
 }(ArrowOverlay);
-_defineProperty(PlainArrowOverlay, "arrowType", "PlainArrow");
+_defineProperty(PlainArrowOverlay, "type", "PlainArrow");
 function isPlainArrowOverlay(o) {
-  return o.type === PlainArrowOverlay.arrowType;
+  return o.type === PlainArrowOverlay.type;
 }
 OverlayFactory.register("PlainArrow", PlainArrowOverlay);
 
@@ -9676,16 +9676,16 @@ function (_ArrowOverlay) {
     _classCallCheck(this, DiamondOverlay);
     _this = _possibleConstructorReturn(this, _getPrototypeOf(DiamondOverlay).call(this, instance, component, p));
     _this.instance = instance;
-    _defineProperty(_assertThisInitialized(_this), "type", DiamondOverlay.arrowType);
+    _defineProperty(_assertThisInitialized(_this), "type", DiamondOverlay.type);
     _this.length = _this.length / 2;
     _this.foldback = 2;
     return _this;
   }
   return DiamondOverlay;
 }(ArrowOverlay);
-_defineProperty(DiamondOverlay, "arrowType", "Diamond");
+_defineProperty(DiamondOverlay, "type", "Diamond");
 function isDiamondOverlay(o) {
-  return o.type === DiamondOverlay.arrowType;
+  return o.type === DiamondOverlay.type;
 }
 OverlayFactory.register("Diamond", DiamondOverlay);
 
@@ -9699,7 +9699,7 @@ function (_Overlay) {
     _this.instance = instance;
     _this.component = component;
     _defineProperty(_assertThisInitialized(_this), "create", void 0);
-    _defineProperty(_assertThisInitialized(_this), "type", CustomOverlay.customType);
+    _defineProperty(_assertThisInitialized(_this), "type", CustomOverlay.type);
     _this.create = p.create;
     return _this;
   }
@@ -9709,9 +9709,9 @@ function (_Overlay) {
   }]);
   return CustomOverlay;
 }(Overlay);
-_defineProperty(CustomOverlay, "customType", "Custom");
+_defineProperty(CustomOverlay, "type", "Custom");
 function isCustomOverlay(o) {
-  return o.type === CustomOverlay.customType;
+  return o.type === CustomOverlay.type;
 }
 OverlayFactory.register("Custom", CustomOverlay);
 
@@ -9778,6 +9778,6 @@ EndpointFactory.register(RectangleEndpoint.type, RectangleEndpoint);
 Connectors.register(BezierConnector.type, BezierConnector);
 Connectors.register(StraightConnector.type, StraightConnector);
 Connectors.register(FlowchartConnector.type, FlowchartConnector);
-Connectors.register(StatemachineConnector.type, StatemachineConnector);
+Connectors.register(StateMachineConnector.type, StateMachineConnector);
 
-export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, AnchorLocations, Anchors, ArcSegment, ArrowOverlay, BLOCK, BezierConnector, BezierSegment, BlankEndpoint, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DefaultRouter, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FloatingAnchor, FlowchartConnector, GROUP_KEY, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DROP, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JTK_ID, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PROPERTY_POSITION, PlainArrowOverlay, RectangleEndpoint, SCOPE_PREFIX, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, SourceSelector, StatemachineConnector, StraightConnector, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, TargetSelector, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, encloses, extend, fastTrim, filterList, findWithFunction, forEach, fromArray, functionChain, getFromSetWithFunction, getWithFunction, getsert, gradient, gradientAtPoint, gradientAtPointAlongPathFrom, insertSorted, intersects, isArray, isArrowOverlay, isAssignableFrom, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, lineIntersection, lineLength, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, normal, optional, perpendicularLineTo, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, pointOnLine, pointSubtract, pointXYFromArray, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, sortHelper, suggest, theta, uuid, wrap };
+export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, AnchorLocations, Anchors, ArcSegment, ArrowOverlay, BLOCK, BezierConnector, BezierSegment, BlankEndpoint, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DefaultRouter, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FloatingAnchor, FlowchartConnector, GROUP_KEY, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DROP, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JTK_ID, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PROPERTY_POSITION, PlainArrowOverlay, RectangleEndpoint, SCOPE_PREFIX, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, SourceSelector, StateMachineConnector, StraightConnector, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, TargetSelector, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, encloses, extend, fastTrim, filterList, findWithFunction, forEach, fromArray, functionChain, getFromSetWithFunction, getWithFunction, getsert, gradient, gradientAtPoint, gradientAtPointAlongPathFrom, insertSorted, intersects, isArray, isArrowOverlay, isAssignableFrom, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, lineIntersection, lineLength, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, normal, optional, perpendicularLineTo, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, pointOnLine, pointSubtract, pointXYFromArray, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, sortHelper, suggest, theta, uuid, wrap };

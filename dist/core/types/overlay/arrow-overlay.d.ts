@@ -12,7 +12,7 @@ export declare class ArrowOverlay extends Overlay {
     direction: number;
     location: number;
     paintStyle: PaintStyle;
-    static arrowType: string;
+    static type: string;
     type: string;
     cachedDimensions: Size;
     constructor(instance: JsPlumbInstance, component: Component, p: ArrowOverlayOptions);

@@ -4,7 +4,7 @@ import { Component } from '../component/component';
 import { ArrowOverlayOptions, Overlay } from "../overlay/overlay";
 export declare class PlainArrowOverlay extends ArrowOverlay {
     instance: JsPlumbInstance;
-    static arrowType: string;
+    static type: string;
     type: string;
     constructor(instance: JsPlumbInstance, component: Component, p: ArrowOverlayOptions);
 }

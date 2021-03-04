@@ -4515,7 +4515,7 @@ function (_JsPlumbInstance) {
   }, {
     key: "drawOverlay",
     value: function drawOverlay(o, component, paintStyle, absolutePosition) {
-      if (o.type === core.LabelOverlay.labelType || o.type === core.CustomOverlay.customType) {
+      if (core.isLabelOverlay(o) || core.isCustomOverlay(o)) {
         var td = HTMLElementOverlay._getDimensions(o);
         if (td != null && td.w != null && td.h != null) {
           var cxy = {

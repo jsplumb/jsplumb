@@ -7,7 +7,7 @@ export declare class LabelOverlay extends Overlay {
     component: Component;
     label: string | Function;
     labelText: string;
-    static labelType: string;
+    static type: string;
     type: string;
     cachedDimensions: Size;
     constructor(instance: JsPlumbInstance, component: Component, p: LabelOverlayOptions);
