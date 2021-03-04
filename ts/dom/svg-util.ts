@@ -1,7 +1,6 @@
 
 
 import {createElementNS} from './browser-util'
-import { jsPlumbDOMElement} from './element-facade'
 import {Component, Dictionary, NONE, forEach} from "@jsplumb/core"
 
 const svgAttributeMap = {
