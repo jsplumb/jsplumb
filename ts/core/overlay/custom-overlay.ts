@@ -14,15 +14,15 @@ export class CustomOverlay extends Overlay {
         this.create = p.create
     }
 
-    static customType = "Custom"
-    type:string = CustomOverlay.customType
+    static type = "Custom"
+    type:string = CustomOverlay.type
 
     updateFrom(d: any): void { }
 
 }
 
 export function isCustomOverlay(o:Overlay):o is CustomOverlay {
-    return o.type === CustomOverlay.customType
+    return o.type === CustomOverlay.type
 }
 
 OverlayFactory.register("Custom", CustomOverlay)

@@ -6,8 +6,8 @@ import {ArrowOverlayOptions, Overlay} from "../overlay/overlay"
 
 export class PlainArrowOverlay extends ArrowOverlay {
 
-    static arrowType = "PlainArrow"
-    type:string = PlainArrowOverlay.arrowType
+    static type = "PlainArrow"
+    type:string = PlainArrowOverlay.type
 
     constructor(public instance:JsPlumbInstance, component: Component, p: ArrowOverlayOptions) {
         super(instance, component, p)
@@ -16,7 +16,7 @@ export class PlainArrowOverlay extends ArrowOverlay {
 }
 
 export function isPlainArrowOverlay(o:Overlay):o is PlainArrowOverlay {
-    return o.type === PlainArrowOverlay.arrowType
+    return o.type === PlainArrowOverlay.type
 }
 
 OverlayFactory.register("PlainArrow", PlainArrowOverlay)

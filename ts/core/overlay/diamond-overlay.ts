@@ -6,8 +6,8 @@ import {ArrowOverlayOptions, Overlay} from "../overlay/overlay"
 
 export class DiamondOverlay extends ArrowOverlay {
 
-    static arrowType = "Diamond"
-    type:string = DiamondOverlay.arrowType
+    static type = "Diamond"
+    type:string = DiamondOverlay.type
 
     constructor(public instance: JsPlumbInstance, component: Component, p: ArrowOverlayOptions) {
         super(instance, component, p)
@@ -18,7 +18,7 @@ export class DiamondOverlay extends ArrowOverlay {
 }
 
 export function isDiamondOverlay(o:Overlay):o is DiamondOverlay {
-    return o.type === DiamondOverlay.arrowType
+    return o.type === DiamondOverlay.type
 }
 
 OverlayFactory.register("Diamond", DiamondOverlay)

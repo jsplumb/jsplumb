@@ -21,8 +21,8 @@ export class ArrowOverlay extends Overlay {
 
     paintStyle:PaintStyle
 
-    static arrowType = "Arrow"
-    type:string = ArrowOverlay.arrowType
+    static type = "Arrow"
+    type:string = ArrowOverlay.type
 
     cachedDimensions:Size
 
@@ -106,7 +106,7 @@ export class ArrowOverlay extends Overlay {
 }
 
 export function isArrowOverlay(o:Overlay):o is ArrowOverlay {
-    return o.type === ArrowOverlay.arrowType
+    return o.type === ArrowOverlay.type
 }
 
 OverlayFactory.register("Arrow", ArrowOverlay)

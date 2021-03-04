@@ -11,8 +11,8 @@ export class LabelOverlay extends Overlay {
     label:string | Function
     labelText:string
 
-    static labelType = "Label"
-    type:string = LabelOverlay.labelType
+    static type = "Label"
+    type:string = LabelOverlay.type
 
     cachedDimensions:Size
 
@@ -49,7 +49,7 @@ export class LabelOverlay extends Overlay {
 }
 
 export function isLabelOverlay(o:Overlay):o is LabelOverlay {
-    return o.type === LabelOverlay.labelType
+    return o.type === LabelOverlay.type
 }
 
 
