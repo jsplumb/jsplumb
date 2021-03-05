@@ -1014,6 +1014,8 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         let endpoint = (typeof object === "string") ? this.endpointsByUUID.get(object as string) : object as Endpoint
         if (endpoint) {
 
+            const proxy = endpoint.proxiedBy
+
             // find all connections for the endpoint
             const connectionsToDelete = endpoint.connections.slice()
             forEach(connectionsToDelete,(connection) => {
@@ -1030,6 +1032,10 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
                 // detach this endpoint from each of these connections.
                 this.deleteConnection(connection, {force:true, endpointToIgnore:endpoint})
             })
+
+            if (proxy != null) {
+                this.deleteEndpoint(proxy)
+            }
         }
         return this
     }
@@ -1836,7 +1842,8 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     proxyConnection(connection:Connection, index:number,
                     proxyEl:T["E"], proxyElId:string,
-                    endpointGenerator:any, anchorGenerator:any) {
+                    endpointGenerator:(c:Connection, idx:number) => EndpointSpec,
+                    anchorGenerator:(c:Connection, idex:number) => AnchorSpec) {
 
         let alreadyProxied = connection.proxies[index] != null,
             proxyEp,
@@ -1859,7 +1866,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
                     }
                 })
             }
-        }else {
+        } else {
             proxyEp = this.addEndpoint(proxyEl, {
                 endpoint:endpointGenerator(connection, index),
                 anchor:anchorGenerator(connection, index),
@@ -1883,6 +1890,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         proxyEp.connections = [ connection ]
         connection.endpoints[index] = proxyEp
 
+        originalEndpoint.proxiedBy = proxyEp
         originalEndpoint.setVisible(false)
 
         connection.setVisible(true)
@@ -1900,6 +1908,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             originalElementId = connection.proxies[index].originalEp.elementId
 
         connection.endpoints[index] = connection.proxies[index].originalEp
+        delete connection.proxies[index].originalEp.proxiedBy
 
         this.sourceOrTargetChanged(proxyElId, originalElementId, connection, originalElement, index)
 
