@@ -1,3 +1,9 @@
+## 4.0.0-RC71
+
+- changed `makeSource` method signature to take Element, not jsPlumbElement
+- `on`/`off`/`trigger` methods now take `Document | Element` ( they always did, but the method signatures did not reflect that reality)
+- AnchorSpec now supports dynamic anchor
+
 ## 4.0.0-RC70
 
 6th March 2021

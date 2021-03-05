@@ -278,7 +278,7 @@ export declare abstract class JsPlumbInstance<T extends {
     unmakeEveryTarget(connectionType?: string): void;
     private _writeScopeAttribute;
     protected _createSourceDefinition(params?: SourceBehaviouralTypeDescriptor, referenceParams?: SourceBehaviouralTypeDescriptor): SourceDefinition;
-    makeSource(el: jsPlumbElement<T["E"]>, params?: SourceBehaviouralTypeDescriptor, referenceParams?: SourceBehaviouralTypeDescriptor): JsPlumbInstance;
+    makeSource(el: T["E"], params?: SourceBehaviouralTypeDescriptor, referenceParams?: SourceBehaviouralTypeDescriptor): JsPlumbInstance;
     /**
      * Registers a selector for connection drag on the instance. This is a newer version of the `makeSource` functionality
      * that has been in jsPlumb since the early days. With this approach, rather than calling `makeSource` on every element, you
@@ -381,9 +381,9 @@ export declare abstract class JsPlumbInstance<T extends {
     abstract getOffset(el: T["E"]): PointXY;
     abstract getOffsetRelativeToRoot(el: T["E"] | string): PointXY;
     abstract setPosition(el: T["E"], p: PointXY): void;
-    abstract on(el: T["E"], event: string, callbackOrSelector: Function | string, callback?: Function): void;
-    abstract off(el: T["E"], event: string, callback: Function): void;
-    abstract trigger(el: T["E"], event: string, originalEvent?: Event, payload?: any): void;
+    abstract on(el: Document | T["E"], event: string, callbackOrSelector: Function | string, callback?: Function): void;
+    abstract off(el: Document | T["E"], event: string, callback: Function): void;
+    abstract trigger(el: Document | T["E"], event: string, originalEvent?: Event, payload?: any): void;
     abstract getPath(segment: Segment, isFirstSegment: boolean): string;
     abstract paintOverlay(o: Overlay, params: any, extents: any): void;
     abstract addOverlayClass(o: Overlay, clazz: string): void;

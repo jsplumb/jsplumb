@@ -53,7 +53,8 @@ export declare type FullAnchorSpec = {
     type: AnchorId;
     options: AnchorOptions;
 };
-export declare type AnchorSpec = AnchorId | FullAnchorSpec | AnchorPlacement | Array<AnchorPlacement>;
+export declare type SingleAnchorSpec = AnchorId | FullAnchorSpec | AnchorPlacement | Array<AnchorPlacement>;
+export declare type AnchorSpec = SingleAnchorSpec | Array<SingleAnchorSpec>;
 export declare const Anchors: {
     get: (instance: JsPlumbInstance<any>, name: string, args: any) => Anchor;
 };

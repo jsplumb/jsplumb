@@ -114,9 +114,9 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     getAttribute(el: Element, name: string): string;
     setAttributes(el: Element, atts: Dictionary<string>): void;
     removeAttribute(el: Element, attName: string): void;
-    on(el: Element, event: string, callbackOrSelector: Function | string, callback?: Function): this;
-    off(el: Element, event: string, callback: Function): this;
-    trigger(el: Element, event: string, originalEvent?: Event, payload?: any): void;
+    on(el: Document | Element, event: string, callbackOrSelector: Function | string, callback?: Function): this;
+    off(el: Document | Element, event: string, callback: Function): this;
+    trigger(el: Document | Element, event: string, originalEvent?: Event, payload?: any): void;
     getOffsetRelativeToRoot(el: Element): PointXY;
     getOffset(el: Element): PointXY;
     getSize(el: Element): Size;

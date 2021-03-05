@@ -9009,19 +9009,20 @@ function (_EventGenerator) {
   }, {
     key: "makeSource",
     value: function makeSource(el, params, referenceParams) {
+      var jel = el;
       var p = extend(extend({}, params), referenceParams || {});
       var _def = this._createSourceDefinition(params, referenceParams);
       this.manage(el);
       this.setAttribute(el, ATTRIBUTE_SOURCE, "");
       this._writeScopeAttribute(el, p.scope || this.Defaults.scope);
       this.setAttribute(el, [ATTRIBUTE_SOURCE, p.connectionType].join("-"), "");
-      el._jsPlumbSourceDefinitions = el._jsPlumbSourceDefinitions || [];
+      jel._jsPlumbSourceDefinitions = jel._jsPlumbSourceDefinitions || [];
       if (p.createEndpoint) {
         _def.uniqueEndpoint = true;
         _def.endpoint = this.addEndpoint(el, _def.def);
         _def.endpoint.deleteOnEmpty = false;
       }
-      el._jsPlumbSourceDefinitions.push(_def);
+      jel._jsPlumbSourceDefinitions.push(_def);
       return this;
     }
   }, {
