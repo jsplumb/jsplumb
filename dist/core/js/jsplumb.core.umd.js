@@ -6120,7 +6120,8 @@
         if (esgcp == null || etgcp == null || esgcp.id !== etgcp.id) {
           var groupEl = group.el,
               groupElId = this.instance.getId(groupEl);
-          this.instance.proxyConnection(conn, index, groupEl, groupElId, function (conn, index) {
+          this.instance.proxyConnection(conn, index, groupEl,
+          function (conn, index) {
             return group.getEndpoint(conn, index);
           }, function (conn, index) {
             return group.getAnchor(conn, index);
@@ -6133,7 +6134,7 @@
     }, {
       key: "_expandConnection",
       value: function _expandConnection(c, index, group) {
-        this.instance.unproxyConnection(c, index, this.instance.getId(group.el));
+        this.instance.unproxyConnection(c, index);
       }
     }, {
       key: "isElementDescendant",
@@ -9277,11 +9278,12 @@
       }
     }, {
       key: "proxyConnection",
-      value: function proxyConnection(connection, index, proxyEl, proxyElId, endpointGenerator, anchorGenerator) {
+      value: function proxyConnection(connection, index, proxyEl, endpointGenerator, anchorGenerator) {
         var alreadyProxied = connection.proxies[index] != null,
             proxyEp,
             originalElementId = alreadyProxied ? connection.proxies[index].originalEp.elementId : connection.endpoints[index].elementId,
-            originalEndpoint = alreadyProxied ? connection.proxies[index].originalEp : connection.endpoints[index];
+            originalEndpoint = alreadyProxied ? connection.proxies[index].originalEp : connection.endpoints[index],
+            proxyElId = this.getId(proxyEl);
         if (connection.proxies[index]) {
           if (connection.proxies[index].ep.elementId === proxyElId) {
             proxyEp = connection.proxies[index].ep;
@@ -9320,12 +9322,13 @@
       }
     }, {
       key: "unproxyConnection",
-      value: function unproxyConnection(connection, index, proxyElId) {
+      value: function unproxyConnection(connection, index) {
         if (connection.proxies == null || connection.proxies[index] == null) {
           return;
         }
         var originalElement = connection.proxies[index].originalEp.element,
-            originalElementId = connection.proxies[index].originalEp.elementId;
+            originalElementId = connection.proxies[index].originalEp.elementId,
+            proxyElId = connection.proxies[index].ep.elementId;
         connection.endpoints[index] = connection.proxies[index].originalEp;
         delete connection.proxies[index].originalEp.proxiedBy;
         this.sourceOrTargetChanged(proxyElId, originalElementId, connection, originalElement, index);

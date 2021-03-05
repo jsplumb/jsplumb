@@ -1,3 +1,10 @@
+## 4.0.0-RC69
+
+6th March 2021
+
+- added missing `reattach` parameter to ConnectParams
+- removed unnecessary 'id' parameter in `proxyConnection` and `unproxyConnection` method signatures - it is derived from the element passed in.
+
 ## 4.0.0-RC68
 
 5th March 2021

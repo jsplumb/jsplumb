@@ -358,7 +358,7 @@ export class GroupManager<E> {
 
         if (esgcp == null || etgcp == null || (esgcp.id !== etgcp.id)) {
             let groupEl = group.el, groupElId = this.instance.getId(groupEl)
-            this.instance.proxyConnection(conn, index, groupEl, groupElId, (conn:Connection, index:number) => { return group.getEndpoint(conn, index); }, (conn:Connection, index:number) => { return group.getAnchor(conn, index); })
+            this.instance.proxyConnection(conn, index, groupEl, /*groupElId, */(conn:Connection, index:number) => { return group.getEndpoint(conn, index); }, (conn:Connection, index:number) => { return group.getAnchor(conn, index); })
             return true
         } else {
             return false
@@ -366,7 +366,7 @@ export class GroupManager<E> {
     }
 
     private _expandConnection(c:Connection, index:number, group:UIGroup<E>) {
-        this.instance.unproxyConnection(c, index, this.instance.getId(group.el))
+        this.instance.unproxyConnection(c, index)
     }
 
     private isElementDescendant(el:any, parentEl:any): boolean {

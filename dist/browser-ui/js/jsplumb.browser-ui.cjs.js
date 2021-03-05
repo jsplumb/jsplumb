@@ -3374,9 +3374,9 @@ function () {
     key: "newConnection",
     value: function newConnection(c, el, index) {
       if (el.offsetTop < this.el.scrollTop) {
-        this._proxyConnection(el, c, index, this.instance.getId(this.el), SupportedEdge.top);
+        this._proxyConnection(el, c, index, SupportedEdge.top);
       } else if (el.offsetTop + el.offsetHeight > this.el.scrollTop + this.domElement.offsetHeight) {
-        this._proxyConnection(el, c, index, this.instance.getId(this.el), SupportedEdge.bottom);
+        this._proxyConnection(el, c, index, SupportedEdge.bottom);
       }
     }
   }, {
@@ -3391,12 +3391,12 @@ function () {
           _this2.instance.select({
             source: children[i]
           }).each(function (c) {
-            _this2._proxyConnection(children[i], c, 0, elId, SupportedEdge.top);
+            _this2._proxyConnection(children[i], c, 0, SupportedEdge.top);
           });
           _this2.instance.select({
             target: children[i]
           }).each(function (c) {
-            _this2._proxyConnection(children[i], c, 1, elId, SupportedEdge.top);
+            _this2._proxyConnection(children[i], c, 1, SupportedEdge.top);
           });
         }
         else if (children[i].offsetTop + children[i].offsetHeight > _this2.el.scrollTop + _this2.domElement.offsetHeight) {
@@ -3404,16 +3404,16 @@ function () {
             _this2.instance.select({
               source: children[i]
             }).each(function (c) {
-              _this2._proxyConnection(children[i], c, 0, elId, SupportedEdge.bottom);
+              _this2._proxyConnection(children[i], c, 0, SupportedEdge.bottom);
             });
             _this2.instance.select({
               target: children[i]
             }).each(function (c) {
-              _this2._proxyConnection(children[i], c, 1, elId, SupportedEdge.bottom);
+              _this2._proxyConnection(children[i], c, 1, SupportedEdge.bottom);
             });
           } else if (children[i]._jsPlumbProxies) {
             for (var j = 0; j < children[i]._jsPlumbProxies.length; j++) {
-              _this2.instance.unproxyConnection(children[i]._jsPlumbProxies[j][0], children[i]._jsPlumbProxies[j][1], elId);
+              _this2.instance.unproxyConnection(children[i]._jsPlumbProxies[j][0], children[i]._jsPlumbProxies[j][1]);
             }
             delete children[i]._jsPlumbProxies;
           }
@@ -3425,9 +3425,10 @@ function () {
     }
   }, {
     key: "_proxyConnection",
-    value: function _proxyConnection(el, conn, index, elId, edge) {
+    value: function _proxyConnection(el, conn, index,
+    edge) {
       var _this3 = this;
-      this.instance.proxyConnection(conn, index, this.domElement, elId, function (c, index) {
+      this.instance.proxyConnection(conn, index, this.domElement, function (c, index) {
         return _this3.deriveEndpoint(edge, index, conn.endpoints[index], conn);
       }, function (c, index) {
         return _this3.deriveAnchor(edge, index, conn.endpoints[index], conn);
@@ -3444,7 +3445,7 @@ function () {
       for (var i = 0; i < children.length; i++) {
         if (children[i]._jsPlumbProxies) {
           for (var j = 0; j < children[i]._jsPlumbProxies.length; j++) {
-            this.instance.unproxyConnection(children[i]._jsPlumbProxies[j][0], children[i]._jsPlumbProxies[j][1], this.elId);
+            this.instance.unproxyConnection(children[i]._jsPlumbProxies[j][0], children[i]._jsPlumbProxies[j][1]);
           }
           delete children[i]._jsPlumbProxies;
         }
