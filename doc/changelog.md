@@ -1,3 +1,10 @@
+## 4.0.0-RC70
+
+6th March 2021
+
+- `AnchorOptions` now extends `Record<string, any>`
+- added `dashstyle` to `PaintStyle` interface 
+
 ## 4.0.0-RC69
 
 6th March 2021

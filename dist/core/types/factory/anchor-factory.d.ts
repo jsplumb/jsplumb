@@ -24,7 +24,7 @@ export declare type AnchorComputeParams = {
     rotation?: Rotations;
     tRotation?: Rotations;
 };
-export interface AnchorOptions {
+export interface AnchorOptions extends Record<string, any> {
     cssClass?: string;
 }
 export declare enum AnchorLocations {

@@ -4,4 +4,5 @@ export interface PaintStyle {
     strokeWidth?: number;
     outlineStroke?: string;
     outlineWidth?: number;
+    dashstyle?: string;
 }
