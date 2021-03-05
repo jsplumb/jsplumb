@@ -106,6 +106,8 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
 
     maxConnections:number
 
+    proxiedBy:Endpoint<E>
+
     connectorClass:string
     connectorHoverClass:string
 
