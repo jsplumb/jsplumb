@@ -71,8 +71,10 @@ export class UIGroup<E = any> extends UINode<E> {
         this.droppable = options.droppable !== false
         this.ghost = options.ghost === true
         this.enabled = options.enabled !== false
+
         this.orphan = options.orphan === true
-        this.prune = options.prune === true
+        this.prune = this.orphan !== true && options.prune === true
+
         this.constrain = this.ghost || (options.constrain === true)
         this.proxied = options.proxied !== false
         this.id = options.id || uuid()
@@ -154,7 +156,7 @@ export class UIGroup<E = any> extends UINode<E> {
         for (let i = 0, l = this.children.length; i < l; i++) {
             let el = this.children[0]
             this.remove(el, manipulateDOM, doNotFireEvent, true)
-            this.manager.instance.removeElement(el)
+            this.manager.instance.unmanage(el, true)
         }
         this.children.length = 0
         this.manager._updateConnectionsForGroup(this)
