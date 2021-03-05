@@ -33,7 +33,7 @@ export type AnchorComputeParams = {
     tRotation?:Rotations
 }
 
-export interface AnchorOptions {
+export interface AnchorOptions extends Record<string, any> {
     cssClass?:string
 }
 
