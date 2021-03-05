@@ -27,6 +27,7 @@ export interface ConnectParams {
     target?: Element | Endpoint
     detachable?: boolean
     deleteEndpointsOnDetach?: boolean
+    reattach?: boolean
     endpoint?: EndpointSpec
     anchor?: AnchorSpec
     anchors?: [AnchorSpec, AnchorSpec]
