@@ -56,13 +56,13 @@ var testSuite = function () {
         var c = _jsPlumb.connect({source:d1, target:d2})
         var originalTargetEp = c.endpoints[1]
 
-        _jsPlumb.proxyConnection(c, 1, d3, _jsPlumb.getId(d3),  function() { return "Rectangle" },  function() { return "Top" });
+        _jsPlumb.proxyConnection(c, 1, d3,   function() { return "Rectangle" },  function() { return "Top" });
         ok(c.proxies[1] != null, "target proxy set on the connection")
         equal(c.proxies[1].originalEp, originalTargetEp, "target endpoint stashed correctly")
         equal(c.endpoints[1].id, originalTargetEp.proxiedBy.id, "proxiedBy is set on original endpoint")
 
         // now unproxy and check everything was cleaned up
-        _jsPlumb.unproxyConnection(c, 1, _jsPlumb.getId(d3))
+        _jsPlumb.unproxyConnection(c, 1)
         ok(c.proxies[1] == null, "target proxy cleared from the connection")
         equal(c.endpoints[1], originalTargetEp, "target endpoint stashed correctly")
         equal(null, originalTargetEp.proxiedBy, "proxiedBy is set on original endpoint")
@@ -75,7 +75,7 @@ var testSuite = function () {
         var c = _jsPlumb.connect({source:d1, target:d2})
         var originalTargetEp = c.endpoints[1]
 
-        _jsPlumb.proxyConnection(c, 1, d3, _jsPlumb.getId(d3),  function() { return "Rectangle" },  function() { return "Top" });
+        _jsPlumb.proxyConnection(c, 1, d3,   function() { return "Rectangle" },  function() { return "Top" });
         ok(c.proxies[1] != null, "target proxy set on the connection")
         equal(c.proxies[1].originalEp, originalTargetEp, "target endpoint stashed correctly")
         equal(c.endpoints[1].id, originalTargetEp.proxiedBy.id, "proxiedBy is set on original endpoint")
