@@ -24,9 +24,9 @@ export enum SupportedEdge {
 
 export interface JsPlumbListOptions {
     anchor?:AnchorSpec
-    deriveAnchor?:(edge:SupportedEdge, index:number, ep:Endpoint, conn:Connection) => Anchor
+    deriveAnchor?:(edge:SupportedEdge, index:number, ep:Endpoint, conn:Connection) => AnchorSpec
     endpoint?:EndpointSpec
-    deriveEndpoint?:(edge:SupportedEdge, index:number, ep:Endpoint, conn:Connection) => Endpoint
+    deriveEndpoint?:(edge:SupportedEdge, index:number, ep:Endpoint, conn:Connection) => EndpointSpec
 }
 
 const DEFAULT_ANCHOR_LOCATIONS:Map<SupportedEdge, [string, string]> = new Map()
@@ -184,7 +184,7 @@ export class JsPlumbList {
      * @param ep the endpoint that is being proxied
      * @param conn the connection that is being proxied
      */
-    private deriveAnchor(edge:SupportedEdge, index:number, ep:Endpoint, conn:Connection) {
+    private deriveAnchor(edge:SupportedEdge, index:number, ep:Endpoint, conn:Connection):AnchorSpec {
         return this.options.anchor ? this.options.anchor : this.options.deriveAnchor(edge, index, ep, conn)
     }
 
@@ -196,7 +196,7 @@ export class JsPlumbList {
      * @param ep the endpoint that is being proxied
      * @param conn the connection that is being proxied
      */
-    private deriveEndpoint(edge:SupportedEdge, index:number, ep:Endpoint, conn:Connection) {
+    private deriveEndpoint(edge:SupportedEdge, index:number, ep:Endpoint, conn:Connection):EndpointSpec {
         return this.options.deriveEndpoint ? this.options.deriveEndpoint(edge, index, ep, conn) : this.options.endpoint ? this.options.endpoint : ep.endpoint.getType()
     }
 
@@ -272,9 +272,9 @@ export class JsPlumbList {
      * @private
      */
     private _proxyConnection(el:Element, conn:Connection, index:number, elId:string, edge:SupportedEdge) {
-        this.instance.proxyConnection(conn, index, this.domElement, elId,  () => {
+        this.instance.proxyConnection(conn, index, this.domElement, elId,  (c:Connection, index:number) => {
             return this.deriveEndpoint(edge, index, conn.endpoints[index], conn)
-        },  () => {
+        },  (c:Connection, index:number) => {
             return this.deriveAnchor(edge, index, conn.endpoints[index], conn)
         });
         (el as any)._jsPlumbProxies = (el as any)._jsPlumbProxies || [];
