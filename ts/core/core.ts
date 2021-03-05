@@ -1537,8 +1537,9 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return _def
     }
 
-    makeSource(el:jsPlumbElement<T["E"]>, params?:SourceBehaviouralTypeDescriptor, referenceParams?:SourceBehaviouralTypeDescriptor):JsPlumbInstance {
+    makeSource(el:T["E"], params?:SourceBehaviouralTypeDescriptor, referenceParams?:SourceBehaviouralTypeDescriptor):JsPlumbInstance {
 
+        const jel = el as unknown as jsPlumbElement<T["E"]>
         let p:SourceBehaviouralTypeDescriptor = extend(extend({}, params), referenceParams || {})
 
         const _def = this._createSourceDefinition(params, referenceParams)
@@ -1548,7 +1549,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         this._writeScopeAttribute(el, (p.scope || this.Defaults.scope))
         this.setAttribute(el, [ Constants.ATTRIBUTE_SOURCE, p.connectionType].join("-"), "")
 
-        el._jsPlumbSourceDefinitions = el._jsPlumbSourceDefinitions || []
+        jel._jsPlumbSourceDefinitions = jel._jsPlumbSourceDefinitions || []
 
         if (p.createEndpoint) {
             _def.uniqueEndpoint = true
@@ -1556,7 +1557,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             _def.endpoint.deleteOnEmpty = false
         }
 
-        el._jsPlumbSourceDefinitions.push(_def)
+        jel._jsPlumbSourceDefinitions.push(_def)
 
         return this
     }
@@ -2153,9 +2154,9 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     abstract setPosition(el:T["E"], p:PointXY):void
 
-    abstract on (el:T["E"], event:string, callbackOrSelector:Function | string, callback?:Function):void
-    abstract off (el:T["E"], event:string, callback:Function):void
-    abstract trigger(el:T["E"], event:string, originalEvent?:Event, payload?:any):void
+    abstract on (el:Document | T["E"], event:string, callbackOrSelector:Function | string, callback?:Function):void
+    abstract off (el:Document | T["E"], event:string, callback:Function):void
+    abstract trigger(el:Document | T["E"], event:string, originalEvent?:Event, payload?:any):void
 
     abstract getPath(segment:Segment, isFirstSegment:boolean):string
 

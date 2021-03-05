@@ -462,7 +462,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         el.removeAttribute && el.removeAttribute(attName)
     }
 
-    on (el:Element, event:string, callbackOrSelector:Function|string, callback?:Function) {
+    on (el:Document | Element, event:string, callbackOrSelector:Function|string, callback?:Function) {
         if (callback == null) {
             this.eventManager.on(el, event, callbackOrSelector)
         } else {
@@ -471,12 +471,12 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         return this
     }
 
-    off (el:Element, event:string, callback:Function) {
+    off (el:Document | Element, event:string, callback:Function) {
         this.eventManager.off(el, event, callback)
         return this
     }
 
-    trigger(el:Element, event:string, originalEvent?:Event, payload?:any) {
+    trigger(el:Document | Element, event:string, originalEvent?:Event, payload?:any) {
         this.eventManager.trigger(el, event, originalEvent, payload)
     }
 
