@@ -5236,6 +5236,7 @@
       _defineProperty(_assertThisInitialized(_this), "timestamp", void 0);
       _defineProperty(_assertThisInitialized(_this), "portId", void 0);
       _defineProperty(_assertThisInitialized(_this), "maxConnections", void 0);
+      _defineProperty(_assertThisInitialized(_this), "proxiedBy", void 0);
       _defineProperty(_assertThisInitialized(_this), "connectorClass", void 0);
       _defineProperty(_assertThisInitialized(_this), "connectorHoverClass", void 0);
       _defineProperty(_assertThisInitialized(_this), "finalEndpoint", void 0);
@@ -5612,7 +5613,7 @@
       _this.ghost = options.ghost === true;
       _this.enabled = options.enabled !== false;
       _this.orphan = options.orphan === true;
-      _this.prune = options.prune === true;
+      _this.prune = _this.orphan !== true && options.prune === true;
       _this.constrain = _this.ghost || options.constrain === true;
       _this.proxied = options.proxied !== false;
       _this.id = options.id || uuid();
@@ -5705,7 +5706,7 @@
         for (var i = 0, l = this.children.length; i < l; i++) {
           var _el2 = this.children[0];
           this.remove(_el2, manipulateDOM, doNotFireEvent, true);
-          this.manager.instance.removeElement(_el2);
+          this.manager.instance.unmanage(_el2, true);
         }
         this.children.length = 0;
         this.manager._updateConnectionsForGroup(this);
@@ -8563,6 +8564,7 @@
         var _this5 = this;
         var endpoint = typeof object === "string" ? this.endpointsByUUID.get(object) : object;
         if (endpoint) {
+          var proxy = endpoint.proxiedBy;
           var connectionsToDelete = endpoint.connections.slice();
           forEach(connectionsToDelete, function (connection) {
             endpoint.detachFromConnection(connection, null, true);
@@ -8575,6 +8577,9 @@
               endpointToIgnore: endpoint
             });
           });
+          if (proxy != null) {
+            this.deleteEndpoint(proxy);
+          }
         }
         return this;
       }
@@ -8881,10 +8886,10 @@
         } else {
           var eldefs = el[key];
           if (eldefs && eldefs.length > 0) {
-            var idx = connectionType == null ? 0 : findWithFunction(eldefs, function (d) {
+            var _idx = connectionType == null ? 0 : findWithFunction(eldefs, function (d) {
               return d.def.connectionType === connectionType;
             });
-            if (idx >= 0) {
+            if (_idx >= 0) {
               return eldefs[0];
             }
           }
@@ -9308,6 +9313,7 @@
         originalEndpoint.detachFromConnection(connection, null, true);
         proxyEp.connections = [connection];
         connection.endpoints[index] = proxyEp;
+        originalEndpoint.proxiedBy = proxyEp;
         originalEndpoint.setVisible(false);
         connection.setVisible(true);
         this.revalidate(proxyEl);
@@ -9321,6 +9327,7 @@
         var originalElement = connection.proxies[index].originalEp.element,
             originalElementId = connection.proxies[index].originalEp.elementId;
         connection.endpoints[index] = connection.proxies[index].originalEp;
+        delete connection.proxies[index].originalEp.proxiedBy;
         this.sourceOrTargetChanged(proxyElId, originalElementId, connection, originalElement, index);
         connection.proxies[index].ep.detachFromConnection(connection, null);
         connection.proxies[index].originalEp.addConnection(connection);

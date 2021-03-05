@@ -1,6 +1,6 @@
 import { BrowserJsPlumbInstance } from "./browser-jsplumb-instance";
 import { jsPlumbDOMElement } from './element-facade';
-import { EndpointSpec, Endpoint, Connection, AnchorSpec, Anchor, Dictionary } from '@jsplumb/core';
+import { EndpointSpec, Endpoint, Connection, AnchorSpec, Dictionary } from '@jsplumb/core';
 export interface ListManagerOptions {
 }
 export declare enum SupportedEdge {
@@ -9,9 +9,9 @@ export declare enum SupportedEdge {
 }
 export interface JsPlumbListOptions {
     anchor?: AnchorSpec;
-    deriveAnchor?: (edge: SupportedEdge, index: number, ep: Endpoint, conn: Connection) => Anchor;
+    deriveAnchor?: (edge: SupportedEdge, index: number, ep: Endpoint, conn: Connection) => AnchorSpec;
     endpoint?: EndpointSpec;
-    deriveEndpoint?: (edge: SupportedEdge, index: number, ep: Endpoint, conn: Connection) => Endpoint;
+    deriveEndpoint?: (edge: SupportedEdge, index: number, ep: Endpoint, conn: Connection) => EndpointSpec;
 }
 export declare const ATTR_SCROLLABLE_LIST = "jtk-scrollable-list";
 export declare const SELECTOR_SCROLLABLE_LIST: string;

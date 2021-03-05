@@ -1,3 +1,10 @@
+## 4.0.0-RC68
+
+5th March 2021
+
+- fixed issue that would prevent the deletion of connections that have been proxied, when the original endpoint is deleted
+- fixed issue with group deletion not resulting in edges belonging to child nodes also being deleted
+
 ## 4.0.0-RC67
 
 4th March 2021

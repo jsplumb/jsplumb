@@ -88,6 +88,7 @@ export declare class Endpoint<E = any> extends OverlayCapableComponent {
     timestamp: string;
     portId: string;
     maxConnections: number;
+    proxiedBy: Endpoint<E>;
     connectorClass: string;
     connectorHoverClass: string;
     finalEndpoint: Endpoint<E>;

@@ -332,7 +332,7 @@ export declare abstract class JsPlumbInstance<T extends {
     importDefaults(d: jsPlumbDefaults<T["E"]>): JsPlumbInstance;
     restoreDefaults(): JsPlumbInstance;
     getManagedElements(): Dictionary<ManagedElement<T["E"]>>;
-    proxyConnection(connection: Connection, index: number, proxyEl: T["E"], proxyElId: string, endpointGenerator: any, anchorGenerator: any): void;
+    proxyConnection(connection: Connection, index: number, proxyEl: T["E"], proxyElId: string, endpointGenerator: (c: Connection, idx: number) => EndpointSpec, anchorGenerator: (c: Connection, idex: number) => AnchorSpec): void;
     unproxyConnection(connection: Connection, index: number, proxyElId: string): void;
     sourceOrTargetChanged(originalId: string, newId: string, connection: any, newElement: any, index: number): void;
     getGroup(groupId: string): UIGroup<T["E"]>;

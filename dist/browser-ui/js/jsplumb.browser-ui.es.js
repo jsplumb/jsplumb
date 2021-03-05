@@ -1,4 +1,4 @@
-import { fastTrim, forEach, isArray, log, NONE, EVENT_CONTEXTMENU, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, EVENT_CLICK, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, uuid, IS, extend, PARENT_GROUP_KEY, wrap, getWithFunction, isString, optional, getFromSetWithFunction, intersects, GROUP_KEY, cls, each, makeAnchorFromSpec, AnchorLocations, findWithFunction, IS_GROUP_KEY, SOURCE, TARGET, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, SELECTOR_MANAGED_ELEMENT, Connection, Endpoint, Overlay, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, UNDEFINED, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, fromArray, ATTRIBUTE_NOT_DRAGGABLE, TRUE as TRUE$1, FALSE as FALSE$1, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE as EVENT_MOUSEMOVE$1, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, EndpointRepresentation, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/core';
+import { fastTrim, forEach, isArray, log, NONE, EVENT_CONTEXTMENU, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, EVENT_CLICK, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, uuid, IS, extend, wrap, getWithFunction, isString, optional, getFromSetWithFunction, intersects, GROUP_KEY, cls, each, makeAnchorFromSpec, AnchorLocations, findWithFunction, SOURCE, TARGET, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, SELECTOR_MANAGED_ELEMENT, Connection, Endpoint, Overlay, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, UNDEFINED, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, fromArray, ATTRIBUTE_NOT_DRAGGABLE, TRUE as TRUE$1, FALSE as FALSE$1, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE as EVENT_MOUSEMOVE$1, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, EndpointRepresentation, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/core';
 
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -1759,7 +1759,7 @@ function () {
       },
       revert: function revert(dragEl, pos) {
         var _el = dragEl;
-        return _el.parentNode != null && _el[PARENT_GROUP_KEY] && _el[PARENT_GROUP_KEY].revert ? !_isInsideParent(_this.instance, _el, pos) : false;
+        return _el.parentNode != null && _el._jsPlumbParentGroup && _el._jsPlumbParentGroup.revert ? !_isInsideParent(_this.instance, _el, pos) : false;
       }
     });
     this.instance.bind(EVENT_ZOOM, function (z) {
@@ -2084,9 +2084,9 @@ function () {
         });
         var _one = function _one(_el) {
           if (!_el._isJsPlumbGroup || _this4.instance.allowNestedGroups) {
-            var isNotInAGroup = !_el[PARENT_GROUP_KEY];
-            var membersAreDroppable = isNotInAGroup || _el[PARENT_GROUP_KEY].dropOverride !== true;
-            var isGhostOrNotConstrained = !isNotInAGroup && (_el[PARENT_GROUP_KEY].ghost || _el[PARENT_GROUP_KEY].constrain !== true);
+            var isNotInAGroup = !_el._jsPlumbParentGroup;
+            var membersAreDroppable = isNotInAGroup || _el._jsPlumbParentGroup.dropOverride !== true;
+            var isGhostOrNotConstrained = !isNotInAGroup && (_el._jsPlumbParentGroup.ghost || _el._jsPlumbParentGroup.constrain !== true);
             if (isNotInAGroup || membersAreDroppable && isGhostOrNotConstrained) {
               forEach(_this4.instance.groupManager.getGroups(), function (group) {
                 var elementGroup = _el[GROUP_KEY];
@@ -2654,9 +2654,9 @@ function () {
         }
       });
       this.endpointDropTargets.sort(function (a, b) {
-        if (a.el[IS_GROUP_KEY] && !b.el[IS_GROUP_KEY]) {
+        if (a.el._isJsPlumbGroup && !b.el._isJsPlumbGroup) {
           return 1;
-        } else if (!a.el[IS_GROUP_KEY] && b.el[IS_GROUP_KEY]) {
+        } else if (!a.el._isJsPlumbGroup && b.el._isJsPlumbGroup) {
           return -1;
         } else {
           if (a.rank != null && b.rank != null) {
@@ -3176,10 +3176,11 @@ function (_ElementDragHandler) {
   }, {
     key: "onStop",
     value: function onStop(params) {
+      var jel = params.el;
       var originalElement = params.drag.getDragElement(true);
-      var originalGroup = params.el[PARENT_GROUP_KEY],
+      var originalGroup = jel._jsPlumbParentGroup,
           out = _get(_getPrototypeOf(GroupDragHandler.prototype), "onStop", this).call(this, params),
-          currentGroup = params.el[PARENT_GROUP_KEY];
+          currentGroup = jel._jsPlumbParentGroup;
       if (currentGroup === originalGroup) {
         this._pruneOrOrphan(params);
       } else {
@@ -3215,7 +3216,7 @@ function (_ElementDragHandler) {
       var jel = params.el;
       var orphanedPosition = null;
       if (!this._isInsideParent(jel, params.pos)) {
-        var group = params.el[PARENT_GROUP_KEY];
+        var group = jel._jsPlumbParentGroup;
         if (group.prune) {
           if (jel._isJsPlumbGroup) {
             this.instance.removeGroup(jel._jsPlumbGroup);
@@ -3422,9 +3423,9 @@ function () {
     key: "_proxyConnection",
     value: function _proxyConnection(el, conn, index, elId, edge) {
       var _this3 = this;
-      this.instance.proxyConnection(conn, index, this.domElement, elId, function () {
+      this.instance.proxyConnection(conn, index, this.domElement, elId, function (c, index) {
         return _this3.deriveEndpoint(edge, index, conn.endpoints[index], conn);
-      }, function () {
+      }, function (c, index) {
         return _this3.deriveAnchor(edge, index, conn.endpoints[index], conn);
       });
       el._jsPlumbProxies = el._jsPlumbProxies || [];

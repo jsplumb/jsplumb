@@ -1763,7 +1763,7 @@
         },
         revert: function revert(dragEl, pos) {
           var _el = dragEl;
-          return _el.parentNode != null && _el[core.PARENT_GROUP_KEY] && _el[core.PARENT_GROUP_KEY].revert ? !_isInsideParent(_this.instance, _el, pos) : false;
+          return _el.parentNode != null && _el._jsPlumbParentGroup && _el._jsPlumbParentGroup.revert ? !_isInsideParent(_this.instance, _el, pos) : false;
         }
       });
       this.instance.bind(EVENT_ZOOM, function (z) {
@@ -2088,9 +2088,9 @@
           });
           var _one = function _one(_el) {
             if (!_el._isJsPlumbGroup || _this4.instance.allowNestedGroups) {
-              var isNotInAGroup = !_el[core.PARENT_GROUP_KEY];
-              var membersAreDroppable = isNotInAGroup || _el[core.PARENT_GROUP_KEY].dropOverride !== true;
-              var isGhostOrNotConstrained = !isNotInAGroup && (_el[core.PARENT_GROUP_KEY].ghost || _el[core.PARENT_GROUP_KEY].constrain !== true);
+              var isNotInAGroup = !_el._jsPlumbParentGroup;
+              var membersAreDroppable = isNotInAGroup || _el._jsPlumbParentGroup.dropOverride !== true;
+              var isGhostOrNotConstrained = !isNotInAGroup && (_el._jsPlumbParentGroup.ghost || _el._jsPlumbParentGroup.constrain !== true);
               if (isNotInAGroup || membersAreDroppable && isGhostOrNotConstrained) {
                 core.forEach(_this4.instance.groupManager.getGroups(), function (group) {
                   var elementGroup = _el[core.GROUP_KEY];
@@ -2658,9 +2658,9 @@
           }
         });
         this.endpointDropTargets.sort(function (a, b) {
-          if (a.el[core.IS_GROUP_KEY] && !b.el[core.IS_GROUP_KEY]) {
+          if (a.el._isJsPlumbGroup && !b.el._isJsPlumbGroup) {
             return 1;
-          } else if (!a.el[core.IS_GROUP_KEY] && b.el[core.IS_GROUP_KEY]) {
+          } else if (!a.el._isJsPlumbGroup && b.el._isJsPlumbGroup) {
             return -1;
           } else {
             if (a.rank != null && b.rank != null) {
@@ -3180,10 +3180,11 @@
     }, {
       key: "onStop",
       value: function onStop(params) {
+        var jel = params.el;
         var originalElement = params.drag.getDragElement(true);
-        var originalGroup = params.el[core.PARENT_GROUP_KEY],
+        var originalGroup = jel._jsPlumbParentGroup,
             out = _get(_getPrototypeOf(GroupDragHandler.prototype), "onStop", this).call(this, params),
-            currentGroup = params.el[core.PARENT_GROUP_KEY];
+            currentGroup = jel._jsPlumbParentGroup;
         if (currentGroup === originalGroup) {
           this._pruneOrOrphan(params);
         } else {
@@ -3219,7 +3220,7 @@
         var jel = params.el;
         var orphanedPosition = null;
         if (!this._isInsideParent(jel, params.pos)) {
-          var group = params.el[core.PARENT_GROUP_KEY];
+          var group = jel._jsPlumbParentGroup;
           if (group.prune) {
             if (jel._isJsPlumbGroup) {
               this.instance.removeGroup(jel._jsPlumbGroup);
@@ -3426,9 +3427,9 @@
       key: "_proxyConnection",
       value: function _proxyConnection(el, conn, index, elId, edge) {
         var _this3 = this;
-        this.instance.proxyConnection(conn, index, this.domElement, elId, function () {
+        this.instance.proxyConnection(conn, index, this.domElement, elId, function (c, index) {
           return _this3.deriveEndpoint(edge, index, conn.endpoints[index], conn);
-        }, function () {
+        }, function (c, index) {
           return _this3.deriveAnchor(edge, index, conn.endpoints[index], conn);
         });
         el._jsPlumbProxies = el._jsPlumbProxies || [];
