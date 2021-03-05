@@ -184,6 +184,36 @@ var testSuite = function () {
         }
     };
 
+    /**
+     * testing the various defaults, combinations of values. for instance, both `prune` and `orphan` cannot be set. the default
+     * is to `orphan`. etc.
+     */
+    test("group construction", function() {
+
+        // default to `orphan` and not `prune`
+        var gg = support.addDiv("group1")
+        var g = _jsPlumb.addGroup({ el: gg })
+
+        equal(false, g.orphan, "by default, group has `orphan` marked false");
+        equal(false, g.prune, "by default, group has `prune` marked false");
+
+        // set prune
+        var gg = support.addDiv("group1")
+        var g = _jsPlumb.addGroup({ el: gg, prune:true })
+
+        equal(false, g.orphan, "group has `orphan` marked false");
+        equal(true, g.prune, "group has `prune` marked true");
+
+        // orphan and prune cannot both be true: orphan has priority
+        var gg = support.addDiv("group1")
+        var g = _jsPlumb.addGroup({ el: gg, prune:true, orphan:true })
+
+        equal(true, g.orphan, "group has `orphan` marked true");
+        equal(false, g.prune, "group has `prune` marked false");
+
+    });
+
+
     test("groups, simple access", function() {
 
         _setupGroups();
@@ -253,6 +283,32 @@ var testSuite = function () {
         catch (e) {
             ok(true, "retrieve group after reset threw exception");
         }
+
+    });
+
+    test("groups, remove group, ensuring removal of children and edges to children", function() {
+
+        _setupGroups();
+
+        // check a group has members
+        equal(_jsPlumb.getGroup("four").children.length, 2, "2 members in group four");
+        equal(_jsPlumb.getGroup("three").children.length, 2, "2 members in group three");
+
+        equal(_jsPlumb.select().length, 13)
+        equal(_jsPlumb.viewport._elementMap.size, 18, "18 managed elements to start with")
+
+        // remove group but not its members
+        _jsPlumb.removeGroup("three")
+        // so no edges should have been removed
+        equal(_jsPlumb.select().length, 13)
+        equal(_jsPlumb.viewport._elementMap.size, 17, "17 managed elements after one group removed, but not its children")
+
+        // remove group AND its members, via flag
+        _jsPlumb.removeGroup("six", true)
+        // so two edges should have been removed
+        equal(_jsPlumb.select().length, 11, "2 edges - to orphaned child nodes - removed")
+        equal(_jsPlumb.viewport._elementMap.size, 14, "14 managed elements after another group, and its 2 children, removed")
+
 
     });
 
