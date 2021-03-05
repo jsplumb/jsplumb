@@ -210,10 +210,10 @@ export class JsPlumbList {
     newConnection(c:Connection, el:jsPlumbDOMElement, index:number) {
 
         if (el.offsetTop < this.el.scrollTop) {
-            this._proxyConnection(el, c, index, this.instance.getId(this.el), SupportedEdge.top)
+            this._proxyConnection(el, c, index, SupportedEdge.top)
         }
         else if (el.offsetTop + el.offsetHeight > this.el.scrollTop + this.domElement.offsetHeight) {
-            this._proxyConnection(el, c, index, this.instance.getId(this.el), SupportedEdge.bottom)
+            this._proxyConnection(el, c, index, SupportedEdge.bottom)
         }
     }
 
@@ -231,11 +231,11 @@ export class JsPlumbList {
             if (children[i].offsetTop < this.el.scrollTop) {
                 children[i]._jsPlumbProxies = children[i]._jsPlumbProxies || []
                 this.instance.select({source: children[i]}).each( (c) => {
-                    this._proxyConnection(children[i], c, 0, elId, SupportedEdge.top)
+                    this._proxyConnection(children[i], c, 0, SupportedEdge.top)
                 })
 
                 this.instance.select({target: children[i]}).each( (c) => {
-                    this._proxyConnection(children[i], c, 1, elId, SupportedEdge.top)
+                    this._proxyConnection(children[i], c, 1, SupportedEdge.top)
                 })
             }
             // if child element is below the viewport, with no proxies, proxy any connections to/from it
@@ -243,16 +243,16 @@ export class JsPlumbList {
                 children[i]._jsPlumbProxies = children[i]._jsPlumbProxies || []
 
                 this.instance.select({source: children[i]}).each( (c:any) => {
-                    this._proxyConnection(children[i], c, 0, elId, SupportedEdge.bottom)
+                    this._proxyConnection(children[i], c, 0, SupportedEdge.bottom)
                 })
 
                 this.instance.select({target: children[i]}).each( (c:any) => {
-                    this._proxyConnection(children[i], c, 1, elId, SupportedEdge.bottom)
+                    this._proxyConnection(children[i], c, 1, SupportedEdge.bottom)
                 })
             // if child element is in the viewport, and has proxied connections, unproxy them.
             } else if (children[i]._jsPlumbProxies) {
                 for (let j = 0; j < children[i]._jsPlumbProxies.length; j++) {
-                    this.instance.unproxyConnection(children[i]._jsPlumbProxies[j][0], children[i]._jsPlumbProxies[j][1], elId)
+                    this.instance.unproxyConnection(children[i]._jsPlumbProxies[j][0], children[i]._jsPlumbProxies[j][1])
                 }
 
                 delete children[i]._jsPlumbProxies
@@ -271,8 +271,8 @@ export class JsPlumbList {
      * @param edge List edge to proxy the connection to - top or bottom.
      * @private
      */
-    private _proxyConnection(el:Element, conn:Connection, index:number, elId:string, edge:SupportedEdge) {
-        this.instance.proxyConnection(conn, index, this.domElement, elId,  (c:Connection, index:number) => {
+    private _proxyConnection(el:Element, conn:Connection, index:number, /*elId:string, */edge:SupportedEdge) {
+        this.instance.proxyConnection(conn, index, this.domElement, (c:Connection, index:number) => {
             return this.deriveEndpoint(edge, index, conn.endpoints[index], conn)
         },  (c:Connection, index:number) => {
             return this.deriveAnchor(edge, index, conn.endpoints[index], conn)
@@ -293,7 +293,7 @@ export class JsPlumbList {
         for (let i = 0; i < children.length; i++) {
             if (children[i]._jsPlumbProxies) {
                 for (let j = 0; j < children[i]._jsPlumbProxies.length; j++) {
-                    this.instance.unproxyConnection(children[i]._jsPlumbProxies[j][0], children[i]._jsPlumbProxies[j][1], this.elId)
+                    this.instance.unproxyConnection(children[i]._jsPlumbProxies[j][0], children[i]._jsPlumbProxies[j][1])
                 }
 
                 delete children[i]._jsPlumbProxies
