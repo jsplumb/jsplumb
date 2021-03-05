@@ -1841,14 +1841,15 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 // ----------------------------- proxy connections -----------------------
 
     proxyConnection(connection:Connection, index:number,
-                    proxyEl:T["E"], proxyElId:string,
+                    proxyEl:T["E"],
                     endpointGenerator:(c:Connection, idx:number) => EndpointSpec,
-                    anchorGenerator:(c:Connection, idex:number) => AnchorSpec) {
+                    anchorGenerator:(c:Connection, idx:number) => AnchorSpec) {
 
         let alreadyProxied = connection.proxies[index] != null,
             proxyEp,
             originalElementId = alreadyProxied ? connection.proxies[index].originalEp.elementId : connection.endpoints[index].elementId,
-            originalEndpoint = alreadyProxied ? connection.proxies[index].originalEp : connection.endpoints[index]
+            originalEndpoint = alreadyProxied ? connection.proxies[index].originalEp : connection.endpoints[index],
+            proxyElId = this.getId(proxyEl)
 
         // if proxies exist for this end of the connection
         if(connection.proxies[index]) {
@@ -1898,14 +1899,15 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         this.revalidate(proxyEl)
     }
 
-    unproxyConnection(connection:Connection, index:number, proxyElId:string) {
+    unproxyConnection(connection:Connection, index:number) {
         // if connection cleaned up, no proxies, or none for this end of the connection, abort.
         if (connection.proxies == null || connection.proxies[index] == null) {
             return
         }
 
         let originalElement = connection.proxies[index].originalEp.element,
-            originalElementId = connection.proxies[index].originalEp.elementId
+            originalElementId = connection.proxies[index].originalEp.elementId,
+            proxyElId = connection.proxies[index].ep.elementId
 
         connection.endpoints[index] = connection.proxies[index].originalEp
         delete connection.proxies[index].originalEp.proxiedBy
