@@ -40,6 +40,7 @@ export interface ConnectParams {
     endpointStyle?:EndpointStyle
     endpointHoverStyle?:EndpointStyle
     ports?:[string, string]
+    type?:string
 }
 
 export interface InternalConnectParams<E> extends ConnectParams {
@@ -104,6 +105,7 @@ export interface BehaviouralTypeDescriptor extends TypeDescriptor {
     allowLoopback?:boolean
     rank?:number
     maxConnections?:number
+    connectorStyle?:PaintStyle
 }
 
 export interface SourceBehaviouralTypeDescriptor extends BehaviouralTypeDescriptor {
