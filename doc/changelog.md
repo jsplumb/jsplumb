@@ -1,4 +1,11 @@
+## 4.0.0-RC72
+
+- added `connectorStyle` to makeSource/makeTarget args
+- added `type` to `ConnectParams`
+
 ## 4.0.0-RC71
+
+6th March 2021
 
 - changed `makeSource` method signature to take Element, not jsPlumbElement
 - `on`/`off`/`trigger` methods now take `Document | Element` ( they always did, but the method signatures did not reflect that reality)
