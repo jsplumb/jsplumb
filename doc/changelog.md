@@ -1,5 +1,7 @@
 ## 4.0.0-RC72
 
+6th March 2021
+
 - added `connectorStyle` to makeSource/makeTarget args
 - added `type` to `ConnectParams`
 
