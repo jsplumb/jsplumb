@@ -27,6 +27,14 @@ interface GroupMemberRemovedParams<E> extends GroupMemberEventParams<E> {
     targetGroup?:UIGroup<E>
 }
 
+export interface GroupCollapsedParams<E> {
+    group:UIGroup<E>
+}
+
+export interface GroupExpandedParams<E> {
+    group:UIGroup<E>
+}
+
 export interface AddGroupOptions extends GroupOptions {
     el:any
     collapsed?:boolean
@@ -430,7 +438,7 @@ export class GroupManager<E> {
 
             this.instance.revalidate(groupEl)
             this.repaintGroup(actualGroup)
-            this.instance.fire(Constants.EVENT_COLLAPSE, { group:actualGroup  })
+            this.instance.fire<GroupCollapsedParams<E>>(Constants.EVENT_GROUP_COLLAPSE, { group:actualGroup  })
 
         } else {
             actualGroup.collapsed = true
@@ -541,7 +549,7 @@ export class GroupManager<E> {
             this.instance.revalidate(groupEl)
             this.repaintGroup(actualGroup)
             if (!doNotFireEvent) {
-                this.instance.fire(Constants.EVENT_EXPAND, {group: group})
+                this.instance.fire<GroupExpandedParams<E>>(Constants.EVENT_GROUP_EXPAND, {group: actualGroup})
             }
         } else {
             actualGroup.collapsed = false
@@ -581,7 +589,7 @@ export class GroupManager<E> {
 
         this.instance.revalidate(targetGroup.el)
         this.repaintGroup(targetGroup.el)
-        this.instance.fire(Constants.EVENT_EXPAND, {group: targetGroup.el})
+        this.instance.fire<GroupExpandedParams<E>>(Constants.EVENT_GROUP_EXPAND, {group: targetGroup.el})
 
         forEach(targetGroup.childGroups,(cg:UIGroup<E>) => {
             this.cascadeExpand(expandedGroup, cg)
