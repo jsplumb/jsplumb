@@ -1,3 +1,12 @@
+## 4.0.0-RC73
+
+8th March 2021
+
+### Breaking
+
+- Renamed `EVENT_EXPAND` constant to `EVENT_GROUP_EXPAND`
+- Renamed `EVENT_COLLAPSE` constant to `EVENT_GROUP_COLLAPSE`
+
 ## 4.0.0-RC72
 
 6th March 2021
