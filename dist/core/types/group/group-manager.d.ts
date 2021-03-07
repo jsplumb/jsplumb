@@ -1,6 +1,12 @@
 import { Dictionary, PointXY } from '../common';
 import { JsPlumbInstance } from "../core";
 import { UIGroup, GroupOptions } from "./group";
+export interface GroupCollapsedParams<E> {
+    group: UIGroup<E>;
+}
+export interface GroupExpandedParams<E> {
+    group: UIGroup<E>;
+}
 export interface AddGroupOptions extends GroupOptions {
     el: any;
     collapsed?: boolean;

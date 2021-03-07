@@ -3147,7 +3147,6 @@
   var CMD_REMOVE_ALL = "removeAll";
   var CMD_SHOW = "show";
   var EVENT_CLICK = "click";
-  var EVENT_COLLAPSE = "group:collapse";
   var EVENT_CONNECTION = "connection";
   var EVENT_CONNECTION_DETACHED = "connection:detach";
   var EVENT_CONNECTION_MOVED = "connection:move";
@@ -3178,9 +3177,9 @@
   var EVENT_MOUSEOUT = "mouseout";
   var EVENT_MOUSEOVER = "mouseover";
   var EVENT_MOUSEUP = "mouseup";
-  var EVENT_EXPAND = "group:expand";
   var EVENT_GROUP_ADDED = "group:add";
-  var EVENT_GROUP_DRAG_STOP = "groupDragStop";
+  var EVENT_GROUP_COLLAPSE = "group:collapse";
+  var EVENT_GROUP_EXPAND = "group:expand";
   var EVENT_GROUP_MEMBER_ADDED = "group:addMember";
   var EVENT_GROUP_MEMBER_REMOVED = "group:removeMember";
   var EVENT_GROUP_REMOVED = "group:remove";
@@ -6185,7 +6184,7 @@
           }
           this.instance.revalidate(groupEl);
           this.repaintGroup(actualGroup);
-          this.instance.fire(EVENT_COLLAPSE, {
+          this.instance.fire(EVENT_GROUP_COLLAPSE, {
             group: actualGroup
           });
         } else {
@@ -6263,8 +6262,8 @@
           this.instance.revalidate(groupEl);
           this.repaintGroup(actualGroup);
           if (!doNotFireEvent) {
-            this.instance.fire(EVENT_EXPAND, {
-              group: group
+            this.instance.fire(EVENT_GROUP_EXPAND, {
+              group: actualGroup
             });
           }
         } else {
@@ -6293,7 +6292,7 @@
         }
         this.instance.revalidate(targetGroup.el);
         this.repaintGroup(targetGroup.el);
-        this.instance.fire(EVENT_EXPAND, {
+        this.instance.fire(EVENT_GROUP_EXPAND, {
           group: targetGroup.el
         });
         forEach(targetGroup.childGroups, function (cg) {
@@ -9839,7 +9838,6 @@
   exports.DynamicAnchor = DynamicAnchor;
   exports.EMPTY_BOUNDS = EMPTY_BOUNDS;
   exports.EVENT_CLICK = EVENT_CLICK;
-  exports.EVENT_COLLAPSE = EVENT_COLLAPSE;
   exports.EVENT_CONNECTION = EVENT_CONNECTION;
   exports.EVENT_CONNECTION_DETACHED = EVENT_CONNECTION_DETACHED;
   exports.EVENT_CONNECTION_MOUSEOUT = EVENT_CONNECTION_MOUSEOUT;
@@ -9859,10 +9857,10 @@
   exports.EVENT_ENDPOINT_MOUSEOUT = EVENT_ENDPOINT_MOUSEOUT;
   exports.EVENT_ENDPOINT_MOUSEOVER = EVENT_ENDPOINT_MOUSEOVER;
   exports.EVENT_ENDPOINT_REPLACED = EVENT_ENDPOINT_REPLACED;
-  exports.EVENT_EXPAND = EVENT_EXPAND;
   exports.EVENT_FOCUS = EVENT_FOCUS;
   exports.EVENT_GROUP_ADDED = EVENT_GROUP_ADDED;
-  exports.EVENT_GROUP_DRAG_STOP = EVENT_GROUP_DRAG_STOP;
+  exports.EVENT_GROUP_COLLAPSE = EVENT_GROUP_COLLAPSE;
+  exports.EVENT_GROUP_EXPAND = EVENT_GROUP_EXPAND;
   exports.EVENT_GROUP_MEMBER_ADDED = EVENT_GROUP_MEMBER_ADDED;
   exports.EVENT_GROUP_MEMBER_REMOVED = EVENT_GROUP_MEMBER_REMOVED;
   exports.EVENT_GROUP_REMOVED = EVENT_GROUP_REMOVED;

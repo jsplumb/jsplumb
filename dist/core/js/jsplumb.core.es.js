@@ -3141,7 +3141,6 @@ var CMD_HIDE = "hide";
 var CMD_REMOVE_ALL = "removeAll";
 var CMD_SHOW = "show";
 var EVENT_CLICK = "click";
-var EVENT_COLLAPSE = "group:collapse";
 var EVENT_CONNECTION = "connection";
 var EVENT_CONNECTION_DETACHED = "connection:detach";
 var EVENT_CONNECTION_MOVED = "connection:move";
@@ -3172,9 +3171,9 @@ var EVENT_MOUSEMOVE = "mousemove";
 var EVENT_MOUSEOUT = "mouseout";
 var EVENT_MOUSEOVER = "mouseover";
 var EVENT_MOUSEUP = "mouseup";
-var EVENT_EXPAND = "group:expand";
 var EVENT_GROUP_ADDED = "group:add";
-var EVENT_GROUP_DRAG_STOP = "groupDragStop";
+var EVENT_GROUP_COLLAPSE = "group:collapse";
+var EVENT_GROUP_EXPAND = "group:expand";
 var EVENT_GROUP_MEMBER_ADDED = "group:addMember";
 var EVENT_GROUP_MEMBER_REMOVED = "group:removeMember";
 var EVENT_GROUP_REMOVED = "group:remove";
@@ -6180,7 +6179,7 @@ function () {
         }
         this.instance.revalidate(groupEl);
         this.repaintGroup(actualGroup);
-        this.instance.fire(EVENT_COLLAPSE, {
+        this.instance.fire(EVENT_GROUP_COLLAPSE, {
           group: actualGroup
         });
       } else {
@@ -6258,8 +6257,8 @@ function () {
         this.instance.revalidate(groupEl);
         this.repaintGroup(actualGroup);
         if (!doNotFireEvent) {
-          this.instance.fire(EVENT_EXPAND, {
-            group: group
+          this.instance.fire(EVENT_GROUP_EXPAND, {
+            group: actualGroup
           });
         }
       } else {
@@ -6288,7 +6287,7 @@ function () {
       }
       this.instance.revalidate(targetGroup.el);
       this.repaintGroup(targetGroup.el);
-      this.instance.fire(EVENT_EXPAND, {
+      this.instance.fire(EVENT_GROUP_EXPAND, {
         group: targetGroup.el
       });
       forEach(targetGroup.childGroups, function (cg) {
@@ -9791,4 +9790,4 @@ Connectors.register(StraightConnector.type, StraightConnector);
 Connectors.register(FlowchartConnector.type, FlowchartConnector);
 Connectors.register(StateMachineConnector.type, StateMachineConnector);
 
-export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, AnchorLocations, Anchors, ArcSegment, ArrowOverlay, BLOCK, BezierConnector, BezierSegment, BlankEndpoint, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DefaultRouter, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_COLLAPSE, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_EXPAND, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_DRAG_STOP, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FloatingAnchor, FlowchartConnector, GROUP_KEY, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DROP, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JTK_ID, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PROPERTY_POSITION, PlainArrowOverlay, RectangleEndpoint, SCOPE_PREFIX, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, SourceSelector, StateMachineConnector, StraightConnector, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, TargetSelector, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, encloses, extend, fastTrim, filterList, findWithFunction, forEach, fromArray, functionChain, getFromSetWithFunction, getWithFunction, getsert, gradient, gradientAtPoint, gradientAtPointAlongPathFrom, insertSorted, intersects, isArray, isArrowOverlay, isAssignableFrom, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, lineIntersection, lineLength, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, normal, optional, perpendicularLineTo, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, pointOnLine, pointSubtract, pointXYFromArray, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, sortHelper, suggest, theta, uuid, wrap };
+export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, AnchorLocations, Anchors, ArcSegment, ArrowOverlay, BLOCK, BezierConnector, BezierSegment, BlankEndpoint, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DefaultRouter, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_CLICK, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_COLLAPSE, EVENT_GROUP_EXPAND, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FloatingAnchor, FlowchartConnector, GROUP_KEY, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DROP, IS, IS_DETACH_ALLOWED, IS_GROUP_KEY, JTK_ID, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PARENT_GROUP_KEY, PROPERTY_POSITION, PlainArrowOverlay, RectangleEndpoint, SCOPE_PREFIX, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, SourceSelector, StateMachineConnector, StraightConnector, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, TargetSelector, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, dist, distanceFromCurve, each, encloses, extend, fastTrim, filterList, findWithFunction, forEach, fromArray, functionChain, getFromSetWithFunction, getWithFunction, getsert, gradient, gradientAtPoint, gradientAtPointAlongPathFrom, insertSorted, intersects, isArray, isArrowOverlay, isAssignableFrom, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, lineIntersection, lineLength, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, normal, optional, perpendicularLineTo, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, pointOnLine, pointSubtract, pointXYFromArray, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, sortHelper, suggest, theta, uuid, wrap };
