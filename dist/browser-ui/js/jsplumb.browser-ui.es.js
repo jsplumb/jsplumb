@@ -1749,8 +1749,8 @@ function () {
             {
               o.constrainFunction = function (pos, dragEl, _constrainRect, _size) {
                 return {
-                  x: Math.max(0, Math.min(_constrainRect.w - _size.w, pos.x)),
-                  y: Math.max(0, Math.min(_constrainRect.h - _size.h, pos.y))
+                  x: Math.max(0, Math.min(pos.x)),
+                  y: Math.max(0, Math.min(pos.y))
                 };
               };
               break;

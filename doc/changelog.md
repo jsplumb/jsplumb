@@ -1,3 +1,9 @@
+## 4.0.0-RC75
+
+9th March 2021
+
+- Fix for `notNegative` drag containment
+
 ## 4.0.0-RC74
 
 9th March 2021
