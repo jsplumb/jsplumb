@@ -1559,6 +1559,9 @@ var testSuite = function () {
         d.style.width = "100px";
         d.style.height = "100px";
 
+        _jsPlumb.getContainer().style.width = "500px"
+        _jsPlumb.getContainer().style.height = "500px"
+
         // should not be necessary
         _jsPlumb.manage(d);
 
@@ -1567,6 +1570,10 @@ var testSuite = function () {
 
         equal(parseInt(d.style.left, 10), 0);
         equal(parseInt(d.style.top, 10), 0);
+
+        support.dragNodeBy(d, 1000, 1000);
+        equal(parseInt(d.style.left, 10), 1000);
+        equal(parseInt(d.style.top, 10), 1000);
     });
 
     /**
