@@ -1,4 +1,4 @@
-import {BoundingBox, Dictionary, extend, IS, uuid, PointXY, Size} from '@jsplumb/core'
+import {Dictionary, extend, IS, uuid, PointXY, Size} from '@jsplumb/core'
 import {addClass, consume, matchesSelector, removeClass, offsetRelativeToRoot} from "./browser-util"
 import {EventManager, pageLocation} from "./event-manager"
 import { jsPlumbDOMElement} from './element-facade'
@@ -52,6 +52,30 @@ export interface BeforeStartEventParams extends DragStartEventParams {}
 export interface DragStopEventParams extends DragEventParams {
     finalPos:PointXY
     selection:Array<[jsPlumbDOMElement, PointXY, Drag]>
+}
+
+function _assignId (obj:Function | string):string {
+    if (typeof obj === "function") {
+        (obj as any)._katavorioId = uuid()
+        return (obj as any)._katavorioId
+    } else {
+        return obj
+    }
+}
+
+function _snap (pos:PointXY, gridX:number, gridY:number, thresholdX:number, thresholdY:number):PointXY {
+
+    let _dx = Math.floor(pos.x / gridX),
+        _dxl = gridX * _dx,
+        _dxt = _dxl + gridX,
+        x = Math.abs(pos.x - _dxl) <= thresholdX ? _dxl : Math.abs(_dxt - pos.x) <= thresholdX ? _dxt : pos.x
+
+    let _dy = Math.floor(pos.y / gridY),
+        _dyl = gridY * _dy,
+        _dyt = _dyl + gridY,
+        y = Math.abs(pos.y - _dyl) <= thresholdY ? _dyl : Math.abs(_dyt - pos.y) <= thresholdY ? _dyt : pos.y
+
+    return {x,y}
 }
 
 /**
@@ -203,6 +227,14 @@ function getConstrainingRectangle(el:jsPlumbDOMElement):{w:number, h:number} {
 
 export type Grid = [number, number]
 
+enum ContainmentTypes {
+    notNegative = "notNegative",
+    parent = "parent",
+    parentEnclosed = "parentEnclosed"
+}
+
+export type ContainmentType = keyof typeof ContainmentTypes
+
 export interface DragHandlerOptions {
     selector?:string
     start?:(p:DragStartEventParams) => any
@@ -216,12 +248,13 @@ export interface DragHandlerOptions {
     useGhostProxy?:(container:any, dragEl:jsPlumbDOMElement) => boolean
     ghostProxyParent?:Element
     constrain?:ConstrainFunction | boolean
-    revert?:RevertFunction
+    revertFunction?:RevertFunction
     filter?:string
     filterExclude?:boolean
     snapThreshold?:number
     grid?:Grid
-    allowNegative?:boolean
+    containment?:ContainmentType
+    containmentPadding?:number
 }
 
 export interface DragParams extends DragHandlerOptions {
@@ -230,8 +263,6 @@ export interface DragParams extends DragHandlerOptions {
     clone?:boolean
     scroll?:boolean
     multipleDrop?:boolean
-
-    containment?:boolean
 
     canDrag?:Function
     consumeFilteredEvents?:boolean
@@ -268,17 +299,15 @@ export class Drag extends Base {
     private _ghostDx:number
     private _ghostDy:number
 
-    _ghostProxyParent:jsPlumbDOMElement
     _isConstrained: boolean = false
+
+    _ghostProxyParent:jsPlumbDOMElement
     _useGhostProxy:Function
+    _ghostProxyFunction:GhostProxyGenerator
+
     _activeSelectorParams:DragParams
     _availableSelectors:Array<DragParams> = []
-    _ghostProxyFunction:GhostProxyGenerator
-    _snapThreshold:number
-    _grid:Grid
-    _allowNegative:boolean
-    _constrain:ConstrainFunction
-    _revertFunction:RevertFunction
+
     _canDrag:Function
     private _consumeFilteredEvents:boolean
     private _parent:jsPlumbDOMElement
@@ -313,9 +342,6 @@ export class Drag extends Base {
         this.clone = params.clone === true
         this.scroll= params.scroll === true
         this._multipleDrop = params.multipleDrop !== false
-        this._grid = params.grid
-        this._allowNegative = params.allowNegative
-        this._revertFunction = params.revert
         this._canDrag = params.canDrag || TRUE
         this._consumeFilteredEvents = params.consumeFilteredEvents
         this._parent = params.parent
@@ -362,9 +388,6 @@ export class Drag extends Base {
             this._availableSelectors.push(params)
         }
 
-        this._snapThreshold = params.snapThreshold
-        this.setConstrain(typeof params.constrain === "function" ? params.constrain  : (params.constrain || params.containment))
-
         this.k.eventManager.on(this.el, EVENT_MOUSEDOWN, this.downListener)
     }
 
@@ -401,7 +424,7 @@ export class Drag extends Base {
                 this._dragEl && this._dragEl.parentNode && this._dragEl.parentNode.removeChild(this._dragEl)
                 this._dragEl = null
             } else {
-                if (this._revertFunction && this._revertFunction(this._dragEl, _getPosition(this._dragEl)) === true) {
+                if (this._activeSelectorParams && this._activeSelectorParams.revertFunction && this._activeSelectorParams.revertFunction(this._dragEl, _getPosition(this._dragEl)) === true) {
                     _setPosition(this._dragEl, this._posAtDown)
                     this._dispatch<RevertEventParams>(EVENT_REVERT, this._dragEl)
                 }
@@ -644,21 +667,11 @@ export class Drag extends Base {
     stop (e?:MouseEvent, force?:boolean) {
         if (force || this._moving) {
             let positions:Array<[jsPlumbDOMElement, PointXY, Drag]> = [],
-                sel:Array<any> = [],
                 dPos = _getPosition(this._dragEl)
 
-            // TODO unreachable..sel was just created.
-            if (sel.length > 0) {
-                for (let i = 0; i < sel.length; i++) {
-                    const p = _getPosition(sel[i].el)
-                    positions.push([ sel[i].el, p, sel[i] ])
-                }
-            }
-            else {
-                positions.push([ this._dragEl, dPos, this ])
-            }
+            positions.push([ this._dragEl, dPos, this ])
 
-            this._dispatch<DragStopEventParams>("stop", {
+            this._dispatch<DragStopEventParams>(EVENT_STOP, {
                 el: this._dragEl,
                 pos: this._ghostProxyOffsets || dPos,
                 finalPos:dPos,
@@ -690,23 +703,8 @@ export class Drag extends Base {
         return result
     }
 
-    private _snap (pos:PointXY, gridX:number, gridY:number, thresholdX:number, thresholdY:number):PointXY {
-
-        let _dx = Math.floor(pos.x / gridX),
-            _dxl = gridX * _dx,
-            _dxt = _dxl + gridX,
-            x = Math.abs(pos.x - _dxl) <= thresholdX ? _dxl : Math.abs(_dxt - pos.x) <= thresholdX ? _dxt : pos.x
-
-        let _dy = Math.floor(pos.y / gridY),
-            _dyl = gridY * _dy,
-            _dyt = _dyl + gridY,
-            y = Math.abs(pos.y - _dyl) <= thresholdY ? _dyl : Math.abs(_dyt - pos.y) <= thresholdY ? _dyt : pos.y
-
-        return {x,y}
-    }
-
     private resolveGrid():[ Grid, number, number ] {
-        let out:[ Grid, number, number ] = [ this._grid, this._snapThreshold ? this._snapThreshold : DEFAULT_GRID_X / 2, this._snapThreshold ? this._snapThreshold : DEFAULT_GRID_Y / 2 ]
+        let out:[ Grid, number, number ] = [ null, DEFAULT_GRID_X / 2, DEFAULT_GRID_Y / 2 ]
         if(this._activeSelectorParams != null && this._activeSelectorParams.grid != null) {
             out[0] = this._activeSelectorParams.grid
             if (this._activeSelectorParams.snapThreshold != null) {
@@ -717,7 +715,11 @@ export class Drag extends Base {
         return out
     }
 
-    toGrid (pos:PointXY):PointXY {
+    /**
+     * Snap the given position to a grid, if the active selector has declared a grid.
+     * @param pos
+     */
+    private toGrid (pos:PointXY):PointXY {
 
         const [grid, thresholdX, thresholdY] = this.resolveGrid()
 
@@ -730,75 +732,19 @@ export class Drag extends Base {
             const tx = grid ? grid[0] / 2 : thresholdX,
                 ty = grid ? grid[1] / 2 : thresholdY
 
-            return this._snap(pos, grid[0], grid[1], tx, ty)
+            return _snap(pos, grid[0], grid[1], tx, ty)
         }
     }
-
-    // snap (x:number, y:number):PointXY{
-    //
-    //     const [grid, thresholdX, thresholdY] = this.resolveGrid()
-    //
-    //     if (this._dragEl == null) {
-    //         return
-    //     }
-    //     x = x || (grid ? grid[0] : DEFAULT_GRID_X)
-    //     y = y || (grid ? grid[1] : DEFAULT_GRID_Y)
-    //
-    //     const p = _getPosition(this._dragEl),
-    //         tx = grid ? grid[0] / 2 : thresholdX,
-    //         ty = grid ? grid[1] / 2 : thresholdY,
-    //         snapped = this._snap(p, x, y, tx, ty)
-    //
-    //     _setPosition(this._dragEl, snapped)
-    //     return snapped
-    // }
 
     setUseGhostProxy (val:boolean) {
         this._useGhostProxy = val ? TRUE : FALSE
     }
 
-    private _negativeFilter (pos:PointXY):PointXY {
-        return (this._allowNegative === false) ? {x: Math.max (0, pos.x), y:Math.max(0, pos.y) } : pos
-    }
-
-    /**
-     * Sets whether or not the Drag is constrained. A value of 'true' means constrain to parent bounds; a function
-     * will be executed and returns true if the position is allowed.
-     * @param value
-     */
-    setConstrain (value:ConstrainFunction | boolean) {
-        this._constrain = typeof value === "function" ? value as ConstrainFunction : value ? (pos:PointXY, dragEl:jsPlumbDOMElement, _constrainRect:BoundingBox, _size:Size):PointXY => {
-            return this._negativeFilter({
-                x: Math.max(0, Math.min(_constrainRect.w - _size.w, pos.x)),
-                y: Math.max(0, Math.min(_constrainRect.h - _size.h, pos.y))
-            })
-        }: (pos:PointXY):PointXY => { return this._negativeFilter(pos); }
-    }
-
-
     private _doConstrain(pos:PointXY, dragEl:jsPlumbDOMElement, _constrainRect:Size, _size:Size) {
         if (this._activeSelectorParams != null && this._activeSelectorParams.constrain && typeof this._activeSelectorParams.constrain === "function") {
             return this._activeSelectorParams.constrain(pos, dragEl, _constrainRect, _size)
         } else {
-            return this._constrain(pos, dragEl, _constrainRect, _size)
-        }
-    }
-
-    /**
-     * Sets a function to call on drag stop, which, if it returns true, indicates that the given element should
-     * revert to its position before the previous drag.
-     * @param fn
-     */
-    setRevert (fn:RevertFunction) {
-        this._revertFunction = fn
-    }
-
-    private _assignId (obj:Function | string):string {
-        if (typeof obj === "function") {
-            (obj as any)._katavorioId = uuid()
-            return (obj as any)._katavorioId
-        } else {
-            return obj
+            return pos
         }
     }
 
@@ -819,7 +765,7 @@ export class Drag extends Base {
 
     addFilter (f:Function|string, _exclude?:boolean) {
         if (f) {
-            const key = this._assignId(f)
+            const key = _assignId(f)
             this._filters[key] = [
                 (e:any) => {
                     const t = e.srcElement || e.target
@@ -874,8 +820,6 @@ export interface CollicatOptions {
     zoom?:number
     css?:Dictionary<string>
     inputFilterSelector?:string
-    constrain?:ConstrainFunction
-    revert?:RevertFunction
 }
 
 export interface jsPlumbDragManager {
@@ -887,7 +831,8 @@ export interface jsPlumbDragManager {
     destroyDraggable(el:jsPlumbDOMElement):void
 }
 
-const DEFAULT_INPUT_FILTER_SELECTOR = "input,textarea,select,button,option"
+const DEFAULT_INPUTS = [ "input", "textarea", "select", "button", "option"]
+const DEFAULT_INPUT_FILTER_SELECTOR = DEFAULT_INPUTS.join(",")
 
 export class Collicat implements jsPlumbDragManager {
 
@@ -895,8 +840,6 @@ export class Collicat implements jsPlumbDragManager {
     private zoom:number = 1
     css:Dictionary<string> = {}
     inputFilterSelector:string
-    constrain:ConstrainFunction
-    revert:RevertFunction
 
     constructor(options?:CollicatOptions) {
         options = options || {}
@@ -905,8 +848,6 @@ export class Collicat implements jsPlumbDragManager {
         this.zoom = options.zoom || 1
         const _c = options.css || {}
         extend(this.css, _c)
-        this.constrain = options.constrain
-        this.revert = options.revert
     }
 
     getZoom():number {
@@ -920,14 +861,6 @@ export class Collicat implements jsPlumbDragManager {
     private _prepareParams(p:DragParams):DragParams {
 
         p = p || {}
-
-        if (p.constrain == null && this.constrain != null) {
-            p.constrain = this.constrain
-        }
-
-        if (p.revert == null && this.revert != null) {
-            p.revert = this.revert
-        }
 
         let _p:DragParams = {
             events:{}
