@@ -128,8 +128,8 @@ export class DragManager {
                 case "notNegative": {
                     o.constrainFunction = (pos:PointXY, dragEl:jsPlumbDOMElement, _constrainRect:BoundingBox, _size:Size):PointXY => {
                         return {
-                            x: Math.max(0, Math.min(_constrainRect.w - _size.w, pos.x)),
-                            y: Math.max(0, Math.min(_constrainRect.h - _size.h, pos.y))
+                            x: Math.max(0, Math.min(pos.x)),
+                            y: Math.max(0, Math.min(pos.y))
                         }
                     }
                     break
