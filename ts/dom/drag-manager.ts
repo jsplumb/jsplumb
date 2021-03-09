@@ -1,6 +1,7 @@
 import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
+import { jsPlumbDOMElement} from './element-facade'
 
-import {extend, wrap, Dictionary, forEach, PointXY, getWithFunction} from '@jsplumb/core'
+import {extend, wrap, Dictionary, forEach, PointXY, getWithFunction, BoundingBox, Size} from '@jsplumb/core'
 
 import {
     BeforeStartEventParams,
@@ -11,7 +12,7 @@ import {
     GhostProxyGenerator
 } from "./collicat"
 
-function _isInsideParent(instance:BrowserJsPlumbInstance, _el:HTMLElement, pos:PointXY):boolean {
+export function _isInsideParent(instance:BrowserJsPlumbInstance, _el:HTMLElement, pos:PointXY):boolean {
     const p = <any>_el.parentNode,
         s = instance.getSize(p),
         ss = instance.getSize(_el),
@@ -23,11 +24,18 @@ function _isInsideParent(instance:BrowserJsPlumbInstance, _el:HTMLElement, pos:P
     return rightEdge > 0 && leftEdge < s.w && bottomEdge > 0 && topEdge < s.h
 }
 
+export const CLASS_DELEGATED_DRAGGABLE = "jtk-delegated-draggable"
+export const CLASS_DROPPABLE = "jtk-droppable"
+export const CLASS_DRAGGABLE = "jtk-draggable"
+export const CLASS_DRAG_CONTAINER = "jtk-drag"
+export const CLASS_GHOST_PROXY = "jtk-ghost-proxy"
 export const CLASS_DRAG_SELECTED = "jtk-drag-selected"
 export const CLASS_DRAG_ACTIVE = "jtk-drag-active"
 export const CLASS_DRAGGED = "jtk-dragged"
 export const CLASS_DRAG_HOVER = "jtk-drag-hover"
+
 export const ATTR_NOT_DRAGGABLE = "jtk-not-draggable"
+
 export const EVENT_DRAG_MOVE = "drag:move"
 export const EVENT_DRAG_STOP = "drag:stop"
 export const EVENT_DRAG_START = "drag:start"
@@ -36,7 +44,6 @@ export const EVENT_MOUSEMOVE = "mousemove"
 export const EVENT_MOUSEUP = "mouseup"
 export const EVENT_REVERT = "revert"
 export const EVENT_ZOOM = "zoom"
-
 export const EVENT_CONNECTION_ABORT = "connection:abort"
 export const EVENT_CONNECTION_DRAG = "connection:drag"
 
@@ -63,7 +70,6 @@ export interface GhostProxyingDragHandler extends DragHandler {
 
 type DragFilterSpec = [ Function|string, boolean ]
 
-
 export class DragManager {
 
     private collicat:Collicat
@@ -86,19 +92,14 @@ export class DragManager {
             zoom:this.instance.currentZoom,
             css: {
                 noSelect: this.instance.dragSelectClass,
-                delegatedDraggable: "jtk-delegated-draggable",
-                droppable: "jtk-droppable",
-                draggable: "jtk-draggable",
-                drag: "jtk-drag",
-                selected: "jtk-drag-selected",
-                active: "jtk-drag-active",
-                hover: "jtk-drag-hover",
-                ghostProxy: "jtk-ghost-proxy"
-            },
-            revert: (dragEl:Element, pos:PointXY):boolean => {
-                const _el = <any>dragEl
-                // if drag el not removed from DOM (pruned by a group), and it has a group which has revert:true, then revert.
-                return _el.parentNode != null && _el._jsPlumbParentGroup && _el._jsPlumbParentGroup.revert ? !_isInsideParent(this.instance, _el, pos) : false
+                delegatedDraggable: CLASS_DELEGATED_DRAGGABLE,
+                droppable: CLASS_DROPPABLE,
+                draggable: CLASS_DRAGGABLE,
+                drag: CLASS_DRAG_CONTAINER,
+                selected: CLASS_DRAG_SELECTED,
+                active: CLASS_DRAG_ACTIVE,
+                hover: CLASS_DRAG_HOVER,
+                ghostProxy: CLASS_GHOST_PROXY
             }
         })
 
@@ -120,6 +121,38 @@ export class DragManager {
         if ((handler as GhostProxyingDragHandler).useGhostProxy) {
             o.useGhostProxy  = (handler as GhostProxyingDragHandler).useGhostProxy
             o.makeGhostProxy  = (handler as GhostProxyingDragHandler).makeGhostProxy
+        }
+
+        if(o.constrain == null && o.containment != null) {
+            switch(o.containment) {
+                case "notNegative": {
+                    o.constrain = (pos:PointXY, dragEl:jsPlumbDOMElement, _constrainRect:BoundingBox, _size:Size):PointXY => {
+                        return {
+                            x: Math.max(0, Math.min(_constrainRect.w - _size.w, pos.x)),
+                            y: Math.max(0, Math.min(_constrainRect.h - _size.h, pos.y))
+                        }
+                    }
+                    break
+                }
+                case "parent":{
+                    const padding = o.containmentPadding || 5
+                    o.constrain = (pos:PointXY, dragEl:jsPlumbDOMElement, _constrainRect:BoundingBox, _size:Size):PointXY => {
+                        const x = pos.x < 0 ? 0 : pos.x > (_constrainRect.w - padding) ? _constrainRect.w - padding : pos.x
+                        const y = pos.y < 0 ? 0 : pos.y > (_constrainRect.h - padding) ? _constrainRect.h - padding : pos.y
+                        return { x,y }
+                    }
+                    break
+                }
+                case "parentEnclosed": {
+                    o.constrain = (pos:PointXY, dragEl:jsPlumbDOMElement, _constrainRect:BoundingBox, _size:Size):PointXY => {
+                        const x = pos.x < 0 ? 0 : (pos.x + _size.w) > _constrainRect.w ? (_constrainRect.w - _size.w) : pos.x
+                        const y = pos.y < 0 ? 0 : (pos.y + _size.h) > _constrainRect.h ? (_constrainRect.h - _size.h) : pos.y
+                        return { x, y}
+                    }
+                    break
+                }
+            }
+
         }
 
         if (this.drag == null) {
