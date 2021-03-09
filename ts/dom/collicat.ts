@@ -247,7 +247,7 @@ export interface DragHandlerOptions {
     makeGhostProxy?:GhostProxyGenerator
     useGhostProxy?:(container:any, dragEl:jsPlumbDOMElement) => boolean
     ghostProxyParent?:Element
-    constrain?:ConstrainFunction | boolean
+    constrainFunction?:ConstrainFunction | boolean
     revertFunction?:RevertFunction
     filter?:string
     filterExclude?:boolean
@@ -741,8 +741,8 @@ export class Drag extends Base {
     }
 
     private _doConstrain(pos:PointXY, dragEl:jsPlumbDOMElement, _constrainRect:Size, _size:Size) {
-        if (this._activeSelectorParams != null && this._activeSelectorParams.constrain && typeof this._activeSelectorParams.constrain === "function") {
-            return this._activeSelectorParams.constrain(pos, dragEl, _constrainRect, _size)
+        if (this._activeSelectorParams != null && this._activeSelectorParams.constrainFunction && typeof this._activeSelectorParams.constrainFunction === "function") {
+            return this._activeSelectorParams.constrainFunction(pos, dragEl, _constrainRect, _size)
         } else {
             return pos
         }
