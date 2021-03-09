@@ -40,6 +40,12 @@ declare abstract class Base {
 }
 export declare type GhostProxyGenerator = (el: Element) => Element;
 export declare type Grid = [number, number];
+declare enum ContainmentTypes {
+    notNegative = "notNegative",
+    parent = "parent",
+    parentEnclosed = "parentEnclosed"
+}
+export declare type ContainmentType = keyof typeof ContainmentTypes;
 export interface DragHandlerOptions {
     selector?: string;
     start?: (p: DragStartEventParams) => any;
@@ -52,13 +58,14 @@ export interface DragHandlerOptions {
     makeGhostProxy?: GhostProxyGenerator;
     useGhostProxy?: (container: any, dragEl: jsPlumbDOMElement) => boolean;
     ghostProxyParent?: Element;
-    constrain?: ConstrainFunction | boolean;
-    revert?: RevertFunction;
+    constrainFunction?: ConstrainFunction | boolean;
+    revertFunction?: RevertFunction;
     filter?: string;
     filterExclude?: boolean;
     snapThreshold?: number;
     grid?: Grid;
-    allowNegative?: boolean;
+    containment?: ContainmentType;
+    containmentPadding?: number;
 }
 export interface DragParams extends DragHandlerOptions {
     rightButtonCanDrag?: boolean;
@@ -66,7 +73,6 @@ export interface DragParams extends DragHandlerOptions {
     clone?: boolean;
     scroll?: boolean;
     multipleDrop?: boolean;
-    containment?: boolean;
     canDrag?: Function;
     consumeFilteredEvents?: boolean;
     events?: Dictionary<Function>;
@@ -94,17 +100,12 @@ export declare class Drag extends Base {
     private _ghostProxyOffsets;
     private _ghostDx;
     private _ghostDy;
-    _ghostProxyParent: jsPlumbDOMElement;
     _isConstrained: boolean;
+    _ghostProxyParent: jsPlumbDOMElement;
     _useGhostProxy: Function;
+    _ghostProxyFunction: GhostProxyGenerator;
     _activeSelectorParams: DragParams;
     _availableSelectors: Array<DragParams>;
-    _ghostProxyFunction: GhostProxyGenerator;
-    _snapThreshold: number;
-    _grid: Grid;
-    _allowNegative: boolean;
-    _constrain: ConstrainFunction;
-    _revertFunction: RevertFunction;
     _canDrag: Function;
     private _consumeFilteredEvents;
     private _parent;
@@ -132,25 +133,14 @@ export declare class Drag extends Base {
     getDragElement(retrieveOriginalElement?: boolean): jsPlumbDOMElement;
     stop(e?: MouseEvent, force?: boolean): void;
     private _dispatch;
-    private _snap;
     private resolveGrid;
-    toGrid(pos: PointXY): PointXY;
+    /**
+     * Snap the given position to a grid, if the active selector has declared a grid.
+     * @param pos
+     */
+    private toGrid;
     setUseGhostProxy(val: boolean): void;
-    private _negativeFilter;
-    /**
-     * Sets whether or not the Drag is constrained. A value of 'true' means constrain to parent bounds; a function
-     * will be executed and returns true if the position is allowed.
-     * @param value
-     */
-    setConstrain(value: ConstrainFunction | boolean): void;
     private _doConstrain;
-    /**
-     * Sets a function to call on drag stop, which, if it returns true, indicates that the given element should
-     * revert to its position before the previous drag.
-     * @param fn
-     */
-    setRevert(fn: RevertFunction): void;
-    private _assignId;
     _testFilter(e: any): boolean;
     addFilter(f: Function | string, _exclude?: boolean): void;
     removeFilter(f: Function | string): void;
@@ -164,8 +154,6 @@ export interface CollicatOptions {
     zoom?: number;
     css?: Dictionary<string>;
     inputFilterSelector?: string;
-    constrain?: ConstrainFunction;
-    revert?: RevertFunction;
 }
 export interface jsPlumbDragManager {
     getZoom(): number;
@@ -180,8 +168,6 @@ export declare class Collicat implements jsPlumbDragManager {
     private zoom;
     css: Dictionary<string>;
     inputFilterSelector: string;
-    constrain: ConstrainFunction;
-    revert: RevertFunction;
     constructor(options?: CollicatOptions);
     getZoom(): number;
     setZoom(z: number): void;

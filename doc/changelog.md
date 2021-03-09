@@ -1,3 +1,9 @@
+## 4.0.0-RC74
+
+9th March 2021
+
+- Updates to code to support drag containment
+
 ## 4.0.0-RC73
 
 8th March 2021

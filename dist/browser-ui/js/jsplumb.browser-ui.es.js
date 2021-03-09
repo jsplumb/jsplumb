@@ -903,6 +903,28 @@ function _setPosition(el, pos) {
   el.style.left = pos.x + "px";
   el.style.top = pos.y + "px";
 }
+function _assignId(obj) {
+  if (typeof obj === "function") {
+    obj._katavorioId = uuid();
+    return obj._katavorioId;
+  } else {
+    return obj;
+  }
+}
+function _snap(pos, gridX, gridY, thresholdX, thresholdY) {
+  var _dx = Math.floor(pos.x / gridX),
+      _dxl = gridX * _dx,
+      _dxt = _dxl + gridX,
+      x = Math.abs(pos.x - _dxl) <= thresholdX ? _dxl : Math.abs(_dxt - pos.x) <= thresholdX ? _dxt : pos.x;
+  var _dy = Math.floor(pos.y / gridY),
+      _dyl = gridY * _dy,
+      _dyt = _dyl + gridY,
+      y = Math.abs(pos.y - _dyl) <= thresholdY ? _dyl : Math.abs(_dyt - pos.y) <= thresholdY ? _dyt : pos.y;
+  return {
+    x: x,
+    y: y
+  };
+}
 function findMatchingSelector(availableSelectors, parentElement, childElement) {
   var el = null;
   var draggableId = parentElement.getAttribute("katavorio-draggable"),
@@ -1041,6 +1063,12 @@ function getConstrainingRectangle(el) {
     h: el.parentNode.scrollHeight
   };
 }
+var ContainmentTypes;
+(function (ContainmentTypes) {
+  ContainmentTypes["notNegative"] = "notNegative";
+  ContainmentTypes["parent"] = "parent";
+  ContainmentTypes["parentEnclosed"] = "parentEnclosed";
+})(ContainmentTypes || (ContainmentTypes = {}));
 var Drag =
 function (_Base) {
   _inherits(Drag, _Base);
@@ -1073,17 +1101,12 @@ function (_Base) {
     _defineProperty(_assertThisInitialized(_this), "_ghostProxyOffsets", void 0);
     _defineProperty(_assertThisInitialized(_this), "_ghostDx", void 0);
     _defineProperty(_assertThisInitialized(_this), "_ghostDy", void 0);
-    _defineProperty(_assertThisInitialized(_this), "_ghostProxyParent", void 0);
     _defineProperty(_assertThisInitialized(_this), "_isConstrained", false);
+    _defineProperty(_assertThisInitialized(_this), "_ghostProxyParent", void 0);
     _defineProperty(_assertThisInitialized(_this), "_useGhostProxy", void 0);
+    _defineProperty(_assertThisInitialized(_this), "_ghostProxyFunction", void 0);
     _defineProperty(_assertThisInitialized(_this), "_activeSelectorParams", void 0);
     _defineProperty(_assertThisInitialized(_this), "_availableSelectors", []);
-    _defineProperty(_assertThisInitialized(_this), "_ghostProxyFunction", void 0);
-    _defineProperty(_assertThisInitialized(_this), "_snapThreshold", void 0);
-    _defineProperty(_assertThisInitialized(_this), "_grid", void 0);
-    _defineProperty(_assertThisInitialized(_this), "_allowNegative", void 0);
-    _defineProperty(_assertThisInitialized(_this), "_constrain", void 0);
-    _defineProperty(_assertThisInitialized(_this), "_revertFunction", void 0);
     _defineProperty(_assertThisInitialized(_this), "_canDrag", void 0);
     _defineProperty(_assertThisInitialized(_this), "_consumeFilteredEvents", void 0);
     _defineProperty(_assertThisInitialized(_this), "_parent", void 0);
@@ -1114,9 +1137,6 @@ function (_Base) {
     _this.clone = params.clone === true;
     _this.scroll = params.scroll === true;
     _this._multipleDrop = params.multipleDrop !== false;
-    _this._grid = params.grid;
-    _this._allowNegative = params.allowNegative;
-    _this._revertFunction = params.revert;
     _this._canDrag = params.canDrag || TRUE;
     _this._consumeFilteredEvents = params.consumeFilteredEvents;
     _this._parent = params.parent;
@@ -1156,8 +1176,6 @@ function (_Base) {
       }
       _this._availableSelectors.push(params);
     }
-    _this._snapThreshold = params.snapThreshold;
-    _this.setConstrain(typeof params.constrain === "function" ? params.constrain : params.constrain || params.containment);
     _this.k.eventManager.on(_this.el, EVENT_MOUSEDOWN, _this.downListener);
     return _this;
   }
@@ -1196,7 +1214,7 @@ function (_Base) {
           this._dragEl && this._dragEl.parentNode && this._dragEl.parentNode.removeChild(this._dragEl);
           this._dragEl = null;
         } else {
-          if (this._revertFunction && this._revertFunction(this._dragEl, _getPosition(this._dragEl)) === true) {
+          if (this._activeSelectorParams && this._activeSelectorParams.revertFunction && this._activeSelectorParams.revertFunction(this._dragEl, _getPosition(this._dragEl)) === true) {
             _setPosition(this._dragEl, this._posAtDown);
             this._dispatch(EVENT_REVERT, this._dragEl);
           }
@@ -1414,17 +1432,9 @@ function (_Base) {
     value: function stop(e, force) {
       if (force || this._moving) {
         var positions = [],
-            sel = [],
             dPos = _getPosition(this._dragEl);
-        if (sel.length > 0) {
-          for (var i = 0; i < sel.length; i++) {
-            var _p3 = _getPosition(sel[i].el);
-            positions.push([sel[i].el, _p3, sel[i]]);
-          }
-        } else {
-          positions.push([this._dragEl, dPos, this]);
-        }
-        this._dispatch("stop", {
+        positions.push([this._dragEl, dPos, this]);
+        this._dispatch(EVENT_STOP, {
           el: this._dragEl,
           pos: this._ghostProxyOffsets || dPos,
           finalPos: dPos,
@@ -1455,25 +1465,9 @@ function (_Base) {
       return result;
     }
   }, {
-    key: "_snap",
-    value: function _snap(pos, gridX, gridY, thresholdX, thresholdY) {
-      var _dx = Math.floor(pos.x / gridX),
-          _dxl = gridX * _dx,
-          _dxt = _dxl + gridX,
-          x = Math.abs(pos.x - _dxl) <= thresholdX ? _dxl : Math.abs(_dxt - pos.x) <= thresholdX ? _dxt : pos.x;
-      var _dy = Math.floor(pos.y / gridY),
-          _dyl = gridY * _dy,
-          _dyt = _dyl + gridY,
-          y = Math.abs(pos.y - _dyl) <= thresholdY ? _dyl : Math.abs(_dyt - pos.y) <= thresholdY ? _dyt : pos.y;
-      return {
-        x: x,
-        y: y
-      };
-    }
-  }, {
     key: "resolveGrid",
     value: function resolveGrid() {
-      var out = [this._grid, this._snapThreshold ? this._snapThreshold : DEFAULT_GRID_X / 2, this._snapThreshold ? this._snapThreshold : DEFAULT_GRID_Y / 2];
+      var out = [null, DEFAULT_GRID_X / 2, DEFAULT_GRID_Y / 2];
       if (this._activeSelectorParams != null && this._activeSelectorParams.grid != null) {
         out[0] = this._activeSelectorParams.grid;
         if (this._activeSelectorParams.snapThreshold != null) {
@@ -1496,7 +1490,7 @@ function (_Base) {
       } else {
         var tx = grid ? grid[0] / 2 : thresholdX,
             ty = grid ? grid[1] / 2 : thresholdY;
-        return this._snap(pos, grid[0], grid[1], tx, ty);
+        return _snap(pos, grid[0], grid[1], tx, ty);
       }
     }
   }, {
@@ -1505,48 +1499,12 @@ function (_Base) {
       this._useGhostProxy = val ? TRUE : FALSE;
     }
   }, {
-    key: "_negativeFilter",
-    value: function _negativeFilter(pos) {
-      return this._allowNegative === false ? {
-        x: Math.max(0, pos.x),
-        y: Math.max(0, pos.y)
-      } : pos;
-    }
-  }, {
-    key: "setConstrain",
-    value: function setConstrain(value) {
-      var _this2 = this;
-      this._constrain = typeof value === "function" ? value : value ? function (pos, dragEl, _constrainRect, _size) {
-        return _this2._negativeFilter({
-          x: Math.max(0, Math.min(_constrainRect.w - _size.w, pos.x)),
-          y: Math.max(0, Math.min(_constrainRect.h - _size.h, pos.y))
-        });
-      } : function (pos) {
-        return _this2._negativeFilter(pos);
-      };
-    }
-  }, {
     key: "_doConstrain",
     value: function _doConstrain(pos, dragEl, _constrainRect, _size) {
-      if (this._activeSelectorParams != null && this._activeSelectorParams.constrain && typeof this._activeSelectorParams.constrain === "function") {
-        return this._activeSelectorParams.constrain(pos, dragEl, _constrainRect, _size);
+      if (this._activeSelectorParams != null && this._activeSelectorParams.constrainFunction && typeof this._activeSelectorParams.constrainFunction === "function") {
+        return this._activeSelectorParams.constrainFunction(pos, dragEl, _constrainRect, _size);
       } else {
-        return this._constrain(pos, dragEl, _constrainRect, _size);
-      }
-    }
-  }, {
-    key: "setRevert",
-    value: function setRevert(fn) {
-      this._revertFunction = fn;
-    }
-  }, {
-    key: "_assignId",
-    value: function _assignId(obj) {
-      if (typeof obj === "function") {
-        obj._katavorioId = uuid();
-        return obj._katavorioId;
-      } else {
-        return obj;
+        return pos;
       }
     }
   }, {
@@ -1567,16 +1525,16 @@ function (_Base) {
   }, {
     key: "addFilter",
     value: function addFilter(f, _exclude) {
-      var _this3 = this;
+      var _this2 = this;
       if (f) {
-        var key = this._assignId(f);
+        var key = _assignId(f);
         this._filters[key] = [function (e) {
           var t = e.srcElement || e.target;
           var m;
           if (IS.aString(f)) {
-            m = matchesSelector(t, f, _this3.el);
+            m = matchesSelector(t, f, _this2.el);
           } else if (typeof f === "function") {
-            m = f(e, _this3.el);
+            m = f(e, _this2.el);
           }
           return m;
         }, _exclude !== false];
@@ -1617,7 +1575,8 @@ function (_Base) {
   }]);
   return Drag;
 }(Base);
-var DEFAULT_INPUT_FILTER_SELECTOR = "input,textarea,select,button,option";
+var DEFAULT_INPUTS = ["input", "textarea", "select", "button", "option"];
+var DEFAULT_INPUT_FILTER_SELECTOR = DEFAULT_INPUTS.join(",");
 var Collicat =
 function () {
   function Collicat(options) {
@@ -1626,16 +1585,12 @@ function () {
     _defineProperty(this, "zoom", 1);
     _defineProperty(this, "css", {});
     _defineProperty(this, "inputFilterSelector", void 0);
-    _defineProperty(this, "constrain", void 0);
-    _defineProperty(this, "revert", void 0);
     options = options || {};
     this.inputFilterSelector = options.inputFilterSelector || DEFAULT_INPUT_FILTER_SELECTOR;
     this.eventManager = new EventManager();
     this.zoom = options.zoom || 1;
     var _c = options.css || {};
     extend(this.css, _c);
-    this.constrain = options.constrain;
-    this.revert = options.revert;
   }
   _createClass(Collicat, [{
     key: "getZoom",
@@ -1651,12 +1606,6 @@ function () {
     key: "_prepareParams",
     value: function _prepareParams(p) {
       p = p || {};
-      if (p.constrain == null && this.constrain != null) {
-        p.constrain = this.constrain;
-      }
-      if (p.revert == null && this.revert != null) {
-        p.revert = this.revert;
-      }
       var _p = {
         events: {}
       },
@@ -1684,8 +1633,8 @@ function () {
     key: "draggable",
     value: function draggable(el, params) {
       if (el._katavorioDrag == null) {
-        var _p4 = this._prepareParams(params);
-        var d = new Drag(el, _p4, this);
+        var _p3 = this._prepareParams(params);
+        var d = new Drag(el, _p3, this);
         addClass(el, _classes.delegatedDraggable);
         el._katavorioDrag = d;
         return d;
@@ -1715,6 +1664,11 @@ function _isInsideParent(instance, _el, pos) {
       bottomEdge = topEdge + ss.h;
   return rightEdge > 0 && leftEdge < s.w && bottomEdge > 0 && topEdge < s.h;
 }
+var CLASS_DELEGATED_DRAGGABLE = "jtk-delegated-draggable";
+var CLASS_DROPPABLE = "jtk-droppable";
+var CLASS_DRAGGABLE$1 = "jtk-draggable";
+var CLASS_DRAG_CONTAINER = "jtk-drag";
+var CLASS_GHOST_PROXY = "jtk-ghost-proxy";
 var CLASS_DRAG_SELECTED = "jtk-drag-selected";
 var CLASS_DRAG_ACTIVE = "jtk-drag-active";
 var CLASS_DRAGGED = "jtk-dragged";
@@ -1748,18 +1702,14 @@ function () {
       zoom: this.instance.currentZoom,
       css: {
         noSelect: this.instance.dragSelectClass,
-        delegatedDraggable: "jtk-delegated-draggable",
-        droppable: "jtk-droppable",
-        draggable: "jtk-draggable",
-        drag: "jtk-drag",
-        selected: "jtk-drag-selected",
-        active: "jtk-drag-active",
-        hover: "jtk-drag-hover",
-        ghostProxy: "jtk-ghost-proxy"
-      },
-      revert: function revert(dragEl, pos) {
-        var _el = dragEl;
-        return _el.parentNode != null && _el._jsPlumbParentGroup && _el._jsPlumbParentGroup.revert ? !_isInsideParent(_this.instance, _el, pos) : false;
+        delegatedDraggable: CLASS_DELEGATED_DRAGGABLE,
+        droppable: CLASS_DROPPABLE,
+        draggable: CLASS_DRAGGABLE$1,
+        drag: CLASS_DRAG_CONTAINER,
+        selected: CLASS_DRAG_SELECTED,
+        active: CLASS_DRAG_ACTIVE,
+        hover: CLASS_DRAG_HOVER,
+        ghostProxy: CLASS_GHOST_PROXY
       }
     });
     this.instance.bind(EVENT_ZOOM, function (z) {
@@ -1792,6 +1742,45 @@ function () {
       if (handler.useGhostProxy) {
         o.useGhostProxy = handler.useGhostProxy;
         o.makeGhostProxy = handler.makeGhostProxy;
+      }
+      if (o.constrainFunction == null && o.containment != null) {
+        switch (o.containment) {
+          case "notNegative":
+            {
+              o.constrainFunction = function (pos, dragEl, _constrainRect, _size) {
+                return {
+                  x: Math.max(0, Math.min(_constrainRect.w - _size.w, pos.x)),
+                  y: Math.max(0, Math.min(_constrainRect.h - _size.h, pos.y))
+                };
+              };
+              break;
+            }
+          case "parent":
+            {
+              var padding = o.containmentPadding || 5;
+              o.constrainFunction = function (pos, dragEl, _constrainRect, _size) {
+                var x = pos.x < 0 ? 0 : pos.x > _constrainRect.w - padding ? _constrainRect.w - padding : pos.x;
+                var y = pos.y < 0 ? 0 : pos.y > _constrainRect.h - padding ? _constrainRect.h - padding : pos.y;
+                return {
+                  x: x,
+                  y: y
+                };
+              };
+              break;
+            }
+          case "parentEnclosed":
+            {
+              o.constrainFunction = function (pos, dragEl, _constrainRect, _size) {
+                var x = pos.x < 0 ? 0 : pos.x + _size.w > _constrainRect.w ? _constrainRect.w - _size.w : pos.x;
+                var y = pos.y < 0 ? 0 : pos.y + _size.h > _constrainRect.h ? _constrainRect.h - _size.h : pos.y;
+                return {
+                  x: x,
+                  y: y
+                };
+              };
+              break;
+            }
+        }
       }
       if (this.drag == null) {
         this.drag = this.collicat.draggable(this.instance.getContainer(), o);
@@ -3853,6 +3842,8 @@ function (_JsPlumbInstance) {
     _defineProperty(_assertThisInitialized(_this), "dragSelectClass", "jtk-drag-select");
     _defineProperty(_assertThisInitialized(_this), "elementsDraggable", void 0);
     _defineProperty(_assertThisInitialized(_this), "elementDragHandler", void 0);
+    _defineProperty(_assertThisInitialized(_this), "groupDragOptions", void 0);
+    _defineProperty(_assertThisInitialized(_this), "elementDragOptions", void 0);
     _defineProperty(_assertThisInitialized(_this), "svg", {
       node: function node(name, attributes) {
         return _node(name, attributes);
@@ -3869,8 +3860,8 @@ function (_JsPlumbInstance) {
     _this.dragManager = new DragManager(_assertThisInitialized(_this));
     _this.listManager = new JsPlumbListManager(_assertThisInitialized(_this));
     _this.dragManager.addHandler(new EndpointDragHandler(_assertThisInitialized(_this)));
-    var groupDragOptions = {
-      constrain: function constrain(desiredLoc, dragEl, constrainRect, size) {
+    _this.groupDragOptions = {
+      constrainFunction: function constrainFunction(desiredLoc, dragEl, constrainRect, size) {
         var x = desiredLoc.x,
             y = desiredLoc.y;
         if (dragEl._jsPlumbParentGroup && dragEl._jsPlumbParentGroup.constrain) {
@@ -3883,11 +3874,16 @@ function (_JsPlumbInstance) {
           x: x,
           y: y
         };
+      },
+      revertFunction: function revertFunction(dragEl, pos) {
+        var _el = dragEl;
+        return _el.parentNode != null && _el._jsPlumbParentGroup && _el._jsPlumbParentGroup.revert ? !_isInsideParent(_assertThisInitialized(_this), _el, pos) : false;
       }
     };
-    _this.dragManager.addHandler(new GroupDragHandler(_assertThisInitialized(_this)), groupDragOptions);
+    _this.dragManager.addHandler(new GroupDragHandler(_assertThisInitialized(_this)), _this.groupDragOptions);
     _this.elementDragHandler = new ElementDragHandler(_assertThisInitialized(_this));
-    _this.dragManager.addHandler(_this.elementDragHandler, defaults && defaults.dragOptions);
+    _this.elementDragOptions = defaults && defaults.dragOptions || {};
+    _this.dragManager.addHandler(_this.elementDragHandler, _this.elementDragOptions);
     var _connClick = function _connClick(event, e) {
       if (!e.defaultPrevented) {
         var connectorElement = findParent(getEventSource(e), SELECTOR_CONNECTOR, this.getContainer());
@@ -4251,9 +4247,9 @@ function (_JsPlumbInstance) {
       }
       if (this.dragManager != null) {
         this.dragManager.addHandler(new EndpointDragHandler(this));
-        this.dragManager.addHandler(new GroupDragHandler(this));
+        this.dragManager.addHandler(new GroupDragHandler(this), this.groupDragOptions);
         this.elementDragHandler = new ElementDragHandler(this);
-        this.dragManager.addHandler(this.elementDragHandler);
+        this.dragManager.addHandler(this.elementDragHandler, this.elementDragOptions);
         if (dragFilters != null) {
           this.dragManager.setFilters(dragFilters);
         }

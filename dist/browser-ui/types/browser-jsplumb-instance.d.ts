@@ -2,7 +2,7 @@ import { jsPlumbDefaults, Dictionary, Size, TypeDescriptor, JsPlumbInstance, Abs
 import { DragManager } from "./drag-manager";
 import { jsPlumbDOMElement } from './element-facade';
 import { EventManager } from "./event-manager";
-import { DragStartEventParams, DragEventParams, DragStopEventParams } from './collicat';
+import { DragStartEventParams, DragEventParams, DragStopEventParams, ContainmentType } from './collicat';
 import { JsPlumbList, JsPlumbListManager, JsPlumbListOptions } from "./lists";
 export interface UIComponent {
     canvas: HTMLElement;
@@ -14,7 +14,7 @@ export declare type EndpointHelperFunctions<E> = {
 };
 export declare function registerEndpointRenderer<C>(name: string, fns: EndpointHelperFunctions<C>): void;
 export interface DragOptions {
-    containment?: string;
+    containment?: ContainmentType;
     start?: (params: DragStartEventParams) => void;
     drag?: (params: DragEventParams) => void;
     stop?: (params: DragStopEventParams) => void;
@@ -83,6 +83,8 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
      */
     elementsDraggable: boolean;
     private elementDragHandler;
+    private groupDragOptions;
+    private elementDragOptions;
     constructor(_instanceIndex: number, defaults?: BrowserJsPlumbDefaults);
     /**
      * Adds a filter to the list of filters used to determine whether or not a given event should start an element drag.
