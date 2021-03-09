@@ -123,10 +123,10 @@ export class DragManager {
             o.makeGhostProxy  = (handler as GhostProxyingDragHandler).makeGhostProxy
         }
 
-        if(o.constrain == null && o.containment != null) {
+        if(o.constrainFunction == null && o.containment != null) {
             switch(o.containment) {
                 case "notNegative": {
-                    o.constrain = (pos:PointXY, dragEl:jsPlumbDOMElement, _constrainRect:BoundingBox, _size:Size):PointXY => {
+                    o.constrainFunction = (pos:PointXY, dragEl:jsPlumbDOMElement, _constrainRect:BoundingBox, _size:Size):PointXY => {
                         return {
                             x: Math.max(0, Math.min(_constrainRect.w - _size.w, pos.x)),
                             y: Math.max(0, Math.min(_constrainRect.h - _size.h, pos.y))
@@ -136,7 +136,7 @@ export class DragManager {
                 }
                 case "parent":{
                     const padding = o.containmentPadding || 5
-                    o.constrain = (pos:PointXY, dragEl:jsPlumbDOMElement, _constrainRect:BoundingBox, _size:Size):PointXY => {
+                    o.constrainFunction = (pos:PointXY, dragEl:jsPlumbDOMElement, _constrainRect:BoundingBox, _size:Size):PointXY => {
                         const x = pos.x < 0 ? 0 : pos.x > (_constrainRect.w - padding) ? _constrainRect.w - padding : pos.x
                         const y = pos.y < 0 ? 0 : pos.y > (_constrainRect.h - padding) ? _constrainRect.h - padding : pos.y
                         return { x,y }
@@ -144,7 +144,7 @@ export class DragManager {
                     break
                 }
                 case "parentEnclosed": {
-                    o.constrain = (pos:PointXY, dragEl:jsPlumbDOMElement, _constrainRect:BoundingBox, _size:Size):PointXY => {
+                    o.constrainFunction = (pos:PointXY, dragEl:jsPlumbDOMElement, _constrainRect:BoundingBox, _size:Size):PointXY => {
                         const x = pos.x < 0 ? 0 : (pos.x + _size.w) > _constrainRect.w ? (_constrainRect.w - _size.w) : pos.x
                         const y = pos.y < 0 ? 0 : (pos.y + _size.h) > _constrainRect.h ? (_constrainRect.h - _size.h) : pos.y
                         return { x, y}
