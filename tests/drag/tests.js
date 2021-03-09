@@ -1541,6 +1541,245 @@ var testSuite = function () {
         equal(parseInt(d.style.top, 10), 100);
     });
 
+    /**
+     * Test constraining drag so that a child node cannot be dragged into the negative on either axis
+     */
+    test("dragging, constrain to not negative", function() {
+
+        reinit({
+            dragOptions:{
+                containment:"notNegative"
+            }
+        });
+
+        var d = _addDiv("d1");
+        d.style.position = "absolute";
+        d.style.left = "50px";
+        d.style.top = "50px";
+        d.style.width = "100px";
+        d.style.height = "100px";
+
+        // should not be necessary
+        _jsPlumb.manage(d);
+
+        // drag node by -150, -150. it should not be dragged into negative in either axis, instead staying at 0,0
+        support.dragNodeBy(d, -150, -150);
+
+        equal(parseInt(d.style.left, 10), 0);
+        equal(parseInt(d.style.top, 10), 0);
+    });
+
+    /**
+     * Test constraining drag so that a child node cannot be dragged into the negative on either axis OR entirely out of the visible portion of the parent element.
+     */
+    test("dragging, constrain to parent, not negative, partial enclosure in positive axis ok, use default containmentPadding value", function() {
+
+        reinit({
+            dragOptions:{
+                containment:"parent"
+            }
+        });
+
+        _jsPlumb.getContainer().style.width = "500px"
+        _jsPlumb.getContainer().style.height = "500px"
+
+        var d = _addDiv("d1");
+        d.style.position = "absolute";
+        d.style.left = "50px";
+        d.style.top = "50px";
+        d.style.width = "100px";
+        d.style.height = "100px";
+
+        // should not be necessary
+        _jsPlumb.manage(d);
+
+        // drag node by -150, -150. it should not be dragged into negative in either axis, instead staying at 0,0
+        support.dragNodeBy(d, -150, -150);
+
+        equal(parseInt(d.style.left, 10), 0);
+        equal(parseInt(d.style.top, 10), 0);
+
+        // try to drag the node right out of the parent viewport (note: massively out in X, only slightly out in Y, but both situations count)
+        support.dragNodeBy(d, 550, 460);
+
+        // should be placed so that at least some of the node is visible  in X - `padding` pixels (for which see the next test; the default is 5)
+        // in Y some is still visible so no adjustment
+        equal(parseInt(d.style.left, 10), 495);
+        equal(parseInt(d.style.top, 10), 460);
+
+        // but if we drag down by 50 it will go out of the viewport, and then Y should be set t0 495: height - padding
+        support.dragNodeBy(d, 0, 50);
+
+        equal(parseInt(d.style.left, 10), 495);
+        equal(parseInt(d.style.top, 10), 495);
+
+    });
+
+    /**
+     * Test constraining drag so that a child node cannot be dragged into the negative on either axis OR entirely out of the visible portion of the parent element.
+     */
+    test("dragging, constrain to parent, not negative, partial enclosure in positive axis ok, supply our own containmentPadding value", function() {
+
+        reinit({
+            dragOptions:{
+                containment:"parent",
+                containmentPadding:10
+            }
+        });
+
+        _jsPlumb.getContainer().style.width = "500px"
+        _jsPlumb.getContainer().style.height = "500px"
+
+        var d = _addDiv("d1");
+        d.style.position = "absolute";
+        d.style.left = "50px";
+        d.style.top = "50px";
+        d.style.width = "100px";
+        d.style.height = "100px";
+
+        // should not be necessary
+        _jsPlumb.manage(d);
+
+        // drag node by -150, -150. it should not be dragged into negative in either axis, instead staying at 0,0
+        support.dragNodeBy(d, -150, -150);
+
+        equal(parseInt(d.style.left, 10), 0);
+        equal(parseInt(d.style.top, 10), 0);
+
+        // try to drag the node right out of the parent viewport (note: massively out in X, only slightly out in Y, but both situations count)
+        support.dragNodeBy(d, 550, 460);
+
+        // should be placed so that at least some of the node is visible  in X - `containmentPadding` pixels, which we have overriden from the default in this test
+        // in Y some is still visible so no adjustment
+        equal(parseInt(d.style.left, 10), 490);
+        equal(parseInt(d.style.top, 10), 460);
+
+        // but if we drag down by 50 it will go out of the viewport, and then Y should be set t0 495: height - padding
+        support.dragNodeBy(d, 0, 50);
+
+        equal(parseInt(d.style.left, 10), 490);
+        equal(parseInt(d.style.top, 10), 490);
+
+    });
+
+    test("dragging, constrain to parent, not negative, fully enclosed in positive axis", function() {
+
+        reinit({
+            dragOptions:{
+                containment:"parentEnclosed"
+            }
+        });
+
+        _jsPlumb.getContainer().style.width = "500px"
+        _jsPlumb.getContainer().style.height = "500px"
+
+        var d = _addDiv("d1");
+        d.style.position = "absolute";
+        d.style.left = "50px";
+        d.style.top = "50px";
+        d.style.width = "100px";
+        d.style.height = "100px";
+
+        // should not be necessary
+        _jsPlumb.manage(d);
+
+        // drag node by -150, -150. it should not be dragged into negative in either axis, instead staying at 0,0
+        support.dragNodeBy(d, -150, -150);
+
+        equal(parseInt(d.style.left, 10), 0);
+        equal(parseInt(d.style.top, 10), 0);
+
+        // try to drag the node right out of the parent viewport (note: massively out in X, only slightly out in Y, but both situations count)
+        support.dragNodeBy(d, 550, 460);
+
+        // should be placed so that all of the node is visible  in X and Y
+        // in Y some is still visible so no adjustment
+        equal(parseInt(d.style.left, 10), 400);
+        equal(parseInt(d.style.top, 10), 400);
+
+    });
+
+    /**
+     * Test constraining drag via a function
+     */
+    test("dragging, constrain function", function() {
+
+        reinit({
+            dragOptions:{
+                // for any input, return x/2, y/2 as the allowed loc.
+                constrainFunction:function(desiredLocation) {
+                    return { x:desiredLocation.x / 2, y:desiredLocation.y / 2}
+                }
+            }
+        });
+
+        _jsPlumb.getContainer().style.width = "500px"
+        _jsPlumb.getContainer().style.height = "500px"
+
+        var d = _addDiv("d1");
+        d.style.position = "absolute";
+        d.style.left = "50px";
+        d.style.top = "50px";
+        d.style.width = "100px";
+        d.style.height = "100px";
+
+        // should not be necessary
+        _jsPlumb.manage(d);
+
+        // drag node by -150, -150. it should not be dragged into negative in either axis, instead staying at 0,0
+        support.dragNodeBy(d, -150, -150);
+
+        equal(parseInt(d.style.left, 10), -50);
+        equal(parseInt(d.style.top, 10), -50);
+
+        // try to drag the node right out of the parent viewport (note: massively out in X, only slightly out in Y, but both situations count)
+        support.dragNodeBy(d, 550, 460);
+
+        // should be placed where the entire node is visible in both axes
+        equal(parseInt(d.style.left, 10), 250);
+        equal(parseInt(d.style.top, 10), 205);
+    });
+
+    /**
+     * Test constraining drag via a function
+     */
+    test("dragging, revert function", function() {
+
+        reinit({
+            dragOptions:{
+                // revert drag if X is 100
+                revertFunction:function(el, pos) {
+                    return pos.x === 100
+                }
+            }
+        });
+
+        _jsPlumb.getContainer().style.width = "500px"
+        _jsPlumb.getContainer().style.height = "500px"
+
+        var d = _addDiv("d1");
+        d.style.position = "absolute";
+        d.style.left = "50px";
+        d.style.top = "50px";
+        d.style.width = "100px";
+        d.style.height = "100px";
+
+        // should not be necessary
+        _jsPlumb.manage(d);
+
+        // drag node by 50, 50. this will result in x=100, which will cause the revert function to return true, and the node will be reverted.
+        support.dragNodeBy(d, 50, 50);
+
+        equal(parseInt(d.style.left, 10), 50);
+        equal(parseInt(d.style.top, 10), 50);
+
+        // drag to a place where x != 100; the revert function will return false
+        support.dragNodeBy(d, 100, 100);
+
+        equal(parseInt(d.style.left, 10), 150);
+        equal(parseInt(d.style.top, 10), 150);
+    });
+
     // test("snap elements, default threshold", function() {
     //
     //     var d = _addDiv("d1");
