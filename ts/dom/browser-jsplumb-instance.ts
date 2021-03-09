@@ -73,7 +73,7 @@ import { _attr,
     ElementAttributes,
     _pos} from './svg-util'
 
-import {DragManager} from "./drag-manager"
+import {_isInsideParent, DragManager} from "./drag-manager"
 import {ElementDragHandler} from "./element-drag-handler"
 import {EndpointDragHandler} from "./endpoint-drag-handler"
 import {GroupDragHandler} from "./group-drag-handler"
@@ -95,7 +95,7 @@ import {
     DragHandlerOptions,
     DragStartEventParams,
     DragEventParams,
-    DragStopEventParams
+    DragStopEventParams, ContainmentType
 } from './collicat'
 
 import {JsPlumbList, JsPlumbListManager, JsPlumbListOptions} from "./lists"
@@ -121,7 +121,7 @@ export function registerEndpointRenderer<C>(name:string, fns:EndpointHelperFunct
 }
 
 export interface DragOptions {
-    containment?: string
+    containment?: ContainmentType
     start?: (params:DragStartEventParams) => void
     drag?: (params:DragEventParams) => void
     stop?: (params:DragStopEventParams) => void
@@ -238,6 +238,9 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
     private elementDragHandler :ElementDragHandler
 
+    private groupDragOptions:DragHandlerOptions
+    private elementDragOptions:DragHandlerOptions
+
     constructor(public _instanceIndex:number, defaults?:BrowserJsPlumbDefaults) {
         super(_instanceIndex, defaults)
 
@@ -249,8 +252,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         this.listManager = new JsPlumbListManager(this)
 
         this.dragManager.addHandler(new EndpointDragHandler(this))
-        const groupDragOptions:DragHandlerOptions = {
-            constrain: (desiredLoc:PointXY, dragEl:jsPlumbDOMElement, constrainRect:BoundingBox, size:Size):PointXY=> {
+        this.groupDragOptions = {
+            constrainFunction: (desiredLoc:PointXY, dragEl:jsPlumbDOMElement, constrainRect:BoundingBox, size:Size):PointXY=> {
                 let x = desiredLoc.x, y = desiredLoc.y
 
                 if (dragEl._jsPlumbParentGroup && dragEl._jsPlumbParentGroup.constrain) {
@@ -261,13 +264,20 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
                 }
 
                 return {x, y}
+            },
+            revertFunction:(dragEl:Element, pos:PointXY):boolean => {
+                const _el = <any>dragEl
+                // if drag el not removed from DOM (pruned by a group), and it has a group which has revert:true, then revert.
+                return _el.parentNode != null && _el._jsPlumbParentGroup && _el._jsPlumbParentGroup.revert ? !_isInsideParent(this, _el, pos) : false
             }
         }
-        this.dragManager.addHandler(new GroupDragHandler(this), groupDragOptions)
+        this.dragManager.addHandler(new GroupDragHandler(this), this.groupDragOptions)
 
         this.elementDragHandler = new ElementDragHandler(this)
 
-        this.dragManager.addHandler(this.elementDragHandler, defaults && defaults.dragOptions)
+        this.elementDragOptions = (defaults && defaults.dragOptions) || {}
+
+        this.dragManager.addHandler(this.elementDragHandler, this.elementDragOptions)
 
         // ---
 
@@ -692,9 +702,9 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
         if (this.dragManager != null) {
             this.dragManager.addHandler(new EndpointDragHandler(this))
-            this.dragManager.addHandler(new GroupDragHandler(this))
+            this.dragManager.addHandler(new GroupDragHandler(this), this.groupDragOptions)
             this.elementDragHandler = new ElementDragHandler(this)
-            this.dragManager.addHandler(this.elementDragHandler)
+            this.dragManager.addHandler(this.elementDragHandler, this.elementDragOptions)
             if (dragFilters != null) {
                 this.dragManager.setFilters(dragFilters)
             }
