@@ -65,7 +65,7 @@ import {
     isCustomOverlay,
     DeleteConnectionOptions,
     forEach,
-    fromArray, isArray, PointXY, BehaviouralTypeDescriptor, SourceSelector
+    fromArray, isArray, PointXY, BehaviouralTypeDescriptor, SourceSelector, EVENT_TAP, EVENT_DBL_TAP
 } from '@jsplumb/core'
 
 import { _attr,
@@ -197,10 +197,16 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     dragManager:DragManager
     _connectorClick:Function
     _connectorDblClick:Function
+    _connectorTap:Function
+    _connectorDblTap:Function
+
     _endpointClick:Function
     _endpointDblClick:Function
+
     _overlayClick:Function
     _overlayDblClick:Function
+    _overlayTap:Function
+    _overlayDblTap:Function
 
     _connectorMouseover:Function
     _connectorMouseout:Function
@@ -289,6 +295,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
         this._connectorClick = _connClick.bind(this, EVENT_CLICK)
         this._connectorDblClick = _connClick.bind(this, EVENT_DBL_CLICK)
+        this._connectorTap = _connClick.bind(this, EVENT_TAP)
+        this._connectorDblTap = _connClick.bind(this, EVENT_DBL_TAP)
 
         const _connectorHover = function(state:boolean, e:MouseEvent) {
             const el = getEventSource(e).parentNode
@@ -335,6 +343,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
         this._overlayClick = _oClick.bind(this, EVENT_CLICK)
         this._overlayDblClick = _oClick.bind(this, EVENT_DBL_CLICK)
+        this._overlayTap = _oClick.bind(this, EVENT_TAP)
+        this._overlayDblTap = _oClick.bind(this, EVENT_DBL_TAP)
 
         const _overlayHover = function(state:boolean, e:MouseEvent) {
             let overlayElement = findParent(getEventSource(e), SELECTOR_OVERLAY, this.getContainer())
@@ -616,9 +626,13 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         let currentContainer = this.getContainer()
         this.eventManager.on(currentContainer, EVENT_CLICK, SELECTOR_OVERLAY, this._overlayClick)
         this.eventManager.on(currentContainer, EVENT_DBL_CLICK, SELECTOR_OVERLAY, this._overlayDblClick)
+        this.eventManager.on(currentContainer, EVENT_TAP, SELECTOR_OVERLAY, this._overlayTap)
+        this.eventManager.on(currentContainer, EVENT_DBL_TAP, SELECTOR_OVERLAY, this._overlayDblTap)
 
         this.eventManager.on(currentContainer, EVENT_CLICK, SELECTOR_CONNECTOR, this._connectorClick)
         this.eventManager.on(currentContainer, EVENT_DBL_CLICK, SELECTOR_CONNECTOR, this._connectorDblClick)
+        this.eventManager.on(currentContainer, EVENT_TAP, SELECTOR_CONNECTOR, this._connectorTap)
+        this.eventManager.on(currentContainer, EVENT_DBL_TAP, SELECTOR_CONNECTOR, this._connectorDblTap)
 
         this.eventManager.on(currentContainer, EVENT_CLICK, SELECTOR_ENDPOINT, this._endpointClick)
         this.eventManager.on(currentContainer, EVENT_DBL_CLICK, SELECTOR_ENDPOINT, this._endpointDblClick)
@@ -642,12 +656,19 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     private _detachEventDelegates() {
         let currentContainer = this.getContainer()
         if (currentContainer) {
+
             this.eventManager.off(currentContainer, EVENT_CLICK, this._connectorClick)
             this.eventManager.off(currentContainer, EVENT_DBL_CLICK, this._connectorDblClick)
+            this.eventManager.off(currentContainer, EVENT_TAP, this._connectorTap)
+            this.eventManager.off(currentContainer, EVENT_DBL_TAP, this._connectorDblTap)
+
             this.eventManager.off(currentContainer, EVENT_CLICK, this._endpointClick)
             this.eventManager.off(currentContainer, EVENT_DBL_CLICK, this._endpointDblClick)
+
             this.eventManager.off(currentContainer, EVENT_CLICK, this._overlayClick)
             this.eventManager.off(currentContainer, EVENT_DBL_CLICK, this._overlayDblClick)
+            this.eventManager.off(currentContainer, EVENT_TAP, this._overlayTap)
+            this.eventManager.off(currentContainer, EVENT_DBL_TAP, this._overlayDblTap)
 
             this.eventManager.off(currentContainer, EVENT_CLICK, this._elementClick)
 
