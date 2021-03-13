@@ -5,7 +5,7 @@ import {
     EVENT_FOCUS,
     EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEOUT, EVENT_MOUSEOVER,
     EVENT_MOUSEUP, EVENT_TAP,
-    PointXY,
+    PointXY, removeWithFunction,
     uuid
 } from "@jsplumb/core"
 
@@ -108,9 +108,13 @@ function _pi (e:any, target:EventTarget, obj:any, doCompute?:boolean) {
 function _d (l:Array<any>, fn:Function) {
     let i = 0, j
     for (i = 0, j = l.length; i < j; i++) {
-        if (l[i] == fn) break
+        if (l[i][0] === fn) {
+            break
+        }
     }
-    if (i < l.length) l.splice(i, 1)
+    if (i < l.length) {
+        l.splice(i, 1)
+    }
 }
 
 let guid = 1
@@ -342,7 +346,7 @@ class TapHandler {
                     const tt:any = obj.__taTapHandler = {
                         tap: [],
                         dbltap: [],
-                        contextmenu: [],
+                        //contextmenu: [],
                         down: false,
                         taps: 0,
                         downSelectors: []
@@ -395,8 +399,12 @@ class TapHandler {
                             tt.taps = 0
                         }
 
-                    DefaultHandler(obj, "mousedown", down as any)
-                    DefaultHandler(obj, "mouseup", up as any)
+                    obj.__taTapHandler.downHandler = down
+                    obj.__taTapHandler.upHandler = up
+
+                        // these two handler registrations cause two events to be bound to `obj`.
+                    DefaultHandler(obj, EVENT_MOUSEDOWN, down as any)
+                    DefaultHandler(obj, EVENT_MOUSEUP, up as any)
                 }
                 // add this child selector (it can be null, that's fine).
                 obj.__taTapHandler.downSelectors.push(children)
@@ -404,7 +412,17 @@ class TapHandler {
                 obj.__taTapHandler[evt].push([fn, children])
                 // the unstore function removes this function from the object's listener list for this type.
                 fn.__taUnstore = function () {
+
+                    // remove this selector from the tap handlers list
+                    removeWithFunction(obj.__taTapHandler.downSelectors, (ds:string) => ds === children)
+                    // remove the function
                     _d(obj.__taTapHandler[evt], fn as any)
+                    // now if there are no `downSelectors` left, unbind the tap handler and delete it
+                    if(obj.__taTapHandler.downSelectors.length === 0) {
+                        _unbind(obj, EVENT_MOUSEDOWN, obj.__taTapHandler.downHandler)
+                        _unbind(obj, EVENT_MOUSEUP, obj.__taTapHandler.upHandler)
+                        delete obj.__taTapHandler
+                    }
                 }
             }
         }
@@ -480,19 +498,21 @@ export class EventManager {
         this.smartClicks = params.smartClicks
     }
 
-    private _doBind (obj:any, evt:string, fn:any, children?:string) {
+    private _doBind (el:Element, evt:string, fn:any, children?:string) {
         if (fn == null) return
-        _each(obj,  (_el:jsPlumbDOMElement) => {
-            if (this.smartClicks && evt === EVENT_CLICK)
-                SmartClickHandler(_el, evt, fn, children)
-            else if (evt === EVENT_TAP || evt === EVENT_DBL_TAP || evt === EVENT_CONTEXTMENU) {
-                this.tapHandler(_el, evt, fn, children)
-            }
-            else if (evt === EVENT_MOUSEENTER || evt == EVENT_MOUSEEXIT)
-                this.mouseEnterExitHandler(_el, evt, fn, children)
-            else
-                DefaultHandler(_el, evt, fn, children)
-        })
+
+        const jel = el as unknown as jsPlumbDOMElement
+
+        if (this.smartClicks && evt === EVENT_CLICK)
+            SmartClickHandler(jel, evt, fn, children)
+        else if (evt === EVENT_TAP || evt === EVENT_DBL_TAP || evt === EVENT_CONTEXTMENU) {
+            this.tapHandler(jel, evt, fn, children)
+        }
+        else if (evt === EVENT_MOUSEENTER || evt == EVENT_MOUSEEXIT)
+            this.mouseEnterExitHandler(jel, evt, fn, children)
+        else {
+            DefaultHandler(jel, evt, fn, children)
+        }
     }
 
     on (el:any, event:string, children?:string|Function, fn?:Function) {
