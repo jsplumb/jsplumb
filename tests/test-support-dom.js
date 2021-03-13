@@ -74,6 +74,10 @@ if (Array.prototype.forEach == null) {
         }
     };
 
+    var getOverlayCanvas = function(overlay) {
+        return overlay.canvas || overlay.path
+    }
+
     var _makeDragStartEvt = function(_jsPlumb, el) {
         var e = _makeEvt(_jsPlumb, el), c = _jsPlumb.getContainer();
         e.clientX += c.offsetLeft;
@@ -204,6 +208,23 @@ if (Array.prototype.forEach == null) {
         _relocate(_jsPlumb, conn, 0, source, events);
     };
 
+    var _fireEventOnOverlay = function(_jsPlumb, connection, overlayId, event) {
+        var overlay = connection.getOverlay(overlayId)
+        var canvas = getOverlayCanvas(overlay)
+        _jsPlumb.trigger(canvas, event)
+    }
+
+    var _fireEventOnConnection = function(_jsPlumb, connection, events) {
+        var canvas = getConnectionCanvas(connection)
+        for (var i = 2; i < arguments.length; i++) {
+            _jsPlumb.trigger(canvas, arguments[i])
+        }
+    }
+
+    var _clickOnConnection = function(_jsPlumb, connection) {
+        _fireEventOnConnection(_jsPlumb, connection, "click")
+    }
+
     var countKeys = function(obj) {
         var i = 0;
         for (var k in obj) {
@@ -299,6 +320,57 @@ if (Array.prototype.forEach == null) {
                 addDivs:_addDivs,
                 addDraggableDiv:_addDraggableDiv.bind(null, _jsPlumb),
                 assertEndpointCount:_assertEndpointCount.bind(null, _jsPlumb),
+
+                clickOnConnection:function(connection) {
+                    _fireEventOnConnection(_jsPlumb, connection, "click")
+                },
+                dblClickOnConnection:function(connection) {
+                    _fireEventOnConnection(_jsPlumb, connection, "dblclick")
+                },
+                tapOnConnection:function(connection) {
+                    _fireEventOnConnection(_jsPlumb, connection, "mousedown")
+                    _fireEventOnConnection(_jsPlumb, connection, "mouseup")
+                },
+                dblTapOnConnection:function(connection) {
+                    _fireEventOnConnection(_jsPlumb, connection, "mousedown")
+                    _fireEventOnConnection(_jsPlumb, connection, "mouseup")
+                    _fireEventOnConnection(_jsPlumb, connection, "mousedown")
+                    _fireEventOnConnection(_jsPlumb, connection, "mouseup")
+                },
+
+                clickOnElement:function(element) {
+                    _jsPlumb.trigger(element, "click")
+                },
+                dblClickOnElement:function(element) {
+                    _jsPlumb.trigger(element, "dblclick")
+                },
+                tapOnElement:function(element) {
+                    _jsPlumb.trigger(element, "mousedown")
+                    _jsPlumb.trigger(element, "mouseup")
+                },
+                dblTapOnElement:function(element) {
+                    _jsPlumb.trigger(element, "mousedown")
+                    _jsPlumb.trigger(element, "mouseup")
+                    _jsPlumb.trigger(element, "mousedown")
+                    _jsPlumb.trigger(element, "mouseup")
+                },
+
+                clickOnOverlay:function(connection, overlayId) {
+                    _fireEventOnOverlay(_jsPlumb, connection, overlayId, "click")
+                },
+                dblClickOnOverlay:function(connection, overlayId) {
+                    _fireEventOnOverlay(_jsPlumb, connection, overlayId, "dblclick")
+                },
+                tapOnOverlay:function(connection, overlayId) {
+                    _fireEventOnOverlay(_jsPlumb, connection, overlayId, "mousedown")
+                    _fireEventOnOverlay(_jsPlumb, connection, overlayId, "mouseup")
+                },
+                dblTapOnOverlay:function(connection, overlayId) {
+                    _fireEventOnOverlay(_jsPlumb, connection, overlayId, "mousedown")
+                    _fireEventOnOverlay(_jsPlumb, connection, overlayId, "mouseup")
+                    _fireEventOnOverlay(_jsPlumb, connection, overlayId, "mousedown")
+                    _fireEventOnOverlay(_jsPlumb, connection, overlayId, "mouseup")
+                },
 
                 cleanup:function() {
 
