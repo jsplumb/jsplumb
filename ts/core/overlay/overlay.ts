@@ -96,6 +96,18 @@ export abstract class Overlay extends EventGenerator {
         this._postComponentEvent(eventName, e)
     }
 
+    tap(e:Event) {
+        this.fire(Constants.EVENT_TAP, e)
+        let eventName = this.component instanceof Connection ? Constants.EVENT_TAP : Constants.EVENT_ENDPOINT_TAP
+        this._postComponentEvent(eventName, e)
+    }
+
+    dbltap(e:Event) {
+        this.fire(Constants.EVENT_DBL_TAP, e)
+        let eventName = this.component instanceof Connection ? Constants.EVENT_DBL_TAP : Constants.EVENT_ENDPOINT_DBL_TAP
+        this._postComponentEvent(eventName, e)
+    }
+
 }
 
 
