@@ -69,7 +69,7 @@ var testSuite = function () {
             clicked = true
         })
 
-        _jsPlumb.trigger(d, "click")
+        support.clickOnElement(d)
 
         ok(clicked, "click event fired")
     })
@@ -81,7 +81,7 @@ var testSuite = function () {
             clicked = true
         })
 
-        _jsPlumb.trigger(d, "dblclick")
+        support.dblClickOnElement(d)
 
         ok(clicked, "dblclick event fired")
     })
@@ -93,8 +93,7 @@ var testSuite = function () {
             tapped= true
         })
 
-        _jsPlumb.trigger(d, "mousedown")
-        _jsPlumb.trigger(d, "mouseup")
+        support.tapOnElement(d)
 
         ok(tapped, "tap event fired")
     })
@@ -106,10 +105,7 @@ var testSuite = function () {
             tapped= true
         })
 
-        _jsPlumb.trigger(d, "mousedown")
-        _jsPlumb.trigger(d, "mouseup")
-        _jsPlumb.trigger(d, "mousedown")
-        _jsPlumb.trigger(d, "mouseup")
+        support.dblTapOnElement(d)
 
         ok(tapped, "dbltap event fired")
     })
@@ -142,8 +138,7 @@ var testSuite = function () {
             tapped= true
         })
 
-        _jsPlumb.trigger(d1, "mousedown")
-        _jsPlumb.trigger(d1, "mouseup")
+        support.tapOnElement(d1)
 
         ok(tapped, "tap event fired")
     })
@@ -163,7 +158,7 @@ var testSuite = function () {
             clicked = true
         })
 
-        _jsPlumb.trigger(d1, "click")
+        support.clickOnElement(d1)
 
         ok(clicked, "click event fired")
     })
@@ -185,13 +180,13 @@ var testSuite = function () {
             clicked = true
         })
 
-        _jsPlumb.trigger(d1, "click")
+        support.clickOnElement(d1)
 
         ok(clicked, "click event fired")
 
         clicked = false
 
-        _jsPlumb.trigger(d2, "click")
+        support.clickOnElement(d2)
 
         ok(!clicked, "click event not fired when child selector doesnt match")
     })
@@ -213,17 +208,196 @@ var testSuite = function () {
             clicked = true
         })
 
-        _jsPlumb.trigger(d1, "mousedown")
-        _jsPlumb.trigger(d1, "mouseup")
+        support.tapOnElement(d1)
 
         ok(clicked, "tap event fired")
 
         clicked = false
 
-        _jsPlumb.trigger(d2, "mousedown")
-        _jsPlumb.trigger(d2, "mouseup")
+        support.tapOnElement(d2)
 
         ok(!clicked, "click event not fired when child selector doesnt match")
+    })
+
+// -----------------connections -------------------------------------------
+
+    test("connection click", function() {
+        var d = _addDiv("one", 50, 50, 100, 100),
+         d2 = _addDiv("two", 50, 50, 400, 400);
+        var clicked = false;
+        _jsPlumb.bind("click", function() {
+            clicked = true
+        })
+        var c = _jsPlumb.connect({source:d, target:d2});
+
+        support.clickOnConnection(c)
+
+        ok(clicked, "click event fired")
+    })
+
+    test("connection dblclick", function() {
+        var d = _addDiv("one", 50, 50, 100, 100),
+            d2 = _addDiv("two", 50, 50, 400, 400)
+
+        var clicked = false;
+        _jsPlumb.bind("dblclick", function() {
+            clicked = true
+        })
+
+        var c = _jsPlumb.connect({source:d, target:d2});
+        support.dblClickOnConnection(c)
+
+        ok(clicked, "dblclick event fired")
+    })
+
+    test("connection tap", function() {
+        var d = _addDiv("one", 50, 50, 100, 100),
+            d2 = _addDiv("two", 50, 50, 400, 400)
+        var tapped = false;
+        _jsPlumb.bind("tap", function() {
+            tapped= true
+        })
+        var c = _jsPlumb.connect({source:d, target:d2});
+
+        support.tapOnConnection(c)
+
+        ok(tapped, "tap event fired")
+    })
+
+    test("connection dbltap", function() {
+        var d = _addDiv("one", 50, 50, 100, 100),
+            d2 = _addDiv("two", 50, 50, 400, 400)
+        var tapped = false;
+        _jsPlumb.bind("dbltap", function() {
+            tapped= true
+        })
+
+        var c = _jsPlumb.connect({source:d, target:d2});
+
+        support.dblTapOnConnection(c)
+
+        ok(tapped, "dbltap event fired")
+    })
+
+// ----------------- connection overlays -------------------------------------------
+
+    test("overlay click", function() {
+        var d = _addDiv("one", 50, 50, 100, 100),
+            d2 = _addDiv("two", 50, 50, 400, 400);
+
+        var clicked = false;
+
+        var c = _jsPlumb.connect({
+            source:d,
+            target:d2,
+            overlays:[
+                {
+                    type:"Label",
+                    options: {
+                        label: "FOO",
+                        id: "overlay",
+                        events: {
+                            click: function () {
+                                clicked = true
+                            }
+                        }
+                    }
+                }
+            ]
+        });
+
+        support.clickOnOverlay(c,"overlay")
+
+        ok(clicked, "click event fired")
+    })
+
+    test("overlay dblclick", function() {
+        var d = _addDiv("one", 50, 50, 100, 100),
+            d2 = _addDiv("two", 50, 50, 400, 400)
+
+        var clicked = false;
+        var c = _jsPlumb.connect({
+            source:d,
+            target:d2,
+            overlays:[
+                {
+                    type:"Label",
+                    options: {
+                        label: "FOO",
+                        id: "overlay",
+                        events: {
+                            dblclick: function () {
+                                clicked = true
+                            }
+                        }
+                    }
+                }
+            ]
+        });
+
+        support.dblClickOnOverlay(c,"overlay")
+
+        ok(clicked, "dblclick event fired")
+    })
+
+    test("overlay tap", function() {
+        var d = _addDiv("one", 50, 50, 100, 100),
+            d2 = _addDiv("two", 50, 50, 400, 400)
+
+        var clicked = false;
+        var c = _jsPlumb.connect({
+            source:d,
+            target:d2,
+            overlays:[
+                {
+                    type:"Label",
+                    options: {
+                        label: "FOO",
+                        id: "overlay",
+                        events: {
+                            tap: function () {
+                                clicked = true
+                            }
+                        }
+                    }
+                }
+            ]
+        });
+
+        support.tapOnOverlay(c,"overlay")
+
+        ok(clicked, "tap event fired")
+
+    })
+
+    test("connection dbltap", function() {
+        var d = _addDiv("one", 50, 50, 100, 100),
+            d2 = _addDiv("two", 50, 50, 400, 400)
+
+        var clicked = false;
+        var c = _jsPlumb.connect({
+            source:d,
+            target:d2,
+            overlays:[
+                {
+                    type:"Label",
+                    options: {
+                        label: "FOO",
+                        id: "overlay",
+                        events: {
+                            dbltap: function () {
+                                clicked = true
+                            }
+                        }
+                    }
+                }
+            ]
+        });
+
+        support.dblTapOnOverlay(c,"overlay")
+
+        ok(clicked, "dbltap event fired")
+
     })
 
 };
