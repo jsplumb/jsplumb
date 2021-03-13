@@ -3161,6 +3161,8 @@ var EVENT_ELEMENT_MOUSE_OUT = "elementMouseout";
 var EVENT_ELEMENT_MOUSE_OVER = "elementMouseover";
 var EVENT_ENDPOINT_CLICK = "endpointClick";
 var EVENT_ENDPOINT_DBL_CLICK = "endpointDblClick";
+var EVENT_ENDPOINT_TAP = "endpointTap";
+var EVENT_ENDPOINT_DBL_TAP = "endpointDblTap";
 var EVENT_ENDPOINT_MOUSEOUT = "endpointMouseOut";
 var EVENT_ENDPOINT_MOUSEOVER = "endpointMouseOver";
 var EVENT_ENDPOINT_REPLACED = "endpointReplaced";
@@ -3828,6 +3830,20 @@ function (_EventGenerator) {
     value: function dblclick(e) {
       this.fire(EVENT_DBL_CLICK, e);
       var eventName = this.component instanceof Connection ? EVENT_DBL_CLICK : EVENT_ENDPOINT_DBL_CLICK;
+      this._postComponentEvent(eventName, e);
+    }
+  }, {
+    key: "tap",
+    value: function tap(e) {
+      this.fire(EVENT_TAP, e);
+      var eventName = this.component instanceof Connection ? EVENT_TAP : EVENT_ENDPOINT_TAP;
+      this._postComponentEvent(eventName, e);
+    }
+  }, {
+    key: "dbltap",
+    value: function dbltap(e) {
+      this.fire(EVENT_DBL_TAP, e);
+      var eventName = this.component instanceof Connection ? EVENT_DBL_TAP : EVENT_ENDPOINT_DBL_TAP;
       this._postComponentEvent(eventName, e);
     }
   }]);
@@ -9852,9 +9868,11 @@ exports.EVENT_ELEMENT_MOUSE_OUT = EVENT_ELEMENT_MOUSE_OUT;
 exports.EVENT_ELEMENT_MOUSE_OVER = EVENT_ELEMENT_MOUSE_OVER;
 exports.EVENT_ENDPOINT_CLICK = EVENT_ENDPOINT_CLICK;
 exports.EVENT_ENDPOINT_DBL_CLICK = EVENT_ENDPOINT_DBL_CLICK;
+exports.EVENT_ENDPOINT_DBL_TAP = EVENT_ENDPOINT_DBL_TAP;
 exports.EVENT_ENDPOINT_MOUSEOUT = EVENT_ENDPOINT_MOUSEOUT;
 exports.EVENT_ENDPOINT_MOUSEOVER = EVENT_ENDPOINT_MOUSEOVER;
 exports.EVENT_ENDPOINT_REPLACED = EVENT_ENDPOINT_REPLACED;
+exports.EVENT_ENDPOINT_TAP = EVENT_ENDPOINT_TAP;
 exports.EVENT_FOCUS = EVENT_FOCUS;
 exports.EVENT_GROUP_ADDED = EVENT_GROUP_ADDED;
 exports.EVENT_GROUP_COLLAPSE = EVENT_GROUP_COLLAPSE;

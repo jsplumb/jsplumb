@@ -472,9 +472,13 @@
     var i = 0,
         j;
     for (i = 0, j = l.length; i < j; i++) {
-      if (l[i] == fn) break;
+      if (l[i][0] === fn) {
+        break;
+      }
     }
-    if (i < l.length) l.splice(i, 1);
+    if (i < l.length) {
+      l.splice(i, 1);
+    }
   }
   var guid = 1;
   var isTouchDevice = "ontouchstart" in document.documentElement || navigator.maxTouchPoints != null && navigator.maxTouchPoints > 0;
@@ -674,7 +678,6 @@
               var tt = obj.__taTapHandler = {
                 tap: [],
                 dbltap: [],
-                contextmenu: [],
                 down: false,
                 taps: 0,
                 downSelectors: []
@@ -729,13 +732,23 @@
                   clearDouble = function clearDouble() {
                 tt.taps = 0;
               };
-              DefaultHandler(obj, "mousedown", down);
-              DefaultHandler(obj, "mouseup", up);
+              obj.__taTapHandler.downHandler = down;
+              obj.__taTapHandler.upHandler = up;
+              DefaultHandler(obj, core.EVENT_MOUSEDOWN, down);
+              DefaultHandler(obj, core.EVENT_MOUSEUP, up);
             }
             obj.__taTapHandler.downSelectors.push(children);
             obj.__taTapHandler[evt].push([fn, children]);
             fn.__taUnstore = function () {
+              core.removeWithFunction(obj.__taTapHandler.downSelectors, function (ds) {
+                return ds === children;
+              });
               _d(obj.__taTapHandler[evt], fn);
+              if (obj.__taTapHandler.downSelectors.length === 0) {
+                _unbind(obj, core.EVENT_MOUSEDOWN, obj.__taTapHandler.downHandler);
+                _unbind(obj, core.EVENT_MOUSEUP, obj.__taTapHandler.upHandler);
+                delete obj.__taTapHandler;
+              }
             };
           }
         };
@@ -809,14 +822,14 @@
     }
     _createClass(EventManager, [{
       key: "_doBind",
-      value: function _doBind(obj, evt, fn, children) {
-        var _this2 = this;
+      value: function _doBind(el, evt, fn, children) {
         if (fn == null) return;
-        _each(obj, function (_el) {
-          if (_this2.smartClicks && evt === core.EVENT_CLICK) SmartClickHandler(_el, evt, fn, children);else if (evt === core.EVENT_TAP || evt === core.EVENT_DBL_TAP || evt === core.EVENT_CONTEXTMENU) {
-            _this2.tapHandler(_el, evt, fn, children);
-          } else if (evt === core.EVENT_MOUSEENTER || evt == core.EVENT_MOUSEEXIT) _this2.mouseEnterExitHandler(_el, evt, fn, children);else DefaultHandler(_el, evt, fn, children);
-        });
+        var jel = el;
+        if (this.smartClicks && evt === core.EVENT_CLICK) SmartClickHandler(jel, evt, fn, children);else if (evt === core.EVENT_TAP || evt === core.EVENT_DBL_TAP || evt === core.EVENT_CONTEXTMENU) {
+          this.tapHandler(jel, evt, fn, children);
+        } else if (evt === core.EVENT_MOUSEENTER || evt == core.EVENT_MOUSEEXIT) this.mouseEnterExitHandler(jel, evt, fn, children);else {
+          DefaultHandler(jel, evt, fn, children);
+        }
       }
     }, {
       key: "on",
@@ -3820,10 +3833,14 @@
       _defineProperty(_assertThisInitialized(_this), "dragManager", void 0);
       _defineProperty(_assertThisInitialized(_this), "_connectorClick", void 0);
       _defineProperty(_assertThisInitialized(_this), "_connectorDblClick", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_connectorTap", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_connectorDblTap", void 0);
       _defineProperty(_assertThisInitialized(_this), "_endpointClick", void 0);
       _defineProperty(_assertThisInitialized(_this), "_endpointDblClick", void 0);
       _defineProperty(_assertThisInitialized(_this), "_overlayClick", void 0);
       _defineProperty(_assertThisInitialized(_this), "_overlayDblClick", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_overlayTap", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_overlayDblTap", void 0);
       _defineProperty(_assertThisInitialized(_this), "_connectorMouseover", void 0);
       _defineProperty(_assertThisInitialized(_this), "_connectorMouseout", void 0);
       _defineProperty(_assertThisInitialized(_this), "_endpointMouseover", void 0);
@@ -3896,6 +3913,8 @@
       };
       _this._connectorClick = _connClick.bind(_assertThisInitialized(_this), core.EVENT_CLICK);
       _this._connectorDblClick = _connClick.bind(_assertThisInitialized(_this), core.EVENT_DBL_CLICK);
+      _this._connectorTap = _connClick.bind(_assertThisInitialized(_this), core.EVENT_TAP);
+      _this._connectorDblTap = _connClick.bind(_assertThisInitialized(_this), core.EVENT_DBL_TAP);
       var _connectorHover = function _connectorHover(state, e) {
         var el = getEventSource(e).parentNode;
         if (el.jtk && el.jtk.connector) {
@@ -3931,6 +3950,8 @@
       };
       _this._overlayClick = _oClick.bind(_assertThisInitialized(_this), core.EVENT_CLICK);
       _this._overlayDblClick = _oClick.bind(_assertThisInitialized(_this), core.EVENT_DBL_CLICK);
+      _this._overlayTap = _oClick.bind(_assertThisInitialized(_this), core.EVENT_TAP);
+      _this._overlayDblTap = _oClick.bind(_assertThisInitialized(_this), core.EVENT_DBL_TAP);
       var _overlayHover = function _overlayHover(state, e) {
         var overlayElement = findParent(getEventSource(e), core.SELECTOR_OVERLAY, this.getContainer());
         var overlay = overlayElement.jtk.overlay;
@@ -4184,8 +4205,12 @@
         var currentContainer = this.getContainer();
         this.eventManager.on(currentContainer, core.EVENT_CLICK, core.SELECTOR_OVERLAY, this._overlayClick);
         this.eventManager.on(currentContainer, core.EVENT_DBL_CLICK, core.SELECTOR_OVERLAY, this._overlayDblClick);
+        this.eventManager.on(currentContainer, core.EVENT_TAP, core.SELECTOR_OVERLAY, this._overlayTap);
+        this.eventManager.on(currentContainer, core.EVENT_DBL_TAP, core.SELECTOR_OVERLAY, this._overlayDblTap);
         this.eventManager.on(currentContainer, core.EVENT_CLICK, core.SELECTOR_CONNECTOR, this._connectorClick);
         this.eventManager.on(currentContainer, core.EVENT_DBL_CLICK, core.SELECTOR_CONNECTOR, this._connectorDblClick);
+        this.eventManager.on(currentContainer, core.EVENT_TAP, core.SELECTOR_CONNECTOR, this._connectorTap);
+        this.eventManager.on(currentContainer, core.EVENT_DBL_TAP, core.SELECTOR_CONNECTOR, this._connectorDblTap);
         this.eventManager.on(currentContainer, core.EVENT_CLICK, core.SELECTOR_ENDPOINT, this._endpointClick);
         this.eventManager.on(currentContainer, core.EVENT_DBL_CLICK, core.SELECTOR_ENDPOINT, this._endpointDblClick);
         this.eventManager.on(currentContainer, core.EVENT_CLICK, core.SELECTOR_MANAGED_ELEMENT, this._elementClick);
@@ -4206,10 +4231,14 @@
         if (currentContainer) {
           this.eventManager.off(currentContainer, core.EVENT_CLICK, this._connectorClick);
           this.eventManager.off(currentContainer, core.EVENT_DBL_CLICK, this._connectorDblClick);
+          this.eventManager.off(currentContainer, core.EVENT_TAP, this._connectorTap);
+          this.eventManager.off(currentContainer, core.EVENT_DBL_TAP, this._connectorDblTap);
           this.eventManager.off(currentContainer, core.EVENT_CLICK, this._endpointClick);
           this.eventManager.off(currentContainer, core.EVENT_DBL_CLICK, this._endpointDblClick);
           this.eventManager.off(currentContainer, core.EVENT_CLICK, this._overlayClick);
           this.eventManager.off(currentContainer, core.EVENT_DBL_CLICK, this._overlayDblClick);
+          this.eventManager.off(currentContainer, core.EVENT_TAP, this._overlayTap);
+          this.eventManager.off(currentContainer, core.EVENT_DBL_TAP, this._overlayDblTap);
           this.eventManager.off(currentContainer, core.EVENT_CLICK, this._elementClick);
           this.eventManager.off(currentContainer, core.EVENT_MOUSEOVER, this._connectorMouseover);
           this.eventManager.off(currentContainer, core.EVENT_MOUSEOUT, this._connectorMouseout);

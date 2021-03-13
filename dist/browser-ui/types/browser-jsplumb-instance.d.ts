@@ -53,10 +53,14 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     dragManager: DragManager;
     _connectorClick: Function;
     _connectorDblClick: Function;
+    _connectorTap: Function;
+    _connectorDblTap: Function;
     _endpointClick: Function;
     _endpointDblClick: Function;
     _overlayClick: Function;
     _overlayDblClick: Function;
+    _overlayTap: Function;
+    _overlayDblTap: Function;
     _connectorMouseover: Function;
     _connectorMouseout: Function;
     _endpointMouseover: Function;
