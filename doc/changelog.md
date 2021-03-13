@@ -1,3 +1,11 @@
+## 4.0.0-RC76
+
+13th March 2021
+
+- Added support for binding to `tap` and `dbltap` events on a `JsPlumbInstance` (binding to these events means binding to tap/dbltap on Connections)
+- Added support for binding to `tap` and `dbltap` on overlays.
+- Fixed a possible memory leak related to the `tap` event handler
+
 ## 4.0.0-RC75
 
 9th March 2021
