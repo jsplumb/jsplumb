@@ -7,7 +7,7 @@ import { ContinuousAnchor} from "../anchor/continuous-anchor"
 import { DotEndpoint } from "../endpoint/dot-endpoint"
 import { EndpointSpec} from "../endpoint/endpoint"
 import { GroupManager } from "../group/group-manager"
-import {removeWithFunction, uuid, log, getWithFunction} from '../util'
+import {removeWithFunction, uuid, log, getWithFunction, isAssignableFrom} from '../util'
 
 import * as Constants from "../constants"
 
@@ -33,9 +33,7 @@ export class UINode<E> {
 
 export class UIGroup<E = any> extends UINode<E> {
 
-    //children:Array<E> = []
     children:Array<UINode<E>> = []
-    childGroups:Array<UIGroup<E>> = []
 
     collapsed:boolean = false
 
@@ -187,13 +185,6 @@ export class UIGroup<E = any> extends UINode<E> {
         }
         this.children.length = 0
 
-        for (let i = 0; i < this.childGroups.length; i++) {
-            let newPosition = this.manager.orphan(this.childGroups[i].el)
-            orphanedPositions[newPosition[0]] = newPosition[1]
-        }
-
-        this.childGroups.length = 0
-
         return orphanedPositions
     }
 
@@ -218,7 +209,7 @@ export class UIGroup<E = any> extends UINode<E> {
 
             group.el[Constants.PARENT_GROUP_KEY] = this
 
-            this.childGroups.push(group)
+            this.children.push(group)
 
             this.instance.appendElement(group.el, this.getContentArea())
 
@@ -255,7 +246,7 @@ export class UIGroup<E = any> extends UINode<E> {
                 delete entry.group
             }
 
-            this.childGroups = this.childGroups.filter((cg:UIGroup<E>) => cg.id !== group.id)
+            this.children = this.children.filter((cg:UIGroup<E>) => cg.id !== group.id)
             delete group.group
             delete jel._jsPlumbParentGroup
             this.instance.fire(Constants.EVENT_NESTED_GROUP_REMOVED, {
@@ -266,7 +257,15 @@ export class UIGroup<E = any> extends UINode<E> {
     }
 
     getGroups():Array<UIGroup<E>> {
-        return this.childGroups
+        return this.children.filter((cg:UINode<E>) => {
+            return cg.constructor === UIGroup
+        }) as Array<UIGroup<E>>
+    }
+
+    getNodes():Array<UINode<E>> {
+        return this.children.filter((cg:UINode<E>) => {
+            return cg.constructor === UINode
+        }) as Array<UINode<E>>
     }
 
     get collapseParent():UIGroup<E> {

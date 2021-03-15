@@ -35,8 +35,8 @@ export interface GroupExpandedParams<E> {
     group:UIGroup<E>
 }
 
-export interface AddGroupOptions extends GroupOptions {
-    el:any
+export interface AddGroupOptions<E> extends GroupOptions {
+    el:E
     collapsed?:boolean
 }
 
@@ -141,7 +141,7 @@ export class GroupManager<E> {
         }
     }
 
-    addGroup(params:AddGroupOptions) {
+    addGroup(params:AddGroupOptions<E>) {
 
         if (this.groupMap[params.id] != null) {
             throw new Error("cannot create Group [" + params.id + "]; a Group with that ID exists")
@@ -217,15 +217,10 @@ export class GroupManager<E> {
                 delete entry.group
             }
         })
-        forEach(actualGroup.childGroups, (g:UIGroup<E>) => {
-            const entry = this.instance.getManagedElements()[this.instance.getId(g.el)]
-            if (entry) {
-                delete entry.group
-            }
-        })
+
         if (deleteMembers) {
             // remove all child groups
-            forEach(actualGroup.childGroups, (cg:UIGroup<E>) => this.removeGroup(cg, deleteMembers, manipulateView))
+            forEach(actualGroup.getGroups(), (cg:UIGroup<E>) => this.removeGroup(cg, deleteMembers, manipulateView))
             // remove all child nodes
             actualGroup.removeAll(manipulateView, doNotFireEvent)
         } else {
@@ -430,7 +425,7 @@ export class GroupManager<E> {
                 _collapseSet(actualGroup.connections.source, 0)
                 _collapseSet(actualGroup.connections.target, 1)
 
-                forEach(actualGroup.childGroups,(cg: UIGroup<E>) => {
+                forEach(actualGroup.getGroups(),(cg: UIGroup<E>) => {
                     this.cascadeCollapse(actualGroup, cg, collapsedConnectionIds)
                 })
 
@@ -475,7 +470,7 @@ export class GroupManager<E> {
 
         }
 
-        forEach(targetGroup.childGroups,(cg:UIGroup<E>) => {
+        forEach(targetGroup.getGroups(),(cg:UIGroup<E>) => {
             this.cascadeCollapse(collapsedGroup, cg, collapsedIds)
         })
     }
@@ -534,7 +529,7 @@ export class GroupManager<E> {
                         forEach(group.connections.internal,(c:Connection) => c.setVisible(false))
 
                         // expand child groups
-                        forEach(group.childGroups, _expandNestedGroup)
+                        forEach(group.getGroups(), _expandNestedGroup)
 
                     } else {
                         this.expandGroup(group, doNotFireEvent)
@@ -542,7 +537,7 @@ export class GroupManager<E> {
                 }
 
                 // expand any nested groups. this will take into account if the nested group is collapsed.
-                forEach(actualGroup.childGroups, _expandNestedGroup)
+                forEach(actualGroup.getGroups(), _expandNestedGroup)
             }
 
 
@@ -591,7 +586,7 @@ export class GroupManager<E> {
         this.repaintGroup(targetGroup)
         this.instance.fire<GroupExpandedParams<E>>(Constants.EVENT_GROUP_EXPAND, {group: targetGroup})
 
-        forEach(targetGroup.childGroups,(cg:UIGroup<E>) => {
+        forEach(targetGroup.getGroups(),(cg:UIGroup<E>) => {
             this.cascadeExpand(expandedGroup, cg)
         })
     }
@@ -751,8 +746,9 @@ export class GroupManager<E> {
     getDescendants(group:UIGroup<E>):Array<UIGroup<E>> {
         const d:Array<UIGroup<E>> = []
         const _one = (g:UIGroup<E>) => {
-            d.push(...g.childGroups)
-            forEach(g.childGroups, _one)
+            const childGroups = g.getGroups()
+            d.push(...childGroups)
+            forEach(childGroups, _one)
         }
         _one(group)
         return d
