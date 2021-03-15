@@ -361,11 +361,11 @@ var testSuite = function () {
         var g = _jsPlumb.addGroup({el:gg})
         var g2 = _jsPlumb.addGroup({el:gg2})
 
-        equal(g.childGroups.length, 0, "0 child groups in group1");
+        equal(g.getGroups().length, 0, "0 child groups in group1");
 
         g.addGroup(g2)
 
-        equal(g.childGroups.length, 1, "1 child group in group1");
+        equal(g.getGroups().length, 1, "1 child group in group1");
 
         var gg2Id = gg2.getAttribute("jtk-id")
         var ggId = gg.getAttribute("jtk-id")
@@ -376,7 +376,7 @@ var testSuite = function () {
         equal(g.elId, _jsPlumb._managedElements[gg2Id].group, "group1's id has been registered as `group` for the element related to group2")
         //
          g.removeGroup(g2)
-        equal(g.childGroups.length, 0, "0 child groups in group1");
+        equal(g.getGroups().length, 0, "0 child groups in group1");
         equal(null, _jsPlumb._managedElements[gg2Id].group, "group1's id has been removed from `group` value for element related to group2")
         //
         // add back to group
@@ -1710,7 +1710,7 @@ var testSuite = function () {
 
         var added = g1.addGroup(g1);
         equal(added, false, "g1 reports that it was not added to itself");
-        equal(0, g1.childGroups.length, "g1 has zero child groups");
+        equal(0, g1.getGroups().length, "g1 has zero child groups");
 
     });
 
@@ -1722,14 +1722,14 @@ var testSuite = function () {
 
         groupB.addGroup(groupA);
 
-        equal(groupB.childGroups.length, 1, "g2 has one child group");
-        equal(groupA.childGroups.length, 0, "g1 has zero child groups");
+        equal(groupB.getGroups().length, 1, "g2 has one child group");
+        equal(groupA.getGroups().length, 0, "g1 has zero child groups");
 
         _jsPlumb.connect({source:n1_1, target:n2_1});
 
         groupA.addGroup(groupB);
-        equal(groupB.childGroups.length, 1, "g2 has one child group");
-        equal(groupA.childGroups.length, 0, "g1 has zero child groups");
+        equal(groupB.getGroups().length, 1, "g2 has one child group");
+        equal(groupA.getGroups().length, 0, "g1 has zero child groups");
     });
 
     test("nested groups, group A is child of group B. group C is child of group A. Add group B as a child to Group C. Should not work. ", function() {
@@ -1742,28 +1742,28 @@ var testSuite = function () {
         groupB.addGroup(groupA);
         groupA.addGroup(groupC);
 
-        equal(groupB.childGroups.length, 1, "groupB has one child group");
-        equal(groupA.childGroups.length, 1, "groupA has one child group");
-        equal(groupC.childGroups.length, 0, "groupC zero child groups");
+        equal(groupB.getGroups().length, 1, "groupB has one child group");
+        equal(groupA.getGroups().length, 1, "groupA has one child group");
+        equal(groupC.getGroups().length, 0, "groupC zero child groups");
 
         _jsPlumb.connect({source:n1_1, target:n2_1});
 
         // cannot add B to A
         groupA.addGroup(groupB);
-        equal(groupB.childGroups.length, 1, "groupB has one child group");
-        equal(groupA.childGroups.length, 1, "groupA has one child group");
+        equal(groupB.getGroups().length, 1, "groupB has one child group");
+        equal(groupA.getGroups().length, 1, "groupA has one child group");
 
         // cannot add B to C
         groupC.addGroup(groupB);
-        equal(groupB.childGroups.length, 1, "groupB has one child group");
-        equal(groupA.childGroups.length, 1, "groupA has one child group");
-        equal(groupC.childGroups.length, 0, "groupC has zero child groups");
+        equal(groupB.getGroups().length, 1, "groupB has one child group");
+        equal(groupA.getGroups().length, 1, "groupA has one child group");
+        equal(groupC.getGroups().length, 0, "groupC has zero child groups");
 
         // CAN add C to B
         groupB.addGroup(groupC);
-        equal(groupB.childGroups.length, 2, "groupB has two child groups");
-        equal(groupA.childGroups.length, 0, "groupA has zero child groups");
-        equal(groupC.childGroups.length, 0, "groupC has zero child groups");
+        equal(groupB.getGroups().length, 2, "groupB has two child groups");
+        equal(groupA.getGroups().length, 0, "groupA has zero child groups");
+        equal(groupC.getGroups().length, 0, "groupC has zero child groups");
         equal(groupB.getContentArea(), groupC.el.parentNode, "groupC is child of groupB in the DOM");
     });
 
@@ -1774,7 +1774,7 @@ var testSuite = function () {
         _dragToGroup(_jsPlumb, groupB.el, groupA);
 
         equal(groupA.getContentArea(), groupB.el.parentNode, "groupB is child of groupA in the DOM");
-        equal(groupA.childGroups.length, 1, "groupA has one child group");
+        equal(groupA.getGroups().length, 1, "groupA has one child group");
 
     });
 
@@ -1787,11 +1787,11 @@ var testSuite = function () {
         _dragToGroup(_jsPlumb, groupB.el, groupA);
 
         equal(groupA.getContentArea(), groupB.el.parentNode, "groupB is child of groupA in the DOM");
-        equal(groupA.childGroups.length, 1, "groupA has one child group");
+        equal(groupA.getGroups().length, 1, "groupA has one child group");
 
         support.dragtoDistantLand(groupB.el);
         equal(_jsPlumb.getContainer(), groupB.el.parentNode, "groupB is no longer a child of groupA in the DOM after being dragged out");
-        equal(groupA.childGroups.length, 0, "groupA has zero child groups");
+        equal(groupA.getGroups().length, 0, "groupA has zero child groups");
         ok(groupB.group == null, "groupB has no parent group");
     });
 
@@ -1823,7 +1823,7 @@ var testSuite = function () {
         _dragToGroup(j, groupB.el, groupA);
 
         equal(j.getContainer(), groupB.el.parentNode, "groupB is child of jsplumb container in the DOM (it wasnt dropped because allowNestedGroups is false)");
-        equal(groupA.childGroups.length, 0, "groupA has no child groups");
+        equal(groupA.getGroups().length, 0, "groupA has no child groups");
 
         j.destroy();
     });
@@ -1861,7 +1861,7 @@ var testSuite = function () {
         groupB.addGroup(groupA);
         groupA.addGroup(groupC);
 
-        equal(groupB.children.length, 1, "groupB reports one child node");
+        equal(groupB.getNodes().length, 1, "groupB reports one child node  ");
         equal(_jsPlumb.groupManager.getGroups().length, 3, "there are 3 groups in the instance");
 
         _jsPlumb.removeGroup(groupA, false);
@@ -1887,12 +1887,12 @@ var testSuite = function () {
         groupB.prune = true;
 
         equal(_jsPlumb.groupManager.getGroups().length, 2, "2 groups in the instance");
-        equal(groupB.childGroups.length, 1, "groupB reports one child group");
+        equal(groupB.getGroups().length, 1, "groupB reports one child group");
 
         support.dragtoDistantLand(groupA.el);
 
         equal(_jsPlumb.groupManager.getGroups().length, 1, "1 group in the instance after nested group dragged out of parent that has prune:true set on it");
-        equal(groupB.childGroups.length, 0, "groupB reports zero child groups");
+        equal(groupB.getGroups().length, 0, "groupB reports zero child groups");
 
     });
 
@@ -1951,12 +1951,12 @@ var testSuite = function () {
 
 
         equal(_jsPlumb.groupManager.getGroups().length, 2, "2 groups in the instance");
-        equal(groupB.childGroups.length, 1, "groupB reports one child group");
+        equal(groupB.getGroups().length, 1, "groupB reports one child group");
 
         _jsPlumb.removeGroup(groupA);
 
         equal(_jsPlumb.groupManager.getGroups().length, 1, "1 group in the instance after group removed via jsPlumb.removeGroup");
-        equal(groupB.childGroups.length, 0, "groupB reports zero child groups after");
+        equal(groupB.getGroups().length, 0, "groupB reports zero child groups after");
 
     });
 
@@ -2033,8 +2033,8 @@ var testSuite = function () {
             equal(node, c1_node.endpoints[1].element, msg + " : node is target element for c1_1-node");
 
             equal(_jsPlumb.groupManager.getGroups().length, 3, msg + " : 3 groups in the instance");
-            equal(groupA.childGroups.length, 1, msg + " : groupA reports one child group");
-            equal(groupB.childGroups.length, 1, msg + " : groupB reports one child group");
+            equal(groupA.getGroups().length, 1, msg + " : groupA reports one child group");
+            equal(groupB.getGroups().length, 1, msg + " : groupB reports one child group");
         }
 
         state0("initial setup");
