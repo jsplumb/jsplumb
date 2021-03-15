@@ -8,7 +8,7 @@ import {
 
 import { JsPlumbInstance } from "../core"
 
-import {UIGroup, GroupOptions} from "./group"
+import {UIGroup, GroupOptions, UINode} from "./group"
 import * as Constants from "../constants"
 import {IS, removeWithFunction, suggest, forEach } from "../util"
 import {Connection} from "../connector/connection-impl"
@@ -211,8 +211,8 @@ export class GroupManager<E> {
         this.expandGroup(actualGroup, true) // this reinstates any original connections and removes all proxies, but does not fire an event.
         let newPositions:Dictionary<PointXY> = {}
         // remove `group` from child nodes
-        forEach(actualGroup.children,(_el:E) => {
-            const entry = this.instance.getManagedElements()[this.instance.getId(_el)]
+        forEach(actualGroup.children,(uiNode:UINode<E>) => {
+            const entry = this.instance.getManagedElements()[this.instance.getId(uiNode.el)]
             if (entry) {
                 delete entry.group
             }
@@ -232,7 +232,7 @@ export class GroupManager<E> {
             // if we want to retain the child nodes then we need to test if there is a group that the parent of actualGroup.
             // if so, transfer the nodes to that group
             if (actualGroup.group) {
-                forEach(actualGroup.children, (c:any) => actualGroup.group.add(c))
+                forEach(actualGroup.children, (c:UINode<E>) => actualGroup.group.add(c.el))
             }
             newPositions = actualGroup.orphanAll()
         }
@@ -299,7 +299,7 @@ export class GroupManager<E> {
         group.connections.internal.length = 0
 
         // get all direct members, and any of their descendants.
-        const members:Array<E> = group.children.slice()
+        const members:Array<E> = group.children.slice().map(cn => cn.el)
         const childMembers:Array<E> = []
         forEach(members,(member: E) => {
             Array.prototype.push.apply(childMembers, this.instance.getSelector(member, "[jtk-managed]"))
@@ -588,8 +588,8 @@ export class GroupManager<E> {
         }
 
         this.instance.revalidate(targetGroup.el)
-        this.repaintGroup(targetGroup.el)
-        this.instance.fire<GroupExpandedParams<E>>(Constants.EVENT_GROUP_EXPAND, {group: targetGroup.el})
+        this.repaintGroup(targetGroup)
+        this.instance.fire<GroupExpandedParams<E>>(Constants.EVENT_GROUP_EXPAND, {group: targetGroup})
 
         forEach(targetGroup.childGroups,(cg:UIGroup<E>) => {
             this.cascadeExpand(expandedGroup, cg)
@@ -611,7 +611,7 @@ export class GroupManager<E> {
         let actualGroup = this.getGroup(group)
         const m = actualGroup.children
         for (let i = 0; i < m.length; i++) {
-            this.instance.revalidate(m[i])
+            this.instance.revalidate(m[i].el)
         }
     }
 

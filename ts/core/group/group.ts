@@ -7,7 +7,7 @@ import { ContinuousAnchor} from "../anchor/continuous-anchor"
 import { DotEndpoint } from "../endpoint/dot-endpoint"
 import { EndpointSpec} from "../endpoint/endpoint"
 import { GroupManager } from "../group/group-manager"
-import { removeWithFunction, uuid, log } from '../util'
+import {removeWithFunction, uuid, log, getWithFunction} from '../util'
 
 import * as Constants from "../constants"
 
@@ -28,12 +28,13 @@ export interface GroupOptions {
 
 export class UINode<E> {
     group:UIGroup<E>
-    constructor(public instance:JsPlumbInstance, public el:any) { }
+    constructor(public instance:JsPlumbInstance, public el:E) { }
 }
 
 export class UIGroup<E = any> extends UINode<E> {
 
-    children:Array<E> = []
+    //children:Array<E> = []
+    children:Array<UINode<E>> = []
     childGroups:Array<UIGroup<E>> = []
 
     collapsed:boolean = false
@@ -105,32 +106,47 @@ export class UIGroup<E = any> extends UINode<E> {
         return this.endpoint || { type:DotEndpoint.type, options:{ radius:10 }}
     }
 
-    add(_el:any, doNotFireEvent?:boolean):void {
+    add(_el:E, doNotFireEvent?:boolean):void {
         const dragArea = this.getContentArea()
-        this.instance.each(_el, (__el:any) => {
+        const __el = _el as unknown as jsPlumbElement<E>
+        //this.instance.each(_el, (__el:any) => {
 
-            if (__el[Constants.PARENT_GROUP_KEY] != null) {
-                if (__el[Constants.PARENT_GROUP_KEY] === this) {
+            if (__el._jsPlumbParentGroup != null) {
+                if (__el._jsPlumbParentGroup === this) {
                     return
                 } else {
-                    __el[Constants.PARENT_GROUP_KEY].remove(__el, true, doNotFireEvent, false)
+                    __el._jsPlumbParentGroup.remove(_el, true, doNotFireEvent, false)
                 }
             }
 
-            __el[Constants.PARENT_GROUP_KEY] = this
-            this.children.push(__el)
+            __el._jsPlumbParentGroup = this
+            this.children.push(new UINode<E>(this.instance, _el))
             this.manager.instance.appendElement(__el, dragArea)
-        })
+       // })
 
         this.manager._updateConnectionsForGroup(this)
     }
 
+    private resolveNode(el:E) {
+        return el == null ? null : getWithFunction(this.children, (u:UINode<E>) => u.el === el)
+    }
+
     remove (el:E, manipulateDOM?:boolean, doNotFireEvent?:boolean, doNotUpdateConnections?:boolean, targetGroup?:UIGroup<E>) {
 
-        const __el = el as unknown as jsPlumbElement<E>
+        const uiNode = this.resolveNode(el)
+        if (uiNode != null) {
+            this._doRemove(uiNode, manipulateDOM, doNotFireEvent, doNotUpdateConnections, targetGroup)
+        }
+    }
+
+    private _doRemove(child:UINode<E>, manipulateDOM?:boolean, doNotFireEvent?:boolean, doNotUpdateConnections?:boolean, targetGroup?:UIGroup<E>) {
+
+        const __el = child.el as unknown as jsPlumbElement<E>
+
         delete __el._jsPlumbParentGroup
-        removeWithFunction(this.children, (e:any) => {
-            return e === __el
+
+        removeWithFunction(this.children, (e:UINode<E>) => {
+            return e === child
         })
 
         if (manipulateDOM) {
@@ -153,9 +169,9 @@ export class UIGroup<E = any> extends UINode<E> {
 
     removeAll(manipulateDOM?:boolean, doNotFireEvent?:boolean):void {
         for (let i = 0, l = this.children.length; i < l; i++) {
-            let el = this.children[0]
-            this.remove(el, manipulateDOM, doNotFireEvent, true)
-            this.manager.instance.unmanage(el, true)
+            let child:UINode<E> = this.children[0]
+            this._doRemove(child, manipulateDOM, doNotFireEvent, true)
+            this.manager.instance.unmanage(child.el, true)
         }
         this.children.length = 0
         this.manager._updateConnectionsForGroup(this)
@@ -166,7 +182,7 @@ export class UIGroup<E = any> extends UINode<E> {
         let orphanedPositions:Dictionary<PointXY> = {}
 
         for (let i = 0; i < this.children.length; i++) {
-            let newPosition = this.manager.orphan(this.children[i])
+            let newPosition = this.manager.orphan(this.children[i].el)
             orphanedPositions[newPosition[0]] = newPosition[1]
         }
         this.children.length = 0
@@ -225,8 +241,10 @@ export class UIGroup<E = any> extends UINode<E> {
 
     removeGroup(group:UIGroup<E>):void {
         if (group.group === this) {
+            const jel = group.el as unknown as jsPlumbElement<E>
+
             const d = this.getContentArea()
-            if (d === group.el.parentNode) {
+            if (d === jel.parentNode) {
                 d.removeChild(group.el)
             }
 
@@ -239,7 +257,7 @@ export class UIGroup<E = any> extends UINode<E> {
 
             this.childGroups = this.childGroups.filter((cg:UIGroup<E>) => cg.id !== group.id)
             delete group.group
-            delete group.el._jsPlumbParentGroup
+            delete jel._jsPlumbParentGroup
             this.instance.fire(Constants.EVENT_NESTED_GROUP_REMOVED, {
                 parent:this,
                 child:group
