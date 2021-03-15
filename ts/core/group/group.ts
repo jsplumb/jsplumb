@@ -1,5 +1,5 @@
 
-import { Dictionary, PointXY} from '../common'
+import { Dictionary, PointXY, jsPlumbElement} from '../common'
 import { JsPlumbInstance } from "../core"
 import { Connection } from '../connector/connection-impl'
 import { AnchorSpec } from "../factory/anchor-factory"
@@ -125,28 +125,27 @@ export class UIGroup<E = any> extends UINode<E> {
         this.manager._updateConnectionsForGroup(this)
     }
 
-    remove (el:E | Array<E>, manipulateDOM?:boolean, doNotFireEvent?:boolean, doNotUpdateConnections?:boolean, targetGroup?:UIGroup<E>) {
+    remove (el:E, manipulateDOM?:boolean, doNotFireEvent?:boolean, doNotUpdateConnections?:boolean, targetGroup?:UIGroup<E>) {
 
-        this.instance.each(el, (__el:any) => {
-            delete __el[Constants.PARENT_GROUP_KEY]
-            removeWithFunction(this.children, (e:any) => {
-                return e === __el
-            })
-
-            if (manipulateDOM) {
-                try { (<any>this.getContentArea()).removeChild(__el); }
-                catch (e) {
-                    log("Could not remove element from Group " + e)
-                }
-            }
-            if (!doNotFireEvent) {
-                const p = {group: this, el: __el}
-                if (targetGroup) {
-                    (<any>p).targetGroup = targetGroup
-                }
-                this.manager.instance.fire(Constants.EVENT_GROUP_MEMBER_REMOVED, p)
-            }
+        const __el = el as unknown as jsPlumbElement<E>
+        delete __el._jsPlumbParentGroup
+        removeWithFunction(this.children, (e:any) => {
+            return e === __el
         })
+
+        if (manipulateDOM) {
+            try { (<any>this.getContentArea()).removeChild(__el); }
+            catch (e) {
+                log("Could not remove element from Group " + e)
+            }
+        }
+        if (!doNotFireEvent) {
+            const p = {group: this, el: __el}
+            if (targetGroup) {
+                (<any>p).targetGroup = targetGroup
+            }
+            this.manager.instance.fire(Constants.EVENT_GROUP_MEMBER_REMOVED, p)
+        }
         if (!doNotUpdateConnections) {
             this.manager._updateConnectionsForGroup(this)
         }
