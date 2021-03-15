@@ -286,34 +286,6 @@ const DefaultHandler:Handler = (obj:any, evt:string, fn:FunctionFacade, children
     _bind(obj, evt, _curryChildFilter(children, obj, fn, evt), fn)
 }
 
-const SmartClickHandler:Handler = (obj:any, evt:string, fn:FunctionFacade, children:string) => {
-    if (obj.__taSmartClicks == null) {
-        const down = (e:Event) => {
-                obj.__tad = pageLocation(e)
-            },
-            up = (e:Event) => {
-                obj.__tau = pageLocation(e)
-            },
-            click = (e:Event) => {
-                if (obj.__tad && obj.__tau && obj.__tad.x === obj.__tau.x && obj.__tad.y === obj.__tau.y) {
-                    for (let i = 0; i < obj.__taSmartClicks.length; i++)
-                        obj.__taSmartClicks[i].apply(_t(e), [ e ])
-                }
-            }
-        DefaultHandler(obj, EVENT_MOUSEDOWN, down as any, children)
-        DefaultHandler(obj, EVENT_MOUSEUP, up as any, children)
-        DefaultHandler(obj, EVENT_CLICK, click as any, children)
-        obj.__taSmartClicks = []
-    }
-
-    // store in the list of callbacks
-    obj.__taSmartClicks.push(fn)
-    // the unstore function removes this function from the object's listener list for this type.
-    fn.__taUnstore = function () {
-        _d(obj.__taSmartClicks, fn as any)
-    }
-}
-
 const _tapProfiles = {
     "tap": {touches: 1, taps: 1},
     "dbltap": {touches: 1, taps: 2},
@@ -412,16 +384,17 @@ class TapHandler {
                 obj.__taTapHandler[evt].push([fn, children])
                 // the unstore function removes this function from the object's listener list for this type.
                 fn.__taUnstore = function () {
-
-                    // remove this selector from the tap handlers list
-                    removeWithFunction(obj.__taTapHandler.downSelectors, (ds:string) => ds === children)
-                    // remove the function
-                    _d(obj.__taTapHandler[evt], fn as any)
-                    // now if there are no `downSelectors` left, unbind the tap handler and delete it
-                    if(obj.__taTapHandler.downSelectors.length === 0) {
-                        _unbind(obj, EVENT_MOUSEDOWN, obj.__taTapHandler.downHandler)
-                        _unbind(obj, EVENT_MOUSEUP, obj.__taTapHandler.upHandler)
-                        delete obj.__taTapHandler
+                    if (obj.__taTapHandler != null) {
+                        // remove this selector from the tap handlers list
+                        removeWithFunction(obj.__taTapHandler.downSelectors, (ds: string) => ds === children)
+                        // remove the function
+                        _d(obj.__taTapHandler[evt], fn as any)
+                        // now if there are no `downSelectors` left, unbind the tap handler and delete it
+                        if (obj.__taTapHandler.downSelectors.length === 0) {
+                            _unbind(obj, EVENT_MOUSEDOWN, obj.__taTapHandler.downHandler)
+                            _unbind(obj, EVENT_MOUSEUP, obj.__taTapHandler.upHandler)
+                            delete obj.__taTapHandler
+                        }
                     }
                 }
             }
@@ -478,7 +451,6 @@ class MouseEnterExitHandler {
 export interface EventManagerOptions {
     clickThreshold?:number
     dblClickThreshold?:number
-    smartClicks?:boolean
 }
 
 export class EventManager {
@@ -487,7 +459,6 @@ export class EventManager {
     dblClickThreshold:number
     private readonly tapHandler:Handler
     private readonly mouseEnterExitHandler: Handler
-    smartClicks:boolean
 
     constructor(params?:EventManagerOptions) {
         params = params || {}
@@ -495,7 +466,6 @@ export class EventManager {
         this.dblClickThreshold = params.dblClickThreshold || 450
         this.mouseEnterExitHandler = MouseEnterExitHandler.generate()
         this.tapHandler = TapHandler.generate(this.clickThreshold, this.dblClickThreshold)
-        this.smartClicks = params.smartClicks
     }
 
     private _doBind (el:Element, evt:string, fn:any, children?:string) {
@@ -503,9 +473,7 @@ export class EventManager {
 
         const jel = el as unknown as jsPlumbDOMElement
 
-        if (this.smartClicks && evt === EVENT_CLICK)
-            SmartClickHandler(jel, evt, fn, children)
-        else if (evt === EVENT_TAP || evt === EVENT_DBL_TAP || evt === EVENT_CONTEXTMENU) {
+        if (evt === EVENT_TAP || evt === EVENT_DBL_TAP || evt === EVENT_CONTEXTMENU) {
             this.tapHandler(jel, evt, fn, children)
         }
         else if (evt === EVENT_MOUSEENTER || evt == EVENT_MOUSEEXIT)
