@@ -1950,7 +1950,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     getGroup(groupId:string) { return this.groupManager.getGroup(groupId); }
     getGroupFor(el:T["E"]) { return this.groupManager.getGroupFor(el); }
-    addGroup(params:AddGroupOptions) { return this.groupManager.addGroup(params); }
+    addGroup(params:AddGroupOptions<T["E"]>) { return this.groupManager.addGroup(params); }
     addToGroup(group:string | UIGroup<T["E"]>, ...el:Array<T["E"]>) { return this.groupManager.addToGroup(group, false, ...el); }
 
     collapseGroup (group:string | UIGroup<T["E"]>) { this.groupManager.collapseGroup(group); }
