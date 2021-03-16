@@ -143,10 +143,11 @@ export class GroupManager<E> {
 
     addGroup(params:AddGroupOptions<E>) {
 
+        const jel = params.el as unknown as jsPlumbElement<E>
         if (this.groupMap[params.id] != null) {
             throw new Error("cannot create Group [" + params.id + "]; a Group with that ID exists")
         }
-        if (params.el[Constants.IS_GROUP_KEY] != null) {
+        if (jel._isJsPlumbGroup != null) {
             throw new Error("cannot create Group [" + params.id + "]; the given element is already a Group")
         }
         let group:UIGroup<E> = new UIGroup(this.instance, params.el, params)
@@ -348,15 +349,15 @@ export class GroupManager<E> {
 
     private _collapseConnection(conn:Connection, index:number, group:UIGroup<E>):boolean {
         let otherEl = conn.endpoints[index === 0 ? 1 : 0].element
-        if (otherEl[Constants.PARENT_GROUP_KEY] && (!otherEl[Constants.PARENT_GROUP_KEY].proxied && otherEl[Constants.PARENT_GROUP_KEY].collapsed)) {
+        if (otherEl._jsPlumbParentGroup && (!otherEl._jsPlumbParentGroup.proxied && otherEl._jsPlumbParentGroup.collapsed)) {
             return false
         }
 
         const es = conn.endpoints[0].element,
-            esg = es[Constants.PARENT_GROUP_KEY],
+            esg = es._jsPlumbParentGroup,
             esgcp = esg != null ? (esg.collapseParent || esg) : null,
             et = conn.endpoints[1].element,
-            etg = et[Constants.PARENT_GROUP_KEY],
+            etg = et._jsPlumbParentGroup,
             etgcp = etg != null ? (etg.collapseParent || etg) : null
 
         if (esgcp == null || etgcp == null || (esgcp.id !== etgcp.id)) {
@@ -616,10 +617,11 @@ export class GroupManager<E> {
             let groupEl = actualGroup.el
 
             const _one = (el:E) => {
-                let isGroup = el[Constants.IS_GROUP_KEY] != null,
-                    droppingGroup = el[Constants.GROUP_KEY] as UIGroup<E>
+                const jel = el as unknown as jsPlumbElement<E>
+                let isGroup = jel._isJsPlumbGroup != null,
+                    droppingGroup = jel._jsPlumbGroup
 
-                let currentGroup = el[Constants.PARENT_GROUP_KEY]
+                let currentGroup = jel._jsPlumbParentGroup
                 // if already a member of this group, do nothing
                 if (currentGroup !== actualGroup) {
 
@@ -643,7 +645,7 @@ export class GroupManager<E> {
                         const oidx = index === 0 ? 1 : 0
                         list.each( (c:Connection) => {
                             c.setVisible(false)
-                            if (c.endpoints[oidx].element[Constants.GROUP_KEY] === actualGroup) {
+                            if (c.endpoints[oidx].element._jsPlumbGroup === actualGroup) {
                                 c.endpoints[oidx].setVisible(false)
                                 this._expandConnection(c, oidx, actualGroup)
                             }
