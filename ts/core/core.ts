@@ -34,7 +34,7 @@ import {
     PointXY,
     ConnectionMovedParams,
     SourceBehaviouralTypeDescriptor,
-    TargetBehaviouralTypeDescriptor
+    TargetBehaviouralTypeDescriptor, ConnectionDetachedParams, ConnectionEstablishedParams
 } from './common'
 
 import { EventGenerator } from "./event-generator"
@@ -651,7 +651,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     private fireDetachEvent (jpc:Connection | any, doFireEvent?:boolean, originalEvent?:Event):void {
         // may have been given a connection, or in special cases, an object
         let argIsConnection:boolean = (jpc.id != null),
-            params = argIsConnection ? {
+            params:ConnectionDetachedParams = argIsConnection ? {
                 connection: jpc,
                 source: jpc.source, target: jpc.target,
                 sourceId: jpc.sourceId, targetId: jpc.targetId,
@@ -723,6 +723,14 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         }
 
         return this._managedElements[elId]
+    }
+
+    /**
+     * Gets the element with the given ID from the list managed elements, null if not currently managed.
+     * @param id
+     */
+    getManagedElement(id:string):T["E"] {
+        return this._managedElements[id] ? this._managedElements[id].el as unknown as T["E"] : null
     }
 
     /**
@@ -1326,7 +1334,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         // fire an event
         if (!params.doNotFireConnectionEvent && params.fireEvent !== false) {
 
-            let eventArgs = {
+            let eventArgs:ConnectionEstablishedParams = {
                 connection: jpc,
                 source: jpc.source, target: jpc.target,
                 sourceId: jpc.sourceId, targetId: jpc.targetId,
