@@ -172,6 +172,11 @@ export declare abstract class JsPlumbInstance<T extends {
      */
     manage(element: T["E"], internalId?: string, recalc?: boolean): ManagedElement<T["E"]>;
     /**
+     * Gets the element with the given ID from the list managed elements, null if not currently managed.
+     * @param id
+     */
+    getManagedElement(id: string): T["E"];
+    /**
      * Stops managing the given element.
      * @param el Element, or ID of the element to stop managing.
      * @param removeElement If true, also remove the element from the renderer.
@@ -337,7 +342,7 @@ export declare abstract class JsPlumbInstance<T extends {
     sourceOrTargetChanged(originalId: string, newId: string, connection: any, newElement: any, index: number): void;
     getGroup(groupId: string): UIGroup<T["E"]>;
     getGroupFor(el: T["E"]): UIGroup<T["E"]>;
-    addGroup(params: AddGroupOptions): UIGroup<T["E"]>;
+    addGroup(params: AddGroupOptions<T["E"]>): UIGroup<T["E"]>;
     addToGroup(group: string | UIGroup<T["E"]>, ...el: Array<T["E"]>): void;
     collapseGroup(group: string | UIGroup<T["E"]>): void;
     expandGroup(group: string | UIGroup<T["E"]>): void;

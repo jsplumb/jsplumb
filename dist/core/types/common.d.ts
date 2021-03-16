@@ -17,6 +17,7 @@ export interface jsPlumbElement<E> {
     _jsPlumbConnections: Dictionary<boolean>;
     _jsPlumbProxies: Array<[Connection, number]>;
     _isJsPlumbGroup: boolean;
+    parentNode: jsPlumbElement<E>;
 }
 export interface ConnectParams {
     uuids?: [UUID, UUID];

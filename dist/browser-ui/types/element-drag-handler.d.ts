@@ -64,9 +64,7 @@ export declare class ElementDragHandler implements DragHandler {
     removeFromDragSelection(el: Element): void;
     toggleDragSelection(el: Element): void;
     getDragSelection(): Array<Element>;
-    private static decodeDragGroupSpec;
     addToDragGroup(spec: DragGroupSpec, ...els: Array<Element>): void;
     removeFromDragGroup(...els: Array<Element>): void;
     setDragGroupState(state: boolean, ...els: Array<Element>): void;
-    private isActiveDragGroupMember;
 }

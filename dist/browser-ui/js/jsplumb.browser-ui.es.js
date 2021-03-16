@@ -1,4 +1,4 @@
-import { fastTrim, forEach, isArray, log, NONE, EVENT_CONTEXTMENU, removeWithFunction, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_CLICK, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, uuid, IS, extend, wrap, getWithFunction, isString, optional, getFromSetWithFunction, intersects, GROUP_KEY, cls, each, makeAnchorFromSpec, AnchorLocations, findWithFunction, SOURCE, TARGET, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, SELECTOR_MANAGED_ELEMENT, Connection, Endpoint, Overlay, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, UNDEFINED, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, fromArray, ATTRIBUTE_NOT_DRAGGABLE, TRUE as TRUE$1, FALSE as FALSE$1, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE as EVENT_MOUSEMOVE$1, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, EndpointRepresentation, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/core';
+import { fastTrim, forEach, isArray, log, NONE, EVENT_CONTEXTMENU, removeWithFunction, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, uuid, IS, extend, wrap, getWithFunction, optional, getFromSetWithFunction, isString, intersects, cls, each, makeAnchorFromSpec, AnchorLocations, findWithFunction, SOURCE, TARGET, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, SELECTOR_MANAGED_ELEMENT, Connection, Endpoint, Overlay, EVENT_CLICK, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, UNDEFINED, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, fromArray, ATTRIBUTE_NOT_DRAGGABLE, TRUE as TRUE$1, FALSE as FALSE$1, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE as EVENT_MOUSEMOVE$1, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, EndpointRepresentation, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/core';
 
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -614,31 +614,6 @@ var DefaultHandler = function DefaultHandler(obj, evt, fn, children) {
   }
   _bind(obj, evt, _curryChildFilter(children, obj, fn, evt), fn);
 };
-var SmartClickHandler = function SmartClickHandler(obj, evt, fn, children) {
-  if (obj.__taSmartClicks == null) {
-    var down = function down(e) {
-      obj.__tad = pageLocation(e);
-    },
-        up = function up(e) {
-      obj.__tau = pageLocation(e);
-    },
-        click = function click(e) {
-      if (obj.__tad && obj.__tau && obj.__tad.x === obj.__tau.x && obj.__tad.y === obj.__tau.y) {
-        for (var i = 0; i < obj.__taSmartClicks.length; i++) {
-          obj.__taSmartClicks[i].apply(_t(e), [e]);
-        }
-      }
-    };
-    DefaultHandler(obj, EVENT_MOUSEDOWN$1, down, children);
-    DefaultHandler(obj, EVENT_MOUSEUP$1, up, children);
-    DefaultHandler(obj, EVENT_CLICK, click, children);
-    obj.__taSmartClicks = [];
-  }
-  obj.__taSmartClicks.push(fn);
-  fn.__taUnstore = function () {
-    _d(obj.__taSmartClicks, fn);
-  };
-};
 var _tapProfiles = {
   "tap": {
     touches: 1,
@@ -736,14 +711,16 @@ function () {
           obj.__taTapHandler.downSelectors.push(children);
           obj.__taTapHandler[evt].push([fn, children]);
           fn.__taUnstore = function () {
-            removeWithFunction(obj.__taTapHandler.downSelectors, function (ds) {
-              return ds === children;
-            });
-            _d(obj.__taTapHandler[evt], fn);
-            if (obj.__taTapHandler.downSelectors.length === 0) {
-              _unbind(obj, EVENT_MOUSEDOWN$1, obj.__taTapHandler.downHandler);
-              _unbind(obj, EVENT_MOUSEUP$1, obj.__taTapHandler.upHandler);
-              delete obj.__taTapHandler;
+            if (obj.__taTapHandler != null) {
+              removeWithFunction(obj.__taTapHandler.downSelectors, function (ds) {
+                return ds === children;
+              });
+              _d(obj.__taTapHandler[evt], fn);
+              if (obj.__taTapHandler.downSelectors.length === 0) {
+                _unbind(obj, EVENT_MOUSEDOWN$1, obj.__taTapHandler.downHandler);
+                _unbind(obj, EVENT_MOUSEUP$1, obj.__taTapHandler.upHandler);
+                delete obj.__taTapHandler;
+              }
             }
           };
         }
@@ -808,20 +785,18 @@ function () {
     _defineProperty(this, "dblClickThreshold", void 0);
     _defineProperty(this, "tapHandler", void 0);
     _defineProperty(this, "mouseEnterExitHandler", void 0);
-    _defineProperty(this, "smartClicks", void 0);
     params = params || {};
     this.clickThreshold = params.clickThreshold || 250;
     this.dblClickThreshold = params.dblClickThreshold || 450;
     this.mouseEnterExitHandler = MouseEnterExitHandler.generate();
     this.tapHandler = TapHandler.generate(this.clickThreshold, this.dblClickThreshold);
-    this.smartClicks = params.smartClicks;
   }
   _createClass(EventManager, [{
     key: "_doBind",
     value: function _doBind(el, evt, fn, children) {
       if (fn == null) return;
       var jel = el;
-      if (this.smartClicks && evt === EVENT_CLICK) SmartClickHandler(jel, evt, fn, children);else if (evt === EVENT_TAP || evt === EVENT_DBL_TAP || evt === EVENT_CONTEXTMENU) {
+      if (evt === EVENT_TAP || evt === EVENT_DBL_TAP || evt === EVENT_CONTEXTMENU) {
         this.tapHandler(jel, evt, fn, children);
       } else if (evt === EVENT_MOUSEENTER || evt == EVENT_MOUSEEXIT) this.mouseEnterExitHandler(jel, evt, fn, children);else {
         DefaultHandler(jel, evt, fn, children);
@@ -1868,6 +1843,29 @@ function () {
   return DragManager;
 }();
 
+function decodeDragGroupSpec(instance, spec) {
+  if (isString(spec)) {
+    return {
+      id: spec,
+      active: true
+    };
+  } else {
+    return {
+      id: instance.getId(spec),
+      active: spec.active
+    };
+  }
+}
+function isActiveDragGroupMember(dragGroup, el) {
+  var details = getFromSetWithFunction(dragGroup.members, function (m) {
+    return m.el === el;
+  });
+  if (details !== null) {
+    return details.active === true;
+  } else {
+    return false;
+  }
+}
 var ElementDragHandler =
 function () {
   function ElementDragHandler(instance) {
@@ -2091,8 +2089,8 @@ function () {
             var isGhostOrNotConstrained = !isNotInAGroup && (_el._jsPlumbParentGroup.ghost || _el._jsPlumbParentGroup.constrain !== true);
             if (isNotInAGroup || membersAreDroppable && isGhostOrNotConstrained) {
               forEach(_this4.instance.groupManager.getGroups(), function (group) {
-                var elementGroup = _el[GROUP_KEY];
-                if (group.droppable !== false && group.enabled !== false && _el[GROUP_KEY] !== group && !_this4.instance.groupManager.isDescendant(group, elementGroup)) {
+                var elementGroup = _el._jsPlumbGroup;
+                if (group.droppable !== false && group.enabled !== false && _el._jsPlumbGroup !== group && !_this4.instance.groupManager.isDescendant(group, elementGroup)) {
                   var groupEl = group.el,
                       s = _this4.instance.getSize(groupEl),
                       o = _this4.instance.getOffset(groupEl),
@@ -2138,7 +2136,7 @@ function () {
         };
         var elId = this.instance.getId(el);
         this._currentDragGroup = this._dragGroupByElementIdMap[elId];
-        if (this._currentDragGroup && !this.isActiveDragGroupMember(this._currentDragGroup, el)) {
+        if (this._currentDragGroup && !isActiveDragGroupMember(this._currentDragGroup, el)) {
           this._currentDragGroup = null;
         }
         var dragStartReturn = _one(el);
@@ -2213,7 +2211,7 @@ function () {
     key: "addToDragGroup",
     value: function addToDragGroup(spec) {
       var _this7 = this;
-      var details = ElementDragHandler.decodeDragGroupSpec(this.instance, spec);
+      var details = decodeDragGroupSpec(this.instance, spec);
       var dragGroup = this._dragGroupMap[details.id];
       if (dragGroup == null) {
         dragGroup = {
@@ -2277,33 +2275,6 @@ function () {
           });
         });
       });
-    }
-  }, {
-    key: "isActiveDragGroupMember",
-    value: function isActiveDragGroupMember(dragGroup, el) {
-      var details = getFromSetWithFunction(dragGroup.members, function (m) {
-        return m.el === el;
-      });
-      if (details !== null) {
-        return details.active === true;
-      } else {
-        return false;
-      }
-    }
-  }], [{
-    key: "decodeDragGroupSpec",
-    value: function decodeDragGroupSpec(instance, spec) {
-      if (isString(spec)) {
-        return {
-          id: spec,
-          active: true
-        };
-      } else {
-        return {
-          id: instance.getId(spec),
-          active: spec.active
-        };
-      }
     }
   }]);
   return ElementDragHandler;

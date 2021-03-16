@@ -618,31 +618,6 @@
     }
     _bind(obj, evt, _curryChildFilter(children, obj, fn, evt), fn);
   };
-  var SmartClickHandler = function SmartClickHandler(obj, evt, fn, children) {
-    if (obj.__taSmartClicks == null) {
-      var down = function down(e) {
-        obj.__tad = pageLocation(e);
-      },
-          up = function up(e) {
-        obj.__tau = pageLocation(e);
-      },
-          click = function click(e) {
-        if (obj.__tad && obj.__tau && obj.__tad.x === obj.__tau.x && obj.__tad.y === obj.__tau.y) {
-          for (var i = 0; i < obj.__taSmartClicks.length; i++) {
-            obj.__taSmartClicks[i].apply(_t(e), [e]);
-          }
-        }
-      };
-      DefaultHandler(obj, core.EVENT_MOUSEDOWN, down, children);
-      DefaultHandler(obj, core.EVENT_MOUSEUP, up, children);
-      DefaultHandler(obj, core.EVENT_CLICK, click, children);
-      obj.__taSmartClicks = [];
-    }
-    obj.__taSmartClicks.push(fn);
-    fn.__taUnstore = function () {
-      _d(obj.__taSmartClicks, fn);
-    };
-  };
   var _tapProfiles = {
     "tap": {
       touches: 1,
@@ -740,14 +715,16 @@
             obj.__taTapHandler.downSelectors.push(children);
             obj.__taTapHandler[evt].push([fn, children]);
             fn.__taUnstore = function () {
-              core.removeWithFunction(obj.__taTapHandler.downSelectors, function (ds) {
-                return ds === children;
-              });
-              _d(obj.__taTapHandler[evt], fn);
-              if (obj.__taTapHandler.downSelectors.length === 0) {
-                _unbind(obj, core.EVENT_MOUSEDOWN, obj.__taTapHandler.downHandler);
-                _unbind(obj, core.EVENT_MOUSEUP, obj.__taTapHandler.upHandler);
-                delete obj.__taTapHandler;
+              if (obj.__taTapHandler != null) {
+                core.removeWithFunction(obj.__taTapHandler.downSelectors, function (ds) {
+                  return ds === children;
+                });
+                _d(obj.__taTapHandler[evt], fn);
+                if (obj.__taTapHandler.downSelectors.length === 0) {
+                  _unbind(obj, core.EVENT_MOUSEDOWN, obj.__taTapHandler.downHandler);
+                  _unbind(obj, core.EVENT_MOUSEUP, obj.__taTapHandler.upHandler);
+                  delete obj.__taTapHandler;
+                }
               }
             };
           }
@@ -812,20 +789,18 @@
       _defineProperty(this, "dblClickThreshold", void 0);
       _defineProperty(this, "tapHandler", void 0);
       _defineProperty(this, "mouseEnterExitHandler", void 0);
-      _defineProperty(this, "smartClicks", void 0);
       params = params || {};
       this.clickThreshold = params.clickThreshold || 250;
       this.dblClickThreshold = params.dblClickThreshold || 450;
       this.mouseEnterExitHandler = MouseEnterExitHandler.generate();
       this.tapHandler = TapHandler.generate(this.clickThreshold, this.dblClickThreshold);
-      this.smartClicks = params.smartClicks;
     }
     _createClass(EventManager, [{
       key: "_doBind",
       value: function _doBind(el, evt, fn, children) {
         if (fn == null) return;
         var jel = el;
-        if (this.smartClicks && evt === core.EVENT_CLICK) SmartClickHandler(jel, evt, fn, children);else if (evt === core.EVENT_TAP || evt === core.EVENT_DBL_TAP || evt === core.EVENT_CONTEXTMENU) {
+        if (evt === core.EVENT_TAP || evt === core.EVENT_DBL_TAP || evt === core.EVENT_CONTEXTMENU) {
           this.tapHandler(jel, evt, fn, children);
         } else if (evt === core.EVENT_MOUSEENTER || evt == core.EVENT_MOUSEEXIT) this.mouseEnterExitHandler(jel, evt, fn, children);else {
           DefaultHandler(jel, evt, fn, children);
@@ -1872,6 +1847,29 @@
     return DragManager;
   }();
 
+  function decodeDragGroupSpec(instance, spec) {
+    if (core.isString(spec)) {
+      return {
+        id: spec,
+        active: true
+      };
+    } else {
+      return {
+        id: instance.getId(spec),
+        active: spec.active
+      };
+    }
+  }
+  function isActiveDragGroupMember(dragGroup, el) {
+    var details = core.getFromSetWithFunction(dragGroup.members, function (m) {
+      return m.el === el;
+    });
+    if (details !== null) {
+      return details.active === true;
+    } else {
+      return false;
+    }
+  }
   var ElementDragHandler =
   function () {
     function ElementDragHandler(instance) {
@@ -2095,8 +2093,8 @@
               var isGhostOrNotConstrained = !isNotInAGroup && (_el._jsPlumbParentGroup.ghost || _el._jsPlumbParentGroup.constrain !== true);
               if (isNotInAGroup || membersAreDroppable && isGhostOrNotConstrained) {
                 core.forEach(_this4.instance.groupManager.getGroups(), function (group) {
-                  var elementGroup = _el[core.GROUP_KEY];
-                  if (group.droppable !== false && group.enabled !== false && _el[core.GROUP_KEY] !== group && !_this4.instance.groupManager.isDescendant(group, elementGroup)) {
+                  var elementGroup = _el._jsPlumbGroup;
+                  if (group.droppable !== false && group.enabled !== false && _el._jsPlumbGroup !== group && !_this4.instance.groupManager.isDescendant(group, elementGroup)) {
                     var groupEl = group.el,
                         s = _this4.instance.getSize(groupEl),
                         o = _this4.instance.getOffset(groupEl),
@@ -2142,7 +2140,7 @@
           };
           var elId = this.instance.getId(el);
           this._currentDragGroup = this._dragGroupByElementIdMap[elId];
-          if (this._currentDragGroup && !this.isActiveDragGroupMember(this._currentDragGroup, el)) {
+          if (this._currentDragGroup && !isActiveDragGroupMember(this._currentDragGroup, el)) {
             this._currentDragGroup = null;
           }
           var dragStartReturn = _one(el);
@@ -2217,7 +2215,7 @@
       key: "addToDragGroup",
       value: function addToDragGroup(spec) {
         var _this7 = this;
-        var details = ElementDragHandler.decodeDragGroupSpec(this.instance, spec);
+        var details = decodeDragGroupSpec(this.instance, spec);
         var dragGroup = this._dragGroupMap[details.id];
         if (dragGroup == null) {
           dragGroup = {
@@ -2281,33 +2279,6 @@
             });
           });
         });
-      }
-    }, {
-      key: "isActiveDragGroupMember",
-      value: function isActiveDragGroupMember(dragGroup, el) {
-        var details = core.getFromSetWithFunction(dragGroup.members, function (m) {
-          return m.el === el;
-        });
-        if (details !== null) {
-          return details.active === true;
-        } else {
-          return false;
-        }
-      }
-    }], [{
-      key: "decodeDragGroupSpec",
-      value: function decodeDragGroupSpec(instance, spec) {
-        if (core.isString(spec)) {
-          return {
-            id: spec,
-            active: true
-          };
-        } else {
-          return {
-            id: instance.getId(spec),
-            active: spec.active
-          };
-        }
       }
     }]);
     return ElementDragHandler;

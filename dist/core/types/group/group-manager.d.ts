@@ -7,8 +7,8 @@ export interface GroupCollapsedParams<E> {
 export interface GroupExpandedParams<E> {
     group: UIGroup<E>;
 }
-export interface AddGroupOptions extends GroupOptions {
-    el: any;
+export interface AddGroupOptions<E> extends GroupOptions {
+    el: E;
     collapsed?: boolean;
 }
 export declare class GroupManager<E> {
@@ -18,7 +18,7 @@ export declare class GroupManager<E> {
     _connectionTargetMap: Dictionary<UIGroup<E>>;
     constructor(instance: JsPlumbInstance);
     private _cleanupDetachedConnection;
-    addGroup(params: AddGroupOptions): UIGroup<E>;
+    addGroup(params: AddGroupOptions<E>): UIGroup<E>;
     getGroup(groupId: string | UIGroup<E>): UIGroup<E>;
     getGroupFor(el: E): UIGroup<E>;
     getGroups(): Array<UIGroup<E>>;

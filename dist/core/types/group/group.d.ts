@@ -20,14 +20,13 @@ export interface GroupOptions {
 }
 export declare class UINode<E> {
     instance: JsPlumbInstance;
-    el: any;
+    el: E;
     group: UIGroup<E>;
-    constructor(instance: JsPlumbInstance, el: any);
+    constructor(instance: JsPlumbInstance, el: E);
 }
 export declare class UIGroup<E = any> extends UINode<E> {
     instance: JsPlumbInstance;
-    children: Array<E>;
-    childGroups: Array<UIGroup<E>>;
+    children: Array<UINode<E>>;
     collapsed: boolean;
     droppable: boolean;
     enabled: boolean;
@@ -40,12 +39,11 @@ export declare class UIGroup<E = any> extends UINode<E> {
     dropOverride: boolean;
     anchor: AnchorSpec;
     endpoint: EndpointSpec;
-    connections: {
+    readonly connections: {
         source: Array<Connection>;
         target: Array<Connection>;
         internal: Array<Connection>;
     };
-    groups: Array<UIGroup<E>>;
     manager: GroupManager<E>;
     id: string;
     readonly elId: string;
@@ -54,12 +52,15 @@ export declare class UIGroup<E = any> extends UINode<E> {
     getContentArea(): any;
     getAnchor(conn: Connection, endpointIndex: number): AnchorSpec;
     getEndpoint(conn: Connection, endpointIndex: number): EndpointSpec;
-    add(_el: any, doNotFireEvent?: boolean): void;
-    remove(el: E | Array<E>, manipulateDOM?: boolean, doNotFireEvent?: boolean, doNotUpdateConnections?: boolean, targetGroup?: UIGroup<E>): void;
+    add(_el: E, doNotFireEvent?: boolean): void;
+    private resolveNode;
+    remove(el: E, manipulateDOM?: boolean, doNotFireEvent?: boolean, doNotUpdateConnections?: boolean, targetGroup?: UIGroup<E>): void;
+    private _doRemove;
     removeAll(manipulateDOM?: boolean, doNotFireEvent?: boolean): void;
     orphanAll(): Dictionary<PointXY>;
     addGroup(group: UIGroup<E>): boolean;
     removeGroup(group: UIGroup<E>): void;
     getGroups(): Array<UIGroup<E>>;
+    getNodes(): Array<UINode<E>>;
     readonly collapseParent: UIGroup<E>;
 }
