@@ -49,9 +49,7 @@ export class UIGroup<E = any> extends UINode<E> {
     anchor:AnchorSpec
     endpoint:EndpointSpec
 
-    connections:{source:Array<Connection>, target:Array<Connection>, internal:Array<Connection>} = {source:[], target:[], internal:[]}
-    groups:Array<UIGroup<E>> = []
-
+    readonly connections:{source:Array<Connection>, target:Array<Connection>, internal:Array<Connection>} = {source:[], target:[], internal:[]}
     manager:GroupManager<E>
 
     id:string
@@ -60,9 +58,10 @@ export class UIGroup<E = any> extends UINode<E> {
 
     constructor(public instance:JsPlumbInstance, el:E, options:GroupOptions) {
         super(instance, el)
+        const jel = this.el as unknown as jsPlumbElement<E>
 
-        this.el[Constants.IS_GROUP_KEY] = true
-        this.el[Constants.GROUP_KEY] = this
+        jel._isJsPlumbGroup = true
+        jel._jsPlumbGroup = this
 
         this.elId = instance.getId(el)
 
@@ -119,7 +118,7 @@ export class UIGroup<E = any> extends UINode<E> {
 
             __el._jsPlumbParentGroup = this
             this.children.push(new UINode<E>(this.instance, _el))
-            this.manager.instance.appendElement(__el, dragArea)
+            this.instance.appendElement(__el, dragArea)
        // })
 
         this.manager._updateConnectionsForGroup(this)
@@ -158,7 +157,7 @@ export class UIGroup<E = any> extends UINode<E> {
             if (targetGroup) {
                 (<any>p).targetGroup = targetGroup
             }
-            this.manager.instance.fire(Constants.EVENT_GROUP_MEMBER_REMOVED, p)
+            this.instance.fire(Constants.EVENT_GROUP_MEMBER_REMOVED, p)
         }
         if (!doNotUpdateConnections) {
             this.manager._updateConnectionsForGroup(this)
@@ -169,7 +168,7 @@ export class UIGroup<E = any> extends UINode<E> {
         for (let i = 0, l = this.children.length; i < l; i++) {
             let child:UINode<E> = this.children[0]
             this._doRemove(child, manipulateDOM, doNotFireEvent, true)
-            this.manager.instance.unmanage(child.el, true)
+            this.instance.unmanage(child.el, true)
         }
         this.children.length = 0
         this.manager._updateConnectionsForGroup(this)
@@ -205,9 +204,9 @@ export class UIGroup<E = any> extends UINode<E> {
             const entry = this.instance.getManagedElements()[groupElId]
             entry.group = this.elId
             const elpos = this.instance.getOffsetRelativeToRoot(group.el)
-            const cpos = this.collapsed ? this.instance.getOffsetRelativeToRoot(this.el) : this.instance.getOffsetRelativeToRoot(this.getContentArea())
+            const cpos = this.collapsed ? this.instance.getOffsetRelativeToRoot(this.el) : this.instance.getOffsetRelativeToRoot(this.getContentArea());
 
-            group.el[Constants.PARENT_GROUP_KEY] = this
+            (group.el as unknown as jsPlumbElement<E>)._jsPlumbParentGroup = this
 
             this.children.push(group)
 
