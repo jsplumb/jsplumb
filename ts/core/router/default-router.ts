@@ -14,6 +14,7 @@ import { Anchor } from '../anchor/anchor'
 import * as Constants from '../constants'
 import {FloatingAnchor} from "../anchor/floating-anchor"
 import {lineLength} from "../geom"
+import {EVENT_ANCHOR_CHANGED} from "../constants"
 
 type ContinuousAnchorPlacement = { x:number, y:number, xLoc:number, yLoc:number, c:ConnectionFacade  }
 
@@ -199,7 +200,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
         anchor.y = anchor._curAnchor.y
 
         if (anchor._curAnchor !== anchor._lastAnchor) {
-            anchor.fire("anchorChanged", anchor._curAnchor)
+            anchor.fire(EVENT_ANCHOR_CHANGED, anchor._curAnchor)
         }
 
         anchor._lastAnchor = anchor._curAnchor
