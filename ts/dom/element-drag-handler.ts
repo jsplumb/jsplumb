@@ -15,7 +15,7 @@ import {DragEventParams,Drag,DragStopEventParams} from "./collicat"
 import {
     BoundingBox,
     Dictionary,
-    GROUP_KEY, isString, JsPlumbInstance,
+    isString, JsPlumbInstance,
     optional,
     RedrawResult,
     UIGroup,
@@ -64,6 +64,27 @@ export interface DragMovePayload extends DragPayload { }
  * Payload for `drag:start` event.
  */
 export interface DragStartPayload extends DragPayload { }
+
+function decodeDragGroupSpec(instance:JsPlumbInstance, spec:DragGroupSpec):{id:string, active:boolean} {
+
+    if (isString(spec)) {
+        return { id:spec as string, active:true }
+    } else {
+        return {
+            id:instance.getId(spec as any),
+            active:(spec as any).active
+        }
+    }
+}
+
+function isActiveDragGroupMember(dragGroup:DragGroup, el:HTMLElement): boolean {
+    const details = getFromSetWithFunction(dragGroup.members, (m:DragGroupMemberSpec) => m.el === el)
+    if (details !== null) {
+        return details.active === true
+    } else {
+        return false
+    }
+}
 
 export class ElementDragHandler implements DragHandler {
 
@@ -115,7 +136,7 @@ export class ElementDragHandler implements DragHandler {
         }
 
         const dragElement = params.drag.getDragElement()
-        _one(dragElement,  params.finalPos)//{x:params.finalPos.x, y:params.finalPos.y})
+        _one(dragElement,  params.finalPos)
 
         this._dragSelectionOffsets.forEach( (v:[PointXY, jsPlumbDOMElement], k:string) => {
             if (v[1] !== params.el) {
@@ -295,7 +316,7 @@ export class ElementDragHandler implements DragHandler {
 
                     // in order that there could be other groups this element can be dragged to, it must satisfy these conditions:
                     // it's not in a group, OR
-                    // it hasnt mandated its element can't be dropped on other groups
+                    // it hasn't mandated its elements can't be dropped on other groups
                     // it hasn't mandated its elements are constrained to the group, unless ghost proxying is turned on.
 
                     if (isNotInAGroup || (membersAreDroppable && isGhostOrNotConstrained)) {
@@ -304,9 +325,9 @@ export class ElementDragHandler implements DragHandler {
                             // prepare a list of potential droppable groups.
 
                             // get the group pertaining to the dragged element. this is null if the element being dragged is not a UIGroup.
-                            const elementGroup = _el[GROUP_KEY] as UIGroup<Element>
+                            const elementGroup = _el._jsPlumbGroup as UIGroup<Element>
 
-                            if (group.droppable !== false && group.enabled !== false && _el[GROUP_KEY] !== group && !this.instance.groupManager.isDescendant(group, elementGroup)) {
+                            if (group.droppable !== false && group.enabled !== false && _el._jsPlumbGroup !== group && !this.instance.groupManager.isDescendant(group, elementGroup)) {
                                 let groupEl = group.el,
                                     s = this.instance.getSize(groupEl),
                                     o = this.instance.getOffset(groupEl),
@@ -348,7 +369,7 @@ export class ElementDragHandler implements DragHandler {
 
             const elId = this.instance.getId(el)
             this._currentDragGroup = this._dragGroupByElementIdMap[elId]
-            if (this._currentDragGroup && !this.isActiveDragGroupMember(this._currentDragGroup, el)) {
+            if (this._currentDragGroup && !isActiveDragGroupMember(this._currentDragGroup, el)) {
                 // clear the current dragGroup if this element is not an active member, ie. cannot instigate a drag for all members.
                 this._currentDragGroup = null
             }
@@ -412,21 +433,9 @@ export class ElementDragHandler implements DragHandler {
         return this._dragSelection
     }
 
-    private static decodeDragGroupSpec(instance:JsPlumbInstance, spec:DragGroupSpec):{id:string, active:boolean} {
-
-        if (isString(spec)) {
-            return { id:spec as string, active:true }
-        } else {
-            return {
-                id:instance.getId(spec as any),
-                active:(spec as any).active
-            }
-        }
-    }
-
     addToDragGroup(spec:DragGroupSpec, ...els:Array<Element>) {
 
-        const details = ElementDragHandler.decodeDragGroupSpec(this.instance, spec)
+        const details = decodeDragGroupSpec(this.instance, spec)
         let dragGroup = this._dragGroupMap[details.id]
         if (dragGroup == null) {
             dragGroup = { id: details.id, members: new Set<DragGroupMemberSpec>()}
@@ -471,12 +480,4 @@ export class ElementDragHandler implements DragHandler {
         })
     }
 
-    private isActiveDragGroupMember(dragGroup:DragGroup, el:HTMLElement): boolean {
-        const details = getFromSetWithFunction(dragGroup.members, (m:DragGroupMemberSpec) => m.el === el)
-        if (details !== null) {
-            return details.active === true
-        } else {
-            return false
-        }
-    }
 }
