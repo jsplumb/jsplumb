@@ -10,6 +10,7 @@ import { EndpointRepresentation } from './endpoints'
 import {extend, merge, isString, isAssignableFrom} from '../util'
 import { JsPlumbInstance } from '../core'
 import { OverlayCapableComponent } from '../component/overlay-capable-component'
+import { EVENT_ANCHOR_CHANGED} from "../constants"
 
 export type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndpointId
 export type UserDefinedEndpointId = string
@@ -247,8 +248,8 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
 
     private prepareAnchor (anchorParams:any):Anchor {
         let a = makeAnchorFromSpec(this.instance, anchorParams, this.elementId)
-        a.bind("anchorChanged", (currentAnchor:Anchor) => {
-            this.fire("anchorChanged", {endpoint: this, anchor: currentAnchor})
+        a.bind(EVENT_ANCHOR_CHANGED, (currentAnchor:Anchor) => {
+            this.fire(EVENT_ANCHOR_CHANGED, {endpoint: this, anchor: currentAnchor})
             this._updateAnchorClass()
         })
         return a
