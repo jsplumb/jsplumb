@@ -687,7 +687,7 @@ function () {
                         for (var pLoop = 0; pLoop < pathInfo.end; pLoop++) {
                           currentTarget = pathInfo.path[pLoop];
                           if (tt[eventId][i][1] == null || matchesSelector$1(currentTarget, tt[eventId][i][1], obj)) {
-                            tt[eventId][i][0].apply(currentTarget, [e]);
+                            tt[eventId][i][0].apply(currentTarget, [e, currentTarget]);
                             break;
                           }
                         }

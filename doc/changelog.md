@@ -1,3 +1,9 @@
+## 4.0.0-RC77
+
+19th March 2021
+
+- Tap event handler now passes back the event target
+
 ## 4.0.0-RC76
 
 13th March 2021
