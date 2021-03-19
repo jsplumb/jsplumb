@@ -354,7 +354,7 @@ class TapHandler {
                                                     currentTarget = pathInfo.path[pLoop]
                                                     // this is a single event registration handler.
                                                     if (tt[eventId][i][1] == null || matchesSelector(currentTarget, tt[eventId][i][1], obj)) {
-                                                        tt[eventId][i][0].apply(currentTarget, [e])
+                                                        tt[eventId][i][0].apply(currentTarget, [e, currentTarget])
                                                         break
                                                     }
                                                 }
