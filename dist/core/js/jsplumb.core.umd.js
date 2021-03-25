@@ -3192,8 +3192,10 @@
   var EVENT_UPDATE = "update";
   var EVENT_ZOOM = "zoom";
   var IS_DETACH_ALLOWED = "isDetachAllowed";
+  var INTERCEPT_BEFORE_DRAG = "beforeDrag";
   var INTERCEPT_BEFORE_DROP = "beforeDrop";
   var INTERCEPT_BEFORE_DETACH = "beforeDetach";
+  var INTERCEPT_BEFORE_START_DETACH = "beforeStartDetach";
   var JTK_ID = "jtk-id";
   var PROPERTY_POSITION = "position";
   var SELECTOR_CONNECTOR = cls(CLASS_CONNECTOR);
@@ -9928,7 +9930,9 @@
   exports.FlowchartConnector = FlowchartConnector;
   exports.GroupManager = GroupManager;
   exports.INTERCEPT_BEFORE_DETACH = INTERCEPT_BEFORE_DETACH;
+  exports.INTERCEPT_BEFORE_DRAG = INTERCEPT_BEFORE_DRAG;
   exports.INTERCEPT_BEFORE_DROP = INTERCEPT_BEFORE_DROP;
+  exports.INTERCEPT_BEFORE_START_DETACH = INTERCEPT_BEFORE_START_DETACH;
   exports.IS = IS;
   exports.IS_DETACH_ALLOWED = IS_DETACH_ALLOWED;
   exports.JTK_ID = JTK_ID;

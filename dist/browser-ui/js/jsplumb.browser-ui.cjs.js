@@ -587,14 +587,17 @@ function _curryChildFilter(children, obj, fn, evt) {
         _fn = function _fn(e) {
       _fn.__tauid = fn.__tauid;
       var t = _t(e);
+      var done = false;
       var target = t;
       var pathInfo = _pi(e, t, obj, children != null);
       if (pathInfo.end != -1) {
-        for (var p = 0; p < pathInfo.end; p++) {
+        for (var p = 0; !done && p < pathInfo.end; p++) {
           target = pathInfo.path[p];
-          for (var i = 0; i < c.length; i++) {
+          for (var i = 0; !done && i < c.length; i++) {
             if (matchesSelector$1(target, c[i], obj)) {
               fn.apply(target, [e, target]);
+              done = true;
+              break;
             }
           }
         }
