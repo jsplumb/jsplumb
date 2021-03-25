@@ -5103,7 +5103,6 @@ var testSuite = function () {
             ]
         });
 
-        //var o = connection.addOverlay(['Label', labelDef]);
 
         _jsPlumb.trigger(connection.getOverlay("label-1").canvas, "click");
 
@@ -5124,6 +5123,47 @@ var testSuite = function () {
         _jsPlumb.trigger(connection.getOverlay("label-1").canvas, "click");
 
         equal(clickCount, 1, "1 click on overlay registered");
+
+    });
+
+    test("setContainer does not cause multiple event registrations, mousedown for drag", function () {
+
+        support.addDivs(["box1", "box2", "canvas"]);
+        box1.style.width = "50px"
+        box1.style.height = "50px"
+
+        canvas.style.width = "500px"
+        canvas.style.height = "500px"
+
+
+
+        equal(document.querySelectorAll(".jtk-endpoint").length, 0, "0 endpoints to start")
+
+        _jsPlumb.makeSource(box1);
+
+        _jsPlumb.trigger(box1, "mousedown");
+
+        equal(document.querySelectorAll(".jtk-endpoint").length, 1, "1 endpoint after mousedown")
+
+        _jsPlumb.trigger(box1, "mouseup");
+
+        _jsPlumb.importDefaults({
+            container: canvas
+        });
+
+        _jsPlumb.trigger(box1, "mousedown");
+
+        equal(document.querySelectorAll(".jtk-endpoint").length, 1, "1 endpoint after mousedown")
+
+        _jsPlumb.trigger(box1, "mouseup");
+
+         _jsPlumb.setContainer(canvas);
+
+        _jsPlumb.trigger(box1, "mousedown");
+
+        equal(document.querySelectorAll(".jtk-endpoint").length, 1, "1 endpoint after mousedown")
+
+        _jsPlumb.trigger(box1, "mouseup");
 
     });
 
