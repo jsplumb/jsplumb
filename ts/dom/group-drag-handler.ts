@@ -90,7 +90,7 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
         return rightEdge > 0 && leftEdge < s.w && bottomEdge > 0 && topEdge < s.h
     }
 
-    private _pruneOrOrphan(params:DragStopEventParams) {
+    private _pruneOrOrphan(params:DragStopEventParams):[string, PointXY] {
 
         const jel = params.el as unknown as jsPlumbDOMElement
         let orphanedPosition = null
@@ -114,6 +114,7 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
                     // remove the element from the group's DOM element.
                     group.remove(params.el)
                 }
+
             }
         }
 
