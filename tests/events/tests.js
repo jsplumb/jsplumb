@@ -400,4 +400,30 @@ var testSuite = function () {
 
     })
 
+    test("event unbind", function() {
+        var d = _addDiv("one", 0, 0, 1000, 1000), count = 0,
+            d2 = _addDiv("two", 50, 50, 1000, 1000),
+            e = new jsPlumbBrowserUI.EventManager()
+
+        d2.className = "button"
+        d.appendChild(d2)
+
+        var h = function() {
+            count++
+        }
+
+        e.on(d, "mousedown", ".button", h)
+
+        _jsPlumb.trigger(d2, "mousedown")
+
+        equal(1, count, "count has gone up by 1 after mousedown")
+
+        e.off(d, "mousedown", h)
+
+        _jsPlumb.trigger(d2, "mousedown")
+
+        equal(1, count, "count has NOT gone up by 1 after mousedown when event handler was unbound")
+
+    });
+
 };
