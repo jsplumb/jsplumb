@@ -1,3 +1,11 @@
+## 4.0.0-RC78
+
+25th March 2021
+
+- Added `beforeDrag` interceptor constant
+- Added `beforeStartDetach` interceptor constant
+- Update event handling to ensure only one delegated handler fires.
+
 ## 4.0.0-RC77
 
 19th March 2021
