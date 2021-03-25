@@ -250,15 +250,18 @@ function _curryChildFilter (children:string, obj:any, fn:FunctionFacade, evt:str
             _fn =  (e:any) => {
                 (_fn as any).__tauid = fn.__tauid
                 const t = _t(e)
+                let done = false;
                 let target = t;  // t is the target element on which the event occurred. it is the
                 // element we will wish to pass to any callbacks.
                 const pathInfo = _pi(e, t, obj, children != null)
                 if (pathInfo.end != -1) {
-                    for (let p = 0; p < pathInfo.end; p++) {
+                    for (let p = 0; !done && p < pathInfo.end; p++) {
                         target = pathInfo.path[p]
-                        for (let i = 0; i < c.length; i++) {
+                        for (let i = 0; !done && i < c.length; i++) {
                             if (matchesSelector(target, c[i], obj)) {
                                 fn.apply(target, [e, target])
+                                done = true;
+                                break;
                             }
                         }
                     }
