@@ -101,8 +101,10 @@ export const EVENT_ZOOM = "zoom"
 
 export const IS_DETACH_ALLOWED = "isDetachAllowed"
 
+export const INTERCEPT_BEFORE_DRAG = "beforeDrag"
 export const INTERCEPT_BEFORE_DROP = "beforeDrop"
 export const INTERCEPT_BEFORE_DETACH = "beforeDetach"
+export const INTERCEPT_BEFORE_START_DETACH = "beforeStartDetach"
 
 export const JTK_ID = "jtk-id"
 
