@@ -32,10 +32,9 @@ if (Array.prototype.forEach == null) {
         pageY: 50000
     };
     var _makeEvt = function (_jsPlumb, el) {
-        var o = _jsPlumb.getOffset(el),
-            s = _jsPlumb.getSize(el),
-            l = o.x + (s.w / 2),
-            t = o.y + (s.h / 2);
+        var b = el.getBoundingClientRect()
+        var l = b.x + (b.width / 2),
+            t = b.y + (b.height / 2)
 
         return {
             clientX: l,
@@ -113,11 +112,13 @@ if (Array.prototype.forEach == null) {
         if (events.before) events.before();
         var downEvent = _makeEvt(_jsPlumb, el);
         _jsPlumb.trigger(el, "mousedown", downEvent);
-        //_jsPlumb.trigger(_jsPlumb.getContainer(), "mousedown", _makeEvt(_jsPlumb, el));
+
+        var cb = _jsPlumb.getContainer().getBoundingClientRect()
+
         if (events.beforeMouseMove) {
             events.beforeMouseMove();
         }
-        _t(document, "mousemove", x + (size.w / 2), y + (size.h / 2));
+        _t(document, "mousemove", cb.x + x + (size.w / 2), cb.y + y + (size.h / 2));
         if (events.beforeMouseUp) {
             events.beforeMouseUp();
         }
@@ -141,6 +142,37 @@ if (Array.prototype.forEach == null) {
         if (events.after) events.after();
     };
 
+    var _aSyncDragNodeBy = function(_jsPlumb, el, x, y, events) {
+        events = events || {}
+        if (events.before) {
+            events.before()
+        }
+
+
+        var downEvent = _makeEvt(_jsPlumb, el);
+        _jsPlumb.trigger(el, "mousedown", downEvent);
+        if (events.beforeMouseMove) {
+            events.beforeMouseMove();
+        }
+        setTimeout(function() {
+
+            _t(document, "mousemove", downEvent.pageX + x, downEvent.pageY + y);
+            if (events.beforeMouseUp) {
+                events.beforeMouseUp();
+            }
+
+            setTimeout(function() {
+                mottle.trigger(document, "mouseup");
+                if (events.after) {
+                    events.after();
+                }
+            }, 45)
+
+        }, 45)
+
+    };
+
+
     //
     // helper method to cause a connection to be dragged via the mouse, but programmatically.
     //
@@ -155,6 +187,35 @@ if (Array.prototype.forEach == null) {
         _jsPlumb.trigger(mouseUpOnTarget ? el2 : document, "mouseup", e2);
 
         return _jsPlumb.select().get(conns);
+    };
+
+    var _asyncDragConnection = function (_jsPlumb, d1, d2, events) {
+        events = events || {}
+        var el1 = getCanvas(d1), el2 = getCanvas(d2);
+        var e1 = _makeEvt(_jsPlumb, el1), e2 = _makeEvt(_jsPlumb, el2);
+
+        var conns = _jsPlumb.select().length;
+
+        _jsPlumb.trigger(el1, "mousedown", e1);
+
+        setTimeout(function() {
+            if (events.beforeMouseMove) {
+                events.beforeMouseMove()
+            }
+            _jsPlumb.trigger(document, "mousemove", e2);
+            setTimeout(function() {
+
+                if (events.beforeMouseUp) {
+                    events.beforeMouseUp()
+                }
+
+                _jsPlumb.trigger(el2 , "mouseup", e2);
+                if (events.after) {
+                    events.after(_jsPlumb.select().get(conns));
+                }
+            }, 5)
+        }, 5)
+
     };
 
     var _dragAndAbort = function (_jsPlumb, d1) {
@@ -295,9 +356,13 @@ if (Array.prototype.forEach == null) {
 
                 dragNodeTo:_dragNodeTo.bind(null, _jsPlumb),
 
+                aSyncDragNodeBy:_aSyncDragNodeBy.bind(null, _jsPlumb),
+
                 dragANodeAround:_dragANodeAround.bind(null, _jsPlumb),
 
                 dragConnection:_dragConnection.bind(null, _jsPlumb),
+
+                aSyncDragConnection:_asyncDragConnection.bind(null, _jsPlumb),
 
                 dragAndAbortConnection:_dragAndAbort.bind(null, _jsPlumb),
 
