@@ -1,5 +1,5 @@
 import { jsPlumbDOMElement} from './element-facade'
-import {Dictionary, fastTrim, forEach, isArray, log, PointXY, Size} from "@jsplumb/core"
+import {Dictionary, fastTrim, forEach, isArray, isString, log, PointXY, Size} from "@jsplumb/core"
 
 
 // These are utility functions for use inside a Browser.
@@ -108,12 +108,12 @@ function _classManip(el:Element, classesToAdd:string | Array<string>, classesToR
     _setClassName(el, curClasses.join(" "), curClasses)
 }
 
-export function isNodeList(el:Document | Element | ArrayLike<Element>): el is NodeListOf<Element> {
-    return !Array.isArray(el) && (el as any).length != null && (el as any).documentElement == null && (el as any).nodeType == null
+export function isNodeList(el:any): el is NodeListOf<Element> {
+    return !isString(el) && !Array.isArray(el) && (el as any).length != null && (el as any).documentElement == null && (el as any).nodeType == null
 }
 
-export function isArrayLike(el:Document | Element | ArrayLike<Element>): el is ArrayLike<Element> {
-    return Array.isArray(el) || isNodeList(el)
+export function isArrayLike(el:any): el is ArrayLike<Element> {
+    return !isString(el) && (Array.isArray(el) || isNodeList(el))
 }
 
 export function getClass(el:Element):string { return _getClassName(el); }
