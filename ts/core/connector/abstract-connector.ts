@@ -8,6 +8,7 @@ import { ComponentOptions} from '../component/component'
 import { Orientation} from '../factory/anchor-factory'
 import { Endpoint} from '../endpoint/endpoint'
 import {pointXYFromArray, quadrant} from "../geom"
+import { ViewportElement } from "../viewport"
 
 export type UserDefinedConnectorId = string
 export type ConnectorId = "Bezier" | "StateMachine" | "Flowchart" | "Straight" | UserDefinedConnectorId
@@ -25,8 +26,8 @@ export type ConnectorComputeParams = {
     sourceEndpoint: Endpoint,
     targetEndpoint: Endpoint,
     strokeWidth: number,
-    sourceInfo: any,
-    targetInfo: any
+    sourceInfo: ViewportElement<any>,
+    targetInfo: ViewportElement<any>
 }
 
 export interface PaintGeometry {
