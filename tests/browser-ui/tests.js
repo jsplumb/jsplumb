@@ -5782,13 +5782,17 @@ var testSuite = function () {
         d.className = "foo"
         d2.className = "foo"
 
+        var str = "astring"
         var sel = document.querySelectorAll(".foo")
-        equal(true, jsPlumbBrowserUI.isNodeList(sel), "NodeList is identified correctly")
         var array = [ d, d2 ]
+
+        equal(true, jsPlumbBrowserUI.isNodeList(sel), "NodeList is identified correctly")
         equal(false, jsPlumbBrowserUI.isNodeList(array), "Array is NOT identified as a NodeList")
+        equal(false, jsPlumbBrowserUI.isNodeList(str), "string is NOT identified as a NodeList")
 
         equal(true, jsPlumbBrowserUI.isArrayLike(sel), "selector identified as array like")
         equal(true, jsPlumbBrowserUI.isArrayLike(array), "array identified as array like")
+        equal(false, jsPlumbBrowserUI.isArrayLike(str), "string is NOT identified as array like")
     })
 
 };
