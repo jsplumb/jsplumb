@@ -1,3 +1,10 @@
+## 4.0.0-RC79
+
+29th March 2021
+
+- Added support for `NodeList` to the `on` and `off` event binding methods.
+- Added support for tracking document scroll during element or connection dragging.
+
 ## 4.0.0-RC78
 
 25th March 2021
