@@ -43,7 +43,7 @@ type DragGroup = { id:string, members:Set<DragGroupMemberSpec>}
  */
 export interface DragPayload {
     el:Element
-    e:MouseEvent
+    e:Event
     pos:PointXY
     originalPosition:PointXY
 }
