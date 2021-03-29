@@ -81,10 +81,14 @@ type AnchorListEntry = {theta:number, order:number, c:ConnectionFacade, b:boolea
 type AnchorLists = { top: Array<AnchorListEntry>, right: Array<AnchorListEntry>, bottom: Array<AnchorListEntry>, left: Array<AnchorListEntry> }
 type AnchorDictionary = Dictionary<AnchorLists>
 
+function floatingAnchorCompute(anchor:FloatingAnchor, params:AnchorComputeParams):AnchorPlacement {
+    let xy = params.xy
+    anchor._lastResult = [ xy.x + (anchor.size.w / 2), xy.y + (anchor.size.h / 2), 0, 0 ] as AnchorPlacement; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
+    return anchor._lastResult
+}
+
 /*
- * Default router. Defers to an AnchorManager for placement of anchors, and connector paint routines for paths.
- * Currently this is a placeholder and acts as a facade to the pre-existing anchor manager. The Toolkit edition
- * will make use of this concept to provide more advanced routing.
+ * Default router. Handles placement of anchors and connector paint routines for paths.
  *
  * Copyright (c) 2010 - 2021 jsPlumb (hello@jsplumbtoolkit.com)
  *
@@ -127,7 +131,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
             anchor.lastReturnValue = this.dynamicAnchorCompute(anchor as DynamicAnchor, params)
         }
         else if (anchor.isFloating) {
-            anchor.lastReturnValue = this.floatingAnchorCompute(anchor as FloatingAnchor, params)
+            anchor.lastReturnValue = floatingAnchorCompute(anchor as FloatingAnchor, params)
         }
         else {
             anchor.lastReturnValue = this.defaultAnchorCompute(anchor, params)
@@ -136,11 +140,6 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
         return anchor.lastReturnValue
     }
 
-    private floatingAnchorCompute(anchor:FloatingAnchor, params:AnchorComputeParams):AnchorPlacement {
-        let xy = params.xy
-        anchor._lastResult = [ xy.x + (anchor.size.w / 2), xy.y + (anchor.size.h / 2), 0, 0 ] as AnchorPlacement; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
-        return anchor._lastResult
-    }
 
     private defaultAnchorCompute(anchor:Anchor, params:AnchorComputeParams):AnchorPlacement {
         let xy = params.xy, wh = params.wh, timestamp = params.timestamp
@@ -238,10 +237,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
 
     computePath(connection: Connection, timestamp:string): void {
         let sourceInfo = this.instance.viewport.getPosition(connection.sourceId),
-            // TODO dont create these intermediate sourceOffset/targetOffset objects, just use the ViewportElements.
-            sourceOffset = {left:sourceInfo.x, top:sourceInfo.y},
             targetInfo = this.instance.viewport.getPosition(connection.targetId),
-            targetOffset = {left:targetInfo.x, top:targetInfo.y},
             sE = connection.endpoints[0], tE = connection.endpoints[1]
 
         let sAnchorP = this.getEndpointLocation(sE, {
@@ -269,8 +265,8 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
             sourceEndpoint: connection.endpoints[0],
             targetEndpoint: connection.endpoints[1],
             strokeWidth: connection.paintStyleInUse.strokeWidth,
-            sourceInfo: sourceOffset,
-            targetInfo: targetOffset
+            sourceInfo: sourceInfo,
+            targetInfo: targetInfo
         })
     }
 
@@ -552,7 +548,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
 
             // paint all the connections
             connectionsToPaint.forEach((c) => {
-                this.instance.paintConnection(c, {elId: elementId, timestamp: timestamp, recalc: false})
+                this.instance.paintConnection(c, {timestamp: timestamp})
             })
         }
 
