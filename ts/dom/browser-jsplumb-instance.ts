@@ -128,6 +128,7 @@ export interface DragOptions {
     cursor?: string
     zIndex?: number
     grid?:[number, number]
+    trackScroll?:boolean
 }
 
 export interface BrowserJsPlumbDefaults extends jsPlumbDefaults<Element> {
@@ -254,7 +255,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         this.elementsDraggable = defaults && defaults.elementsDraggable !== false
 
         this.eventManager = new EventManager()
-        this.dragManager = new DragManager(this)
+        this.dragManager = new DragManager(this, defaults && defaults.dragOptions ? defaults.dragOptions : null)
         this.listManager = new JsPlumbListManager(this)
 
         this.dragManager.addHandler(new EndpointDragHandler(this))
@@ -482,17 +483,35 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         el.removeAttribute && el.removeAttribute(attName)
     }
 
-    on (el:Document | Element, event:string, callbackOrSelector:Function|string, callback?:Function) {
-        if (callback == null) {
-            this.eventManager.on(el, event, callbackOrSelector)
-        } else {
-            this.eventManager.on(el, event, callbackOrSelector, callback)
+    private isNodeList(el:Document | Element | NodeListOf<Element>): el is NodeListOf<Element> {
+        return (el as any).documentElement == null && (el as any).nodeType == null
+    }
+
+    on (el:Document | Element | NodeListOf<Element>, event:string, callbackOrSelector:Function|string, callback?:Function) {
+
+        const _one = (_el:Document|Element) => {
+            if (callback == null) {
+                this.eventManager.on(_el, event, callbackOrSelector)
+            } else {
+                this.eventManager.on(_el, event, callbackOrSelector, callback)
+            }
         }
+
+        if (this.isNodeList(el)) {
+            forEach(el, (el:Element) => _one(el))
+        } else {
+            _one(el)
+        }
+
         return this
     }
 
-    off (el:Document | Element, event:string, callback:Function) {
-        this.eventManager.off(el, event, callback)
+    off (el:Document | Element | NodeListOf<Element>, event:string, callback:Function) {
+        if (this.isNodeList(el)) {
+            forEach(el, (_el:Element) => this.eventManager.off(_el, event, callback))
+        } else {
+            this.eventManager.off(el, event, callback)
+        }
         return this
     }
 
@@ -1102,7 +1121,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             if (connector.connection.hoverPaintStyle != null) {
                 connector.connection.paintStyleInUse = h ? connector.connection.hoverPaintStyle : connector.connection.paintStyle
                 if (!this._suspendDrawing) {
-                    this.paintConnection(connector.connection, connector.connection.paintStyleInUse)
+                    this.paintConnection(connector.connection)
                 }
             }
 
