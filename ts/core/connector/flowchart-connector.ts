@@ -314,7 +314,7 @@ export class FlowchartConnector extends AbstractConnector {
                 opposite: function (axis:string, ss:number, oss:number, es:number, oes:number):any {
                     let pi = paintInfo,
                         otherAxis = {"x": "y", "y": "x"}[axis],
-                        dim = {"x": "height", "y": "width"}[axis],
+                        dim = {"x": "h", "y": "w"}[axis],
                         comparator = pi["is" + axis.toUpperCase() + "GreaterThanStubTimes2"]
 
                     if (params.sourceEndpoint.elementId === params.targetEndpoint.elementId) {
