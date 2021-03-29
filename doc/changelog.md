@@ -1,3 +1,9 @@
+## 4.0.0-RC83
+
+30th March 2021
+
+- Further improvements to the `isNodeList` and `isArrayLike` methods
+
 ## 4.0.0-RC81
 
 30th March 2021

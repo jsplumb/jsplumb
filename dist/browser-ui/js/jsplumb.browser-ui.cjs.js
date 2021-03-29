@@ -252,10 +252,10 @@ function _classManip(el, classesToAdd, classesToRemove) {
   _setClassName(el, curClasses.join(" "), curClasses);
 }
 function isNodeList(el) {
-  return !Array.isArray(el) && el.length != null && el.documentElement == null && el.nodeType == null;
+  return !core.isString(el) && !Array.isArray(el) && el.length != null && el.documentElement == null && el.nodeType == null;
 }
 function isArrayLike(el) {
-  return Array.isArray(el) || isNodeList(el);
+  return !core.isString(el) && (Array.isArray(el) || isNodeList(el));
 }
 function getClass(el) {
   return _getClassName(el);
