@@ -2141,9 +2141,9 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     abstract appendElement (el:T["E"], parent:T["E"]):void
     abstract getChildElements(el:T["E"]):Array<T["E"]>
 
-    abstract removeClass(el:T["E"], clazz:string):void
-    abstract addClass(el:T["E"], clazz:string):void
-    abstract toggleClass(el:T["E"], clazz:string):void
+    abstract removeClass(el:T["E"] | ArrayLike<T["E"]>, clazz:string):void
+    abstract addClass(el:T["E"] | ArrayLike<T["E"]>, clazz:string):void
+    abstract toggleClass(el:T["E"] | ArrayLike<T["E"]>, clazz:string):void
     abstract getClass(el:T["E"]):string
     abstract hasClass(el:T["E"], clazz:string):boolean
 
