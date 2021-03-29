@@ -84,7 +84,7 @@ import {
     findParent,
     getClass,
     getEventSource,
-    hasClass, offsetRelativeToRoot,
+    hasClass, isNodeList, offsetRelativeToRoot,
     removeClass, size,
     toggleClass
 } from "./browser-util"
@@ -449,19 +449,39 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
     getClass(el:Element):string { return getClass(el) }
 
-    addClass(el:Element, clazz:string):void {
+    /**
+     * Add one or more classes to the given element or list of elements.
+     * @param el Element, or list of elements to which to add the class(es)
+     * @param clazz A space separated list of classes to add.
+     */
+    addClass(el:Element | NodeListOf<Element>, clazz:string):void {
         addClass(el, clazz)
     }
 
+    /**
+     * Returns whether or not the given element has the given class.
+     * @param el
+     * @param clazz
+     */
     hasClass(el:Element, clazz:string):boolean {
         return hasClass(el, clazz)
     }
 
-    removeClass(el:Element, clazz:string):void {
+    /**
+     * Remove one or more classes from the given element or list of elements.
+     * @param el Element, or list of elements from which to remove the class(es)
+     * @param clazz A space separated list of classes to remove.
+     */
+    removeClass(el:Element | NodeListOf<Element>, clazz:string):void {
         removeClass(el, clazz)
     }
 
-    toggleClass(el:Element, clazz:string):void {
+    /**
+     * Toggles one or more classes on the given element or list of elements.
+     * @param el Element, or list of elements on which to toggle the class(es)
+     * @param clazz A space separated list of classes to toggle.
+     */
+    toggleClass(el:Element | NodeListOf<Element>, clazz:string):void {
         toggleClass(el, clazz)
     }
 
@@ -483,10 +503,14 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         el.removeAttribute && el.removeAttribute(attName)
     }
 
-    private isNodeList(el:Document | Element | NodeListOf<Element>): el is NodeListOf<Element> {
-        return (el as any).documentElement == null && (el as any).nodeType == null
-    }
-
+    /**
+     * Bind an event listener to the given element or elements.
+     * @param el Element, or elements, to bind the event listener to.
+     * @param event Name of the event to bind to.
+     * @param callbackOrSelector Either a callback function, or a CSS 3 selector. When this is a selector the event listener is bound as a "delegate", ie. the event listeners
+     * listens to events on children of the given `el` that match the selector.
+     * @param callback Callback function for event. Only supplied when you're binding a delegated event handler.
+     */
     on (el:Document | Element | NodeListOf<Element>, event:string, callbackOrSelector:Function|string, callback?:Function) {
 
         const _one = (_el:Document|Element) => {
@@ -497,7 +521,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             }
         }
 
-        if (this.isNodeList(el)) {
+        if (isNodeList(el)) {
             forEach(el, (el:Element) => _one(el))
         } else {
             _one(el)
@@ -506,8 +530,14 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         return this
     }
 
+    /**
+     * Remove an event binding from the given element or elements.
+     * @param el Element, or elements, from which to remove the event binding.
+     * @param event Name of the event to unbind.
+     * @param callback The function you wish to unbind.
+     */
     off (el:Document | Element | NodeListOf<Element>, event:string, callback:Function) {
-        if (this.isNodeList(el)) {
+        if (isNodeList(el)) {
             forEach(el, (_el:Element) => this.eventManager.off(_el, event, callback))
         } else {
             this.eventManager.off(el, event, callback)
@@ -515,6 +545,13 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         return this
     }
 
+    /**
+     * Trigger an event on the given element.
+     * @param el Element to trigger the event on.
+     * @param event Name of the event to trigger.
+     * @param originalEvent Optional event that gave rise to this method being called.
+     * @param payload Optional `payload` to set on the Event that is created.
+     */
     trigger(el:Document | Element, event:string, originalEvent?:Event, payload?:any) {
         this.eventManager.trigger(el, event, originalEvent, payload)
     }
