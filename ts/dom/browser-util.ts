@@ -108,8 +108,12 @@ function _classManip(el:Element, classesToAdd:string | Array<string>, classesToR
     _setClassName(el, curClasses.join(" "), curClasses)
 }
 
-export function isNodeList(el:Document | Element | NodeListOf<Element>): el is NodeListOf<Element> {
-    return (el as any).documentElement == null && (el as any).nodeType == null
+export function isNodeList(el:Document | Element | ArrayLike<Element>): el is NodeListOf<Element> {
+    return !Array.isArray(el) && (el as any).length != null && (el as any).documentElement == null && (el as any).nodeType == null
+}
+
+export function isArrayLike(el:Document | Element | ArrayLike<Element>): el is ArrayLike<Element> {
+    return Array.isArray(el) || isNodeList(el)
 }
 
 export function getClass(el:Element):string { return _getClassName(el); }
