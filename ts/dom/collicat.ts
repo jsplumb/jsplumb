@@ -37,7 +37,7 @@ function _setPosition(el:HTMLElement, pos:PointXY) {
 }
 
 export interface DragStartEventParams {
-    e:MouseEvent
+    e:Event
     el:jsPlumbDOMElement
     pos:PointXY
     drag:Drag
@@ -135,8 +135,6 @@ const _classes:Dictionary<string> = {
     draggable:CLASS_DRAGGABLE,    // draggable elements
     drag : "katavorio-drag",            // elements currently being dragged
     selected:"katavorio-drag-selected", // elements in current drag selection
-    //active : "katavorio-drag-active",   // droppables that are targets of a currently dragged element
-    //hover : "katavorio-drag-hover",     // droppables over which a matching drag element is hovering
     noSelect : "katavorio-drag-no-select", // added to the body to provide a hook to suppress text selection
     ghostProxy:"katavorio-ghost-proxy",  // added to a ghost proxy element in use when a drag has exited the bounds of its parent.
     clonedDrag:"katavorio-clone-drag"     // added to a node that is a clone of an element created at the start of a drag
@@ -222,7 +220,7 @@ abstract class Base {
 export type GhostProxyGenerator = (el:Element) => Element
 
 function getConstrainingRectangle(el:jsPlumbDOMElement):{w:number, h:number} {
-    return { w:el.parentNode.scrollWidth, h:el.parentNode.scrollHeight }
+    return { w:el.parentNode.offsetWidth + el.parentNode.scrollLeft, h:el.parentNode.offsetHeight + el.parentNode.scrollTop}
 }
 
 export type Grid = [number, number]
@@ -262,6 +260,7 @@ export interface DragParams extends DragHandlerOptions {
     consumeStartEvent?:boolean
     clone?:boolean
     scroll?:boolean
+    trackScroll?:boolean
     multipleDrop?:boolean
 
     canDrag?:Function
@@ -269,7 +268,6 @@ export interface DragParams extends DragHandlerOptions {
     events?:Dictionary<Function>
     parent?:any
     ignoreZoom?:boolean
-
 
     scope?:string
 }
@@ -281,12 +279,17 @@ export class Drag extends Base {
     consumeStartEvent:boolean
     clone:boolean
     scroll:boolean
+    trackScroll:boolean
 
     private _downAt:PointXY
     private _posAtDown:PointXY
     private _pagePosAtDown:PointXY
     private _pageDelta:PointXY = {x:0, y:0}
+
     private _moving: boolean
+    private _lastPosition:PointXY
+    private _lastScrollValues:PointXY = {x:0, y:0}
+
     private _initialScroll:PointXY = {x:0, y:0}
     _size:Size
     private _currentParentPosition:PointXY
@@ -340,13 +343,47 @@ export class Drag extends Base {
         this.consumeStartEvent = params.consumeStartEvent !== false
         this._dragEl = this.el
         this.clone = params.clone === true
-        this.scroll= params.scroll === true
+        this.scroll = params.scroll === true
+        this.trackScroll = params.trackScroll !== false
         this._multipleDrop = params.multipleDrop !== false
         this._canDrag = params.canDrag || TRUE
         this._consumeFilteredEvents = params.consumeFilteredEvents
         this._parent = params.parent
         this._ignoreZoom = params.ignoreZoom === true
         this._ghostProxyParent = params.ghostProxyParent as jsPlumbDOMElement
+
+        if (this.trackScroll) {
+            document.addEventListener("scroll", (e:Event) => {
+                if (this._moving) {
+
+                    let currentScrollValues = { x:document.documentElement.scrollLeft, y:document.documentElement.scrollTop},
+                        dsx = currentScrollValues.x - this._lastScrollValues.x,
+                        dsy = currentScrollValues.y - this._lastScrollValues.y,
+                        pos = {x:dsx + this._lastPosition.x, y:dsy + this._lastPosition.y},
+
+// ------------- from here we copy the existing code - 'pos' comes from a mouse event in the drag code - ..refactor:
+                        dx = pos.x - this._downAt.x,
+                        dy = pos.y - this._downAt.y,
+                        z = this._ignoreZoom ? 1 : this.k.getZoom()
+
+                    if (this._dragEl && this._dragEl.parentNode)
+                    {
+                        dx += this._dragEl.parentNode.scrollLeft - this._initialScroll.x
+                        dy += this._dragEl.parentNode.scrollTop - this._initialScroll.y
+                    }
+
+                    dx /= z
+                    dy /= z
+
+                    this.moveBy(dx, dy, e as any)
+
+// ------------ this ^^^ is the end of the duplicated code.  setting the last position below is something only the scroll handler does.
+
+                    this._lastPosition = pos
+                    this._lastScrollValues = currentScrollValues
+                }
+            })
+        }
 
         if (params.ghostProxy === true) {
             this._useGhostProxy = TRUE
@@ -545,6 +582,9 @@ export class Drag extends Base {
                     dy = pos.y - this._downAt.y,
                     z = this._ignoreZoom ? 1 : this.k.getZoom()
 
+                this._lastPosition = {x:pos.x, y:pos.y}
+                this._lastScrollValues = {x:document.documentElement.scrollLeft, y:document.documentElement.scrollTop}
+
                 if (this._dragEl && this._dragEl.parentNode)
                 {
                     dx += this._dragEl.parentNode.scrollLeft - this._initialScroll.x
@@ -589,7 +629,7 @@ export class Drag extends Base {
         this._isConstrained = false
     }
 
-    moveBy (dx:number, dy:number, e?:MouseEvent) {
+    moveBy (dx:number, dy:number, e?:Event) {
 
         let desiredLoc = this.toGrid({x:this._posAtDown.x + dx, y:this._posAtDown.y + dy}),
             cPos:PointXY = this._doConstrain(desiredLoc, this._dragEl, this._constrainRect, this._size)
