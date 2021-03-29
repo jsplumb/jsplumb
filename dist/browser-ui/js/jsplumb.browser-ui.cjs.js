@@ -252,7 +252,10 @@ function _classManip(el, classesToAdd, classesToRemove) {
   _setClassName(el, curClasses.join(" "), curClasses);
 }
 function isNodeList(el) {
-  return el.documentElement == null && el.nodeType == null;
+  return !Array.isArray(el) && el.length != null && el.documentElement == null && el.nodeType == null;
+}
+function isArrayLike(el) {
+  return Array.isArray(el) || isNodeList(el);
 }
 function getClass(el) {
   return _getClassName(el);
@@ -5008,6 +5011,7 @@ exports.getClass = getClass;
 exports.getEventSource = getEventSource;
 exports.getTouch = getTouch;
 exports.hasClass = hasClass;
+exports.isArrayLike = isArrayLike;
 exports.isNodeList = isNodeList;
 exports.matchesSelector = matchesSelector;
 exports.newInstance = newInstance;

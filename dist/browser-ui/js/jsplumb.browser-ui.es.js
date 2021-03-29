@@ -248,7 +248,10 @@ function _classManip(el, classesToAdd, classesToRemove) {
   _setClassName(el, curClasses.join(" "), curClasses);
 }
 function isNodeList(el) {
-  return el.documentElement == null && el.nodeType == null;
+  return !Array.isArray(el) && el.length != null && el.documentElement == null && el.nodeType == null;
+}
+function isArrayLike(el) {
+  return Array.isArray(el) || isNodeList(el);
 }
 function getClass(el) {
   return _getClassName(el);
@@ -4979,4 +4982,4 @@ function ready(f) {
   _do();
 }
 
-export { BrowserJsPlumbInstance, Collicat, Drag, EVENT_BEFORE_START, EVENT_CONNECTION_ABORT, EVENT_CONNECTION_DRAG, EVENT_DRAG, EVENT_DRAG_MOVE, EVENT_DRAG_START, EVENT_DRAG_STOP, EVENT_DROP, EVENT_OUT, EVENT_OVER, EVENT_START, EVENT_STOP, EventManager, addClass, consume, createElement, createElementNS, findParent, getClass, getEventSource, getTouch, hasClass, isNodeList, matchesSelector, newInstance, offsetRelativeToRoot, pageLocation, ready, registerEndpointRenderer, removeClass, size, toggleClass, touchCount, touches };
+export { BrowserJsPlumbInstance, Collicat, Drag, EVENT_BEFORE_START, EVENT_CONNECTION_ABORT, EVENT_CONNECTION_DRAG, EVENT_DRAG, EVENT_DRAG_MOVE, EVENT_DRAG_START, EVENT_DRAG_STOP, EVENT_DROP, EVENT_OUT, EVENT_OVER, EVENT_START, EVENT_STOP, EventManager, addClass, consume, createElement, createElementNS, findParent, getClass, getEventSource, getTouch, hasClass, isArrayLike, isNodeList, matchesSelector, newInstance, offsetRelativeToRoot, pageLocation, ready, registerEndpointRenderer, removeClass, size, toggleClass, touchCount, touches };

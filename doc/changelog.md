@@ -1,3 +1,10 @@
+## 4.0.0-RC81
+
+30th March 2021
+
+- Improved the `isNodeList` method to not falsely identify an Array as a NodeList
+- Added `isArrayLike`; this is probably the method we wanted in the first place.
+
 ## 4.0.0-RC80
 
 30th March 2021

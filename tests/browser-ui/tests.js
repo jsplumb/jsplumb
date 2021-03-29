@@ -5777,5 +5777,19 @@ var testSuite = function () {
         equal(5, a[1], "value '5' inserted in the correct place")
     })
 
+    test("isNodeList/isArrayLike", function() {
+        var d = document.createElement("div"), d2 = document.createElement("div")
+        d.className = "foo"
+        d2.className = "foo"
+
+        var sel = document.querySelectorAll(".foo")
+        equal(true, jsPlumbBrowserUI.isNodeList(sel), "NodeList is identified correctly")
+        var array = [ d, d2 ]
+        equal(false, jsPlumbBrowserUI.isNodeList(array), "Array is NOT identified as a NodeList")
+
+        equal(true, jsPlumbBrowserUI.isArrayLike(sel), "selector identified as array like")
+        equal(true, jsPlumbBrowserUI.isArrayLike(array), "array identified as array like")
+    })
+
 };
 

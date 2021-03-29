@@ -4,7 +4,8 @@ export declare function matchesSelector(el: jsPlumbDOMElement, selector: string,
 export declare function consume(e: Event, doNotPreventDefault?: boolean): void;
 export declare function findParent(el: jsPlumbDOMElement, selector: string, container: HTMLElement): jsPlumbDOMElement;
 export declare function getEventSource(e: Event): jsPlumbDOMElement;
-export declare function isNodeList(el: Document | Element | NodeListOf<Element>): el is NodeListOf<Element>;
+export declare function isNodeList(el: Document | Element | ArrayLike<Element>): el is NodeListOf<Element>;
+export declare function isArrayLike(el: Document | Element | ArrayLike<Element>): el is ArrayLike<Element>;
 export declare function getClass(el: Element): string;
 export declare function addClass(el: Element | NodeListOf<Element>, clazz: string): void;
 export declare function hasClass(el: Element, clazz: string): boolean;
