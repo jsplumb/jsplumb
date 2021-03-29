@@ -2,7 +2,7 @@ import { Dictionary, PointXY, Size } from '@jsplumb/core';
 import { EventManager } from "./event-manager";
 import { jsPlumbDOMElement } from './element-facade';
 export interface DragStartEventParams {
-    e: MouseEvent;
+    e: Event;
     el: jsPlumbDOMElement;
     pos: PointXY;
     drag: Drag;
@@ -72,6 +72,7 @@ export interface DragParams extends DragHandlerOptions {
     consumeStartEvent?: boolean;
     clone?: boolean;
     scroll?: boolean;
+    trackScroll?: boolean;
     multipleDrop?: boolean;
     canDrag?: Function;
     consumeFilteredEvents?: boolean;
@@ -86,11 +87,14 @@ export declare class Drag extends Base {
     consumeStartEvent: boolean;
     clone: boolean;
     scroll: boolean;
+    trackScroll: boolean;
     private _downAt;
     private _posAtDown;
     private _pagePosAtDown;
     private _pageDelta;
     private _moving;
+    private _lastPosition;
+    private _lastScrollValues;
     private _initialScroll;
     _size: Size;
     private _currentParentPosition;
@@ -128,7 +132,7 @@ export declare class Drag extends Base {
     private _moveListener;
     private mark;
     private unmark;
-    moveBy(dx: number, dy: number, e?: MouseEvent): void;
+    moveBy(dx: number, dy: number, e?: Event): void;
     abort(): void;
     getDragElement(retrieveOriginalElement?: boolean): jsPlumbDOMElement;
     stop(e?: MouseEvent, force?: boolean): void;

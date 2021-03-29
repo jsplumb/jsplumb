@@ -17,7 +17,6 @@ export declare class DefaultRouter<T extends {
     reset(): void;
     getEndpointLocation(endpoint: Endpoint<any>, params: AnchorComputeParams): AnchorPlacement;
     computeAnchorLocation(anchor: Anchor, params: AnchorComputeParams): AnchorPlacement;
-    private floatingAnchorCompute;
     private defaultAnchorCompute;
     private dynamicAnchorCompute;
     getEndpointOrientation(endpoint: Endpoint): Orientation;

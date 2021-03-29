@@ -1054,8 +1054,8 @@ function () {
 }();
 function getConstrainingRectangle(el) {
   return {
-    w: el.parentNode.scrollWidth,
-    h: el.parentNode.scrollHeight
+    w: el.parentNode.offsetWidth + el.parentNode.scrollLeft,
+    h: el.parentNode.offsetHeight + el.parentNode.scrollTop
   };
 }
 var ContainmentTypes;
@@ -1076,6 +1076,7 @@ function (_Base) {
     _defineProperty(_assertThisInitialized(_this), "consumeStartEvent", void 0);
     _defineProperty(_assertThisInitialized(_this), "clone", void 0);
     _defineProperty(_assertThisInitialized(_this), "scroll", void 0);
+    _defineProperty(_assertThisInitialized(_this), "trackScroll", void 0);
     _defineProperty(_assertThisInitialized(_this), "_downAt", void 0);
     _defineProperty(_assertThisInitialized(_this), "_posAtDown", void 0);
     _defineProperty(_assertThisInitialized(_this), "_pagePosAtDown", void 0);
@@ -1084,6 +1085,11 @@ function (_Base) {
       y: 0
     });
     _defineProperty(_assertThisInitialized(_this), "_moving", void 0);
+    _defineProperty(_assertThisInitialized(_this), "_lastPosition", void 0);
+    _defineProperty(_assertThisInitialized(_this), "_lastScrollValues", {
+      x: 0,
+      y: 0
+    });
     _defineProperty(_assertThisInitialized(_this), "_initialScroll", {
       x: 0,
       y: 0
@@ -1131,12 +1137,41 @@ function (_Base) {
     _this._dragEl = _this.el;
     _this.clone = params.clone === true;
     _this.scroll = params.scroll === true;
+    _this.trackScroll = params.trackScroll !== false;
     _this._multipleDrop = params.multipleDrop !== false;
     _this._canDrag = params.canDrag || TRUE;
     _this._consumeFilteredEvents = params.consumeFilteredEvents;
     _this._parent = params.parent;
     _this._ignoreZoom = params.ignoreZoom === true;
     _this._ghostProxyParent = params.ghostProxyParent;
+    if (_this.trackScroll) {
+      document.addEventListener("scroll", function (e) {
+        if (_this._moving) {
+          var currentScrollValues = {
+            x: document.documentElement.scrollLeft,
+            y: document.documentElement.scrollTop
+          },
+              dsx = currentScrollValues.x - _this._lastScrollValues.x,
+              dsy = currentScrollValues.y - _this._lastScrollValues.y,
+              _pos = {
+            x: dsx + _this._lastPosition.x,
+            y: dsy + _this._lastPosition.y
+          },
+          dx = _pos.x - _this._downAt.x,
+              dy = _pos.y - _this._downAt.y,
+              _z = _this._ignoreZoom ? 1 : _this.k.getZoom();
+          if (_this._dragEl && _this._dragEl.parentNode) {
+            dx += _this._dragEl.parentNode.scrollLeft - _this._initialScroll.x;
+            dy += _this._dragEl.parentNode.scrollTop - _this._initialScroll.y;
+          }
+          dx /= _z;
+          dy /= _z;
+          _this.moveBy(dx, dy, e);
+          _this._lastPosition = _pos;
+          _this._lastScrollValues = currentScrollValues;
+        }
+      });
+    }
     if (params.ghostProxy === true) {
       _this._useGhostProxy = TRUE;
     } else {
@@ -1316,16 +1351,24 @@ function (_Base) {
           }
         }
         if (this._downAt) {
-          var _pos = pageLocation(e),
-              dx = _pos.x - this._downAt.x,
-              dy = _pos.y - this._downAt.y,
-              _z = this._ignoreZoom ? 1 : this.k.getZoom();
+          var _pos2 = pageLocation(e),
+              dx = _pos2.x - this._downAt.x,
+              dy = _pos2.y - this._downAt.y,
+              _z2 = this._ignoreZoom ? 1 : this.k.getZoom();
+          this._lastPosition = {
+            x: _pos2.x,
+            y: _pos2.y
+          };
+          this._lastScrollValues = {
+            x: document.documentElement.scrollLeft,
+            y: document.documentElement.scrollTop
+          };
           if (this._dragEl && this._dragEl.parentNode) {
             dx += this._dragEl.parentNode.scrollLeft - this._initialScroll.x;
             dy += this._dragEl.parentNode.scrollTop - this._initialScroll.y;
           }
-          dx /= _z;
-          dy /= _z;
+          dx /= _z2;
+          dy /= _z2;
           this.moveBy(dx, dy, e);
         }
       }
@@ -1681,7 +1724,7 @@ var EVENT_CONNECTION_ABORT = "connection:abort";
 var EVENT_CONNECTION_DRAG = "connection:drag";
 var DragManager =
 function () {
-  function DragManager(instance) {
+  function DragManager(instance, options) {
     var _this = this;
     _classCallCheck(this, DragManager);
     this.instance = instance;
@@ -1692,6 +1735,7 @@ function () {
     _defineProperty(this, "_elementsWithEndpoints", {});
     _defineProperty(this, "_draggablesForElements", {});
     _defineProperty(this, "handlers", []);
+    _defineProperty(this, "_trackScroll", void 0);
     _defineProperty(this, "_filtersToAdd", []);
     this.collicat = new Collicat({
       zoom: this.instance.currentZoom,
@@ -1710,6 +1754,8 @@ function () {
     this.instance.bind(EVENT_ZOOM, function (z) {
       _this.collicat.setZoom(z);
     });
+    options = options || {};
+    this._trackScroll = options.trackScroll !== false;
   }
   _createClass(DragManager, [{
     key: "addHandler",
@@ -1778,6 +1824,7 @@ function () {
         }
       }
       if (this.drag == null) {
+        o.trackScroll = this._trackScroll;
         this.drag = this.collicat.draggable(this.instance.getContainer(), o);
         core.forEach(this._filtersToAdd, function (filterToAdd) {
           return _this2.drag.addFilter(filterToAdd[0], filterToAdd[1]);
@@ -3852,7 +3899,7 @@ function (_JsPlumbInstance) {
     });
     _this.elementsDraggable = defaults && defaults.elementsDraggable !== false;
     _this.eventManager = new EventManager();
-    _this.dragManager = new DragManager(_assertThisInitialized(_this));
+    _this.dragManager = new DragManager(_assertThisInitialized(_this), defaults && defaults.dragOptions ? defaults.dragOptions : null);
     _this.listManager = new JsPlumbListManager(_assertThisInitialized(_this));
     _this.dragManager.addHandler(new EndpointDragHandler(_assertThisInitialized(_this)));
     _this.groupDragOptions = {
@@ -4057,19 +4104,41 @@ function (_JsPlumbInstance) {
       el.removeAttribute && el.removeAttribute(attName);
     }
   }, {
+    key: "isNodeList",
+    value: function isNodeList(el) {
+      return el.documentElement == null && el.nodeType == null;
+    }
+  }, {
     key: "on",
     value: function on(el, event, callbackOrSelector, callback) {
-      if (callback == null) {
-        this.eventManager.on(el, event, callbackOrSelector);
+      var _this2 = this;
+      var _one = function _one(_el) {
+        if (callback == null) {
+          _this2.eventManager.on(_el, event, callbackOrSelector);
+        } else {
+          _this2.eventManager.on(_el, event, callbackOrSelector, callback);
+        }
+      };
+      if (this.isNodeList(el)) {
+        core.forEach(el, function (el) {
+          return _one(el);
+        });
       } else {
-        this.eventManager.on(el, event, callbackOrSelector, callback);
+        _one(el);
       }
       return this;
     }
   }, {
     key: "off",
     value: function off(el, event, callback) {
-      this.eventManager.off(el, event, callback);
+      var _this3 = this;
+      if (this.isNodeList(el)) {
+        core.forEach(el, function (_el) {
+          return _this3.eventManager.off(_el, event, callback);
+        });
+      } else {
+        this.eventManager.off(el, event, callback);
+      }
       return this;
     }
   }, {
@@ -4228,7 +4297,7 @@ function (_JsPlumbInstance) {
   }, {
     key: "setContainer",
     value: function setContainer(newContainer) {
-      var _this2 = this;
+      var _this4 = this;
       if (newContainer === document || newContainer === document.body) {
         throw new Error("Cannot set document or document.body as container element");
       }
@@ -4242,7 +4311,7 @@ function (_JsPlumbInstance) {
       if (currentContainer != null) {
         currentContainer.removeAttribute(core.ATTRIBUTE_CONTAINER);
         var children = core.fromArray(currentContainer.childNodes).filter(function (cn) {
-          return cn != null && (_this2.hasClass(cn, core.CLASS_CONNECTOR) || _this2.hasClass(cn, core.CLASS_ENDPOINT) || _this2.hasClass(cn, core.CLASS_OVERLAY) || cn.getAttribute && cn.getAttribute(core.ATTRIBUTE_MANAGED) != null);
+          return cn != null && (_this4.hasClass(cn, core.CLASS_CONNECTOR) || _this4.hasClass(cn, core.CLASS_ENDPOINT) || _this4.hasClass(cn, core.CLASS_OVERLAY) || cn.getAttribute && cn.getAttribute(core.ATTRIBUTE_MANAGED) != null);
         });
         core.forEach(children, function (el) {
           newContainer.appendChild(el);
@@ -4291,12 +4360,12 @@ function (_JsPlumbInstance) {
   }, {
     key: "addToDragSelection",
     value: function addToDragSelection() {
-      var _this3 = this;
+      var _this5 = this;
       for (var _len = arguments.length, el = new Array(_len), _key = 0; _key < _len; _key++) {
         el[_key] = arguments[_key];
       }
       core.forEach(el, function (_el) {
-        return _this3.elementDragHandler.addToDragSelection(_el);
+        return _this5.elementDragHandler.addToDragSelection(_el);
       });
     }
   }, {
@@ -4307,23 +4376,23 @@ function (_JsPlumbInstance) {
   }, {
     key: "removeFromDragSelection",
     value: function removeFromDragSelection() {
-      var _this4 = this;
+      var _this6 = this;
       for (var _len2 = arguments.length, el = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
         el[_key2] = arguments[_key2];
       }
       core.forEach(el, function (_el) {
-        return _this4.elementDragHandler.removeFromDragSelection(_el);
+        return _this6.elementDragHandler.removeFromDragSelection(_el);
       });
     }
   }, {
     key: "toggleDragSelection",
     value: function toggleDragSelection() {
-      var _this5 = this;
+      var _this7 = this;
       for (var _len3 = arguments.length, el = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
         el[_key3] = arguments[_key3];
       }
       core.forEach(el, function (_el) {
-        return _this5.elementDragHandler.toggleDragSelection(_el);
+        return _this7.elementDragHandler.toggleDragSelection(_el);
       });
     }
   }, {
@@ -4622,7 +4691,7 @@ function (_JsPlumbInstance) {
         if (connector.connection.hoverPaintStyle != null) {
           connector.connection.paintStyleInUse = h ? connector.connection.hoverPaintStyle : connector.connection.paintStyle;
           if (!this._suspendDrawing) {
-            this.paintConnection(connector.connection, connector.connection.paintStyleInUse);
+            this.paintConnection(connector.connection);
           }
         }
         if (!doNotCascade) {

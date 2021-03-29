@@ -8,7 +8,7 @@ import { RedrawResult, PointXY } from "@jsplumb/core";
  */
 export interface DragPayload {
     el: Element;
-    e: MouseEvent;
+    e: Event;
     pos: PointXY;
     originalPosition: PointXY;
 }

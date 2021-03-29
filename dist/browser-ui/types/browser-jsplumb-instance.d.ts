@@ -21,6 +21,7 @@ export interface DragOptions {
     cursor?: string;
     zIndex?: number;
     grid?: [number, number];
+    trackScroll?: boolean;
 }
 export interface BrowserJsPlumbDefaults extends jsPlumbDefaults<Element> {
     /**
@@ -120,8 +121,9 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     getAttribute(el: Element, name: string): string;
     setAttributes(el: Element, atts: Dictionary<string>): void;
     removeAttribute(el: Element, attName: string): void;
-    on(el: Document | Element, event: string, callbackOrSelector: Function | string, callback?: Function): this;
-    off(el: Document | Element, event: string, callback: Function): this;
+    private isNodeList;
+    on(el: Document | Element | NodeListOf<Element>, event: string, callbackOrSelector: Function | string, callback?: Function): this;
+    off(el: Document | Element | NodeListOf<Element>, event: string, callback: Function): this;
     trigger(el: Document | Element, event: string, originalEvent?: Event, payload?: any): void;
     getOffsetRelativeToRoot(el: Element): PointXY;
     getOffset(el: Element): PointXY;

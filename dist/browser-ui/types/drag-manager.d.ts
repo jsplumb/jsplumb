@@ -37,6 +37,9 @@ export interface GhostProxyingDragHandler extends DragHandler {
     useGhostProxy: (container: any, dragEl: Element) => boolean;
     makeGhostProxy?: GhostProxyGenerator;
 }
+export interface DragManagerOptions {
+    trackScroll?: boolean;
+}
 export declare class DragManager {
     protected instance: BrowserJsPlumbInstance;
     private collicat;
@@ -49,8 +52,9 @@ export declare class DragManager {
         handler: DragHandler;
         options: DragHandlerOptions;
     }>;
+    private _trackScroll;
     private _filtersToAdd;
-    constructor(instance: BrowserJsPlumbInstance);
+    constructor(instance: BrowserJsPlumbInstance, options?: DragManagerOptions);
     addHandler(handler: DragHandler, dragOptions?: DragHandlerOptions): void;
     addFilter(filter: Function | string, exclude?: boolean): void;
     removeFilter(filter: Function | string): void;

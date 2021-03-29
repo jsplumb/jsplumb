@@ -1,13 +1,29 @@
 QUnit.config.reorder = false;
-var defaults = null, support, _jsPlumb;
+var defaults = null, support, _jsPlumb, container;
+
+var makeContainer = function() {
+    container = document.createElement("div")
+    document.documentElement.appendChild(container)
+    container.style.position = "relative"
+    container.style.overflow = "hidden"
+    container.style.width="500px"
+    container.style.height="500px"
+    container.style.outline = "1px solid"
+}
+
+var removeContainer = function() {
+    container && container.parentNode && container.parentNode.removeChild(container)
+}
 
 var testSuite = function () {
 
     module("jsPlumb", {
         teardown: function () {
             support.cleanup();
+            removeContainer()
         },
         setup: function () {
+            makeContainer()
             _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
             support = jsPlumbTestSupport.getInstance(_jsPlumb);
             defaults = jsPlumb.extend({}, _jsPlumb.Defaults);

@@ -1,8 +1,26 @@
 QUnit.config.reorder = false;
 
-var defaults = null, support, _jsPlumb;
+var defaults = null, support, _jsPlumb, container;
+
+var makeContainer = function() {
+    container = document.createElement("div")
+    document.documentElement.appendChild(container)
+    container.style.position = "relative"
+    container.style.overflow = "hidden"
+    container.style.width="500px"
+    container.style.height="500px"
+    container.style.outline = "1px solid"
+}
+
+var removeContainer = function() {
+    container && container.parentNode && container.parentNode.removeChild(container)
+}
 
 var reinit = function(defaults) {
+
+    removeContainer()
+    makeContainer()
+
     var d = jsPlumb.extend({container:container}, defaults || {});
     support.cleanup()
 
@@ -27,7 +45,7 @@ var testSuite = function () {
         if (!x) {
             _jsPlumb.testx = _jsPlumb.testx || 0;
             _jsPlumb.testx += 100;
-            x = _jsPlumb.textx;
+            x = _jsPlumb.testx;
         }
 
         if (!y) {
@@ -52,8 +70,13 @@ var testSuite = function () {
             delete _jsPlumb.testy;
 
             support.cleanup();
+
+            removeContainer()
         },
         setup: function () {
+
+            makeContainer()
+
             _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
             support = jsPlumbTestSupport.getInstance(_jsPlumb);
             defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
@@ -1270,8 +1293,8 @@ var testSuite = function () {
 
         support.dragNodeTo(d2, 1000, 1000);
 
-        equal(d2.offsetLeft, 1000, "div 2 is at the right left position");
-        equal(d2.offsetTop, 1000, "div 2 is at the right top position");
+        equal(d2.offsetLeft, 1000, "div 2 is at the correct left position");
+        equal(d2.offsetTop, 1000, "div 2 is at the correct top position");
 
         // TODO - drag selection
         // divs 1 and 3 have moved too, because they are in the drag selection make sure they are in the right place
@@ -1590,12 +1613,7 @@ var testSuite = function () {
         _jsPlumb.getContainer().style.width = "500px"
         _jsPlumb.getContainer().style.height = "500px"
 
-        var d = _addDiv("d1");
-        d.style.position = "absolute";
-        d.style.left = "50px";
-        d.style.top = "50px";
-        d.style.width = "100px";
-        d.style.height = "100px";
+        var d = _addDiv("d1", 50, 50, 100, 100);
 
         // should not be necessary
         _jsPlumb.manage(d);
@@ -1786,6 +1804,9 @@ var testSuite = function () {
         equal(parseInt(d.style.left, 10), 150);
         equal(parseInt(d.style.top, 10), 150);
     });
+
+
+    //*/
 
     // test("snap elements, default threshold", function() {
     //
@@ -2134,8 +2155,8 @@ var testSuite = function () {
 
         equal(2, document.querySelectorAll("[jtk-managed]").length, 2, "two managed elements after init");
 
-        _jsPlumb.trigger(ec1, "mousedown", support.makeEvent(_jsPlumb, ec1));
-        _jsPlumb.trigger(ec1, "mouseup", support.makeEvent(_jsPlumb, ec1));
+        _jsPlumb.trigger(ec1, "mousedown", support.makeEvent(ec1));
+        _jsPlumb.trigger(ec1, "mouseup", support.makeEvent(ec1));
 
         equal(2, document.querySelectorAll("[jtk-managed]").length, 2, "two managed elements after aborted drag: drag element was cleaned up.");
     });
@@ -2182,6 +2203,112 @@ var testSuite = function () {
         ok(!ec1.classList.contains("jtk-dragging"), "jtk-dragging class removed from endpoint after drag");
         ok(!ec2.classList.contains("endpointDrag"), "endpointDrag class removed from endpoint after drag");
         ok(!ec2.classList.contains("jtk-dragging"), "jtk-dragging class removed from endpoint after drag");
+
+    });
+
+    /**
+     * Tests the behaviour of element dragging when the document is scrolled during the drag. The element's position should
+     * be adjusted to account for the scroll delta.
+     */
+    //*/
+    asyncTest("dragging, parent container scrolled during drag", function() {
+        window.scrollTo(0,0)
+        debugger
+        var d = _addDiv("d1");
+
+        d.style.left = "50px";
+        d.style.top = "50px";
+        d.style.width = "100px";
+        d.style.height = "100px";
+
+        var c = _jsPlumb.getContainer();
+        c.style.position = "relative"
+        c.style.outline = "1px solid"
+        c.style.height = "2500px"
+        c.style.width = "500px"
+
+        c.appendChild(d)
+
+        var d2 = _addDiv("d2");
+        d2.style.left = "50px";
+        d2.style.top="auto"
+        d2.style.bottom = "100px";
+        d2.style.width = "100px";
+        d2.style.height = "100px";
+        d2.style.outline="10px solid blue"
+
+        _jsPlumb.manage(d);
+
+        var scrollAtStart = document.documentElement.scrollTop
+
+        support.aSyncDragNodeBy(d, 100, 100, {
+
+
+            beforeMouseUp:function() {
+                d2.scrollIntoView()
+                QUnit.start()
+                ok(d.classList.contains("jtk-drag"), "drag class set on element");
+                QUnit.stop()
+            },
+            after:function() {
+                var scrollDelta = document.documentElement.scrollTop - scrollAtStart
+                QUnit.start()
+                ok(!d.classList.contains("jtk-drag"), "drag class no longer set on element");
+                equal(parseInt(d.style.left, 10), 150);
+                equal(parseInt(d.style.top, 10), 150 + scrollDelta);
+            }
+        });
+
+
+    });
+    //*/
+
+    /**
+     * Tests the behaviour of element dragging when the document is scrolled during the drag. The element's position should
+     * be adjusted to account for the scroll delta.
+     */
+    asyncTest("connection dragging, parent container scrolled during drag", function() {
+        debugger
+         window.scrollTo(0,0)
+        var d = _addDiv("d1", 50, 50, 100, 100);
+        d.style.outline = "10px solid green"
+
+        var c = _jsPlumb.getContainer();
+       c.style.outline = "1px solid"
+        c.style.height = "2500px"
+        c.style.width = "500px"
+
+        var d2 = _addDiv("d2");
+        d2.style.left = "50px";
+        d2.style.top="auto"
+        d2.style.bottom = "100px";
+        d2.style.width = "100px";
+        d2.style.height = "100px";
+        d2.style.outline="10px solid blue"
+
+        _jsPlumb.importDefaults({
+            elementsDraggable:false
+        })
+
+        _jsPlumb.manage(d);
+        _jsPlumb.manage(d2);
+
+        _jsPlumb.makeSource(d)
+        _jsPlumb.makeTarget(d2)
+
+        var scrollAtStart = document.documentElement.scrollTop
+
+        support.aSyncDragConnection(d, d2, {
+            beforeMouseUp:function() {
+                d2.scrollIntoView()
+            },
+            after:function(conn) {
+                var scrollDelta = document.documentElement.scrollTop - scrollAtStart
+                QUnit.start()
+                ok(conn != null, "connection was established")
+            }
+        })
+
 
     });
 

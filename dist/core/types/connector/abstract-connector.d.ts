@@ -6,6 +6,7 @@ import { Connection } from '../connector/connection-impl';
 import { ComponentOptions } from '../component/component';
 import { Orientation } from '../factory/anchor-factory';
 import { Endpoint } from '../endpoint/endpoint';
+import { ViewportElement } from "../viewport";
 export declare type UserDefinedConnectorId = string;
 export declare type ConnectorId = "Bezier" | "StateMachine" | "Flowchart" | "Straight" | UserDefinedConnectorId;
 export declare type ConnectorWithOptions = {
@@ -35,8 +36,8 @@ export declare type ConnectorComputeParams = {
     sourceEndpoint: Endpoint;
     targetEndpoint: Endpoint;
     strokeWidth: number;
-    sourceInfo: any;
-    targetInfo: any;
+    sourceInfo: ViewportElement<any>;
+    targetInfo: ViewportElement<any>;
 };
 export interface PaintGeometry {
     sx: number;

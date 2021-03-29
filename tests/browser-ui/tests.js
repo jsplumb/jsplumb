@@ -33,7 +33,21 @@ var within = function (val, target, _ok, msg) {
     _ok(Math.abs(val - target) < VERY_SMALL_NUMBER, msg + "[expected: " + target + " got " + val + "] [diff:" + (Math.abs(val - target)) + "]");
 };
 
-var defaults = null, support, _jsPlumb;
+var defaults = null, support, _jsPlumb, container;
+
+var makeContainer = function() {
+    container = document.createElement("div")
+    document.documentElement.appendChild(container)
+    container.style.position = "relative"
+    container.style.overflow = "hidden"
+    container.style.width="500px"
+    container.style.height="500px"
+    container.style.outline = "1px solid"
+}
+
+var removeContainer = function() {
+    container && container.parentNode && container.parentNode.removeChild(container)
+}
 
 var isHover = function(connection) {
     return _jsPlumb.hasClass(connection.connector.canvas, "jtk-hover");
@@ -44,9 +58,11 @@ var testSuite = function () {
     module("jsPlumb", {
         teardown: function () {
             support.cleanup();
+            removeContainer()
         },
         setup: function () {
-            _jsPlumb = jsPlumbBrowserUI.newInstance({container:document.getElementById("container")});
+            makeContainer()
+            _jsPlumb = jsPlumbBrowserUI.newInstance({container:container});
             support = jsPlumbTestSupport.getInstance(_jsPlumb);
             defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
         }
@@ -3306,7 +3322,7 @@ var testSuite = function () {
 
     test(" _jsPlumb.setContainer, moves managed nodes", function () {
         var c2 = support.addDiv("c2", document.body);
-        var c = document.getElementById("container");
+        var c = container;
 
         equal(c.childNodes.length, 0, "container has no nodes");
         var d1 = support.addDiv("d1", c);

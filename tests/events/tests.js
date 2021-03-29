@@ -1,8 +1,24 @@
 QUnit.config.reorder = false;
 
-var defaults = null, support, _jsPlumb;
+var defaults = null, support, _jsPlumb, container;
+
+var makeContainer = function() {
+    container = document.createElement("div")
+    document.documentElement.appendChild(container)
+    container.style.position = "relative"
+    container.style.overflow = "hidden"
+    container.style.width="500px"
+    container.style.height="500px"
+    container.style.outline = "1px solid"
+}
+
+var removeContainer = function() {
+    container && container.parentNode && container.parentNode.removeChild(container)
+}
 
 var reinit = function(defaults) {
+    removeContainer()
+    makeContainer()
     var d = jsPlumb.extend({container:container}, defaults || {});
     support.cleanup()
 
@@ -45,8 +61,10 @@ var testSuite = function () {
         teardown: function (/*tests*/) {
 
             support.cleanup();
+            removeContainer()
         },
         setup: function () {
+            makeContainer()
             _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
             support = jsPlumbTestSupport.getInstance(_jsPlumb);
             defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
@@ -73,6 +91,28 @@ var testSuite = function () {
 
         ok(clicked, "click event fired")
     })
+
+    test("click, NodeList", function() {
+        var d = _addDiv("one", 50, 50, 100, 100),
+            d2 = _addDiv("one", 550, 550, 100, 100)
+
+        d.className = "foo"
+        d2.className = "foo"
+
+        var clicked = false;
+        _jsPlumb.on(document.querySelectorAll(".foo"), "click", function() {
+            clicked = true
+        })
+
+        support.clickOnElement(d)
+
+        ok(clicked, "click event fired")
+
+        support.clickOnElement(d2)
+
+        ok(clicked, "click event fired")
+    })
+
 
     test("dblclick", function() {
         var d = _addDiv("one", 50, 50, 100, 100)

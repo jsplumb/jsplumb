@@ -2049,8 +2049,8 @@
               "y": "x"
             }[axis],
                 dim = {
-              "x": "height",
-              "y": "width"
+              "x": "h",
+              "y": "w"
             }[axis],
                 comparator = pi["is" + axis.toUpperCase() + "GreaterThanStubTimes2"];
             if (params.sourceEndpoint.elementId === params.targetEndpoint.elementId) {
@@ -6559,6 +6559,11 @@
     "bottom": rightAndBottomSort,
     "left": leftAndTopSort
   };
+  function floatingAnchorCompute(anchor, params) {
+    var xy = params.xy;
+    anchor._lastResult = [xy.x + anchor.size.w / 2, xy.y + anchor.size.h / 2, 0, 0];
+    return anchor._lastResult;
+  }
   var DefaultRouter =
   function () {
     function DefaultRouter(instance) {
@@ -6595,18 +6600,11 @@
         } else if (anchor.isDynamic) {
           anchor.lastReturnValue = this.dynamicAnchorCompute(anchor, params);
         } else if (anchor.isFloating) {
-          anchor.lastReturnValue = this.floatingAnchorCompute(anchor, params);
+          anchor.lastReturnValue = floatingAnchorCompute(anchor, params);
         } else {
           anchor.lastReturnValue = this.defaultAnchorCompute(anchor, params);
         }
         return anchor.lastReturnValue;
-      }
-    }, {
-      key: "floatingAnchorCompute",
-      value: function floatingAnchorCompute(anchor, params) {
-        var xy = params.xy;
-        anchor._lastResult = [xy.x + anchor.size.w / 2, xy.y + anchor.size.h / 2, 0, 0];
-        return anchor._lastResult;
       }
     }, {
       key: "defaultAnchorCompute",
@@ -6695,16 +6693,8 @@
       key: "computePath",
       value: function computePath(connection, timestamp) {
         var sourceInfo = this.instance.viewport.getPosition(connection.sourceId),
-        sourceOffset = {
-          left: sourceInfo.x,
-          top: sourceInfo.y
-        },
-            targetInfo = this.instance.viewport.getPosition(connection.targetId),
-            targetOffset = {
-          left: targetInfo.x,
-          top: targetInfo.y
-        },
-            sE = connection.endpoints[0],
+        targetInfo = this.instance.viewport.getPosition(connection.targetId),
+        sE = connection.endpoints[0],
             tE = connection.endpoints[1];
         var sAnchorP = this.getEndpointLocation(sE, {
           xy: sourceInfo,
@@ -6729,8 +6719,8 @@
           sourceEndpoint: connection.endpoints[0],
           targetEndpoint: connection.endpoints[1],
           strokeWidth: connection.paintStyleInUse.strokeWidth,
-          sourceInfo: sourceOffset,
-          targetInfo: targetOffset
+          sourceInfo: sourceInfo,
+          targetInfo: targetInfo
         });
       }
     }, {
@@ -6961,9 +6951,7 @@
           });
           connectionsToPaint.forEach(function (c) {
             _this3.instance.paintConnection(c, {
-              elId: elementId,
-              timestamp: timestamp,
-              recalc: false
+              timestamp: timestamp
             });
           });
         }

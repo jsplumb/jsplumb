@@ -358,7 +358,9 @@ export declare abstract class JsPlumbInstance<T extends {
         connectorPaintStyle?: PaintStyle;
         anchorLoc?: AnchorPlacement;
     }): void;
-    paintConnection(connection: Connection, params?: any): void;
+    paintConnection(connection: Connection, params?: {
+        timestamp?: string;
+    }): void;
     refreshEndpoint(endpoint: Endpoint): void;
     /**
      * For some given element, find any other elements we want to draw whenever that element
@@ -386,8 +388,8 @@ export declare abstract class JsPlumbInstance<T extends {
     abstract getOffset(el: T["E"]): PointXY;
     abstract getOffsetRelativeToRoot(el: T["E"] | string): PointXY;
     abstract setPosition(el: T["E"], p: PointXY): void;
-    abstract on(el: Document | T["E"], event: string, callbackOrSelector: Function | string, callback?: Function): void;
-    abstract off(el: Document | T["E"], event: string, callback: Function): void;
+    abstract on(el: Document | T["E"] | ArrayLike<T["E"]>, event: string, callbackOrSelector: Function | string, callback?: Function): void;
+    abstract off(el: Document | T["E"] | ArrayLike<T["E"]>, event: string, callback: Function): void;
     abstract trigger(el: Document | T["E"], event: string, originalEvent?: Event, payload?: any): void;
     abstract getPath(segment: Segment, isFirstSegment: boolean): string;
     abstract paintOverlay(o: Overlay, params: any, extents: any): void;
