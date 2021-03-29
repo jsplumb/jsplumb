@@ -2055,7 +2055,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     // ---- paint Connection
 
-    paintConnection(connection:Connection, params?:any) {
+    paintConnection(connection:Connection, params?:{timestamp?:string}) {
 
         if (!this._suspendDrawing && connection.visible !== false) {
 
@@ -2162,8 +2162,8 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     abstract setPosition(el:T["E"], p:PointXY):void
 
-    abstract on (el:Document | T["E"], event:string, callbackOrSelector:Function | string, callback?:Function):void
-    abstract off (el:Document | T["E"], event:string, callback:Function):void
+    abstract on (el:Document | T["E"] | ArrayLike<T["E"]>, event:string, callbackOrSelector:Function | string, callback?:Function):void
+    abstract off (el:Document | T["E"] | ArrayLike<T["E"]>, event:string, callback:Function):void
     abstract trigger(el:Document | T["E"], event:string, originalEvent?:Event, payload?:any):void
 
     abstract getPath(segment:Segment, isFirstSegment:boolean):string
