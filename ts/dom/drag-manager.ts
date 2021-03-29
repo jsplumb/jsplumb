@@ -7,7 +7,7 @@ import {
     BeforeStartEventParams,
     Collicat,
     Drag, DragEventParams,
-    DragHandlerOptions,
+    DragHandlerOptions, DragParams,
     DragStartEventParams, DragStopEventParams,
     GhostProxyGenerator
 } from "./collicat"
@@ -70,6 +70,10 @@ export interface GhostProxyingDragHandler extends DragHandler {
 
 type DragFilterSpec = [ Function|string, boolean ]
 
+export interface DragManagerOptions {
+    trackScroll?:boolean
+}
+
 export class DragManager {
 
     private collicat:Collicat
@@ -83,9 +87,11 @@ export class DragManager {
 
     handlers:Array<{handler:DragHandler, options:DragHandlerOptions}> = []
 
+    private _trackScroll:boolean
+
     private _filtersToAdd:Array<DragFilterSpec> = []
 
-    constructor(protected instance:BrowserJsPlumbInstance) {
+    constructor(protected instance:BrowserJsPlumbInstance, options?:DragManagerOptions) {
 
         // create a delegated drag handler
         this.collicat = new Collicat({
@@ -106,6 +112,9 @@ export class DragManager {
         this.instance.bind(EVENT_ZOOM, (z:number) => {
             this.collicat.setZoom(z)
         })
+
+        options = options || {}
+        this._trackScroll = options.trackScroll !== false
     }
 
     addHandler(handler:DragHandler, dragOptions?:DragHandlerOptions):void {
@@ -152,10 +161,11 @@ export class DragManager {
                     break
                 }
             }
-
         }
 
         if (this.drag == null) {
+            // TODO it would be better to separate out DragOptions (for a Drag object) from DragHandlerOptions
+            (o as DragParams).trackScroll = this._trackScroll
             this.drag = this.collicat.draggable(this.instance.getContainer(), o)
             forEach(this._filtersToAdd, (filterToAdd) => this.drag.addFilter(filterToAdd[0], filterToAdd[1]))
 
