@@ -5003,7 +5003,7 @@ var testSuite = function () {
     });
 
     test(" : DOM adapter addClass/hasClass/removeClass/toggleClass", function () {
-        var d1 = support.addDiv(d1);//, _d1 = [ d1 ];
+        var d1 = support.addDiv("d1");//, _d1 = [ d1 ];
 
         // add a single class and test for its existence	
         _jsPlumb.addClass(d1, "FOO");
@@ -5056,6 +5056,24 @@ var testSuite = function () {
         ok(_jsPlumb.hasClass(d1, "BAZ"), "class toggled back on");
         _jsPlumb.toggleClass(d1, "BAR");
         ok(_jsPlumb.hasClass(d1, "BAR"), "another class toggled on");
+
+        var d2 = support.addDiv("d2");//, _d1 = [ d1 ]
+        var d3 = support.addDiv("d3");
+        d2.className = "multiple"
+        d3.className = "multiple"
+
+        var selector = document.querySelectorAll(".multiple")
+        _jsPlumb.addClass(selector, "foo")
+        ok(_jsPlumb.hasClass(d2, "foo"), "d2 has foo class")
+        ok(_jsPlumb.hasClass(d3, "foo"), "d3 has foo class")
+
+        _jsPlumb.removeClass(selector, "foo")
+        ok(!_jsPlumb.hasClass(d2, "foo"), "d2 no longer has foo class")
+        ok(!_jsPlumb.hasClass(d3, "foo"), "d3 no longer has foo class")
+
+        _jsPlumb.toggleClass(selector, "foo")
+        ok(_jsPlumb.hasClass(d2, "foo"), "d2 has foo class once more")
+        ok(_jsPlumb.hasClass(d3, "foo"), "d3 has foo class once more")
     });
 
     test("endpointStyle on connect method", function () {
