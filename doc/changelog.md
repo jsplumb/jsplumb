@@ -1,3 +1,9 @@
+## 4.0.0-RC80
+
+30th March 2021
+
+- Added support for passing in `NodeList<Element>` to `addClass`, `removeClass` and `toggleClass`
+
 ## 4.0.0-RC79
 
 29th March 2021

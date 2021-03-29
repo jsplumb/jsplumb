@@ -1,4 +1,4 @@
-import { fastTrim, forEach, isArray, log, NONE, EVENT_CONTEXTMENU, removeWithFunction, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, uuid, IS, extend, wrap, getWithFunction, optional, getFromSetWithFunction, isString, intersects, cls, each, makeAnchorFromSpec, AnchorLocations, findWithFunction, SOURCE, TARGET, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, SELECTOR_MANAGED_ELEMENT, Connection, Endpoint, Overlay, EVENT_CLICK, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, UNDEFINED, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, fromArray, ATTRIBUTE_NOT_DRAGGABLE, TRUE as TRUE$1, FALSE as FALSE$1, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE as EVENT_MOUSEMOVE$1, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, EndpointRepresentation, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/core';
+import { forEach, fastTrim, isArray, log, NONE, EVENT_CONTEXTMENU, removeWithFunction, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, uuid, IS, extend, wrap, getWithFunction, optional, getFromSetWithFunction, isString, intersects, cls, each, makeAnchorFromSpec, AnchorLocations, findWithFunction, SOURCE, TARGET, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, SELECTOR_MANAGED_ELEMENT, Connection, Endpoint, Overlay, EVENT_CLICK, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, UNDEFINED, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, fromArray, ATTRIBUTE_NOT_DRAGGABLE, TRUE as TRUE$1, FALSE as FALSE$1, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE as EVENT_MOUSEMOVE$1, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, EndpointRepresentation, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/core';
 
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -247,19 +247,31 @@ function _classManip(el, classesToAdd, classesToRemove) {
   _oneSet(false, ctr);
   _setClassName(el, curClasses.join(" "), curClasses);
 }
+function isNodeList(el) {
+  return el.documentElement == null && el.nodeType == null;
+}
 function getClass(el) {
   return _getClassName(el);
 }
 function addClass(el, clazz) {
-  if (el != null && clazz != null && clazz.length > 0) {
-    if (el.classList) {
-      var parts = fastTrim(clazz).split(/\s+/);
-      forEach(parts, function (part) {
-        el.classList.add(part);
-      });
-    } else {
-      _classManip(el, clazz);
+  var _one = function _one(el, clazz) {
+    if (el != null && clazz != null && clazz.length > 0) {
+      if (el.classList) {
+        var parts = fastTrim(clazz).split(/\s+/);
+        forEach(parts, function (part) {
+          el.classList.add(part);
+        });
+      } else {
+        _classManip(el, clazz);
+      }
     }
+  };
+  if (isNodeList(el)) {
+    forEach(el, function (el) {
+      return _one(el, clazz);
+    });
+  } else {
+    _one(el, clazz);
   }
 }
 function hasClass(el, clazz) {
@@ -270,28 +282,47 @@ function hasClass(el, clazz) {
   }
 }
 function removeClass(el, clazz) {
-  if (el != null && clazz != null && clazz.length > 0) {
-    if (el.classList) {
-      var parts = fastTrim(clazz).split(/\s+/);
-      parts.forEach(function (part) {
-        el.classList.remove(part);
-      });
-    } else {
-      _classManip(el, null, clazz);
+  var _one = function _one(el, clazz) {
+    if (el != null && clazz != null && clazz.length > 0) {
+      if (el.classList) {
+        var parts = fastTrim(clazz).split(/\s+/);
+        parts.forEach(function (part) {
+          el.classList.remove(part);
+        });
+      } else {
+        _classManip(el, null, clazz);
+      }
     }
+  };
+  if (isNodeList(el)) {
+    forEach(el, function (el) {
+      return _one(el, clazz);
+    });
+  } else {
+    _one(el, clazz);
   }
 }
 function toggleClass(el, clazz) {
-  if (el != null && clazz != null && clazz.length > 0) {
-    if (el.classList) {
-      el.classList.toggle(clazz);
-    } else {
-      if (this.hasClass(el, clazz)) {
-        this.removeClass(el, clazz);
+  var _this = this;
+  var _one = function _one(el, clazz) {
+    if (el != null && clazz != null && clazz.length > 0) {
+      if (el.classList) {
+        el.classList.toggle(clazz);
       } else {
-        this.addClass(el, clazz);
+        if (_this.hasClass(el, clazz)) {
+          _this.removeClass(el, clazz);
+        } else {
+          _this.addClass(el, clazz);
+        }
       }
     }
+  };
+  if (isNodeList(el)) {
+    forEach(el, function (el) {
+      return _one(el, clazz);
+    });
+  } else {
+    _one(el, clazz);
   }
 }
 function createElement(tag, style, clazz, atts) {
@@ -4100,11 +4131,6 @@ function (_JsPlumbInstance) {
       el.removeAttribute && el.removeAttribute(attName);
     }
   }, {
-    key: "isNodeList",
-    value: function isNodeList(el) {
-      return el.documentElement == null && el.nodeType == null;
-    }
-  }, {
     key: "on",
     value: function on(el, event, callbackOrSelector, callback) {
       var _this2 = this;
@@ -4115,7 +4141,7 @@ function (_JsPlumbInstance) {
           _this2.eventManager.on(_el, event, callbackOrSelector, callback);
         }
       };
-      if (this.isNodeList(el)) {
+      if (isNodeList(el)) {
         forEach(el, function (el) {
           return _one(el);
         });
@@ -4128,7 +4154,7 @@ function (_JsPlumbInstance) {
     key: "off",
     value: function off(el, event, callback) {
       var _this3 = this;
-      if (this.isNodeList(el)) {
+      if (isNodeList(el)) {
         forEach(el, function (_el) {
           return _this3.eventManager.off(_el, event, callback);
         });
@@ -4953,4 +4979,4 @@ function ready(f) {
   _do();
 }
 
-export { BrowserJsPlumbInstance, Collicat, Drag, EVENT_BEFORE_START, EVENT_CONNECTION_ABORT, EVENT_CONNECTION_DRAG, EVENT_DRAG, EVENT_DRAG_MOVE, EVENT_DRAG_START, EVENT_DRAG_STOP, EVENT_DROP, EVENT_OUT, EVENT_OVER, EVENT_START, EVENT_STOP, EventManager, addClass, consume, createElement, createElementNS, findParent, getClass, getEventSource, getTouch, hasClass, matchesSelector, newInstance, offsetRelativeToRoot, pageLocation, ready, registerEndpointRenderer, removeClass, size, toggleClass, touchCount, touches };
+export { BrowserJsPlumbInstance, Collicat, Drag, EVENT_BEFORE_START, EVENT_CONNECTION_ABORT, EVENT_CONNECTION_DRAG, EVENT_DRAG, EVENT_DRAG_MOVE, EVENT_DRAG_START, EVENT_DRAG_STOP, EVENT_DROP, EVENT_OUT, EVENT_OVER, EVENT_START, EVENT_STOP, EventManager, addClass, consume, createElement, createElementNS, findParent, getClass, getEventSource, getTouch, hasClass, isNodeList, matchesSelector, newInstance, offsetRelativeToRoot, pageLocation, ready, registerEndpointRenderer, removeClass, size, toggleClass, touchCount, touches };

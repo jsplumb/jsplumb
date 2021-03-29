@@ -251,19 +251,31 @@
     _oneSet(false, ctr);
     _setClassName(el, curClasses.join(" "), curClasses);
   }
+  function isNodeList(el) {
+    return el.documentElement == null && el.nodeType == null;
+  }
   function getClass(el) {
     return _getClassName(el);
   }
   function addClass(el, clazz) {
-    if (el != null && clazz != null && clazz.length > 0) {
-      if (el.classList) {
-        var parts = core.fastTrim(clazz).split(/\s+/);
-        core.forEach(parts, function (part) {
-          el.classList.add(part);
-        });
-      } else {
-        _classManip(el, clazz);
+    var _one = function _one(el, clazz) {
+      if (el != null && clazz != null && clazz.length > 0) {
+        if (el.classList) {
+          var parts = core.fastTrim(clazz).split(/\s+/);
+          core.forEach(parts, function (part) {
+            el.classList.add(part);
+          });
+        } else {
+          _classManip(el, clazz);
+        }
       }
+    };
+    if (isNodeList(el)) {
+      core.forEach(el, function (el) {
+        return _one(el, clazz);
+      });
+    } else {
+      _one(el, clazz);
     }
   }
   function hasClass(el, clazz) {
@@ -274,28 +286,47 @@
     }
   }
   function removeClass(el, clazz) {
-    if (el != null && clazz != null && clazz.length > 0) {
-      if (el.classList) {
-        var parts = core.fastTrim(clazz).split(/\s+/);
-        parts.forEach(function (part) {
-          el.classList.remove(part);
-        });
-      } else {
-        _classManip(el, null, clazz);
+    var _one = function _one(el, clazz) {
+      if (el != null && clazz != null && clazz.length > 0) {
+        if (el.classList) {
+          var parts = core.fastTrim(clazz).split(/\s+/);
+          parts.forEach(function (part) {
+            el.classList.remove(part);
+          });
+        } else {
+          _classManip(el, null, clazz);
+        }
       }
+    };
+    if (isNodeList(el)) {
+      core.forEach(el, function (el) {
+        return _one(el, clazz);
+      });
+    } else {
+      _one(el, clazz);
     }
   }
   function toggleClass(el, clazz) {
-    if (el != null && clazz != null && clazz.length > 0) {
-      if (el.classList) {
-        el.classList.toggle(clazz);
-      } else {
-        if (this.hasClass(el, clazz)) {
-          this.removeClass(el, clazz);
+    var _this = this;
+    var _one = function _one(el, clazz) {
+      if (el != null && clazz != null && clazz.length > 0) {
+        if (el.classList) {
+          el.classList.toggle(clazz);
         } else {
-          this.addClass(el, clazz);
+          if (_this.hasClass(el, clazz)) {
+            _this.removeClass(el, clazz);
+          } else {
+            _this.addClass(el, clazz);
+          }
         }
       }
+    };
+    if (isNodeList(el)) {
+      core.forEach(el, function (el) {
+        return _one(el, clazz);
+      });
+    } else {
+      _one(el, clazz);
     }
   }
   function createElement(tag, style, clazz, atts) {
@@ -4104,11 +4135,6 @@
         el.removeAttribute && el.removeAttribute(attName);
       }
     }, {
-      key: "isNodeList",
-      value: function isNodeList(el) {
-        return el.documentElement == null && el.nodeType == null;
-      }
-    }, {
       key: "on",
       value: function on(el, event, callbackOrSelector, callback) {
         var _this2 = this;
@@ -4119,7 +4145,7 @@
             _this2.eventManager.on(_el, event, callbackOrSelector, callback);
           }
         };
-        if (this.isNodeList(el)) {
+        if (isNodeList(el)) {
           core.forEach(el, function (el) {
             return _one(el);
           });
@@ -4132,7 +4158,7 @@
       key: "off",
       value: function off(el, event, callback) {
         var _this3 = this;
-        if (this.isNodeList(el)) {
+        if (isNodeList(el)) {
           core.forEach(el, function (_el) {
             return _this3.eventManager.off(_el, event, callback);
           });
@@ -4982,6 +5008,7 @@
   exports.getEventSource = getEventSource;
   exports.getTouch = getTouch;
   exports.hasClass = hasClass;
+  exports.isNodeList = isNodeList;
   exports.matchesSelector = matchesSelector;
   exports.newInstance = newInstance;
   exports.offsetRelativeToRoot = offsetRelativeToRoot;

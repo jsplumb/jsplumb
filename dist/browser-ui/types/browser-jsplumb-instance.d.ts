@@ -113,17 +113,57 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     _getAssociatedElements(el: Element): Array<Element>;
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
     getClass(el: Element): string;
-    addClass(el: Element, clazz: string): void;
+    /**
+     * Add one or more classes to the given element or list of elements.
+     * @param el Element, or list of elements to which to add the class(es)
+     * @param clazz A space separated list of classes to add.
+     */
+    addClass(el: Element | NodeListOf<Element>, clazz: string): void;
+    /**
+     * Returns whether or not the given element has the given class.
+     * @param el
+     * @param clazz
+     */
     hasClass(el: Element, clazz: string): boolean;
-    removeClass(el: Element, clazz: string): void;
-    toggleClass(el: Element, clazz: string): void;
+    /**
+     * Remove one or more classes from the given element or list of elements.
+     * @param el Element, or list of elements from which to remove the class(es)
+     * @param clazz A space separated list of classes to remove.
+     */
+    removeClass(el: Element | NodeListOf<Element>, clazz: string): void;
+    /**
+     * Toggles one or more classes on the given element or list of elements.
+     * @param el Element, or list of elements on which to toggle the class(es)
+     * @param clazz A space separated list of classes to toggle.
+     */
+    toggleClass(el: Element | NodeListOf<Element>, clazz: string): void;
     setAttribute(el: Element, name: string, value: string): void;
     getAttribute(el: Element, name: string): string;
     setAttributes(el: Element, atts: Dictionary<string>): void;
     removeAttribute(el: Element, attName: string): void;
-    private isNodeList;
+    /**
+     * Bind an event listener to the given element or elements.
+     * @param el Element, or elements, to bind the event listener to.
+     * @param event Name of the event to bind to.
+     * @param callbackOrSelector Either a callback function, or a CSS 3 selector. When this is a selector the event listener is bound as a "delegate", ie. the event listeners
+     * listens to events on children of the given `el` that match the selector.
+     * @param callback Callback function for event. Only supplied when you're binding a delegated event handler.
+     */
     on(el: Document | Element | NodeListOf<Element>, event: string, callbackOrSelector: Function | string, callback?: Function): this;
+    /**
+     * Remove an event binding from the given element or elements.
+     * @param el Element, or elements, from which to remove the event binding.
+     * @param event Name of the event to unbind.
+     * @param callback The function you wish to unbind.
+     */
     off(el: Document | Element | NodeListOf<Element>, event: string, callback: Function): this;
+    /**
+     * Trigger an event on the given element.
+     * @param el Element to trigger the event on.
+     * @param event Name of the event to trigger.
+     * @param originalEvent Optional event that gave rise to this method being called.
+     * @param payload Optional `payload` to set on the Event that is created.
+     */
     trigger(el: Document | Element, event: string, originalEvent?: Event, payload?: any): void;
     getOffsetRelativeToRoot(el: Element): PointXY;
     getOffset(el: Element): PointXY;

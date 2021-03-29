@@ -6688,8 +6688,8 @@ function () {
     key: "computePath",
     value: function computePath(connection, timestamp) {
       var sourceInfo = this.instance.viewport.getPosition(connection.sourceId),
-      targetInfo = this.instance.viewport.getPosition(connection.targetId),
-      sE = connection.endpoints[0],
+          targetInfo = this.instance.viewport.getPosition(connection.targetId),
+          sE = connection.endpoints[0],
           tE = connection.endpoints[1];
       var sAnchorP = this.getEndpointLocation(sE, {
         xy: sourceInfo,
