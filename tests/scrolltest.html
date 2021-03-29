@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+    <head>
+        <script src="../dist/core/js/jsplumb.core.umd.js"></script>
+        <script src="../dist/browser-ui/js/jsplumb.browser-ui.umd.js"></script>
+    </head>
+    <body>
+
+        <div style="width:500px;height:1500px;outline:1px solid blue;position:relative;" id="canvas">
+            <div id="d1" style="width:50px;height:50px;top:50px;left:50px;position:absolute;outline:1px solid"></div>
+            <div id="d2" style="width:50px;height:50px;top:150px;left:50px;position:absolute;outline:2px solid blue"></div>
+        </div>
+
+
+        <script>
+            jsPlumbBrowserUI.ready(function() {
+
+                var j = jsPlumbBrowserUI.newInstance({
+                    container:canvas,
+                    // dragOptions:{
+                    //     trackScroll:false
+                    // }
+                })
+
+                j.manage(d1)
+
+
+
+            })
+        </script>
+
+    </body>
+</html>
