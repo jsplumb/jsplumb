@@ -108,19 +108,31 @@ function _classManip(el:Element, classesToAdd:string | Array<string>, classesToR
     _setClassName(el, curClasses.join(" "), curClasses)
 }
 
+export function isNodeList(el:Document | Element | NodeListOf<Element>): el is NodeListOf<Element> {
+    return (el as any).documentElement == null && (el as any).nodeType == null
+}
+
 export function getClass(el:Element):string { return _getClassName(el); }
 
-export function addClass(el:Element, clazz:string):void {
+export function addClass(el:Element | NodeListOf<Element>, clazz:string):void {
 
-    if (el != null && clazz != null && clazz.length > 0) {
-        if (el.classList) {
-            const parts = fastTrim(clazz).split(/\s+/)
-            forEach(parts, (part) => {
-                el.classList.add(part)
-            })
-        } else {
-            _classManip(el, clazz)
+    const _one = (el:Element, clazz:string) => {
+        if (el != null && clazz != null && clazz.length > 0) {
+            if (el.classList) {
+                const parts = fastTrim(clazz).split(/\s+/)
+                forEach(parts, (part) => {
+                    el.classList.add(part)
+                })
+            } else {
+                _classManip(el, clazz)
+            }
         }
+    }
+
+    if (isNodeList(el)) {
+        forEach(el, (el:Element) => _one(el, clazz))
+    } else {
+        _one(el, clazz)
     }
 }
 
@@ -133,31 +145,46 @@ export function hasClass(el:Element, clazz:string):boolean {
     }
 }
 
-export function removeClass(el:Element, clazz:string):void {
-    if (el != null && clazz != null && clazz.length > 0) {
-        if (el.classList) {
-            const parts = fastTrim(clazz).split(/\s+/)
-            parts.forEach((part) => {
-                el.classList.remove(part)
-            })
-        } else {
-            _classManip(el, null, clazz)
+export function removeClass(el:Element | NodeListOf<Element>, clazz:string):void {
+    const _one = (el:Element, clazz:string) => {
+        if (el != null && clazz != null && clazz.length > 0) {
+            if (el.classList) {
+                const parts = fastTrim(clazz).split(/\s+/)
+                parts.forEach((part) => {
+                    el.classList.remove(part)
+                })
+            } else {
+                _classManip(el, null, clazz)
+            }
         }
+    }
+
+    if (isNodeList(el)) {
+        forEach(el, (el:Element) => _one(el, clazz))
+    } else {
+        _one(el, clazz)
     }
 }
 
-export function toggleClass(el:Element, clazz:string):void {
-    if (el != null && clazz != null && clazz.length > 0) {
-        if (el.classList) {
-            el.classList.toggle(clazz)
-        }
-        else {
-            if (this.hasClass(el, clazz)) {
-                this.removeClass(el, clazz)
+export function toggleClass(el:Element | NodeListOf<Element>, clazz:string):void {
+    const _one = (el:Element, clazz:string) => {
+        if (el != null && clazz != null && clazz.length > 0) {
+            if (el.classList) {
+                el.classList.toggle(clazz)
             } else {
-                this.addClass(el, clazz)
+                if (this.hasClass(el, clazz)) {
+                    this.removeClass(el, clazz)
+                } else {
+                    this.addClass(el, clazz)
+                }
             }
         }
+    }
+
+    if (isNodeList(el)) {
+        forEach(el, (el:Element) => _one(el, clazz))
+    } else {
+        _one(el, clazz)
     }
 }
 
