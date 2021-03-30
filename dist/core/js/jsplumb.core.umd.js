@@ -6763,7 +6763,7 @@
         (function (list, eId) {
           if (list) {
             var f = function f(e) {
-              return e[4] === eId;
+              return e.epId === eId;
             };
             removeWithFunction(list.top, f);
             removeWithFunction(list.left, f);

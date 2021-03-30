@@ -2,6 +2,12 @@
 
 30th March 2021
 
+- Added a fix to the code that cleans up continuous anchors after connection drag end.
+
+## 4.0.0-RC82
+
+30th March 2021
+
 - Further improvements to the `isNodeList` and `isArrayLike` methods
 
 ## 4.0.0-RC81
