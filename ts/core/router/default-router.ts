@@ -313,7 +313,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
         (function (list, eId) {
             if (list) {  // transient anchors dont get entries in this list.
                 let f = (e:AnchorListEntry) => {
-                    return e[4] === eId
+                    return e.epId === eId
                 }
                 removeWithFunction(list.top, f)
                 removeWithFunction(list.left, f)
