@@ -36,6 +36,14 @@ export interface CustomOverlayOptions extends OverlayOptions {
 export type FullOverlaySpec = { type:string, options:OverlayOptions }
 export type OverlaySpec = string | FullOverlaySpec
 
+/**
+ * Returns whether or not the given overlay spec is a 'full' overlay spec, ie. has a `type` and some `options`, or is just an overlay name.
+ * @param o
+ */
+export function isFullOverlaySpec(o:OverlaySpec):o is FullOverlaySpec {
+    return (o as any).type != null && (o as any).options != null
+}
+
 export abstract class Overlay extends EventGenerator {
 
     id:string
