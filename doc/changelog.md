@@ -1,3 +1,11 @@
+## 4.0.0-RC84
+
+31st March 2021
+
+### Breaking (mildly)
+
+- `click`/`tap`/`dbltap`/`dblclick` event callbacks on Overlays now pass `{e:Event, overlay:Overlay}` as the argument to the callback, where previously it was just the event.
+
 ## 4.0.0-RC83
 
 30th March 2021
