@@ -85,31 +85,36 @@ export abstract class Overlay extends EventGenerator {
     }
 
     click(e:Event) {
-        this.fire(Constants.EVENT_CLICK, e)
+        this.fire<OverlayMouseEventParams>(Constants.EVENT_CLICK, {e, overlay:this})
         let eventName = this.component instanceof Connection ? Constants.EVENT_CLICK : Constants.EVENT_ENDPOINT_CLICK
         this._postComponentEvent(eventName, e)
     }
 
     dblclick(e:Event) {
-        this.fire(Constants.EVENT_DBL_CLICK, e)
+        this.fire<OverlayMouseEventParams>(Constants.EVENT_DBL_CLICK, {e, overlay:this})
         let eventName = this.component instanceof Connection ? Constants.EVENT_DBL_CLICK : Constants.EVENT_ENDPOINT_DBL_CLICK
         this._postComponentEvent(eventName, e)
     }
 
     tap(e:Event) {
-        this.fire(Constants.EVENT_TAP, e)
+        this.fire<OverlayMouseEventParams>(Constants.EVENT_TAP, {e, overlay:this})
         let eventName = this.component instanceof Connection ? Constants.EVENT_TAP : Constants.EVENT_ENDPOINT_TAP
         this._postComponentEvent(eventName, e)
     }
 
     dbltap(e:Event) {
-        this.fire(Constants.EVENT_DBL_TAP, e)
+        this.fire<OverlayMouseEventParams>(Constants.EVENT_DBL_TAP, {e, overlay:this})
         let eventName = this.component instanceof Connection ? Constants.EVENT_DBL_TAP : Constants.EVENT_ENDPOINT_DBL_TAP
         this._postComponentEvent(eventName, e)
     }
 
 }
 
+
+export interface OverlayMouseEventParams {
+    e:Event
+    overlay:Overlay
+}
 
 
 
