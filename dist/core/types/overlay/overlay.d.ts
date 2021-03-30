@@ -49,3 +49,7 @@ export declare abstract class Overlay extends EventGenerator {
     tap(e: Event): void;
     dbltap(e: Event): void;
 }
+export interface OverlayMouseEventParams {
+    e: Event;
+    overlay: Overlay;
+}

@@ -3823,28 +3823,40 @@
     }, {
       key: "click",
       value: function click(e) {
-        this.fire(EVENT_CLICK, e);
+        this.fire(EVENT_CLICK, {
+          e: e,
+          overlay: this
+        });
         var eventName = this.component instanceof Connection ? EVENT_CLICK : EVENT_ENDPOINT_CLICK;
         this._postComponentEvent(eventName, e);
       }
     }, {
       key: "dblclick",
       value: function dblclick(e) {
-        this.fire(EVENT_DBL_CLICK, e);
+        this.fire(EVENT_DBL_CLICK, {
+          e: e,
+          overlay: this
+        });
         var eventName = this.component instanceof Connection ? EVENT_DBL_CLICK : EVENT_ENDPOINT_DBL_CLICK;
         this._postComponentEvent(eventName, e);
       }
     }, {
       key: "tap",
       value: function tap(e) {
-        this.fire(EVENT_TAP, e);
+        this.fire(EVENT_TAP, {
+          e: e,
+          overlay: this
+        });
         var eventName = this.component instanceof Connection ? EVENT_TAP : EVENT_ENDPOINT_TAP;
         this._postComponentEvent(eventName, e);
       }
     }, {
       key: "dbltap",
       value: function dbltap(e) {
-        this.fire(EVENT_DBL_TAP, e);
+        this.fire(EVENT_DBL_TAP, {
+          e: e,
+          overlay: this
+        });
         var eventName = this.component instanceof Connection ? EVENT_DBL_TAP : EVENT_ENDPOINT_DBL_TAP;
         this._postComponentEvent(eventName, e);
       }
