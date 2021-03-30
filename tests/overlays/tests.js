@@ -744,7 +744,7 @@ var testSuite = function () {
 
     // click events on overlays
 
-    test("overlay click event, events in overlay specs", function() {
+    test("overlay click/tap event, events in overlay specs", function() {
         support.addDiv("d1");
         support.addDiv("d2");
         var count = 0;
@@ -756,25 +756,33 @@ var testSuite = function () {
                     id:"label",
                     label:'hey',
                     events:{
-                        click:function() {
+                        click:function(p) {
+                            ok(p.e != null, "event was provided in click callback")
+                            ok(p.overlay != null, "overlay was provided in click callback")
                             count++;
                         }
                     }
                 }},
-                { type: "Arrow", options:{
-                    id:"arrow",
-                    events:{
-                        click:function() {
-                            count++
+                {
+                    type: "Arrow",
+                    options:{
+                        id:"arrow",
+                        events:{
+                            tap:function(p) {
+                                ok(p.e != null, "event was provided in click callback")
+                                ok(p.overlay != null, "overlay was provided in click callback")
+                                count++
+                            }
                         }
                     }
-                }}
+                }
             ]}), o = c.getOverlay("label"), o2 = c.getOverlay("arrow");
 
         _jsPlumb.trigger(o.canvas, "click");
         equal(count, 1, "click event was triggered on label overlay");
 
-        _jsPlumb.trigger(o2.path, "click");
+        _jsPlumb.trigger(o2.path, "mousedown");
+        _jsPlumb.trigger(o2.path, "mouseup");
         equal(count, 2, "click event was triggered on arrow overlay");
     });
 
