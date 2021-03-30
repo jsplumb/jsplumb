@@ -28,6 +28,11 @@ export declare type FullOverlaySpec = {
     options: OverlayOptions;
 };
 export declare type OverlaySpec = string | FullOverlaySpec;
+/**
+ * Returns whether or not the given overlay spec is a 'full' overlay spec, ie. has a `type` and some `options`, or is just an overlay name.
+ * @param o
+ */
+export declare function isFullOverlaySpec(o: OverlaySpec): o is FullOverlaySpec;
 export declare abstract class Overlay extends EventGenerator {
     instance: JsPlumbInstance;
     component: Component;

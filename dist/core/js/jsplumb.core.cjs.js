@@ -3767,6 +3767,9 @@ function (_EventGenerator) {
   return Component;
 }(EventGenerator);
 
+function isFullOverlaySpec(o) {
+  return o.type != null && o.options != null;
+}
 var Overlay =
 function (_EventGenerator) {
   _inherits(Overlay, _EventGenerator);
@@ -10010,6 +10013,7 @@ exports.isCustomOverlay = isCustomOverlay;
 exports.isDate = isDate;
 exports.isDiamondOverlay = isDiamondOverlay;
 exports.isEmpty = isEmpty;
+exports.isFullOverlaySpec = isFullOverlaySpec;
 exports.isFunction = isFunction;
 exports.isLabelOverlay = isLabelOverlay;
 exports.isNamedFunction = isNamedFunction;
