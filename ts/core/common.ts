@@ -42,6 +42,8 @@ export interface ConnectParams {
     endpointHoverStyle?:EndpointStyle
     ports?:[string, string]
     type?:string
+    paintStyle?:PaintStyle
+    hoverPaintStyle?:PaintStyle
 }
 
 export interface InternalConnectParams<E> extends ConnectParams {
