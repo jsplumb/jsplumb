@@ -4,7 +4,7 @@ import {Dictionary} from '../common'
 
 import {PaintStyle} from "../styles"
 import {Component} from "../component/component"
-import {uuid} from "../util"
+import {isString, uuid} from "../util"
 import {EventGenerator} from "../event-generator"
 import {Connection} from '../connector/connection-impl'
 import * as Constants from "../constants"
@@ -42,6 +42,21 @@ export type OverlaySpec = string | FullOverlaySpec
  */
 export function isFullOverlaySpec(o:OverlaySpec):o is FullOverlaySpec {
     return (o as any).type != null && (o as any).options != null
+}
+
+/**
+ * Convert the given input into an object in the form of a `FullOverlaySpec`
+ * @param spec
+ */
+export function convertToFullOverlaySpec(spec:string | OverlaySpec):FullOverlaySpec {
+    let o:FullOverlaySpec = null
+    if (isString(spec)) {
+        o = { type:spec as string, options:{ } }
+    } else {
+        o = spec as FullOverlaySpec
+    }
+    o.options.id = o.options.id || uuid()
+    return o
 }
 
 export abstract class Overlay extends EventGenerator {

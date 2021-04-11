@@ -1,9 +1,9 @@
 import {jsPlumbDefaults} from "./defaults"
 
-import {Connection} from "./connector/connection-impl"
-import {Endpoint, EndpointDropOptions, EndpointSpec} from "./endpoint/endpoint"
+import {Connection, ConnectionParams} from "./connector/connection-impl"
+import {Endpoint, EndpointSpec} from "./endpoint/endpoint"
 import { DotEndpoint } from './endpoint/dot-endpoint'
-import {FullOverlaySpec, OverlaySpec} from "./overlay/overlay"
+import {convertToFullOverlaySpec, FullOverlaySpec} from "./overlay/overlay"
 import {AnchorPlacement, RedrawResult} from "./router/router"
 import {
     _mergeOverrides,
@@ -266,17 +266,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return "" + this._curIdStamp++
     }
 
-    convertToFullOverlaySpec(spec:string | OverlaySpec):FullOverlaySpec {
-        let o:FullOverlaySpec = null
-        if (isString(spec)) {
-            o = { type:spec as string, options:{ } }
-        } else {
-            o = spec as FullOverlaySpec
-        }
-        o.options.id = o.options.id || uuid()
-        return o
-    }
-
     checkCondition(conditionName:string, args?:any):boolean {
         let l = this.getListener(conditionName),
             r = true
@@ -435,7 +424,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         if (el instanceof Endpoint) {
             ep = el;
             (<Endpoint>ep).addConnection(c)
-            el = (<Endpoint>ep).element as unknown as Element
         }
         else {
             sid = this.getId(el)
@@ -469,7 +457,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             evtParams[idx === 0 ? "newSourceId" : "newTargetId"] = ep.elementId
 
             this.fireMoveEvent(evtParams)
-
             this.paintConnection(c)
         }
 
@@ -1304,7 +1291,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return _p
     }
 
-    _newConnection (params:any):Connection {
+    _newConnection (params:ConnectionParams):Connection {
         params.id = "con_" + this._idstamp()
         const c = new Connection(this, params)
         this.paintConnection(c)
@@ -1494,7 +1481,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     }
 
     private _unmakeEvery (type:string, key:string, connectionType?:string) {
-        let els = this.getSelector("[jtk-" + type + "]")
+        let els = this.getSelector(this.getContainer(), "[jtk-" + type + "]")
         for (let i = 0; i < els.length; i++) {
             this._unmake(type, key, els[i], connectionType)
         }
@@ -1545,6 +1532,12 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return _def
     }
 
+    /**
+     * Register the given element as a connection source.
+     * @param el
+     * @param params
+     * @param referenceParams
+     */
     makeSource(el:T["E"], params?:SourceBehaviouralTypeDescriptor, referenceParams?:SourceBehaviouralTypeDescriptor):JsPlumbInstance {
 
         const jel = el as unknown as jsPlumbElement<T["E"]>
@@ -1604,6 +1597,15 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         removeWithFunction(this.targetSelectors, (s:TargetSelector) => s === selector)
     }
 
+    /**
+     * Registers a selector for connection drag on the instance. This is a newer version of the `makeTarget` functionality
+     * that has been in jsPlumb since the early days. With this approach, rather than calling `makeTarget` on every element, you
+     * can register a CSS selector on the instance that identifies something that is common to your elements. This will only respond to
+     * mouse events on elements that are managed by the instance.
+     * @param selector CSS3 selector identifying child element(s) of some managed element that should act as a connection target.
+     * @param params Options for the target
+     * @param exclude If true, the selector defines an 'exclusion': anything _except_ elements that match this.
+     */
     addTargetSelector(selector:string, params?:BehaviouralTypeDescriptor, exclude = false):TargetSelector {
 
         const _def = this._createTargetDefinition(params)
@@ -1790,7 +1792,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             for (let i = 0; i < type.overlays.length; i++) {
                 // if a string, convert to object representation so that we can store the typeid on it.
                 // also assign an id.
-                let fo = this.convertToFullOverlaySpec(type.overlays[i])
+                let fo = convertToFullOverlaySpec(type.overlays[i])
                 to[fo.options.id] = fo
             }
             this._connectionTypes.get(id).overlays = to as any
@@ -1810,7 +1812,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             for (let i = 0; i < type.overlays.length; i++) {
                 // if a string, convert to object representation so that we can store the typeid on it.
                 // also assign an id.
-                let fo = this.convertToFullOverlaySpec(type.overlays[i])
+                let fo = convertToFullOverlaySpec(type.overlays[i])
                 to[fo.options.id] = fo
             }
             this._endpointTypes.get(id).overlays = to as any
@@ -1940,17 +1942,17 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         }
     }
 
-    sourceOrTargetChanged (originalId:string, newId:string, connection:any, newElement:any, index:number):void {
+    sourceOrTargetChanged (originalId:string, newId:string, connection:Connection, newElement:T["E"], index:number):void {
         if (index === 0) {
             if (originalId !== newId) {
                 connection.sourceId = newId
                 connection.source = newElement
-                connection.updateConnectedClass()
+                connection.updateConnectedClass(false)
             }
         } else if (index === 1) {
             connection.targetId = newId
             connection.target = newElement
-            connection.updateConnectedClass()
+            connection.updateConnectedClass(false)
         }
     }
 
