@@ -8,9 +8,9 @@ import {Connection} from "../connector/connection-impl"
 import { EndpointFactory } from "../factory/endpoint-factory"
 import { EndpointRepresentation } from './endpoints'
 import {extend, merge, isString, isAssignableFrom} from '../util'
-import { JsPlumbInstance } from '../core'
+import {DeleteConnectionOptions, JsPlumbInstance} from '../core'
 import { OverlayCapableComponent } from '../component/overlay-capable-component'
-import { EVENT_ANCHOR_CHANGED} from "../constants"
+import {EVENT_ANCHOR_CHANGED, EVENT_MAX_CONNECTIONS} from "../constants"
 
 export type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndpointId
 export type UserDefinedEndpointId = string
@@ -140,7 +140,7 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
 
     deleteOnEmpty:boolean
 
-    private uuid:string
+    private readonly uuid:string
 
     scope:string
 
@@ -192,9 +192,6 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
 
         this.deleteOnEmpty = params.deleteOnEmpty === true
 
-        // copy all params onto this class
-        extend((<any>this), params, typeParameters)
-
         this.isSource = params.isSource || false
         this.isTemporarySource = params.isTemporarySource || false
         this.isTarget = params.isTarget || false
@@ -211,7 +208,7 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         this.dragAllowedWhenFull = params.dragAllowedWhenFull !== false
 
         if (params.onMaxConnections) {
-            this.bind("maxConnections", params.onMaxConnections)
+            this.bind(EVENT_MAX_CONNECTIONS, params.onMaxConnections)
         }
 
         let ep = params.endpoint || instance.Defaults.endpoint
@@ -255,8 +252,7 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         return a
     }
 
-    // TODO refactor, somehow, to take AnchorManager out of the equation. update, rc35 - to take Router out of the equation.
-    setPreparedAnchor (anchor:Anchor):Endpoint {
+    private setPreparedAnchor (anchor:Anchor):Endpoint {
         this.anchor = anchor
         this._updateAnchorClass()
         return this
@@ -271,7 +267,11 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
     addConnection(conn:Connection) {
         const wasFull = this.isFull()
         this.connections.push(conn)
-        this[(this.connections.length > 0 ? "add" : "remove") + "Class"](this.instance.endpointConnectedClass)
+        if (this.connections.length > 0) {
+            this.addClass(this.instance.endpointConnectedClass)
+        } else {
+            this.removeClass(this.instance.endpointConnectedClass)
+        }
         if (this.isFull()) {
             if (!wasFull) {
                 this.addClass(this.instance.endpointFullClass)
@@ -279,14 +279,14 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         } else if (wasFull) {
             this.removeClass(this.instance.endpointFullClass)
         }
-
     }
 
     /**
      * Detaches this Endpoint from the given Connection.  If `deleteOnEmpty` is set to true and there are no
      * Connections after this one is detached, the Endpoint is deleted.
-     * @param connection
-     * @param idx
+     * @param connection Connection from which to detach.
+     * @param idx Optional, used internally to identify if this is the source (0) or target endpoint (1). Sometimes we already know this when we call this method.
+     * @param transientDetach For internal use only.
      */
     detachFromConnection (connection:Connection, idx?:number, transientDetach?:boolean):void {
         idx = idx == null ? this.connections.indexOf(connection) : idx
@@ -301,17 +301,25 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         }
     }
 
-    deleteEveryConnection (params?:any):void {
+    /**
+     * Delete every connection in the instance.
+     * @param params
+     */
+    deleteEveryConnection (params?:DeleteConnectionOptions):void {
         let c = this.connections.length
         for (let i = 0; i < c; i++) {
             this.instance.deleteConnection(this.connections[0], params)
         }
     }
 
-    detachFrom (targetEndpoint:Endpoint):Endpoint {
+    /**
+     * Removes all connection from this endpoint to the given other endpoint.
+     * @param otherEndpoint
+     */
+    detachFrom (otherEndpoint:Endpoint):Endpoint {
         let c = []
         for (let i = 0; i < this.connections.length; i++) {
-            if (this.connections[i].endpoints[1] === targetEndpoint || this.connections[i].endpoints[0] === targetEndpoint) {
+            if (this.connections[i].endpoints[1] === otherEndpoint || this.connections[i].endpoints[0] === otherEndpoint) {
                 c.push(this.connections[i])
             }
         }
@@ -327,7 +335,12 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
 
         this.endpoint.setVisible(v)
 
-        this[v ? "showOverlays" : "hideOverlays"]()
+        if (v) {
+            this.showOverlays()
+        } else {
+            this.hideOverlays()
+        }
+
         if (!doNotChangeConnections) {
             for (let i = 0; i < this.connections.length; i++) {
                 this.connections[i].setVisible(v)
@@ -369,7 +382,6 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
 
     destroy(force?:boolean):void {
 
-        // TODO i feel like this anchor class stuff should be in the renderer? is it DOM specific?
         let anchorClass = this.instance.endpointAnchorClassPrefix + (this.currentAnchorClass ? "-" + this.currentAnchorClass : "")
         this.instance.removeClass(this.element, anchorClass)
         this.anchor = null
@@ -388,22 +400,21 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         return this.anchor != null && this.anchor.isFloating
     }
 
-    isConnectedTo(endpoint:Endpoint):boolean {
+    /**
+     * Test if this Endpoint is connected to the given Endpoint.
+     * @param otherEndpoint
+     */
+    isConnectedTo(otherEndpoint:Endpoint):boolean {
         let found = false
-        if (endpoint) {
+        if (otherEndpoint) {
             for (let i = 0; i < this.connections.length; i++) {
-                if (this.connections[i].endpoints[1] === endpoint || this.connections[i].endpoints[0] === endpoint) {
+                if (this.connections[i].endpoints[1] === otherEndpoint || this.connections[i].endpoints[0] === otherEndpoint) {
                     found = true
                     break
                 }
             }
         }
         return found
-    }
-
-    setElementId(_elId:string):void {
-        this.elementId = _elId
-        this.anchor.elementId = _elId
     }
 
     setDragAllowedWhenFull(allowed:boolean):void {
@@ -422,7 +433,7 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         return this.connections[0]
     }
 
-    prepareEndpoint<C>(ep:EndpointSpec | EndpointRepresentation<C>, typeId?:string):EndpointRepresentation<C> {
+    private prepareEndpoint<C>(ep:EndpointSpec | EndpointRepresentation<C>, typeId?:string):EndpointRepresentation<C> {
 
         let endpointArgs = {
             cssClass: this.cssClass,
@@ -454,7 +465,7 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         this.setPreparedEndpoint(_ep)
     }
 
-    setPreparedEndpoint<C>(ep:EndpointRepresentation<C>) {
+    private setPreparedEndpoint<C>(ep:EndpointRepresentation<C>) {
         if (this.endpoint != null) {
             this.instance.destroyEndpoint(this)
         }
