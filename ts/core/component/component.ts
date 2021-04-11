@@ -5,7 +5,7 @@ import { extend, log, merge, populate, setToArray } from "../util"
 import {EventGenerator} from "../event-generator"
 import {Connection} from "../connector/connection-impl"
 import {Endpoint} from "../endpoint/endpoint"
-import {OverlaySpec} from "../overlay/overlay"
+import {convertToFullOverlaySpec, OverlaySpec} from "../overlay/overlay"
 import { INTERCEPT_BEFORE_DROP } from '../constants'
 
 export type ComponentParameters = Record<string, any>
@@ -172,7 +172,7 @@ export abstract class Component extends EventGenerator {
             for (let i = 0; i < o.length; i++) {
                 // if a string, convert to object representation so that we can store the typeid on it.
                 // also assign an id.
-                let fo = this.instance.convertToFullOverlaySpec(o[i])
+                let fo = convertToFullOverlaySpec(o[i])
                 oo[fo.options.id] = fo
             }
         }
