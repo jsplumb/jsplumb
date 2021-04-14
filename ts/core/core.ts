@@ -568,6 +568,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             this._suspendedAt = "" + new Date().getTime()
         } else {
             this._suspendedAt = null
+            this.viewport.recomputeBounds()
         }
         if (repaintAfterwards) {
             this.repaintEverything()
@@ -703,12 +704,18 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return deletedCount
     }
 
+    /**
+     * Delete all connections attached to the given element.
+     * @param el
+     * @param params
+     */
     deleteConnectionsForElement(el:T["E"], params?:DeleteConnectionOptions):JsPlumbInstance {
-        params = params || {}
-        let id = this.getId(el), endpoints = this.endpointsByElement[id]
-        if (endpoints && endpoints.length) {
-            for (let i = 0, j = endpoints.length; i < j; i++) {
-                endpoints[i].deleteEveryConnection(params)
+
+        let id = this.getId(el), m = this._managedElements[id]
+        if (m) {
+            const l = m.connections.length
+            for (let i = 0; i < l; i++) {
+                this.deleteConnection(m.connections[0], params)
             }
         }
         return this
@@ -755,6 +762,10 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      */
     manage (element:T["E"], internalId?:string, recalc?:boolean):ManagedElement<T["E"]> {
 
+        // if (internalId != null && this._managedElements.hasOwnProperty(internalId)) {
+        //     return this._managedElements[internalId]
+        // }
+
         if (this.getAttribute(element, ID_ATTRIBUTE) == null) {
             internalId = internalId || uuid()
             this.setAttribute(element, ID_ATTRIBUTE, internalId)
@@ -762,22 +773,25 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
         const elId = this.getId(element)
 
+        //if (!this._managedElements.hasOwnProperty(elId)) {
         if (!this._managedElements[elId]) {
 
             this.setAttribute(element, Constants.ATTRIBUTE_MANAGED, "")
 
-            this._managedElements[elId] = {
+            const obj:ManagedElement<any> = {
                 el:element as unknown as jsPlumbElement<T["E"]>,
                 endpoints:[],
                 connections:[],
                 rotation:0
             }
 
+            this._managedElements[elId] = obj
+
             if (this._suspendDrawing) {
-                this._managedElements[elId].viewportElement = this.viewport.registerElement(elId)
+                obj.viewportElement = this.viewport.registerElement(elId, true)
 
             } else {
-                this._managedElements[elId].viewportElement = this.updateOffset({elId: elId, recalc:true})
+                obj.viewportElement = this.updateOffset({elId: elId, recalc:true})
             }
 
             this.fire<{el:T["E"]}>(Constants.EVENT_MANAGE_ELEMENT, {el:element})
@@ -1133,7 +1147,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         p.paintStyle = p.paintStyle || this.Defaults.endpointStyle
         let _p:EndpointOptions<T["E"]> = extend({source:el}, p)
         let id = this.getId(_p.source)
-        this.manage(el, null, !this._suspendDrawing)
+        this.manage(el, id, !this._suspendDrawing)
         let e = this.newEndpoint(_p, id)
 
         addToDictionary(this.endpointsByElement, id, e)
@@ -2031,14 +2045,17 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     sourceOrTargetChanged (originalId:string, newId:string, connection:Connection, newElement:T["E"], index:number):void {
 
-        if (index === 0) {
-            if (originalId !== newId) {
+        if (originalId !== newId) {
+            if (index === 0) {
                 connection.sourceId = newId
                 connection.source = newElement
+            } else if (index === 1) {
+                connection.targetId = newId
+                connection.target = newElement
             }
-        } else if (index === 1) {
-            connection.targetId = newId
-            connection.target = newElement
+
+            removeManagedConnection(connection, this._managedElements[originalId])
+            addManagedConnection(connection, this._managedElements[newId])
         }
     }
 
