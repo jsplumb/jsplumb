@@ -161,7 +161,6 @@
                 div.style.backgroundColor = "#123";
                 document.getElementById("demo").appendChild(div);
 
-                instance.manage(div);
 
                 elements.push(div);
             }
