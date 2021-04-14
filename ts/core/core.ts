@@ -148,6 +148,71 @@ function prepareList(instance:JsPlumbInstance, input:any, doNotGetIds?:boolean):
     return r
 }
 
+function addManagedEndpoint(managedElement:ManagedElement<any>, ep:Endpoint) {
+    if (managedElement != null) {
+        managedElement.endpoints.push(ep)
+    }
+
+}
+
+function removeManagedEndpoint(managedElement:ManagedElement<any>, endpoint:Endpoint) {
+    if (managedElement != null) {
+        removeWithFunction(managedElement.endpoints, (ep: Endpoint) => {
+            return ep === endpoint
+        })
+    }
+}
+
+function addManagedConnection(connection:Connection, sourceEl?:ManagedElement<any>, targetEl?:ManagedElement<any>) {
+    if (sourceEl != null) {
+        sourceEl.connections.push(connection)
+        if (sourceEl.connections.length === 1) {
+            // add connected class if list previously empty and now has a connection
+            connection.instance.addClass(connection.source, connection.instance.connectedClass)
+        }
+    }
+
+    if (targetEl != null) {
+        if (sourceEl == null || connection.sourceId !== connection.targetId) {
+            targetEl.connections.push(connection)
+            if (targetEl.connections.length === 1) {
+                // add connected class if list previously empty and now has a connection
+                connection.instance.addClass(connection.target, connection.instance.connectedClass)
+            }
+        }
+    }
+}
+
+function removeManagedConnection(connection:Connection, sourceEl?:ManagedElement<any>, targetEl?:ManagedElement<any>) {
+
+    if (sourceEl != null) {
+        const sourceCount = sourceEl.connections.length
+
+        removeWithFunction(sourceEl.connections, (_c:Connection) => {
+            return connection.id === _c.id
+        })
+
+        // if this removal resulted in an empty connections list for the source element (and it wasnt previously empty), remove the connected class
+        if (sourceCount > 0 && sourceEl.connections.length === 0) {
+            connection.instance.removeClass(connection.source, connection.instance.connectedClass)
+        }
+    }
+
+    if (targetEl != null) {
+        const targetCount = targetEl.connections.length
+        if (sourceEl == null || connection.sourceId !== connection.targetId) {
+            removeWithFunction(targetEl.connections, (_c:Connection) => {
+                return connection.id === _c.id
+            })
+        }
+
+        // if this removal resulted in an empty connections list for the source element (and it wasnt previously empty), remove the connected class
+        if (targetCount > 0 && targetEl.connections.length === 0) {
+            connection.instance.removeClass(connection.target, connection.instance.connectedClass)
+        }
+    }
+}
+
 export type ManagedElement<E> = {
     el:jsPlumbElement<E>,
     viewportElement?:ViewportElement<E>,
@@ -464,16 +529,26 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     }
 
+    /**
+     * Change the source of the given connection to be the given endpoint or element.
+     * @param connection
+     * @param el
+     */
     setSource (connection:Connection, el:T["E"] | Endpoint):void {
+        removeManagedConnection(connection, this._managedElements[connection.sourceId])
         let p = this._set(connection, el, 0)
-        Connection.updateConnectedClass(this, connection, p.originalEndpoint.element, true)
-        this.sourceOrTargetChanged(p.originalSourceId, p.newSourceId, connection, p.newEndpoint.element, 0)
+        addManagedConnection(connection, this._managedElements[p.newSourceId])
     }
 
+    /**
+     * Change the target of the given connection to be the given endpoint or element.
+     * @param connection
+     * @param el
+     */
     setTarget (connection:Connection, el:T["E"] | Endpoint):void {
+        removeManagedConnection(connection, this._managedElements[connection.targetId])
         let p = this._set(connection, el, 1)
-        Connection.updateConnectedClass(this, connection, p.originalEndpoint.element, true)
-        connection.updateConnectedClass(false)
+        addManagedConnection(connection, this._managedElements[p.newTargetId])
     }
 
     /**
@@ -579,6 +654,10 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
                     [ connection, Constants.IS_DETACH_ALLOWED, [ connection ] ],
                     [ this, Constants.CHECK_CONDITION, [ Constants.INTERCEPT_BEFORE_DETACH, connection ] ]
                 ])) {
+
+                // ---------------------------
+                // remove from the array in the managed element record
+                removeManagedConnection(connection, this._managedElements[connection.sourceId], this._managedElements[connection.targetId])
 
                 this.fireDetachEvent(connection, !connection.pending && params.fireEvent !== false, params.originalEvent)
 
@@ -836,7 +915,10 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
         let ep = new Endpoint(this, _p)
         ep.id = "ep_" + this._idstamp()
-        this.manage(_p.source)
+        const managedElement = this.manage(_p.source)
+
+        addManagedEndpoint(managedElement, ep)
+
         if (params.uuid) {
             this.endpointsByUUID.set(params.uuid, ep)
         }
@@ -969,11 +1051,13 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return r
     }
 
-    unregisterEndpoint(endpoint:Endpoint) {
+    private unregisterEndpoint(endpoint:Endpoint) {
         const uuid = endpoint.getUuid()
         if (uuid) {
             this.endpointsByUUID.delete(uuid)
         }
+
+        removeManagedEndpoint(this._managedElements[endpoint.elementId], endpoint)
 
         // TODO at least replace this with a removeWithFunction call.
         for (let e in this.endpointsByElement) {
@@ -1294,6 +1378,9 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     _newConnection (params:ConnectionParams):Connection {
         params.id = "con_" + this._idstamp()
         const c = new Connection(this, params)
+
+        addManagedConnection(c, this._managedElements[c.sourceId], this._managedElements[c.targetId])
+
         this.paintConnection(c)
         return c
     }
@@ -1943,16 +2030,15 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     }
 
     sourceOrTargetChanged (originalId:string, newId:string, connection:Connection, newElement:T["E"], index:number):void {
+
         if (index === 0) {
             if (originalId !== newId) {
                 connection.sourceId = newId
                 connection.source = newElement
-                connection.updateConnectedClass(false)
             }
         } else if (index === 1) {
             connection.targetId = newId
             connection.target = newElement
-            connection.updateConnectedClass(false)
         }
     }
 
