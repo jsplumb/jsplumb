@@ -1,5 +1,11 @@
 ## 4.0.0-RC85
 
+### Breaking
+
+- Any `jtk-****` attribute written to an element managed by jsPlumb now has a `data-` prefix. For example, `jtk-managed` is now `data-jtk-managed`.
+
+### Non-breaking
+
 - Added code to ensure SVG elements are not painted with inappropriate values such as `Infinity`.
 - Refactored the code (to run faster) that toggles classes on elements based upon whether or not they have any connections.
 - Made a few adjustments to the viewport code to be more efficient during bulk element add
