@@ -53,7 +53,11 @@ import {
     Size,
     TargetSelector,
     getWithFunction,
-    INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_START_DETACH, SELECTOR_MANAGED_ELEMENT
+    INTERCEPT_BEFORE_DRAG,
+    INTERCEPT_BEFORE_START_DETACH,
+    SELECTOR_MANAGED_ELEMENT,
+    SELECTOR_JTK_SOURCE,
+    SELECTOR_JTK_TARGET, CLASS_ENDPOINT, ATTRIBUTE_SCOPE_PREFIX
 } from "@jsplumb/core"
 
 function _makeFloatingEndpoint (paintStyle:PaintStyle,
@@ -430,7 +434,7 @@ export class EndpointDragHandler implements DragHandler {
         
         let boundingRect:BoundingBox
         // get the list of potential drop targets for this endpoint, which excludes the source of the new connection.
-        const matchingEndpoints = this.instance.getContainer().querySelectorAll(".jtk-endpoint[jtk-scope-" + this.ep.scope + "]")
+        const matchingEndpoints = this.instance.getContainer().querySelectorAll([".", CLASS_ENDPOINT, "[", ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]" ].join(""))
         forEach(matchingEndpoints, (candidate:any) => {
             if ((this.jpc != null || candidate !== canvasElement) && candidate !== this.floatingElement) {
                 if ( (isSourceDrag && candidate.jtk.endpoint.isSource) || (!isSourceDrag && candidate.jtk.endpoint.isTarget) ) {
@@ -447,12 +451,12 @@ export class EndpointDragHandler implements DragHandler {
         let selectors = [ ]
 
         if (!isSourceDrag) {
-            selectors.push("[jtk-target][jtk-scope-" + this.ep.scope + "]")
+            selectors.push([SELECTOR_JTK_TARGET, "[", ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]"].join(""))
             // add the instance-wide target selectors
             Array.prototype.push.apply(selectors, (this.instance.targetSelectors.map((ts) => ts.selector)))
 
         } else {
-            selectors.push("[jtk-source][jtk-scope-" + this.ep.scope + "]")
+            selectors.push([SELECTOR_JTK_SOURCE, "[", ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]"].join(""))
         }
 
         const matchingElements = this.instance.getContainer().querySelectorAll(selectors.join(","))
