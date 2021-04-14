@@ -7,6 +7,10 @@ export function classList(...className:Array<string>):string {
     return className.join(" ")
 }
 
+export function att(...attName:Array<string>):string {
+    return attName.map((an:string) => "[" + an + "]").join(",")
+}
+
 export const SOURCE_DEFINITION_LIST = "_jsPlumbSourceDefinitions"
 export const TARGET_DEFINITION_LIST = "_jsPlumbTargetDefinitions"
 export const DEFAULT = "default"
@@ -29,6 +33,7 @@ export const STATIC = "static"
 
 export const ATTRIBUTE_CONTAINER = "jtk-container"
 export const ATTRIBUTE_GROUP = "jtk-group"
+export const ATTRIBUTE_GROUP_CONTENT = "jtk-group-content"
 export const ATTRIBUTE_MANAGED = "jtk-managed"
 export const ATTRIBUTE_NOT_DRAGGABLE = "jtk-not-draggable"
 export const ATTRIBUTE_SOURCE = "jtk-source"
@@ -112,8 +117,8 @@ export const PROPERTY_POSITION = "position"
 
 export const SELECTOR_CONNECTOR = cls(CLASS_CONNECTOR)
 export const SELECTOR_ENDPOINT = cls(CLASS_ENDPOINT)
-export const SELECTOR_GROUP_CONTAINER = "[jtk-group-content]"
-export const SELECTOR_MANAGED_ELEMENT = "[jtk-managed]"
+export const SELECTOR_GROUP_CONTAINER = att(ATTRIBUTE_GROUP_CONTENT)
+export const SELECTOR_MANAGED_ELEMENT = att(ATTRIBUTE_MANAGED)
 export const SELECTOR_OVERLAY = cls(CLASS_OVERLAY)
 
 export const SCOPE_PREFIX = "jtk-scope-"
