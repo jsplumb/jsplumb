@@ -5,7 +5,7 @@ import {AbstractConnector, ConnectorWithOptions} from "./abstract-connector"
 import {Endpoint} from "../endpoint/endpoint"
 import {PaintStyle} from "../styles"
 import {OverlayCapableComponent} from "../component/overlay-capable-component"
-import {extend, isEmpty, IS, isString, merge, uuid, addToDictionary} from "../util"
+import {extend, IS, isString, merge, uuid, addToDictionary, isEmpty} from "../util"
 import {Overlay, OverlaySpec} from "../overlay/overlay"
 import {Connectors} from "./connectors"
 import {AnchorSpec, makeAnchorFromSpec} from "../factory/anchor-factory"
@@ -176,23 +176,6 @@ export class Connection<E = any> extends OverlayCapableComponent {
     
     pending:boolean = false
 
-    static updateConnectedClass<E>(instance:JsPlumbInstance, conn:Connection, element:jsPlumbElement<E>, isRemoval:boolean) {
-        if (element != null) {
-            element._jsPlumbConnections = element._jsPlumbConnections || {}
-            if (isRemoval) {
-                delete element._jsPlumbConnections[conn.id]
-            } else {
-                element._jsPlumbConnections[conn.id] = true
-            }
-            if (isEmpty(element._jsPlumbConnections)) {
-                instance.removeClass(element, conn.instance.connectedClass)
-            }
-            else {
-                instance.addClass(element, conn.instance.connectedClass)
-            }
-        }
-    }
-
     constructor(public instance:JsPlumbInstance, params:ConnectionParams<E>) {
 
         super(instance, params)
@@ -331,8 +314,6 @@ export class Connection<E = any> extends OverlayCapableComponent {
         if (/[^\s]/.test(_types)) {
             this.addType(_types, params.data)
         }
-
-        this.updateConnectedClass(false)
     }
 
     makeEndpoint (isSource:boolean, el:any, elId:string, anchor?:AnchorSpec, ep?:Endpoint):Endpoint {
@@ -456,7 +437,6 @@ export class Connection<E = any> extends OverlayCapableComponent {
     }
 
     destroy(force?:boolean) {
-        this.updateConnectedClass(true)
         this.endpoints = null
         this.source = null
         this.target = null
@@ -467,11 +447,6 @@ export class Connection<E = any> extends OverlayCapableComponent {
 
         this.connector = null
         super.destroy(force)
-    }
-
-    updateConnectedClass(isRemoval:boolean) {
-        Connection.updateConnectedClass(this.instance, this, this.source as unknown as jsPlumbElement<E>, isRemoval)
-        Connection.updateConnectedClass(this.instance, this, this.target as unknown as jsPlumbElement<E>, isRemoval)
     }
 
     getUuids():[string, string] {
@@ -580,8 +555,6 @@ export class Connection<E = any> extends OverlayCapableComponent {
         this.instance.deleteEndpoint(current)
 
         this.instance.fire(Constants.EVENT_ENDPOINT_REPLACED, {previous:current, current:_new})
-
-        this.updateConnectedClass(false)
 
     }
 }
