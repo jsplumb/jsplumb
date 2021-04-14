@@ -4,12 +4,12 @@ import {EVENT_REVERT, GhostProxyingDragHandler} from "./drag-manager"
 import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
 import { jsPlumbDOMElement} from './element-facade'
 import {DragEventParams, Drag, DragStopEventParams} from "./collicat"
-import {PointXY, UIGroup} from "@jsplumb/core"
+import {PointXY, SELECTOR_GROUP, SELECTOR_MANAGED_ELEMENT, UIGroup} from "@jsplumb/core"
 
 
 export class GroupDragHandler extends ElementDragHandler implements GhostProxyingDragHandler {
 
-    selector: string = "> [jtk-group] [jtk-managed]"
+    selector: string = [">" , SELECTOR_GROUP, SELECTOR_MANAGED_ELEMENT].join(" ")
 
     doRevalidate:(el:jsPlumbDOMElement) => void
 
@@ -37,7 +37,12 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
         return group == null ? false : group.ghost === true
     }
 
+    /**
+     * Makes the element that acts as a ghost proxy.
+     * @param el
+     */
     makeGhostProxy (el: Element):Element {
+        // do not believe an IDE if it tells you this method can be static. It can't.
         const jel = el as unknown as jsPlumbDOMElement
         const newEl = jel.cloneNode(true)
         newEl._jsPlumbParentGroup = jel._jsPlumbParentGroup
