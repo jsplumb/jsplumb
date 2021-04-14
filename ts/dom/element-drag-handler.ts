@@ -1,5 +1,4 @@
 import {
-    ATTR_NOT_DRAGGABLE,
     CLASS_DRAG_ACTIVE,
     CLASS_DRAG_HOVER, CLASS_DRAG_SELECTED,
     CLASS_DRAGGED,
@@ -20,7 +19,7 @@ import {
     RedrawResult,
     UIGroup,
     forEach,
-    getFromSetWithFunction, intersects, PointXY, Size, SELECTOR_MANAGED_ELEMENT
+    getFromSetWithFunction, intersects, PointXY, Size, SELECTOR_MANAGED_ELEMENT, ATTRIBUTE_NOT_DRAGGABLE, FALSE
 } from "@jsplumb/core"
 
 type IntersectingGroup = {
@@ -284,8 +283,8 @@ export class ElementDragHandler implements DragHandler {
         }
 
         let cont = true
-        let nd = el.getAttribute(ATTR_NOT_DRAGGABLE)
-        if (this.instance.elementsDraggable === false || (nd != null && nd !== "false")) {
+        let nd = el.getAttribute(ATTRIBUTE_NOT_DRAGGABLE)
+        if (this.instance.elementsDraggable === false || (nd != null && nd !== FALSE)) {
             cont = false
         }
 
