@@ -25,7 +25,6 @@ export function _isInsideParent(instance:BrowserJsPlumbInstance, _el:HTMLElement
 }
 
 export const CLASS_DELEGATED_DRAGGABLE = "jtk-delegated-draggable"
-export const CLASS_DROPPABLE = "jtk-droppable"
 export const CLASS_DRAGGABLE = "jtk-draggable"
 export const CLASS_DRAG_CONTAINER = "jtk-drag"
 export const CLASS_GHOST_PROXY = "jtk-ghost-proxy"
@@ -33,8 +32,6 @@ export const CLASS_DRAG_SELECTED = "jtk-drag-selected"
 export const CLASS_DRAG_ACTIVE = "jtk-drag-active"
 export const CLASS_DRAGGED = "jtk-dragged"
 export const CLASS_DRAG_HOVER = "jtk-drag-hover"
-
-export const ATTR_NOT_DRAGGABLE = "jtk-not-draggable"
 
 export const EVENT_DRAG_MOVE = "drag:move"
 export const EVENT_DRAG_STOP = "drag:stop"
@@ -99,7 +96,6 @@ export class DragManager {
             css: {
                 noSelect: this.instance.dragSelectClass,
                 delegatedDraggable: CLASS_DELEGATED_DRAGGABLE,
-                droppable: CLASS_DROPPABLE,
                 draggable: CLASS_DRAGGABLE,
                 drag: CLASS_DRAG_CONTAINER,
                 selected: CLASS_DRAG_SELECTED,
