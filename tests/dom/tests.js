@@ -80,7 +80,7 @@ var testSuite = function () {
         ok(e, 'endpoint exists');
         support.assertEndpointCount(d1, 1);
         ok(e.id != null, "endpoint has had an id assigned");
-        ok(support.getEndpointCanvas(e).getAttribute("jtk-scope-one") != null, "scope was written to the element");
+        ok(support.getEndpointCanvas(e).getAttribute("data-jtk-scope-one") != null, "scope was written to the element");
     });
 
     test(" change Container programmatically", function () {

@@ -73,8 +73,8 @@ var testSuite = function () {
         ok(_jsPlumb, "loaded");
     });
 
-    test(" container has jtk-container attribute set", function() {
-        var c1 = _jsPlumb.getContainer().getAttribute("jtk-container");
+    test(" container has data-jtk-container attribute set", function() {
+        var c1 = _jsPlumb.getContainer().getAttribute("data-jtk-container");
         ok(c1 != null);
 
         // change container and check again
@@ -82,7 +82,7 @@ var testSuite = function () {
 
         _jsPlumb.setContainer(container2);
 
-        var c2 = _jsPlumb.getContainer().getAttribute("jtk-container");
+        var c2 = _jsPlumb.getContainer().getAttribute("data-jtk-container");
         ok(c2 != null);
 
         ok(c2 !== c1, "container attributes have different values");
@@ -107,7 +107,7 @@ var testSuite = function () {
         ok(e, 'endpoint exists');
         support.assertEndpointCount(d1, 1);
         ok(e.id != null, "endpoint has had an id assigned");
-        ok(support.getEndpointCanvas(e).getAttribute("jtk-scope-one") != null, "scope was written to the element");
+        ok(support.getEndpointCanvas(e).getAttribute("data-jtk-scope-one") != null, "scope was written to the element");
     });
 
     test(': create and remove a simple endpoint', function () {

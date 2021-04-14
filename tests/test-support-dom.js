@@ -359,8 +359,8 @@ if (Array.prototype.forEach == null) {
                     return el.getAttribute(att);
                 },
 
-                isTargetAttribute: "jtk-target",
-                isSourceAttribute: "jtk-source",
+                isTargetAttribute: "data-jtk-target",
+                isSourceAttribute: "data-jtk-source",
 
                 registerDiv:_registerDiv,
 

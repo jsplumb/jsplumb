@@ -1439,14 +1439,14 @@ var testSuite = function () {
         equal(parseInt(d.style.top, 10), 150);
     });
 
-    test("dragging does not happen with `jtk-not-draggable` attribute set", function() {
+    test("dragging does not happen with `data-jtk-not-draggable` attribute set", function() {
         var d = _addDiv("d1");
         d.style.position = "absolute";
         d.style.left = "50px";
         d.style.top = "50px";
         d.style.width = "100px";
         d.style.height = "100px";
-        d.setAttribute("jtk-not-draggable", true);
+        d.setAttribute("data-jtk-not-draggable", true);
 
          // should not be necessary
         _jsPlumb.manage(d);
@@ -1467,14 +1467,14 @@ var testSuite = function () {
         equal(parseInt(d.style.top, 10), 50);
     });
 
-    test("dragging does happen with `jtk-not-draggable='false'` attribute set", function() {
+    test("dragging does happen with `data-jtk-not-draggable='false'` attribute set", function() {
         var d = _addDiv("d1");
         d.style.position = "absolute";
         d.style.left = "50px";
         d.style.top = "50px";
         d.style.width = "100px";
         d.style.height = "100px";
-        d.setAttribute("jtk-not-draggable", "false");
+        d.setAttribute("data-jtk-not-draggable", "false");
 
          // should not be necessary
         _jsPlumb.manage(d);
