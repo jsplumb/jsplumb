@@ -14,7 +14,6 @@ export interface jsPlumbElement<E> {
     _jsPlumbSourceDefinitions:Array<SourceDefinition>
     _jsPlumbGroup: UIGroup<E>
     _jsPlumbParentGroup:UIGroup<E>
-    _jspContext?:any
     _jsPlumbProxies:Array<[Connection, number]>
     _isJsPlumbGroup:boolean
     parentNode:jsPlumbElement<E>
