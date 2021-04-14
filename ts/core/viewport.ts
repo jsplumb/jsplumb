@@ -89,6 +89,10 @@ const entryComparator = (value:[string, any], arrayEntry:[string, any]) => {
     return c
 }
 
+const reverseEntryComparator = (value:[string, any], arrayEntry:[string, any]) => {
+    return entryComparator(value, arrayEntry) * -1
+}
+
 export class Viewport<T extends{E:unknown}> extends EventGenerator {
 
 // --------------- PRIVATE  ------------------------------------------
@@ -168,12 +172,35 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
         this._bounds.maxy = this._sortedElements.ymax.length > 0 ? this._sortedElements.ymax[0][1] : 0
     }
 
+    recomputeBounds() {
+        this._sortedElements.xmin.length = 0
+        this._sortedElements.xmax.length = 0
+        this._sortedElements.ymin.length = 0
+        this._sortedElements.ymax.length = 0
+
+        this._elementMap.forEach((vp:ViewportElement<any>, id:string) => {
+            this._sortedElements.xmin.push([id, vp.t.x])
+            this._sortedElements.xmax.push([id, vp.t.x + vp.t.w])
+            this._sortedElements.ymin.push([id, vp.t.y])
+            this._sortedElements.ymax.push([id, vp.t.y + vp.t.h])
+        })
+
+        this._sortedElements.xmin.sort(entryComparator)
+        this._sortedElements.ymin.sort(entryComparator)
+        this._sortedElements.xmax.sort(reverseEntryComparator)
+        this._sortedElements.ymax.sort(reverseEntryComparator)
+
+        this._recalculateBounds()
+    }
+
 
     private _finaliseUpdate (id:string, e:ViewportElement<T["E"]>, doNotRecalculateBounds?:boolean) {
         e.t = rotate(e.x, e.y, e.w, e.h, e.r)
         this._transformedElementMap.set(id, e.t)
 
-        this._updateBounds(id, e, doNotRecalculateBounds)
+        if (doNotRecalculateBounds !== true) {
+            this._updateBounds(id, e, doNotRecalculateBounds)
+        }
     }
 
     shouldFireEvent(event: string, value: unknown, originalEvent?: Event): boolean {
@@ -198,7 +225,7 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
                 this._finaliseUpdate(id, entry, true)
             })
             // recompute bounds for the viewport.
-            this._recalculateBounds()
+            this.recomputeBounds()
             this._currentTransaction = null
         }
     }
@@ -217,8 +244,9 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
      * @param width
      * @param height
      * @param rotation
+     * @param doNotRecalculateBounds Defaults to false. For internal use. If true, does not update viewport bounds after updating the element.
      */
-    updateElement (id:string, x:number, y:number, width:number, height:number, rotation:number):ViewportElement<T["E"]> {
+    updateElement (id:string, x:number, y:number, width:number, height:number, rotation:number, doNotRecalculateBounds?:boolean):ViewportElement<T["E"]> {
 
         const e = getsert(this._elementMap, id, EMPTY_POSITION)
 
@@ -258,11 +286,15 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
         return e
     }
 
+    /**
+     * Update the size/offset of the element with the given id, and adjust viewport bounds.
+     * @param elId
+     * @private
+     */
     refreshElement(elId:string):ViewportElement<T["E"]>  {
         const me = this.instance.getManagedElements()
         const s = me[elId] ? me[elId].el : null
         if (s != null) {
-
             const size = this.getSize(s)
             const offset = this.getOffset(s)
             return this.updateElement(elId, offset.x, offset.y, size.w, size.h, null)
@@ -283,8 +315,8 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
      * Creates an empty entry for an element with the given ID.
      * @param id
      */
-    registerElement(id:string):ViewportElement<T["E"]> {
-        return this.updateElement(id, 0, 0, 0, 0, 0)
+    registerElement(id:string, doNotRecalculateBounds?:boolean):ViewportElement<T["E"]> {
+        return this.updateElement(id, 0, 0, 0, 0, 0, doNotRecalculateBounds)
     }
 
     /**
@@ -306,11 +338,9 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
      * @param rotation
      */
     rotateElement (id:string, rotation:number):ViewportElement<T["E"]> {
-
         const e = getsert(this._elementMap, id, EMPTY_POSITION)
         e.r = rotation || 0
         this._finaliseUpdate(id, e)
-        //this._fireUpdate({type:"rotate", id:id, rotation:e.r})
         return e
     }
 
