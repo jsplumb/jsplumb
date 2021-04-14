@@ -34,7 +34,7 @@ export const STATIC = "static"
 export const ATTRIBUTE_CONTAINER = "jtk-container"
 export const ATTRIBUTE_GROUP = "jtk-group"
 export const ATTRIBUTE_GROUP_CONTENT = "jtk-group-content"
-export const ATTRIBUTE_MANAGED = "jtk-managed"
+export const ATTRIBUTE_MANAGED = "data-jtk-managed"
 export const ATTRIBUTE_NOT_DRAGGABLE = "jtk-not-draggable"
 export const ATTRIBUTE_SOURCE = "jtk-source"
 export const ATTRIBUTE_TABINDEX = "tabindex"
@@ -117,6 +117,7 @@ export const PROPERTY_POSITION = "position"
 
 export const SELECTOR_CONNECTOR = cls(CLASS_CONNECTOR)
 export const SELECTOR_ENDPOINT = cls(CLASS_ENDPOINT)
+export const SELECTOR_GROUP = att(ATTRIBUTE_GROUP)
 export const SELECTOR_GROUP_CONTAINER = att(ATTRIBUTE_GROUP_CONTENT)
 export const SELECTOR_MANAGED_ELEMENT = att(ATTRIBUTE_MANAGED)
 export const SELECTOR_OVERLAY = cls(CLASS_OVERLAY)
