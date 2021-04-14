@@ -266,11 +266,11 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
 
     addConnection(conn:Connection) {
         const wasFull = this.isFull()
+        const wasEmpty = this.connections.length === 0
         this.connections.push(conn)
-        if (this.connections.length > 0) {
+
+        if (wasEmpty) {
             this.addClass(this.instance.endpointConnectedClass)
-        } else {
-            this.removeClass(this.instance.endpointConnectedClass)
         }
         if (this.isFull()) {
             if (!wasFull) {
@@ -313,7 +313,7 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
     }
 
     /**
-     * Removes all connection from this endpoint to the given other endpoint.
+     * Removes all connections from this endpoint to the given other endpoint.
      * @param otherEndpoint
      */
     detachFrom (otherEndpoint:Endpoint):Endpoint {
