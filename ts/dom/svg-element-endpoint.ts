@@ -3,7 +3,7 @@ import {EndpointHelperFunctions} from "./browser-jsplumb-instance"
 import { createElement } from './browser-util'
 
 import {_node, _applyStyles, _size} from './svg-util'
-import {EndpointRepresentation, extend, PaintStyle} from "@jsplumb/core"
+import {ATTRIBUTE_SCOPE_PREFIX, EndpointRepresentation, extend, PaintStyle, TRUE} from "@jsplumb/core"
 
 /**
  * Superclass for endpoint renderers that use an `svg` element wrapped in a `div` in the DOM.
@@ -33,7 +33,7 @@ export abstract class SvgEndpoint<C> {
 
             const scopes = ep.endpoint.scope.split(/\s/)
             for (let i = 0; i < scopes.length; i++) {
-                ep.instance.setAttribute(<any>canvas, "jtk-scope-" + scopes[i], "true")
+                ep.instance.setAttribute(<any>canvas, ATTRIBUTE_SCOPE_PREFIX + scopes[i], TRUE)
             }
 
             if (!ep.instance._suspendDrawing) {
