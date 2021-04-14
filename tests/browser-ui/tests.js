@@ -4782,13 +4782,13 @@ var testSuite = function () {
 
 // ------------------------------- manage -----------------------------------------
 
-    test("Manage adds jtk-managed attribute", function() {
+    test("Manage adds data-jtk-managed attribute", function() {
         var d1 = support.addDiv("d1"), f1 = false;
 
         _jsPlumb.manage(d1);
-        ok(d1.getAttribute("jtk-managed") != null, "d1 is marked jtk-managed");
+        ok(d1.getAttribute("data-jtk-managed") != null, "d1 is marked data-jtk-managed");
         _jsPlumb.unmanage(d1);
-        ok(d1.getAttribute("jtk-managed") == null, "d1 is no longer marked jtk-managed");
+        ok(d1.getAttribute("data-jtk-managed") == null, "d1 is no longer marked data-jtk-managed");
     });
 
     test("Manage supports optional internal id", function() {
@@ -4798,7 +4798,7 @@ var testSuite = function () {
         equal(d1.getAttribute("jtk-id"), "foo", "jtk-id attribute set per value passed in to manage method");
 
         _jsPlumb.unmanage(d1);
-        ok(d1.getAttribute("jtk-managed") == null, "d1 is no longer marked jtk-managed");
+        ok(d1.getAttribute("data-jtk-managed") == null, "d1 is no longer marked data-jtk-managed");
         ok(d1.getAttribute("jtk-id") == null, "d1 no longer has jtk-id attribute");
     });
 

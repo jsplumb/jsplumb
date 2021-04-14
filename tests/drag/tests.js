@@ -2166,12 +2166,12 @@ var testSuite = function () {
             e2 = _jsPlumb.addEndpoint(d2, {isSource:true, isTarget:true}),
             ec1 = support.getEndpointCanvas(e1);
 
-        equal(2, document.querySelectorAll("[jtk-managed]").length, 2, "two managed elements after init");
+        equal(2, document.querySelectorAll("[data-jtk-managed]").length, 2, "two managed elements after init");
 
         _jsPlumb.trigger(ec1, "mousedown", support.makeEvent(ec1));
         _jsPlumb.trigger(ec1, "mouseup", support.makeEvent(ec1));
 
-        equal(2, document.querySelectorAll("[jtk-managed]").length, 2, "two managed elements after aborted drag: drag element was cleaned up.");
+        equal(2, document.querySelectorAll("[data-jtk-managed]").length, 2, "two managed elements after aborted drag: drag element was cleaned up.");
     });
 
     test("endpoint:drag, attached classes removed afterwards.", function() {
