@@ -53,7 +53,7 @@ import {
     Size,
     TargetSelector,
     getWithFunction,
-    INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_START_DETACH
+    INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_START_DETACH, SELECTOR_MANAGED_ELEMENT
 } from "@jsplumb/core"
 
 function _makeFloatingEndpoint (paintStyle:PaintStyle,
@@ -131,8 +131,8 @@ export class EndpointDragHandler implements DragHandler {
         this.mousedownHandler = this._mousedownHandler.bind(this)
         this.mouseupHandler = this._mouseupHandler.bind(this)
 
-        instance.on(container , EVENT_MOUSEDOWN, "[jtk-managed]", this.mousedownHandler)
-        instance.on(container, EVENT_MOUSEUP, "[jtk-managed]", this.mouseupHandler)
+        instance.on(container , EVENT_MOUSEDOWN, SELECTOR_MANAGED_ELEMENT, this.mousedownHandler)
+        instance.on(container, EVENT_MOUSEUP, SELECTOR_MANAGED_ELEMENT, this.mouseupHandler)
 
     }
 
@@ -142,7 +142,7 @@ export class EndpointDragHandler implements DragHandler {
             return
         }
 
-        let targetEl:any = findParent((e.target || e.srcElement) as jsPlumbDOMElement, "[jtk-managed]", this.instance.getContainer())
+        let targetEl:any = findParent((e.target || e.srcElement) as jsPlumbDOMElement, SELECTOR_MANAGED_ELEMENT, this.instance.getContainer())
 
         if (targetEl == null) {
             return
@@ -500,7 +500,7 @@ export class EndpointDragHandler implements DragHandler {
 
                         // for instance wide selectors, reset the drop target to be the node/group in which the target with the
                         // matching selector resides.
-                        d.el = findParent(d.el, "[jtk-managed]", this.instance.getContainer())
+                        d.el = findParent(d.el, SELECTOR_MANAGED_ELEMENT, this.instance.getContainer())
 
                         if (targetDef.def.def.rank != null) {
                             d.rank = targetDef.def.def.rank
