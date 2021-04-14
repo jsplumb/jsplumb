@@ -21,7 +21,7 @@ export interface jsPlumbElement<E> {
     parentNode:jsPlumbElement<E>
 }
 
-export interface ConnectParams<E> {
+export interface ConnectParams {
     uuids?: [UUID, UUID]
     source?: Element | Endpoint
     target?: Element | Endpoint
