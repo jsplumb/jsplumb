@@ -12,7 +12,6 @@ export type UUID = string
 export interface jsPlumbElement<E> {
     _jsPlumbTargetDefinitions:Array<TargetDefinition>
     _jsPlumbSourceDefinitions:Array<SourceDefinition>
-    _jsplumbid:string
     _jsPlumbGroup: UIGroup<E>
     _jsPlumbParentGroup:UIGroup<E>
     _jspContext?:any
