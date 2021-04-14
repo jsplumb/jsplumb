@@ -851,7 +851,7 @@ export class EndpointDragHandler implements DragHandler {
      * behave as a target.
      * @private
      */
-    private _getSourceDefinitionFromElement(fromElement:jsPlumbDOMElement, evt?:Event, ignoreFilter?:boolean):SourceDefinition {
+    private _getSourceDefinitionFromElement(fromElement:jsPlumbDOMElement, evt:Event, ignoreFilter?:boolean):SourceDefinition {
         let sourceDef
         if (fromElement._jsPlumbSourceDefinitions) {
             for (let i = 0; i < fromElement._jsPlumbSourceDefinitions.length; i++) {
@@ -870,7 +870,7 @@ export class EndpointDragHandler implements DragHandler {
         }
     }
 
-    private _getSourceDefinitionFromInstance(fromElement:jsPlumbDOMElement, evt?:Event, ignoreFilter?:boolean):SourceDefinition {
+    private _getSourceDefinitionFromInstance(evt:Event, ignoreFilter?:boolean):SourceDefinition {
         let selector
         for (let i = 0; i < this.instance.sourceSelectors.length; i++) {
             selector = this.instance.sourceSelectors[i]
@@ -883,8 +883,8 @@ export class EndpointDragHandler implements DragHandler {
         }
     }
 
-    private _getSourceDefinition(fromElement:jsPlumbDOMElement, evt?:Event, ignoreFilter?:boolean):SourceDefinition {
-        return this._getSourceDefinitionFromElement(fromElement, evt, ignoreFilter) || this._getSourceDefinitionFromInstance(fromElement, evt, ignoreFilter)
+    private _getSourceDefinition(fromElement:jsPlumbDOMElement, evt:Event, ignoreFilter?:boolean):SourceDefinition {
+        return this._getSourceDefinitionFromElement(fromElement, evt, ignoreFilter) || this._getSourceDefinitionFromInstance(evt, ignoreFilter)
     }
 
     /**
@@ -893,7 +893,7 @@ export class EndpointDragHandler implements DragHandler {
      * @param evt Associated mouse event - for instance, the event that started a drag.
      * @private
      */
-    private _getTargetDefinitionFromElement(fromElement:jsPlumbDOMElement, evt?:Event):TargetDefinition {
+    private _getTargetDefinitionFromElement(fromElement:jsPlumbDOMElement, evt:Event):TargetDefinition {
         let targetDef
         if (fromElement._jsPlumbTargetDefinitions) {
             for (let i = 0; i < fromElement._jsPlumbTargetDefinitions.length; i++) {
@@ -913,7 +913,7 @@ export class EndpointDragHandler implements DragHandler {
     }
 
     //
-    private _getTargetDefinitionFromInstance(fromElement:jsPlumbDOMElement, evt?:Event, ignoreFilter?:boolean):TargetDefinition {
+    private _getTargetDefinitionFromInstance(evt:Event, ignoreFilter?:boolean):TargetDefinition {
         let selector
         for (let i = 0; i < this.instance.targetSelectors.length; i++) {
             selector = this.instance.targetSelectors[i]
@@ -928,8 +928,8 @@ export class EndpointDragHandler implements DragHandler {
         return null
     }
 
-    private _getTargetDefinition(fromElement:jsPlumbDOMElement, evt?:Event):TargetDefinition {
-        return this._getTargetDefinitionFromElement(fromElement, evt) || this._getTargetDefinitionFromInstance(fromElement, evt)
+    private _getTargetDefinition(fromElement:jsPlumbDOMElement, evt:Event):TargetDefinition {
+        return this._getTargetDefinitionFromElement(fromElement, evt) || this._getTargetDefinitionFromInstance(evt)
     }
 
     private _getDropEndpoint(p:any, jpc:Connection):Endpoint {
