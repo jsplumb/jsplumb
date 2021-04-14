@@ -1,3 +1,8 @@
+## 4.0.0-RC85
+
+- Added code to ensure SVG elements are not painted with inappropriate values such as `Infinity`.
+- Refactored the code (to run faster) that toggles classes on elements based upon whether or not they have any connections.
+
 ## 4.0.0-RC84
 
 31st March 2021
