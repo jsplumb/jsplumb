@@ -111,22 +111,35 @@ var testSuite = function () {
             e1 = _jsPlumb.addEndpoint(d1, {isSource:true, isTarget:true, anchor:"Top"}),
             e2 = _jsPlumb.addEndpoint(d2, {isSource:true, isTarget:true, anchor:"Top"});
 
+        support.assertManagedEndpointCount(d1, 1)
+        support.assertManagedEndpointCount(d2, 1)
+        support.assertManagedConnectionCount(d1, 0)
+        support.assertManagedConnectionCount(d2, 0)
+
         equal(_jsPlumb.select().length, 0, "zero connections before drag");
         support.dragConnection(e1, e2);
         equal(_jsPlumb.select().length, 1, "one connection after drag");
+        support.assertManagedConnectionCount(d1, 1)
+        support.assertManagedConnectionCount(d2, 1)
 
         _jsPlumb.select().deleteAll();
         equal(_jsPlumb.select().length, 0, "zero connections after detach");
         equal(e2.connections.length, 0, "zero connections on endpoint 2 after connection removed");
+        support.assertManagedConnectionCount(d1, 0)
+        support.assertManagedConnectionCount(d2, 0)
 
         // now disable e1 and try to drag a new connection: it should fail
         e1.enabled = false;
         support.dragConnection(e1, e2);
         equal(_jsPlumb.select().length, 0, "zero connections after drag from disabled endpoint");
+        support.assertManagedConnectionCount(d1, 0)
+        support.assertManagedConnectionCount(d2, 0)
 
         e1.enabled = true;
         support.dragConnection(e1, e2);
         equal(_jsPlumb.select().length, 1, "one connection after drag from enabled endpoint");
+        support.assertManagedConnectionCount(d1, 1)
+        support.assertManagedConnectionCount(d2, 1)
 
          ok(e1.isFull(), "endpoint 1 is full");
 

@@ -70,6 +70,55 @@ var testSuite = function () {
 
     })
 
+    test("addSourceSelector, two source zones", function() {
+        var sourceNode = makeSourceNode()
+        var zone1 = addZone(sourceNode, "zone1")
+        var zone2 = addZone(sourceNode, "zone2")
+
+        var d2 = support.addDiv("d2")
+        d2.className = "node"
+        _jsPlumb.makeTarget(d2)
+
+        let elDragged = false;
+        _jsPlumb.bind("drag:move", function() {
+            elDragged = true
+        })
+
+        var selector = _jsPlumb.addSourceSelector(".zone1, .zone2", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart"
+        })
+
+        support.dragConnection(zone1, d2, true)
+        ok(elDragged === false, "element was not dragged")
+        equal(1, _jsPlumb.select().length, "one connection in the instance")
+
+        support.dragConnection(sourceNode, d2, true)
+        equal(1, _jsPlumb.select().length, "still only one connection in the instance - the node itself is not a source")
+        ok(elDragged === true, "element was dragged")
+
+        elDragged = false
+        support.dragConnection(zone2, d2, true)
+        ok(elDragged === false, "element was not dragged")
+
+        equal(2, _jsPlumb.select().length, "two connections in the instance")
+
+        // remove `.zone1, .zone2` and try to drag from each of the selectors
+
+        _jsPlumb.removeSourceSelector(selector)
+
+        support.dragConnection(zone1, d2, true)
+        ok(elDragged === true, "element was dragged instead of connection dragged")
+        equal(2, _jsPlumb.select().length, "two connections in the instance; .zone1 has been removed")
+
+        elDragged = false
+        support.dragConnection(zone2, d2, true)
+        ok(elDragged === true, "element was dragged instead of connection dragged")
+        equal(2, _jsPlumb.select().length, "two connections in the instance; .zone2 has been removed")
+
+    })
+
     test("addSourceSelector, exclude:true", function() {
         var sourceNode = makeSourceNode()
         var zone = addZone(sourceNode, "zone1") // this will be added as an 'exclude' source selector
@@ -268,6 +317,37 @@ var testSuite = function () {
 
         equal(1, _jsPlumb.select().length, "still only one connection in the instance - the source selector was removed")
 
+
+    })
+
+    test("addTargetSelector, entire element", function() {
+        var targetNode = makeTargetNode()
+        var tzone = addZone(targetNode, "zone1")
+
+        var d2 = makeSourceNode()
+        var zone = addZone(d2, "zone1")
+        _jsPlumb.addSourceSelector(".zone1", {
+            anchor:"Continuous"
+        })
+
+
+        let elDragged = false;
+        _jsPlumb.bind("drag:move", function() {
+            elDragged = true
+        })
+
+        _jsPlumb.addTargetSelector(".target-node, .target-node *", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart"
+        })
+
+        support.dragConnection(zone, tzone, true)
+        ok(elDragged === false, "element was not dragged")
+        equal(1, _jsPlumb.select().length, "one connection in the instance after drag to .zone1, which matches the `*` in the selector")
+
+        support.dragConnection(zone, targetNode, true)
+        equal(2, _jsPlumb.select().length, "two connections in the instance after drop on element, as the selector matches the element")
 
     })
 

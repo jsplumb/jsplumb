@@ -2008,12 +2008,22 @@ var testSuite = function () {
         var e2 = _jsPlumb.addEndpoint(d2, {});
         ok(e, 'endpoint e exists');
         ok(e2, 'endpoint e2 exists');
-        support.assertEndpointCount(d1, 1, _jsPlumb);
-        support.assertEndpointCount(d2, 1, _jsPlumb);
+        support.assertEndpointCount(d1, 1);
+        support.assertEndpointCount(d2, 1);
         var c = _jsPlumb.connect({target: 'd2', sourceEndpoint: e, targetEndpoint: e2});
-        support.assertEndpointCount(d1, 1, _jsPlumb);		// no new endpoint should have been added
-        support.assertEndpointCount(d2, 1, _jsPlumb); 		// no new endpoint should have been added
+        support.assertEndpointCount(d1, 1);		// no new endpoint should have been added
+        support.assertEndpointCount(d2, 1); 		// no new endpoint should have been added
+
         ok(c.id != null, "connection has had an id assigned");
+
+        support.assertManagedEndpointCount(d1, 1)
+        support.assertManagedConnectionCount(d1, 1)
+
+        _jsPlumb.deleteEndpoint(e)
+        support.assertManagedEndpointCount(d1, 0)
+        support.assertManagedConnectionCount(d1, 0)
+
+
     });
 
 
@@ -2038,6 +2048,13 @@ var testSuite = function () {
         equal(c.endpoints[0].anchor.y, 0.5, "source anchor is at y=0.5");
         equal(c.endpoints[1].anchor.x, 1, "target anchor is at x=1");
         equal(c.endpoints[1].anchor.y, 0.5, "target anchor is at y=0.5");
+
+        support.assertManagedEndpointCount(d1, 1)
+        support.assertManagedConnectionCount(d1, 1)
+
+        _jsPlumb.deleteConnection(c)
+        support.assertManagedEndpointCount(d1, 0)
+        support.assertManagedConnectionCount(d1, 0)
     });
 
     test(': _jsPlumb.connect (by endpoint)', function () {
@@ -5711,14 +5728,26 @@ var testSuite = function () {
             }),
             c = _jsPlumb.connect({source:e1, target:e2});
 
+        var d1Id = d1.getAttribute("jtk-id")
+        var d2Id = d2.getAttribute("jtk-id")
+
+        support.assertManagedEndpointCount(d1, 1)
+        support.assertManagedEndpointCount(d2, 1)
+
         equal(15, c.endpoints[0].endpoint.radius, "endpoint 1 has radius 15");
         equal(25, c.endpoints[1].endpoint.radius, "endpoint 2 has radius 25");
 
         equal("Dot", c.endpoints[0].endpoint.getType(), "endpoint 1 is a Dot");
         equal("Dot", c.endpoints[1].endpoint.getType(), "endpoint 2 is a Dot");
 
+        equal("Dot", _jsPlumb._managedElements[d1Id].endpoints[0].endpoint.getType(), "endpoint 1 is a Dot");
+        equal("Dot", _jsPlumb._managedElements[d2Id].endpoints[0].endpoint.getType(), "endpoint 2 is a Dot");
+
         c.replaceEndpoint(0, { type:"Rectangle", options:{width:50,height:50}});
         c.replaceEndpoint(1, {type: "Dot", options:{radius:100}});
+
+        support.assertManagedEndpointCount(d1, 1)
+        support.assertManagedEndpointCount(d2, 1)
 
         equal(50, c.endpoints[0].endpoint.width, "endpoint 1 now has width 50");
         equal(50, c.endpoints[0].endpoint.height, "endpoint 1 now has height 50");
@@ -5726,6 +5755,9 @@ var testSuite = function () {
 
         equal("Rectangle", c.endpoints[0].endpoint.getType(), "endpoint 1 is now a Rectangle");
         equal("Dot", c.endpoints[1].endpoint.getType(), "endpoint 2 is now a Dot");
+
+        equal("Rectangle", _jsPlumb._managedElements[d1Id].endpoints[0].endpoint.getType(), "endpoint 1 is now a Rectangle");
+        equal("Dot", _jsPlumb._managedElements[d2Id].endpoints[0].endpoint.getType(), "endpoint 2 is now a Dot");
     });
 
     /**
