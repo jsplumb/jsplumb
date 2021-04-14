@@ -31,21 +31,32 @@ export const ABSOLUTE = "absolute"
 export const FIXED = "fixed"
 export const STATIC = "static"
 
-export const ATTRIBUTE_CONTAINER = "jtk-container"
-export const ATTRIBUTE_GROUP = "jtk-group"
-export const ATTRIBUTE_GROUP_CONTENT = "jtk-group-content"
+export const ATTRIBUTE_CONTAINER = "data-jtk-container"
+export const ATTRIBUTE_GROUP = "data-jtk-group"
+export const ATTRIBUTE_GROUP_CONTENT = "data-jtk-group-content"
 export const ATTRIBUTE_MANAGED = "data-jtk-managed"
-export const ATTRIBUTE_NOT_DRAGGABLE = "jtk-not-draggable"
-export const ATTRIBUTE_SOURCE = "jtk-source"
+export const ATTRIBUTE_NOT_DRAGGABLE = "data-jtk-not-draggable"
+export const ATTRIBUTE_SOURCE = "data-jtk-source"
 export const ATTRIBUTE_TABINDEX = "tabindex"
-export const ATTRIBUTE_TARGET = "jtk-target"
+export const ATTRIBUTE_TARGET = "data-jtk-target"
+export const ATTRIBUTE_SCOPE = "data-jtk-scope"
+export const ATTRIBUTE_SCOPE_PREFIX = ATTRIBUTE_SCOPE + "-"
 
 export const CHECK_CONDITION = "checkCondition"
 
 export const CHECK_DROP_ALLOWED = "checkDropAllowed"
 export const CLASS_CONNECTOR = "jtk-connector"
+export const CLASS_CONNECTOR_OUTLINE = "jtk-connector-outline"
+
+export const CLASS_CONNECTED = "jtk-connected"
 
 export const CLASS_ENDPOINT = "jtk-endpoint"
+export const CLASS_ENDPOINT_CONNECTED = "jtk-endpoint-connected"
+export const CLASS_ENDPOINT_FULL = "jtk-endpoint-full"
+export const CLASS_ENDPOINT_DROP_ALLOWED = "jtk-endpoint-drop-allowed"
+export const CLASS_ENDPOINT_DROP_FORBIDDEN = "jtk-endpoint-drop-forbidden"
+export const CLASS_ENDPOINT_ANCHOR_PREFIX = "jtk-endpoint-anchor"
+
 export const CLASS_GROUP_COLLAPSED = "jtk-group-collapsed"
 export const CLASS_GROUP_EXPANDED = "jtk-group-expanded"
 export const CLASS_OVERLAY = "jtk-overlay"
@@ -121,7 +132,7 @@ export const SELECTOR_GROUP = att(ATTRIBUTE_GROUP)
 export const SELECTOR_GROUP_CONTAINER = att(ATTRIBUTE_GROUP_CONTENT)
 export const SELECTOR_MANAGED_ELEMENT = att(ATTRIBUTE_MANAGED)
 export const SELECTOR_OVERLAY = cls(CLASS_OVERLAY)
-
-export const SCOPE_PREFIX = "jtk-scope-"
+export const SELECTOR_JTK_SOURCE = att(ATTRIBUTE_SOURCE)
+export const SELECTOR_JTK_TARGET = att(ATTRIBUTE_TARGET)
 
 
