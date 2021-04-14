@@ -33,17 +33,17 @@
                 hideConnectionInfo();
         };
 
-    jsPlumb.ready(function () {
+    jsPlumbBrowserUI.ready(function () {
 
-        var instance = window.j = jsPlumb.newInstance({
+        var instance = window.j = jsPlumbBrowserUI.newInstance({
             dragOptions: { cursor: 'pointer', zIndex: 2000 },
             paintStyle: { stroke: '#666' },
             endpointHoverStyle: { fill: "orange" },
             hoverPaintStyle: { stroke: "orange" },
             endpointStyle: { width: 20, height: 16, stroke: '#666' },
             endpoint: "Rectangle",
-            anchors: ["TopCenter", "TopCenter"],
-            container: "canvas",
+            anchors: ["Top", "Top"],
+            container: document.getElementById("canvas"),
             dropOptions:{activeClass:"dragActive", hoverClass:"dropHover"}
         });
 
@@ -54,11 +54,11 @@
             instance.bind("connection", function (info, originalEvent) {
                 updateConnections(info.connection);
             });
-            instance.bind("connectionDetached", function (info, originalEvent) {
+            instance.bind("connection:detach", function (info, originalEvent) {
                 updateConnections(info.connection, true);
             });
 
-            instance.bind("connectionMoved", function (info, originalEvent) {
+            instance.bind("connection:move", function (info, originalEvent) {
                 //  only remove here, because a 'connection' event is also fired.
                 // in a future release of jsplumb this extra connection event will not
                 // be fired.
@@ -119,12 +119,12 @@
             //
             var color2 = "#316b31";
             var exampleEndpoint2 = {
-                endpoint: ["Dot", { radius: 11 }],
+                endpoint: {type:"Dot", options:{ radius: 11 }},
                 paintStyle: { fill: color2 },
                 isSource: true,
                 scope: "green",
                 connectorStyle: { stroke: color2, strokeWidth: 6 },
-                connector: ["Bezier", { curviness: 63 } ],
+                connector: {type:"Bezier", options:{ curviness: 63 } },
                 maxConnections: 3,
                 isTarget: true,
                 dropOptions: exampleDropOptions
@@ -140,7 +140,7 @@
             //
             var example3Color = "rgba(229,219,61,0.5)";
             var exampleEndpoint3 = {
-                endpoint: ["Dot", {radius: 17} ],
+                endpoint: {type:"Dot", options:{radius: 17} },
                 anchor: "BottomLeft",
                 paintStyle: { fill: example3Color, opacity: 0.5 },
                 isSource: true,
@@ -188,7 +188,7 @@
             var e2 = instance.addEndpoint(dd2, { anchor: [0.5, 1, 0, 1] }, exampleEndpoint);
             // again we bind manually. it's starting to get tedious.  but now that i've done one of the blue endpoints this way, i have to do them all...
             e2.bind("maxConnections", maxConnectionsCallback);
-            instance.addEndpoint(dd2, { anchor: "RightMiddle" }, exampleEndpoint2);
+            instance.addEndpoint(dd2, { anchor: "Right" }, exampleEndpoint2);
 
             var e3 = instance.addEndpoint(dd3, { anchor: [0.25, 0, 0, -1] }, exampleEndpoint);
             e3.bind("maxConnections", maxConnectionsCallback);
