@@ -1300,7 +1300,6 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         return super.addSourceSelector(selector, params, exclude)
     }
 
-
     removeSourceSelector(selector: SourceSelector) {
         this.removeDragFilter(selector.selector)
         super.removeSourceSelector(selector)
