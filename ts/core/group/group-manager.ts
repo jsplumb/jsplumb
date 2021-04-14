@@ -13,6 +13,7 @@ import * as Constants from "../constants"
 import {IS, removeWithFunction, suggest, forEach } from "../util"
 import {Connection} from "../connector/connection-impl"
 import {ConnectionSelection} from "../selection/connection-selection"
+import {SELECTOR_MANAGED_ELEMENT} from "../constants"
 
 interface GroupMemberEventParams<E> {
     el:jsPlumbElement<E>,
@@ -298,7 +299,7 @@ export class GroupManager<E> {
         const members:Array<E> = group.children.slice().map(cn => cn.el)
         const childMembers:Array<E> = []
         forEach(members,(member: E) => {
-            Array.prototype.push.apply(childMembers, this.instance.getSelector(member, "[jtk-managed]"))
+            Array.prototype.push.apply(childMembers, this.instance.getSelector(member, SELECTOR_MANAGED_ELEMENT))
         })
 
         Array.prototype.push.apply(members, childMembers)
