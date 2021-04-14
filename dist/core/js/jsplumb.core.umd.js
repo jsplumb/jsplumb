@@ -3357,6 +3357,117 @@
     return OptimisticEventGenerator;
   }(EventGenerator);
 
+  function isFullOverlaySpec(o) {
+    return o.type != null && o.options != null;
+  }
+  function convertToFullOverlaySpec(spec) {
+    var o = null;
+    if (isString(spec)) {
+      o = {
+        type: spec,
+        options: {}
+      };
+    } else {
+      o = spec;
+    }
+    o.options.id = o.options.id || uuid();
+    return o;
+  }
+  var Overlay =
+  function (_EventGenerator) {
+    _inherits(Overlay, _EventGenerator);
+    function Overlay(instance, component, p) {
+      var _this;
+      _classCallCheck(this, Overlay);
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Overlay).call(this));
+      _this.instance = instance;
+      _this.component = component;
+      _defineProperty(_assertThisInitialized(_this), "id", void 0);
+      _defineProperty(_assertThisInitialized(_this), "type", void 0);
+      _defineProperty(_assertThisInitialized(_this), "cssClass", void 0);
+      _defineProperty(_assertThisInitialized(_this), "visible", true);
+      _defineProperty(_assertThisInitialized(_this), "location", void 0);
+      _defineProperty(_assertThisInitialized(_this), "events", void 0);
+      p = p || {};
+      _this.id = p.id || uuid();
+      _this.cssClass = p.cssClass || "";
+      _this.location = p.location || 0.5;
+      _this.events = p.events || {};
+      for (var _event in _this.events) {
+        _this.bind(_event, _this.events[_event]);
+      }
+      return _this;
+    }
+    _createClass(Overlay, [{
+      key: "shouldFireEvent",
+      value: function shouldFireEvent(event, value, originalEvent) {
+        return true;
+      }
+    }, {
+      key: "setVisible",
+      value: function setVisible(v) {
+        this.visible = v;
+        this.instance.setOverlayVisible(this, v);
+      }
+    }, {
+      key: "isVisible",
+      value: function isVisible() {
+        return this.visible;
+      }
+    }, {
+      key: "destroy",
+      value: function destroy(force) {
+        this.instance.destroyOverlay(this, force);
+      }
+    }, {
+      key: "_postComponentEvent",
+      value: function _postComponentEvent(eventName, originalEvent) {
+        this.instance.fire(eventName, this.component, originalEvent);
+      }
+    }, {
+      key: "click",
+      value: function click(e) {
+        this.fire(EVENT_CLICK, {
+          e: e,
+          overlay: this
+        });
+        var eventName = this.component instanceof Connection ? EVENT_CLICK : EVENT_ENDPOINT_CLICK;
+        this._postComponentEvent(eventName, e);
+      }
+    }, {
+      key: "dblclick",
+      value: function dblclick(e) {
+        this.fire(EVENT_DBL_CLICK, {
+          e: e,
+          overlay: this
+        });
+        var eventName = this.component instanceof Connection ? EVENT_DBL_CLICK : EVENT_ENDPOINT_DBL_CLICK;
+        this._postComponentEvent(eventName, e);
+      }
+    }, {
+      key: "tap",
+      value: function tap(e) {
+        this.fire(EVENT_TAP, {
+          e: e,
+          overlay: this
+        });
+        var eventName = this.component instanceof Connection ? EVENT_TAP : EVENT_ENDPOINT_TAP;
+        this._postComponentEvent(eventName, e);
+      }
+    }, {
+      key: "dbltap",
+      value: function dbltap(e) {
+        this.fire(EVENT_DBL_TAP, {
+          e: e,
+          overlay: this
+        });
+        var eventName = this.component instanceof Connection ? EVENT_DBL_TAP : EVENT_ENDPOINT_DBL_TAP;
+        this._postComponentEvent(eventName, e);
+      }
+    }]);
+    return Overlay;
+  }(EventGenerator);
+
   function _splitType(t) {
     return t == null ? null : t.split(" ");
   }
@@ -3466,7 +3577,7 @@
           o.push.apply(o, _toConsumableArray(defaultOverlays));
         }
         for (var i = 0; i < o.length; i++) {
-          var fo = _this.instance.convertToFullOverlaySpec(o[i]);
+          var fo = convertToFullOverlaySpec(o[i]);
           oo[fo.options.id] = fo;
         }
       }
@@ -3767,104 +3878,6 @@
       }
     }]);
     return Component;
-  }(EventGenerator);
-
-  function isFullOverlaySpec(o) {
-    return o.type != null && o.options != null;
-  }
-  var Overlay =
-  function (_EventGenerator) {
-    _inherits(Overlay, _EventGenerator);
-    function Overlay(instance, component, p) {
-      var _this;
-      _classCallCheck(this, Overlay);
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(Overlay).call(this));
-      _this.instance = instance;
-      _this.component = component;
-      _defineProperty(_assertThisInitialized(_this), "id", void 0);
-      _defineProperty(_assertThisInitialized(_this), "type", void 0);
-      _defineProperty(_assertThisInitialized(_this), "cssClass", void 0);
-      _defineProperty(_assertThisInitialized(_this), "visible", true);
-      _defineProperty(_assertThisInitialized(_this), "location", void 0);
-      _defineProperty(_assertThisInitialized(_this), "events", void 0);
-      p = p || {};
-      _this.id = p.id || uuid();
-      _this.cssClass = p.cssClass || "";
-      _this.location = p.location || 0.5;
-      _this.events = p.events || {};
-      for (var _event in _this.events) {
-        _this.bind(_event, _this.events[_event]);
-      }
-      return _this;
-    }
-    _createClass(Overlay, [{
-      key: "shouldFireEvent",
-      value: function shouldFireEvent(event, value, originalEvent) {
-        return true;
-      }
-    }, {
-      key: "setVisible",
-      value: function setVisible(v) {
-        this.visible = v;
-        this.instance.setOverlayVisible(this, v);
-      }
-    }, {
-      key: "isVisible",
-      value: function isVisible() {
-        return this.visible;
-      }
-    }, {
-      key: "destroy",
-      value: function destroy(force) {
-        this.instance.destroyOverlay(this, force);
-      }
-    }, {
-      key: "_postComponentEvent",
-      value: function _postComponentEvent(eventName, originalEvent) {
-        this.instance.fire(eventName, this.component, originalEvent);
-      }
-    }, {
-      key: "click",
-      value: function click(e) {
-        this.fire(EVENT_CLICK, {
-          e: e,
-          overlay: this
-        });
-        var eventName = this.component instanceof Connection ? EVENT_CLICK : EVENT_ENDPOINT_CLICK;
-        this._postComponentEvent(eventName, e);
-      }
-    }, {
-      key: "dblclick",
-      value: function dblclick(e) {
-        this.fire(EVENT_DBL_CLICK, {
-          e: e,
-          overlay: this
-        });
-        var eventName = this.component instanceof Connection ? EVENT_DBL_CLICK : EVENT_ENDPOINT_DBL_CLICK;
-        this._postComponentEvent(eventName, e);
-      }
-    }, {
-      key: "tap",
-      value: function tap(e) {
-        this.fire(EVENT_TAP, {
-          e: e,
-          overlay: this
-        });
-        var eventName = this.component instanceof Connection ? EVENT_TAP : EVENT_ENDPOINT_TAP;
-        this._postComponentEvent(eventName, e);
-      }
-    }, {
-      key: "dbltap",
-      value: function dbltap(e) {
-        this.fire(EVENT_DBL_TAP, {
-          e: e,
-          overlay: this
-        });
-        var eventName = this.component instanceof Connection ? EVENT_DBL_TAP : EVENT_ENDPOINT_DBL_TAP;
-        this._postComponentEvent(eventName, e);
-      }
-    }]);
-    return Overlay;
   }(EventGenerator);
 
   var overlayMap = {};
@@ -4744,6 +4757,53 @@
 
   var TYPE_ITEM_ANCHORS = "anchors";
   var TYPE_ITEM_CONNECTOR = "connector";
+  function prepareEndpoint(conn, existing, index, anchor, element, elementId, endpoint) {
+    var e;
+    if (existing) {
+      conn.endpoints[index] = existing;
+      existing.addConnection(conn);
+    } else {
+      var ep = endpoint || conn.endpointSpec || conn.endpointsSpec[index] || conn.instance.Defaults.endpoints[index] || conn.instance.Defaults.endpoint;
+      var es = conn.endpointStyles[index] || conn.endpointStyle || conn.instance.Defaults.endpointStyles[index] || conn.instance.Defaults.endpointStyle;
+      if (es.fill == null && conn.paintStyle != null) {
+        es.fill = conn.paintStyle.stroke;
+      }
+      if (es.outlineStroke == null && conn.paintStyle != null) {
+        es.outlineStroke = conn.paintStyle.outlineStroke;
+      }
+      if (es.outlineWidth == null && conn.paintStyle != null) {
+        es.outlineWidth = conn.paintStyle.outlineWidth;
+      }
+      var ehs = conn.endpointHoverStyles[index] || conn.endpointHoverStyle || conn.endpointHoverStyle || conn.instance.Defaults.endpointHoverStyles[index] || conn.instance.Defaults.endpointHoverStyle;
+      if (conn.hoverPaintStyle != null) {
+        if (ehs == null) {
+          ehs = {};
+        }
+        if (ehs.fill == null) {
+          ehs.fill = conn.hoverPaintStyle.stroke;
+        }
+      }
+      var u = conn.uuids ? conn.uuids[index] : null;
+      anchor = anchor != null ? anchor : conn.instance.Defaults.anchors != null ? conn.instance.Defaults.anchors[index] : conn.instance.Defaults.anchor;
+      e = conn.instance.newEndpoint({
+        paintStyle: es,
+        hoverPaintStyle: ehs,
+        endpoint: ep,
+        connections: [conn],
+        uuid: u,
+        source: element,
+        scope: conn.scope,
+        anchor: anchor,
+        reattach: conn.reattach || conn.instance.Defaults.reattachConnections,
+        detachable: conn.detachable || conn.instance.Defaults.connectionsDetachable
+      });
+      if (existing == null) {
+        e.deleteOnEmpty = true;
+      }
+      conn.endpoints[index] = e;
+    }
+    return e;
+  }
   var Connection =
   function (_OverlayCapableCompon) {
     _inherits(Connection, _OverlayCapableCompon);
@@ -4764,23 +4824,6 @@
           x: this.connector.x,
           y: this.connector.y
         };
-      }
-    }], [{
-      key: "updateConnectedClass",
-      value: function updateConnectedClass(instance, conn, element, isRemoval) {
-        if (element != null) {
-          element._jsPlumbConnections = element._jsPlumbConnections || {};
-          if (isRemoval) {
-            delete element._jsPlumbConnections[conn.id];
-          } else {
-            element._jsPlumbConnections[conn.id] = true;
-          }
-          if (isEmpty(element._jsPlumbConnections)) {
-            instance.removeClass(element, conn.instance.connectedClass);
-          } else {
-            instance.addClass(element, conn.instance.connectedClass);
-          }
-        }
       }
     }]);
     function Connection(instance, params) {
@@ -4819,8 +4862,6 @@
       _defineProperty(_assertThisInitialized(_this), "_forceDetach", void 0);
       _defineProperty(_assertThisInitialized(_this), "proxies", []);
       _defineProperty(_assertThisInitialized(_this), "pending", false);
-      _defineProperty(_assertThisInitialized(_this), "anchors", [null, null]);
-      _defineProperty(_assertThisInitialized(_this), "anchor", null);
       _this.id = params.id;
       _this.previousConnection = params.previousConnection;
       _this.source = params.source;
@@ -4838,8 +4879,8 @@
         _this.targetId = instance.getId(_this.target);
       }
       _this.scope = params.scope;
-      _this.anchors = params.anchors;
-      _this.anchor = params.anchor;
+      var sourceAnchor = params.anchors ? params.anchors[0] : params.anchor;
+      var targetAnchor = params.anchors ? params.anchors[1] : params.anchor;
       instance.manage(_this.source);
       instance.manage(_this.target);
       _this.visible = true;
@@ -4861,8 +4902,8 @@
       _this.paintStyle = params.paintStyle;
       _this.hoverPaintStyle = params.hoverPaintStyle;
       _this.uuids = params.uuids;
-      var eS = _this.makeEndpoint(true, _this.source, _this.sourceId, params.sourceEndpoint),
-          eT = _this.makeEndpoint(false, _this.target, _this.targetId, params.targetEndpoint);
+      var eS = _this.makeEndpoint(true, _this.source, _this.sourceId, sourceAnchor, params.sourceEndpoint),
+          eT = _this.makeEndpoint(false, _this.target, _this.targetId, targetAnchor, params.targetEndpoint);
       if (eS) {
         addToDictionary(instance.endpointsByElement, _this.sourceId, eS);
       }
@@ -4921,14 +4962,13 @@
       if (/[^\s]/.test(_types)) {
         _this.addType(_types, params.data);
       }
-      _this.updateConnectedClass(false);
       return _this;
     }
     _createClass(Connection, [{
       key: "makeEndpoint",
-      value: function makeEndpoint(isSource, el, elId, ep) {
+      value: function makeEndpoint(isSource, el, elId, anchor, ep) {
         elId = elId || this.instance.getId(el);
-        return Connection.prepareEndpoint(this, ep, isSource ? 0 : 1, el, elId);
+        return prepareEndpoint(this, ep, isSource ? 0 : 1, anchor, el);
       }
     }, {
       key: "getTypeDescriptor",
@@ -5042,19 +5082,12 @@
     }, {
       key: "destroy",
       value: function destroy(force) {
-        this.updateConnectedClass(true);
         this.endpoints = null;
         this.source = null;
         this.target = null;
         this.instance.destroyConnection(this);
         this.connector = null;
         _get(_getPrototypeOf(Connection.prototype), "destroy", this).call(this, force);
-      }
-    }, {
-      key: "updateConnectedClass",
-      value: function updateConnectedClass(isRemoval) {
-        Connection.updateConnectedClass(this.instance, this, this.source, isRemoval);
-        Connection.updateConnectedClass(this.instance, this, this.target, isRemoval);
       }
     }, {
       key: "getUuids",
@@ -5146,7 +5179,7 @@
             elId = current.elementId,
             ebe = this.instance.getEndpoints(current.element),
             _idx = ebe.indexOf(current),
-            _new = Connection.prepareEndpoint(this, null, idx, current.element, elId, endpointDef);
+            _new = prepareEndpoint(this, null, idx, null, current.element, elId, endpointDef);
         this.endpoints[idx] = _new;
         ebe.splice(_idx, 1, _new);
         current.detachFromConnection(this);
@@ -5155,70 +5188,6 @@
           previous: current,
           current: _new
         });
-        this.updateConnectedClass(false);
-      }
-    }], [{
-      key: "prepareEndpoint",
-      value: function prepareEndpoint(conn, existing, index, element, elementId, endpoint) {
-        var e;
-        if (existing) {
-          conn.endpoints[index] = existing;
-          existing.addConnection(conn);
-        } else {
-          var ep = endpoint || conn.endpointSpec || conn.endpointsSpec[index] || conn.instance.Defaults.endpoints[index] || conn.instance.Defaults.endpoint;
-          var es = conn.endpointStyles[index] || conn.endpointStyle || conn.instance.Defaults.endpointStyles[index] || conn.instance.Defaults.endpointStyle;
-          if (es.fill == null && conn.paintStyle != null) {
-            es.fill = conn.paintStyle.stroke;
-          }
-          if (es.outlineStroke == null && conn.paintStyle != null) {
-            es.outlineStroke = conn.paintStyle.outlineStroke;
-          }
-          if (es.outlineWidth == null && conn.paintStyle != null) {
-            es.outlineWidth = conn.paintStyle.outlineWidth;
-          }
-          var ehs = conn.endpointHoverStyles[index] || conn.endpointHoverStyle || conn.endpointHoverStyle || conn.instance.Defaults.endpointHoverStyles[index] || conn.instance.Defaults.endpointHoverStyle;
-          if (conn.hoverPaintStyle != null) {
-            if (ehs == null) {
-              ehs = {};
-            }
-            if (ehs.fill == null) {
-              ehs.fill = conn.hoverPaintStyle.stroke;
-            }
-          }
-          var anchorSpec;
-          if (conn.anchors != null && conn.anchors[index] != null) {
-            anchorSpec = conn.anchors[index];
-          } else if (conn.anchor != null) {
-            anchorSpec = conn.anchor;
-          } else if (conn.instance.Defaults.anchors[index] != null) {
-            anchorSpec = conn.instance.Defaults.anchors[index];
-          } else {
-            anchorSpec = conn.instance.Defaults.anchor;
-          }
-          var u = conn.uuids ? conn.uuids[index] : null;
-          e = conn.instance.newEndpoint({
-            paintStyle: es,
-            hoverPaintStyle: ehs,
-            endpoint: ep,
-            connections: [conn],
-            uuid: u,
-            anchor: anchorSpec,
-            source: element,
-            scope: conn.scope,
-            reattach: conn.reattach || conn.instance.Defaults.reattachConnections,
-            detachable: conn.detachable || conn.instance.Defaults.connectionsDetachable
-          });
-          if (existing == null) {
-            e.deleteOnEmpty = true;
-          }
-          conn.endpoints[index] = e;
-        }
-        return e;
-      }
-    }, {
-      key: "_makeAnchor",
-      value: function _makeAnchor(instance, spec, elementId) {
-        return spec != null ? makeAnchorFromSpec(instance, spec, elementId) : null;
       }
     }]);
     return Connection;
@@ -5324,7 +5293,6 @@
       _this.connectorClass = params.connectorClass;
       _this.connectorHoverClass = params.connectorHoverClass;
       _this.deleteOnEmpty = params.deleteOnEmpty === true;
-      extend(_assertThisInitialized(_this), params, typeParameters);
       _this.isSource = params.isSource || false;
       _this.isTemporarySource = params.isTemporarySource || false;
       _this.isTarget = params.isTarget || false;
@@ -5338,7 +5306,7 @@
       }
       _this.dragAllowedWhenFull = params.dragAllowedWhenFull !== false;
       if (params.onMaxConnections) {
-        _this.bind("maxConnections", params.onMaxConnections);
+        _this.bind(EVENT_MAX_CONNECTIONS, params.onMaxConnections);
       }
       var ep = params.endpoint || instance.Defaults.endpoint;
       _this.setEndpoint(ep);
@@ -5400,8 +5368,11 @@
       key: "addConnection",
       value: function addConnection(conn) {
         var wasFull = this.isFull();
+        var wasEmpty = this.connections.length === 0;
         this.connections.push(conn);
-        this[(this.connections.length > 0 ? "add" : "remove") + "Class"](this.instance.endpointConnectedClass);
+        if (wasEmpty) {
+          this.addClass(this.instance.endpointConnectedClass);
+        }
         if (this.isFull()) {
           if (!wasFull) {
             this.addClass(this.instance.endpointFullClass);
@@ -5432,10 +5403,10 @@
       }
     }, {
       key: "detachFrom",
-      value: function detachFrom(targetEndpoint) {
+      value: function detachFrom(otherEndpoint) {
         var c = [];
         for (var i = 0; i < this.connections.length; i++) {
-          if (this.connections[i].endpoints[1] === targetEndpoint || this.connections[i].endpoints[0] === targetEndpoint) {
+          if (this.connections[i].endpoints[1] === otherEndpoint || this.connections[i].endpoints[0] === otherEndpoint) {
             c.push(this.connections[i]);
           }
         }
@@ -5449,7 +5420,11 @@
       value: function setVisible(v, doNotChangeConnections, doNotNotifyOtherEndpoint) {
         _get(_getPrototypeOf(Endpoint.prototype), "setVisible", this).call(this, v);
         this.endpoint.setVisible(v);
-        this[v ? "showOverlays" : "hideOverlays"]();
+        if (v) {
+          this.showOverlays();
+        } else {
+          this.hideOverlays();
+        }
         if (!doNotChangeConnections) {
           for (var i = 0; i < this.connections.length; i++) {
             this.connections[i].setVisible(v);
@@ -5505,23 +5480,17 @@
       }
     }, {
       key: "isConnectedTo",
-      value: function isConnectedTo(endpoint) {
+      value: function isConnectedTo(otherEndpoint) {
         var found = false;
-        if (endpoint) {
+        if (otherEndpoint) {
           for (var i = 0; i < this.connections.length; i++) {
-            if (this.connections[i].endpoints[1] === endpoint || this.connections[i].endpoints[0] === endpoint) {
+            if (this.connections[i].endpoints[1] === otherEndpoint || this.connections[i].endpoints[0] === otherEndpoint) {
               found = true;
               break;
             }
           }
         }
         return found;
-      }
-    }, {
-      key: "setElementId",
-      value: function setElementId(_elId) {
-        this.elementId = _elId;
-        this.anchor.elementId = _elId;
       }
     }, {
       key: "setDragAllowedWhenFull",
@@ -7820,6 +7789,56 @@
     }
     return r;
   }
+  function addManagedEndpoint(managedElement, ep) {
+    if (managedElement != null) {
+      managedElement.endpoints.push(ep);
+    }
+  }
+  function removeManagedEndpoint(managedElement, endpoint) {
+    if (managedElement != null) {
+      removeWithFunction(managedElement.endpoints, function (ep) {
+        return ep === endpoint;
+      });
+    }
+  }
+  function addManagedConnection(connection, sourceEl, targetEl) {
+    if (sourceEl != null) {
+      sourceEl.connections.push(connection);
+      if (sourceEl.connections.length === 1) {
+        connection.instance.addClass(connection.source, connection.instance.connectedClass);
+      }
+    }
+    if (targetEl != null) {
+      if (sourceEl == null || connection.sourceId !== connection.targetId) {
+        targetEl.connections.push(connection);
+        if (targetEl.connections.length === 1) {
+          connection.instance.addClass(connection.target, connection.instance.connectedClass);
+        }
+      }
+    }
+  }
+  function removeManagedConnection(connection, sourceEl, targetEl) {
+    if (sourceEl != null) {
+      var sourceCount = sourceEl.connections.length;
+      removeWithFunction(sourceEl.connections, function (_c) {
+        return connection.id === _c.id;
+      });
+      if (sourceCount > 0 && sourceEl.connections.length === 0) {
+        connection.instance.removeClass(connection.source, connection.instance.connectedClass);
+      }
+    }
+    if (targetEl != null) {
+      var targetCount = targetEl.connections.length;
+      if (sourceEl == null || connection.sourceId !== connection.targetId) {
+        removeWithFunction(targetEl.connections, function (_c) {
+          return connection.id === _c.id;
+        });
+      }
+      if (targetCount > 0 && targetEl.connections.length === 0) {
+        connection.instance.removeClass(connection.target, connection.instance.connectedClass);
+      }
+    }
+  }
   var ID_ATTRIBUTE = JTK_ID;
   var JsPlumbInstance =
   function (_EventGenerator) {
@@ -7930,21 +7949,6 @@
       key: "_idstamp",
       value: function _idstamp() {
         return "" + this._curIdStamp++;
-      }
-    }, {
-      key: "convertToFullOverlaySpec",
-      value: function convertToFullOverlaySpec(spec) {
-        var o = null;
-        if (isString(spec)) {
-          o = {
-            type: spec,
-            options: {}
-          };
-        } else {
-          o = spec;
-        }
-        o.options.id = o.options.id || uuid();
-        return o;
       }
     }, {
       key: "checkCondition",
@@ -8093,7 +8097,6 @@
         if (el instanceof Endpoint) {
           ep = el;
           ep.addConnection(c);
-          el = ep.element;
         } else {
           sid = this.getId(el);
           sep = el[_st.epDefs] ? el[_st.epDefs][0] : null;
@@ -8127,16 +8130,16 @@
     }, {
       key: "setSource",
       value: function setSource(connection, el) {
+        removeManagedConnection(connection, this._managedElements[connection.sourceId]);
         var p = this._set(connection, el, 0);
-        Connection.updateConnectedClass(this, connection, p.originalEndpoint.element, true);
-        this.sourceOrTargetChanged(p.originalSourceId, p.newSourceId, connection, p.newEndpoint.element, 0);
+        addManagedConnection(connection, this._managedElements[p.newSourceId]);
       }
     }, {
       key: "setTarget",
       value: function setTarget(connection, el) {
+        removeManagedConnection(connection, this._managedElements[connection.targetId]);
         var p = this._set(connection, el, 1);
-        Connection.updateConnectedClass(this, connection, p.originalEndpoint.element, true);
-        connection.updateConnectedClass(false);
+        addManagedConnection(connection, this._managedElements[p.newTargetId]);
       }
     }, {
       key: "isHoverSuspended",
@@ -8206,6 +8209,7 @@
         if (connection != null) {
           params = params || {};
           if (params.force || functionChain(true, false, [[connection.endpoints[0], IS_DETACH_ALLOWED, [connection]], [connection.endpoints[1], IS_DETACH_ALLOWED, [connection]], [connection, IS_DETACH_ALLOWED, [connection]], [this, CHECK_CONDITION, [INTERCEPT_BEFORE_DETACH, connection]]])) {
+            removeManagedConnection(connection, this._managedElements[connection.sourceId], this._managedElements[connection.targetId]);
             this.fireDetachEvent(connection, !connection.pending && params.fireEvent !== false, params.originalEvent);
             var sourceEndpoint = connection.endpoints[0];
             var targetEndpoint = connection.endpoints[1];
@@ -8443,7 +8447,8 @@
         _p.elementId = id || this.getId(_p.source);
         var ep = new Endpoint(this, _p);
         ep.id = "ep_" + this._idstamp();
-        this.manage(_p.source);
+        var managedElement = this.manage(_p.source);
+        addManagedEndpoint(managedElement, ep);
         if (params.uuid) {
           this.endpointsByUUID.set(params.uuid, ep);
         }
@@ -8569,6 +8574,7 @@
         if (uuid) {
           this.endpointsByUUID["delete"](uuid);
         }
+        removeManagedEndpoint(this._managedElements[endpoint.elementId], endpoint);
         for (var _e in this.endpointsByElement) {
           var endpoints = this.endpointsByElement[_e];
           if (endpoints) {
@@ -8817,6 +8823,7 @@
       value: function _newConnection(params) {
         params.id = "con_" + this._idstamp();
         var c = new Connection(this, params);
+        addManagedConnection(c, this._managedElements[c.sourceId], this._managedElements[c.targetId]);
         this.paintConnection(c);
         return c;
       }
@@ -8993,7 +9000,7 @@
     }, {
       key: "_unmakeEvery",
       value: function _unmakeEvery(type, key, connectionType) {
-        var els = this.getSelector("[jtk-" + type + "]");
+        var els = this.getSelector(this.getContainer(), "[jtk-" + type + "]");
         for (var i = 0; i < els.length; i++) {
           this._unmake(type, key, els[i], connectionType);
         }
@@ -9254,7 +9261,7 @@
         if (type.overlays) {
           var to = {};
           for (var i = 0; i < type.overlays.length; i++) {
-            var fo = this.convertToFullOverlaySpec(type.overlays[i]);
+            var fo = convertToFullOverlaySpec(type.overlays[i]);
             to[fo.options.id] = fo;
           }
           this._connectionTypes.get(id).overlays = to;
@@ -9274,7 +9281,7 @@
         if (type.overlays) {
           var to = {};
           for (var i = 0; i < type.overlays.length; i++) {
-            var fo = this.convertToFullOverlaySpec(type.overlays[i]);
+            var fo = convertToFullOverlaySpec(type.overlays[i]);
             to[fo.options.id] = fo;
           }
           this._endpointTypes.get(id).overlays = to;
@@ -9389,12 +9396,10 @@
           if (originalId !== newId) {
             connection.sourceId = newId;
             connection.source = newElement;
-            connection.updateConnectedClass();
           }
         } else if (index === 1) {
           connection.targetId = newId;
           connection.target = newElement;
-          connection.updateConnectedClass();
         }
       }
     }, {
@@ -9988,6 +9993,7 @@
   exports.clone = clone;
   exports.cls = cls;
   exports.computeBezierLength = computeBezierLength;
+  exports.convertToFullOverlaySpec = convertToFullOverlaySpec;
   exports.dist = dist;
   exports.distanceFromCurve = distanceFromCurve;
   exports.each = each;

@@ -33,6 +33,11 @@ export declare type OverlaySpec = string | FullOverlaySpec;
  * @param o
  */
 export declare function isFullOverlaySpec(o: OverlaySpec): o is FullOverlaySpec;
+/**
+ * Convert the given input into an object in the form of a `FullOverlaySpec`
+ * @param spec
+ */
+export declare function convertToFullOverlaySpec(spec: string | OverlaySpec): FullOverlaySpec;
 export declare abstract class Overlay extends EventGenerator {
     instance: JsPlumbInstance;
     component: Component;

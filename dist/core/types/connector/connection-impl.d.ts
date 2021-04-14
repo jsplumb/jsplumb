@@ -1,5 +1,5 @@
 import { JsPlumbInstance } from "../core";
-import { jsPlumbElement, TypeDescriptor } from '../common';
+import { TypeDescriptor } from '../common';
 import { AbstractConnector } from "./abstract-connector";
 import { Endpoint } from "../endpoint/endpoint";
 import { PaintStyle } from "../styles";
@@ -34,6 +34,7 @@ export interface ConnectionParams<E = any> {
     cost?: number;
     data?: any;
     cssClass?: string;
+    hoverClass?: string;
     paintStyle?: PaintStyle;
     hoverPaintStyle?: PaintStyle;
     previousConnection?: Connection;
@@ -82,11 +83,8 @@ export declare class Connection<E = any> extends OverlayCapableComponent {
         originalEp: Endpoint<E>;
     }>;
     pending: boolean;
-    anchors: [AnchorSpec, AnchorSpec];
-    anchor: AnchorSpec;
-    static updateConnectedClass<E>(instance: JsPlumbInstance, conn: Connection, element: jsPlumbElement<E>, isRemoval: boolean): void;
     constructor(instance: JsPlumbInstance, params: ConnectionParams<E>);
-    makeEndpoint(isSource: boolean, el: any, elId: string, ep?: Endpoint): Endpoint;
+    makeEndpoint(isSource: boolean, el: any, elId: string, anchor?: AnchorSpec, ep?: Endpoint): Endpoint;
     getTypeDescriptor(): string;
     isDetachable(ep?: Endpoint): boolean;
     setDetachable(detachable: boolean): void;
@@ -97,7 +95,6 @@ export declare class Connection<E = any> extends OverlayCapableComponent {
     removeClass(c: string, informEndpoints?: boolean): void;
     setVisible(v: boolean): void;
     destroy(force?: boolean): void;
-    updateConnectedClass(isRemoval: boolean): void;
     getUuids(): [string, string];
     getCost(): number;
     setCost(c: number): void;
@@ -114,6 +111,4 @@ export declare class Connection<E = any> extends OverlayCapableComponent {
      * @param endpointDef Spec for the new Endpoint.
      */
     replaceEndpoint(idx: number, endpointDef: EndpointSpec): void;
-    static prepareEndpoint<E>(conn: Connection, existing: Endpoint, index: number, element?: E, elementId?: string, endpoint?: EndpointSpec): Endpoint;
-    private static _makeAnchor;
 }

@@ -1,7 +1,6 @@
 import { jsPlumbDefaults } from "./defaults";
-import { Connection } from "./connector/connection-impl";
+import { Connection, ConnectionParams } from "./connector/connection-impl";
 import { Endpoint, EndpointSpec } from "./endpoint/endpoint";
-import { FullOverlaySpec, OverlaySpec } from "./overlay/overlay";
 import { AnchorPlacement, RedrawResult } from "./router/router";
 import { RotatedPointXY } from "./util";
 import { Dictionary, UpdateOffsetOptions, Size, jsPlumbElement, ConnectParams, // <--
@@ -109,7 +108,6 @@ export declare abstract class JsPlumbInstance<T extends {
     getContainer(): any;
     setZoom(z: number, repaintEverything?: boolean): boolean;
     _idstamp(): string;
-    convertToFullOverlaySpec(spec: string | OverlaySpec): FullOverlaySpec;
     checkCondition(conditionName: string, args?: any): boolean;
     getId(element: T["E"], uuid?: string): string;
     getConnections(options?: SelectOptions<T["E"]>, flat?: boolean): Dictionary<Connection> | Array<Connection>;
@@ -117,7 +115,17 @@ export declare abstract class JsPlumbInstance<T extends {
     selectEndpoints(params?: SelectEndpointOptions<T["E"]>): EndpointSelection;
     setContainer(c: T["E"]): void;
     private _set;
+    /**
+     * Change the source of the given connection to be the given endpoint or element.
+     * @param connection
+     * @param el
+     */
     setSource(connection: Connection, el: T["E"] | Endpoint): void;
+    /**
+     * Change the target of the given connection to be the given endpoint or element.
+     * @param connection
+     * @param el
+     */
     setTarget(connection: Connection, el: T["E"] | Endpoint): void;
     /**
      * Returns whether or not hover is currently suspended.
@@ -214,7 +222,7 @@ export declare abstract class JsPlumbInstance<T extends {
      */
     repaint(el: T["E"]): void;
     private _draw;
-    unregisterEndpoint(endpoint: Endpoint): void;
+    private unregisterEndpoint;
     maybePruneEndpoint(endpoint: Endpoint): boolean;
     deleteEndpoint(object: string | Endpoint): JsPlumbInstance;
     /**
@@ -250,7 +258,7 @@ export declare abstract class JsPlumbInstance<T extends {
      */
     connect(params: ConnectParams, referenceParams?: ConnectParams): Connection;
     private _prepareConnectionParams;
-    _newConnection(params: any): Connection;
+    _newConnection(params: ConnectionParams): Connection;
     _finaliseConnection(jpc: Connection, params?: any, originalEvent?: Event): void;
     removeAllEndpoints(el: T["E"], recurse?: boolean, affectedElements?: Array<T["E"]>): JsPlumbInstance;
     private _setEnabled;
@@ -283,6 +291,12 @@ export declare abstract class JsPlumbInstance<T extends {
     unmakeEveryTarget(connectionType?: string): void;
     private _writeScopeAttribute;
     protected _createSourceDefinition(params?: SourceBehaviouralTypeDescriptor, referenceParams?: SourceBehaviouralTypeDescriptor): SourceDefinition;
+    /**
+     * Register the given element as a connection source.
+     * @param el
+     * @param params
+     * @param referenceParams
+     */
     makeSource(el: T["E"], params?: SourceBehaviouralTypeDescriptor, referenceParams?: SourceBehaviouralTypeDescriptor): JsPlumbInstance;
     /**
      * Registers a selector for connection drag on the instance. This is a newer version of the `makeSource` functionality
@@ -304,6 +318,15 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param selector
      */
     removeTargetSelector(selector: TargetSelector): void;
+    /**
+     * Registers a selector for connection drag on the instance. This is a newer version of the `makeTarget` functionality
+     * that has been in jsPlumb since the early days. With this approach, rather than calling `makeTarget` on every element, you
+     * can register a CSS selector on the instance that identifies something that is common to your elements. This will only respond to
+     * mouse events on elements that are managed by the instance.
+     * @param selector CSS3 selector identifying child element(s) of some managed element that should act as a connection target.
+     * @param params Options for the target
+     * @param exclude If true, the selector defines an 'exclusion': anything _except_ elements that match this.
+     */
     addTargetSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): TargetSelector;
     private _getScope;
     getSourceScope(el: T["E"]): string;
@@ -339,7 +362,7 @@ export declare abstract class JsPlumbInstance<T extends {
     getManagedElements(): Dictionary<ManagedElement<T["E"]>>;
     proxyConnection(connection: Connection, index: number, proxyEl: T["E"], endpointGenerator: (c: Connection, idx: number) => EndpointSpec, anchorGenerator: (c: Connection, idx: number) => AnchorSpec): void;
     unproxyConnection(connection: Connection, index: number): void;
-    sourceOrTargetChanged(originalId: string, newId: string, connection: any, newElement: any, index: number): void;
+    sourceOrTargetChanged(originalId: string, newId: string, connection: Connection, newElement: T["E"], index: number): void;
     getGroup(groupId: string): UIGroup<T["E"]>;
     getGroupFor(el: T["E"]): UIGroup<T["E"]>;
     addGroup(params: AddGroupOptions<T["E"]>): UIGroup<T["E"]>;

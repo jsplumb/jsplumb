@@ -6,7 +6,7 @@ import { ComponentOptions } from "../component/component";
 import { ConnectorSpec } from "../connector/abstract-connector";
 import { Connection } from "../connector/connection-impl";
 import { EndpointRepresentation } from './endpoints';
-import { JsPlumbInstance } from '../core';
+import { DeleteConnectionOptions, JsPlumbInstance } from '../core';
 import { OverlayCapableComponent } from '../component/overlay-capable-component';
 export declare type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndpointId;
 export declare type UserDefinedEndpointId = string;
@@ -109,39 +109,51 @@ export declare class Endpoint<E = any> extends OverlayCapableComponent {
     connectorHoverStyle: PaintStyle;
     dragProxy: any;
     deleteOnEmpty: boolean;
-    private uuid;
+    private readonly uuid;
     scope: string;
     defaultLabelLocation: [number, number];
     getDefaultOverlayKey(): string;
     constructor(instance: JsPlumbInstance, params: InternalEndpointOptions<E>);
     private _updateAnchorClass;
     private prepareAnchor;
-    setPreparedAnchor(anchor: Anchor): Endpoint;
+    private setPreparedAnchor;
     setAnchor(anchorParams: AnchorSpec | Array<AnchorSpec>): Endpoint;
     addConnection(conn: Connection): void;
     /**
      * Detaches this Endpoint from the given Connection.  If `deleteOnEmpty` is set to true and there are no
      * Connections after this one is detached, the Endpoint is deleted.
-     * @param connection
-     * @param idx
+     * @param connection Connection from which to detach.
+     * @param idx Optional, used internally to identify if this is the source (0) or target endpoint (1). Sometimes we already know this when we call this method.
+     * @param transientDetach For internal use only.
      */
     detachFromConnection(connection: Connection, idx?: number, transientDetach?: boolean): void;
-    deleteEveryConnection(params?: any): void;
-    detachFrom(targetEndpoint: Endpoint): Endpoint;
+    /**
+     * Delete every connection in the instance.
+     * @param params
+     */
+    deleteEveryConnection(params?: DeleteConnectionOptions): void;
+    /**
+     * Removes all connections from this endpoint to the given other endpoint.
+     * @param otherEndpoint
+     */
+    detachFrom(otherEndpoint: Endpoint): Endpoint;
     setVisible(v: boolean, doNotChangeConnections?: boolean, doNotNotifyOtherEndpoint?: boolean): void;
     applyType(t: any, typeMap: any): void;
     destroy(force?: boolean): void;
     isFull(): boolean;
     isFloating(): boolean;
-    isConnectedTo(endpoint: Endpoint): boolean;
-    setElementId(_elId: string): void;
+    /**
+     * Test if this Endpoint is connected to the given Endpoint.
+     * @param otherEndpoint
+     */
+    isConnectedTo(otherEndpoint: Endpoint): boolean;
     setDragAllowedWhenFull(allowed: boolean): void;
     equals(endpoint: Endpoint): boolean;
     getUuid(): string;
     connectorSelector(): Connection;
-    prepareEndpoint<C>(ep: EndpointSpec | EndpointRepresentation<C>, typeId?: string): EndpointRepresentation<C>;
+    private prepareEndpoint;
     setEndpoint(ep: EndpointSpec): void;
-    setPreparedEndpoint<C>(ep: EndpointRepresentation<C>): void;
+    private setPreparedEndpoint;
     addClass(clazz: string, dontUpdateOverlays?: boolean): void;
     removeClass(clazz: string, dontUpdateOverlays?: boolean): void;
 }

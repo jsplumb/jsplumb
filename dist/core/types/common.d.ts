@@ -14,7 +14,6 @@ export interface jsPlumbElement<E> {
     _jsPlumbGroup: UIGroup<E>;
     _jsPlumbParentGroup: UIGroup<E>;
     _jspContext?: any;
-    _jsPlumbConnections: Dictionary<boolean>;
     _jsPlumbProxies: Array<[Connection, number]>;
     _isJsPlumbGroup: boolean;
     parentNode: jsPlumbElement<E>;
@@ -39,6 +38,8 @@ export interface ConnectParams {
     endpointHoverStyle?: EndpointStyle;
     ports?: [string, string];
     type?: string;
+    paintStyle?: PaintStyle;
+    hoverPaintStyle?: PaintStyle;
 }
 export interface InternalConnectParams<E> extends ConnectParams {
     sourceEndpoint?: Endpoint<E>;

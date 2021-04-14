@@ -2587,7 +2587,7 @@
             this.jpc = null;
           }
         }
-        var beforeDrag = this.instance.checkCondition(this.jpc == null ? "beforeDrag" : "beforeStartDetach", {
+        var beforeDrag = this.instance.checkCondition(this.jpc == null ? core.INTERCEPT_BEFORE_DRAG : core.INTERCEPT_BEFORE_START_DETACH, {
           endpoint: this.ep,
           source: this.ep.element,
           sourceId: this.ep.elementId,
@@ -2738,7 +2738,6 @@
             targetEndpoint: this.floatingEndpoint,
             source: this.ep.element,
             target: this.placeholderInfo.element,
-            anchors: [this.ep.anchor, this.floatingEndpoint.anchor],
             paintStyle: this.ep.connectorStyle,
             hoverPaintStyle: this.ep.connectorHoverStyle,
             connector: this.ep.connector,
@@ -2825,8 +2824,13 @@
                   targetEndpoint: newDropTarget.endpoint.endpoint,
                   connection: this.jpc
                 });
-                newDropTarget.endpoint.endpoint[(bb ? "add" : "remove") + "Class"](this.instance.endpointDropAllowedClass);
-                newDropTarget.endpoint.endpoint[(bb ? "remove" : "add") + "Class"](this.instance.endpointDropForbiddenClass);
+                if (bb) {
+                  newDropTarget.endpoint.endpoint.addClass(this.instance.endpointDropAllowedClass);
+                  newDropTarget.endpoint.endpoint.removeClass(this.instance.endpointDropForbiddenClass);
+                } else {
+                  newDropTarget.endpoint.endpoint.removeClass(this.instance.endpointDropAllowedClass);
+                  newDropTarget.endpoint.endpoint.addClass(this.instance.endpointDropForbiddenClass);
+                }
                 this.floatingAnchor.over(newDropTarget.endpoint.anchor, newDropTarget.endpoint);
               } else {
                 newDropTarget = null;
@@ -2969,12 +2973,12 @@
       }
     }, {
       key: "_getSourceDefinitionFromInstance",
-      value: function _getSourceDefinitionFromInstance(fromElement, evt, ignoreFilter) {
+      value: function _getSourceDefinitionFromInstance(evt, ignoreFilter) {
         var selector;
         for (var i = 0; i < this.instance.sourceSelectors.length; i++) {
           selector = this.instance.sourceSelectors[i];
           if (selector.isEnabled()) {
-            var r = selectorFilter(evt, fromElement, selector.selector, this.instance, selector.exclude);
+            var r = selectorFilter(evt, this.instance.getContainer(), selector.selector, this.instance, selector.exclude);
             if (r !== false) {
               return selector.def;
             }
@@ -2984,7 +2988,7 @@
     }, {
       key: "_getSourceDefinition",
       value: function _getSourceDefinition(fromElement, evt, ignoreFilter) {
-        return this._getSourceDefinitionFromElement(fromElement, evt, ignoreFilter) || this._getSourceDefinitionFromInstance(fromElement, evt, ignoreFilter);
+        return this._getSourceDefinitionFromElement(fromElement, evt, ignoreFilter) || this._getSourceDefinitionFromInstance(evt, ignoreFilter);
       }
     }, {
       key: "_getTargetDefinitionFromElement",
@@ -3008,12 +3012,12 @@
       }
     }, {
       key: "_getTargetDefinitionFromInstance",
-      value: function _getTargetDefinitionFromInstance(fromElement, evt, ignoreFilter) {
+      value: function _getTargetDefinitionFromInstance(evt, ignoreFilter) {
         var selector;
         for (var i = 0; i < this.instance.targetSelectors.length; i++) {
           selector = this.instance.targetSelectors[i];
           if (selector.isEnabled()) {
-            var r = selectorFilter(evt, fromElement, selector.selector, this.instance, selector.exclude);
+            var r = selectorFilter(evt, this.instance.getContainer(), selector.selector, this.instance, selector.exclude);
             if (r !== false) {
               return selector.def;
             }
@@ -3024,16 +3028,18 @@
     }, {
       key: "_getTargetDefinition",
       value: function _getTargetDefinition(fromElement, evt) {
-        return this._getTargetDefinitionFromElement(fromElement, evt) || this._getTargetDefinitionFromInstance(fromElement, evt);
+        return this._getTargetDefinitionFromElement(fromElement, evt) || this._getTargetDefinitionFromInstance(evt);
       }
     }, {
       key: "_getDropEndpoint",
       value: function _getDropEndpoint(p, jpc) {
         var dropEndpoint;
         if (this.currentDropTarget.endpoint == null) {
-          var targetDefinition = this.floatingIndex == null || this.floatingIndex === 1 ? this._getTargetDefinition(this.currentDropTarget.el, p.e) : null;
-          if (targetDefinition == null) {
-            targetDefinition = this.floatingIndex == null || this.floatingIndex === 0 ? this._getSourceDefinition(this.currentDropTarget.el, p.e, true) : null;
+          var targetDefinition;
+          if (this.floatingIndex == null || this.floatingIndex === 1) {
+            targetDefinition = this._getTargetDefinition(this.currentDropTarget.el, p.e);
+          } else if (this.floatingIndex === 0) {
+            targetDefinition = this._getSourceDefinition(this.currentDropTarget.el, p.e, true);
           }
           if (targetDefinition == null) {
             return null;
@@ -3145,7 +3151,7 @@
           }, originalEvent);
         }
         if (idx === 1) {
-          this.jpc.updateConnectedClass(false);
+          this.instance.sourceOrTargetChanged(this.floatingId, this.jpc.targetId, this.jpc, this.jpc.target, 1);
         } else {
           this.instance.sourceOrTargetChanged(this.floatingId, this.jpc.sourceId, this.jpc, this.jpc.source, 0);
         }
@@ -3676,23 +3682,25 @@
             wh[0] = extents.xmax + (extents.xmin < 0 ? -extents.xmin : 0);
             wh[1] = extents.ymax + (extents.ymin < 0 ? -extents.ymin : 0);
           }
-          if (useDivWrapper) {
-            _size(connector.canvas, xy[0], xy[1], wh[0], wh[1]);
-            xy[0] = 0;
-            xy[1] = 0;
-            p = _pos([0, 0]);
-            _attr(connector.svg, {
-              "style": p,
-              "width": "" + (wh[0] || 0),
-              "height": "" + (wh[1] || 0)
-            });
-          } else {
-            p = _pos([xy[0], xy[1]]);
-            _attr(connector.canvas, {
-              "style": p,
-              "width": "" + (wh[0] || 0),
-              "height": "" + (wh[1] || 0)
-            });
+          if (isFinite(wh[0]) && isFinite(wh[1])) {
+            if (useDivWrapper) {
+              _size(connector.canvas, xy[0], xy[1], wh[0], wh[1]);
+              xy[0] = 0;
+              xy[1] = 0;
+              p = _pos([0, 0]);
+              _attr(connector.svg, {
+                "style": p,
+                "width": "" + (wh[0] || 0),
+                "height": "" + (wh[1] || 0)
+              });
+            } else {
+              p = _pos([xy[0], xy[1]]);
+              _attr(connector.canvas, {
+                "style": p,
+                "width": "" + (wh[0] || 0),
+                "height": "" + (wh[1] || 0)
+              });
+            }
           }
         }
       }
