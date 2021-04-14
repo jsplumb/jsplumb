@@ -20,7 +20,7 @@ import {
     RedrawResult,
     UIGroup,
     forEach,
-    getFromSetWithFunction, intersects, PointXY, Size
+    getFromSetWithFunction, intersects, PointXY, Size, SELECTOR_MANAGED_ELEMENT
 } from "@jsplumb/core"
 
 type IntersectingGroup = {
@@ -88,7 +88,7 @@ function isActiveDragGroupMember(dragGroup:DragGroup, el:HTMLElement): boolean {
 
 export class ElementDragHandler implements DragHandler {
 
-    selector: string = "> [jtk-managed]"
+    selector: string = "> " + SELECTOR_MANAGED_ELEMENT
     private _dragOffset:PointXY = null
     private _groupLocations:Array<GroupLocation> = []
     private _intersectingGroups:Array<IntersectingGroup> = []
