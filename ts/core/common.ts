@@ -19,7 +19,7 @@ export interface jsPlumbElement<E> {
     parentNode:jsPlumbElement<E>
 }
 
-export interface ConnectParams {
+export interface ConnectParams<E> {
     uuids?: [UUID, UUID]
     source?: Element | Endpoint
     target?: Element | Endpoint
@@ -43,7 +43,7 @@ export interface ConnectParams {
     hoverPaintStyle?:PaintStyle
 }
 
-export interface InternalConnectParams<E> extends ConnectParams {
+export interface InternalConnectParams<E> extends ConnectParams<E> {
     sourceEndpoint?:Endpoint<E>
     targetEndpoint?:Endpoint<E>
     scope?:string

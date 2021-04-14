@@ -10,15 +10,13 @@ export declare type UUID = string;
 export interface jsPlumbElement<E> {
     _jsPlumbTargetDefinitions: Array<TargetDefinition>;
     _jsPlumbSourceDefinitions: Array<SourceDefinition>;
-    _jsplumbid: string;
     _jsPlumbGroup: UIGroup<E>;
     _jsPlumbParentGroup: UIGroup<E>;
-    _jspContext?: any;
     _jsPlumbProxies: Array<[Connection, number]>;
     _isJsPlumbGroup: boolean;
     parentNode: jsPlumbElement<E>;
 }
-export interface ConnectParams {
+export interface ConnectParams<E> {
     uuids?: [UUID, UUID];
     source?: Element | Endpoint;
     target?: Element | Endpoint;
@@ -41,7 +39,7 @@ export interface ConnectParams {
     paintStyle?: PaintStyle;
     hoverPaintStyle?: PaintStyle;
 }
-export interface InternalConnectParams<E> extends ConnectParams {
+export interface InternalConnectParams<E> extends ConnectParams<E> {
     sourceEndpoint?: Endpoint<E>;
     targetEndpoint?: Endpoint<E>;
     scope?: string;

@@ -256,7 +256,7 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param params At the very least you need to supply {source:.., target:...}.
      * @param referenceParams Optional extra parameters. This can be useful when you're creating multiple connections that have some things in common.
      */
-    connect(params: ConnectParams, referenceParams?: ConnectParams): Connection;
+    connect(params: ConnectParams<T["E"]>, referenceParams?: ConnectParams<T["E"]>): Connection;
     private _prepareConnectionParams;
     _newConnection(params: ConnectionParams): Connection;
     _finaliseConnection(jpc: Connection, params?: any, originalEvent?: Event): void;

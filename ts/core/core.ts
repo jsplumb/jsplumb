@@ -1206,7 +1206,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      * @param params At the very least you need to supply {source:.., target:...}.
      * @param referenceParams Optional extra parameters. This can be useful when you're creating multiple connections that have some things in common.
      */
-    connect (params:ConnectParams, referenceParams?:ConnectParams):Connection {
+    connect (params:ConnectParams<T["E"]>, referenceParams?:ConnectParams<T["E"]>):Connection {
 
         // prepare a final set of parameters to create connection with
 
@@ -1235,7 +1235,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return jpc
     }
 
-    private _prepareConnectionParams(params:ConnectParams, referenceParams?:ConnectParams):InternalConnectParams<T["E"]> {
+    private _prepareConnectionParams(params:ConnectParams<T["E"]>, referenceParams?:ConnectParams<T["E"]>):InternalConnectParams<T["E"]> {
 
         let _p:InternalConnectParams<T["E"]> = extend({ }, params)
         if (referenceParams) {
