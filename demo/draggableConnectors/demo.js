@@ -42,8 +42,8 @@
             hoverPaintStyle: { stroke: "orange" },
             endpointStyle: { width: 20, height: 16, stroke: '#666' },
             endpoint: "Rectangle",
-            anchors: ["Top", "Top"],
-            container: document.getElementById("canvas"),
+            anchors: ["TopCenter", "TopCenter"],
+            container: canvas,
             dropOptions:{activeClass:"dragActive", hoverClass:"dropHover"}
         });
 
@@ -98,10 +98,10 @@
                 scope: "blue",
                 connectorStyle: {
                     gradient: {stops: [
-                        [0, exampleColor],
-                        [0.5, "#09098e"],
-                        [1, exampleColor]
-                    ]},
+                            [0, exampleColor],
+                            [0.5, "#09098e"],
+                            [1, exampleColor]
+                        ]},
                     strokeWidth: 5,
                     stroke: exampleColor,
                     dashstyle: "2 2"
@@ -206,20 +206,20 @@
 
             var hideLinks = document.querySelectorAll(".drag-drop-demo .hide");
             instance.on(hideLinks, "click", function (e) {
-                instance.toggleVisible(instance.getElement(this.getAttribute("rel")));
+                instance.toggleVisible(this.parentNode);
                 instance.consume(e);
             });
 
             var dragLinks = document.querySelectorAll(".drag-drop-demo .drag");
             instance.on(dragLinks, "click", function (e) {
-                var s = instance.toggleDraggable(instance.getElement(this.getAttribute("rel")));
+                var s = instance.toggleDraggable(this.parentNode);
                 this.innerHTML = (s ? 'disable dragging' : 'enable dragging');
                 instance.consume(e);
             });
 
             var detachLinks = document.querySelectorAll(".drag-drop-demo .detach");
             instance.on(detachLinks, "click", function (e) {
-                instance.deleteConnectionsForElement(instance.getElement(this.getAttribute("rel")));
+                instance.deleteConnectionsForElement(this.parentNode);
                 instance.consume(e);
             });
 
@@ -229,8 +229,6 @@
                 instance.consume(e);
             });
         });
-
-      //  jsPlumb.fire("jsPlumbDemoLoaded", instance);
 
     });
 })();
