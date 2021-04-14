@@ -59,6 +59,17 @@ import { OverlayCapableComponent } from './component/overlay-capable-component'
 import { PaintStyle} from './styles'
 import {AnchorComputeParams, AnchorSpec, AnchorLocations } from "./factory/anchor-factory"
 import {SourceSelector, TargetSelector} from "./source-selector"
+import {
+    CLASS_CONNECTED,
+    CLASS_CONNECTOR,
+    CLASS_CONNECTOR_OUTLINE,
+    CLASS_ENDPOINT, CLASS_ENDPOINT_ANCHOR_PREFIX,
+    CLASS_ENDPOINT_CONNECTED,
+    CLASS_ENDPOINT_DROP_ALLOWED,
+    CLASS_ENDPOINT_DROP_FORBIDDEN,
+    CLASS_ENDPOINT_FULL,
+    CLASS_OVERLAY
+} from "./constants"
 
 function _scopeMatch(e1:Endpoint, e2:Endpoint):boolean {
     let s1 = e1.scope.split(/\s/), s2 = e2.scope.split(/\s/)
@@ -235,16 +246,16 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     _suspendDrawing:boolean = false
     _suspendedAt:string = null
 
-    connectorClass = "jtk-connector"
-    connectorOutlineClass = "jtk-connector-outline"
-    connectedClass = "jtk-connected"
-    endpointClass = "jtk-endpoint"
-    endpointConnectedClass = "jtk-endpoint-connected"
-    endpointFullClass = "jtk-endpoint-full"
-    endpointDropAllowedClass = "jtk-endpoint-drop-allowed"
-    endpointDropForbiddenClass = "jtk-endpoint-drop-forbidden"
-    endpointAnchorClassPrefix = "jtk-endpoint-anchor"
-    overlayClass = "jtk-overlay"
+    connectorClass = CLASS_CONNECTOR
+    connectorOutlineClass = CLASS_CONNECTOR_OUTLINE
+    connectedClass = CLASS_CONNECTED
+    endpointClass = CLASS_ENDPOINT
+    endpointConnectedClass = CLASS_ENDPOINT_CONNECTED
+    endpointFullClass = CLASS_ENDPOINT_FULL
+    endpointDropAllowedClass = CLASS_ENDPOINT_DROP_ALLOWED
+    endpointDropForbiddenClass = CLASS_ENDPOINT_DROP_FORBIDDEN
+    endpointAnchorClassPrefix = CLASS_ENDPOINT_ANCHOR_PREFIX
+    overlayClass = CLASS_OVERLAY
 
     readonly connections:Array<Connection> = []
     endpointsByElement:Dictionary<Array<Endpoint>> = {}
@@ -1562,7 +1573,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         if (el[key]) {
             if (connectionType === "*") {
                 delete el[key]
-                this.removeAttribute(el, "jtk-" + type)
+                this.removeAttribute(el, "data-jtk-" + type)
             } else {
                 let t: Array<any> = []
                 forEach(el[key], (def: any) => {
@@ -1575,14 +1586,14 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
                     el[key] = t
                 } else {
                     delete el[key]
-                    this.removeAttribute(el, "jtk-" + type)
+                    this.removeAttribute(el, "data-jtk-" + type)
                 }
             }
         }
     }
 
     private _unmakeEvery (type:string, key:string, connectionType?:string) {
-        let els = this.getSelector(this.getContainer(), "[jtk-" + type + "]")
+        let els = this.getSelector(this.getContainer(), "[data-jtk-" + type + "]")
         for (let i = 0; i < els.length; i++) {
             this._unmake(type, key, els[i], connectionType)
         }
@@ -1611,7 +1622,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     private _writeScopeAttribute (el:T["E"], scope:string):void {
         let scopes = scope.split(/\s/)
         for (let i = 0; i < scopes.length; i++) {
-            this.setAttribute(el, Constants.SCOPE_PREFIX + scopes[i], "")
+            this.setAttribute(el, Constants.ATTRIBUTE_SCOPE_PREFIX + scopes[i], "")
         }
     }
 
