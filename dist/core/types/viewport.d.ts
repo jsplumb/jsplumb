@@ -34,6 +34,7 @@ export declare class Viewport<T extends {
     private _updateElementIndex;
     private _updateBounds;
     private _recalculateBounds;
+    recomputeBounds(): void;
     private _finaliseUpdate;
     shouldFireEvent(event: string, value: unknown, originalEvent?: Event): boolean;
     startTransaction(): void;
@@ -55,8 +56,14 @@ export declare class Viewport<T extends {
      * @param width
      * @param height
      * @param rotation
+     * @param doNotRecalculateBounds Defaults to false. For internal use. If true, does not update viewport bounds after updating the element.
      */
-    updateElement(id: string, x: number, y: number, width: number, height: number, rotation: number): ViewportElement<T["E"]>;
+    updateElement(id: string, x: number, y: number, width: number, height: number, rotation: number, doNotRecalculateBounds?: boolean): ViewportElement<T["E"]>;
+    /**
+     * Update the size/offset of the element with the given id, and adjust viewport bounds.
+     * @param elId
+     * @private
+     */
     refreshElement(elId: string): ViewportElement<T["E"]>;
     protected getSize(el: T["E"]): Size;
     protected getOffset(el: T["E"]): PointXY;
@@ -64,7 +71,7 @@ export declare class Viewport<T extends {
      * Creates an empty entry for an element with the given ID.
      * @param id
      */
-    registerElement(id: string): ViewportElement<T["E"]>;
+    registerElement(id: string, doNotRecalculateBounds?: boolean): ViewportElement<T["E"]>;
     /**
      * Adds the element with the given id, with the given values for x, y, width, height and rotation. Any of these may be null.
      * @param id

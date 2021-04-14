@@ -3110,6 +3110,14 @@
     }
     return className.join(" ");
   }
+  function att() {
+    for (var _len3 = arguments.length, attName = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+      attName[_key3] = arguments[_key3];
+    }
+    return attName.map(function (an) {
+      return "[" + an + "]";
+    }).join(",");
+  }
   var SOURCE_DEFINITION_LIST = "_jsPlumbSourceDefinitions";
   var TARGET_DEFINITION_LIST = "_jsPlumbTargetDefinitions";
   var DEFAULT = "default";
@@ -3128,6 +3136,7 @@
   var STATIC = "static";
   var ATTRIBUTE_CONTAINER = "jtk-container";
   var ATTRIBUTE_GROUP = "jtk-group";
+  var ATTRIBUTE_GROUP_CONTENT = "jtk-group-content";
   var ATTRIBUTE_MANAGED = "jtk-managed";
   var ATTRIBUTE_NOT_DRAGGABLE = "jtk-not-draggable";
   var ATTRIBUTE_SOURCE = "jtk-source";
@@ -3200,8 +3209,8 @@
   var PROPERTY_POSITION = "position";
   var SELECTOR_CONNECTOR = cls(CLASS_CONNECTOR);
   var SELECTOR_ENDPOINT = cls(CLASS_ENDPOINT);
-  var SELECTOR_GROUP_CONTAINER = "[jtk-group-content]";
-  var SELECTOR_MANAGED_ELEMENT = "[jtk-managed]";
+  var SELECTOR_GROUP_CONTAINER = att(ATTRIBUTE_GROUP_CONTENT);
+  var SELECTOR_MANAGED_ELEMENT = att(ATTRIBUTE_MANAGED);
   var SELECTOR_OVERLAY = cls(CLASS_OVERLAY);
   var SCOPE_PREFIX = "jtk-scope-";
 
@@ -6074,7 +6083,7 @@
         });
         var childMembers = [];
         forEach(members, function (member) {
-          Array.prototype.push.apply(childMembers, _this3.instance.getSelector(member, "[jtk-managed]"));
+          Array.prototype.push.apply(childMembers, _this3.instance.getSelector(member, SELECTOR_MANAGED_ELEMENT));
         });
         Array.prototype.push.apply(members, childMembers);
         if (members.length > 0) {
@@ -7447,6 +7456,9 @@
     }
     return c;
   };
+  var reverseEntryComparator = function reverseEntryComparator(value, arrayEntry) {
+    return entryComparator(value, arrayEntry) * -1;
+  };
   var Viewport =
   function (_EventGenerator) {
     _inherits(Viewport, _EventGenerator);
@@ -7513,11 +7525,33 @@
         this._bounds.maxy = this._sortedElements.ymax.length > 0 ? this._sortedElements.ymax[0][1] : 0;
       }
     }, {
+      key: "recomputeBounds",
+      value: function recomputeBounds() {
+        var _this2 = this;
+        this._sortedElements.xmin.length = 0;
+        this._sortedElements.xmax.length = 0;
+        this._sortedElements.ymin.length = 0;
+        this._sortedElements.ymax.length = 0;
+        this._elementMap.forEach(function (vp, id) {
+          _this2._sortedElements.xmin.push([id, vp.t.x]);
+          _this2._sortedElements.xmax.push([id, vp.t.x + vp.t.w]);
+          _this2._sortedElements.ymin.push([id, vp.t.y]);
+          _this2._sortedElements.ymax.push([id, vp.t.y + vp.t.h]);
+        });
+        this._sortedElements.xmin.sort(entryComparator);
+        this._sortedElements.ymin.sort(entryComparator);
+        this._sortedElements.xmax.sort(reverseEntryComparator);
+        this._sortedElements.ymax.sort(reverseEntryComparator);
+        this._recalculateBounds();
+      }
+    }, {
       key: "_finaliseUpdate",
       value: function _finaliseUpdate(id, e, doNotRecalculateBounds) {
         e.t = rotate(e.x, e.y, e.w, e.h, e.r);
         this._transformedElementMap.set(id, e.t);
-        this._updateBounds(id, e, doNotRecalculateBounds);
+        if (doNotRecalculateBounds !== true) {
+          this._updateBounds(id, e, doNotRecalculateBounds);
+        }
       }
     }, {
       key: "shouldFireEvent",
@@ -7535,27 +7569,27 @@
     }, {
       key: "endTransaction",
       value: function endTransaction() {
-        var _this2 = this;
+        var _this3 = this;
         if (this._currentTransaction != null) {
           this._currentTransaction.affectedElements.forEach(function (id) {
-            var entry = _this2.getPosition(id);
-            _this2._finaliseUpdate(id, entry, true);
+            var entry = _this3.getPosition(id);
+            _this3._finaliseUpdate(id, entry, true);
           });
-          this._recalculateBounds();
+          this.recomputeBounds();
           this._currentTransaction = null;
         }
       }
     }, {
       key: "updateElements",
       value: function updateElements(entries) {
-        var _this3 = this;
+        var _this4 = this;
         forEach(entries, function (e) {
-          return _this3.updateElement(e.id, e.x, e.y, e.width, e.height, e.rotation);
+          return _this4.updateElement(e.id, e.x, e.y, e.width, e.height, e.rotation);
         });
       }
     }, {
       key: "updateElement",
-      value: function updateElement(id, x, y, width, height, rotation) {
+      value: function updateElement(id, x, y, width, height, rotation, doNotRecalculateBounds) {
         var e = getsert(this._elementMap, id, EMPTY_POSITION);
         e.dirty = x == null && e.x == null || y == null && e.y == null || width == null && e.w == null || height == null && e.h == null;
         if (x != null) {
@@ -7609,8 +7643,8 @@
       }
     }, {
       key: "registerElement",
-      value: function registerElement(id) {
-        return this.updateElement(id, 0, 0, 0, 0, 0);
+      value: function registerElement(id, doNotRecalculateBounds) {
+        return this.updateElement(id, 0, 0, 0, 0, 0, doNotRecalculateBounds);
       }
     }, {
       key: "addElement",
@@ -8155,6 +8189,7 @@
           this._suspendedAt = "" + new Date().getTime();
         } else {
           this._suspendedAt = null;
+          this.viewport.recomputeBounds();
         }
         if (repaintAfterwards) {
           this.repaintEverything();
@@ -8251,12 +8286,12 @@
     }, {
       key: "deleteConnectionsForElement",
       value: function deleteConnectionsForElement(el, params) {
-        params = params || {};
         var id = this.getId(el),
-            endpoints = this.endpointsByElement[id];
-        if (endpoints && endpoints.length) {
-          for (var i = 0, j = endpoints.length; i < j; i++) {
-            endpoints[i].deleteEveryConnection(params);
+            m = this._managedElements[id];
+        if (m) {
+          var l = m.connections.length;
+          for (var i = 0; i < l; i++) {
+            this.deleteConnection(m.connections[0], params);
           }
         }
         return this;
@@ -8301,16 +8336,17 @@
         var elId = this.getId(element);
         if (!this._managedElements[elId]) {
           this.setAttribute(element, ATTRIBUTE_MANAGED, "");
-          this._managedElements[elId] = {
+          var obj = {
             el: element,
             endpoints: [],
             connections: [],
             rotation: 0
           };
+          this._managedElements[elId] = obj;
           if (this._suspendDrawing) {
-            this._managedElements[elId].viewportElement = this.viewport.registerElement(elId);
+            obj.viewportElement = this.viewport.registerElement(elId, true);
           } else {
-            this._managedElements[elId].viewportElement = this.updateOffset({
+            obj.viewportElement = this.updateOffset({
               elId: elId,
               recalc: true
             });
@@ -8639,7 +8675,7 @@
           source: el
         }, p);
         var id = this.getId(_p.source);
-        this.manage(el, null, !this._suspendDrawing);
+        this.manage(el, id, !this._suspendDrawing);
         var e = this.newEndpoint(_p, id);
         addToDictionary(this.endpointsByElement, id, e);
         if (!this._suspendDrawing) {
@@ -9392,14 +9428,16 @@
     }, {
       key: "sourceOrTargetChanged",
       value: function sourceOrTargetChanged(originalId, newId, connection, newElement, index) {
-        if (index === 0) {
-          if (originalId !== newId) {
+        if (originalId !== newId) {
+          if (index === 0) {
             connection.sourceId = newId;
             connection.source = newElement;
+          } else if (index === 1) {
+            connection.targetId = newId;
+            connection.target = newElement;
           }
-        } else if (index === 1) {
-          connection.targetId = newId;
-          connection.target = newElement;
+          removeManagedConnection(connection, this._managedElements[originalId]);
+          addManagedConnection(connection, this._managedElements[newId]);
         }
       }
     }, {
@@ -9841,6 +9879,7 @@
   exports.ABSOLUTE = ABSOLUTE;
   exports.ATTRIBUTE_CONTAINER = ATTRIBUTE_CONTAINER;
   exports.ATTRIBUTE_GROUP = ATTRIBUTE_GROUP;
+  exports.ATTRIBUTE_GROUP_CONTENT = ATTRIBUTE_GROUP_CONTENT;
   exports.ATTRIBUTE_MANAGED = ATTRIBUTE_MANAGED;
   exports.ATTRIBUTE_NOT_DRAGGABLE = ATTRIBUTE_NOT_DRAGGABLE;
   exports.ATTRIBUTE_SOURCE = ATTRIBUTE_SOURCE;
@@ -9987,6 +10026,7 @@
   exports.addToDictionary = addToDictionary;
   exports.addToList = addToList;
   exports.addWithFunction = addWithFunction;
+  exports.att = att;
   exports.boundingBoxIntersection = boundingBoxIntersection;
   exports.boxIntersection = boxIntersection;
   exports.classList = classList;

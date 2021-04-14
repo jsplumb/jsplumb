@@ -163,6 +163,11 @@ export declare abstract class JsPlumbInstance<T extends {
      */
     deleteConnection(connection: Connection, params?: DeleteConnectionOptions): boolean;
     deleteEveryConnection(params?: DeleteConnectionOptions): number;
+    /**
+     * Delete all connections attached to the given element.
+     * @param el
+     * @param params
+     */
     deleteConnectionsForElement(el: T["E"], params?: DeleteConnectionOptions): JsPlumbInstance;
     private fireDetachEvent;
     fireMoveEvent(params?: ConnectionMovedParams, evt?: Event): void;

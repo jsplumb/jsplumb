@@ -2430,8 +2430,8 @@ function () {
     var container = instance.getContainer();
     this.mousedownHandler = this._mousedownHandler.bind(this);
     this.mouseupHandler = this._mouseupHandler.bind(this);
-    instance.on(container, EVENT_MOUSEDOWN, "[jtk-managed]", this.mousedownHandler);
-    instance.on(container, EVENT_MOUSEUP, "[jtk-managed]", this.mouseupHandler);
+    instance.on(container, EVENT_MOUSEDOWN, core.SELECTOR_MANAGED_ELEMENT, this.mousedownHandler);
+    instance.on(container, EVENT_MOUSEUP, core.SELECTOR_MANAGED_ELEMENT, this.mouseupHandler);
   }
   _createClass(EndpointDragHandler, [{
     key: "_mousedownHandler",
@@ -2439,7 +2439,7 @@ function () {
       if (e.which === 3 || e.button === 2) {
         return;
       }
-      var targetEl = findParent(e.target || e.srcElement, "[jtk-managed]", this.instance.getContainer());
+      var targetEl = findParent(e.target || e.srcElement, core.SELECTOR_MANAGED_ELEMENT, this.instance.getContainer());
       if (targetEl == null) {
         return;
       }
@@ -2704,7 +2704,7 @@ function () {
               return tSel.isEnabled() && (tSel.def.def.allowLoopback !== false || candidate !== _this.ep.element) && (_this._activeDefinition == null || _this._activeDefinition.def.allowLoopback !== false || candidate !== _this.ep.element);
             });
             if (targetDef != null) {
-              d.el = findParent(d.el, "[jtk-managed]", _this.instance.getContainer());
+              d.el = findParent(d.el, core.SELECTOR_MANAGED_ELEMENT, _this.instance.getContainer());
               if (targetDef.def.def.rank != null) {
                 d.rank = targetDef.def.def.rank;
               }
