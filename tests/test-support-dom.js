@@ -336,6 +336,20 @@ if (Array.prototype.forEach == null) {
                 //equal(_jsPlumb.anchorManager.getEndpointsFor(elId).length, count, "anchor manager has " + count + ((count > 1 || count == 0) ? " endpoints" : " endpoint") + " for " + elId);
             };
 
+            var _assertManagedEndpointCount = function(_jsPlumb, el, count) {
+                var id = _jsPlumb.getId(el),
+                    _mel = _jsPlumb._managedElements[id];
+
+                equal(_mel.endpoints.length, count, id + " has " + count + " endpoints in managed record")
+            }
+
+            var _assertManagedConnectionCount = function(_jsPlumb, el, count) {
+                var id = _jsPlumb.getId(el),
+                    _mel = _jsPlumb._managedElements[id];
+
+                equal(_mel.connections.length, count, id + " has " + count + " connections in managed record")
+            }
+
             var _registerDiv = function(div) {
                 _divs.push(div)
             }
@@ -385,6 +399,9 @@ if (Array.prototype.forEach == null) {
                 addDivs:_addDivs,
                 addDraggableDiv:_addDraggableDiv.bind(null, _jsPlumb),
                 assertEndpointCount:_assertEndpointCount.bind(null, _jsPlumb),
+
+                assertManagedEndpointCount:_assertManagedEndpointCount.bind(null, _jsPlumb),
+                assertManagedConnectionCount:_assertManagedConnectionCount.bind(null, _jsPlumb),
 
                 clickOnConnection:function(connection) {
                     _fireEventOnConnection(_jsPlumb, connection, "click")
