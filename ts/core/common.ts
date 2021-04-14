@@ -16,13 +16,12 @@ export interface jsPlumbElement<E> {
     _jsPlumbGroup: UIGroup<E>
     _jsPlumbParentGroup:UIGroup<E>
     _jspContext?:any
-    _jsPlumbConnections:Dictionary<boolean>
     _jsPlumbProxies:Array<[Connection, number]>
     _isJsPlumbGroup:boolean
     parentNode:jsPlumbElement<E>
 }
 
-export interface ConnectParams {
+export interface ConnectParams<E> {
     uuids?: [UUID, UUID]
     source?: Element | Endpoint
     target?: Element | Endpoint
