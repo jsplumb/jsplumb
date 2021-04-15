@@ -16,7 +16,7 @@ export interface Router<T extends {E:unknown}> {
 
     reset ():void
 
-    redraw (elementId:string, ui?:ViewportElement<T["E"]>, timestamp?:string, offsetToUI?:PointXY):RedrawResult
+    redraw (elementId:string, timestamp?:string, offsetToUI?:PointXY):RedrawResult
 
     computePath(connection:Connection, timestamp:string):void
     computeAnchorLocation(anchor:Anchor, params:AnchorComputeParams):AnchorPlacement
