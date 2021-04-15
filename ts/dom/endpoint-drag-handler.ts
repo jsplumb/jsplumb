@@ -103,6 +103,7 @@ export class EndpointDragHandler implements DragHandler {
     private _originalAnchor:AnchorSpec
     ep:Endpoint<Element>
     endpointRepresentation:EndpointRepresentation<any>
+    canvasElement:Element
     private _activeDefinition:SourceOrTargetDefinition
 
     placeholderInfo:{ id?:string, element?:jsPlumbDOMElement } = { id: null, element: null }
@@ -126,7 +127,7 @@ export class EndpointDragHandler implements DragHandler {
     mousedownHandler:(e:any) => void
     mouseupHandler:(e:any) => void
 
-    selector: string = ".jtk-endpoint"
+    selector: string = cls(CLASS_ENDPOINT)
 
     constructor(protected instance:BrowserJsPlumbInstance) {
 
@@ -312,25 +313,76 @@ export class EndpointDragHandler implements DragHandler {
 
     init(drag:Drag) {}
 
-    onStart(p:DragStartEventParams):boolean {
-    
-        this.currentDropTarget = null
+    private startNewConnectionDrag(scope:string, data?:any) {
+        // create a connection. one end is this endpoint, the other is a floating endpoint.
+        this.jpc = this.instance._newConnection({
+            sourceEndpoint: this.ep,
+            targetEndpoint: this.floatingEndpoint,
+            source: this.ep.element,  // for makeSource with parent option.  ensure source element is represented correctly.
+            target: this.placeholderInfo.element,
+            paintStyle: this.ep.connectorStyle, // this can be null. Connection will use the default.
+            hoverPaintStyle: this.ep.connectorHoverStyle,
+            connector: this.ep.connector, // this can also be null. Connection will use the default.
+            overlays: this.ep.connectorOverlays,
+            type: this.ep.connectionType,
+            cssClass: this.ep.connectorClass,
+            hoverClass: this.ep.connectorHoverClass,
+            scope:scope,
+            data
+        })
+        this.jpc.pending = true
+        this.jpc.addClass(this.instance.draggingClass)
+        this.floatingEndpoint.addClass(this.instance.draggingClass)
+        // fire an event that informs that a connection is being dragged
+        this.instance.fire<Connection>(EVENT_CONNECTION_DRAG, this.jpc)
+    }
 
-        this._stopped = false
+    private startExistingConnectionDrag() {
+        this.existingJpc = true
+        this.instance.setHover(this.jpc, false)
 
-        let dragEl = p.drag.getDragElement()
+        // new anchor idx
+        const anchorIdx = this.jpc.endpoints[0].id === this.ep.id ? 0 : 1
 
-        this.endpointRepresentation = dragEl.jtk.endpoint.endpoint
-        this.ep = dragEl.jtk.endpoint
+        // detach from the connection while dragging is occurring. mark as a 'transient' detach, ie. dont delete
+        // the endpoint if there are no other connections and it would otherwise have been cleaned up.
+        this.ep.detachFromConnection(this.jpc, null, true)
 
-        if (!this.ep) {
-            return false
-        }
-        
-        this.jpc = this.ep.connectorSelector()
-        
-        // -------------------------------- now a bunch of tests about whether or not to proceed -------------------------
-        
+        // attach the connection to the floating endpoint.
+        this.floatingEndpoint.addConnection(this.jpc)
+        this.floatingEndpoint.addClass(this.instance.draggingClass)
+
+        // fire an event that informs that a connection is being dragged. we do this before
+        // replacing the original target with the floating element info.
+        this.instance.fire<Connection>(EVENT_CONNECTION_DRAG, this.jpc)
+
+        // now we replace ourselves with the temporary div we created above
+        this.instance.sourceOrTargetChanged(this.jpc.endpoints[anchorIdx].elementId, this.placeholderInfo.id, this.jpc, this.placeholderInfo.element, anchorIdx)
+
+        // store the original endpoint and assign the new floating endpoint for the drag.
+        this.jpc.suspendedEndpoint = this.jpc.endpoints[anchorIdx]
+
+        // PROVIDE THE SUSPENDED ELEMENT, BE IT A SOURCE OR TARGET (ISSUE 39)
+        this.jpc.suspendedElement = this.jpc.endpoints[anchorIdx].element
+        this.jpc.suspendedElementId = this.jpc.endpoints[anchorIdx].elementId
+        this.jpc.suspendedElementType = anchorIdx === 0 ? SOURCE : TARGET
+
+        this.instance.setHover(this.jpc.suspendedEndpoint, false)
+
+        this.floatingEndpoint.referenceEndpoint = this.jpc.suspendedEndpoint
+        this.jpc.endpoints[anchorIdx] = this.floatingEndpoint
+
+        this.jpc.addClass(this.instance.draggingClass)
+
+        this.floatingId = this.placeholderInfo.id
+        this.floatingIndex = anchorIdx
+    }
+
+    /**
+     * Returns whether or not a connerction drag should start, and, if so, optionally returns a payload to associate with the drag.
+     * @private
+     */
+    private _shouldStartDrag():[boolean, any] {
         let _continue = true
         // if not enabled, return
         if (!this.ep.enabled) {
@@ -357,8 +409,8 @@ export class EndpointDragHandler implements DragHandler {
                 this.jpc = null
             }
         }
-        
-        let beforeDrag = this.instance.checkCondition(this.jpc == null ? INTERCEPT_BEFORE_DRAG : INTERCEPT_BEFORE_START_DETACH, {
+
+        let beforeDrag:any = this.instance.checkCondition(this.jpc == null ? INTERCEPT_BEFORE_DRAG : INTERCEPT_BEFORE_START_DETACH, {
             endpoint:this.ep,
             source:this.ep.element,
             sourceId:this.ep.elementId,
@@ -376,44 +428,16 @@ export class EndpointDragHandler implements DragHandler {
             // or if no beforeDrag data, maybe use the payload on its own.
             beforeDrag = this.payload || {}
         }
-        
-        if (_continue === false) {
-            this._stopped = true
-            return false
-        }
-        
-        // ---------------------------------------------------------------------------------------------------------------------
-        
-        // ok to proceed.
-        
-        // clear hover for all connections for this endpoint before continuing.
-        for (let i = 0; i < this.ep.connections.length; i++) {
-            this.instance.setHover(this.ep, false)
-        }
-        
-        // clear this list. we'll reconstruct it based on whether its an existing or new connection.s
-        this.endpointDropTargets.length = 0
-        
-        this.ep.addClass("endpointDrag")
-        this.instance.isConnectionBeingDragged = true
-        
-        // if we're not full but there was a connection, make it null. we'll create a new one.
-        if (this.jpc && !this.ep.isFull() && this.ep.isSource) {
-            this.jpc = null
-        }
 
-        // ----------------    make the element we will drag around, and position it -----------------------------
-        
-        const canvasElement = (<unknown>(this.endpointRepresentation as any).canvas) as jsPlumbDOMElement
-        
-        // store the id of the dragging div and the source element. the drop function will pick these up.
-        this.instance.setAttributes(canvasElement, {
-            "dragId": this.placeholderInfo.id,
-            "elId": this.ep.elementId
-        })
-        
-        // ------------------- create an endpoint that will be our floating endpoint ------------------------------------
-        
+        return [ _continue, beforeDrag ]
+    }
+
+    /**
+     * Creates the floating endpoint used in a connection drag.
+     * @param canvasElement
+     * @private
+     */
+    private _createFloatingEndpoint(canvasElement:Element) {
         let endpointToFloat:EndpointSpec|EndpointRepresentation<any> = this.ep.dragProxy || this.ep.endpoint
         if (this.ep.dragProxy == null && this.ep.connectionType != null) {
             const aae = this.instance.deriveEndpointAndAnchorSpec(this.ep.connectionType)
@@ -428,12 +452,22 @@ export class EndpointDragHandler implements DragHandler {
         this.floatingEndpoint.deleteOnEmpty = true
         this.floatingElement = (this.floatingEndpoint.endpoint as any).canvas
         this.floatingId = this.instance.getId(this.floatingElement)
-        
-        const scope = this.ep.scope
+    }
+
+    /**
+     * Populate the list of drop targets based upon what is being dragged.
+     * @param canvasElement
+     * @private
+     */
+    private _populateTargets(canvasElement:Element) {
         const isSourceDrag = this.jpc && this.jpc.endpoints[0] === this.ep
-        
+
         let boundingRect:BoundingBox
-        // get the list of potential drop targets for this endpoint, which excludes the source of the new connection.
+
+        //
+        // any Endpoints whose scope matches the scope of the Endpoint being dragged are candidates. They also have to have `isSource` or `isTarget` set to match
+        // what end of an existing connection is being dragged
+        //
         const matchingEndpoints = this.instance.getContainer().querySelectorAll([".", CLASS_ENDPOINT, "[", ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]" ].join(""))
         forEach(matchingEndpoints, (candidate:any) => {
             if ((this.jpc != null || candidate !== canvasElement) && candidate !== this.floatingElement) {
@@ -445,11 +479,13 @@ export class EndpointDragHandler implements DragHandler {
                 }
             }
         })
-        
+
         // at this point we are in fact uncertain about whether or not the given endpoint is a source/target. it may not have been
         // specifically configured as one
         let selectors = [ ]
 
+        // I think this is correct now: regardless of what end of a connection is being dragged, only target definitions are added. You cannot drop
+        // a connection onto an element using a source definition. The way a source is dropped has to match the way the target was dropped when the
         if (!isSourceDrag) {
             selectors.push([SELECTOR_JTK_TARGET, "[", ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]"].join(""))
             // add the instance-wide target selectors
@@ -537,80 +573,59 @@ export class EndpointDragHandler implements DragHandler {
                 }
             }
         })
+    }
+
+    onStart(p:DragStartEventParams):boolean {
+
+        // clear this list. we'll reconstruct it based on whether its an existing or new connection.
+        this.endpointDropTargets.length = 0
+        this.currentDropTarget = null
+        this._stopped = false
+        let dragEl = p.drag.getDragElement()
+        this.ep = dragEl.jtk.endpoint
+
+        if (!this.ep) {
+            return false
+        }
+
+        this.endpointRepresentation = this.ep.endpoint
+        this.canvasElement = (<unknown>(this.endpointRepresentation as any).canvas) as jsPlumbDOMElement
         
+        this.jpc = this.ep.connectorSelector()
+
+        // test if it is ok to proceed
+        const [_continue, payload] = this._shouldStartDrag()
+        
+        if (_continue === false) {
+            this._stopped = true
+            return false
+        }
+        
+        // ok to proceed.
+
+        // clear endpoint hover and connections attached to it
         this.instance.setHover(this.ep, false)
+        this.instance.isConnectionBeingDragged = true
         
+        // if our endpoint is not full but there was a connection, make it null. we'll create a new one.
+        if (this.jpc && !this.ep.isFull() && this.ep.isSource) {
+            this.jpc = null
+        }
+
+        // create the endpoint we will drag around
+        this._createFloatingEndpoint(this.canvasElement)
+
+        // populate list of drop targets, whose contents depends on what's being dragged
+        this._populateTargets(this.canvasElement)
+
         if (this.jpc == null) {
-            
-            // create a connection. one end is this endpoint, the other is a floating endpoint.
-            this.jpc = this.instance._newConnection({
-                sourceEndpoint: this.ep,
-                targetEndpoint: this.floatingEndpoint,
-                source: this.ep.element,  // for makeSource with parent option.  ensure source element is represented correctly.
-                target: this.placeholderInfo.element,
-                paintStyle: this.ep.connectorStyle, // this can be null. Connection will use the default.
-                hoverPaintStyle: this.ep.connectorHoverStyle,
-                connector: this.ep.connector, // this can also be null. Connection will use the default.
-                overlays: this.ep.connectorOverlays,
-                type: this.ep.connectionType,
-                cssClass: this.ep.connectorClass,
-                hoverClass: this.ep.connectorHoverClass,
-                scope:scope,
-                data:beforeDrag
-            })
-            this.jpc.pending = true
-            this.jpc.addClass(this.instance.draggingClass)
-            this.floatingEndpoint.addClass(this.instance.draggingClass)
-            // fire an event that informs that a connection is being dragged
-            this.instance.fire<Connection>(EVENT_CONNECTION_DRAG, this.jpc)
-        
+            this.startNewConnectionDrag(this.ep.scope, payload)
         } else {
-        
-            this.existingJpc = true
-            this.instance.setHover(this.jpc, false)
-
-            // new anchor idx
-            const anchorIdx = this.jpc.endpoints[0].id === this.ep.id ? 0 : 1
-
-            // detach from the connection while dragging is occurring. mark as a 'transient' detach, ie. dont delete
-            // the endpoint if there are no other connections and it would otherwise have been cleaned up.
-            this.ep.detachFromConnection(this.jpc, null, true)
-
-            // attach the connection to the floating endpoint.
-            this.floatingEndpoint.addConnection(this.jpc)
-            this.floatingEndpoint.addClass(this.instance.draggingClass)
-        
-            // fire an event that informs that a connection is being dragged. we do this before
-            // replacing the original target with the floating element info.
-            this.instance.fire<Connection>(EVENT_CONNECTION_DRAG, this.jpc)
-
-            // now we replace ourselves with the temporary div we created above
-            this.instance.sourceOrTargetChanged(this.jpc.endpoints[anchorIdx].elementId, this.placeholderInfo.id, this.jpc, this.placeholderInfo.element, anchorIdx)
-        
-            // store the original endpoint and assign the new floating endpoint for the drag.
-            this.jpc.suspendedEndpoint = this.jpc.endpoints[anchorIdx]
-        
-            // PROVIDE THE SUSPENDED ELEMENT, BE IT A SOURCE OR TARGET (ISSUE 39)
-            this.jpc.suspendedElement = this.jpc.endpoints[anchorIdx].element
-            this.jpc.suspendedElementId = this.jpc.endpoints[anchorIdx].elementId
-            this.jpc.suspendedElementType = anchorIdx === 0 ? SOURCE : TARGET
-        
-            this.instance.setHover(this.jpc.suspendedEndpoint, false)
-
-            this.floatingEndpoint.referenceEndpoint = this.jpc.suspendedEndpoint
-            this.jpc.endpoints[anchorIdx] = this.floatingEndpoint
-        
-            this.jpc.addClass(this.instance.draggingClass)
-        
-            this.floatingId = this.placeholderInfo.id
-            this.floatingIndex = anchorIdx
+            this.startExistingConnectionDrag()
         }
 
         this._registerFloatingConnection(this.placeholderInfo, this.jpc, this.floatingEndpoint)
-        
-        // tell jsplumb about it
         this.instance.currentlyDragging = true
-
     }
 
     onBeforeStart (beforeStartParams:any):void {
@@ -817,7 +832,7 @@ export class EndpointDragHandler implements DragHandler {
 
             // refresh the appearance of the endpoint, if necessary
             this.instance.refreshEndpoint(this.ep)
-            this.ep.removeClass("endpointDrag")
+            //this.ep.removeClass(CLASS_DRAG_ENDPOINT)
             this.ep.removeClass(this.instance.draggingClass)
 
             // common clean up
