@@ -233,7 +233,7 @@ export type ManagedElement<E> = {
     group?:string
 }
 
-const ID_ATTRIBUTE = Constants.JTK_ID
+const ID_ATTRIBUTE = Constants.ATTRIBUTE_MANAGED
 
 export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends EventGenerator {
 
@@ -784,10 +784,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
         const elId = this.getId(element)
 
-        //if (!this._managedElements.hasOwnProperty(elId)) {
         if (!this._managedElements[elId]) {
-
-            this.setAttribute(element, Constants.ATTRIBUTE_MANAGED, "")
 
             const obj:ManagedElement<any> = {
                 el:element as unknown as jsPlumbElement<T["E"]>,
