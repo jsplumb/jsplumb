@@ -122,8 +122,6 @@ export const INTERCEPT_BEFORE_DROP = "beforeDrop"
 export const INTERCEPT_BEFORE_DETACH = "beforeDetach"
 export const INTERCEPT_BEFORE_START_DETACH = "beforeStartDetach"
 
-export const JTK_ID = "jtk-id"
-
 export const PROPERTY_POSITION = "position"
 
 export const SELECTOR_CONNECTOR = cls(CLASS_CONNECTOR)
