@@ -278,7 +278,7 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
         e.y2 = e.y + e.h
 
         if (this._currentTransaction == null) {
-            this._finaliseUpdate(id, e)
+            this._finaliseUpdate(id, e, doNotRecalculateBounds)
         } else {
             this._currentTransaction.affectedElements.add(id)
         }
