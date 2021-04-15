@@ -1737,7 +1737,6 @@ function _isInsideParent(instance, _el, pos) {
   return rightEdge > 0 && leftEdge < s.w && bottomEdge > 0 && topEdge < s.h;
 }
 var CLASS_DELEGATED_DRAGGABLE = "jtk-delegated-draggable";
-var CLASS_DROPPABLE = "jtk-droppable";
 var CLASS_DRAGGABLE$1 = "jtk-draggable";
 var CLASS_DRAG_CONTAINER = "jtk-drag";
 var CLASS_GHOST_PROXY = "jtk-ghost-proxy";
@@ -1745,7 +1744,6 @@ var CLASS_DRAG_SELECTED = "jtk-drag-selected";
 var CLASS_DRAG_ACTIVE = "jtk-drag-active";
 var CLASS_DRAGGED = "jtk-dragged";
 var CLASS_DRAG_HOVER = "jtk-drag-hover";
-var ATTR_NOT_DRAGGABLE = "jtk-not-draggable";
 var EVENT_DRAG_MOVE = "drag:move";
 var EVENT_DRAG_STOP = "drag:stop";
 var EVENT_DRAG_START = "drag:start";
@@ -1776,7 +1774,6 @@ function () {
       css: {
         noSelect: this.instance.dragSelectClass,
         delegatedDraggable: CLASS_DELEGATED_DRAGGABLE,
-        droppable: CLASS_DROPPABLE,
         draggable: CLASS_DRAGGABLE$1,
         drag: CLASS_DRAG_CONTAINER,
         selected: CLASS_DRAG_SELECTED,
@@ -1959,7 +1956,7 @@ function () {
   function ElementDragHandler(instance) {
     _classCallCheck(this, ElementDragHandler);
     this.instance = instance;
-    _defineProperty(this, "selector", "> [jtk-managed]");
+    _defineProperty(this, "selector", "> " + core.SELECTOR_MANAGED_ELEMENT);
     _defineProperty(this, "_dragOffset", null);
     _defineProperty(this, "_groupLocations", []);
     _defineProperty(this, "_intersectingGroups", []);
@@ -2151,8 +2148,8 @@ function () {
         this._currentDragParentGroup = el._jsPlumbParentGroup;
       }
       var cont = true;
-      var nd = el.getAttribute(ATTR_NOT_DRAGGABLE);
-      if (this.instance.elementsDraggable === false || nd != null && nd !== "false") {
+      var nd = el.getAttribute(core.ATTRIBUTE_NOT_DRAGGABLE);
+      if (this.instance.elementsDraggable === false || nd != null && nd !== core.FALSE) {
         cont = false;
       }
       if (cont) {
@@ -2634,7 +2631,7 @@ function () {
       var scope = this.ep.scope;
       var isSourceDrag = this.jpc && this.jpc.endpoints[0] === this.ep;
       var boundingRect;
-      var matchingEndpoints = this.instance.getContainer().querySelectorAll(".jtk-endpoint[jtk-scope-" + this.ep.scope + "]");
+      var matchingEndpoints = this.instance.getContainer().querySelectorAll([".", core.CLASS_ENDPOINT, "[", core.ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]"].join(""));
       core.forEach(matchingEndpoints, function (candidate) {
         if ((_this.jpc != null || candidate !== canvasElement) && candidate !== _this.floatingElement) {
           if (isSourceDrag && candidate.jtk.endpoint.isSource || !isSourceDrag && candidate.jtk.endpoint.isTarget) {
@@ -2657,12 +2654,12 @@ function () {
       });
       var selectors = [];
       if (!isSourceDrag) {
-        selectors.push("[jtk-target][jtk-scope-" + this.ep.scope + "]");
+        selectors.push([core.SELECTOR_JTK_TARGET, "[", core.ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]"].join(""));
         Array.prototype.push.apply(selectors, this.instance.targetSelectors.map(function (ts) {
           return ts.selector;
         }));
       } else {
-        selectors.push("[jtk-source][jtk-scope-" + this.ep.scope + "]");
+        selectors.push([core.SELECTOR_JTK_SOURCE, "[", core.ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]"].join(""));
       }
       var matchingElements = this.instance.getContainer().querySelectorAll(selectors.join(","));
       core.forEach(matchingElements, function (candidate) {
@@ -3195,7 +3192,7 @@ function (_ElementDragHandler) {
     _classCallCheck(this, GroupDragHandler);
     _this = _possibleConstructorReturn(this, _getPrototypeOf(GroupDragHandler).call(this, instance));
     _this.instance = instance;
-    _defineProperty(_assertThisInitialized(_this), "selector", "> [jtk-group] [jtk-managed]");
+    _defineProperty(_assertThisInitialized(_this), "selector", [">", core.SELECTOR_GROUP, core.SELECTOR_MANAGED_ELEMENT].join(" "));
     _defineProperty(_assertThisInitialized(_this), "doRevalidate", void 0);
     _this.doRevalidate = _this._revalidate.bind(_assertThisInitialized(_this));
     return _this;
@@ -3815,7 +3812,7 @@ function () {
         ep.instance.addClass(canvas, classes);
         var scopes = ep.endpoint.scope.split(/\s/);
         for (var i = 0; i < scopes.length; i++) {
-          ep.instance.setAttribute(canvas, "jtk-scope-" + scopes[i], "true");
+          ep.instance.setAttribute(canvas, core.ATTRIBUTE_SCOPE_PREFIX + scopes[i], core.TRUE);
         }
         if (!ep.instance._suspendDrawing) {
           _size(canvas, 0, 0, 1, 1);

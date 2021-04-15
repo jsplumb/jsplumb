@@ -3134,18 +3134,27 @@
   var ABSOLUTE = "absolute";
   var FIXED = "fixed";
   var STATIC = "static";
-  var ATTRIBUTE_CONTAINER = "jtk-container";
-  var ATTRIBUTE_GROUP = "jtk-group";
-  var ATTRIBUTE_GROUP_CONTENT = "jtk-group-content";
-  var ATTRIBUTE_MANAGED = "jtk-managed";
-  var ATTRIBUTE_NOT_DRAGGABLE = "jtk-not-draggable";
-  var ATTRIBUTE_SOURCE = "jtk-source";
+  var ATTRIBUTE_CONTAINER = "data-jtk-container";
+  var ATTRIBUTE_GROUP = "data-jtk-group";
+  var ATTRIBUTE_GROUP_CONTENT = "data-jtk-group-content";
+  var ATTRIBUTE_MANAGED = "data-jtk-managed";
+  var ATTRIBUTE_NOT_DRAGGABLE = "data-jtk-not-draggable";
+  var ATTRIBUTE_SOURCE = "data-jtk-source";
   var ATTRIBUTE_TABINDEX = "tabindex";
-  var ATTRIBUTE_TARGET = "jtk-target";
+  var ATTRIBUTE_TARGET = "data-jtk-target";
+  var ATTRIBUTE_SCOPE = "data-jtk-scope";
+  var ATTRIBUTE_SCOPE_PREFIX = ATTRIBUTE_SCOPE + "-";
   var CHECK_CONDITION = "checkCondition";
   var CHECK_DROP_ALLOWED = "checkDropAllowed";
   var CLASS_CONNECTOR = "jtk-connector";
+  var CLASS_CONNECTOR_OUTLINE = "jtk-connector-outline";
+  var CLASS_CONNECTED = "jtk-connected";
   var CLASS_ENDPOINT = "jtk-endpoint";
+  var CLASS_ENDPOINT_CONNECTED = "jtk-endpoint-connected";
+  var CLASS_ENDPOINT_FULL = "jtk-endpoint-full";
+  var CLASS_ENDPOINT_DROP_ALLOWED = "jtk-endpoint-drop-allowed";
+  var CLASS_ENDPOINT_DROP_FORBIDDEN = "jtk-endpoint-drop-forbidden";
+  var CLASS_ENDPOINT_ANCHOR_PREFIX = "jtk-endpoint-anchor";
   var CLASS_GROUP_COLLAPSED = "jtk-group-collapsed";
   var CLASS_GROUP_EXPANDED = "jtk-group-expanded";
   var CLASS_OVERLAY = "jtk-overlay";
@@ -3205,14 +3214,15 @@
   var INTERCEPT_BEFORE_DROP = "beforeDrop";
   var INTERCEPT_BEFORE_DETACH = "beforeDetach";
   var INTERCEPT_BEFORE_START_DETACH = "beforeStartDetach";
-  var JTK_ID = "jtk-id";
   var PROPERTY_POSITION = "position";
   var SELECTOR_CONNECTOR = cls(CLASS_CONNECTOR);
   var SELECTOR_ENDPOINT = cls(CLASS_ENDPOINT);
+  var SELECTOR_GROUP = att(ATTRIBUTE_GROUP);
   var SELECTOR_GROUP_CONTAINER = att(ATTRIBUTE_GROUP_CONTENT);
   var SELECTOR_MANAGED_ELEMENT = att(ATTRIBUTE_MANAGED);
   var SELECTOR_OVERLAY = cls(CLASS_OVERLAY);
-  var SCOPE_PREFIX = "jtk-scope-";
+  var SELECTOR_JTK_SOURCE = att(ATTRIBUTE_SOURCE);
+  var SELECTOR_JTK_TARGET = att(ATTRIBUTE_TARGET);
 
   function pointSubtract(p1, p2) {
     return {
@@ -7612,7 +7622,7 @@
         e.x2 = e.x + e.w;
         e.y2 = e.y + e.h;
         if (this._currentTransaction == null) {
-          this._finaliseUpdate(id, e);
+          this._finaliseUpdate(id, e, doNotRecalculateBounds);
         } else {
           this._currentTransaction.affectedElements.add(id);
         }
@@ -7873,7 +7883,7 @@
       }
     }
   }
-  var ID_ATTRIBUTE = JTK_ID;
+  var ID_ATTRIBUTE = ATTRIBUTE_MANAGED;
   var JsPlumbInstance =
   function (_EventGenerator) {
     _inherits(JsPlumbInstance, _EventGenerator);
@@ -7900,16 +7910,16 @@
       _defineProperty(_assertThisInitialized(_this), "hoverSuspended", false);
       _defineProperty(_assertThisInitialized(_this), "_suspendDrawing", false);
       _defineProperty(_assertThisInitialized(_this), "_suspendedAt", null);
-      _defineProperty(_assertThisInitialized(_this), "connectorClass", "jtk-connector");
-      _defineProperty(_assertThisInitialized(_this), "connectorOutlineClass", "jtk-connector-outline");
-      _defineProperty(_assertThisInitialized(_this), "connectedClass", "jtk-connected");
-      _defineProperty(_assertThisInitialized(_this), "endpointClass", "jtk-endpoint");
-      _defineProperty(_assertThisInitialized(_this), "endpointConnectedClass", "jtk-endpoint-connected");
-      _defineProperty(_assertThisInitialized(_this), "endpointFullClass", "jtk-endpoint-full");
-      _defineProperty(_assertThisInitialized(_this), "endpointDropAllowedClass", "jtk-endpoint-drop-allowed");
-      _defineProperty(_assertThisInitialized(_this), "endpointDropForbiddenClass", "jtk-endpoint-drop-forbidden");
-      _defineProperty(_assertThisInitialized(_this), "endpointAnchorClassPrefix", "jtk-endpoint-anchor");
-      _defineProperty(_assertThisInitialized(_this), "overlayClass", "jtk-overlay");
+      _defineProperty(_assertThisInitialized(_this), "connectorClass", CLASS_CONNECTOR);
+      _defineProperty(_assertThisInitialized(_this), "connectorOutlineClass", CLASS_CONNECTOR_OUTLINE);
+      _defineProperty(_assertThisInitialized(_this), "connectedClass", CLASS_CONNECTED);
+      _defineProperty(_assertThisInitialized(_this), "endpointClass", CLASS_ENDPOINT);
+      _defineProperty(_assertThisInitialized(_this), "endpointConnectedClass", CLASS_ENDPOINT_CONNECTED);
+      _defineProperty(_assertThisInitialized(_this), "endpointFullClass", CLASS_ENDPOINT_FULL);
+      _defineProperty(_assertThisInitialized(_this), "endpointDropAllowedClass", CLASS_ENDPOINT_DROP_ALLOWED);
+      _defineProperty(_assertThisInitialized(_this), "endpointDropForbiddenClass", CLASS_ENDPOINT_DROP_FORBIDDEN);
+      _defineProperty(_assertThisInitialized(_this), "endpointAnchorClassPrefix", CLASS_ENDPOINT_ANCHOR_PREFIX);
+      _defineProperty(_assertThisInitialized(_this), "overlayClass", CLASS_OVERLAY);
       _defineProperty(_assertThisInitialized(_this), "connections", []);
       _defineProperty(_assertThisInitialized(_this), "endpointsByElement", {});
       _defineProperty(_assertThisInitialized(_this), "endpointsByUUID", new Map());
@@ -8335,7 +8345,6 @@
         }
         var elId = this.getId(element);
         if (!this._managedElements[elId]) {
-          this.setAttribute(element, ATTRIBUTE_MANAGED, "");
           var obj = {
             el: element,
             endpoints: [],
@@ -9016,7 +9025,7 @@
         if (el[key]) {
           if (connectionType === "*") {
             delete el[key];
-            this.removeAttribute(el, "jtk-" + type);
+            this.removeAttribute(el, "data-jtk-" + type);
           } else {
             var _t2 = [];
             forEach(el[key], function (def) {
@@ -9028,7 +9037,7 @@
               el[key] = _t2;
             } else {
               delete el[key];
-              this.removeAttribute(el, "jtk-" + type);
+              this.removeAttribute(el, "data-jtk-" + type);
             }
           }
         }
@@ -9036,7 +9045,7 @@
     }, {
       key: "_unmakeEvery",
       value: function _unmakeEvery(type, key, connectionType) {
-        var els = this.getSelector(this.getContainer(), "[jtk-" + type + "]");
+        var els = this.getSelector(this.getContainer(), "[data-jtk-" + type + "]");
         for (var i = 0; i < els.length; i++) {
           this._unmake(type, key, els[i], connectionType);
         }
@@ -9066,7 +9075,7 @@
       value: function _writeScopeAttribute(el, scope) {
         var scopes = scope.split(/\s/);
         for (var i = 0; i < scopes.length; i++) {
-          this.setAttribute(el, SCOPE_PREFIX + scopes[i], "");
+          this.setAttribute(el, ATTRIBUTE_SCOPE_PREFIX + scopes[i], "");
         }
       }
     }, {
@@ -9882,6 +9891,8 @@
   exports.ATTRIBUTE_GROUP_CONTENT = ATTRIBUTE_GROUP_CONTENT;
   exports.ATTRIBUTE_MANAGED = ATTRIBUTE_MANAGED;
   exports.ATTRIBUTE_NOT_DRAGGABLE = ATTRIBUTE_NOT_DRAGGABLE;
+  exports.ATTRIBUTE_SCOPE = ATTRIBUTE_SCOPE;
+  exports.ATTRIBUTE_SCOPE_PREFIX = ATTRIBUTE_SCOPE_PREFIX;
   exports.ATTRIBUTE_SOURCE = ATTRIBUTE_SOURCE;
   exports.ATTRIBUTE_TABINDEX = ATTRIBUTE_TABINDEX;
   exports.ATTRIBUTE_TARGET = ATTRIBUTE_TARGET;
@@ -9897,8 +9908,15 @@
   exports.BlankEndpoint = BlankEndpoint;
   exports.CHECK_CONDITION = CHECK_CONDITION;
   exports.CHECK_DROP_ALLOWED = CHECK_DROP_ALLOWED;
+  exports.CLASS_CONNECTED = CLASS_CONNECTED;
   exports.CLASS_CONNECTOR = CLASS_CONNECTOR;
+  exports.CLASS_CONNECTOR_OUTLINE = CLASS_CONNECTOR_OUTLINE;
   exports.CLASS_ENDPOINT = CLASS_ENDPOINT;
+  exports.CLASS_ENDPOINT_ANCHOR_PREFIX = CLASS_ENDPOINT_ANCHOR_PREFIX;
+  exports.CLASS_ENDPOINT_CONNECTED = CLASS_ENDPOINT_CONNECTED;
+  exports.CLASS_ENDPOINT_DROP_ALLOWED = CLASS_ENDPOINT_DROP_ALLOWED;
+  exports.CLASS_ENDPOINT_DROP_FORBIDDEN = CLASS_ENDPOINT_DROP_FORBIDDEN;
+  exports.CLASS_ENDPOINT_FULL = CLASS_ENDPOINT_FULL;
   exports.CLASS_GROUP_COLLAPSED = CLASS_GROUP_COLLAPSED;
   exports.CLASS_GROUP_EXPANDED = CLASS_GROUP_EXPANDED;
   exports.CLASS_OVERLAY = CLASS_OVERLAY;
@@ -9982,7 +10000,6 @@
   exports.INTERCEPT_BEFORE_START_DETACH = INTERCEPT_BEFORE_START_DETACH;
   exports.IS = IS;
   exports.IS_DETACH_ALLOWED = IS_DETACH_ALLOWED;
-  exports.JTK_ID = JTK_ID;
   exports.JsPlumbInstance = JsPlumbInstance;
   exports.LabelOverlay = LabelOverlay;
   exports.NONE = NONE;
@@ -9993,10 +10010,12 @@
   exports.PROPERTY_POSITION = PROPERTY_POSITION;
   exports.PlainArrowOverlay = PlainArrowOverlay;
   exports.RectangleEndpoint = RectangleEndpoint;
-  exports.SCOPE_PREFIX = SCOPE_PREFIX;
   exports.SELECTOR_CONNECTOR = SELECTOR_CONNECTOR;
   exports.SELECTOR_ENDPOINT = SELECTOR_ENDPOINT;
+  exports.SELECTOR_GROUP = SELECTOR_GROUP;
   exports.SELECTOR_GROUP_CONTAINER = SELECTOR_GROUP_CONTAINER;
+  exports.SELECTOR_JTK_SOURCE = SELECTOR_JTK_SOURCE;
+  exports.SELECTOR_JTK_TARGET = SELECTOR_JTK_TARGET;
   exports.SELECTOR_MANAGED_ELEMENT = SELECTOR_MANAGED_ELEMENT;
   exports.SELECTOR_OVERLAY = SELECTOR_OVERLAY;
   exports.SOURCE = SOURCE;

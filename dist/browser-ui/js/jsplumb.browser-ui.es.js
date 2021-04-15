@@ -1,4 +1,4 @@
-import { isString, forEach, fastTrim, isArray, log, NONE, EVENT_CONTEXTMENU, removeWithFunction, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, uuid, IS, extend, wrap, getWithFunction, optional, getFromSetWithFunction, intersects, cls, SELECTOR_MANAGED_ELEMENT, each, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_START_DETACH, makeAnchorFromSpec, AnchorLocations, findWithFunction, SOURCE, TARGET, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, Connection, Endpoint, Overlay, EVENT_CLICK, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, UNDEFINED, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, fromArray, ATTRIBUTE_NOT_DRAGGABLE, TRUE as TRUE$1, FALSE as FALSE$1, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE as EVENT_MOUSEMOVE$1, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, EndpointRepresentation, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/core';
+import { isString, forEach, fastTrim, isArray, log, NONE, EVENT_CONTEXTMENU, removeWithFunction, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, uuid, IS, extend, wrap, getWithFunction, ATTRIBUTE_NOT_DRAGGABLE, FALSE as FALSE$1, optional, getFromSetWithFunction, SELECTOR_MANAGED_ELEMENT, intersects, cls, each, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_START_DETACH, makeAnchorFromSpec, AnchorLocations, CLASS_ENDPOINT, ATTRIBUTE_SCOPE_PREFIX, SELECTOR_JTK_TARGET, SELECTOR_JTK_SOURCE, findWithFunction, SOURCE, TARGET, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, SELECTOR_GROUP, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, Connection, Endpoint, Overlay, TRUE as TRUE$1, EVENT_CLICK, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, UNDEFINED, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, fromArray, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE as EVENT_MOUSEMOVE$1, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, CLASS_OVERLAY, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, EndpointRepresentation, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/core';
 
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -1733,7 +1733,6 @@ function _isInsideParent(instance, _el, pos) {
   return rightEdge > 0 && leftEdge < s.w && bottomEdge > 0 && topEdge < s.h;
 }
 var CLASS_DELEGATED_DRAGGABLE = "jtk-delegated-draggable";
-var CLASS_DROPPABLE = "jtk-droppable";
 var CLASS_DRAGGABLE$1 = "jtk-draggable";
 var CLASS_DRAG_CONTAINER = "jtk-drag";
 var CLASS_GHOST_PROXY = "jtk-ghost-proxy";
@@ -1741,7 +1740,6 @@ var CLASS_DRAG_SELECTED = "jtk-drag-selected";
 var CLASS_DRAG_ACTIVE = "jtk-drag-active";
 var CLASS_DRAGGED = "jtk-dragged";
 var CLASS_DRAG_HOVER = "jtk-drag-hover";
-var ATTR_NOT_DRAGGABLE = "jtk-not-draggable";
 var EVENT_DRAG_MOVE = "drag:move";
 var EVENT_DRAG_STOP = "drag:stop";
 var EVENT_DRAG_START = "drag:start";
@@ -1772,7 +1770,6 @@ function () {
       css: {
         noSelect: this.instance.dragSelectClass,
         delegatedDraggable: CLASS_DELEGATED_DRAGGABLE,
-        droppable: CLASS_DROPPABLE,
         draggable: CLASS_DRAGGABLE$1,
         drag: CLASS_DRAG_CONTAINER,
         selected: CLASS_DRAG_SELECTED,
@@ -1955,7 +1952,7 @@ function () {
   function ElementDragHandler(instance) {
     _classCallCheck(this, ElementDragHandler);
     this.instance = instance;
-    _defineProperty(this, "selector", "> [jtk-managed]");
+    _defineProperty(this, "selector", "> " + SELECTOR_MANAGED_ELEMENT);
     _defineProperty(this, "_dragOffset", null);
     _defineProperty(this, "_groupLocations", []);
     _defineProperty(this, "_intersectingGroups", []);
@@ -2147,8 +2144,8 @@ function () {
         this._currentDragParentGroup = el._jsPlumbParentGroup;
       }
       var cont = true;
-      var nd = el.getAttribute(ATTR_NOT_DRAGGABLE);
-      if (this.instance.elementsDraggable === false || nd != null && nd !== "false") {
+      var nd = el.getAttribute(ATTRIBUTE_NOT_DRAGGABLE);
+      if (this.instance.elementsDraggable === false || nd != null && nd !== FALSE$1) {
         cont = false;
       }
       if (cont) {
@@ -2630,7 +2627,7 @@ function () {
       var scope = this.ep.scope;
       var isSourceDrag = this.jpc && this.jpc.endpoints[0] === this.ep;
       var boundingRect;
-      var matchingEndpoints = this.instance.getContainer().querySelectorAll(".jtk-endpoint[jtk-scope-" + this.ep.scope + "]");
+      var matchingEndpoints = this.instance.getContainer().querySelectorAll([".", CLASS_ENDPOINT, "[", ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]"].join(""));
       forEach(matchingEndpoints, function (candidate) {
         if ((_this.jpc != null || candidate !== canvasElement) && candidate !== _this.floatingElement) {
           if (isSourceDrag && candidate.jtk.endpoint.isSource || !isSourceDrag && candidate.jtk.endpoint.isTarget) {
@@ -2653,12 +2650,12 @@ function () {
       });
       var selectors = [];
       if (!isSourceDrag) {
-        selectors.push("[jtk-target][jtk-scope-" + this.ep.scope + "]");
+        selectors.push([SELECTOR_JTK_TARGET, "[", ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]"].join(""));
         Array.prototype.push.apply(selectors, this.instance.targetSelectors.map(function (ts) {
           return ts.selector;
         }));
       } else {
-        selectors.push("[jtk-source][jtk-scope-" + this.ep.scope + "]");
+        selectors.push([SELECTOR_JTK_SOURCE, "[", ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]"].join(""));
       }
       var matchingElements = this.instance.getContainer().querySelectorAll(selectors.join(","));
       forEach(matchingElements, function (candidate) {
@@ -3191,7 +3188,7 @@ function (_ElementDragHandler) {
     _classCallCheck(this, GroupDragHandler);
     _this = _possibleConstructorReturn(this, _getPrototypeOf(GroupDragHandler).call(this, instance));
     _this.instance = instance;
-    _defineProperty(_assertThisInitialized(_this), "selector", "> [jtk-group] [jtk-managed]");
+    _defineProperty(_assertThisInitialized(_this), "selector", [">", SELECTOR_GROUP, SELECTOR_MANAGED_ELEMENT].join(" "));
     _defineProperty(_assertThisInitialized(_this), "doRevalidate", void 0);
     _this.doRevalidate = _this._revalidate.bind(_assertThisInitialized(_this));
     return _this;
@@ -3811,7 +3808,7 @@ function () {
         ep.instance.addClass(canvas, classes);
         var scopes = ep.endpoint.scope.split(/\s/);
         for (var i = 0; i < scopes.length; i++) {
-          ep.instance.setAttribute(canvas, "jtk-scope-" + scopes[i], "true");
+          ep.instance.setAttribute(canvas, ATTRIBUTE_SCOPE_PREFIX + scopes[i], TRUE$1);
         }
         if (!ep.instance._suspendDrawing) {
           _size(canvas, 0, 0, 1, 1);

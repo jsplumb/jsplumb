@@ -3128,18 +3128,27 @@ var UNDEFINED = "undefined";
 var ABSOLUTE = "absolute";
 var FIXED = "fixed";
 var STATIC = "static";
-var ATTRIBUTE_CONTAINER = "jtk-container";
-var ATTRIBUTE_GROUP = "jtk-group";
-var ATTRIBUTE_GROUP_CONTENT = "jtk-group-content";
-var ATTRIBUTE_MANAGED = "jtk-managed";
-var ATTRIBUTE_NOT_DRAGGABLE = "jtk-not-draggable";
-var ATTRIBUTE_SOURCE = "jtk-source";
+var ATTRIBUTE_CONTAINER = "data-jtk-container";
+var ATTRIBUTE_GROUP = "data-jtk-group";
+var ATTRIBUTE_GROUP_CONTENT = "data-jtk-group-content";
+var ATTRIBUTE_MANAGED = "data-jtk-managed";
+var ATTRIBUTE_NOT_DRAGGABLE = "data-jtk-not-draggable";
+var ATTRIBUTE_SOURCE = "data-jtk-source";
 var ATTRIBUTE_TABINDEX = "tabindex";
-var ATTRIBUTE_TARGET = "jtk-target";
+var ATTRIBUTE_TARGET = "data-jtk-target";
+var ATTRIBUTE_SCOPE = "data-jtk-scope";
+var ATTRIBUTE_SCOPE_PREFIX = ATTRIBUTE_SCOPE + "-";
 var CHECK_CONDITION = "checkCondition";
 var CHECK_DROP_ALLOWED = "checkDropAllowed";
 var CLASS_CONNECTOR = "jtk-connector";
+var CLASS_CONNECTOR_OUTLINE = "jtk-connector-outline";
+var CLASS_CONNECTED = "jtk-connected";
 var CLASS_ENDPOINT = "jtk-endpoint";
+var CLASS_ENDPOINT_CONNECTED = "jtk-endpoint-connected";
+var CLASS_ENDPOINT_FULL = "jtk-endpoint-full";
+var CLASS_ENDPOINT_DROP_ALLOWED = "jtk-endpoint-drop-allowed";
+var CLASS_ENDPOINT_DROP_FORBIDDEN = "jtk-endpoint-drop-forbidden";
+var CLASS_ENDPOINT_ANCHOR_PREFIX = "jtk-endpoint-anchor";
 var CLASS_GROUP_COLLAPSED = "jtk-group-collapsed";
 var CLASS_GROUP_EXPANDED = "jtk-group-expanded";
 var CLASS_OVERLAY = "jtk-overlay";
@@ -3199,14 +3208,15 @@ var INTERCEPT_BEFORE_DRAG = "beforeDrag";
 var INTERCEPT_BEFORE_DROP = "beforeDrop";
 var INTERCEPT_BEFORE_DETACH = "beforeDetach";
 var INTERCEPT_BEFORE_START_DETACH = "beforeStartDetach";
-var JTK_ID = "jtk-id";
 var PROPERTY_POSITION = "position";
 var SELECTOR_CONNECTOR = cls(CLASS_CONNECTOR);
 var SELECTOR_ENDPOINT = cls(CLASS_ENDPOINT);
+var SELECTOR_GROUP = att(ATTRIBUTE_GROUP);
 var SELECTOR_GROUP_CONTAINER = att(ATTRIBUTE_GROUP_CONTENT);
 var SELECTOR_MANAGED_ELEMENT = att(ATTRIBUTE_MANAGED);
 var SELECTOR_OVERLAY = cls(CLASS_OVERLAY);
-var SCOPE_PREFIX = "jtk-scope-";
+var SELECTOR_JTK_SOURCE = att(ATTRIBUTE_SOURCE);
+var SELECTOR_JTK_TARGET = att(ATTRIBUTE_TARGET);
 
 function pointSubtract(p1, p2) {
   return {
@@ -7607,7 +7617,7 @@ function (_EventGenerator) {
       e.x2 = e.x + e.w;
       e.y2 = e.y + e.h;
       if (this._currentTransaction == null) {
-        this._finaliseUpdate(id, e);
+        this._finaliseUpdate(id, e, doNotRecalculateBounds);
       } else {
         this._currentTransaction.affectedElements.add(id);
       }
@@ -7868,7 +7878,7 @@ function removeManagedConnection(connection, sourceEl, targetEl) {
     }
   }
 }
-var ID_ATTRIBUTE = JTK_ID;
+var ID_ATTRIBUTE = ATTRIBUTE_MANAGED;
 var JsPlumbInstance =
 function (_EventGenerator) {
   _inherits(JsPlumbInstance, _EventGenerator);
@@ -7895,16 +7905,16 @@ function (_EventGenerator) {
     _defineProperty(_assertThisInitialized(_this), "hoverSuspended", false);
     _defineProperty(_assertThisInitialized(_this), "_suspendDrawing", false);
     _defineProperty(_assertThisInitialized(_this), "_suspendedAt", null);
-    _defineProperty(_assertThisInitialized(_this), "connectorClass", "jtk-connector");
-    _defineProperty(_assertThisInitialized(_this), "connectorOutlineClass", "jtk-connector-outline");
-    _defineProperty(_assertThisInitialized(_this), "connectedClass", "jtk-connected");
-    _defineProperty(_assertThisInitialized(_this), "endpointClass", "jtk-endpoint");
-    _defineProperty(_assertThisInitialized(_this), "endpointConnectedClass", "jtk-endpoint-connected");
-    _defineProperty(_assertThisInitialized(_this), "endpointFullClass", "jtk-endpoint-full");
-    _defineProperty(_assertThisInitialized(_this), "endpointDropAllowedClass", "jtk-endpoint-drop-allowed");
-    _defineProperty(_assertThisInitialized(_this), "endpointDropForbiddenClass", "jtk-endpoint-drop-forbidden");
-    _defineProperty(_assertThisInitialized(_this), "endpointAnchorClassPrefix", "jtk-endpoint-anchor");
-    _defineProperty(_assertThisInitialized(_this), "overlayClass", "jtk-overlay");
+    _defineProperty(_assertThisInitialized(_this), "connectorClass", CLASS_CONNECTOR);
+    _defineProperty(_assertThisInitialized(_this), "connectorOutlineClass", CLASS_CONNECTOR_OUTLINE);
+    _defineProperty(_assertThisInitialized(_this), "connectedClass", CLASS_CONNECTED);
+    _defineProperty(_assertThisInitialized(_this), "endpointClass", CLASS_ENDPOINT);
+    _defineProperty(_assertThisInitialized(_this), "endpointConnectedClass", CLASS_ENDPOINT_CONNECTED);
+    _defineProperty(_assertThisInitialized(_this), "endpointFullClass", CLASS_ENDPOINT_FULL);
+    _defineProperty(_assertThisInitialized(_this), "endpointDropAllowedClass", CLASS_ENDPOINT_DROP_ALLOWED);
+    _defineProperty(_assertThisInitialized(_this), "endpointDropForbiddenClass", CLASS_ENDPOINT_DROP_FORBIDDEN);
+    _defineProperty(_assertThisInitialized(_this), "endpointAnchorClassPrefix", CLASS_ENDPOINT_ANCHOR_PREFIX);
+    _defineProperty(_assertThisInitialized(_this), "overlayClass", CLASS_OVERLAY);
     _defineProperty(_assertThisInitialized(_this), "connections", []);
     _defineProperty(_assertThisInitialized(_this), "endpointsByElement", {});
     _defineProperty(_assertThisInitialized(_this), "endpointsByUUID", new Map());
@@ -8330,7 +8340,6 @@ function (_EventGenerator) {
       }
       var elId = this.getId(element);
       if (!this._managedElements[elId]) {
-        this.setAttribute(element, ATTRIBUTE_MANAGED, "");
         var obj = {
           el: element,
           endpoints: [],
@@ -9011,7 +9020,7 @@ function (_EventGenerator) {
       if (el[key]) {
         if (connectionType === "*") {
           delete el[key];
-          this.removeAttribute(el, "jtk-" + type);
+          this.removeAttribute(el, "data-jtk-" + type);
         } else {
           var _t2 = [];
           forEach(el[key], function (def) {
@@ -9023,7 +9032,7 @@ function (_EventGenerator) {
             el[key] = _t2;
           } else {
             delete el[key];
-            this.removeAttribute(el, "jtk-" + type);
+            this.removeAttribute(el, "data-jtk-" + type);
           }
         }
       }
@@ -9031,7 +9040,7 @@ function (_EventGenerator) {
   }, {
     key: "_unmakeEvery",
     value: function _unmakeEvery(type, key, connectionType) {
-      var els = this.getSelector(this.getContainer(), "[jtk-" + type + "]");
+      var els = this.getSelector(this.getContainer(), "[data-jtk-" + type + "]");
       for (var i = 0; i < els.length; i++) {
         this._unmake(type, key, els[i], connectionType);
       }
@@ -9061,7 +9070,7 @@ function (_EventGenerator) {
     value: function _writeScopeAttribute(el, scope) {
       var scopes = scope.split(/\s/);
       for (var i = 0; i < scopes.length; i++) {
-        this.setAttribute(el, SCOPE_PREFIX + scopes[i], "");
+        this.setAttribute(el, ATTRIBUTE_SCOPE_PREFIX + scopes[i], "");
       }
     }
   }, {
@@ -9871,4 +9880,4 @@ Connectors.register(StraightConnector.type, StraightConnector);
 Connectors.register(FlowchartConnector.type, FlowchartConnector);
 Connectors.register(StateMachineConnector.type, StateMachineConnector);
 
-export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_GROUP_CONTENT, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, AnchorLocations, Anchors, ArcSegment, ArrowOverlay, BLOCK, BezierConnector, BezierSegment, BlankEndpoint, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DefaultRouter, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_ANCHOR_CHANGED, EVENT_CLICK, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_DBL_TAP, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_ENDPOINT_TAP, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_COLLAPSE, EVENT_GROUP_EXPAND, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FloatingAnchor, FlowchartConnector, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_DROP, INTERCEPT_BEFORE_START_DETACH, IS, IS_DETACH_ALLOWED, JTK_ID, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PROPERTY_POSITION, PlainArrowOverlay, RectangleEndpoint, SCOPE_PREFIX, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, SourceSelector, StateMachineConnector, StraightConnector, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, TargetSelector, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, att, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, convertToFullOverlaySpec, dist, distanceFromCurve, each, encloses, extend, fastTrim, filterList, findWithFunction, forEach, fromArray, functionChain, getFromSetWithFunction, getWithFunction, getsert, gradient, gradientAtPoint, gradientAtPointAlongPathFrom, insertSorted, intersects, isArray, isArrowOverlay, isAssignableFrom, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFullOverlaySpec, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, lineIntersection, lineLength, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, normal, optional, perpendicularLineTo, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, pointOnLine, pointSubtract, pointXYFromArray, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, sortHelper, suggest, theta, uuid, wrap };
+export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_GROUP_CONTENT, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SCOPE, ATTRIBUTE_SCOPE_PREFIX, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, AnchorLocations, Anchors, ArcSegment, ArrowOverlay, BLOCK, BezierConnector, BezierSegment, BlankEndpoint, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTED, CLASS_CONNECTOR, CLASS_CONNECTOR_OUTLINE, CLASS_ENDPOINT, CLASS_ENDPOINT_ANCHOR_PREFIX, CLASS_ENDPOINT_CONNECTED, CLASS_ENDPOINT_DROP_ALLOWED, CLASS_ENDPOINT_DROP_FORBIDDEN, CLASS_ENDPOINT_FULL, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DefaultRouter, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_ANCHOR_CHANGED, EVENT_CLICK, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_DBL_TAP, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_ENDPOINT_TAP, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_COLLAPSE, EVENT_GROUP_EXPAND, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FloatingAnchor, FlowchartConnector, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_DROP, INTERCEPT_BEFORE_START_DETACH, IS, IS_DETACH_ALLOWED, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PROPERTY_POSITION, PlainArrowOverlay, RectangleEndpoint, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP, SELECTOR_GROUP_CONTAINER, SELECTOR_JTK_SOURCE, SELECTOR_JTK_TARGET, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, SourceSelector, StateMachineConnector, StraightConnector, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, TargetSelector, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, att, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, convertToFullOverlaySpec, dist, distanceFromCurve, each, encloses, extend, fastTrim, filterList, findWithFunction, forEach, fromArray, functionChain, getFromSetWithFunction, getWithFunction, getsert, gradient, gradientAtPoint, gradientAtPointAlongPathFrom, insertSorted, intersects, isArray, isArrowOverlay, isAssignableFrom, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFullOverlaySpec, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, lineIntersection, lineLength, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, normal, optional, perpendicularLineTo, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, pointOnLine, pointSubtract, pointXYFromArray, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, sortHelper, suggest, theta, uuid, wrap };
