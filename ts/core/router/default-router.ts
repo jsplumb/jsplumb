@@ -396,7 +396,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
         (endpoint as any)._continuousAnchorEdge = edgeId
     }
 
-    redraw (elementId:string, ui?:ViewportElement<T["E"]>, timestamp?:string, offsetToUI?:PointXY):RedrawResult {
+    redraw (elementId:string, timestamp?:string, offsetToUI?:PointXY):RedrawResult {
 
         let connectionsToPaint:Set<Connection> = new Set(),
             endpointsToPaint:Set<Endpoint> = new Set(),
@@ -408,18 +408,6 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
             let ep = this.instance.endpointsByElement[elementId] || []
 
             timestamp = timestamp || uuid()
-            // offsetToUI are values that would have been calculated in the dragManager when registering
-            // an endpoint for an element that had a parent (somewhere in the hierarchy) that had been
-            // registered as draggable.
-            offsetToUI = offsetToUI || {x: 0, y: 0}
-            let offsetToUse = null
-            // TODO updateOffset should take an OffsetAndSize object, not a ViewportElement.
-            if (ui) {
-                offsetToUse = {
-                    left: ui.x + offsetToUI.x,
-                    top: ui.y + offsetToUI.y
-                }
-            }
 
             let orientationCache = {}
 
