@@ -62,13 +62,14 @@ export declare class Viewport<T extends {
     /**
      * Update the size/offset of the element with the given id, and adjust viewport bounds.
      * @param elId
-     * @private
+     * @param doNotRecalculateBounds If true, the viewport's bounds won't be recalculated after the element's size and position has been refreshed.
      */
-    refreshElement(elId: string): ViewportElement<T["E"]>;
+    refreshElement(elId: string, doNotRecalculateBounds?: boolean): ViewportElement<T["E"]>;
     protected getSize(el: T["E"]): Size;
     protected getOffset(el: T["E"]): PointXY;
     /**
      * Creates an empty entry for an element with the given ID.
+     * @param doNotRecalculateBounds If true, the viewport's bounds won't be recalculated after the element has been registered.
      * @param id
      */
     registerElement(id: string, doNotRecalculateBounds?: boolean): ViewportElement<T["E"]>;

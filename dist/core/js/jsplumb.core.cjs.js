@@ -6827,7 +6827,7 @@ function () {
     }
   }, {
     key: "redraw",
-    value: function redraw(elementId, ui, timestamp, offsetToUI) {
+    value: function redraw(elementId, timestamp, offsetToUI) {
       var _this3 = this;
       var connectionsToPaint = new Set(),
           endpointsToPaint = new Set(),
@@ -6835,17 +6835,6 @@ function () {
       if (!this.instance._suspendDrawing) {
         var ep = this.instance.endpointsByElement[elementId] || [];
         timestamp = timestamp || uuid();
-        offsetToUI = offsetToUI || {
-          x: 0,
-          y: 0
-        };
-        var offsetToUse = null;
-        if (ui) {
-          offsetToUse = {
-            left: ui.x + offsetToUI.x,
-            top: ui.y + offsetToUI.y
-          };
-        }
         var orientationCache = {};
         forEach(ep, function (anEndpoint) {
           endpointsToPaint.add(anEndpoint);
@@ -7628,13 +7617,13 @@ function (_EventGenerator) {
     }
   }, {
     key: "refreshElement",
-    value: function refreshElement(elId) {
+    value: function refreshElement(elId, doNotRecalculateBounds) {
       var me = this.instance.getManagedElements();
       var s = me[elId] ? me[elId].el : null;
       if (s != null) {
         var size = this.getSize(s);
         var offset = this.getOffset(s);
-        return this.updateElement(elId, offset.x, offset.y, size.w, size.h, null);
+        return this.updateElement(elId, offset.x, offset.y, size.w, size.h, null, doNotRecalculateBounds);
       } else {
         return null;
       }
@@ -8536,18 +8525,19 @@ function (_EventGenerator) {
         recalc: true,
         timestamp: timestamp
       });
-      return this._draw(el);
+      return this.repaint(el);
     }
   }, {
     key: "repaintEverything",
     value: function repaintEverything() {
       var timestamp = uuid(),
           elId;
-      for (elId in this.endpointsByElement) {
-        this.viewport.refreshElement(elId);
+      for (elId in this._managedElements) {
+        this.viewport.refreshElement(elId, true);
       }
-      for (elId in this.endpointsByElement) {
-        this._draw(this._managedElements[elId].el, null, timestamp, true);
+      this.viewport.recomputeBounds();
+      for (elId in this._managedElements) {
+        this.repaint(this._managedElements[elId].el, timestamp, true);
       }
       return this;
     }
@@ -8556,16 +8546,11 @@ function (_EventGenerator) {
     value: function setElementPosition(el, x, y) {
       var id = this.getId(el);
       this.viewport.setPosition(id, x, y);
-      return this._draw(el);
+      return this.repaint(el);
     }
   }, {
     key: "repaint",
-    value: function repaint(el) {
-      this._draw(el);
-    }
-  }, {
-    key: "_draw",
-    value: function _draw(el, ui, timestamp, offsetsWereJustCalculated) {
+    value: function repaint(el, timestamp, offsetsWereJustCalculated) {
       var r = {
         c: new Set(),
         e: new Set()
@@ -8581,29 +8566,23 @@ function (_EventGenerator) {
       if (!this._suspendDrawing) {
         var id = this.getId(el);
         if (el != null) {
-          var repaintEls = this._getAssociatedElements(el),
-              repaintOffsets = [];
+          var repaintEls = this._getAssociatedElements(el);
           if (timestamp == null) {
             timestamp = uuid();
           }
           if (!offsetsWereJustCalculated) {
             for (var i = 0; i < repaintEls.length; i++) {
-              repaintOffsets.push(this.updateOffset({
+              this.updateOffset({
                 elId: this.getId(repaintEls[i]),
                 recalc: true,
                 timestamp: timestamp
-              }));
-            }
-          } else {
-            for (var _i = 0; _i < repaintEls.length; _i++) {
-              var reId = this.getId(repaintEls[_i]);
-              repaintOffsets.push(this.viewport.getPosition(reId));
+              });
             }
           }
-          _mergeRedraw(this.router.redraw(id, ui, timestamp, null));
+          _mergeRedraw(this.router.redraw(id, timestamp, null));
           if (repaintEls.length > 0) {
             for (var j = 0; j < repaintEls.length; j++) {
-              _mergeRedraw(this.router.redraw(this.getId(repaintEls[j]), repaintOffsets[j], timestamp, null));
+              _mergeRedraw(this.router.redraw(this.getId(repaintEls[j]), timestamp, null));
             }
           }
         }
@@ -8732,8 +8711,8 @@ function (_EventGenerator) {
     }
   }, {
     key: "getEndpoint",
-    value: function getEndpoint(id) {
-      return this.endpointsByUUID.get(id);
+    value: function getEndpoint(uuid) {
+      return this.endpointsByUUID.get(uuid);
     }
   }, {
     key: "connect",
@@ -8879,7 +8858,7 @@ function (_EventGenerator) {
       }
       jpc.pending = null;
       jpc.endpoints[0].isTemporarySource = false;
-      this._draw(jpc.source);
+      this.repaint(jpc.source);
       if (!params.doNotFireConnectionEvent && params.fireEvent !== false) {
         var eventArgs = {
           connection: jpc,

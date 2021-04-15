@@ -2,7 +2,6 @@ import { Router, RedrawResult, AnchorPlacement } from "./router";
 import { JsPlumbInstance } from "../core";
 import { Connection } from '../connector/connection-impl';
 import { Endpoint } from '../endpoint/endpoint';
-import { ViewportElement } from "../viewport";
 import { Dictionary, PointXY } from "../common";
 import { AnchorComputeParams, Orientation } from "../factory/anchor-factory";
 import { Anchor } from '../anchor/anchor';
@@ -25,6 +24,6 @@ export declare class DefaultRouter<T extends {
     private placeAnchors;
     private _removeEndpointFromAnchorLists;
     private _updateAnchorList;
-    redraw(elementId: string, ui?: ViewportElement<T["E"]>, timestamp?: string, offsetToUI?: PointXY): RedrawResult;
+    redraw(elementId: string, timestamp?: string, offsetToUI?: PointXY): RedrawResult;
     private calculateOrientation;
 }

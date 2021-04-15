@@ -211,7 +211,17 @@ export declare abstract class JsPlumbInstance<T extends {
         endpoints: [EndpointSpec, EndpointSpec];
         anchors: [AnchorSpec, AnchorSpec];
     };
+    /**
+     * Updates position/size information for the given element and redraws its Endpoints and their Connections. Use this method when you've
+     * made a change to some element that may have caused the element to change its position or size and you want to ensure the connections are
+     * in the right place.
+     * @param el Element to revalidate.
+     * @param timestamp Optional, used internally to avoid recomputing position/size information if it has already been computed.
+     */
     revalidate(el: T["E"], timestamp?: string): RedrawResult;
+    /**
+     * Repaint every connection and endpoint in the instance.
+     */
     repaintEverything(): JsPlumbInstance;
     /**
      * Sets the position of the given element to be [x,y].
@@ -222,13 +232,19 @@ export declare abstract class JsPlumbInstance<T extends {
      */
     setElementPosition(el: T["E"], x: number, y: number): RedrawResult;
     /**
-     * Repaints all connections and endpoints associated with the given element.
+     * Repaints all connections and endpoints associated with the given element, _without recomputing the element
+     * size and position_. If you want to first recompute element size and position you should call `revalidate(el)` instead,
      * @param el
+     * @param timestamp Optional parameter used internally to avoid recalculating offsets multiple times in one paint.
+     * @param offsetsWereJustCalculated If true, we don't recalculate the offsets of child elements of the element we're repainting.
      */
-    repaint(el: T["E"]): void;
-    private _draw;
+    repaint(el: T["E"], timestamp?: string, offsetsWereJustCalculated?: boolean): RedrawResult;
     private unregisterEndpoint;
     maybePruneEndpoint(endpoint: Endpoint): boolean;
+    /**
+     * Delete the given endpoint.
+     * @param object Either an Endpoint, or the UUID of an Endpoint.
+     */
     deleteEndpoint(object: string | Endpoint): JsPlumbInstance;
     /**
      * Add an Endpoint to the given element.
@@ -254,8 +270,16 @@ export declare abstract class JsPlumbInstance<T extends {
      * instance of jsPlumb again.
      */
     destroy(): void;
+    /**
+     * Gets all registered endpoints for the given element.
+     * @param el
+     */
     getEndpoints(el: T["E"]): Array<Endpoint>;
-    getEndpoint(id: string): Endpoint;
+    /**
+     * Retrieve an endpoint by its UUID.
+     * @param uuid
+     */
+    getEndpoint(uuid: string): Endpoint;
     /**
      * Connect one element to another.
      * @param params At the very least you need to supply {source:.., target:...}.
@@ -264,10 +288,37 @@ export declare abstract class JsPlumbInstance<T extends {
     connect(params: ConnectParams<T["E"]>, referenceParams?: ConnectParams<T["E"]>): Connection;
     private _prepareConnectionParams;
     _newConnection(params: ConnectionParams): Connection;
+    /**
+     * Adds the connection to the backing model, fires an event if necessary and then redraws. This is a package-private method, not intended to be
+     * called by external code.
+     * @param jpc
+     * @param params
+     * @param originalEvent
+     * @private
+     */
     _finaliseConnection(jpc: Connection, params?: any, originalEvent?: Event): void;
+    /**
+     * Remove every endpoint registered to the given element.
+     * @param el Element to remove endpoints for.
+     * @param recurse If true, also remove endpoints for elements that are descendants of this element.
+     * @param affectedElements Used internally to access the full list of elements affected by this change.
+     */
     removeAllEndpoints(el: T["E"], recurse?: boolean, affectedElements?: Array<T["E"]>): JsPlumbInstance;
     private _setEnabled;
+    /**
+     * Toggles whether the given element is currently enabled as a connection source. For this to have any effect you
+     * must first have called `makeSource` on the given element.
+     * @param el
+     * @param connectionType
+     */
     toggleSourceEnabled(el: T["E"], connectionType?: string): any;
+    /**
+     * Sets whether the given element is currently enabled as a connection source. For this to have any effect you
+     * must first have called `makeSource` on the given element.
+     * @param el
+     * @param state
+     * @param connectionType
+     */
     setSourceEnabled(el: T["E"], state: boolean, connectionType?: string): any;
     findFirstSourceDefinition(el: T["E"], connectionType?: string): SourceDefinition;
     findFirstTargetDefinition(el: T["E"], connectionType?: string): TargetDefinition;
@@ -284,20 +335,64 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param connectionType
      */
     isSourceEnabled(el: T["E"], connectionType?: string): boolean;
+    /**
+     * Toggle whether the given element is currently enabled as a connection target. For this to have any effect you
+     * must first have called `makeTarget` on the given element.
+     * @param el
+     * @param connectionType
+     */
     toggleTargetEnabled(el: T["E"], connectionType?: string): boolean;
+    /**
+     * Returns whether or not the given element is configured as a connection target.
+     * @param el
+     * @param connectionType
+     */
     isTarget(el: T["E"], connectionType?: string): boolean;
+    /**
+     * Returns whether or not the given element is both configured as a connection target, and is currently enabled.
+     * @param el
+     * @param connectionType
+     */
     isTargetEnabled(el: T["E"], connectionType?: string): boolean;
+    /**
+     * Sets whether the given element is currently enabled as a connection target. For this to have any effect you
+     * must first have called `makeTarget` on the given element.
+     * @param el
+     * @param state
+     * @param connectionType
+     */
     setTargetEnabled(el: T["E"], state: boolean, connectionType?: string): boolean;
     private _unmake;
     private _unmakeEvery;
+    /**
+     * Unregister the given element from being a connection target.
+     * @param el
+     * @param connectionType
+     */
     unmakeTarget(el: T["E"], connectionType?: string): void;
+    /**
+     * Unregister the given element from being a connection source.
+     * @param el
+     * @param connectionType
+     */
     unmakeSource(el: T["E"], connectionType?: string): void;
+    /**
+     * Unregister every element that is currently configured as a connection source.
+     * @param el
+     * @param connectionType
+     */
     unmakeEverySource(connectionType?: string): void;
+    /**
+     * Unregister every element that is currently configured as a connection target.
+     * @param el
+     * @param connectionType
+     */
     unmakeEveryTarget(connectionType?: string): void;
     private _writeScopeAttribute;
     protected _createSourceDefinition(params?: SourceBehaviouralTypeDescriptor, referenceParams?: SourceBehaviouralTypeDescriptor): SourceDefinition;
     /**
-     * Register the given element as a connection source.
+     * Register the given element as a connection source. NOTE from 4.0.0-RC84 onwards, you might wish to
+     * consider using the `addSourceSelector` method instead of this, which is far more performant.
      * @param el
      * @param params
      * @param referenceParams
@@ -343,7 +438,8 @@ export declare abstract class JsPlumbInstance<T extends {
     setScope(el: T["E"], scope: string): void;
     private _createTargetDefinition;
     /**
-     * Make the given element a connection target.
+     * Make the given element a connection target. . NOTE from 4.0.0-RC84 onwards, you might wish to
+     * consider using the `addTargetSelector` method instead of this, which is far more performant.
      * @param el
      * @param params
      * @param referenceParams

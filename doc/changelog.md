@@ -1,7 +1,15 @@
-## 4.0.0-RC85
+## 4.0.0-RC86
 
 15th April 2021
 
+- added some optimisations to `repaintEverything`
+- added some JsDoc
+- simplified the `redraw` method of the router
+
+
+## 4.0.0-RC85
+
+15th April 2021
 
 ### Breaking
 
