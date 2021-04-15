@@ -7630,13 +7630,13 @@
       }
     }, {
       key: "refreshElement",
-      value: function refreshElement(elId) {
+      value: function refreshElement(elId, doNotRecalculateBounds) {
         var me = this.instance.getManagedElements();
         var s = me[elId] ? me[elId].el : null;
         if (s != null) {
           var size = this.getSize(s);
           var offset = this.getOffset(s);
-          return this.updateElement(elId, offset.x, offset.y, size.w, size.h, null);
+          return this.updateElement(elId, offset.x, offset.y, size.w, size.h, null, doNotRecalculateBounds);
         } else {
           return null;
         }
@@ -8199,10 +8199,14 @@
           this._suspendedAt = "" + new Date().getTime();
         } else {
           this._suspendedAt = null;
+          console.cTimeStart("recomputeBounds")
           this.viewport.recomputeBounds();
+          console.cTimeEnd("recomputeBounds")
         }
         if (repaintAfterwards) {
+          console.cTimeStart("repaint")
           this.repaintEverything();
+          console.cTimeEnd("repaint")
         }
         return curVal;
       }
@@ -8545,11 +8549,19 @@
       value: function repaintEverything() {
         var timestamp = uuid(),
             elId;
+
         for (elId in this.endpointsByElement) {
-          this.viewport.refreshElement(elId);
+          console.cTimeStart("refresh element")
+          this.viewport.refreshElement(elId, true);
+          console.cTimeEnd("refresh element")
         }
+
+        this.viewport.recomputeBounds()
+
         for (elId in this.endpointsByElement) {
+          console.cTimeStart("draw")
           this._draw(this._managedElements[elId].el, null, timestamp, true);
+          console.cTimeEnd("draw")
         }
         return this;
       }
