@@ -289,15 +289,15 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
     /**
      * Update the size/offset of the element with the given id, and adjust viewport bounds.
      * @param elId
-     * @private
+     * @param doNotRecalculateBounds If true, the viewport's bounds won't be recalculated after the element's size and position has been refreshed.
      */
-    refreshElement(elId:string):ViewportElement<T["E"]>  {
+    refreshElement(elId:string, doNotRecalculateBounds?:boolean):ViewportElement<T["E"]>  {
         const me = this.instance.getManagedElements()
         const s = me[elId] ? me[elId].el : null
         if (s != null) {
             const size = this.getSize(s)
             const offset = this.getOffset(s)
-            return this.updateElement(elId, offset.x, offset.y, size.w, size.h, null)
+            return this.updateElement(elId, offset.x, offset.y, size.w, size.h, null, doNotRecalculateBounds)
         } else {
             return null
         }
@@ -313,6 +313,7 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
 
     /**
      * Creates an empty entry for an element with the given ID.
+     * @param doNotRecalculateBounds If true, the viewport's bounds won't be recalculated after the element has been registered.
      * @param id
      */
     registerElement(id:string, doNotRecalculateBounds?:boolean):ViewportElement<T["E"]> {
