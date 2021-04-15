@@ -172,12 +172,12 @@ var testSuite = function () {
         g5 = _addGroup(_jsPlumb, "five", c5, [c5_1,c5_2], { orphan:true, droppable:false });
         g6 = _addGroup(_jsPlumb, "six", c6, [c6_1,c6_2], { orphan:true, droppable:false, proxied:false });
 
-        c1Id = c1.getAttribute("jtk-id")
-        c2Id = c2.getAttribute("jtk-id")
-        c3Id = c3.getAttribute("jtk-id")
-        c4Id = c4.getAttribute("jtk-id")
-        c5Id = c5.getAttribute("jtk-id")
-        c6Id = c6.getAttribute("jtk-id")
+        c1Id = c1.getAttribute("data-jtk-managed")
+        c2Id = c2.getAttribute("data-jtk-managed")
+        c3Id = c3.getAttribute("data-jtk-managed")
+        c4Id = c4.getAttribute("data-jtk-managed")
+        c5Id = c5.getAttribute("data-jtk-managed")
+        c6Id = c6.getAttribute("data-jtk-managed")
 
         if (!doNotMakeConnections) {
 
@@ -276,7 +276,7 @@ var testSuite = function () {
         equal(parseInt(c4_2.style.left), 180, "c4_2 at 180 left");
         equal(parseInt(c4_2.style.top), 530, "c4_2 at 530 top");
 
-        var c5Id = container5.getAttribute("jtk-id")
+        var c5Id = container5.getAttribute("data-jtk-managed")
 
         ok(_jsPlumb._managedElements[c5Id] != null, "container5 is being managed");
         _jsPlumb.removeGroup("five", true);
@@ -342,13 +342,13 @@ var testSuite = function () {
         _jsPlumb.addToGroup(g, d1);
         equal(g.children.length, 1, "1 member in group");
 
-         var d1Id = d1.getAttribute("jtk-id")
-        var ggId = gg.getAttribute("jtk-id")
+         var d1Id = d1.getAttribute("data-jtk-managed")
+        var ggId = gg.getAttribute("data-jtk-managed")
 
         ok(_jsPlumb._managedElements[d1Id] != null, "d1 is in the managed elements map")
         ok(_jsPlumb._managedElements[ggId] != null, "group1 element is in the managed elements map")
 
-        equal(groupElId, _jsPlumb._managedElements[d1Id].group, "group element's jtk-id has been registered as `group` for element d1")
+        equal(groupElId, _jsPlumb._managedElements[d1Id].group, "group element's data-jtk-managed has been registered as `group` for element d1")
 
         _jsPlumb.removeFromGroup(g, d1)
 
@@ -383,8 +383,8 @@ var testSuite = function () {
 
         equal(g.getGroups().length, 1, "1 child group in group1");
 
-        var gg2Id = gg2.getAttribute("jtk-id")
-        var ggId = gg.getAttribute("jtk-id")
+        var gg2Id = gg2.getAttribute("data-jtk-managed")
+        var ggId = gg.getAttribute("data-jtk-managed")
 
         ok(_jsPlumb._managedElements[gg2Id] != null, "group2 element is in the managed elements map")
         ok(_jsPlumb._managedElements[ggId] != null, "group1 element is in the managed elements map")

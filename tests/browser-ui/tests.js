@@ -90,7 +90,7 @@ var testSuite = function () {
 
     test(': getId', function () {
         var d10 = support.addDiv('d10');
-        equal(_jsPlumb.getId(d10), d10.getAttribute("jtk-id"));
+        equal(_jsPlumb.getId(d10), d10.getAttribute("data-jtk-managed"));
     });
 
     test(': create a simple endpoint', function () {
@@ -3874,14 +3874,14 @@ var testSuite = function () {
             support2 = jsPlumbTestSupport.getInstance(_jsp2),
             d2 = support2.addDiv("d2");
 
-        d1.removeAttribute("jtk-id");
-        d2.removeAttribute("jtk-id");
+        d1.removeAttribute("data-jtk-managed");
+        d2.removeAttribute("data-jtk-managed");
 
         _jsPlumb.addEndpoint(d1);
         _jsp2.addEndpoint(d2);
 
-        var id1 = d1.getAttribute("jtk-id"),
-            id2 = d2.getAttribute("jtk-id");
+        var id1 = d1.getAttribute("data-jtk-managed"),
+            id2 = d2.getAttribute("data-jtk-managed");
 
         var idx = id1.indexOf("-"), idx2 = id1.lastIndexOf("-"), v1 = id1.substring(idx, idx2);
         var idx3 = id2.indexOf("-"), idx4 = id2.lastIndexOf("-"), v2 = id2.substring(idx3, idx4);
@@ -4795,11 +4795,11 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), f1 = false;
 
         _jsPlumb.manage(d1, "foo");
-        equal(d1.getAttribute("jtk-id"), "foo", "jtk-id attribute set per value passed in to manage method");
+        equal(d1.getAttribute("data-jtk-managed"), "foo", "data-jtk-managed attribute set per value passed in to manage method");
 
         _jsPlumb.unmanage(d1);
         ok(d1.getAttribute("data-jtk-managed") == null, "d1 is no longer marked data-jtk-managed");
-        ok(d1.getAttribute("jtk-id") == null, "d1 no longer has jtk-id attribute");
+        ok(d1.getAttribute("data-jtk-managed") == null, "d1 no longer has data-jtk-managed attribute");
     });
 
 
@@ -5283,7 +5283,7 @@ var testSuite = function () {
     test("offset cache cleared", function() {
        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         _jsPlumb.connect({source:d1, target:d2});
-        var id = d1.getAttribute("jtk-id")
+        var id = d1.getAttribute("data-jtk-managed")
         var cd = _jsPlumb.viewport.getPosition(id);
        ok(cd != null, "d1 is cached");
 
@@ -5728,8 +5728,8 @@ var testSuite = function () {
             }),
             c = _jsPlumb.connect({source:e1, target:e2});
 
-        var d1Id = d1.getAttribute("jtk-id")
-        var d2Id = d2.getAttribute("jtk-id")
+        var d1Id = d1.getAttribute("data-jtk-managed")
+        var d2Id = d2.getAttribute("data-jtk-managed")
 
         support.assertManagedEndpointCount(d1, 1)
         support.assertManagedEndpointCount(d2, 1)
