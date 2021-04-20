@@ -106,14 +106,6 @@ export interface BehaviouralTypeDescriptor extends TypeDescriptor {
     rank?:number
     maxConnections?:number
     connectorStyle?:PaintStyle
-}
-
-export interface SourceBehaviouralTypeDescriptor extends BehaviouralTypeDescriptor {
-    createEndpoint?:boolean
-
-}
-
-export interface TargetBehaviouralTypeDescriptor extends BehaviouralTypeDescriptor {
     createEndpoint?:boolean
 }
 
@@ -126,10 +118,10 @@ export interface SourceOrTargetDefinition {
 }
 
 export interface SourceDefinition extends SourceOrTargetDefinition {
-    def:SourceBehaviouralTypeDescriptor
+    def:BehaviouralTypeDescriptor
 }
 export interface TargetDefinition extends SourceOrTargetDefinition {
-    def:TargetBehaviouralTypeDescriptor
+    def:BehaviouralTypeDescriptor
 }
 
 export interface Size { w:number, h:number }
