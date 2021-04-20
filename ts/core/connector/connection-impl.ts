@@ -221,7 +221,7 @@ export class Connection<E = any> extends OverlayCapableComponent {
         this.lastPaintedAt = null
 
         if (params.type) {
-            params.endpoints = params.endpoints || this.instance.deriveEndpointAndAnchorSpec(params.type).endpoints
+            params.endpoints = params.endpoints || this.instance._deriveEndpointAndAnchorSpec(params.type).endpoints
         }
 
         this.endpointSpec = params.endpoint
