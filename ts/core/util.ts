@@ -321,6 +321,18 @@ export function findWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): number 
     return -1
 }
 
+export function findAllWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): Array<number> {
+    let o:Array<number> = []
+    if (a) {
+        for (let i = 0; i < a.length; i++) {
+            if (f(a[i])) {
+                o.push(i)
+            }
+        }
+    }
+    return o
+}
+
 /**
  * Find the entry in the given array for which the function `f` returns true. This is a stand-in replacement for the
  * `find` method which is available on `Array` in modern browsers, but not IE11.
@@ -331,6 +343,17 @@ export function findWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): number 
 export function getWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): T {
     const idx = findWithFunction(a, f)
     return idx === -1 ? null : a[idx]
+}
+
+/**
+ * Find all entries in the given array for which the function `f` returns true
+ * @param a Array to search
+ * @param f Predicate to use to test each entry
+ * @return The entries for which the predicate returned true, empty array if not found.
+ */
+export function getAllWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): Array<T> {
+    const indexes = findAllWithFunction(a, f)
+    return indexes.map(i => a[i])
 }
 
 /**
