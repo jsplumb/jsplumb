@@ -1,5 +1,5 @@
 import {Component, ComponentOptions} from "./component"
-import {FullOverlaySpec, LabelOverlayOptions, Overlay, OverlaySpec} from "../overlay/overlay"
+import {convertToFullOverlaySpec, FullOverlaySpec, LabelOverlayOptions, Overlay, OverlaySpec} from "../overlay/overlay"
 import {Dictionary, PointXY} from '../common'
 import { JsPlumbInstance } from "../core"
 import {LabelOverlay} from "../overlay/label-overlay"
@@ -7,23 +7,27 @@ import {extend, isFunction, isString, uuid} from "../util"
 import {OverlayFactory} from "../factory/overlay-factory"
 
 const _internalLabelOverlayId = "__label"
+const TYPE_ITEM_OVERLAY = "overlay"
+const LOCATION_ATTRIBUTE = "labelLocation"
+const ACTION_ADD = "add"
+const ACTION_REMOVE = "remove"
 
 export interface OverlayComponentOptions extends ComponentOptions {
     label?:string
     labelLocation?:number
+    overlays?:Array<OverlaySpec>
 }
 
 export type ClassAction = "add" | "remove"
 
-function _makeLabelOverlay(component:OverlayCapableComponent, params:any):LabelOverlay {
+function _makeLabelOverlay(component:OverlayCapableComponent, params:LabelOverlayOptions):LabelOverlay {
 
     let _params:any = {
             cssClass: params.cssClass,
             id: _internalLabelOverlayId,
-            component: component,
-            _jsPlumb: component.instance  // TODO not necessary, since the instance can be accessed through the component.
+            component: component
         },
-        mergedParams = extend(_params, params)
+        mergedParams:LabelOverlayOptions = extend<LabelOverlayOptions>(_params, params)
 
     return new LabelOverlay(component.instance, component, mergedParams)
 }
@@ -43,7 +47,7 @@ function _processOverlay<E>(component:OverlayCapableComponent, o:OverlaySpec|Ove
     }
 
     _newOverlay.id = _newOverlay.id || uuid()
-    component.cacheTypeItem("overlay", _newOverlay, _newOverlay.id)
+    component.cacheTypeItem(TYPE_ITEM_OVERLAY, _newOverlay, _newOverlay.id)
     component.overlays[_newOverlay.id] = _newOverlay
 
     return _newOverlay
@@ -67,7 +71,7 @@ export abstract class OverlayCapableComponent extends Component {
 
         if (params.label) {
             this.getDefaultType().overlays[_internalLabelOverlayId] = {
-                type:"Label",
+                type:LabelOverlay.type,
                 options:{
                     label: params.label,
                     location: params.labelLocation || this.defaultLabelLocation,
@@ -75,17 +79,36 @@ export abstract class OverlayCapableComponent extends Component {
                 }
             }
         }
+
+        let o = params.overlays || [], oo = {}
+        let defaultOverlayKey = this.getDefaultOverlayKey()
+        if (defaultOverlayKey) {
+
+            const defaultOverlays = this.instance.Defaults[defaultOverlayKey]
+            if (defaultOverlays) {
+                o.push(...defaultOverlays)
+            }
+
+            for (let i = 0; i < o.length; i++) {
+                // if a string, convert to object representation so that we can store the typeid on it.
+                // also assign an id.
+                let fo = convertToFullOverlaySpec(o[i])
+                oo[fo.options.id] = fo
+            }
+        }
+
+        this._defaultType.overlays = oo
     }
 
     addOverlay(overlay:OverlaySpec):Overlay {
         let o = _processOverlay(this, overlay)
 
-        if (this.getData && o.type === "Label" && !isString(overlay)) {
+        if (this.getData && o.type === LabelOverlay.type && !isString(overlay)) {
             //
             // component data might contain label location - look for it here.
             const d = this.getData(), p = (overlay as FullOverlaySpec).options
             if (d) {
-                const locationAttribute = (<LabelOverlayOptions>p).labelLocationAttribute || "labelLocation"
+                const locationAttribute = (<LabelOverlayOptions>p).labelLocationAttribute || LOCATION_ATTRIBUTE
                 const loc = d[locationAttribute]
 
                 if (loc) {
@@ -182,13 +205,13 @@ export abstract class OverlayCapableComponent extends Component {
     setLabel(l:string|Function|LabelOverlay):void {
         let lo = this.getLabelOverlay()
         if (!lo) {
-            let params = l.constructor === String || l.constructor === Function ? { label: l } : l
+            let params:LabelOverlayOptions = isString(l) || isFunction(l) ? { label: l as string|Function } : (l as LabelOverlayOptions)
             lo = _makeLabelOverlay(this, params)
             this.overlays[_internalLabelOverlayId] = lo
         }
         else {
             if (isString(l) || isFunction(l)) {
-                lo.setLabel(<any>l)
+                lo.setLabel(l as string|Function)
             }
             else {
                 let ll = l as LabelOverlay
@@ -216,7 +239,11 @@ export abstract class OverlayCapableComponent extends Component {
 
     setVisible(v:boolean):void {
         super.setVisible(v)
-        this[v ? "showOverlays" : "hideOverlays"]()
+        if (v) {
+            this.showOverlays()
+        } else {
+            this.hideOverlays()
+        }
     }
 
     setAbsoluteOverlayPosition(overlay:Overlay, xy:PointXY) {
@@ -230,9 +257,9 @@ export abstract class OverlayCapableComponent extends Component {
     private _clazzManip(action:ClassAction, clazz:string, dontUpdateOverlays?:boolean) {
         if (!dontUpdateOverlays) {
             for (let i in this.overlays) {
-                if (action === "add") {
+                if (action === ACTION_ADD) {
                     this.instance.addOverlayClass(this.overlays[i], clazz)
-                } else if (action === "remove") {
+                } else if (action === ACTION_REMOVE) {
                     this.instance.removeOverlayClass(this.overlays[i], clazz)
                 }
             }
@@ -241,12 +268,12 @@ export abstract class OverlayCapableComponent extends Component {
 
     addClass(clazz:string, dontUpdateOverlays?:boolean):void {
         super.addClass(clazz)
-        this._clazzManip("add", clazz, dontUpdateOverlays)
+        this._clazzManip(ACTION_ADD, clazz, dontUpdateOverlays)
     }
 
     removeClass(clazz:string, dontUpdateOverlays?:boolean):void {
         super.removeClass(clazz)
-        this._clazzManip("remove", clazz, dontUpdateOverlays)
+        this._clazzManip(ACTION_REMOVE, clazz, dontUpdateOverlays)
     }
 
     applyType(t:any, typeMap:any):void {
