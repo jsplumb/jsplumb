@@ -57,7 +57,7 @@ import {
     INTERCEPT_BEFORE_START_DETACH,
     SELECTOR_MANAGED_ELEMENT,
     SELECTOR_JTK_SOURCE,
-    SELECTOR_JTK_TARGET, CLASS_ENDPOINT, ATTRIBUTE_SCOPE_PREFIX
+    SELECTOR_JTK_TARGET, CLASS_ENDPOINT, ATTRIBUTE_SCOPE_PREFIX, SourceSelector, findAllWithFunction, getAllWithFunction
 } from "@jsplumb/core"
 
 function _makeFloatingEndpoint (paintStyle:PaintStyle,
@@ -68,11 +68,11 @@ function _makeFloatingEndpoint (paintStyle:PaintStyle,
                                 instance:BrowserJsPlumbInstance, scope?:string)
 {
     let floatingAnchor = new FloatingAnchor(instance, { reference: referenceAnchor, referenceCanvas: referenceCanvas })
-    let ep = instance.newEndpoint({
+    let ep = instance._internal_newEndpoint({
         paintStyle: paintStyle,
         endpoint: endpoint,
         preparedAnchor: floatingAnchor,
-        source: sourceElement,
+        element: sourceElement,
         scope: scope
     })
     instance.paintEndpoint(ep, {})
@@ -116,7 +116,7 @@ export class EndpointDragHandler implements DragHandler {
 
     _stopped:boolean
     inPlaceCopy:any
-    endpointDropTargets:Array<{el:jsPlumbDOMElement, endpoint:Endpoint, r:BoundingBox}> = []
+    endpointDropTargets:Array<{el:jsPlumbDOMElement, endpoint:Endpoint, r:BoundingBox, def?:SourceOrTargetDefinition}> = []
     currentDropTarget:any = null
     payload:any
     floatingConnections:Dictionary<Connection> = {}
@@ -248,7 +248,7 @@ export class EndpointDragHandler implements DragHandler {
     private _mouseupHandler(e:MouseEvent) {
         let el:any = e.currentTarget || e.srcElement
         if (el._jsPlumbOrphanedEndpoints) {
-            each(el._jsPlumbOrphanedEndpoints, this.instance.maybePruneEndpoint.bind(this.instance))
+            each(el._jsPlumbOrphanedEndpoints, this.instance._maybePruneEndpoint.bind(this.instance))
             el._jsPlumbOrphanedEndpoints.length = 0
         }
 
@@ -274,7 +274,7 @@ export class EndpointDragHandler implements DragHandler {
     }
 
     /**
-     * Makes the element that is the placeholder for dragging. this element gets `managed` by the instance, and `unmanaged` when dragging
+     * Makes the element that is the placeholder for dragging. This element gets `managed` by the instance, and `unmanaged` when dragging
      * ends.
      * @param ipco
      * @param ips
@@ -438,9 +438,9 @@ export class EndpointDragHandler implements DragHandler {
      * @private
      */
     private _createFloatingEndpoint(canvasElement:Element) {
-        let endpointToFloat:EndpointSpec|EndpointRepresentation<any> = this.ep.dragProxy || this.ep.endpoint
-        if (this.ep.dragProxy == null && this.ep.connectionType != null) {
-            const aae = this.instance.deriveEndpointAndAnchorSpec(this.ep.connectionType)
+        let endpointToFloat:EndpointSpec|EndpointRepresentation<any> = this.ep.endpoint
+        if (this.ep.connectionType != null) {
+            const aae = this.instance._deriveEndpointAndAnchorSpec(this.ep.connectionType)
             endpointToFloat = aae.endpoints[1]
         }
         const centerAnchor = makeAnchorFromSpec(this.instance, AnchorLocations.Center)
@@ -474,7 +474,7 @@ export class EndpointDragHandler implements DragHandler {
                 if ( (isSourceDrag && candidate.jtk.endpoint.isSource) || (!isSourceDrag && candidate.jtk.endpoint.isTarget) ) {
                     const o = this.instance.getOffset(candidate), s = this.instance.getSize(candidate)
                     boundingRect = {x: o.x, y: o.y, w: s.w, h: s.h}
-                    this.endpointDropTargets.push({el: candidate, r: boundingRect, endpoint: candidate.jtk.endpoint})
+                    this.endpointDropTargets.push({el: candidate, r: boundingRect, endpoint: candidate.jtk.endpoint, def:null})
                     this.instance.addClass(candidate, CLASS_DRAG_ACTIVE)
                 }
             }
@@ -484,20 +484,16 @@ export class EndpointDragHandler implements DragHandler {
         // specifically configured as one
         let selectors = [ ]
 
-        // I think this is correct now: regardless of what end of a connection is being dragged, only target definitions are added. You cannot drop
-        // a connection onto an element using a source definition. The way a source is dropped has to match the way the target was dropped when the
         if (!isSourceDrag) {
             selectors.push([SELECTOR_JTK_TARGET, "[", ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]"].join(""))
-            // add the instance-wide target selectors
-            Array.prototype.push.apply(selectors, (this.instance.targetSelectors.map((ts) => ts.selector)))
-
         } else {
             selectors.push([SELECTOR_JTK_SOURCE, "[", ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]"].join(""))
         }
 
-        const matchingElements = this.instance.getContainer().querySelectorAll(selectors.join(","))
-        forEach(matchingElements, (candidate:any) => {
+        const matchingElements:NodeListOf<Element> = this.instance.getContainer().querySelectorAll(selectors.join(","))
+        forEach(matchingElements, (candidate:Element) => {
 
+            const jel = candidate as unknown as jsPlumbDOMElement
             const o = this.instance.getOffset(candidate), s = this.instance.getSize(candidate)
             boundingRect = {x: o.x, y: o.y, w: s.w, h: s.h}
             let d: any = {el: candidate, r: boundingRect}
@@ -510,48 +506,95 @@ export class EndpointDragHandler implements DragHandler {
 
                 // if there is at least one enabled source definition (if appropriate), add this element to the drop targets
                 if (sourceDefinitionIdx !== -1) {
-                    if (candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank != null) {
-                        d.rank = candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank
+                    if (jel._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank != null) {
+                        d.rank = jel._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank
                     }
+
+                    d.def = jel._jsPlumbSourceDefinitions[sourceDefinitionIdx]
+
                     this.endpointDropTargets.push(d)
                     this.instance.addClass(candidate, CLASS_DRAG_ACTIVE) // TODO get from defaults.
                 }
 
             } else {
-                // look for at least one target definition that is not disabled on the given element.
-                let targetDefinitionIdx = findWithFunction((candidate as jsPlumbDOMElement)._jsPlumbTargetDefinitions, (tdef: TargetDefinition) => {
+
+                let targetDefinitionIndexes = findAllWithFunction((candidate as jsPlumbDOMElement)._jsPlumbTargetDefinitions, (tdef: TargetDefinition) => {
                     return tdef.enabled !== false && (tdef.def.allowLoopback !== false || candidate !== this.ep.element) && (this._activeDefinition == null || this._activeDefinition.def.allowLoopback !== false || candidate !== this.ep.element)
                 })
 
                 // if there is at least one enabled target definition (if appropriate), add this element to the drop targets
-                if (targetDefinitionIdx !== -1) {
-                    if (candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank != null) {
-                        d.rank = candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank
+                forEach(targetDefinitionIndexes, (targetDefinitionIdx:number)=> {
+                    let d: any = {el: candidate, r: boundingRect}
+                    if (jel._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank != null) {
+                        d.rank = jel._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank
                     }
+                    d.def = jel._jsPlumbTargetDefinitions[targetDefinitionIdx]
                     this.endpointDropTargets.push(d)
+
+                })
+
+                if (targetDefinitionIndexes.length > 0) {
                     this.instance.addClass(candidate, CLASS_DRAG_ACTIVE) // TODO get from defaults.
-                } else {
-                    // look for a target definition on the instance
-                    const targetDef = getWithFunction(this.instance.targetSelectors,  (tSel:TargetSelector) => {
-                        return tSel.isEnabled() && (tSel.def.def.allowLoopback !== false || candidate !== this.ep.element) && (this._activeDefinition == null || this._activeDefinition.def.allowLoopback !== false || candidate !== this.ep.element)
-                    })
-
-                    if (targetDef != null) {
-
-                        // for instance wide selectors, reset the drop target to be the node/group in which the target with the
-                        // matching selector resides.
-                        d.el = findParent(d.el, SELECTOR_MANAGED_ELEMENT, this.instance.getContainer())
-
-                        if (targetDef.def.def.rank != null) {
-                            d.rank = targetDef.def.def.rank
-                        }
-                        this.endpointDropTargets.push(d)
-                        this.instance.addClass(candidate, CLASS_DRAG_ACTIVE) // TODO get from defaults.
-                    }
                 }
             }
 
         })
+
+        // search for source/target selector registered on the instance that matches
+
+        if (isSourceDrag) {
+
+            // look for a source definition on the instance whose scope matches the current endpoint's scope
+            const sourceDef = getWithFunction(this.instance.sourceSelectors,  (sSel:SourceSelector) => {
+                return sSel.isEnabled() && (sSel.def.def.scope == null || sSel.def.def.scope === this.ep.scope)
+            })
+
+            if (sourceDef != null) {
+                const targetZones = this.instance.getContainer().querySelectorAll(sourceDef.selector)
+                forEach(targetZones, (el:Element) => {
+                    let d: any = {r: null}
+                    // TODO check loopback here
+                    d.el = findParent(el as unknown as jsPlumbDOMElement, SELECTOR_MANAGED_ELEMENT, this.instance.getContainer(), true)
+
+                    const o = this.instance.getOffset(d.el), s = this.instance.getSize(d.el)
+                    d.r= {x: o.x, y: o.y, w: s.w, h: s.h}
+
+                    if (sourceDef.def.def.rank != null) {
+                        d.rank = sourceDef.def.def.rank
+                    }
+
+                    d.def = sourceDef
+                    this.endpointDropTargets.push(d)
+                    this.instance.addClass(d.el, CLASS_DRAG_ACTIVE) // TODO get from defaults.
+                })
+            }
+
+        } else {
+
+            const targetDefs = getAllWithFunction(this.instance.targetSelectors,  (tSel:TargetSelector) => {
+                return tSel.isEnabled()
+            })
+
+            targetDefs.forEach(targetDef => {
+                const targetZones = this.instance.getContainer().querySelectorAll(targetDef.selector)
+                forEach(targetZones, (el:Element) => {
+                    let d: any = {r: null}
+                    // TODO check loopback here
+                    d.el = findParent(el as unknown as jsPlumbDOMElement, SELECTOR_MANAGED_ELEMENT, this.instance.getContainer(), true)
+
+                    const o = this.instance.getOffset(el), s = this.instance.getSize(el)
+                    d.r= {x: o.x, y: o.y, w: s.w, h: s.h}
+
+                    d.def = targetDef
+
+                    if (targetDef.def.def.rank != null) {
+                        d.rank = targetDef.def.def.rank
+                    }
+                    this.endpointDropTargets.push(d)
+                    this.instance.addClass(d.el, CLASS_DRAG_ACTIVE) // TODO get from defaults.
+                })
+            })
+        }
 
         this.endpointDropTargets.sort((a:any, b:any) =>{
 
@@ -649,7 +692,20 @@ export class EndpointDragHandler implements DragHandler {
 
             for (let i = 0; i < this.endpointDropTargets.length; i++) {
 
-                if (intersects(boundingRect, this.endpointDropTargets[i].r)) {
+                // test if this drop target has declared a filter (and possibly a value for filterExclude).
+                // if the filter excludes this drop target we don't consider it.
+                let cont = true,
+                    filter =  this.endpointDropTargets[i].def ? this.endpointDropTargets[i].def.def.filter : null,
+                    filterExclude = filter != null ? this.endpointDropTargets[i].def.def.filterExclude : null
+
+                if (filter != null) {
+                    let r = selectorFilter(params.e, this.endpointDropTargets[i].el, filter as string, this.instance, filterExclude)
+                    if (r === false) {
+                        cont = false
+                    }
+                }
+
+                if (cont && intersects(boundingRect, this.endpointDropTargets[i].r)) {
                     newDropTarget = this.endpointDropTargets[i]
                     break
                 }
@@ -832,7 +888,6 @@ export class EndpointDragHandler implements DragHandler {
 
             // refresh the appearance of the endpoint, if necessary
             this.instance.refreshEndpoint(this.ep)
-            //this.ep.removeClass(CLASS_DRAG_ENDPOINT)
             this.ep.removeClass(this.instance.draggingClass)
 
             // common clean up
@@ -906,69 +961,12 @@ export class EndpointDragHandler implements DragHandler {
         return this._getSourceDefinitionFromElement(fromElement, evt, ignoreFilter) || this._getSourceDefinitionFromInstance(evt, ignoreFilter)
     }
 
-    /**
-     * Lookup a target definition on the given element.
-     * @param fromElement Element to lookup the source definition
-     * @param evt Associated mouse event - for instance, the event that started a drag.
-     * @private
-     */
-    private _getTargetDefinitionFromElement(fromElement:jsPlumbDOMElement, evt:Event):TargetDefinition {
-        let targetDef
-        if (fromElement._jsPlumbTargetDefinitions) {
-            for (let i = 0; i < fromElement._jsPlumbTargetDefinitions.length; i++) {
-                targetDef = fromElement._jsPlumbTargetDefinitions[i]
-                if (targetDef.enabled !== false) {
-                    if (targetDef.def.filter) {
-                        let r = isString(targetDef.def.filter) ? selectorFilter(evt, fromElement, targetDef.def.filter as string, this.instance, targetDef.def.filterExclude) : (targetDef.def.filter as Function)(evt, fromElement)
-                        if (r !== false) {
-                            return targetDef
-                        }
-                    } else {
-                        return targetDef
-                    }
-                }
-            }
-        }
-    }
-
-    //
-    private _getTargetDefinitionFromInstance(evt:Event, ignoreFilter?:boolean):TargetDefinition {
-        let selector
-        for (let i = 0; i < this.instance.targetSelectors.length; i++) {
-            selector = this.instance.targetSelectors[i]
-            if (selector.isEnabled()) {
-                let r = selectorFilter(evt, this.instance.getContainer(), selector.selector, this.instance, selector.exclude)
-                if (r !== false) {
-                    return selector.def
-                }
-
-            }
-        }
-        return null
-    }
-
-    private _getTargetDefinition(fromElement:jsPlumbDOMElement, evt:Event):TargetDefinition {
-        return this._getTargetDefinitionFromElement(fromElement, evt) || this._getTargetDefinitionFromInstance(evt)
-    }
-
-    private _getDropEndpoint(p:any, jpc:Connection):Endpoint {
+    private _getDropEndpoint(p:DragStopEventParams, jpc:Connection):Endpoint {
         let dropEndpoint:Endpoint
 
         if (this.currentDropTarget.endpoint == null) {
 
-            // find a suitable target definition, by matching the source of the drop element with the targets registered on the
-            // drop target, and also the floating index (if set) of the connection
-
-            let targetDefinition:SourceOrTargetDefinition
-
-            // if no floating index, this is a new connection, so we're looking for a target definition.
-            // if floating index is 1, we're also looking for a target definition.
-            if (this.floatingIndex == null || this.floatingIndex === 1) {
-                targetDefinition = this._getTargetDefinition(this.currentDropTarget.el, p.e)
-            } else if (this.floatingIndex === 0) {
-                // if floating index is 0, we look for a source definition, as we're dropping the target of some connection onto a source.
-                targetDefinition = this._getSourceDefinition(this.currentDropTarget.el, p.e, true)
-            }
+            let targetDefinition:SourceOrTargetDefinition =  this.currentDropTarget.def
 
             // if no definition found, bail.
             if (targetDefinition == null) {
@@ -977,9 +975,9 @@ export class EndpointDragHandler implements DragHandler {
 
             // if no cached endpoint, or there was one but it has been cleaned up
             // (ie. detached), create a new one
-            let eps = this.instance.deriveEndpointAndAnchorSpec(jpc.getType().join(" "), true)
+            let eps = this.instance._deriveEndpointAndAnchorSpec(jpc.getType().join(" "), true)
 
-            let pp = eps.endpoints ? extend(p, {
+            let pp:any = eps.endpoints ? extend(p as any, {
                 endpoint:targetDefinition.def.endpoint || eps.endpoints[1]
             }) :p
             if (eps.anchors) {
@@ -1032,7 +1030,6 @@ export class EndpointDragHandler implements DragHandler {
     private _doForceReattach(idx:number):void {
 
         // TODO check this logic. why in this case is this a transient detach?
-        //this.jpc.endpoints[idx].detachFromConnection(this.jpc, null, true)
         this.floatingEndpoint.detachFromConnection(this.jpc, null, true)
 
         this.jpc.endpoints[idx] = this.jpc.suspendedEndpoint
