@@ -14,12 +14,20 @@ import {DragEventParams,Drag,DragStopEventParams} from "./collicat"
 import {
     BoundingBox,
     Dictionary,
-    isString, JsPlumbInstance,
+    isString,
+    JsPlumbInstance,
     optional,
     RedrawResult,
     UIGroup,
     forEach,
-    getFromSetWithFunction, intersects, PointXY, Size, SELECTOR_MANAGED_ELEMENT, ATTRIBUTE_NOT_DRAGGABLE, FALSE
+    getFromSetWithFunction,
+    intersects,
+    PointXY,
+    Size,
+    SELECTOR_MANAGED_ELEMENT,
+    ATTRIBUTE_NOT_DRAGGABLE,
+    FALSE,
+    CLASS_OVERLAY, cls
 } from "@jsplumb/core"
 
 type IntersectingGroup = {
@@ -87,7 +95,7 @@ function isActiveDragGroupMember(dragGroup:DragGroup, el:HTMLElement): boolean {
 
 export class ElementDragHandler implements DragHandler {
 
-    selector: string = "> " + SELECTOR_MANAGED_ELEMENT
+    selector: string = "> " + SELECTOR_MANAGED_ELEMENT + ":not(" + cls(CLASS_OVERLAY) + ")"
     private _dragOffset:PointXY = null
     private _groupLocations:Array<GroupLocation> = []
     private _intersectingGroups:Array<IntersectingGroup> = []
