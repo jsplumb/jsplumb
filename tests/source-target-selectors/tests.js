@@ -208,6 +208,44 @@ var testSuite = function () {
 
     })
 
+    /**
+     * Tests the `extract` parameter on an `addSourceSelector` call: extract provides a map of attribute names that you want to
+     * read fom the source element when a drag starts, and whose values end up in the connection's data, keyed by the
+     * value from the extract map. In this test we get the attribute `foo` and insert its value into the connection's
+     * data, keyed as `fooAttribute`.
+     */
+    test("addSourceSelector, extractor atts defined on source", function() {
+
+        var sourceNode = makeSourceNode()
+        var zone = addZone(sourceNode, "zone1")
+        sourceNode.setAttribute("foo", "the value of foo");
+
+        var d2 = support.addDiv("d2")
+        d2.className = "node"
+        _jsPlumb.makeTarget(d2)
+
+        let elDragged = false;
+        _jsPlumb.bind("drag:move", function() {
+            elDragged = true
+        })
+
+        _jsPlumb.addSourceSelector(".zone1", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart",
+            extract:{
+                "foo":"fooAttribute"
+            }
+        })
+
+        var c = support.dragConnection(zone, d2, true)
+
+        ok(elDragged === false, "element was not dragged")
+        equal(1, _jsPlumb.select().length, "one connection in the instance")
+
+        equal(c.getData().fooAttribute, "the value of foo", "attribute values extracted properly");
+    });
+
     test("addSourceSelector, exclude:true", function() {
         var sourceNode = makeSourceNode()
         var zone = addZone(sourceNode, "zone1") // this will be added as an 'exclude' source selector
