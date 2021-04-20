@@ -33,8 +33,8 @@ import {
     Rotations,
     PointXY,
     ConnectionMovedParams,
-    SourceBehaviouralTypeDescriptor,
-    TargetBehaviouralTypeDescriptor, ConnectionDetachedParams, ConnectionEstablishedParams
+    ConnectionDetachedParams,
+    ConnectionEstablishedParams
 } from './common'
 
 import { EventGenerator } from "./event-generator"
@@ -927,13 +927,13 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      * @param params Options for the Endpoint.
      * @param id Optional ID for the Endpoint.
      */
-    newEndpoint(params:EndpointOptions<T["E"]>, id?:string):Endpoint {
-        let _p:InternalEndpointOptions<T["E"]> = extend({}, params)
-        _p.elementId = id || this.getId(_p.source)
+    _internal_newEndpoint(params:InternalEndpointOptions<T["E"]>, id?:string):Endpoint {
+        let _p:InternalEndpointOptions<T["E"]> = extend<InternalEndpointOptions<T["E"]>>({}, params)
+        _p.elementId = id || this.getId(_p.element)
 
         let ep = new Endpoint(this, _p)
         ep.id = "ep_" + this._idstamp()
-        const managedElement = this.manage(_p.source)
+        const managedElement = this.manage(_p.element)
 
         addManagedEndpoint(managedElement, ep)
 
@@ -1154,13 +1154,13 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     addEndpoint(el:T["E"], params?:EndpointOptions<T["E"]>, referenceParams?:EndpointOptions<T["E"]>):Endpoint{
         referenceParams = referenceParams || {} as EndpointOptions<T["E"]>
         let p:EndpointOptions<T["E"]> = extend({}, referenceParams)
-        extend(p, params || {})
+        extend<EndpointOptions<T["E"]>>(p, params || {})
         p.endpoint = p.endpoint || this.Defaults.endpoint
         p.paintStyle = p.paintStyle || this.Defaults.endpointStyle
-        let _p:EndpointOptions<T["E"]> = extend({source:el}, p)
-        let id = this.getId(_p.source)
+        let _p:InternalEndpointOptions<T["E"]> = extend<InternalEndpointOptions<T["E"]>>({element:el}, p)
+        let id = this.getId(_p.element)
         this.manage(el, id, !this._suspendDrawing)
-        let e = this.newEndpoint(_p, id)
+        let e = this._internal_newEndpoint(_p, id)
 
         addToDictionary(this.endpointsByElement, id, e)
 
@@ -1180,7 +1180,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      * @param endpoints Array of endpoint options.
      * @param referenceParams
      */
-    addEndpoints(el:T["E"], endpoints:Array<EndpointOptions<T["E"]>>, referenceParams?:any):Array<Endpoint> {
+    addEndpoints(el:T["E"], endpoints:Array<EndpointOptions<T["E"]>>, referenceParams?:EndpointOptions<T["E"]>):Array<Endpoint> {
         let results:Array<Endpoint> = []
         for (let i = 0, j = endpoints.length; i < j; i++) {
             results.push(this.addEndpoint(el, endpoints[i], referenceParams))
@@ -1697,8 +1697,8 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         }
     }
 
-    protected _createSourceDefinition(params?:SourceBehaviouralTypeDescriptor, referenceParams?:SourceBehaviouralTypeDescriptor):SourceDefinition {
-        let p:SourceBehaviouralTypeDescriptor = extend({}, referenceParams)
+    protected _createSourceDefinition(params?:BehaviouralTypeDescriptor, referenceParams?:BehaviouralTypeDescriptor):SourceDefinition {
+        let p:BehaviouralTypeDescriptor = extend({}, referenceParams)
         extend(p, params)
         p.connectionType = p.connectionType || Constants.DEFAULT
         let aae = this.deriveEndpointAndAnchorSpec(p.connectionType)
@@ -1722,10 +1722,10 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      * @param params
      * @param referenceParams
      */
-    makeSource(el:T["E"], params?:SourceBehaviouralTypeDescriptor, referenceParams?:SourceBehaviouralTypeDescriptor):JsPlumbInstance {
+    makeSource(el:T["E"], params?:BehaviouralTypeDescriptor, referenceParams?:BehaviouralTypeDescriptor):JsPlumbInstance {
 
         const jel = el as unknown as jsPlumbElement<T["E"]>
-        let p:SourceBehaviouralTypeDescriptor = extend(extend({}, params), referenceParams || {})
+        let p:BehaviouralTypeDescriptor = extend(extend({}, params), referenceParams || {})
 
         const _def = this._createSourceDefinition(params, referenceParams)
 
@@ -1838,10 +1838,10 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         this._setScope(el, scope, Constants.TARGET_DEFINITION_LIST)
     }
 
-    private _createTargetDefinition(params?:TargetBehaviouralTypeDescriptor, referenceParams?:TargetBehaviouralTypeDescriptor):TargetDefinition {
+    private _createTargetDefinition(params?:BehaviouralTypeDescriptor, referenceParams?:BehaviouralTypeDescriptor):TargetDefinition {
 
         // put jsplumb ref into params without altering the params passed in
-        let p:TargetBehaviouralTypeDescriptor = extend({}, referenceParams)
+        let p:BehaviouralTypeDescriptor = extend({}, referenceParams)
         extend(p, params)
         p.connectionType  = p.connectionType || Constants.DEFAULT
 
@@ -1866,9 +1866,9 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      * @param params
      * @param referenceParams
      */
-    makeTarget (el:T["E"], params?:TargetBehaviouralTypeDescriptor, referenceParams?:TargetBehaviouralTypeDescriptor):JsPlumbInstance {
+    makeTarget (el:T["E"], params?:BehaviouralTypeDescriptor, referenceParams?:BehaviouralTypeDescriptor):JsPlumbInstance {
 
-        let p:TargetBehaviouralTypeDescriptor = extend(extend({}, params), referenceParams || {})
+        let p:BehaviouralTypeDescriptor = extend(extend({}, params), referenceParams || {})
 
         let jel = el as unknown as jsPlumbElement<T["E"]>
         let _def:TargetDefinition = this._createTargetDefinition(params, referenceParams)
