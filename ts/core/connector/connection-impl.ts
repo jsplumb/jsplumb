@@ -56,17 +56,17 @@ function prepareEndpoint<E>(conn:Connection, existing:Endpoint, index:number, an
 
         anchor = anchor != null ? anchor : conn.instance.Defaults.anchors != null ? conn.instance.Defaults.anchors[index] : conn.instance.Defaults.anchor
 
-        e = conn.instance.newEndpoint({
+        e = conn.instance._internal_newEndpoint({
             paintStyle: es,
             hoverPaintStyle: ehs,
             endpoint: ep,
             connections: [ conn ],
             uuid: u,
-            source: element,
+            element: element,
             scope: conn.scope,
             anchor:anchor,
-            reattach: conn.reattach || conn.instance.Defaults.reattachConnections,
-            detachable: conn.detachable || conn.instance.Defaults.connectionsDetachable
+            reattachConnections: conn.reattach || conn.instance.Defaults.reattachConnections,
+            connectionsDetachable: conn.detachable || conn.instance.Defaults.connectionsDetachable
         })
 
         if (existing == null) {
