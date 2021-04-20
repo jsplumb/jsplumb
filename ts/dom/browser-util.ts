@@ -28,9 +28,9 @@ export function consume (e:Event, doNotPreventDefault?:boolean) {
     }
 }
 
-export function findParent(el:jsPlumbDOMElement, selector:string, container:HTMLElement):jsPlumbDOMElement {
+export function findParent(el:jsPlumbDOMElement, selector:string, container:HTMLElement, matchOnElementAlso?:boolean):jsPlumbDOMElement {
     while (el != null && el !== container) {
-        if (matchesSelector(el, selector)) {
+        if (matchesSelector(el, selector) || (matchOnElementAlso && matchesSelector(el, selector, container))) {
             return el
         } else {
             el = el.parentNode
