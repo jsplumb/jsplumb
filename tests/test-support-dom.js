@@ -183,7 +183,7 @@ if (Array.prototype.forEach == null) {
         var conns = _jsPlumb.select().length;
 
         _jsPlumb.trigger(el1, "mousedown", e1);
-        _jsPlumb.trigger(document, "mousemove", e2);
+        _jsPlumb.trigger(mouseUpOnTarget ? el2 : document, "mousemove", e2);
         _jsPlumb.trigger(mouseUpOnTarget ? el2 : document, "mouseup", e2);
 
         return _jsPlumb.select().get(conns);
@@ -304,6 +304,13 @@ if (Array.prototype.forEach == null) {
         lut[i] = (i < 16 ? '0' : '') + i.toString(16);
     }
 
+    var VERY_SMALL_NUMBER = 0.00000000001;
+// helper to test that a value is the same as some target, within our tolerance
+// sometimes the trigonometry stuff needs a little bit of leeway.
+    var _within = function (_ok, val, target, msg) {
+        _ok(Math.abs(val - target) < VERY_SMALL_NUMBER, msg + "[expected: " + target + " got " + val + "] [diff:" + (Math.abs(val - target)) + "]");
+    };
+
     this.jsPlumbTestSupport = {
         getInstance:function(_jsPlumb) {
 
@@ -400,6 +407,8 @@ if (Array.prototype.forEach == null) {
 
                 getEndpointCanvas:getEndpointCanvas,
                 getConnectionCanvas:getConnectionCanvas,
+
+                within:_within.bind(null, ok),
 
                 addDiv:_addDiv,
                 addDivs:_addDivs,

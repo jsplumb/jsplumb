@@ -21,13 +21,6 @@ var _head = function(obj) {
         return obj[i];
 };
 
-var VERY_SMALL_NUMBER = 0.00000000001;
-// helper to test that a value is the same as some target, within our tolerance
-// sometimes the trigonometry stuff needs a little bit of leeway.
-var within = function (val, target, _ok, msg) {
-    _ok(Math.abs(val - target) < VERY_SMALL_NUMBER, msg + "[expected: " + target + " got " + val + "] [diff:" + (Math.abs(val - target)) + "]");
-};
-
 var defaults = null, support, _jsPlumb;
 
 var isHover = function(connection) {
@@ -262,8 +255,8 @@ var testSuite = function () {
         equal(-1, e16or[0], "x orientation is -1 after rotation of parent group");
         equal(0, e16or[1], "y orientation is 0 after rotation of parent group");
 
-        equal(0, _jsPlumb.getRotation(d16Id), "d16 is registered as having rotation of 0 degrees")
-        equal(90, _jsPlumb.getRotation(g1.elId), "g1 element is registered as having rotation of 90 degrees")
+        equal(0, _jsPlumb._getRotation(d16Id), "d16 is registered as having rotation of 0 degrees")
+        equal(90, _jsPlumb._getRotation(g1.elId), "g1 element is registered as having rotation of 90 degrees")
 
         // the anchor value should be different.
 

@@ -26,13 +26,6 @@ var assertConnectionByScopeCount = function (scope, count, _jsPlumb) {
     equal(_jsPlumb.select({scope: scope}).length, count, 'Scope ' + scope + " has " + count + (count > 1) ? "connections" : "connection");
 };
 
-var VERY_SMALL_NUMBER = 0.00000000001;
-// helper to test that a value is the same as some target, within our tolerance
-// sometimes the trigonometry stuff needs a little bit of leeway.
-var within = function (val, target, _ok, msg) {
-    _ok(Math.abs(val - target) < VERY_SMALL_NUMBER, msg + "[expected: " + target + " got " + val + "] [diff:" + (Math.abs(val - target)) + "]");
-};
-
 var defaults = null, support, _jsPlumb, container;
 
 var makeContainer = function() {
@@ -4802,6 +4795,44 @@ var testSuite = function () {
         ok(d1.getAttribute("data-jtk-managed") == null, "d1 no longer has data-jtk-managed attribute");
     });
 
+    test("manageAll, with array, adds data-jtk-managed attribute", function() {
+        var d1 = support.addDiv("d1"),
+            d2 = support.addDiv("d2");
+
+        _jsPlumb.manageAll([d1, d2]);
+        ok(d1.getAttribute("data-jtk-managed") != null, "d1 is marked data-jtk-managed");
+        ok(d2.getAttribute("data-jtk-managed") != null, "d2 is marked data-jtk-managed");
+        _jsPlumb.unmanage(d1);
+        ok(d1.getAttribute("data-jtk-managed") == null, "d1 is no longer marked data-jtk-managed");
+    });
+
+    test("manageAll, with NodeList, adds data-jtk-managed attribute", function() {
+        var d1 = support.addDiv("d1", null, "foo"),
+            d2 = support.addDiv("d2", null, "foo"),
+            nl = document.querySelectorAll(".foo");
+
+        _jsPlumb.manageAll(nl);
+        ok(d1.getAttribute("data-jtk-managed") != null, "d1 is marked data-jtk-managed");
+        ok(d2.getAttribute("data-jtk-managed") != null, "d2 is marked data-jtk-managed");
+    });
+
+    test("manageAll, with CSS selector, adds data-jtk-managed attribute", function() {
+        var d1 = support.addDiv("d1", null, "foo"),
+            d2 = support.addDiv("d2", null, "foo");
+
+        _jsPlumb.manageAll(".foo");
+        ok(d1.getAttribute("data-jtk-managed") != null, "d1 is marked data-jtk-managed");
+        ok(d2.getAttribute("data-jtk-managed") != null, "d2 is marked data-jtk-managed");
+    });
+
+    test("manageAll, with CSS ID selector, adds data-jtk-managed attribute", function() {
+        var d1 = support.addDiv("d1", null, "foo");
+
+        _jsPlumb.manageAll("#d1");
+        ok(d1.getAttribute("data-jtk-managed") != null, "d1 is marked data-jtk-managed");
+    });
+
+
 
 // ******************* getEndpoints ************************************************
 
@@ -4840,140 +4871,6 @@ var testSuite = function () {
         { v: function () {
         }, t: "Function" }
     ];
-
-    // -- geometry tests have been moved into the jtk-geom project (because that's where the code is now) ---
-
-
-    // test(" arc segment tests", function () {
-    //     var r = 10, circ = 2 * Math.PI * r;
-    //     // first, an arc up and to the right (clockwise)
-    //     var params = { r: r, x1: 0, y1: 0, x2: 10, y2: -10, cx: 10, cy: 0 };
-    //     var s = new jsPlumb.Segments["Arc"](params);
-    //     // segment should be one quarter of the circumference
-    //     equal(s.getLength(), 0.25 * circ, "length of segment is correct");
-    //     // point 0 is (0,0)
-    //     var p1 = s.pointOnPath(0);
-    //     within(p1.x, 0, ok, "start x is correct");
-    //     within(p1.y, 0, ok, "start y is correct");
-    //     // point 1 is (10, -10)
-    //     var p2 = s.pointOnPath(1);
-    //     within(p2.x, 10, ok, "end x is correct");
-    //     within(p2.y, -10, ok, "end y is correct");
-    //     // point at loc 0.5 is (2.92, -7.07))
-    //     var p3 = s.pointOnPath(0.5);
-    //     within(p3.x, 10 - (Math.sqrt(2) / 2 * 10), ok, "end x is correct");
-    //     within(p3.y, -(Math.sqrt(2) / 2 * 10), ok, "end y is correct");
-    //     // gradients
-    //     equal(s.gradientAtPoint(0), -Infinity, "gradient at location 0 is -Infinity");
-    //     equal(s.gradientAtPoint(1), 0, "gradient at location 1 is 0");
-    //     within(s.gradientAtPoint(0.5), -1, ok, "gradient at location 0.5 is -1");
-    //
-    //     // an arc up and to the left (anticlockwise)
-    //     params = { r: r, x1: 0, y1: 0, x2: -10, y2: -10, cx: -10, cy: 0, ac: true };
-    //     s = new jsPlumb.Segments["Arc"](params);
-    //     equal(s.getLength(), 0.25 * circ, "length of segment is correct");
-    //     // point 0 is (0,0)
-    //     p1 = s.pointOnPath(0);
-    //     within(p1.x, 0, ok, "start x is correct");
-    //     within(p1.y, 0, ok, "start y is correct");
-    //     // point 1 is (-10, -10)
-    //     p2 = s.pointOnPath(1);
-    //     within(p2.x, -10, ok, "end x is correct");
-    //     within(p2.y, -10, ok, "end y is correct");
-    //     // point at loc 0.5 is (-2.92, -7.07))
-    //     p3 = s.pointOnPath(0.5);
-    //     within(p3.x, -2.9289321881345245, ok, "end x is correct");
-    //     within(p3.y, -7.071067811865477, ok, "end y is correct");
-    //     // gradients
-    //     equal(s.gradientAtPoint(0), -Infinity, "gradient at location 0 is -Infinity");
-    //     equal(s.gradientAtPoint(1), 0, "gradient at location 1 is 0");
-    //     within(s.gradientAtPoint(0.5), 1, ok, "gradient at location 0.5 is 1");
-    //
-    //
-    //     // clockwise, 180 degrees
-    //     params = { r: r, x1: 0, y1: 0, x2: 0, y2: 20, cx: 0, cy: 10 };
-    //     s = new jsPlumb.Segments["Arc"](params);
-    //     equal(s.getLength(), 0.5 * circ, "length of segment is correct");
-    //     p1 = s.pointOnPath(0);
-    //     within(p1.x, 0, ok, "start x is correct");
-    //     within(p1.y, 0, ok, "start y is correct");
-    //     p2 = s.pointOnPath(1);
-    //     within(p2.x, 0, ok, "end x is correct");
-    //     within(p2.y, 20, ok, "end y is correct");
-    //     var p3 = s.pointOnPath(0.5);
-    //     within(p3.x, 10, ok, "end x is correct");
-    //     within(p3.y, 10, ok, "end y is correct");
-    //     // gradients
-    //     equal(s.gradientAtPoint(0), 0, "gradient at location 0 is 0");
-    //     equal(s.gradientAtPoint(1), 0, "gradient at location 1 is 0");
-    //     equal(s.gradientAtPoint(0.5), Infinity, "gradient at location 0.5 is Infinity");
-    //
-    //
-    //     // anticlockwise, 180 degrees
-    //     params = { r: r, x1: 0, y1: 0, x2: 0, y2: -20, cx: 0, cy: -10, ac: true };
-    //     s = new jsPlumb.Segments["Arc"](params);
-    //     equal(s.getLength(), 0.5 * circ, "length of segment is correct");
-    //     p1 = s.pointOnPath(0);
-    //     within(p1.x, 0, ok, "start x is correct");
-    //     within(p1.y, 0, ok, "start y is correct");
-    //     p2 = s.pointOnPath(1);
-    //     within(p2.x, 0, ok, "end x is correct");
-    //     within(p2.y, -20, ok, "end y is correct");
-    //     var p3 = s.pointOnPath(0.5);
-    //     within(p3.x, 10, ok, "end x is correct");
-    //     within(p3.y, -10, ok, "end y is correct");
-    //
-    //
-    //     // clockwise, 270 degrees
-    //     params = { r: r, x1: 0, y1: 0, x2: -10, y2: 10, cx: 0, cy: 10 };
-    //     s = new jsPlumb.Segments["Arc"](params);
-    //     equal(s.getLength(), 0.75 * circ, "length of segment is correct");
-    //     p1 = s.pointOnPath(0);
-    //     within(p1.x, 0, ok, "start x is correct");
-    //     within(p1.y, 0, ok, "start y is correct");
-    //     p2 = s.pointOnPath(1);
-    //     within(p2.x, -10, ok, "end x is correct");
-    //     within(p2.y, 10, ok, "end y is correct");
-    //     var p3 = s.pointOnPath(0.5);
-    //     within(p3.x, 7.071067811865477, ok, "end x is correct");
-    //     within(p3.y, 17.071067811865477, ok, "end y is correct");
-    //
-    //
-    //     // anticlockwise, 90 degrees
-    //     params = { r: r, x1: 0, y1: 0, x2: -10, y2: 10, cx: 0, cy: 10, ac: true };
-    //     s = new jsPlumb.Segments["Arc"](params);
-    //     equal(s.getLength(), 0.25 * circ, "length of segment is correct");
-    //     p1 = s.pointOnPath(0);
-    //     within(p1.x, 0, ok, "start x is correct");
-    //     within(p1.y, 0, ok, "start y is correct");
-    //     p2 = s.pointOnPath(1);
-    //     within(p2.x, -10, ok, "end x is correct");
-    //     within(p2.y, 10, ok, "end y is correct");
-    //     var p3 = s.pointOnPath(0.5);
-    //     within(p3.x, -7.071067811865477, ok, "end x is correct");
-    //     within(p3.y, 2.9289321881345245, ok, "end y is correct");
-    //
-    //
-    //     // anticlockwise, 270 degrees
-    //     params = { r: r, x1: 0, y1: 0, x2: 10, y2: 10, cx: 0, cy: 10, ac: true };
-    //     s = new jsPlumb.Segments["Arc"](params);
-    //     equal(s.getLength(), 0.75 * circ, "length of segment is correct");
-    //     p1 = s.pointOnPath(0);
-    //     within(p1.x, 0, ok, "start x is correct");
-    //     within(p1.y, 0, ok, "start y is correct");
-    //     p2 = s.pointOnPath(1);
-    //     within(p2.x, 10, ok, "end x is correct");
-    //     within(p2.y, 10, ok, "end y is correct");
-    //     var p3 = s.pointOnPath(0.5);
-    //     within(p3.x, -7.071067811865477, ok, "end x is correct");
-    //     within(p3.y, 17.071067811865477, ok, "end y is correct");
-    //
-    //
-    // });
-
-// *********************************** jsPlumbUtil.extend tests *****************************************************
-
-
 
     test(" addClass method of Connection", function () {
         var d1 = support.addDiv("d1");

@@ -12,6 +12,22 @@ var makeContainer = function() {
     container.style.outline = "1px solid"
 }
 
+var _addDiv = function(id, x, y, w, h) {
+    if (!x) {
+        _jsPlumb.testx = _jsPlumb.testx || 0;
+        _jsPlumb.testx += 100;
+        x = _jsPlumb.testx;
+    }
+
+    if (!y) {
+        _jsPlumb.testy = _jsPlumb.testy || 0;
+        _jsPlumb.testy += 100;
+        y = _jsPlumb.testy;
+    }
+
+    return support.addDiv(id, _jsPlumb.getContainer(), "", x, y, w, h);
+};
+
 var removeContainer = function() {
     container && container.parentNode && container.parentNode.removeChild(container)
 }
@@ -31,8 +47,746 @@ var testSuite = function () {
         }
     });
 
-    test("sanity", function() {
-        equal(1,1);
+    test("connections via mouse between elements configured with makeSource/makeTarget", function() {
+
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"), d4 = _addDiv("d4");
+        _jsPlumb.makeSource(d1);
+        _jsPlumb.makeSource(d4);
+        _jsPlumb.makeTarget(d2);
+        _jsPlumb.makeTarget(d3);
+
+        _jsPlumb.Defaults.maxConnections = -1;
+
+        equal(_jsPlumb.select().length, 0, "zero connections before drag");
+        support.dragConnection(d1, d2);
+        equal(_jsPlumb.select().length, 1, "one connection after drag from source to target");
+
+        equal(document.querySelectorAll(".jtk-endpoint").length, 2, "two endpoints in the DOM (the drag one was cleared up)");
+
+        var cd1d2 = _jsPlumb.select().get(0);
+        equal(cd1d2.source.id, "d1", "source of first connection is correct");
+        equal(cd1d2.target.id, "d2", "target of first connection is correct");
+
+        // support.dragConnection(d1, d3);
+        // equal(_jsPlumb.select().length, 2, "two connections after drag from source to target");
+        // equal(document.querySelectorAll(".jtk-endpoint").length, 4, "four endpoints in the DOM (the second drag one was cleared up)");
+        //
+        // var cd1d3 = _jsPlumb.select().get(1);
+        // equal(cd1d3.source.id, "d1", "source of second connection is correct");
+        // equal(cd1d3.target.id, "d3", "target of second connection is correct");
+        //
+        // // now we will drag the connection from d1-d2 by its target endpoint and put it on d3.
+        // support.relocateTarget(cd1d2, d3);
+        // equal(cd1d2.target.id, "d3", "target of first connection has changed to d3");
+        // equal(_jsPlumb.select().length, 2, "two connections after relocate");
+        // equal(document.querySelectorAll(".jtk-endpoint").length, 4, "four endpoints in the DOM (the drag one for relocate was cleared up)");
+        //
+        // support.dragConnection(d3, d1);
+        // equal(_jsPlumb.select().length, 2, "two connections after failed drag from target to source (d3 is a target and not a source)");
+        // equal(document.querySelectorAll(".jtk-endpoint").length, 4, "still four endpoints in the DOM after connection we rejected");
+        //
+        // // move d3 off of d1, it's overlapping right now and that's messing up the test
+        //
+        // support.dragANodeAround(d3);
+        //
+        // // now drag the source of d1-d2 to be d4.
+        // support.relocateSource(cd1d2, d4);
+        // equal(cd1d2.source.id, "d4", "source of first connection has changed to d4");
+        // equal(_jsPlumb.select().length, 2, "two connections after relocate");
+
+    });
+
+
+    // https://github.com/jsplumb/jsPlumb/issues/415
+    test("issue 415: spurious endpoints after dragging", function() {
+
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
+
+        [d1,d2,d3,d4].forEach(function(el) {
+            _jsPlumb.makeSource(el, {
+                maxConnections:-1
+            });
+
+            _jsPlumb.makeTarget(el, {
+                maxConnections:-1
+            });
+        });
+
+        ok(_jsPlumb.isSource(d4), "d4 is a connection source");
+        ok(_jsPlumb.isTarget(d4), "d4 is a connection target");
+
+        var d1d2 = support.dragConnection(d1, d2);
+        equal(_jsPlumb.select().length, 1, "one connection after drag");
+
+        var d2d3 = support.dragConnection(d2, d3);
+        equal(_jsPlumb.select().length, 2, "two connections after drag");
+
+        equal(_jsPlumb.selectEndpoints().length, 4, "four endpoints before relocations");
+
+        support.relocateTarget(d1d2, d4);
+        equal(d1d2.target.id, "d4", "target of first connection has changed to d4");
+
+        equal(_jsPlumb.select().length, 2, "two connections after relocations");
+        equal(_jsPlumb.selectEndpoints().length, 4, "four endpoints after relocations");
+
+        support.relocateSource(d2d3, d4);
+
+        equal(d2d3.source.id, "d4", "source of second connection has changed to d4");
+        equal(_jsPlumb.select().length, 2, "two connections after relocations");
+        equal(_jsPlumb.selectEndpoints().length, 4, "four endpoints after relocations");
+
+    });
+
+    test("drag connection so it turns into a self-loop. ensure endpoints registered correctly. target not continuous anchor so not hidden (issue 419)", function() {
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
+
+        [d1,d2,d3,d4].forEach(function(el) {
+            _jsPlumb.makeSource(el, {
+                maxConnections:-1
+            });
+
+            _jsPlumb.makeTarget(el, {
+                maxConnections:-1
+            });
+        });
+
+        ok(_jsPlumb.isSource(d1), "d1 is a connection source");
+        ok(_jsPlumb.isTarget(d2), "d2 is a connection target");
+
+        // as a test: connect d3 to itself. 2 endpoints?
+        var d3d3 = support.dragConnection(d3, d3);
+        equal(_jsPlumb.selectEndpoints().length, 2, "two endpoints");
+
+        var d2d1 = support.dragConnection(d2, d1);
+        equal(_jsPlumb.select().length, 2, "one connection after drag");
+
+        support.relocateSource(d2d1, d1);
+        equal(d2d1.endpoints[0].element.id, "d1", "source endpoint is on d1 now");
+        equal(_jsPlumb.selectEndpoints().length, 4, "four endpoints after relocations");
+
+        support.relocateSource(d2d1, d2);
+        equal(d2d1.endpoints[0].element.id, "d2", "source endpoint is on d2 now");
+        ok(support.getEndpointCanvas(d2d1.endpoints[1]).parentNode != null, "target canvas put back into DOM");
+    });
+
+    test("drag connection so it turns into a self-loop. ensure endpoints registered correctly. target is continuous anchor so is hidden. (issue 419)", function() {
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
+
+        [d1,d2,d3,d4].forEach(function(el) {
+            _jsPlumb.makeSource(el, {
+                maxConnections:-1,
+                anchor:"Continuous"
+            });
+
+            _jsPlumb.makeTarget(el, {
+                maxConnections:-1,
+                anchor:"Continuous"
+            });
+        });
+
+
+        var d2d1 = support.dragConnection(d2, d1);
+        equal(_jsPlumb.select().length, 1, "one connection after drag");
+
+        support.relocateSource(d2d1, d1);
+        equal(d2d1.endpoints[0].element.id, "d1", "source endpoint is on d1 now");
+        // NOTE in this test we are not using Continuous anchors so we do not expect the target to have been
+        // removed. the next test uses Continuous anchors and it checks the target has been removed.
+        //ok(d2d1.endpoints[1].canvas.parentNode == null, "target canvas removed from DOM");
+
+        support.relocateSource(d2d1, d2);
+        equal(d2d1.endpoints[0].element.id, "d2", "source endpoint is on d2 now");
+        ok(support.getEndpointCanvas(d2d1.endpoints[1]).parentNode != null, "target canvas put back into DOM");
+    });
+
+
+
+
+    test("connection dragging, simple drag and detach case", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { }); });
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { }) });
+
+        support.dragConnection(d1, d2);
+        equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
+        var c = _jsPlumb.select().get(0);
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
+
+        support.detachConnectionByTarget(c);
+        equal(_jsPlumb.select({source:d1}).length, 0, "0 connections registered for d1 after mouse detach");
+        equal(_jsPlumb.select({target:d2}).length, 0, "0 connections registered for d2 after mouse detach");
+        //  equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
+        equal(_jsPlumb.select().length, 0, "0 connections in jsplumb instance.");
+
+    });
+
+    /**
+     * Tests the `extract` parameter on a `makeSource` call: extract provides a map of attribute names that you want to
+     * read fom the source element when a drag starts, and whose values end up in the connection's data, keyed by the
+     * value from the extract map. In this test we get the attribute `foo` and insert its value into the connection's
+     * data, keyed as `fooAttribute`.
+     */
+    test("connection dragging, extractor atts defined on source", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+
+        d1.setAttribute("foo", "the value of foo");
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, {
+            extract:{
+                "foo":"fooAttribute"
+            }
+        })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
+
+        var con = support.dragConnection(d1, d2);
+        equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
+        equal(con.getData().fooAttribute, "the value of foo", "attribute values extracted properly");
+    });
+
+    test("connection dragging, simple drag and detach case, beforeDetach interceptor says no.", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+
+        _jsPlumb.bind("beforeDetach", function() { return false; });
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
+
+        support.dragConnection(d1, d2);
+        equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
+        var c = _jsPlumb.select().get(0);
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
+
+        support.detachConnectionByTarget(c);
+        equal(_jsPlumb.select({source:d1}).length, 1, "still 1 connection registered for d1 after attempted mouse detach");
+        equal(_jsPlumb.select({target:d2}).length, 1, "still 1 connection registered for d2 after attempted mouse detach");
+        //equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
+        equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
+
+    });
+
+    test("connection dragging, simple drag and detach case, reattach=true on connection prevents detach.", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
+
+        support.dragConnection(d1, d2);
+        equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
+        var c = _jsPlumb.select().get(0);
+        c.setReattach(true);
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
+
+        support.detachConnectionByTarget(c);
+        equal(_jsPlumb.select({source:d1}).length, 1, "still 1 connection registered for d1 after attempted mouse detach");
+        equal(_jsPlumb.select({target:d2}).length, 1, "still 1 connection registered for d2 after attempted mouse detach");
+        //equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
+        equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
+
+    });
+
+    test("connection dragging, simple move target case", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
+
+        var c = _jsPlumb.connect({source: d1, target: d2});
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
+
+        support.relocateTarget(c, d3);
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse move");
+        equal(_jsPlumb.select({target:d2}).length, 0, "0 connections registered for d2 after mouse move");
+        equal(_jsPlumb.select({target:d3}).length, 1, "1 connection registered for d3 after mouse move");
+        // equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
+
+        if (_jsPlumb.select({source:d1}).length !== 1) {
+            debugger;
+        }
+
+        //alert("ensure continuous anchor endpoint cleaned up in this case (simple target move)");
+    });
+
+// ----------- DRAG SOURCE TO ANOTHER SOURCE ------------------------
+
+    test("connection dragging, simple move source case", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+        [d1,d2,d3].forEach(function(el) {  _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
+
+        var c = _jsPlumb.connect({source: d1, target: d2});
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
+        equal(_jsPlumb.select({source:d3}).length, 0, "0 connections registered for d3 before mouse moves connection");
+
+        support.relocateSource(c, d3);
+        equal(_jsPlumb.select({source:d1}).length, 0, "0 connections registered for d1 after mouse move");
+        equal(_jsPlumb.selectEndpoints().length, 2, "two endpoints; there is one connection");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse move");
+        equal(_jsPlumb.select({source:d3}).length, 1, "1 connection registered for d3 after mouse move");
+
+        equal(_jsPlumb.select().length, 1, "1 connection registered on instance after mouse move");
+
+        equal(null, c.floatingId, "floating ID was cleared")
+
+    });
+
+    test("connection dragging, simple move source case, continuous anchors", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+        _jsPlumb.importDefaults({anchor:"Continuous"});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
+
+        var c = _jsPlumb.connect({source: d1, target: d2});
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
+
+        support.relocateSource(c, d3);
+        equal(_jsPlumb.selectEndpoints().length, 2, "two endpoints; there is one connection");
+        equal(_jsPlumb.select({source:d1}).length, 0, "0 connections registered for d1 after mouse move");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse move");
+        equal(_jsPlumb.select({source:d3}).length, 1, "1 connection registered for d3 after mouse move");
+
+        equal(null, c.floatingId, "floating ID was cleared")
+
+    });
+
+    test("connection dragging, simple move target case, beforeDetach aborts the move (and causes the connection to be reattached)", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+        _jsPlumb.bind("beforeDetach", function() { return false; });
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
+
+        var c = _jsPlumb.connect({source: d1, target: d2});
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
+
+        support.relocateTarget(c, d3);
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connections registered for d1 after aborted mouse move");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connections registered for d2 after aborted mouse move");
+        equal(_jsPlumb.select({target:d3}).length, 0, "0 connections registered for d3 after aborted mouse move");
+
+        equal(null, c.floatingId, "floating ID was cleared")
+    });
+
+
+    test("connection dragging, simple move source case, beforeDetach aborts the move", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+        _jsPlumb.bind("beforeDetach", function() { return false; });
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
+
+        var c = _jsPlumb.connect({source: d1, target: d2});
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
+
+        support.relocateSource(c, d3);
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after aborted mouse move");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after aborted mouse move");
+        equal(_jsPlumb.select({target:d3}).length, 0, "0 connections registered for d3 after aborted mouse move");
+    });
+
+    test("connection dragging, simple move case, connection setReattach(true) undoes the detach", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
+
+        var c = _jsPlumb.connect({source: d1, target: d2});
+        c.setReattach(true);
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
+
+        support.detachConnectionByTarget(c);
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after aborted mouse move");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after aborted mouse move");
+        equal(_jsPlumb.select({target:d3}).length, 0, "0 connections registered for d3 after aborted mouse move");
+
+        equal(null, c.floatingId, "floating ID was cleared")
+    });
+
+    // DRAG TARGET and redrop on original
+    test("connection dragging, redrop on original target", function() {
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
+
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
+
+        var c = _jsPlumb.connect({source: d1, target: d2});
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
+
+        support.relocateTarget(c, d2);
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse move");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse move");
+        // equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
+    });
+
+    // DRAG SOURCE AND REDROP ON ORIGINAL
+    test("connection dragging, redrop on original source", function() {
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
+
+        var c = _jsPlumb.connect({source: d1, target: d2});
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
+
+        support.relocateSource(c, d1);
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse move");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse move");
+        // equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
+    });
+
+
+    // DRAG SOURCE TO AN ELEMENT NOT CONFIGURED AS SOURCE (SHOULD DETACH)
+    test("connection dragging, move source to element not configured as drag source", function() {
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3,d4].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
+
+        var c = _jsPlumb.connect({source: d1, target: d2});
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
+
+        support.relocateSource(c, d4);
+        equal(_jsPlumb.select({source:d1}).length, 0, "0 connections registered for d1 after mouse move");
+        equal(_jsPlumb.selectEndpoints().length, 0, "zero endpoints; there are no connections");
+        equal(_jsPlumb.select({target:d2}).length, 0, "0 connections registered for d2 after mouse move");
+        equal(_jsPlumb.select({target:d3}).length, 0, "0 connections registered for d3 after mouse move");
+        // equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
+    });
+
+    // DRAG SOURCE TO AN ELEMENT NO CONFIGURED AS SOURCE BUT DETACH DISABLED (SHOULDNT CARE)
+    test("connection dragging, move source to element not configured as drag source, beforeDetach cancels connection", function() {
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
+
+        _jsPlumb.bind("beforeDetach", function() { return false; });
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3,d4].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
+
+        var c = _jsPlumb.connect({source: d1, target: d2});
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
+
+        support.relocateSource(c, d4);
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse move");
+        equal(_jsPlumb.selectEndpoints().length, 2, "2 endpoints; there is 1 connection");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse move");
+        equal(_jsPlumb.select({source:d4}).length, 0, "0 connection registered for d4 after mouse move");
+    });
+
+    // DRAG SOURCE TO ELEMENT NOT CONFIGURED AS SOURCE BUT BEFORE DROP SAYS NO SO ITS IRRELEVANT
+    test("connection dragging, move source to element not configured as drag source, beforeDrop cancels connection", function() {
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
+
+        _jsPlumb.bind("beforedrop", function() { return false; });
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3,d4].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
+
+        var c = _jsPlumb.connect({source: d1, target: d2});
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
+
+        support.relocateSource(c, d4);
+        equal(_jsPlumb.select({source:d1}).length, 0, "0 connections registered for d1 after mouse move");
+        equal(_jsPlumb.selectEndpoints().length, 0, "0 endpoints; there are no connections");
+        equal(_jsPlumb.select({target:d2}).length, 0, "0 connections registered for d2 after mouse move");
+        equal(_jsPlumb.select({source:d4}).length, 0, "0 connections registered for d4 after mouse move");
+    });
+
+    // DRAG TARGET TO ANOTHER SOURCE (BUT NOT A TARGET); SHOULD DETACH
+    test("connection dragging, move target to element not configured as drag target", function() {
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
+
+        [d1,d2,d3,d4].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
+
+        var c = _jsPlumb.connect({source: d1, target: d2});
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
+
+        equal(_jsPlumb.selectEndpoints().length, 2, "two endpoints found after connection established");
+
+        support.relocateTarget(c, d4);
+        equal(_jsPlumb.select({source:d1}).length, 0, "0 connections registered for d1 in anchor manager after mouse move");
+        equal(_jsPlumb.selectEndpoints().length, 0, "zero endpoints found");
+        equal(_jsPlumb.select({target:d2}).length, 0, "0 connections registered for d2 after mouse move");
+        equal(_jsPlumb.select({target:d3}).length, 0, "0 connections registered for d3 after mouse move");
+        // equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
+
+        if (_jsPlumb.select({source:d1}).length !== 0) {
+            debugger;
+        }
+    });
+
+
+    // DRAG TARGET TO ANOTHER SOURCE (BUT NOT A TARGET), BUT DETACH DISABLED. SHOULDNT CARE.
+    test("connection dragging, move source to element not configured as drag source, beforeDetach cancels connection", function() {
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
+
+        _jsPlumb.bind("beforeDetach", function() { return false; });
+        [d1,d2,d3,d4].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
+
+        var c = _jsPlumb.connect({source: d1, target: d2});
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
+
+        support.relocateTarget(c, d4);
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse move");
+        equal(_jsPlumb.selectEndpoints().length, 2, "2 endpoints; there is 1 connection");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse move");
+        equal(_jsPlumb.select({target:d4}).length, 0, "0 connection registered for d4 after mouse move");
+        //  equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
+    });
+
+    /**
+     * Tests that `endpoint` and `anchor` in a makeSource definition are honoured. The next test uses a connection type
+     * but has the makeSource override the anchor.
+     */
+    test("connection dragging, makeSource sets source endpoint and anchor", function() {
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
+
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { endpoint:"Rectangle", anchor:"Left"})});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
+
+        support.dragConnection(d1, d2);
+        equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
+        var c = _jsPlumb.select().get(0);
+
+        equal(c.endpoints[0].endpoint.getType(), "Rectangle", "source endpoint is Rectangle");
+        equal(c.endpoints[0].anchor.x, 0, "x=0 in anchor");
+        equal(c.endpoints[0].anchor.y, 0.5, "y=0.5 in anchor");
+        equal(c.endpoints[1].endpoint.getType(), _jsPlumb.Defaults.endpoint, "target endpoint is the default");
+    });
+
+    /**
+     * Tests that makeSource, when given `endpoint` and/or `anchor` values, will override any that were derived
+     * from an applied type.
+     */
+    test("connection dragging, makeSource overrides source endpoint and anchor", function() {
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
+
+        _jsPlumb.registerConnectionType("basic", {
+            endpoint:"Dot",
+            anchor:"Right"
+        });
+        _jsPlumb.makeSource(d1, { connectionType:"basic", endpoint:"Rectangle", anchor:"Left"});
+        _jsPlumb.makeSource(d2, { connectionType:"basic"});
+        //_jsPlumb.makeTarget([d1, d2, d3]);
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
+
+        support.dragConnection(d1, d3);
+        equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
+        var c = _jsPlumb.select().get(0);
+
+        support.dragConnection(d2, d3);
+        equal(_jsPlumb.select().length, 2, "2 connections in jsplumb instance.");
+        var c2 = _jsPlumb.select().get(1);
+
+        equal(c.endpoints[0].endpoint.getType(), "Rectangle", "source endpoint was overridden to be Rectangle");
+        equal(c.endpoints[0].anchor.x, 0, "x=0 in overridden anchor");
+        equal(c.endpoints[0].anchor.y, 0.5, "y=0.5 in overridden anchor");
+
+        equal(c2.endpoints[0].endpoint.getType(), "Dot", "source endpoint is Blank in endpoint derived from type");
+        equal(c2.endpoints[0].anchor.x, 1, "x=1 in anchor derived from type");
+        equal(c2.endpoints[0].anchor.y, 0.5, "y=0.5 in anchor derived from type");
+
+    });
+
+    /**
+     * Tests that makeSource, when given `endpoint` and/or `anchor` values, will override any that were derived
+     * from an applied type.
+     */
+    test("connection dragging, makeTarget overrides source endpoint and anchor", function() {
+
+        equal(_jsPlumb.select().length, 0, "0 connections in jsplumb instance.");
+
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
+
+        _jsPlumb.registerConnectionType("basic", {
+            endpoint:"Dot",
+            anchor:"Right"
+        });
+        _jsPlumb.makeSource(d1, { connectionType:"basic"});
+        _jsPlumb.makeTarget(d2);
+        _jsPlumb.makeTarget(d3, { endpoint:"Rectangle", anchor:"Left" });
+
+        support.dragConnection(d1, d3);
+        equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
+        var c = _jsPlumb.select().get(0);
+
+        support.dragConnection(d1, d2);
+        equal(_jsPlumb.select().length, 2, "2 connections in jsplumb instance.");
+        var c2 = _jsPlumb.select().get(1);
+
+        equal(c.endpoints[1].endpoint.getType(), "Rectangle", "target endpoint was overridden to be Rectangle");
+        equal(c.endpoints[1].anchor.x, 0, "x=0 in overridden anchor");
+        equal(c.endpoints[1].anchor.y, 0.5, "y=0.5 in overridden anchor");
+
+        equal(c2.endpoints[1].endpoint.getType(), "Dot", "target endpoint is Dot in endpoint derived from type");
+        equal(c2.endpoints[1].anchor.x, 1, "x=1 in anchor derived from type");
+        equal(c2.endpoints[1].anchor.y, 0.5, "y=0.5 in anchor derived from type");
+
+    });
+
+    test("connection dragging, makeTarget overrides endpoint and anchor", function() {
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
+
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { endpoint:"Rectangle", anchor:"Top"})});
+
+        support.dragConnection(d1, d2);
+        equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
+        var c = _jsPlumb.select().get(0);
+
+        equal(c.endpoints[0].endpoint.getType(), _jsPlumb.Defaults.endpoint, "source endpoint is the default");
+        equal(c.endpoints[1].anchor.x, 0.5, "x=0.5 in anchor");
+        equal(c.endpoints[1].anchor.y, 0, "y=0 in anchor");
+        equal(c.endpoints[1].endpoint.getType(), "Rectangle", "target endpoint is Rectangle");
+
+    });
+
+
+    // DETACH CONNECTION VIA SOURCE, DETACH ENABLED, ALLOWED
+    // DETACH CONNECTION VIA SOURCE, DETACH DISABLED, DISALLOWED
+
+
+
+    test("connection dragging", function() {
+
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
+
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeSource(el, { })});
+        [d1,d2,d3].forEach(function(el) { _jsPlumb.makeTarget(el, { })});
+        /*
+         var c = _jsPlumb.connect({source:d1, target:d2});
+         equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after programmatic connect");
+         equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after programmatic connect");
+
+         _jsPlumb.detach(c);
+         equal(_jsPlumb.select({source:d1}).length, 0, "0 connections registered for d1 after programmatic detach");
+         equal(_jsPlumb.select({target:d2}).length, 0, "0 connections registered for d2 after programmatic detach");
+
+         c = _jsPlumb.connect({source:d1, target:d2});
+         equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect" );
+         equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
+
+         support.detachConnectionByTarget(c);
+         equal(_jsPlumb.select({source:d1}).length, 0, "0 connections registered for d1 after mouse detach");
+         equal(_jsPlumb.select({target:d2}).length, 0, "0 connections registered for d2 after mouse detach");
+         equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
+
+         // reconnect, check
+         support.dragConnection(d1, d2);
+         equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+         equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
+         c = _jsPlumb.select().get(0);
+
+         // move the target to d3, check
+         support.relocateTarget(c, d3);
+         equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse relocate");
+         equal(_jsPlumb.select({target:d2}).length, 0, "0 connections registered for d2 after mouse relocate");
+         equal(_jsPlumb.select({target:"d3"}).length, 1, "1 connection registered for d3 after mouse relocate");
+
+         // toss it away again, check
+         support.detachConnectionByTarget(c);
+         equal(_jsPlumb.select({source:d1}).length, 0, "0 connections registered for d1 after mouse detach");
+         equal(_jsPlumb.select({target:d2}).length, 0, "0 connections registered for d2 after mouse detach");
+         equal(_jsPlumb.select({target:"d3"}).length, 0, "0 connections registered for d3 after mouse detach");
+         equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
+         */
+        // reconnect, check
+        support.dragConnection(d1, d2);
+        equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
+        equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after mouse connect");
+        var c = _jsPlumb.select().get(0);
+        //  equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse connect");
+        equal(1, _jsPlumb.select().length, "1 connection");
+
+        //support.relocateSource(c, d3);
+        //equal(_jsPlumb.select({source:d1}).length, 0, "0 connections registered for d1 after source relocate");
+        //equal(_jsPlumb.select({target:d2}).length, 1, "1 connection registered for d2 after source relocate");
+        //equal(_jsPlumb.select({target:"d3"}).length, 1, "1 connection registered for d3 after source relocate");
+        //equal(_jsPlumb.select({source:c.floatingId}).length, 0, "0 connections registered for temporary drag element after mouse detach");
+    });
+
+    test(" makeSource connection type is honoured, mouse connect", function () {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+
+        _jsPlumb.Defaults.paintStyle = {stroke: "blue", strokeWidth: 34};
+
+        _jsPlumb.registerConnectionTypes({
+            "basic": {
+                connector: "Flowchart",
+                paintStyle: { stroke: "yellow", strokeWidth: 4 },
+                hoverPaintStyle: { stroke: "blue" },
+                overlays: [
+                    "Arrow"
+                ],
+                endpoint:"Rectangle"
+            }
+        });
+
+        _jsPlumb.makeSource(d1, {
+            connectionType:"basic"
+        });
+
+        _jsPlumb.makeTarget(d2, {
+            endpoint:"Blank"
+        });
+
+        var c = support.dragConnection(d1, d2);
+        c = _jsPlumb.select().get(0);
+        equal(c.getPaintStyle().stroke, "yellow", "connection has basic type's stroke style");
+        equal(c.getPaintStyle().strokeWidth, 4, "connection has basic type's strokeWidth");
+        equal(c.endpoints[0].endpoint.getType(), "Rectangle", "source endpoint is of type rectangle");
+        equal(c.endpoints[1].endpoint.getType(), "Blank", "target endpoint is of type Blank - it was overriden from the type's endpoint.");
     });
 
     test(": _jsPlumb.connect after makeSource (simple case)", function () {

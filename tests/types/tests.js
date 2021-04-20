@@ -26,13 +26,6 @@ var assertConnectionByScopeCount = function (scope, count, _jsPlumb) {
     equal(_jsPlumb.select({scope: scope}).length, count, 'Scope ' + scope + " has " + count + (count > 1) ? "connections" : "connection");
 };
 
-var VERY_SMALL_NUMBER = 0.00000000001;
-// helper to test that a value is the same as some target, within our tolerance
-// sometimes the trigonometry stuff needs a little bit of leeway.
-var within = function (val, target, _ok, msg) {
-    _ok(Math.abs(val - target) < VERY_SMALL_NUMBER, msg + "[expected: " + target + " got " + val + "] [diff:" + (Math.abs(val - target)) + "]");
-};
-
 var defaults = null, support, _jsPlumb;
 
 var testSuite = function () {
