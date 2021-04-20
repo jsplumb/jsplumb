@@ -83,16 +83,15 @@ export function  _updateHoverStyle<E> (component:Component) {
     }
 }
 
-export interface ComponentOptions extends Record<string, any> {
-    _jsPlumb?:JsPlumbInstance
-    parameters?:any
+export interface ComponentOptions {
+    parameters?:Record<string, any>
     beforeDetach?:Function
     beforeDrop?:Function
     hoverClass?:string
-    overlays?:Array<OverlaySpec>
     events?:Dictionary<(value:any, event:any) => any>
     scope?:string
     cssClass?:string
+    data?:any
 }
 
 export abstract class Component extends EventGenerator {
@@ -160,25 +159,7 @@ export abstract class Component extends EventGenerator {
 
         this.id = this.getIdPrefix() + (new Date()).getTime()
 
-        let o = params.overlays || [], oo = {}
-        let defaultOverlayKey = this.getDefaultOverlayKey()
-        if (defaultOverlayKey) {
-
-            const defaultOverlays = this.instance.Defaults[defaultOverlayKey]
-            if (defaultOverlays) {
-                o.push(...defaultOverlays)
-            }
-
-            for (let i = 0; i < o.length; i++) {
-                // if a string, convert to object representation so that we can store the typeid on it.
-                // also assign an id.
-                let fo = convertToFullOverlaySpec(o[i])
-                oo[fo.options.id] = fo
-            }
-        }
-
         this._defaultType = {
-            overlays:oo,
             parameters: params.parameters || {},
             scope: params.scope || this.instance.defaultScope
         }
