@@ -235,8 +235,6 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
     connectorStyle:PaintStyle
     connectorHoverStyle:PaintStyle
 
-    //dragProxy:any
-
     deleteOnEmpty:boolean
 
     private readonly uuid:string
