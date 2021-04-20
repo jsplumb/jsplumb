@@ -756,22 +756,31 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     /**
      * Manage a group of elements.
-     * @param elements Array-like object of strings or elements.
+     * @param elements Array-like object of strings or elements (can be an Array or a NodeList), or a CSS selector (which is applied with the instance's
+     * container element as its context)
      * @param recalc Maybe recalculate offsets for the element also.
      */
-    manageAll (elements:Array<Element>, recalc?:boolean):void {
-        for (let i = 0; i < elements.length; i++) {
-            this.manage(elements[i], null, recalc)
+    manageAll (elements:ArrayLike<T["E"]> | string, recalc?:boolean):void {
+
+        const nl:ArrayLike<T["E"]> = isString(elements) ? this.getSelector(this.getContainer(), elements as string) : elements as ArrayLike<T["E"]>
+
+        for (let i = 0; i < nl.length; i++) {
+            this.manage(nl[i], null, recalc)
         }
     }
 
     /**
-     * Manage an element.
-     * @param element String, or element.
-     * @param internalId Optional ID for jsPlumb to use internally.
-     * @param recalc Maybe recalculate offsets for the element also.
+     * Manage an element.  Adds the element to the viewport and sets up tracking for endpoints/connections for the element, as well as enabling dragging for the
+     * element. This method is called internally by various methods of the jsPlumb instance, such as `connect`, `addEndpoint`, `makeSource` and `makeTarget`,
+     * so if you use those methods to setup your UI then you may not need to call this. However, if you use the `addSourceSelector` and `addTargetSelector` methods
+     * to configure your UI then you will need to register elements using this method, or they will not be draggable.
+     * @param element Element to manage. This method does not accept a DOM element ID as argument. If you wish to manage elements via their DOM element ID,
+     * you should use `manageAll` and pass in an appropriate CSS selector that represents your element, eg `#myElementId`.
+     * @param internalId Optional ID for jsPlumb to use internally. If this is not supplied, one will be created.
+     * @param recalc Maybe recalculate offsets for the element also. It is not recommended that clients of the API use this parameter; it's used in
+     * certain scenarios internally
      */
-    manage (element:T["E"], internalId?:string, recalc?:boolean):ManagedElement<T["E"]> {
+    manage (element:T["E"], internalId?:string, _recalc?:boolean):ManagedElement<T["E"]> {
 
         if (this.getAttribute(element, ID_ATTRIBUTE) == null) {
             internalId = internalId || uuid()
@@ -801,7 +810,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             this.fire<{el:T["E"]}>(Constants.EVENT_MANAGE_ELEMENT, {el:element})
 
         } else {
-            if (recalc) {
+            if (_recalc) {
                 this._managedElements[elId].viewportElement = this.updateOffset({elId: elId, timestamp: null,  recalc:true })
             }
         }
@@ -861,12 +870,19 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         _one(el)
     }
 
-    rotate(element:T["E"], rotation:number, doNotRepaint?:boolean):RedrawResult {
+    /**
+     * Sets rotation for the element to the given number of degrees (not radians). A value of null is treated as a
+     * rotation of 0 degrees.
+     * @param element Element to rotate
+     * @param rotation Amount to totate
+     * @param _doNotRepaint For internal use.
+     */
+    rotate(element:T["E"], rotation:number, _doNotRepaint?:boolean):RedrawResult {
         const elementId = this.getId(element)
         if (this._managedElements[elementId]) {
             this._managedElements[elementId].rotation = rotation
             this.viewport.rotateElement(elementId, rotation)
-            if (doNotRepaint !== true) {
+            if (_doNotRepaint !== true) {
                 return this.revalidate(element)
             }
         }
@@ -874,7 +890,12 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return { c:new Set(), e:new Set() }
     }
 
-    getRotation(elementId:string):number {
+    /**
+     * Gets the current rotation for the element with the given ID. This method exists for internal use.
+     * @param elementId Internal ID of the element for which to retrieve rotation.
+     * @private
+     */
+    _getRotation(elementId:string):number {
         const entry = this._managedElements[elementId]
         if (entry != null) {
             return  entry.rotation || 0
@@ -883,7 +904,15 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         }
     }
 
-    getRotations(elementId:string):Rotations {
+    /**
+     * Returns a list of rotation transformations that apply to the given element. An element may have rotation applied
+     * directly to it, and/or it may be within a group, which may itself be rotated, and that group may be inside a group
+     * which is also rotated, etc. It's rotated turtles all the way down, or at least it could be. This method is intended
+     * for internal use only.
+     * @param elementId
+     * @private
+     */
+    _getRotations(elementId:string):Rotations {
         const rotations:Array<Rotation> = []
         const entry = this._managedElements[elementId]
 
@@ -905,7 +934,13 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return rotations
     }
 
-    applyRotations(point:[number, number, number, number], rotations:Rotations) {
+    /**
+     * Applies the given set of Rotations to the given point, and returns a new PointXY. For internal use.
+     * @param point Point to rotate
+     * @param rotations Rotations to apply.
+     * @private
+     */
+    _applyRotations(point:[number, number, number, number], rotations:Rotations) {
         const sl = point.slice()
         let current:RotatedPointXY = {x:sl[0], y:sl[1], cr:0, sr:0}
         forEach(rotations,(rotation) => {
@@ -914,7 +949,13 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return current
     }
 
-    applyRotationsXY(point:PointXY, rotations:Rotations) {
+    /**
+     * Applies the given set of Rotations to the given point, and returns a new PointXY. For internal use.
+     * @param point Point to rotate
+     * @param rotations Rotations to apply.
+     * @private
+     */
+    _applyRotationsXY(point:PointXY, rotations:Rotations) {
         forEach(rotations, (rotation) => {
             point = rotatePoint(point, rotation.c, rotation.r)
         })
@@ -926,6 +967,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      * as a consumer of the API. If you wish to add an Endpoint to some element, use `addEndpoint` instead.
      * @param params Options for the Endpoint.
      * @param id Optional ID for the Endpoint.
+     * @private
      */
     _internal_newEndpoint(params:InternalEndpointOptions<T["E"]>, id?:string):Endpoint {
         let _p:InternalEndpointOptions<T["E"]> = extend<InternalEndpointOptions<T["E"]>>({}, params)
@@ -944,7 +986,13 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return ep
     }
 
-    deriveEndpointAndAnchorSpec(type:string, dontPrependDefault?:boolean):{endpoints:[EndpointSpec, EndpointSpec], anchors:[AnchorSpec, AnchorSpec]} {
+    /**
+     * For internal use. For the given inputs, derive an approriate anchor and endpoint definition.
+     * @param type
+     * @param dontPrependDefault
+     * @private
+     */
+    _deriveEndpointAndAnchorSpec(type:string, dontPrependDefault?:boolean):{endpoints:[EndpointSpec, EndpointSpec], anchors:[AnchorSpec, AnchorSpec]} {
 
         let bits = ((dontPrependDefault ? "" : "default ") + type).split(/[\s]/),
             eps = null,
@@ -1073,6 +1121,10 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return r
     }
 
+    /**
+     * @private
+     * @param endpoint
+     */
     private unregisterEndpoint(endpoint:Endpoint) {
         const uuid = endpoint.getUuid()
         if (uuid) {
@@ -1102,7 +1154,12 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         this.fire(Constants.EVENT_INTERNAL_ENDPOINT_UNREGISTERED, endpoint)
     }
 
-    maybePruneEndpoint(endpoint:Endpoint):boolean {
+    /**
+     * Potentially delete the endpoint from the instance, depending on the endpoint's internal state. Not for external use.
+     * @param endpoint
+     * @private
+     */
+    _maybePruneEndpoint(endpoint:Endpoint):boolean {
         if (endpoint.deleteOnEmpty && endpoint.connections.length === 0) {
             this.deleteEndpoint(endpoint)
             return true
@@ -1269,6 +1326,11 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return jpc
     }
 
+    /**
+     * @param params
+     * @param referenceParams
+     * @private
+     */
     private _prepareConnectionParams(params:ConnectParams<T["E"]>, referenceParams?:ConnectParams<T["E"]>):InternalConnectParams<T["E"]> {
 
         let _p:InternalConnectParams<T["E"]> = extend({ }, params)
@@ -1409,6 +1471,11 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return _p
     }
 
+    /**
+     * Creates and registers a new connection. For internal use only. Use `connect` to create Connections.
+     * @param params
+     * @private
+     */
     _newConnection (params:ConnectionParams):Connection {
         params.id = "con_" + this._idstamp()
         const c = new Connection(this, params)
@@ -1487,6 +1554,15 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return this
     }
 
+    /**
+     *
+     * @param type
+     * @param el
+     * @param state
+     * @param toggle
+     * @param connectionType
+     * @private
+     */
     private _setEnabled (type:string, el:T["E"], state:boolean, toggle?:boolean, connectionType?:string):any {
         let originalState:Array<any> = [], newState, os
         let jel = el as unknown as jsPlumbElement<T["E"]>
@@ -1621,6 +1697,14 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return this._setEnabled(Constants.TARGET, el, state, null, connectionType)
     }
 
+    /**
+     *
+     * @param type
+     * @param key
+     * @param el
+     * @param connectionType
+     * @private
+     */
     private _unmake (type:string, key:string, el:T["E"], connectionType?:string) {
 
         connectionType = connectionType || "*"
@@ -1647,6 +1731,13 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         }
     }
 
+    /**
+     *
+     * @param type
+     * @param key
+     * @param connectionType
+     * @private
+     */
     private _unmakeEvery (type:string, key:string, connectionType?:string) {
         let els = this.getSelector(this.getContainer(), "[data-jtk-" + type + "]")
         for (let i = 0; i < els.length; i++) {
@@ -1674,7 +1765,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     /**
      * Unregister every element that is currently configured as a connection source.
-     * @param el
      * @param connectionType
      */
     unmakeEverySource (connectionType?:string) {
@@ -1683,7 +1773,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     /**
      * Unregister every element that is currently configured as a connection target.
-     * @param el
      * @param connectionType
      */
     unmakeEveryTarget (connectionType?:string) {
@@ -1701,7 +1790,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         let p:BehaviouralTypeDescriptor = extend({}, referenceParams)
         extend(p, params)
         p.connectionType = p.connectionType || Constants.DEFAULT
-        let aae = this.deriveEndpointAndAnchorSpec(p.connectionType)
+        let aae = this._deriveEndpointAndAnchorSpec(p.connectionType)
         p.endpoint = p.endpoint || aae.endpoints[0]
         p.anchor = p.anchor || aae.anchors[0]
         let maxConnections = p.maxConnections || -1
@@ -1717,7 +1806,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     /**
      * Register the given element as a connection source. NOTE from 4.0.0-RC84 onwards, you might wish to
-     * consider using the `addSourceSelector` method instead of this, which is far more performant.
+     * consider using the `addSourceSelector` method instead of this, an approach which is far more performant.
      * @param el
      * @param params
      * @param referenceParams
@@ -2205,13 +2294,13 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
                         anchorParams.txy = oInfo
                         anchorParams.twh = oInfo
                         anchorParams.tElement = c.endpoints[oIdx]
-                        anchorParams.tRotation = this.getRotations(oId)
+                        anchorParams.tRotation = this._getRotations(oId)
 
                     } else if (endpoint.connections.length > 0) {
                         anchorParams.connection = endpoint.connections[0]
                     }
 
-                    anchorParams.rotation = this.getRotations(endpoint.elementId)
+                    anchorParams.rotation = this._getRotations(endpoint.elementId)
 
                     ap = this.router.computeAnchorLocation(endpoint.anchor, anchorParams)
                 }
@@ -2333,7 +2422,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     abstract setAttributes(el:T["E"], atts:Dictionary<string>):void
     abstract removeAttribute(el:T["E"], attName:string):void
 
-    abstract getSelector(ctx:string | T["E"], spec?:string):Array<T["E"]>
+    abstract getSelector(ctx:string | T["E"], spec?:string):ArrayLike<T["E"]>
     abstract getStyle(el:T["E"], prop:string):any
 
     abstract getSize(el:T["E"]):Size
