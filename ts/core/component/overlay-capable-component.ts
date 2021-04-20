@@ -69,17 +69,6 @@ export abstract class OverlayCapableComponent extends Component {
         this.overlays = {}
         this.overlayPositions = {}
 
-        if (params.label) {
-            this.getDefaultType().overlays[_internalLabelOverlayId] = {
-                type:LabelOverlay.type,
-                options:{
-                    label: params.label,
-                    location: params.labelLocation || this.defaultLabelLocation,
-                    id:_internalLabelOverlayId
-                }
-            }
-        }
-
         let o = params.overlays || [], oo = {}
         let defaultOverlayKey = this.getDefaultOverlayKey()
         if (defaultOverlayKey) {
@@ -98,6 +87,17 @@ export abstract class OverlayCapableComponent extends Component {
         }
 
         this._defaultType.overlays = oo
+
+        if (params.label) {
+            this.getDefaultType().overlays[_internalLabelOverlayId] = {
+                type:LabelOverlay.type,
+                options:{
+                    label: params.label,
+                    location: params.labelLocation || this.defaultLabelLocation,
+                    id:_internalLabelOverlayId
+                }
+            }
+        }
     }
 
     addOverlay(overlay:OverlaySpec):Overlay {
