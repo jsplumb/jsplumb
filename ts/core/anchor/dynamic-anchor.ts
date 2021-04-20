@@ -21,7 +21,7 @@ function _distance(anchor:Anchor, cx:number, cy:number, xy:PointXY, wh:Size, rot
         acx = xy.x + (wh.w / 2), acy = xy.y + (wh.h / 2)
 
     if(rotation != null && rotation.length > 0) {
-        const rotated = anchor.instance.applyRotations([ax,ay, 0, 0], rotation)
+        const rotated = anchor.instance._applyRotations([ax,ay, 0, 0], rotation)
         ax = rotated.x
         ay = rotated.y
     }
