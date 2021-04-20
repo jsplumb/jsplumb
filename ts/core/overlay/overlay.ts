@@ -25,7 +25,7 @@ export interface ArrowOverlayOptions extends OverlayOptions {
 }
 
 export interface LabelOverlayOptions extends OverlayOptions {
-    label: string
+    label: string|Function
     labelLocationAttribute?:string
 }
 
