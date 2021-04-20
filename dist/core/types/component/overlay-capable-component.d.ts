@@ -6,6 +6,7 @@ import { LabelOverlay } from "../overlay/label-overlay";
 export interface OverlayComponentOptions extends ComponentOptions {
     label?: string;
     labelLocation?: number;
+    overlays?: Array<OverlaySpec>;
 }
 export declare type ClassAction = "add" | "remove";
 export declare abstract class OverlayCapableComponent extends Component {

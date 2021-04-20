@@ -4,20 +4,18 @@ import { JsPlumbInstance } from "../core";
 import { EventGenerator } from "../event-generator";
 import { Connection } from "../connector/connection-impl";
 import { Endpoint } from "../endpoint/endpoint";
-import { OverlaySpec } from "../overlay/overlay";
 export declare type ComponentParameters = Record<string, any>;
 export declare function _removeTypeCssHelper<E>(component: Component, typeIndex: number): void;
 export declare function _updateHoverStyle<E>(component: Component): void;
-export interface ComponentOptions extends Record<string, any> {
-    _jsPlumb?: JsPlumbInstance;
-    parameters?: any;
+export interface ComponentOptions {
+    parameters?: Record<string, any>;
     beforeDetach?: Function;
     beforeDrop?: Function;
     hoverClass?: string;
-    overlays?: Array<OverlaySpec>;
     events?: Dictionary<(value: any, event: any) => any>;
     scope?: string;
     cssClass?: string;
+    data?: any;
 }
 export declare abstract class Component extends EventGenerator {
     instance: JsPlumbInstance;

@@ -47,6 +47,7 @@ export declare function forEach<T>(a: ArrayLike<T>, f: (_a: T) => any): void;
  * @return The index of the entry for which the predicate returned true, -1 if not found.
  */
 export declare function findWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): number;
+export declare function findAllWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): Array<number>;
 /**
  * Find the entry in the given array for which the function `f` returns true. This is a stand-in replacement for the
  * `find` method which is available on `Array` in modern browsers, but not IE11.
@@ -55,6 +56,13 @@ export declare function findWithFunction<T>(a: Array<T>, f: (_a: T) => boolean):
  * @return The entry for which the predicate returned true, null if not found.
  */
 export declare function getWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): T;
+/**
+ * Find all entries in the given array for which the function `f` returns true
+ * @param a Array to search
+ * @param f Predicate to use to test each entry
+ * @return The entries for which the predicate returned true, empty array if not found.
+ */
+export declare function getAllWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): Array<T>;
 /**
  * Extract a value from the set where the given predicate returns true for that value.
  * @param s

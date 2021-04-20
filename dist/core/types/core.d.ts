@@ -4,9 +4,9 @@ import { Endpoint, EndpointSpec } from "./endpoint/endpoint";
 import { AnchorPlacement, RedrawResult } from "./router/router";
 import { RotatedPointXY } from "./util";
 import { Dictionary, UpdateOffsetOptions, Size, jsPlumbElement, ConnectParams, // <--
-SourceDefinition, TargetDefinition, BehaviouralTypeDescriptor, TypeDescriptor, Rotations, PointXY, ConnectionMovedParams, SourceBehaviouralTypeDescriptor, TargetBehaviouralTypeDescriptor } from './common';
+SourceDefinition, TargetDefinition, BehaviouralTypeDescriptor, TypeDescriptor, Rotations, PointXY, ConnectionMovedParams } from './common';
 import { EventGenerator } from "./event-generator";
-import { EndpointOptions } from "./endpoint/endpoint";
+import { EndpointOptions, InternalEndpointOptions } from "./endpoint/endpoint";
 import { AddGroupOptions, GroupManager } from "./group/group-manager";
 import { UIGroup } from "./group/group";
 import { Router } from "./router/router";
@@ -173,17 +173,23 @@ export declare abstract class JsPlumbInstance<T extends {
     fireMoveEvent(params?: ConnectionMovedParams, evt?: Event): void;
     /**
      * Manage a group of elements.
-     * @param elements Array-like object of strings or elements.
+     * @param elements Array-like object of strings or elements (can be an Array or a NodeList), or a CSS selector (which is applied with the instance's
+     * container element as its context)
      * @param recalc Maybe recalculate offsets for the element also.
      */
-    manageAll(elements: Array<Element>, recalc?: boolean): void;
+    manageAll(elements: ArrayLike<T["E"]> | string, recalc?: boolean): void;
     /**
-     * Manage an element.
-     * @param element String, or element.
-     * @param internalId Optional ID for jsPlumb to use internally.
-     * @param recalc Maybe recalculate offsets for the element also.
+     * Manage an element.  Adds the element to the viewport and sets up tracking for endpoints/connections for the element, as well as enabling dragging for the
+     * element. This method is called internally by various methods of the jsPlumb instance, such as `connect`, `addEndpoint`, `makeSource` and `makeTarget`,
+     * so if you use those methods to setup your UI then you may not need to call this. However, if you use the `addSourceSelector` and `addTargetSelector` methods
+     * to configure your UI then you will need to register elements using this method, or they will not be draggable.
+     * @param element Element to manage. This method does not accept a DOM element ID as argument. If you wish to manage elements via their DOM element ID,
+     * you should use `manageAll` and pass in an appropriate CSS selector that represents your element, eg `#myElementId`.
+     * @param internalId Optional ID for jsPlumb to use internally. If this is not supplied, one will be created.
+     * @param recalc Maybe recalculate offsets for the element also. It is not recommended that clients of the API use this parameter; it's used in
+     * certain scenarios internally
      */
-    manage(element: T["E"], internalId?: string, recalc?: boolean): ManagedElement<T["E"]>;
+    manage(element: T["E"], internalId?: string, _recalc?: boolean): ManagedElement<T["E"]>;
     /**
      * Gets the element with the given ID from the list managed elements, null if not currently managed.
      * @param id
@@ -195,19 +201,58 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param removeElement If true, also remove the element from the renderer.
      */
     unmanage(el: T["E"], removeElement?: boolean): void;
-    rotate(element: T["E"], rotation: number, doNotRepaint?: boolean): RedrawResult;
-    getRotation(elementId: string): number;
-    getRotations(elementId: string): Rotations;
-    applyRotations(point: [number, number, number, number], rotations: Rotations): RotatedPointXY;
-    applyRotationsXY(point: PointXY, rotations: Rotations): PointXY;
+    /**
+     * Sets rotation for the element to the given number of degrees (not radians). A value of null is treated as a
+     * rotation of 0 degrees.
+     * @param element Element to rotate
+     * @param rotation Amount to totate
+     * @param _doNotRepaint For internal use.
+     */
+    rotate(element: T["E"], rotation: number, _doNotRepaint?: boolean): RedrawResult;
+    /**
+     * Gets the current rotation for the element with the given ID. This method exists for internal use.
+     * @param elementId Internal ID of the element for which to retrieve rotation.
+     * @private
+     */
+    _getRotation(elementId: string): number;
+    /**
+     * Returns a list of rotation transformations that apply to the given element. An element may have rotation applied
+     * directly to it, and/or it may be within a group, which may itself be rotated, and that group may be inside a group
+     * which is also rotated, etc. It's rotated turtles all the way down, or at least it could be. This method is intended
+     * for internal use only.
+     * @param elementId
+     * @private
+     */
+    _getRotations(elementId: string): Rotations;
+    /**
+     * Applies the given set of Rotations to the given point, and returns a new PointXY. For internal use.
+     * @param point Point to rotate
+     * @param rotations Rotations to apply.
+     * @private
+     */
+    _applyRotations(point: [number, number, number, number], rotations: Rotations): RotatedPointXY;
+    /**
+     * Applies the given set of Rotations to the given point, and returns a new PointXY. For internal use.
+     * @param point Point to rotate
+     * @param rotations Rotations to apply.
+     * @private
+     */
+    _applyRotationsXY(point: PointXY, rotations: Rotations): PointXY;
     /**
      * Internal method to create an Endpoint from the given options, perhaps with the given id. Do not use this method
      * as a consumer of the API. If you wish to add an Endpoint to some element, use `addEndpoint` instead.
      * @param params Options for the Endpoint.
      * @param id Optional ID for the Endpoint.
+     * @private
      */
-    newEndpoint(params: EndpointOptions<T["E"]>, id?: string): Endpoint;
-    deriveEndpointAndAnchorSpec(type: string, dontPrependDefault?: boolean): {
+    _internal_newEndpoint(params: InternalEndpointOptions<T["E"]>, id?: string): Endpoint;
+    /**
+     * For internal use. For the given inputs, derive an approriate anchor and endpoint definition.
+     * @param type
+     * @param dontPrependDefault
+     * @private
+     */
+    _deriveEndpointAndAnchorSpec(type: string, dontPrependDefault?: boolean): {
         endpoints: [EndpointSpec, EndpointSpec];
         anchors: [AnchorSpec, AnchorSpec];
     };
@@ -239,8 +284,17 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param offsetsWereJustCalculated If true, we don't recalculate the offsets of child elements of the element we're repainting.
      */
     repaint(el: T["E"], timestamp?: string, offsetsWereJustCalculated?: boolean): RedrawResult;
+    /**
+     * @private
+     * @param endpoint
+     */
     private unregisterEndpoint;
-    maybePruneEndpoint(endpoint: Endpoint): boolean;
+    /**
+     * Potentially delete the endpoint from the instance, depending on the endpoint's internal state. Not for external use.
+     * @param endpoint
+     * @private
+     */
+    _maybePruneEndpoint(endpoint: Endpoint): boolean;
     /**
      * Delete the given endpoint.
      * @param object Either an Endpoint, or the UUID of an Endpoint.
@@ -259,7 +313,7 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param endpoints Array of endpoint options.
      * @param referenceParams
      */
-    addEndpoints(el: T["E"], endpoints: Array<EndpointOptions<T["E"]>>, referenceParams?: any): Array<Endpoint>;
+    addEndpoints(el: T["E"], endpoints: Array<EndpointOptions<T["E"]>>, referenceParams?: EndpointOptions<T["E"]>): Array<Endpoint>;
     /**
      * Clears all endpoints and connections from the instance of jsplumb. Does not also clear out event listeners - for that,
      * use `destroy()`.
@@ -286,7 +340,17 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param referenceParams Optional extra parameters. This can be useful when you're creating multiple connections that have some things in common.
      */
     connect(params: ConnectParams<T["E"]>, referenceParams?: ConnectParams<T["E"]>): Connection;
+    /**
+     * @param params
+     * @param referenceParams
+     * @private
+     */
     private _prepareConnectionParams;
+    /**
+     * Creates and registers a new connection. For internal use only. Use `connect` to create Connections.
+     * @param params
+     * @private
+     */
     _newConnection(params: ConnectionParams): Connection;
     /**
      * Adds the connection to the backing model, fires an event if necessary and then redraws. This is a package-private method, not intended to be
@@ -304,6 +368,15 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param affectedElements Used internally to access the full list of elements affected by this change.
      */
     removeAllEndpoints(el: T["E"], recurse?: boolean, affectedElements?: Array<T["E"]>): JsPlumbInstance;
+    /**
+     *
+     * @param type
+     * @param el
+     * @param state
+     * @param toggle
+     * @param connectionType
+     * @private
+     */
     private _setEnabled;
     /**
      * Toggles whether the given element is currently enabled as a connection source. For this to have any effect you
@@ -362,7 +435,22 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param connectionType
      */
     setTargetEnabled(el: T["E"], state: boolean, connectionType?: string): boolean;
+    /**
+     *
+     * @param type
+     * @param key
+     * @param el
+     * @param connectionType
+     * @private
+     */
     private _unmake;
+    /**
+     *
+     * @param type
+     * @param key
+     * @param connectionType
+     * @private
+     */
     private _unmakeEvery;
     /**
      * Unregister the given element from being a connection target.
@@ -378,26 +466,24 @@ export declare abstract class JsPlumbInstance<T extends {
     unmakeSource(el: T["E"], connectionType?: string): void;
     /**
      * Unregister every element that is currently configured as a connection source.
-     * @param el
      * @param connectionType
      */
     unmakeEverySource(connectionType?: string): void;
     /**
      * Unregister every element that is currently configured as a connection target.
-     * @param el
      * @param connectionType
      */
     unmakeEveryTarget(connectionType?: string): void;
     private _writeScopeAttribute;
-    protected _createSourceDefinition(params?: SourceBehaviouralTypeDescriptor, referenceParams?: SourceBehaviouralTypeDescriptor): SourceDefinition;
+    protected _createSourceDefinition(params?: BehaviouralTypeDescriptor, referenceParams?: BehaviouralTypeDescriptor): SourceDefinition;
     /**
      * Register the given element as a connection source. NOTE from 4.0.0-RC84 onwards, you might wish to
-     * consider using the `addSourceSelector` method instead of this, which is far more performant.
+     * consider using the `addSourceSelector` method instead of this, an approach which is far more performant.
      * @param el
      * @param params
      * @param referenceParams
      */
-    makeSource(el: T["E"], params?: SourceBehaviouralTypeDescriptor, referenceParams?: SourceBehaviouralTypeDescriptor): JsPlumbInstance;
+    makeSource(el: T["E"], params?: BehaviouralTypeDescriptor, referenceParams?: BehaviouralTypeDescriptor): JsPlumbInstance;
     /**
      * Registers a selector for connection drag on the instance. This is a newer version of the `makeSource` functionality
      * that has been in jsPlumb since the early days. With this approach, rather than calling `makeSource` on every element, you
@@ -444,7 +530,7 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param params
      * @param referenceParams
      */
-    makeTarget(el: T["E"], params?: TargetBehaviouralTypeDescriptor, referenceParams?: TargetBehaviouralTypeDescriptor): JsPlumbInstance;
+    makeTarget(el: T["E"], params?: BehaviouralTypeDescriptor, referenceParams?: BehaviouralTypeDescriptor): JsPlumbInstance;
     show(el: T["E"], changeEndpoints?: boolean): JsPlumbInstance;
     hide(el: T["E"], changeEndpoints?: boolean): JsPlumbInstance;
     private _setVisible;
@@ -506,7 +592,7 @@ export declare abstract class JsPlumbInstance<T extends {
     abstract getAttribute(el: T["E"], name: string): string;
     abstract setAttributes(el: T["E"], atts: Dictionary<string>): void;
     abstract removeAttribute(el: T["E"], attName: string): void;
-    abstract getSelector(ctx: string | T["E"], spec?: string): Array<T["E"]>;
+    abstract getSelector(ctx: string | T["E"], spec?: string): ArrayLike<T["E"]>;
     abstract getStyle(el: T["E"], prop: string): any;
     abstract getSize(el: T["E"]): Size;
     abstract getOffset(el: T["E"]): PointXY;

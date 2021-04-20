@@ -190,9 +190,9 @@ function consume(e, doNotPreventDefault) {
     e.preventDefault();
   }
 }
-function findParent(el, selector, container) {
+function findParent(el, selector, container, matchOnElementAlso) {
   while (el != null && el !== container) {
-    if (matchesSelector(el, selector)) {
+    if (matchesSelector(el, selector) || matchOnElementAlso && matchesSelector(el, selector, container)) {
       return el;
     } else {
       el = el.parentNode;
@@ -1956,7 +1956,7 @@ function () {
   function ElementDragHandler(instance) {
     _classCallCheck(this, ElementDragHandler);
     this.instance = instance;
-    _defineProperty(this, "selector", "> " + core.SELECTOR_MANAGED_ELEMENT);
+    _defineProperty(this, "selector", "> " + core.SELECTOR_MANAGED_ELEMENT + ":not(" + core.cls(core.CLASS_OVERLAY) + ")");
     _defineProperty(this, "_dragOffset", null);
     _defineProperty(this, "_groupLocations", []);
     _defineProperty(this, "_intersectingGroups", []);
@@ -2370,11 +2370,11 @@ function _makeFloatingEndpoint(paintStyle, referenceAnchor, endpoint, referenceC
     reference: referenceAnchor,
     referenceCanvas: referenceCanvas
   });
-  var ep = instance.newEndpoint({
+  var ep = instance._internal_newEndpoint({
     paintStyle: paintStyle,
     endpoint: endpoint,
     preparedAnchor: floatingAnchor,
-    source: sourceElement,
+    element: sourceElement,
     scope: scope
   });
   instance.paintEndpoint(ep, {});
@@ -2403,6 +2403,7 @@ function () {
     _defineProperty(this, "_originalAnchor", void 0);
     _defineProperty(this, "ep", void 0);
     _defineProperty(this, "endpointRepresentation", void 0);
+    _defineProperty(this, "canvasElement", void 0);
     _defineProperty(this, "_activeDefinition", void 0);
     _defineProperty(this, "placeholderInfo", {
       id: null,
@@ -2423,7 +2424,7 @@ function () {
     _defineProperty(this, "_forceDetach", void 0);
     _defineProperty(this, "mousedownHandler", void 0);
     _defineProperty(this, "mouseupHandler", void 0);
-    _defineProperty(this, "selector", ".jtk-endpoint");
+    _defineProperty(this, "selector", core.cls(core.CLASS_ENDPOINT));
     var container = instance.getContainer();
     this.mousedownHandler = this._mousedownHandler.bind(this);
     this.mouseupHandler = this._mouseupHandler.bind(this);
@@ -2499,7 +2500,7 @@ function () {
     value: function _mouseupHandler(e) {
       var el = e.currentTarget || e.srcElement;
       if (el._jsPlumbOrphanedEndpoints) {
-        core.each(el._jsPlumbOrphanedEndpoints, this.instance.maybePruneEndpoint.bind(this.instance));
+        core.each(el._jsPlumbOrphanedEndpoints, this.instance._maybePruneEndpoint.bind(this.instance));
         el._jsPlumbOrphanedEndpoints.length = 0;
       }
       this._activeDefinition = null;
@@ -2555,18 +2556,53 @@ function () {
     key: "init",
     value: function init(drag) {}
   }, {
-    key: "onStart",
-    value: function onStart(p) {
-      var _this = this;
-      this.currentDropTarget = null;
-      this._stopped = false;
-      var dragEl = p.drag.getDragElement();
-      this.endpointRepresentation = dragEl.jtk.endpoint.endpoint;
-      this.ep = dragEl.jtk.endpoint;
-      if (!this.ep) {
-        return false;
-      }
-      this.jpc = this.ep.connectorSelector();
+    key: "startNewConnectionDrag",
+    value: function startNewConnectionDrag(scope, data) {
+      this.jpc = this.instance._newConnection({
+        sourceEndpoint: this.ep,
+        targetEndpoint: this.floatingEndpoint,
+        source: this.ep.element,
+        target: this.placeholderInfo.element,
+        paintStyle: this.ep.connectorStyle,
+        hoverPaintStyle: this.ep.connectorHoverStyle,
+        connector: this.ep.connector,
+        overlays: this.ep.connectorOverlays,
+        type: this.ep.connectionType,
+        cssClass: this.ep.connectorClass,
+        hoverClass: this.ep.connectorHoverClass,
+        scope: scope,
+        data: data
+      });
+      this.jpc.pending = true;
+      this.jpc.addClass(this.instance.draggingClass);
+      this.floatingEndpoint.addClass(this.instance.draggingClass);
+      this.instance.fire(EVENT_CONNECTION_DRAG, this.jpc);
+    }
+  }, {
+    key: "startExistingConnectionDrag",
+    value: function startExistingConnectionDrag() {
+      this.existingJpc = true;
+      this.instance.setHover(this.jpc, false);
+      var anchorIdx = this.jpc.endpoints[0].id === this.ep.id ? 0 : 1;
+      this.ep.detachFromConnection(this.jpc, null, true);
+      this.floatingEndpoint.addConnection(this.jpc);
+      this.floatingEndpoint.addClass(this.instance.draggingClass);
+      this.instance.fire(EVENT_CONNECTION_DRAG, this.jpc);
+      this.instance.sourceOrTargetChanged(this.jpc.endpoints[anchorIdx].elementId, this.placeholderInfo.id, this.jpc, this.placeholderInfo.element, anchorIdx);
+      this.jpc.suspendedEndpoint = this.jpc.endpoints[anchorIdx];
+      this.jpc.suspendedElement = this.jpc.endpoints[anchorIdx].element;
+      this.jpc.suspendedElementId = this.jpc.endpoints[anchorIdx].elementId;
+      this.jpc.suspendedElementType = anchorIdx === 0 ? core.SOURCE : core.TARGET;
+      this.instance.setHover(this.jpc.suspendedEndpoint, false);
+      this.floatingEndpoint.referenceEndpoint = this.jpc.suspendedEndpoint;
+      this.jpc.endpoints[anchorIdx] = this.floatingEndpoint;
+      this.jpc.addClass(this.instance.draggingClass);
+      this.floatingId = this.placeholderInfo.id;
+      this.floatingIndex = anchorIdx;
+    }
+  }, {
+    key: "_shouldStartDrag",
+    value: function _shouldStartDrag() {
       var _continue = true;
       if (!this.ep.enabled) {
         _continue = false;
@@ -2598,27 +2634,14 @@ function () {
         } else {
           beforeDrag = this.payload || {};
         }
-      if (_continue === false) {
-        this._stopped = true;
-        return false;
-      }
-      for (var i = 0; i < this.ep.connections.length; i++) {
-        this.instance.setHover(this.ep, false);
-      }
-      this.endpointDropTargets.length = 0;
-      this.ep.addClass("endpointDrag");
-      this.instance.isConnectionBeingDragged = true;
-      if (this.jpc && !this.ep.isFull() && this.ep.isSource) {
-        this.jpc = null;
-      }
-      var canvasElement = this.endpointRepresentation.canvas;
-      this.instance.setAttributes(canvasElement, {
-        "dragId": this.placeholderInfo.id,
-        "elId": this.ep.elementId
-      });
-      var endpointToFloat = this.ep.dragProxy || this.ep.endpoint;
-      if (this.ep.dragProxy == null && this.ep.connectionType != null) {
-        var aae = this.instance.deriveEndpointAndAnchorSpec(this.ep.connectionType);
+      return [_continue, beforeDrag];
+    }
+  }, {
+    key: "_createFloatingEndpoint",
+    value: function _createFloatingEndpoint(canvasElement) {
+      var endpointToFloat = this.ep.endpoint;
+      if (this.ep.connectionType != null) {
+        var aae = this.instance._deriveEndpointAndAnchorSpec(this.ep.connectionType);
         endpointToFloat = aae.endpoints[1];
       }
       var centerAnchor = core.makeAnchorFromSpec(this.instance, core.AnchorLocations.Center);
@@ -2628,7 +2651,11 @@ function () {
       this.floatingEndpoint.deleteOnEmpty = true;
       this.floatingElement = this.floatingEndpoint.endpoint.canvas;
       this.floatingId = this.instance.getId(this.floatingElement);
-      var scope = this.ep.scope;
+    }
+  }, {
+    key: "_populateTargets",
+    value: function _populateTargets(canvasElement) {
+      var _this = this;
       var isSourceDrag = this.jpc && this.jpc.endpoints[0] === this.ep;
       var boundingRect;
       var matchingEndpoints = this.instance.getContainer().querySelectorAll([".", core.CLASS_ENDPOINT, "[", core.ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]"].join(""));
@@ -2646,7 +2673,8 @@ function () {
             _this.endpointDropTargets.push({
               el: candidate,
               r: boundingRect,
-              endpoint: candidate.jtk.endpoint
+              endpoint: candidate.jtk.endpoint,
+              def: null
             });
             _this.instance.addClass(candidate, CLASS_DRAG_ACTIVE);
           }
@@ -2655,14 +2683,12 @@ function () {
       var selectors = [];
       if (!isSourceDrag) {
         selectors.push([core.SELECTOR_JTK_TARGET, "[", core.ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]"].join(""));
-        Array.prototype.push.apply(selectors, this.instance.targetSelectors.map(function (ts) {
-          return ts.selector;
-        }));
       } else {
         selectors.push([core.SELECTOR_JTK_SOURCE, "[", core.ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]"].join(""));
       }
       var matchingElements = this.instance.getContainer().querySelectorAll(selectors.join(","));
       core.forEach(matchingElements, function (candidate) {
+        var jel = candidate;
         var o = _this.instance.getOffset(candidate),
             s = _this.instance.getSize(candidate);
         boundingRect = {
@@ -2680,37 +2706,88 @@ function () {
             return sdef.enabled !== false && (sdef.def.allowLoopback !== false || candidate !== _this.ep.element) && (_this._activeDefinition == null || _this._activeDefinition.def.allowLoopback !== false || candidate !== _this.ep.element);
           });
           if (sourceDefinitionIdx !== -1) {
-            if (candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank != null) {
-              d.rank = candidate._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank;
+            if (jel._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank != null) {
+              d.rank = jel._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank;
             }
+            d.def = jel._jsPlumbSourceDefinitions[sourceDefinitionIdx];
             _this.endpointDropTargets.push(d);
             _this.instance.addClass(candidate, CLASS_DRAG_ACTIVE);
           }
         } else {
-          var targetDefinitionIdx = core.findWithFunction(candidate._jsPlumbTargetDefinitions, function (tdef) {
+          var targetDefinitionIndexes = core.findAllWithFunction(candidate._jsPlumbTargetDefinitions, function (tdef) {
             return tdef.enabled !== false && (tdef.def.allowLoopback !== false || candidate !== _this.ep.element) && (_this._activeDefinition == null || _this._activeDefinition.def.allowLoopback !== false || candidate !== _this.ep.element);
           });
-          if (targetDefinitionIdx !== -1) {
-            if (candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank != null) {
-              d.rank = candidate._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank;
+          core.forEach(targetDefinitionIndexes, function (targetDefinitionIdx) {
+            var d = {
+              el: candidate,
+              r: boundingRect
+            };
+            if (jel._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank != null) {
+              d.rank = jel._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank;
             }
+            d.def = jel._jsPlumbTargetDefinitions[targetDefinitionIdx];
             _this.endpointDropTargets.push(d);
+          });
+          if (targetDefinitionIndexes.length > 0) {
             _this.instance.addClass(candidate, CLASS_DRAG_ACTIVE);
-          } else {
-            var targetDef = core.getWithFunction(_this.instance.targetSelectors, function (tSel) {
-              return tSel.isEnabled() && (tSel.def.def.allowLoopback !== false || candidate !== _this.ep.element) && (_this._activeDefinition == null || _this._activeDefinition.def.allowLoopback !== false || candidate !== _this.ep.element);
-            });
-            if (targetDef != null) {
-              d.el = findParent(d.el, core.SELECTOR_MANAGED_ELEMENT, _this.instance.getContainer());
-              if (targetDef.def.def.rank != null) {
-                d.rank = targetDef.def.def.rank;
-              }
-              _this.endpointDropTargets.push(d);
-              _this.instance.addClass(candidate, CLASS_DRAG_ACTIVE);
-            }
           }
         }
       });
+      if (isSourceDrag) {
+        var sourceDef = core.getWithFunction(this.instance.sourceSelectors, function (sSel) {
+          return sSel.isEnabled() && (sSel.def.def.scope == null || sSel.def.def.scope === _this.ep.scope);
+        });
+        if (sourceDef != null) {
+          var targetZones = this.instance.getContainer().querySelectorAll(sourceDef.selector);
+          core.forEach(targetZones, function (el) {
+            var d = {
+              r: null
+            };
+            d.el = findParent(el, core.SELECTOR_MANAGED_ELEMENT, _this.instance.getContainer(), true);
+            var o = _this.instance.getOffset(d.el),
+                s = _this.instance.getSize(d.el);
+            d.r = {
+              x: o.x,
+              y: o.y,
+              w: s.w,
+              h: s.h
+            };
+            if (sourceDef.def.def.rank != null) {
+              d.rank = sourceDef.def.def.rank;
+            }
+            d.def = sourceDef;
+            _this.endpointDropTargets.push(d);
+            _this.instance.addClass(d.el, CLASS_DRAG_ACTIVE);
+          });
+        }
+      } else {
+        var targetDefs = core.getAllWithFunction(this.instance.targetSelectors, function (tSel) {
+          return tSel.isEnabled();
+        });
+        targetDefs.forEach(function (targetDef) {
+          var targetZones = _this.instance.getContainer().querySelectorAll(targetDef.selector);
+          core.forEach(targetZones, function (el) {
+            var d = {
+              r: null
+            };
+            d.el = findParent(el, core.SELECTOR_MANAGED_ELEMENT, _this.instance.getContainer(), true);
+            var o = _this.instance.getOffset(el),
+                s = _this.instance.getSize(el);
+            d.r = {
+              x: o.x,
+              y: o.y,
+              w: s.w,
+              h: s.h
+            };
+            d.def = targetDef;
+            if (targetDef.def.def.rank != null) {
+              d.rank = targetDef.def.def.rank;
+            }
+            _this.endpointDropTargets.push(d);
+            _this.instance.addClass(d.el, CLASS_DRAG_ACTIVE);
+          });
+        });
+      }
       this.endpointDropTargets.sort(function (a, b) {
         if (a.el._isJsPlumbGroup && !b.el._isJsPlumbGroup) {
           return 1;
@@ -2728,46 +2805,40 @@ function () {
           }
         }
       });
+    }
+  }, {
+    key: "onStart",
+    value: function onStart(p) {
+      this.endpointDropTargets.length = 0;
+      this.currentDropTarget = null;
+      this._stopped = false;
+      var dragEl = p.drag.getDragElement();
+      this.ep = dragEl.jtk.endpoint;
+      if (!this.ep) {
+        return false;
+      }
+      this.endpointRepresentation = this.ep.endpoint;
+      this.canvasElement = this.endpointRepresentation.canvas;
+      this.jpc = this.ep.connectorSelector();
+      var _this$_shouldStartDra = this._shouldStartDrag(),
+          _this$_shouldStartDra2 = _slicedToArray(_this$_shouldStartDra, 2),
+          _continue = _this$_shouldStartDra2[0],
+          payload = _this$_shouldStartDra2[1];
+      if (_continue === false) {
+        this._stopped = true;
+        return false;
+      }
       this.instance.setHover(this.ep, false);
+      this.instance.isConnectionBeingDragged = true;
+      if (this.jpc && !this.ep.isFull() && this.ep.isSource) {
+        this.jpc = null;
+      }
+      this._createFloatingEndpoint(this.canvasElement);
+      this._populateTargets(this.canvasElement);
       if (this.jpc == null) {
-        this.jpc = this.instance._newConnection({
-          sourceEndpoint: this.ep,
-          targetEndpoint: this.floatingEndpoint,
-          source: this.ep.element,
-          target: this.placeholderInfo.element,
-          paintStyle: this.ep.connectorStyle,
-          hoverPaintStyle: this.ep.connectorHoverStyle,
-          connector: this.ep.connector,
-          overlays: this.ep.connectorOverlays,
-          type: this.ep.connectionType,
-          cssClass: this.ep.connectorClass,
-          hoverClass: this.ep.connectorHoverClass,
-          scope: scope,
-          data: beforeDrag
-        });
-        this.jpc.pending = true;
-        this.jpc.addClass(this.instance.draggingClass);
-        this.floatingEndpoint.addClass(this.instance.draggingClass);
-        this.instance.fire(EVENT_CONNECTION_DRAG, this.jpc);
+        this.startNewConnectionDrag(this.ep.scope, payload);
       } else {
-        this.existingJpc = true;
-        this.instance.setHover(this.jpc, false);
-        var anchorIdx = this.jpc.endpoints[0].id === this.ep.id ? 0 : 1;
-        this.ep.detachFromConnection(this.jpc, null, true);
-        this.floatingEndpoint.addConnection(this.jpc);
-        this.floatingEndpoint.addClass(this.instance.draggingClass);
-        this.instance.fire(EVENT_CONNECTION_DRAG, this.jpc);
-        this.instance.sourceOrTargetChanged(this.jpc.endpoints[anchorIdx].elementId, this.placeholderInfo.id, this.jpc, this.placeholderInfo.element, anchorIdx);
-        this.jpc.suspendedEndpoint = this.jpc.endpoints[anchorIdx];
-        this.jpc.suspendedElement = this.jpc.endpoints[anchorIdx].element;
-        this.jpc.suspendedElementId = this.jpc.endpoints[anchorIdx].elementId;
-        this.jpc.suspendedElementType = anchorIdx === 0 ? core.SOURCE : core.TARGET;
-        this.instance.setHover(this.jpc.suspendedEndpoint, false);
-        this.floatingEndpoint.referenceEndpoint = this.jpc.suspendedEndpoint;
-        this.jpc.endpoints[anchorIdx] = this.floatingEndpoint;
-        this.jpc.addClass(this.instance.draggingClass);
-        this.floatingId = this.placeholderInfo.id;
-        this.floatingIndex = anchorIdx;
+        this.startExistingConnectionDrag();
       }
       this._registerFloatingConnection(this.placeholderInfo, this.jpc, this.floatingEndpoint);
       this.instance.currentlyDragging = true;
@@ -2796,7 +2867,16 @@ function () {
             idx,
             _cont;
         for (var i = 0; i < this.endpointDropTargets.length; i++) {
-          if (core.intersects(boundingRect, this.endpointDropTargets[i].r)) {
+          var cont = true,
+              filter = this.endpointDropTargets[i].def ? this.endpointDropTargets[i].def.def.filter : null,
+              filterExclude = filter != null ? this.endpointDropTargets[i].def.def.filterExclude : null;
+          if (filter != null) {
+            var r = selectorFilter(params.e, this.endpointDropTargets[i].el, filter, this.instance, filterExclude);
+            if (r === false) {
+              cont = false;
+            }
+          }
+          if (cont && core.intersects(boundingRect, this.endpointDropTargets[i].r)) {
             newDropTarget = this.endpointDropTargets[i];
             break;
           }
@@ -2928,7 +3008,6 @@ function () {
           this._reattachOrDiscard(p.e);
         }
         this.instance.refreshEndpoint(this.ep);
-        this.ep.removeClass("endpointDrag");
         this.ep.removeClass(this.instance.draggingClass);
         this._cleanupDraggablePlaceholder();
         this.jpc.removeClass(this.instance.draggingClass);
@@ -2988,60 +3067,15 @@ function () {
       return this._getSourceDefinitionFromElement(fromElement, evt, ignoreFilter) || this._getSourceDefinitionFromInstance(evt, ignoreFilter);
     }
   }, {
-    key: "_getTargetDefinitionFromElement",
-    value: function _getTargetDefinitionFromElement(fromElement, evt) {
-      var targetDef;
-      if (fromElement._jsPlumbTargetDefinitions) {
-        for (var i = 0; i < fromElement._jsPlumbTargetDefinitions.length; i++) {
-          targetDef = fromElement._jsPlumbTargetDefinitions[i];
-          if (targetDef.enabled !== false) {
-            if (targetDef.def.filter) {
-              var r = core.isString(targetDef.def.filter) ? selectorFilter(evt, fromElement, targetDef.def.filter, this.instance, targetDef.def.filterExclude) : targetDef.def.filter(evt, fromElement);
-              if (r !== false) {
-                return targetDef;
-              }
-            } else {
-              return targetDef;
-            }
-          }
-        }
-      }
-    }
-  }, {
-    key: "_getTargetDefinitionFromInstance",
-    value: function _getTargetDefinitionFromInstance(evt, ignoreFilter) {
-      var selector;
-      for (var i = 0; i < this.instance.targetSelectors.length; i++) {
-        selector = this.instance.targetSelectors[i];
-        if (selector.isEnabled()) {
-          var r = selectorFilter(evt, this.instance.getContainer(), selector.selector, this.instance, selector.exclude);
-          if (r !== false) {
-            return selector.def;
-          }
-        }
-      }
-      return null;
-    }
-  }, {
-    key: "_getTargetDefinition",
-    value: function _getTargetDefinition(fromElement, evt) {
-      return this._getTargetDefinitionFromElement(fromElement, evt) || this._getTargetDefinitionFromInstance(evt);
-    }
-  }, {
     key: "_getDropEndpoint",
     value: function _getDropEndpoint(p, jpc) {
       var dropEndpoint;
       if (this.currentDropTarget.endpoint == null) {
-        var targetDefinition;
-        if (this.floatingIndex == null || this.floatingIndex === 1) {
-          targetDefinition = this._getTargetDefinition(this.currentDropTarget.el, p.e);
-        } else if (this.floatingIndex === 0) {
-          targetDefinition = this._getSourceDefinition(this.currentDropTarget.el, p.e, true);
-        }
+        var targetDefinition = this.currentDropTarget.def;
         if (targetDefinition == null) {
           return null;
         }
-        var eps = this.instance.deriveEndpointAndAnchorSpec(jpc.getType().join(" "), true);
+        var eps = this.instance._deriveEndpointAndAnchorSpec(jpc.getType().join(" "), true);
         var pp = eps.endpoints ? core.extend(p, {
           endpoint: targetDefinition.def.endpoint || eps.endpoints[1]
         }) : p;

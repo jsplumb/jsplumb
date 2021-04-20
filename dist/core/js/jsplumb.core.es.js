@@ -624,9 +624,26 @@ function findWithFunction(a, f) {
   }
   return -1;
 }
+function findAllWithFunction(a, f) {
+  var o = [];
+  if (a) {
+    for (var i = 0; i < a.length; i++) {
+      if (f(a[i])) {
+        o.push(i);
+      }
+    }
+  }
+  return o;
+}
 function getWithFunction(a, f) {
   var idx = findWithFunction(a, f);
   return idx === -1 ? null : a[idx];
+}
+function getAllWithFunction(a, f) {
+  var indexes = findAllWithFunction(a, f);
+  return indexes.map(function (i) {
+    return a[i];
+  });
 }
 function getFromSetWithFunction(s, f) {
   var out = null;
@@ -3370,117 +3387,6 @@ function (_EventGenerator) {
   return OptimisticEventGenerator;
 }(EventGenerator);
 
-function isFullOverlaySpec(o) {
-  return o.type != null && o.options != null;
-}
-function convertToFullOverlaySpec(spec) {
-  var o = null;
-  if (isString(spec)) {
-    o = {
-      type: spec,
-      options: {}
-    };
-  } else {
-    o = spec;
-  }
-  o.options.id = o.options.id || uuid();
-  return o;
-}
-var Overlay =
-function (_EventGenerator) {
-  _inherits(Overlay, _EventGenerator);
-  function Overlay(instance, component, p) {
-    var _this;
-    _classCallCheck(this, Overlay);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Overlay).call(this));
-    _this.instance = instance;
-    _this.component = component;
-    _defineProperty(_assertThisInitialized(_this), "id", void 0);
-    _defineProperty(_assertThisInitialized(_this), "type", void 0);
-    _defineProperty(_assertThisInitialized(_this), "cssClass", void 0);
-    _defineProperty(_assertThisInitialized(_this), "visible", true);
-    _defineProperty(_assertThisInitialized(_this), "location", void 0);
-    _defineProperty(_assertThisInitialized(_this), "events", void 0);
-    p = p || {};
-    _this.id = p.id || uuid();
-    _this.cssClass = p.cssClass || "";
-    _this.location = p.location || 0.5;
-    _this.events = p.events || {};
-    for (var _event in _this.events) {
-      _this.bind(_event, _this.events[_event]);
-    }
-    return _this;
-  }
-  _createClass(Overlay, [{
-    key: "shouldFireEvent",
-    value: function shouldFireEvent(event, value, originalEvent) {
-      return true;
-    }
-  }, {
-    key: "setVisible",
-    value: function setVisible(v) {
-      this.visible = v;
-      this.instance.setOverlayVisible(this, v);
-    }
-  }, {
-    key: "isVisible",
-    value: function isVisible() {
-      return this.visible;
-    }
-  }, {
-    key: "destroy",
-    value: function destroy(force) {
-      this.instance.destroyOverlay(this, force);
-    }
-  }, {
-    key: "_postComponentEvent",
-    value: function _postComponentEvent(eventName, originalEvent) {
-      this.instance.fire(eventName, this.component, originalEvent);
-    }
-  }, {
-    key: "click",
-    value: function click(e) {
-      this.fire(EVENT_CLICK, {
-        e: e,
-        overlay: this
-      });
-      var eventName = this.component instanceof Connection ? EVENT_CLICK : EVENT_ENDPOINT_CLICK;
-      this._postComponentEvent(eventName, e);
-    }
-  }, {
-    key: "dblclick",
-    value: function dblclick(e) {
-      this.fire(EVENT_DBL_CLICK, {
-        e: e,
-        overlay: this
-      });
-      var eventName = this.component instanceof Connection ? EVENT_DBL_CLICK : EVENT_ENDPOINT_DBL_CLICK;
-      this._postComponentEvent(eventName, e);
-    }
-  }, {
-    key: "tap",
-    value: function tap(e) {
-      this.fire(EVENT_TAP, {
-        e: e,
-        overlay: this
-      });
-      var eventName = this.component instanceof Connection ? EVENT_TAP : EVENT_ENDPOINT_TAP;
-      this._postComponentEvent(eventName, e);
-    }
-  }, {
-    key: "dbltap",
-    value: function dbltap(e) {
-      this.fire(EVENT_DBL_TAP, {
-        e: e,
-        overlay: this
-      });
-      var eventName = this.component instanceof Connection ? EVENT_DBL_TAP : EVENT_ENDPOINT_DBL_TAP;
-      this._postComponentEvent(eventName, e);
-    }
-  }]);
-  return Overlay;
-}(EventGenerator);
-
 function _splitType(t) {
   return t == null ? null : t.split(" ");
 }
@@ -3581,21 +3487,7 @@ function (_EventGenerator) {
     _this._typeCache = {};
     _this.parameters = params.parameters || {};
     _this.id = _this.getIdPrefix() + new Date().getTime();
-    var o = params.overlays || [],
-        oo = {};
-    var defaultOverlayKey = _this.getDefaultOverlayKey();
-    if (defaultOverlayKey) {
-      var defaultOverlays = _this.instance.Defaults[defaultOverlayKey];
-      if (defaultOverlays) {
-        o.push.apply(o, _toConsumableArray(defaultOverlays));
-      }
-      for (var i = 0; i < o.length; i++) {
-        var fo = convertToFullOverlaySpec(o[i]);
-        oo[fo.options.id] = fo;
-      }
-    }
     _this._defaultType = {
-      overlays: oo,
       parameters: params.parameters || {},
       scope: params.scope || _this.instance.defaultScope
     };
@@ -3893,6 +3785,117 @@ function (_EventGenerator) {
   return Component;
 }(EventGenerator);
 
+function isFullOverlaySpec(o) {
+  return o.type != null && o.options != null;
+}
+function convertToFullOverlaySpec(spec) {
+  var o = null;
+  if (isString(spec)) {
+    o = {
+      type: spec,
+      options: {}
+    };
+  } else {
+    o = spec;
+  }
+  o.options.id = o.options.id || uuid();
+  return o;
+}
+var Overlay =
+function (_EventGenerator) {
+  _inherits(Overlay, _EventGenerator);
+  function Overlay(instance, component, p) {
+    var _this;
+    _classCallCheck(this, Overlay);
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Overlay).call(this));
+    _this.instance = instance;
+    _this.component = component;
+    _defineProperty(_assertThisInitialized(_this), "id", void 0);
+    _defineProperty(_assertThisInitialized(_this), "type", void 0);
+    _defineProperty(_assertThisInitialized(_this), "cssClass", void 0);
+    _defineProperty(_assertThisInitialized(_this), "visible", true);
+    _defineProperty(_assertThisInitialized(_this), "location", void 0);
+    _defineProperty(_assertThisInitialized(_this), "events", void 0);
+    p = p || {};
+    _this.id = p.id || uuid();
+    _this.cssClass = p.cssClass || "";
+    _this.location = p.location || 0.5;
+    _this.events = p.events || {};
+    for (var _event in _this.events) {
+      _this.bind(_event, _this.events[_event]);
+    }
+    return _this;
+  }
+  _createClass(Overlay, [{
+    key: "shouldFireEvent",
+    value: function shouldFireEvent(event, value, originalEvent) {
+      return true;
+    }
+  }, {
+    key: "setVisible",
+    value: function setVisible(v) {
+      this.visible = v;
+      this.instance.setOverlayVisible(this, v);
+    }
+  }, {
+    key: "isVisible",
+    value: function isVisible() {
+      return this.visible;
+    }
+  }, {
+    key: "destroy",
+    value: function destroy(force) {
+      this.instance.destroyOverlay(this, force);
+    }
+  }, {
+    key: "_postComponentEvent",
+    value: function _postComponentEvent(eventName, originalEvent) {
+      this.instance.fire(eventName, this.component, originalEvent);
+    }
+  }, {
+    key: "click",
+    value: function click(e) {
+      this.fire(EVENT_CLICK, {
+        e: e,
+        overlay: this
+      });
+      var eventName = this.component instanceof Connection ? EVENT_CLICK : EVENT_ENDPOINT_CLICK;
+      this._postComponentEvent(eventName, e);
+    }
+  }, {
+    key: "dblclick",
+    value: function dblclick(e) {
+      this.fire(EVENT_DBL_CLICK, {
+        e: e,
+        overlay: this
+      });
+      var eventName = this.component instanceof Connection ? EVENT_DBL_CLICK : EVENT_ENDPOINT_DBL_CLICK;
+      this._postComponentEvent(eventName, e);
+    }
+  }, {
+    key: "tap",
+    value: function tap(e) {
+      this.fire(EVENT_TAP, {
+        e: e,
+        overlay: this
+      });
+      var eventName = this.component instanceof Connection ? EVENT_TAP : EVENT_ENDPOINT_TAP;
+      this._postComponentEvent(eventName, e);
+    }
+  }, {
+    key: "dbltap",
+    value: function dbltap(e) {
+      this.fire(EVENT_DBL_TAP, {
+        e: e,
+        overlay: this
+      });
+      var eventName = this.component instanceof Connection ? EVENT_DBL_TAP : EVENT_ENDPOINT_DBL_TAP;
+      this._postComponentEvent(eventName, e);
+    }
+  }]);
+  return Overlay;
+}(EventGenerator);
+
 var overlayMap = {};
 var OverlayFactory = {
   get: function get(instance, name, component, params) {
@@ -3970,12 +3973,15 @@ function isLabelOverlay(o) {
 OverlayFactory.register("Label", LabelOverlay);
 
 var _internalLabelOverlayId = "__label";
+var TYPE_ITEM_OVERLAY = "overlay";
+var LOCATION_ATTRIBUTE = "labelLocation";
+var ACTION_ADD = "add";
+var ACTION_REMOVE = "remove";
 function _makeLabelOverlay(component, params) {
   var _params = {
     cssClass: params.cssClass,
     id: _internalLabelOverlayId,
-    component: component,
-    _jsPlumb: component.instance
+    component: component
   },
       mergedParams = extend(_params, params);
   return new LabelOverlay(component.instance, component, mergedParams);
@@ -3992,7 +3998,7 @@ function _processOverlay(component, o) {
     _newOverlay = o;
   }
   _newOverlay.id = _newOverlay.id || uuid();
-  component.cacheTypeItem("overlay", _newOverlay, _newOverlay.id);
+  component.cacheTypeItem(TYPE_ITEM_OVERLAY, _newOverlay, _newOverlay.id);
   component.overlays[_newOverlay.id] = _newOverlay;
   return _newOverlay;
 }
@@ -4011,9 +4017,23 @@ function (_Component) {
     params = params || {};
     _this.overlays = {};
     _this.overlayPositions = {};
+    var o = params.overlays || [],
+        oo = {};
+    var defaultOverlayKey = _this.getDefaultOverlayKey();
+    if (defaultOverlayKey) {
+      var defaultOverlays = _this.instance.Defaults[defaultOverlayKey];
+      if (defaultOverlays) {
+        o.push.apply(o, _toConsumableArray(defaultOverlays));
+      }
+      for (var i = 0; i < o.length; i++) {
+        var fo = convertToFullOverlaySpec(o[i]);
+        oo[fo.options.id] = fo;
+      }
+    }
+    _this._defaultType.overlays = oo;
     if (params.label) {
       _this.getDefaultType().overlays[_internalLabelOverlayId] = {
-        type: "Label",
+        type: LabelOverlay.type,
         options: {
           label: params.label,
           location: params.labelLocation || _this.defaultLabelLocation,
@@ -4027,11 +4047,11 @@ function (_Component) {
     key: "addOverlay",
     value: function addOverlay(overlay) {
       var o = _processOverlay(this, overlay);
-      if (this.getData && o.type === "Label" && !isString(overlay)) {
+      if (this.getData && o.type === LabelOverlay.type && !isString(overlay)) {
         var d = this.getData(),
             p = overlay.options;
         if (d) {
-          var locationAttribute = p.labelLocationAttribute || "labelLocation";
+          var locationAttribute = p.labelLocationAttribute || LOCATION_ATTRIBUTE;
           var loc = d[locationAttribute];
           if (loc) {
             o.location = loc;
@@ -4134,7 +4154,7 @@ function (_Component) {
     value: function setLabel(l) {
       var lo = this.getLabelOverlay();
       if (!lo) {
-        var params = l.constructor === String || l.constructor === Function ? {
+        var params = isString(l) || isFunction(l) ? {
           label: l
         } : l;
         lo = _makeLabelOverlay(this, params);
@@ -4169,7 +4189,11 @@ function (_Component) {
     key: "setVisible",
     value: function setVisible(v) {
       _get(_getPrototypeOf(OverlayCapableComponent.prototype), "setVisible", this).call(this, v);
-      this[v ? "showOverlays" : "hideOverlays"]();
+      if (v) {
+        this.showOverlays();
+      } else {
+        this.hideOverlays();
+      }
     }
   }, {
     key: "setAbsoluteOverlayPosition",
@@ -4186,9 +4210,9 @@ function (_Component) {
     value: function _clazzManip(action, clazz, dontUpdateOverlays) {
       if (!dontUpdateOverlays) {
         for (var i in this.overlays) {
-          if (action === "add") {
+          if (action === ACTION_ADD) {
             this.instance.addOverlayClass(this.overlays[i], clazz);
-          } else if (action === "remove") {
+          } else if (action === ACTION_REMOVE) {
             this.instance.removeOverlayClass(this.overlays[i], clazz);
           }
         }
@@ -4198,13 +4222,13 @@ function (_Component) {
     key: "addClass",
     value: function addClass(clazz, dontUpdateOverlays) {
       _get(_getPrototypeOf(OverlayCapableComponent.prototype), "addClass", this).call(this, clazz);
-      this._clazzManip("add", clazz, dontUpdateOverlays);
+      this._clazzManip(ACTION_ADD, clazz, dontUpdateOverlays);
     }
   }, {
     key: "removeClass",
     value: function removeClass(clazz, dontUpdateOverlays) {
       _get(_getPrototypeOf(OverlayCapableComponent.prototype), "removeClass", this).call(this, clazz);
-      this._clazzManip("remove", clazz, dontUpdateOverlays);
+      this._clazzManip(ACTION_REMOVE, clazz, dontUpdateOverlays);
     }
   }, {
     key: "applyType",
@@ -4334,7 +4358,7 @@ function _distance(anchor, cx, cy, xy, wh, rotation, targetRotation) {
       acx = xy.x + wh.w / 2,
       acy = xy.y + wh.h / 2;
   if (rotation != null && rotation.length > 0) {
-    var rotated = anchor.instance.applyRotations([ax, ay, 0, 0], rotation);
+    var rotated = anchor.instance._applyRotations([ax, ay, 0, 0], rotation);
     ax = rotated.x;
     ay = rotated.y;
   }
@@ -4799,17 +4823,17 @@ function prepareEndpoint(conn, existing, index, anchor, element, elementId, endp
     }
     var u = conn.uuids ? conn.uuids[index] : null;
     anchor = anchor != null ? anchor : conn.instance.Defaults.anchors != null ? conn.instance.Defaults.anchors[index] : conn.instance.Defaults.anchor;
-    e = conn.instance.newEndpoint({
+    e = conn.instance._internal_newEndpoint({
       paintStyle: es,
       hoverPaintStyle: ehs,
       endpoint: ep,
       connections: [conn],
       uuid: u,
-      source: element,
+      element: element,
       scope: conn.scope,
       anchor: anchor,
-      reattach: conn.reattach || conn.instance.Defaults.reattachConnections,
-      detachable: conn.detachable || conn.instance.Defaults.connectionsDetachable
+      reattachConnections: conn.reattach || conn.instance.Defaults.reattachConnections,
+      connectionsDetachable: conn.detachable || conn.instance.Defaults.connectionsDetachable
     });
     if (existing == null) {
       e.deleteOnEmpty = true;
@@ -4905,7 +4929,7 @@ function (_OverlayCapableCompon) {
     };
     _this.lastPaintedAt = null;
     if (params.type) {
-      params.endpoints = params.endpoints || _this.instance.deriveEndpointAndAnchorSpec(params.type).endpoints;
+      params.endpoints = params.endpoints || _this.instance._deriveEndpointAndAnchorSpec(params.type).endpoints;
     }
     _this.endpointSpec = params.endpoint;
     _this.endpointsSpec = params.endpoints || [null, null];
@@ -5268,7 +5292,6 @@ function (_OverlayCapableCompon) {
     _defineProperty(_assertThisInitialized(_this), "connectorOverlays", void 0);
     _defineProperty(_assertThisInitialized(_this), "connectorStyle", void 0);
     _defineProperty(_assertThisInitialized(_this), "connectorHoverStyle", void 0);
-    _defineProperty(_assertThisInitialized(_this), "dragProxy", void 0);
     _defineProperty(_assertThisInitialized(_this), "deleteOnEmpty", void 0);
     _defineProperty(_assertThisInitialized(_this), "uuid", void 0);
     _defineProperty(_assertThisInitialized(_this), "scope", void 0);
@@ -5288,11 +5311,10 @@ function (_OverlayCapableCompon) {
     });
     _this.enabled = !(params.enabled === false);
     _this.visible = true;
-    _this.element = params.source;
+    _this.element = params.element;
     _this.uuid = params.uuid;
     _this.portId = params.portId;
     _this.elementId = params.elementId;
-    _this.dragProxy = params.dragProxy;
     _this.connectionCost = params.connectionCost == null ? 1 : params.connectionCost;
     _this.connectionsDirected = params.connectionsDirected;
     _this.currentAnchorClass = "";
@@ -5313,9 +5335,9 @@ function (_OverlayCapableCompon) {
     _this.connections = params.connections || [];
     _this.scope = params.scope || instance.defaultScope;
     _this.timestamp = null;
-    _this.reattachConnections = params.reattach || instance.Defaults.reattachConnections;
+    _this.reattachConnections = params.reattachConnections || instance.Defaults.reattachConnections;
     _this.connectionsDetachable = instance.Defaults.connectionsDetachable;
-    if (params.connectionsDetachable === false || params.detachable === false) {
+    if (params.connectionsDetachable === false) {
       _this.connectionsDetachable = false;
     }
     _this.dragAllowedWhenFull = params.dragAllowedWhenFull !== false;
@@ -6699,14 +6721,14 @@ function () {
         wh: sourceInfo,
         element: sE,
         timestamp: timestamp,
-        rotation: this.instance.getRotations(connection.sourceId)
+        rotation: this.instance._getRotations(connection.sourceId)
       }),
           tAnchorP = this.getEndpointLocation(tE, {
         xy: targetInfo,
         wh: targetInfo,
         element: tE,
         timestamp: timestamp,
-        rotation: this.instance.getRotations(connection.targetId)
+        rotation: this.instance._getRotations(connection.targetId)
       });
       connection.connector.resetBounds();
       connection.connector.compute({
@@ -6883,8 +6905,8 @@ function () {
                   _this3._updateAnchorList(_this3.anchorLists[sourceId], -Math.PI / 2, 0, conn, false, targetId, 0, false, "top", connectionsToPaint, endpointsToPaint);
                   _this3._updateAnchorList(_this3.anchorLists[targetId], -Math.PI / 2, 0, conn, false, sourceId, 1, false, "top", connectionsToPaint, endpointsToPaint);
                 } else {
-                  var sourceRotation = _this3.instance.getRotations(sourceId);
-                  var targetRotation = _this3.instance.getRotations(targetId);
+                  var sourceRotation = _this3.instance._getRotations(sourceId);
+                  var targetRotation = _this3.instance._getRotations(targetId);
                   if (!o) {
                     o = _this3.calculateOrientation(sourceId, targetId, sd, td, conn.endpoints[0].anchor, conn.endpoints[1].anchor, sourceRotation, targetRotation);
                     orientationCache[oKey] = o;
@@ -6989,7 +7011,7 @@ function () {
           };
           if (dim[i][1] != null && dim[i][1].length > 0) {
             for (var axis in midpoints[types[i]]) {
-              midpoints[types[i]][axis] = _this4.instance.applyRotationsXY(midpoints[types[i]][axis], dim[i][1]);
+              midpoints[types[i]][axis] = _this4.instance._applyRotationsXY(midpoints[types[i]][axis], dim[i][1]);
             }
           }
         }
@@ -8316,13 +8338,14 @@ function (_EventGenerator) {
   }, {
     key: "manageAll",
     value: function manageAll(elements, recalc) {
-      for (var i = 0; i < elements.length; i++) {
-        this.manage(elements[i], null, recalc);
+      var nl = isString(elements) ? this.getSelector(this.getContainer(), elements) : elements;
+      for (var i = 0; i < nl.length; i++) {
+        this.manage(nl[i], null, recalc);
       }
     }
   }, {
     key: "manage",
-    value: function manage(element, internalId, recalc) {
+    value: function manage(element, internalId, _recalc) {
       if (this.getAttribute(element, ID_ATTRIBUTE) == null) {
         internalId = internalId || uuid();
         this.setAttribute(element, ID_ATTRIBUTE, internalId);
@@ -8348,7 +8371,7 @@ function (_EventGenerator) {
           el: element
         });
       } else {
-        if (recalc) {
+        if (_recalc) {
           this._managedElements[elId].viewportElement = this.updateOffset({
             elId: elId,
             timestamp: null,
@@ -8395,12 +8418,12 @@ function (_EventGenerator) {
     }
   }, {
     key: "rotate",
-    value: function rotate(element, rotation, doNotRepaint) {
+    value: function rotate(element, rotation, _doNotRepaint) {
       var elementId = this.getId(element);
       if (this._managedElements[elementId]) {
         this._managedElements[elementId].rotation = rotation;
         this.viewport.rotateElement(elementId, rotation);
-        if (doNotRepaint !== true) {
+        if (_doNotRepaint !== true) {
           return this.revalidate(element);
         }
       }
@@ -8410,8 +8433,8 @@ function (_EventGenerator) {
       };
     }
   }, {
-    key: "getRotation",
-    value: function getRotation(elementId) {
+    key: "_getRotation",
+    value: function _getRotation(elementId) {
       var entry = this._managedElements[elementId];
       if (entry != null) {
         return entry.rotation || 0;
@@ -8420,8 +8443,8 @@ function (_EventGenerator) {
       }
     }
   }, {
-    key: "getRotations",
-    value: function getRotations(elementId) {
+    key: "_getRotations",
+    value: function _getRotations(elementId) {
       var _this4 = this;
       var rotations = [];
       var entry = this._managedElements[elementId];
@@ -8447,8 +8470,8 @@ function (_EventGenerator) {
       return rotations;
     }
   }, {
-    key: "applyRotations",
-    value: function applyRotations(point, rotations) {
+    key: "_applyRotations",
+    value: function _applyRotations(point, rotations) {
       var sl = point.slice();
       var current = {
         x: sl[0],
@@ -8462,21 +8485,21 @@ function (_EventGenerator) {
       return current;
     }
   }, {
-    key: "applyRotationsXY",
-    value: function applyRotationsXY(point, rotations) {
+    key: "_applyRotationsXY",
+    value: function _applyRotationsXY(point, rotations) {
       forEach(rotations, function (rotation) {
         point = rotatePoint(point, rotation.c, rotation.r);
       });
       return point;
     }
   }, {
-    key: "newEndpoint",
-    value: function newEndpoint(params, id) {
+    key: "_internal_newEndpoint",
+    value: function _internal_newEndpoint(params, id) {
       var _p = extend({}, params);
-      _p.elementId = id || this.getId(_p.source);
+      _p.elementId = id || this.getId(_p.element);
       var ep = new Endpoint(this, _p);
       ep.id = "ep_" + this._idstamp();
-      var managedElement = this.manage(_p.source);
+      var managedElement = this.manage(_p.element);
       addManagedEndpoint(managedElement, ep);
       if (params.uuid) {
         this.endpointsByUUID.set(params.uuid, ep);
@@ -8484,8 +8507,8 @@ function (_EventGenerator) {
       return ep;
     }
   }, {
-    key: "deriveEndpointAndAnchorSpec",
-    value: function deriveEndpointAndAnchorSpec(type, dontPrependDefault) {
+    key: "_deriveEndpointAndAnchorSpec",
+    value: function _deriveEndpointAndAnchorSpec(type, dontPrependDefault) {
       var bits = ((dontPrependDefault ? "" : "default ") + type).split(/[\s]/),
           eps = null,
           ep = null,
@@ -8612,8 +8635,8 @@ function (_EventGenerator) {
       this.fire(EVENT_INTERNAL_ENDPOINT_UNREGISTERED, endpoint);
     }
   }, {
-    key: "maybePruneEndpoint",
-    value: function maybePruneEndpoint(endpoint) {
+    key: "_maybePruneEndpoint",
+    value: function _maybePruneEndpoint(endpoint) {
       if (endpoint.deleteOnEmpty && endpoint.connections.length === 0) {
         this.deleteEndpoint(endpoint);
         return true;
@@ -8655,11 +8678,11 @@ function (_EventGenerator) {
       p.endpoint = p.endpoint || this.Defaults.endpoint;
       p.paintStyle = p.paintStyle || this.Defaults.endpointStyle;
       var _p = extend({
-        source: el
+        element: el
       }, p);
-      var id = this.getId(_p.source);
+      var id = this.getId(_p.element);
       this.manage(el, id, !this._suspendDrawing);
-      var e = this.newEndpoint(_p, id);
+      var e = this._internal_newEndpoint(_p, id);
       addToDictionary(this.endpointsByElement, id, e);
       if (!this._suspendDrawing) {
         this.paintEndpoint(e, {
@@ -9058,7 +9081,7 @@ function (_EventGenerator) {
       var p = extend({}, referenceParams);
       extend(p, params);
       p.connectionType = p.connectionType || DEFAULT;
-      var aae = this.deriveEndpointAndAnchorSpec(p.connectionType);
+      var aae = this._deriveEndpointAndAnchorSpec(p.connectionType);
       p.endpoint = p.endpoint || aae.endpoints[0];
       p.anchor = p.anchor || aae.anchors[0];
       var maxConnections = p.maxConnections || -1;
@@ -9535,11 +9558,11 @@ function (_EventGenerator) {
               anchorParams.txy = oInfo;
               anchorParams.twh = oInfo;
               anchorParams.tElement = _c3.endpoints[oIdx];
-              anchorParams.tRotation = this.getRotations(oId);
+              anchorParams.tRotation = this._getRotations(oId);
             } else if (endpoint.connections.length > 0) {
               anchorParams.connection = endpoint.connections[0];
             }
-            anchorParams.rotation = this.getRotations(endpoint.elementId);
+            anchorParams.rotation = this._getRotations(endpoint.elementId);
             ap = this.router.computeAnchorLocation(endpoint.anchor, anchorParams);
           }
           endpoint.endpoint.compute(ap, this.router.getEndpointOrientation(endpoint), endpoint.paintStyleInUse);
@@ -9859,4 +9882,4 @@ Connectors.register(StraightConnector.type, StraightConnector);
 Connectors.register(FlowchartConnector.type, FlowchartConnector);
 Connectors.register(StateMachineConnector.type, StateMachineConnector);
 
-export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_GROUP_CONTENT, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SCOPE, ATTRIBUTE_SCOPE_PREFIX, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, AnchorLocations, Anchors, ArcSegment, ArrowOverlay, BLOCK, BezierConnector, BezierSegment, BlankEndpoint, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTED, CLASS_CONNECTOR, CLASS_CONNECTOR_OUTLINE, CLASS_ENDPOINT, CLASS_ENDPOINT_ANCHOR_PREFIX, CLASS_ENDPOINT_CONNECTED, CLASS_ENDPOINT_DROP_ALLOWED, CLASS_ENDPOINT_DROP_FORBIDDEN, CLASS_ENDPOINT_FULL, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DefaultRouter, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_ANCHOR_CHANGED, EVENT_CLICK, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_DBL_TAP, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_ENDPOINT_TAP, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_COLLAPSE, EVENT_GROUP_EXPAND, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FloatingAnchor, FlowchartConnector, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_DROP, INTERCEPT_BEFORE_START_DETACH, IS, IS_DETACH_ALLOWED, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PROPERTY_POSITION, PlainArrowOverlay, RectangleEndpoint, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP, SELECTOR_GROUP_CONTAINER, SELECTOR_JTK_SOURCE, SELECTOR_JTK_TARGET, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, SourceSelector, StateMachineConnector, StraightConnector, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, TargetSelector, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, att, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, convertToFullOverlaySpec, dist, distanceFromCurve, each, encloses, extend, fastTrim, filterList, findWithFunction, forEach, fromArray, functionChain, getFromSetWithFunction, getWithFunction, getsert, gradient, gradientAtPoint, gradientAtPointAlongPathFrom, insertSorted, intersects, isArray, isArrowOverlay, isAssignableFrom, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFullOverlaySpec, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, lineIntersection, lineLength, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, normal, optional, perpendicularLineTo, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, pointOnLine, pointSubtract, pointXYFromArray, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, sortHelper, suggest, theta, uuid, wrap };
+export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_GROUP_CONTENT, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SCOPE, ATTRIBUTE_SCOPE_PREFIX, ATTRIBUTE_SOURCE, ATTRIBUTE_TABINDEX, ATTRIBUTE_TARGET, AbstractConnector, AbstractSegment, Anchor, AnchorLocations, Anchors, ArcSegment, ArrowOverlay, BLOCK, BezierConnector, BezierSegment, BlankEndpoint, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTED, CLASS_CONNECTOR, CLASS_CONNECTOR_OUTLINE, CLASS_ENDPOINT, CLASS_ENDPOINT_ANCHOR_PREFIX, CLASS_ENDPOINT_CONNECTED, CLASS_ENDPOINT_DROP_ALLOWED, CLASS_ENDPOINT_DROP_FORBIDDEN, CLASS_ENDPOINT_FULL, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DefaultRouter, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, EVENT_ANCHOR_CHANGED, EVENT_CLICK, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_DBL_TAP, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_ENDPOINT_TAP, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_COLLAPSE, EVENT_GROUP_EXPAND, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FloatingAnchor, FlowchartConnector, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_DROP, INTERCEPT_BEFORE_START_DETACH, IS, IS_DETACH_ALLOWED, JsPlumbInstance, LabelOverlay, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PROPERTY_POSITION, PlainArrowOverlay, RectangleEndpoint, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP, SELECTOR_GROUP_CONTAINER, SELECTOR_JTK_SOURCE, SELECTOR_JTK_TARGET, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_DEFINITION_LIST, SOURCE_INDEX, STATIC, SourceSelector, StateMachineConnector, StraightConnector, StraightSegment, TARGET, TARGET_DEFINITION_LIST, TARGET_INDEX, TRUE, TWO_PI, TargetSelector, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, att, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, convertToFullOverlaySpec, dist, distanceFromCurve, each, encloses, extend, fastTrim, filterList, findAllWithFunction, findWithFunction, forEach, fromArray, functionChain, getAllWithFunction, getFromSetWithFunction, getWithFunction, getsert, gradient, gradientAtPoint, gradientAtPointAlongPathFrom, insertSorted, intersects, isArray, isArrowOverlay, isAssignableFrom, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFullOverlaySpec, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, lineIntersection, lineLength, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, map, merge, mergeWithParents, nearestPointOnCurve, normal, optional, perpendicularLineTo, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, pointOnLine, pointSubtract, pointXYFromArray, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, sortHelper, suggest, theta, uuid, wrap };

@@ -2,7 +2,7 @@ import { DragHandler } from "./drag-manager";
 import { BrowserJsPlumbInstance } from "./browser-jsplumb-instance";
 import { jsPlumbDOMElement } from './element-facade';
 import { Drag, DragStartEventParams, DragStopEventParams, DragEventParams } from "./collicat";
-import { FloatingAnchor, BoundingBox, Connection, Dictionary, Endpoint, EndpointRepresentation } from "@jsplumb/core";
+import { FloatingAnchor, BoundingBox, Connection, Dictionary, Endpoint, EndpointRepresentation, SourceOrTargetDefinition } from "@jsplumb/core";
 export declare class EndpointDragHandler implements DragHandler {
     protected instance: BrowserJsPlumbInstance;
     jpc: Connection;
@@ -10,6 +10,7 @@ export declare class EndpointDragHandler implements DragHandler {
     private _originalAnchor;
     ep: Endpoint<Element>;
     endpointRepresentation: EndpointRepresentation<any>;
+    canvasElement: Element;
     private _activeDefinition;
     placeholderInfo: {
         id?: string;
@@ -26,6 +27,7 @@ export declare class EndpointDragHandler implements DragHandler {
         el: jsPlumbDOMElement;
         endpoint: Endpoint;
         r: BoundingBox;
+        def?: SourceOrTargetDefinition;
     }>;
     currentDropTarget: any;
     payload: any;
@@ -46,7 +48,7 @@ export declare class EndpointDragHandler implements DragHandler {
     onDragInit(el: Element): Element;
     onDragAbort(el: Element): void;
     /**
-     * Makes the element that is the placeholder for dragging. this element gets `managed` by the instance, and `unmanaged` when dragging
+     * Makes the element that is the placeholder for dragging. This element gets `managed` by the instance, and `unmanaged` when dragging
      * ends.
      * @param ipco
      * @param ips
@@ -56,6 +58,25 @@ export declare class EndpointDragHandler implements DragHandler {
     private _cleanupDraggablePlaceholder;
     reset(): void;
     init(drag: Drag): void;
+    private startNewConnectionDrag;
+    private startExistingConnectionDrag;
+    /**
+     * Returns whether or not a connerction drag should start, and, if so, optionally returns a payload to associate with the drag.
+     * @private
+     */
+    private _shouldStartDrag;
+    /**
+     * Creates the floating endpoint used in a connection drag.
+     * @param canvasElement
+     * @private
+     */
+    private _createFloatingEndpoint;
+    /**
+     * Populate the list of drop targets based upon what is being dragged.
+     * @param canvasElement
+     * @private
+     */
+    private _populateTargets;
     onStart(p: DragStartEventParams): boolean;
     onBeforeStart(beforeStartParams: any): void;
     onDrag(params: DragEventParams): boolean;
@@ -74,15 +95,6 @@ export declare class EndpointDragHandler implements DragHandler {
     private _getSourceDefinitionFromElement;
     private _getSourceDefinitionFromInstance;
     private _getSourceDefinition;
-    /**
-     * Lookup a target definition on the given element.
-     * @param fromElement Element to lookup the source definition
-     * @param evt Associated mouse event - for instance, the event that started a drag.
-     * @private
-     */
-    private _getTargetDefinitionFromElement;
-    private _getTargetDefinitionFromInstance;
-    private _getTargetDefinition;
     private _getDropEndpoint;
     private _doForceReattach;
     private _shouldReattach;

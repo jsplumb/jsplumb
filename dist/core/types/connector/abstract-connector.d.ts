@@ -3,7 +3,6 @@ import { JsPlumbInstance } from "../core";
 import { Segment, SegmentBounds } from "./abstract-segment";
 import { AnchorPlacement } from "../router/router";
 import { Connection } from '../connector/connection-impl';
-import { ComponentOptions } from '../component/component';
 import { Orientation } from '../factory/anchor-factory';
 import { Endpoint } from '../endpoint/endpoint';
 import { ViewportElement } from "../viewport";
@@ -69,9 +68,10 @@ export interface PaintGeometry {
     stubs: [number, number];
     anchorOrientation?: string;
 }
-export interface ConnectorOptions extends ComponentOptions {
+export interface ConnectorOptions {
     stub?: number | number[];
     gap?: number;
+    cssClass?: string;
 }
 export interface Connector {
 }

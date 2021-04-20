@@ -17,7 +17,7 @@ export interface ArrowOverlayOptions extends OverlayOptions {
     paintStyle?: PaintStyle;
 }
 export interface LabelOverlayOptions extends OverlayOptions {
-    label: string;
+    label: string | Function;
     labelLocationAttribute?: string;
 }
 export interface CustomOverlayOptions extends OverlayOptions {

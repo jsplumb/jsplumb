@@ -169,7 +169,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     getOffset(el: Element): PointXY;
     getSize(el: Element): Size;
     getStyle(el: Element, prop: string): any;
-    getSelector(ctx: string | Element, spec: string): Array<jsPlumbDOMElement>;
+    getSelector(ctx: string | Element, spec: string): ArrayLike<jsPlumbDOMElement>;
     setPosition(el: Element, p: PointXY): void;
     static getPositionOnElement(evt: Event, el: Element, zoom: number): PointXY;
     setDraggable(element: Element, draggable: boolean): void;
