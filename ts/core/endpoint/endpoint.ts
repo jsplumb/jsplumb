@@ -22,64 +22,163 @@ export interface EndpointStyle extends PaintStyle, Record<string, any> {}
 
 export interface InternalEndpointOptions<E> extends EndpointOptions<E> {
     isTemporarySource?:boolean
-}
-
-export interface EndpointDropOptions {hoverClass?:string, activeClass?:string, rank?:number}
-
-export interface EndpointOptions<E = any> extends ComponentOptions {
-    preparedAnchor?:Anchor
-    anchor?: AnchorSpec
-    anchors?:[ AnchorSpec, AnchorSpec ]
-    endpoint?: EndpointSpec | EndpointRepresentation<E>
-    enabled?: boolean;//= true
-    paintStyle?: PaintStyle
-    hoverPaintStyle?: PaintStyle
-    cssClass?: string
-    hoverClass?: string
-    maxConnections?: number;//= 1?
-    connectorStyle?: PaintStyle
-    connectorHoverStyle?: PaintStyle
-    connector?: ConnectorSpec
-    connectorOverlays?: Array<OverlaySpec>
-    connectorClass?: string
-    connectorHoverClass?: string
-    connectionsDetachable?: boolean//= true
-    isSource?: boolean//= false
-    isTarget?: boolean//= false
-    reattach?: boolean//= false
-    parameters?: object
-    dropOptions?:EndpointDropOptions
-
-    data?:any
-
-    isTemporarySource?:boolean
-
-    connectionType?: string
-    dragProxy?: string | Array<string>
-    id?: string
-    scope?: string
-    reattachConnections?: boolean
-    type?: string; // "Dot", etc.
-    connectorTooltip?:string
-
-    portId?:string
-    uuid?:string
-    source?:E
-
-    connections?:Array<Connection>
-
-    detachable?:boolean
-    dragAllowedWhenFull?:boolean
-
-    onMaxConnections?:(value:any, event?:any) => any
-
-    connectionCost?:number
-    connectionsDirected?:boolean
-    deleteOnEmpty?:boolean
-
     elementId?:string
     _transient?:boolean
+    type?: string; // "Dot", etc.
+    id?: string
+    preparedAnchor?:Anchor
+    connections?:Array<Connection>
+    element?:E
 }
+
+export interface EndpointOptions<E = any> {
+
+    parameters?:Record<string, any>
+
+    scope?:string
+    cssClass?:string
+    data?:any
+    hoverClass?:string
+
+    /**
+     * Optional definition for both the source and target anchors for any connection created with this endpoint as its source.
+     * If you do not supply this, the default `anchors` definition for the jsPlumb instance will be used
+     */
+    anchor?: AnchorSpec
+
+    /**
+     * Optional definition for the source and target anchors for any connection created with this endpoint as its source.
+     * If you do not supply this, the default `anchors` definition for the jsPlumb instance will be used
+     */
+    anchors?:[ AnchorSpec, AnchorSpec ]
+
+    /**
+     * Optional endpoint definition. If you do not supply this, the default endpoint definition for the jsPlumb instance will be used
+     */
+    endpoint?: EndpointSpec | EndpointRepresentation<E>
+
+    /**
+     * Whether or not the endpoint is initially enabled. Defaults to true.
+     */
+    enabled?: boolean
+
+    /**
+     * Optional paint style to assign to the endpoint
+     */
+    paintStyle?: PaintStyle
+
+    /**
+     * Optional paint style to assign, on hover, to the endpoint.
+     */
+    hoverPaintStyle?: PaintStyle
+
+    /**
+     * Maximum number of connections this endpoint supports. Defaults to 1. Use a value of -1 to indicate there is no limit.
+     */
+    maxConnections?: number
+
+    /**
+     * Optional paint style to assign to a connection that is created with this endpoint as its source.
+     */
+    connectorStyle?: PaintStyle
+
+    /**
+     * Optional paint style to assign, on hover, to a connection that is created with this endpoint as its source.
+     */
+    connectorHoverStyle?: PaintStyle
+
+    /**
+     * Optional connector definition for connections that are created with this endpoint as their source.
+     */
+    connector?: ConnectorSpec
+
+    /**
+     * Optional list of overlays to add to a connection that is created with this endpoint as its source.
+     */
+    connectorOverlays?: Array<OverlaySpec>
+
+    /**
+     * Optional class to assign to connections that have this endpoint as their source.
+     */
+    connectorClass?: string
+
+    /**
+     * Optional class to assign, on mouse hover,  to connections that have this endpoint as their source.
+     */
+    connectorHoverClass?: string
+
+    /**
+     * Whether or not connections that have this endpoint as their source are configured to be detachable with the mouse. Defaults to true.
+     */
+    connectionsDetachable?: boolean
+
+    /**
+     * Whether or not this Endpoint acts as a source for connections dragged with the mouse. Defaults to false.
+     */
+    isSource?: boolean//= false
+
+    /**
+     * Whether or not this Endpoint acts as a target for connections dragged with the mouse. Defaults to false.
+     */
+    isTarget?: boolean
+
+    /**
+     * Optional 'type' for connections that have this endpoint as their source.
+     */
+    connectionType?: string
+
+    /**
+     * Whether or not to set `reattach:true` on connections that have this endpoint as their source. Defaults to false.
+     */
+    reattachConnections?: boolean
+
+    /**
+     * Optional tooltip to set on the path for any connections that have this endpoint as their source.
+     */
+    connectorTooltip?:string
+
+    /**
+     * Optional "port id" for this endpoint - a logical mapping of the endpoint to some name.
+     */
+    portId?:string
+
+    /**
+     * Optional user-supplied ID for this endpoint.
+     */
+    uuid?:string
+
+    /**
+     * Whether or not connections can be dragged from the endpoint when it is full. Since no new connection could be dragged from an endpoint that is
+     * full, in a practical sense this means whether or not existing connections can be dragged off an endpoint that is full. Defaults to true.
+     */
+    dragAllowedWhenFull?:boolean
+
+    /**
+     * Optional callback to fire when the endpoint transitions to the state that it is now full.
+     * @param value
+     * @param event
+     */
+    onMaxConnections?:(value:any, event?:any) => any
+
+    /**
+     * Optional cost to set for connections that have this endpoint as their source. Defaults to 1.
+     */
+    connectionCost?:number
+
+    /**
+     * Whether or not connections that have this endpoint as their source are considered "directed".
+     */
+    connectionsDirected?:boolean
+
+    /**
+     * Whether or not to delete the Endpoint if it transitions to the state that it has no connections. Defaults to false. Note that this only
+     * applies if the endpoint previously had one or more connections and now has none: a newly created endpoint with this flag set is not
+     * immediately deleted.
+     */
+    deleteOnEmpty?:boolean
+
+}
+
 
 const typeParameters = [ "connectorStyle", "connectorHoverStyle", "connectorOverlays", "connector", "connectionType", "connectorClass", "connectorHoverClass" ]
 
@@ -136,7 +235,7 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
     connectorStyle:PaintStyle
     connectorHoverStyle:PaintStyle
 
-    dragProxy:any
+    //dragProxy:any
 
     deleteOnEmpty:boolean
 
@@ -166,13 +265,12 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
 
         this.enabled = !(params.enabled === false)
         this.visible = true
-        this.element = params.source
+        this.element = params.element
 
         this.uuid = params.uuid
 
         this.portId = params.portId
         this.elementId = params.elementId
-        this.dragProxy = params.dragProxy
 
         this.connectionCost = params.connectionCost == null ? 1 : params.connectionCost
         this.connectionsDirected = params.connectionsDirected
@@ -200,9 +298,9 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
 
         this.scope = params.scope || instance.defaultScope
         this.timestamp = null
-        this.reattachConnections = params.reattach || instance.Defaults.reattachConnections
+        this.reattachConnections = params.reattachConnections || instance.Defaults.reattachConnections
         this.connectionsDetachable = instance.Defaults.connectionsDetachable
-        if (params.connectionsDetachable === false || params.detachable === false) {
+        if (params.connectionsDetachable === false) {
             this.connectionsDetachable = false
         }
         this.dragAllowedWhenFull = params.dragAllowedWhenFull !== false
