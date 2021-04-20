@@ -245,14 +245,14 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
                     wh: sourceInfo,
                     element: sE,
                     timestamp: timestamp,
-                    rotation:this.instance.getRotations(connection.sourceId)
+                    rotation:this.instance._getRotations(connection.sourceId)
             }),
             tAnchorP = this.getEndpointLocation(tE, {
                 xy: targetInfo,
                 wh: targetInfo,
                 element: tE,
                 timestamp: timestamp,
-                rotation:this.instance.getRotations(connection.targetId)
+                rotation:this.instance._getRotations(connection.targetId)
             })
 
         connection.connector.resetBounds()
@@ -467,8 +467,8 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
                                 this._updateAnchorList( this.anchorLists[targetId], -Math.PI / 2, 0, conn, false, sourceId, 1, false, "top", connectionsToPaint, endpointsToPaint)
                             }
                             else {
-                                const sourceRotation = this.instance.getRotations(sourceId)
-                                const targetRotation = this.instance.getRotations(targetId)
+                                const sourceRotation = this.instance._getRotations(sourceId)
+                                const targetRotation = this.instance._getRotations(targetId)
 
                                 if (!o) {
                                     o = this.calculateOrientation(sourceId, targetId, sd, td,
@@ -593,7 +593,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
 
                 if (dim[i][1] != null && dim[i][1].length > 0) {
                     for (let axis in midpoints[types[i]]) {
-                        midpoints[types[i]][axis] = this.instance.applyRotationsXY(midpoints[types[i]][axis], dim[i][1])
+                        midpoints[types[i]][axis] = this.instance._applyRotationsXY(midpoints[types[i]][axis], dim[i][1])
                     }
                 }
 
