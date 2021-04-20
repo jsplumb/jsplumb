@@ -61,9 +61,10 @@ export interface PaintGeometry {
     anchorOrientation?:string
 }
 
-export interface ConnectorOptions extends ComponentOptions {
+export interface ConnectorOptions {
     stub?:number|number[]
     gap?:number
+    cssClass?:string
 }
 
 export interface Connector {
