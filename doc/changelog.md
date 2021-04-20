@@ -1,3 +1,10 @@
+## 4.0.0-RC87
+
+- internal improvements to the code that handles connection dragging
+- extra tests for connection dragging, in particular detaching existing connections and reattaching elsewhere
+- added support for CSS3 selectors as argument to `manageAll`
+- reorganised tests suites for the various dragging functionality jsPlumb supports
+
 ## 4.0.0-RC86
 
 15th April 2021
