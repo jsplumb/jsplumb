@@ -240,6 +240,11 @@ if (Array.prototype.forEach == null) {
         _jsPlumb.trigger(document, "mouseup", _distantPointEvent);
     };
 
+    var _detachConnectionByTarget = function(_jsPlumb, c) {
+        var idx = c.endpoints[1].connections.indexOf(c);
+        _detachConnection(_jsPlumb, c.endpoints[1], idx);
+    }
+
     var _relocateTarget = function(_jsPlumb, conn, target, events) {
         _relocate(_jsPlumb, conn, 1, target, events);
     };
@@ -260,7 +265,7 @@ if (Array.prototype.forEach == null) {
         events.beforeMouseMove && events.beforeMouseMove();
         _jsPlumb.trigger(document, "mousemove", e2);
         events.beforeMouseUp && events.beforeMouseUp();
-         _jsPlumb.trigger(document, "mouseup", e2);
+        _jsPlumb.trigger(newEl, "mouseup", e2);
 
         events.after && events.after();
     };
@@ -383,6 +388,7 @@ if (Array.prototype.forEach == null) {
                 dragtoDistantLand:_dragAndAbort.bind(null, _jsPlumb),
 
                 detachConnection:_detachConnection.bind(null, _jsPlumb),
+                detachConnectionByTarget:_detachConnectionByTarget.bind(null, _jsPlumb),
 
                 relocate:_relocate.bind(null, _jsPlumb),
 
