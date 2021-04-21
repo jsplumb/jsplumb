@@ -29,6 +29,7 @@ export interface InternalEndpointOptions<E> extends EndpointOptions<E> {
     preparedAnchor?:Anchor
     connections?:Array<Connection>
     element?:E
+    existingEndpoint?:EndpointRepresentation<E>
 }
 
 export interface EndpointOptions<E = any> {
@@ -55,7 +56,7 @@ export interface EndpointOptions<E = any> {
     /**
      * Optional endpoint definition. If you do not supply this, the default endpoint definition for the jsPlumb instance will be used
      */
-    endpoint?: EndpointSpec | EndpointRepresentation<E>
+    endpoint?: EndpointSpec
 
     /**
      * Whether or not the endpoint is initially enabled. Defaults to true.
@@ -131,11 +132,6 @@ export interface EndpointOptions<E = any> {
      * Whether or not to set `reattach:true` on connections that have this endpoint as their source. Defaults to false.
      */
     reattachConnections?: boolean
-
-    /**
-     * Optional tooltip to set on the path for any connections that have this endpoint as their source.
-     */
-    connectorTooltip?:string
 
     /**
      * Optional "port id" for this endpoint - a logical mapping of the endpoint to some name.
@@ -257,8 +253,7 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
             connectorClass: params.connectorClass,
             connectorHoverClass: params.connectorHoverClass,
             connectorOverlays: params.connectorOverlays,
-            connector: params.connector,
-            connectorTooltip: params.connectorTooltip
+            connector: params.connector
         })
 
         this.enabled = !(params.enabled === false)
@@ -307,8 +302,8 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
             this.bind(EVENT_MAX_CONNECTIONS, params.onMaxConnections)
         }
 
-        let ep = params.endpoint || instance.Defaults.endpoint
-        this.setEndpoint(ep as any)
+        let ep = params.endpoint || params.existingEndpoint || instance.Defaults.endpoint
+        this.setEndpoint(ep)
 
         if (params.preparedAnchor != null) {
             this.setPreparedAnchor(params.preparedAnchor)
@@ -556,7 +551,7 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         return endpoint
     }
 
-    setEndpoint(ep:EndpointSpec) {
+    setEndpoint<C>(ep:EndpointSpec | EndpointRepresentation<C>) {
         let _ep = this.prepareEndpoint(ep)
         this.setPreparedEndpoint(_ep)
     }
