@@ -2370,13 +2370,20 @@
       reference: referenceAnchor,
       referenceCanvas: referenceCanvas
     });
-    var ep = instance._internal_newEndpoint({
+    var p = {
       paintStyle: paintStyle,
-      endpoint: endpoint,
       preparedAnchor: floatingAnchor,
       element: sourceElement,
       scope: scope
-    });
+    };
+    if (endpoint != null) {
+      if (core.isAssignableFrom(endpoint, core.EndpointRepresentation)) {
+        p.existingEndpoint = endpoint;
+      } else {
+        p.endpoint = endpoint;
+      }
+    }
+    var ep = instance._internal_newEndpoint(p);
     instance.paintEndpoint(ep, {});
     return ep;
   }
@@ -2462,7 +2469,7 @@
             e.stopImmediatePropagation && e.stopImmediatePropagation();
             return false;
           }
-          var elxy = BrowserJsPlumbInstance.getPositionOnElement(e, targetEl, this.instance.currentZoom);
+          var elxy = getPositionOnElement(e, targetEl, this.instance.currentZoom);
           var tempEndpointParams = {};
           core.extend(tempEndpointParams, def);
           tempEndpointParams.isTemporarySource = true;
@@ -2526,7 +2533,7 @@
         var n = createElement("div", {
           position: "absolute"
         });
-        this.instance.appendElement(n, this.instance.getContainer());
+        this.instance._appendElement(n, this.instance.getContainer());
         var id = this.instance.getId(n);
         this.instance.setPosition(n, ipco);
         n.style.width = ips.w + "px";
@@ -3575,7 +3582,7 @@
             o.canvas = HTMLElementOverlay.createElement(o);
           }
           o.canvas.style.position = "absolute";
-          o.instance.appendElement(o.canvas, o.instance.getContainer());
+          o.instance._appendElement(o.canvas, o.instance.getContainer());
           o.instance.getId(o.canvas);
           var ts = "translate(-50%, -50%)";
           o.canvas.style.webkitTransform = ts;
@@ -3805,7 +3812,7 @@
             "position": "absolute"
           });
           c.canvas = svg;
-          c.instance.appendElement(c.canvas, c.instance.getContainer());
+          c.instance._appendElement(c.canvas, c.instance.getContainer());
           if (c.cssClass != null) {
             c.instance.addClass(svg, c.cssClass);
           }
@@ -3851,7 +3858,7 @@
           if (!ep.instance._suspendDrawing) {
             _size(canvas, 0, 0, 1, 1);
           }
-          ep.instance.appendElement(canvas, ep.instance.getContainer());
+          ep.instance._appendElement(canvas, ep.instance.getContainer());
           canvas.appendChild(svg);
           if (ep.cssClass != null) {
             ep.instance.addClass(canvas, ep.cssClass);
@@ -3887,6 +3894,34 @@
   var endpointMap = {};
   function registerEndpointRenderer(name, fns) {
     endpointMap[name] = fns;
+  }
+  function getPositionOnElement(evt, el, zoom) {
+    var jel = el;
+    var box = _typeof(el.getBoundingClientRect) !== core.UNDEFINED ? el.getBoundingClientRect() : {
+      left: 0,
+      top: 0,
+      width: 0,
+      height: 0
+    },
+        body = document.body,
+        docElem = document.documentElement,
+        scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop,
+        scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
+        clientTop = docElem.clientTop || body.clientTop || 0,
+        clientLeft = docElem.clientLeft || body.clientLeft || 0,
+        pst = 0,
+        psl = 0,
+        top = box.top + scrollTop - clientTop + pst * zoom,
+        left = box.left + scrollLeft - clientLeft + psl * zoom,
+        cl = pageLocation(evt),
+        w = box.width || jel.offsetWidth * zoom,
+        h = box.height || jel.offsetHeight * zoom,
+        x = (cl.x - left) / w,
+        y = (cl.y - top) / h;
+    return {
+      x: x,
+      y: y
+    };
   }
   function isSVGElementOverlay(o) {
     return core.isArrowOverlay(o) || core.isDiamondOverlay(o) || core.isPlainArrowOverlay(o);
@@ -4094,20 +4129,20 @@
         });
       }
     }, {
-      key: "removeElement",
-      value: function removeElement(element) {
+      key: "_removeElement",
+      value: function _removeElement(element) {
         element.parentNode && element.parentNode.removeChild(element);
       }
     }, {
-      key: "appendElement",
-      value: function appendElement(el, parent) {
+      key: "_appendElement",
+      value: function _appendElement(el, parent) {
         if (parent) {
           parent.appendChild(el);
         }
       }
     }, {
-      key: "getChildElements",
-      value: function getChildElements(el) {
+      key: "_getChildElements",
+      value: function _getChildElements(el) {
         var out = [];
         if (el && el.nodeType !== 3 && el.nodeType !== 8) {
           for (var i = 0, ii = el.childNodes.length; i < ii; i++) {
@@ -4607,11 +4642,11 @@
       key: "reattachOverlay",
       value: function reattachOverlay(o, c) {
         if (core.isLabelOverlay(o)) {
-          o.instance.appendElement(getLabelElement(o), this.getContainer());
+          o.instance._appendElement(getLabelElement(o), this.getContainer());
         } else if (core.isCustomOverlay(o)) {
-          o.instance.appendElement(getCustomElement(o), this.getContainer());
+          o.instance._appendElement(getCustomElement(o), this.getContainer());
         } else if (isSVGElementOverlay(o)) {
-          this.appendElement(SVGElementOverlay.ensurePath(o), c.connector.canvas);
+          this._appendElement(SVGElementOverlay.ensurePath(o), c.connector.canvas);
         }
       }
     }, {
@@ -4752,9 +4787,10 @@
           var method = h ? "addClass" : "removeClass";
           var canvas = connector.canvas;
           if (canvas != null) {
-            if (this.hoverClass != null) {
-              this[method](canvas, this.hoverClass);
+            if (connector.hoverClass != null) {
+              this[method](canvas, connector.hoverClass);
             }
+            this[method](canvas, this.hoverClass);
           }
           if (connector.connection.hoverPaintStyle != null) {
             connector.connection.paintStyleInUse = h ? connector.connection.hoverPaintStyle : connector.connection.paintStyle;
@@ -4870,8 +4906,8 @@
           var method = h ? "addClass" : "removeClass";
           var canvas = getEndpointCanvas(endpoint.endpoint);
           if (canvas != null) {
-            if (this.hoverClass != null) {
-              this[method](canvas, this.hoverClass);
+            if (endpoint.hoverClass != null) {
+              this[method](canvas, endpoint.hoverClass);
             }
           }
           if (endpoint.hoverPaintStyle != null) {
@@ -4914,36 +4950,6 @@
       value: function removeSourceSelector(selector) {
         this.removeDragFilter(selector.selector);
         _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "removeSourceSelector", this).call(this, selector);
-      }
-    }], [{
-      key: "getPositionOnElement",
-      value: function getPositionOnElement(evt, el, zoom) {
-        var jel = el;
-        var box = _typeof(el.getBoundingClientRect) !== core.UNDEFINED ? el.getBoundingClientRect() : {
-          left: 0,
-          top: 0,
-          width: 0,
-          height: 0
-        },
-            body = document.body,
-            docElem = document.documentElement,
-            scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop,
-            scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
-            clientTop = docElem.clientTop || body.clientTop || 0,
-            clientLeft = docElem.clientLeft || body.clientLeft || 0,
-            pst = 0,
-            psl = 0,
-            top = box.top + scrollTop - clientTop + pst * zoom,
-            left = box.left + scrollLeft - clientLeft + psl * zoom,
-            cl = pageLocation(evt),
-            w = box.width || jel.offsetWidth * zoom,
-            h = box.height || jel.offsetHeight * zoom,
-            x = (cl.x - left) / w,
-            y = (cl.y - top) / h;
-        return {
-          x: x,
-          y: y
-        };
       }
     }]);
     return BrowserJsPlumbInstance;
@@ -5048,6 +5054,7 @@
   exports.findParent = findParent;
   exports.getClass = getClass;
   exports.getEventSource = getEventSource;
+  exports.getPositionOnElement = getPositionOnElement;
   exports.getTouch = getTouch;
   exports.hasClass = hasClass;
   exports.isArrayLike = isArrayLike;

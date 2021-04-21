@@ -1,4 +1,4 @@
-import { isString, forEach, fastTrim, isArray, log, NONE, EVENT_CONTEXTMENU, removeWithFunction, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, uuid, IS, extend, wrap, getWithFunction, SELECTOR_MANAGED_ELEMENT, cls, CLASS_OVERLAY, ATTRIBUTE_NOT_DRAGGABLE, FALSE as FALSE$1, optional, getFromSetWithFunction, intersects, CLASS_ENDPOINT, each, SOURCE, TARGET, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_START_DETACH, makeAnchorFromSpec, AnchorLocations, ATTRIBUTE_SCOPE_PREFIX, SELECTOR_JTK_TARGET, SELECTOR_JTK_SOURCE, findWithFunction, findAllWithFunction, getAllWithFunction, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, SELECTOR_GROUP, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, Connection, Endpoint, Overlay, TRUE as TRUE$1, EVENT_CLICK, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, UNDEFINED, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, fromArray, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE as EVENT_MOUSEMOVE$1, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, EndpointRepresentation, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/core';
+import { isString, forEach, fastTrim, isArray, log, NONE, EVENT_CONTEXTMENU, removeWithFunction, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, uuid, IS, extend, wrap, getWithFunction, SELECTOR_MANAGED_ELEMENT, cls, CLASS_OVERLAY, ATTRIBUTE_NOT_DRAGGABLE, FALSE as FALSE$1, optional, getFromSetWithFunction, intersects, CLASS_ENDPOINT, each, SOURCE, TARGET, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_START_DETACH, makeAnchorFromSpec, AnchorLocations, ATTRIBUTE_SCOPE_PREFIX, SELECTOR_JTK_TARGET, SELECTOR_JTK_SOURCE, findWithFunction, findAllWithFunction, getAllWithFunction, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, isAssignableFrom, EndpointRepresentation, SELECTOR_GROUP, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, Connection, Endpoint, Overlay, TRUE as TRUE$1, UNDEFINED, EVENT_CLICK, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, fromArray, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE as EVENT_MOUSEMOVE$1, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/core';
 
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -2366,13 +2366,20 @@ function _makeFloatingEndpoint(paintStyle, referenceAnchor, endpoint, referenceC
     reference: referenceAnchor,
     referenceCanvas: referenceCanvas
   });
-  var ep = instance._internal_newEndpoint({
+  var p = {
     paintStyle: paintStyle,
-    endpoint: endpoint,
     preparedAnchor: floatingAnchor,
     element: sourceElement,
     scope: scope
-  });
+  };
+  if (endpoint != null) {
+    if (isAssignableFrom(endpoint, EndpointRepresentation)) {
+      p.existingEndpoint = endpoint;
+    } else {
+      p.endpoint = endpoint;
+    }
+  }
+  var ep = instance._internal_newEndpoint(p);
   instance.paintEndpoint(ep, {});
   return ep;
 }
@@ -2458,7 +2465,7 @@ function () {
           e.stopImmediatePropagation && e.stopImmediatePropagation();
           return false;
         }
-        var elxy = BrowserJsPlumbInstance.getPositionOnElement(e, targetEl, this.instance.currentZoom);
+        var elxy = getPositionOnElement(e, targetEl, this.instance.currentZoom);
         var tempEndpointParams = {};
         extend(tempEndpointParams, def);
         tempEndpointParams.isTemporarySource = true;
@@ -2522,7 +2529,7 @@ function () {
       var n = createElement("div", {
         position: "absolute"
       });
-      this.instance.appendElement(n, this.instance.getContainer());
+      this.instance._appendElement(n, this.instance.getContainer());
       var id = this.instance.getId(n);
       this.instance.setPosition(n, ipco);
       n.style.width = ips.w + "px";
@@ -3571,7 +3578,7 @@ function () {
           o.canvas = HTMLElementOverlay.createElement(o);
         }
         o.canvas.style.position = "absolute";
-        o.instance.appendElement(o.canvas, o.instance.getContainer());
+        o.instance._appendElement(o.canvas, o.instance.getContainer());
         o.instance.getId(o.canvas);
         var ts = "translate(-50%, -50%)";
         o.canvas.style.webkitTransform = ts;
@@ -3801,7 +3808,7 @@ function () {
           "position": "absolute"
         });
         c.canvas = svg;
-        c.instance.appendElement(c.canvas, c.instance.getContainer());
+        c.instance._appendElement(c.canvas, c.instance.getContainer());
         if (c.cssClass != null) {
           c.instance.addClass(svg, c.cssClass);
         }
@@ -3847,7 +3854,7 @@ function () {
         if (!ep.instance._suspendDrawing) {
           _size(canvas, 0, 0, 1, 1);
         }
-        ep.instance.appendElement(canvas, ep.instance.getContainer());
+        ep.instance._appendElement(canvas, ep.instance.getContainer());
         canvas.appendChild(svg);
         if (ep.cssClass != null) {
           ep.instance.addClass(canvas, ep.cssClass);
@@ -3883,6 +3890,34 @@ function () {
 var endpointMap = {};
 function registerEndpointRenderer(name, fns) {
   endpointMap[name] = fns;
+}
+function getPositionOnElement(evt, el, zoom) {
+  var jel = el;
+  var box = _typeof(el.getBoundingClientRect) !== UNDEFINED ? el.getBoundingClientRect() : {
+    left: 0,
+    top: 0,
+    width: 0,
+    height: 0
+  },
+      body = document.body,
+      docElem = document.documentElement,
+      scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop,
+      scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
+      clientTop = docElem.clientTop || body.clientTop || 0,
+      clientLeft = docElem.clientLeft || body.clientLeft || 0,
+      pst = 0,
+      psl = 0,
+      top = box.top + scrollTop - clientTop + pst * zoom,
+      left = box.left + scrollLeft - clientLeft + psl * zoom,
+      cl = pageLocation(evt),
+      w = box.width || jel.offsetWidth * zoom,
+      h = box.height || jel.offsetHeight * zoom,
+      x = (cl.x - left) / w,
+      y = (cl.y - top) / h;
+  return {
+    x: x,
+    y: y
+  };
 }
 function isSVGElementOverlay(o) {
   return isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o);
@@ -4090,20 +4125,20 @@ function (_JsPlumbInstance) {
       });
     }
   }, {
-    key: "removeElement",
-    value: function removeElement(element) {
+    key: "_removeElement",
+    value: function _removeElement(element) {
       element.parentNode && element.parentNode.removeChild(element);
     }
   }, {
-    key: "appendElement",
-    value: function appendElement(el, parent) {
+    key: "_appendElement",
+    value: function _appendElement(el, parent) {
       if (parent) {
         parent.appendChild(el);
       }
     }
   }, {
-    key: "getChildElements",
-    value: function getChildElements(el) {
+    key: "_getChildElements",
+    value: function _getChildElements(el) {
       var out = [];
       if (el && el.nodeType !== 3 && el.nodeType !== 8) {
         for (var i = 0, ii = el.childNodes.length; i < ii; i++) {
@@ -4603,11 +4638,11 @@ function (_JsPlumbInstance) {
     key: "reattachOverlay",
     value: function reattachOverlay(o, c) {
       if (isLabelOverlay(o)) {
-        o.instance.appendElement(getLabelElement(o), this.getContainer());
+        o.instance._appendElement(getLabelElement(o), this.getContainer());
       } else if (isCustomOverlay(o)) {
-        o.instance.appendElement(getCustomElement(o), this.getContainer());
+        o.instance._appendElement(getCustomElement(o), this.getContainer());
       } else if (isSVGElementOverlay(o)) {
-        this.appendElement(SVGElementOverlay.ensurePath(o), c.connector.canvas);
+        this._appendElement(SVGElementOverlay.ensurePath(o), c.connector.canvas);
       }
     }
   }, {
@@ -4748,9 +4783,10 @@ function (_JsPlumbInstance) {
         var method = h ? "addClass" : "removeClass";
         var canvas = connector.canvas;
         if (canvas != null) {
-          if (this.hoverClass != null) {
-            this[method](canvas, this.hoverClass);
+          if (connector.hoverClass != null) {
+            this[method](canvas, connector.hoverClass);
           }
+          this[method](canvas, this.hoverClass);
         }
         if (connector.connection.hoverPaintStyle != null) {
           connector.connection.paintStyleInUse = h ? connector.connection.hoverPaintStyle : connector.connection.paintStyle;
@@ -4866,8 +4902,8 @@ function (_JsPlumbInstance) {
         var method = h ? "addClass" : "removeClass";
         var canvas = getEndpointCanvas(endpoint.endpoint);
         if (canvas != null) {
-          if (this.hoverClass != null) {
-            this[method](canvas, this.hoverClass);
+          if (endpoint.hoverClass != null) {
+            this[method](canvas, endpoint.hoverClass);
           }
         }
         if (endpoint.hoverPaintStyle != null) {
@@ -4910,36 +4946,6 @@ function (_JsPlumbInstance) {
     value: function removeSourceSelector(selector) {
       this.removeDragFilter(selector.selector);
       _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "removeSourceSelector", this).call(this, selector);
-    }
-  }], [{
-    key: "getPositionOnElement",
-    value: function getPositionOnElement(evt, el, zoom) {
-      var jel = el;
-      var box = _typeof(el.getBoundingClientRect) !== UNDEFINED ? el.getBoundingClientRect() : {
-        left: 0,
-        top: 0,
-        width: 0,
-        height: 0
-      },
-          body = document.body,
-          docElem = document.documentElement,
-          scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop,
-          scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
-          clientTop = docElem.clientTop || body.clientTop || 0,
-          clientLeft = docElem.clientLeft || body.clientLeft || 0,
-          pst = 0,
-          psl = 0,
-          top = box.top + scrollTop - clientTop + pst * zoom,
-          left = box.left + scrollLeft - clientLeft + psl * zoom,
-          cl = pageLocation(evt),
-          w = box.width || jel.offsetWidth * zoom,
-          h = box.height || jel.offsetHeight * zoom,
-          x = (cl.x - left) / w,
-          y = (cl.y - top) / h;
-      return {
-        x: x,
-        y: y
-      };
     }
   }]);
   return BrowserJsPlumbInstance;
@@ -5021,4 +5027,4 @@ function ready(f) {
   _do();
 }
 
-export { BrowserJsPlumbInstance, Collicat, Drag, EVENT_BEFORE_START, EVENT_CONNECTION_ABORT, EVENT_CONNECTION_DRAG, EVENT_DRAG, EVENT_DRAG_MOVE, EVENT_DRAG_START, EVENT_DRAG_STOP, EVENT_DROP, EVENT_OUT, EVENT_OVER, EVENT_START, EVENT_STOP, EventManager, addClass, consume, createElement, createElementNS, findParent, getClass, getEventSource, getTouch, hasClass, isArrayLike, isNodeList, matchesSelector, newInstance, offsetRelativeToRoot, pageLocation, ready, registerEndpointRenderer, removeClass, size, toggleClass, touchCount, touches };
+export { BrowserJsPlumbInstance, Collicat, Drag, EVENT_BEFORE_START, EVENT_CONNECTION_ABORT, EVENT_CONNECTION_DRAG, EVENT_DRAG, EVENT_DRAG_MOVE, EVENT_DRAG_START, EVENT_DRAG_STOP, EVENT_DROP, EVENT_OUT, EVENT_OVER, EVENT_START, EVENT_STOP, EventManager, addClass, consume, createElement, createElementNS, findParent, getClass, getEventSource, getPositionOnElement, getTouch, hasClass, isArrayLike, isNodeList, matchesSelector, newInstance, offsetRelativeToRoot, pageLocation, ready, registerEndpointRenderer, removeClass, size, toggleClass, touchCount, touches };

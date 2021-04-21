@@ -13,6 +13,7 @@ export declare type EndpointHelperFunctions<E> = {
     updateNode: (ep: E, node: SVGElement) => void;
 };
 export declare function registerEndpointRenderer<C>(name: string, fns: EndpointHelperFunctions<C>): void;
+export declare function getPositionOnElement(evt: Event, el: Element, zoom: number): PointXY;
 export interface DragOptions {
     containment?: ContainmentType;
     start?: (params: DragStartEventParams) => void;
@@ -107,9 +108,9 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
      * @param grid [x, y] grid.
      */
     setDragGrid(grid: [number, number]): void;
-    removeElement(element: Element): void;
-    appendElement(el: Element, parent: Element): void;
-    getChildElements(el: Element): Array<Element>;
+    _removeElement(element: Element): void;
+    _appendElement(el: Element, parent: Element): void;
+    _getChildElements(el: Element): Array<Element>;
     _getAssociatedElements(el: Element): Array<Element>;
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
     getClass(el: Element): string;
@@ -170,8 +171,12 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     getSize(el: Element): Size;
     getStyle(el: Element, prop: string): any;
     getSelector(ctx: string | Element, spec: string): ArrayLike<jsPlumbDOMElement>;
+    /**
+     * Sets the position of the given element.
+     * @param el Element to change position for
+     * @param p New location for the element.
+     */
     setPosition(el: Element, p: PointXY): void;
-    static getPositionOnElement(evt: Event, el: Element, zoom: number): PointXY;
     setDraggable(element: Element, draggable: boolean): void;
     isDraggable(el: Element): boolean;
     toggleDraggable(el: Element): boolean;

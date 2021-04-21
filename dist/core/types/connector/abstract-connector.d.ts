@@ -72,6 +72,7 @@ export interface ConnectorOptions {
     stub?: number | number[];
     gap?: number;
     cssClass?: string;
+    hoverClass?: string;
 }
 export interface Connector {
 }
@@ -105,6 +106,7 @@ export declare abstract class AbstractConnector implements Connector {
     segment: number;
     bounds: SegmentBounds;
     cssClass: string;
+    hoverClass: string;
     abstract getDefaultStubs(): [number, number];
     geometry: Geometry;
     constructor(instance: JsPlumbInstance, connection: Connection, params: ConnectorOptions);

@@ -1,5 +1,5 @@
 import { JsPlumbInstance } from "../core";
-import { TypeDescriptor } from '../common';
+import { ConnectionTypeDescriptor } from '../common';
 import { AbstractConnector } from "./abstract-connector";
 import { Endpoint } from "../endpoint/endpoint";
 import { PaintStyle } from "../styles";
@@ -90,7 +90,7 @@ export declare class Connection<E = any> extends OverlayCapableComponent {
     setDetachable(detachable: boolean): void;
     isReattach(): boolean;
     setReattach(reattach: boolean): void;
-    applyType(t: TypeDescriptor, typeMap: any): void;
+    applyType(t: ConnectionTypeDescriptor, typeMap: any): void;
     addClass(c: string, informEndpoints?: boolean): void;
     removeClass(c: string, informEndpoints?: boolean): void;
     setVisible(v: boolean): void;

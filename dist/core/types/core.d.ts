@@ -4,7 +4,7 @@ import { Endpoint, EndpointSpec } from "./endpoint/endpoint";
 import { AnchorPlacement, RedrawResult } from "./router/router";
 import { RotatedPointXY } from "./util";
 import { Dictionary, UpdateOffsetOptions, Size, jsPlumbElement, ConnectParams, // <--
-SourceDefinition, TargetDefinition, BehaviouralTypeDescriptor, TypeDescriptor, Rotations, PointXY, ConnectionMovedParams } from './common';
+SourceDefinition, TargetDefinition, BehaviouralTypeDescriptor, TypeDescriptor, Rotations, PointXY, ConnectionMovedParams, ConnectionTypeDescriptor, EndpointTypeDescriptor } from './common';
 import { EventGenerator } from "./event-generator";
 import { EndpointOptions, InternalEndpointOptions } from "./endpoint/endpoint";
 import { AddGroupOptions, GroupManager } from "./group/group-manager";
@@ -247,7 +247,7 @@ export declare abstract class JsPlumbInstance<T extends {
      */
     _internal_newEndpoint(params: InternalEndpointOptions<T["E"]>, id?: string): Endpoint;
     /**
-     * For internal use. For the given inputs, derive an approriate anchor and endpoint definition.
+     * For internal use. For the given inputs, derive an appropriate anchor and endpoint definition.
      * @param type
      * @param dontPrependDefault
      * @private
@@ -544,6 +544,8 @@ export declare abstract class JsPlumbInstance<T extends {
     registerEndpointType(id: string, type: TypeDescriptor): void;
     registerEndpointTypes(types: Dictionary<TypeDescriptor>): void;
     getType(id: string, typeDescriptor: string): TypeDescriptor;
+    getConnectionType(id: string): ConnectionTypeDescriptor;
+    getEndpointType(id: string): EndpointTypeDescriptor;
     importDefaults(d: jsPlumbDefaults<T["E"]>): JsPlumbInstance;
     restoreDefaults(): JsPlumbInstance;
     getManagedElements(): Dictionary<ManagedElement<T["E"]>>;
@@ -580,9 +582,9 @@ export declare abstract class JsPlumbInstance<T extends {
      * @private
      */
     abstract _getAssociatedElements(el: T["E"]): Array<T["E"]>;
-    abstract removeElement(el: T["E"]): void;
-    abstract appendElement(el: T["E"], parent: T["E"]): void;
-    abstract getChildElements(el: T["E"]): Array<T["E"]>;
+    abstract _removeElement(el: T["E"]): void;
+    abstract _appendElement(el: T["E"], parent: T["E"]): void;
+    abstract _getChildElements(el: T["E"]): Array<T["E"]>;
     abstract removeClass(el: T["E"] | ArrayLike<T["E"]>, clazz: string): void;
     abstract addClass(el: T["E"] | ArrayLike<T["E"]>, clazz: string): void;
     abstract toggleClass(el: T["E"] | ArrayLike<T["E"]>, clazz: string): void;

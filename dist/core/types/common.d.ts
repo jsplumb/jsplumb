@@ -3,7 +3,7 @@ import { Endpoint, EndpointStyle } from "./endpoint/endpoint";
 import { EndpointSpec } from "./endpoint/endpoint";
 import { AnchorSpec } from "./factory/anchor-factory";
 import { ConnectorSpec } from "./connector/abstract-connector";
-import { FullOverlaySpec, OverlaySpec } from "./overlay/overlay";
+import { OverlaySpec } from "./overlay/overlay";
 import { PaintStyle } from "./styles";
 import { Connection } from "./connector/connection-impl";
 export declare type UUID = string;
@@ -73,18 +73,27 @@ export interface TypeDescriptor {
     hoverPaintStyle?: PaintStyle;
     parameters?: any;
     overlays?: Array<OverlaySpec>;
-    overlayMap?: Dictionary<FullOverlaySpec>;
-    endpoints?: [EndpointSpec, EndpointSpec];
-    endpoint?: EndpointSpec;
     anchors?: [AnchorSpec, AnchorSpec];
     anchor?: AnchorSpec;
+    scope?: string;
+    mergeStrategy?: string;
+    endpoint?: EndpointSpec;
+    connectorStyle?: PaintStyle;
+    connectorHoverStyle?: PaintStyle;
+    connector?: ConnectorSpec;
+    connectorClass?: string;
+}
+export interface EndpointTypeDescriptor extends TypeDescriptor {
+    connectionsDetachable?: boolean;
+    reattachConnections?: boolean;
+    maxConnections?: number;
+}
+export interface ConnectionTypeDescriptor extends TypeDescriptor {
     detachable?: boolean;
     reattach?: boolean;
-    scope?: string;
-    connector?: ConnectorSpec;
-    mergeStrategy?: string;
+    endpoints?: [EndpointSpec, EndpointSpec];
 }
-export interface BehaviouralTypeDescriptor extends TypeDescriptor {
+export interface BehaviouralTypeDescriptor extends EndpointTypeDescriptor {
     filter?: string | Function;
     filterExclude?: boolean;
     extract?: Dictionary<string>;
@@ -94,8 +103,6 @@ export interface BehaviouralTypeDescriptor extends TypeDescriptor {
     portId?: string;
     allowLoopback?: boolean;
     rank?: number;
-    maxConnections?: number;
-    connectorStyle?: PaintStyle;
     createEndpoint?: boolean;
 }
 export interface SourceOrTargetDefinition {

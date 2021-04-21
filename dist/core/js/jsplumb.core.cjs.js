@@ -1044,6 +1044,7 @@ function () {
     _defineProperty(this, "segment", void 0);
     _defineProperty(this, "bounds", EMPTY_BOUNDS());
     _defineProperty(this, "cssClass", void 0);
+    _defineProperty(this, "hoverClass", void 0);
     _defineProperty(this, "geometry", void 0);
     this.stub = params.stub || this.getDefaultStubs();
     this.sourceStub = isArray(this.stub) ? this.stub[0] : this.stub;
@@ -1053,6 +1054,7 @@ function () {
     this.targetGap = isArray(this.gap) ? this.gap[1] : this.gap;
     this.maxStub = Math.max(this.sourceStub, this.targetStub);
     this.cssClass = params.cssClass || "";
+    this.hoverClass = params.hoverClass || "";
   }
   _createClass(AbstractConnector, [{
     key: "getTypeDescriptor",
@@ -4927,6 +4929,7 @@ function (_OverlayCapableCompon) {
     _this.visible = true;
     _this.params = {
       cssClass: params.cssClass,
+      hoverClass: params.hoverClass,
       "pointer-events": params["pointer-events"],
       overlays: params.overlays
     };
@@ -5165,7 +5168,7 @@ function (_OverlayCapableCompon) {
     value: function prepareConnector(connectorSpec, typeId) {
       var connectorArgs = {
         cssClass: this.params.cssClass,
-        container: this.params.container,
+        hoverClass: this.params.hoverClass,
         "pointer-events": this.params["pointer-events"]
       },
           connector;
@@ -5309,8 +5312,7 @@ function (_OverlayCapableCompon) {
       connectorClass: params.connectorClass,
       connectorHoverClass: params.connectorHoverClass,
       connectorOverlays: params.connectorOverlays,
-      connector: params.connector,
-      connectorTooltip: params.connectorTooltip
+      connector: params.connector
     });
     _this.enabled = !(params.enabled === false);
     _this.visible = true;
@@ -5347,7 +5349,7 @@ function (_OverlayCapableCompon) {
     if (params.onMaxConnections) {
       _this.bind(EVENT_MAX_CONNECTIONS, params.onMaxConnections);
     }
-    var ep = params.endpoint || instance.Defaults.endpoint;
+    var ep = params.endpoint || params.existingEndpoint || instance.Defaults.endpoint;
     _this.setEndpoint(ep);
     if (params.preparedAnchor != null) {
       _this.setPreparedAnchor(params.preparedAnchor);
@@ -5701,7 +5703,7 @@ function (_UINode) {
       }
       __el._jsPlumbParentGroup = this;
       this.children.push(new UINode(this.instance, _el));
-      this.instance.appendElement(__el, dragArea);
+      this.instance._appendElement(__el, dragArea);
       this.manager._updateConnectionsForGroup(this);
     }
   }, {
@@ -5787,7 +5789,7 @@ function (_UINode) {
         var cpos = this.collapsed ? this.instance.getOffsetRelativeToRoot(this.el) : this.instance.getOffsetRelativeToRoot(this.getContentArea());
         group.el._jsPlumbParentGroup = this;
         this.children.push(group);
-        this.instance.appendElement(group.el, this.getContentArea());
+        this.instance._appendElement(group.el, this.getContentArea());
         group.group = this;
         var newPosition = {
           x: elpos.x - cpos.x,
@@ -6086,7 +6088,7 @@ function () {
           pos.y += groupPos.y;
           group.group.getContentArea().appendChild(el);
         } else {
-          this.instance.appendElement(el, this.instance.getContainer());
+          this.instance._appendElement(el, this.instance.getContainer());
         }
         this.instance.setPosition(el, pos);
         delete jel._jsPlumbParentGroup;
@@ -8411,7 +8413,7 @@ function (_EventGenerator) {
           el: _el
         });
         if (_el && removeElement) {
-          _this3.removeElement(_el);
+          _this3._removeElement(_el);
         }
       };
       for (var ae = 1; ae < affectedElements.length; ae++) {
@@ -8518,7 +8520,7 @@ function (_EventGenerator) {
           a = null,
           as = null;
       for (var i = 0; i < bits.length; i++) {
-        var _t = this.getType(bits[i], "connection");
+        var _t = this.getConnectionType(bits[i]);
         if (_t) {
           if (_t.endpoints) {
             eps = _t.endpoints;
@@ -8913,7 +8915,7 @@ function (_EventGenerator) {
         }
         delete _this8.endpointsByElement[id];
         if (recurse) {
-          _this8.getChildElements(_el).map(_one);
+          _this8._getChildElements(_el).map(_one);
         }
       };
       _one(el);
@@ -9342,7 +9344,17 @@ function (_EventGenerator) {
   }, {
     key: "getType",
     value: function getType(id, typeDescriptor) {
-      return typeDescriptor === "connection" ? this._connectionTypes.get(id) : this._endpointTypes.get(id);
+      return typeDescriptor === "connection" ? this.getConnectionType(id) : this.getEndpointType(id);
+    }
+  }, {
+    key: "getConnectionType",
+    value: function getConnectionType(id) {
+      return this._connectionTypes.get(id);
+    }
+  }, {
+    key: "getEndpointType",
+    value: function getEndpointType(id) {
+      return this._endpointTypes.get(id);
     }
   }, {
     key: "importDefaults",
@@ -9508,7 +9520,7 @@ function (_EventGenerator) {
       }
       (_this$groupManager2 = this.groupManager).removeFromGroup.apply(_this$groupManager2, [group, false].concat(el));
       forEach(el, function (_el) {
-        _this10.appendElement(_el, _this10.getContainer());
+        _this10._appendElement(_el, _this10.getContainer());
         _this10.updateOffset({
           recalc: true,
           elId: _this10.getId(_el)

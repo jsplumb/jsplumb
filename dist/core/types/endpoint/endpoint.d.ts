@@ -26,6 +26,7 @@ export interface InternalEndpointOptions<E> extends EndpointOptions<E> {
     preparedAnchor?: Anchor;
     connections?: Array<Connection>;
     element?: E;
+    existingEndpoint?: EndpointRepresentation<E>;
 }
 export interface EndpointOptions<E = any> {
     parameters?: Record<string, any>;
@@ -46,7 +47,7 @@ export interface EndpointOptions<E = any> {
     /**
      * Optional endpoint definition. If you do not supply this, the default endpoint definition for the jsPlumb instance will be used
      */
-    endpoint?: EndpointSpec | EndpointRepresentation<E>;
+    endpoint?: EndpointSpec;
     /**
      * Whether or not the endpoint is initially enabled. Defaults to true.
      */
@@ -107,10 +108,6 @@ export interface EndpointOptions<E = any> {
      * Whether or not to set `reattach:true` on connections that have this endpoint as their source. Defaults to false.
      */
     reattachConnections?: boolean;
-    /**
-     * Optional tooltip to set on the path for any connections that have this endpoint as their source.
-     */
-    connectorTooltip?: string;
     /**
      * Optional "port id" for this endpoint - a logical mapping of the endpoint to some name.
      */
@@ -225,7 +222,7 @@ export declare class Endpoint<E = any> extends OverlayCapableComponent {
     getUuid(): string;
     connectorSelector(): Connection;
     private prepareEndpoint;
-    setEndpoint(ep: EndpointSpec): void;
+    setEndpoint<C>(ep: EndpointSpec | EndpointRepresentation<C>): void;
     private setPreparedEndpoint;
     addClass(clazz: string, dontUpdateOverlays?: boolean): void;
     removeClass(clazz: string, dontUpdateOverlays?: boolean): void;
