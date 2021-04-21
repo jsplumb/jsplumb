@@ -57,7 +57,13 @@ import {
     INTERCEPT_BEFORE_START_DETACH,
     SELECTOR_MANAGED_ELEMENT,
     SELECTOR_JTK_SOURCE,
-    SELECTOR_JTK_TARGET, CLASS_ENDPOINT, ATTRIBUTE_SCOPE_PREFIX, SourceSelector, findAllWithFunction, getAllWithFunction
+    SELECTOR_JTK_TARGET,
+    CLASS_ENDPOINT,
+    ATTRIBUTE_SCOPE_PREFIX,
+    SourceSelector,
+    findAllWithFunction,
+    getAllWithFunction,
+    isAssignableFrom, InternalEndpointOptions
 } from "@jsplumb/core"
 
 function _makeFloatingEndpoint (paintStyle:PaintStyle,
@@ -68,13 +74,23 @@ function _makeFloatingEndpoint (paintStyle:PaintStyle,
                                 instance:BrowserJsPlumbInstance, scope?:string)
 {
     let floatingAnchor = new FloatingAnchor(instance, { reference: referenceAnchor, referenceCanvas: referenceCanvas })
-    let ep = instance._internal_newEndpoint({
+    const p:InternalEndpointOptions<any> = {
         paintStyle: paintStyle,
-        endpoint: endpoint,
         preparedAnchor: floatingAnchor,
         element: sourceElement,
         scope: scope
-    })
+    }
+
+    if (endpoint != null) {
+
+        if (isAssignableFrom(endpoint, EndpointRepresentation)) {
+            p.existingEndpoint = endpoint as EndpointRepresentation<any>
+        } else {
+            p.endpoint = endpoint as EndpointSpec
+        }
+    }
+
+    let ep = instance._internal_newEndpoint(p)
     instance.paintEndpoint(ep, {})
     return ep
 }
