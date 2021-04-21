@@ -95,7 +95,7 @@ import {
     DragHandlerOptions,
     DragStartEventParams,
     DragEventParams,
-    DragStopEventParams, ContainmentType
+    DragStopEventParams, ContainmentType, Grid
 } from './collicat'
 
 import {JsPlumbList, JsPlumbListManager, JsPlumbListOptions} from "./lists"
@@ -118,6 +118,28 @@ export type EndpointHelperFunctions<E> = {
 const endpointMap:Dictionary<EndpointHelperFunctions<any>> = {}
 export function registerEndpointRenderer<C>(name:string, fns:EndpointHelperFunctions<C>) {
     endpointMap[name] = fns
+}
+
+export function getPositionOnElement(evt:Event, el:Element, zoom:number):PointXY {
+    const jel = el as jsPlumbDOMElement
+    let box:any = typeof el.getBoundingClientRect !== UNDEFINED ? el.getBoundingClientRect() : { left: 0, top: 0, width: 0, height: 0 },
+        body = document.body,
+        docElem = document.documentElement,
+        scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop,
+        scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
+        clientTop = docElem.clientTop || body.clientTop || 0,
+        clientLeft = docElem.clientLeft || body.clientLeft || 0,
+        pst = 0,
+        psl = 0,
+        top = box.top + scrollTop - clientTop + (pst * zoom),
+        left = box.left + scrollLeft - clientLeft + (psl * zoom),
+        cl = pageLocation(evt),
+        w = box.width || (jel.offsetWidth * zoom),
+        h = box.height || (jel.offsetHeight * zoom),
+        x = (cl.x - left) / w,
+        y = (cl.y  - top) / h
+
+    return { x, y }
 }
 
 export interface DragOptions {
@@ -415,17 +437,17 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         })
     }
 
-    removeElement(element:Element):void {
+    _removeElement(element:Element):void {
         element.parentNode && element.parentNode.removeChild(element)
     }
 
-    appendElement(el:Element, parent:Element):void {
+    _appendElement(el:Element, parent:Element):void {
         if (parent) {
             parent.appendChild(el)
         }
     }
 
-    getChildElements(el: Element): Array<Element> {
+    _getChildElements(el: Element): Array<Element> {
         const out:Array<Element> = []
         if (el && (<any>el).nodeType !== 3 && (<any>el).nodeType !== 8) {
             for (let i = 0, ii = (<any>el).childNodes.length; i < ii; i++) {
@@ -627,32 +649,15 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         return sel
     }
 
+    /**
+     * Sets the position of the given element.
+     * @param el Element to change position for
+     * @param p New location for the element.
+     */
     setPosition(el:Element, p:PointXY):void {
         const jel = el as jsPlumbDOMElement
         jel.style.left = p.x + "px"
         jel.style.top = p.y + "px"
-    }
-
-    static getPositionOnElement(evt:Event, el:Element, zoom:number):PointXY {
-        const jel = el as jsPlumbDOMElement
-        let box:any = typeof el.getBoundingClientRect !== UNDEFINED ? el.getBoundingClientRect() : { left: 0, top: 0, width: 0, height: 0 },
-            body = document.body,
-            docElem = document.documentElement,
-            scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop,
-            scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
-            clientTop = docElem.clientTop || body.clientTop || 0,
-            clientLeft = docElem.clientLeft || body.clientLeft || 0,
-            pst = 0,
-            psl = 0,
-            top = box.top + scrollTop - clientTop + (pst * zoom),
-            left = box.left + scrollLeft - clientLeft + (psl * zoom),
-            cl = pageLocation(evt),
-            w = box.width || (jel.offsetWidth * zoom),
-            h = box.height || (jel.offsetHeight * zoom),
-            x = (cl.x - left) / w,
-            y = (cl.y  - top) / h
-
-        return { x, y }
     }
 
     setDraggable(element:Element, draggable:boolean) {
@@ -1008,12 +1013,12 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
     reattachOverlay(o: Overlay, c: OverlayCapableComponent): void {
         if (isLabelOverlay(o)) {
-            o.instance.appendElement(getLabelElement(o), this.getContainer())
+            o.instance._appendElement(getLabelElement(o), this.getContainer())
         } else if (isCustomOverlay(o)) {
-            o.instance.appendElement(getCustomElement(o), this.getContainer())
+            o.instance._appendElement(getCustomElement(o), this.getContainer())
         }
         else if (isSVGElementOverlay(o)){
-            this.appendElement(SVGElementOverlay.ensurePath(o), (c as any).connector.canvas)
+            this._appendElement(SVGElementOverlay.ensurePath(o), (c as any).connector.canvas)
         }
     }
 

@@ -273,7 +273,7 @@ export class GroupManager<E> {
                 pos.y += groupPos.y
                 group.group.getContentArea().appendChild(el); // set as child of parent group, if there is one.
             } else {
-                this.instance.appendElement(el, this.instance.getContainer()); // set back as child of container
+                this.instance._appendElement(el, this.instance.getContainer()); // set back as child of container
             }
 
             this.instance.setPosition(el, pos)

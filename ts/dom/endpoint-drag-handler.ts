@@ -7,7 +7,7 @@ import {
     EVENT_CONNECTION_ABORT,
     EVENT_CONNECTION_DRAG
 } from "./drag-manager"
-import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
+import {BrowserJsPlumbInstance, getPositionOnElement} from "./browser-jsplumb-instance"
 import { jsPlumbDOMElement} from './element-facade'
 
 import {consume, createElement, findParent} from "./browser-util"
@@ -183,7 +183,7 @@ export class EndpointDragHandler implements DragHandler {
 
             // find the position on the element at which the mouse was pressed; this is where the endpoint
             // will be located.
-            let elxy = BrowserJsPlumbInstance.getPositionOnElement(e, targetEl, this.instance.currentZoom)
+            let elxy = getPositionOnElement(e, targetEl, this.instance.currentZoom)
 
             // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
             // the params passed in, because after a connection is established we're going to reset the endpoint
@@ -285,7 +285,7 @@ export class EndpointDragHandler implements DragHandler {
         this.placeholderInfo = this.placeholderInfo || {}
 
         let n = createElement("div", { position : "absolute" }) as jsPlumbDOMElement
-        this.instance.appendElement(n, this.instance.getContainer())
+        this.instance._appendElement(n, this.instance.getContainer())
         let id = this.instance.getId(n)
         this.instance.setPosition(n, ipco)
         n.style.width = ips.w + "px"

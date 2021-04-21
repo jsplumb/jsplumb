@@ -118,7 +118,7 @@ export class UIGroup<E = any> extends UINode<E> {
 
             __el._jsPlumbParentGroup = this
             this.children.push(new UINode<E>(this.instance, _el))
-            this.instance.appendElement(__el, dragArea)
+            this.instance._appendElement(__el, dragArea)
        // })
 
         this.manager._updateConnectionsForGroup(this)
@@ -210,7 +210,7 @@ export class UIGroup<E = any> extends UINode<E> {
 
             this.children.push(group)
 
-            this.instance.appendElement(group.el, this.getContentArea())
+            this.instance._appendElement(group.el, this.getContentArea())
 
             group.group = this
             let newPosition = {x: elpos.x - cpos.x, y: elpos.y - cpos.y}

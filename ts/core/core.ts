@@ -857,7 +857,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             this.fire<{el:T["E"]}>(Constants.EVENT_UNMANAGE_ELEMENT, {el:_el})
 
             if (_el && removeElement) {
-                this.removeElement(_el)
+                this._removeElement(_el)
             }
         }
 
@@ -1546,7 +1546,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             delete this.endpointsByElement[id]
 
             if (recurse) {
-                this.getChildElements(_el).map(_one)
+                this._getChildElements(_el).map(_one)
             }
 
         }
@@ -2245,7 +2245,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     removeFromGroup (group:string | UIGroup<T["E"]>, ...el:Array<T["E"]>):void {
         this.groupManager.removeFromGroup(group, false, ...el)
         forEach(el,(_el) => {
-            this.appendElement(_el, this.getContainer())
+            this._appendElement(_el, this.getContainer())
             this.updateOffset({recalc:true, elId:this.getId(_el)})
         })
     }
@@ -2407,9 +2407,9 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      */
     abstract _getAssociatedElements(el:T["E"]):Array<T["E"]>
 
-    abstract removeElement(el:T["E"]):void
-    abstract appendElement (el:T["E"], parent:T["E"]):void
-    abstract getChildElements(el:T["E"]):Array<T["E"]>
+    abstract _removeElement(el:T["E"]):void
+    abstract _appendElement (el:T["E"], parent:T["E"]):void
+    abstract _getChildElements(el:T["E"]):Array<T["E"]>
 
     abstract removeClass(el:T["E"] | ArrayLike<T["E"]>, clazz:string):void
     abstract addClass(el:T["E"] | ArrayLike<T["E"]>, clazz:string):void

@@ -81,7 +81,7 @@ export class SvgElementConnector {
                 "position": "absolute"
             });
             (c as any).canvas = svg
-            c.instance.appendElement((c as any).canvas, c.instance.getContainer())
+            c.instance._appendElement((c as any).canvas, c.instance.getContainer())
 
             // TODO BG CANVAS! does it even need to be a canvas? i suppose not.
 

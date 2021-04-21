@@ -40,7 +40,7 @@ export abstract class SvgEndpoint<C> {
                 _size(canvas, 0, 0, 1, 1)
             }
 
-            ep.instance.appendElement(canvas, ep.instance.getContainer())
+            ep.instance._appendElement(canvas, ep.instance.getContainer())
             canvas.appendChild(svg)
 
             if ((ep as any).cssClass != null) {
