@@ -1156,9 +1156,11 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             const canvas = (connector as any).canvas
 
             if (canvas != null) {
-                if (this.hoverClass != null) {
-                    this[method](canvas, this.hoverClass)
+                if (connector.hoverClass != null) {
+                    this[method](canvas, connector.hoverClass)
                 }
+
+                this[method](canvas, this.hoverClass)
             }
             if (connector.connection.hoverPaintStyle != null) {
                 connector.connection.paintStyleInUse = h ? connector.connection.hoverPaintStyle : connector.connection.paintStyle
@@ -1266,8 +1268,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             const canvas = getEndpointCanvas(endpoint.endpoint)
 
             if (canvas != null) {
-                if (this.hoverClass != null) {
-                    this[method](canvas, this.hoverClass)
+                if (endpoint.hoverClass != null) {
+                    this[method](canvas, endpoint.hoverClass)
                 }
             }
             if (endpoint.hoverPaintStyle != null) {
