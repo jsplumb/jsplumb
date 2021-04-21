@@ -581,6 +581,39 @@ var testSuite = function () {
         equal(parseInt(d.style.top, 10), 100);
     });
 
+    test("dragging, grid, change at runtime", function() {
+
+        reinit({
+            dragOptions:{
+                grid:[50,50]
+            }
+        });
+
+        var d = _addDiv("d1");
+        d.style.position = "absolute";
+        d.style.left = "50px";
+        d.style.top = "50px";
+        d.style.width = "100px";
+        d.style.height = "100px";
+
+        // should not be necessary
+        _jsPlumb.manage(d);
+
+        // drag node by 26, 26. it should be snapped to 50,50 by the grid, because the default snap threshold is
+        // > half of the grid size in each axis.
+        support.dragNodeBy(d, 26, 26);
+
+        equal(parseInt(d.style.left, 10), 100);
+        equal(parseInt(d.style.top, 10), 100);
+
+        _jsPlumb.setDragGrid([20,20])
+        // drag by just over half the new grid size.  should snap now to the new grid, as the previous grid was larger
+        // and would have snapped the element back to where it was.
+        support.dragNodeBy(d, 11, 11);
+        equal(parseInt(d.style.left, 10), 120);
+        equal(parseInt(d.style.top, 10), 120);
+    });
+
     /**
      * Test constraining drag so that a child node cannot be dragged into the negative on either axis
      */
