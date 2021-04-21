@@ -65,6 +65,7 @@ export interface ConnectorOptions {
     stub?:number|number[]
     gap?:number
     cssClass?:string
+    hoverClass?:string
 }
 
 export interface Connector {
@@ -105,6 +106,7 @@ export abstract class AbstractConnector implements Connector {
     segment:number
     bounds:SegmentBounds = EMPTY_BOUNDS()
     cssClass:string
+    hoverClass:string
 
     abstract getDefaultStubs():[number, number]
 
@@ -119,6 +121,7 @@ export abstract class AbstractConnector implements Connector {
         this.targetGap = isArray(this.gap) ? this.gap[1] : this.gap
         this.maxStub = Math.max(this.sourceStub, this.targetStub)
         this.cssClass = params.cssClass || ""
+        this.hoverClass = params.hoverClass || ""
     }
 
     getTypeDescriptor ():string {
