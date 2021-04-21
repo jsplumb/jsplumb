@@ -581,7 +581,7 @@ var testSuite = function () {
         equal(parseInt(d.style.top, 10), 100);
     });
 
-    test("dragging, grid, change at runtime", function() {
+    test("dragging, grid, change at runtime, including set to null", function() {
 
         reinit({
             dragOptions:{
@@ -599,19 +599,26 @@ var testSuite = function () {
         // should not be necessary
         _jsPlumb.manage(d);
 
-        // drag node by 26, 26. it should be snapped to 50,50 by the grid, because the default snap threshold is
+        // drag node by 26, 26. it should be snapped to 10,100 by the grid, because the default snap threshold is
         // > half of the grid size in each axis.
         support.dragNodeBy(d, 26, 26);
 
-        equal(parseInt(d.style.left, 10), 100);
-        equal(parseInt(d.style.top, 10), 100);
+        equal(parseInt(d.style.left, 10), 100, "node left snapped to 100 by 50,50 grid after moving 26 px from 50");
+        equal(parseInt(d.style.top, 10), 100, "node top snapped to 100 by 50,50 grid after moving 26px from 50");
 
         _jsPlumb.setDragGrid([20,20])
         // drag by just over half the new grid size.  should snap now to the new grid, as the previous grid was larger
         // and would have snapped the element back to where it was.
         support.dragNodeBy(d, 11, 11);
-        equal(parseInt(d.style.left, 10), 120);
-        equal(parseInt(d.style.top, 10), 120);
+        equal(parseInt(d.style.left, 10), 120, "node left snapped to 120 by 20,20 grid after moving 11px from 100");
+        equal(parseInt(d.style.top, 10), 120, "node top snapped to 120 by 20,20 grid after moving 11px from 100");
+
+        _jsPlumb.setDragGrid(null)
+        // drag by just over half the new grid size.  should snap now to the new grid, as the previous grid was larger
+        // and would have snapped the element back to where it was.
+        support.dragNodeBy(d, 11, 11);
+        equal(parseInt(d.style.left, 10), 131, "node left changed to 131 after moving 11px from 120, grid was cleared");
+        equal(parseInt(d.style.top, 10), 131, "node top changed to 131 after moving 11px from 120, grid was cleared");
     });
 
     /**
