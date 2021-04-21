@@ -34,7 +34,7 @@ import {
     PointXY,
     ConnectionMovedParams,
     ConnectionDetachedParams,
-    ConnectionEstablishedParams
+    ConnectionEstablishedParams, ConnectionTypeDescriptor, EndpointTypeDescriptor
 } from './common'
 
 import { EventGenerator } from "./event-generator"
@@ -272,8 +272,8 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     readonly router: Router<T>
     readonly groupManager:GroupManager<T["E"]>
 
-    private _connectionTypes:Map<string, TypeDescriptor> = new Map()
-    private _endpointTypes:Map<string, TypeDescriptor> = new Map()
+    private _connectionTypes:Map<string, ConnectionTypeDescriptor> = new Map()
+    private _endpointTypes:Map<string, EndpointTypeDescriptor> = new Map()
     private _container:any
 
     protected _managedElements:Dictionary<ManagedElement<T["E"]>> = {}
@@ -987,7 +987,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     }
 
     /**
-     * For internal use. For the given inputs, derive an approriate anchor and endpoint definition.
+     * For internal use. For the given inputs, derive an appropriate anchor and endpoint definition.
      * @param type
      * @param dontPrependDefault
      * @private
@@ -1001,7 +1001,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             as = null
 
         for (let i = 0; i < bits.length; i++) {
-            let _t = this.getType(bits[i], "connection")
+            let _t:ConnectionTypeDescriptor = this.getConnectionType(bits[i])
             if (_t) {
                 if (_t.endpoints) {
                     eps = _t.endpoints
@@ -2092,7 +2092,15 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     }
 
     getType(id:string, typeDescriptor:string):TypeDescriptor {
-        return typeDescriptor === "connection" ? this._connectionTypes.get(id) : this._endpointTypes.get(id)
+        return typeDescriptor === "connection" ? this.getConnectionType(id) : this.getEndpointType(id)
+    }
+
+    getConnectionType(id:string):ConnectionTypeDescriptor {
+        return  this._connectionTypes.get(id)
+    }
+
+    getEndpointType(id:string):EndpointTypeDescriptor {
+        return this._endpointTypes.get(id)
     }
 
     importDefaults(d:jsPlumbDefaults<T["E"]>):JsPlumbInstance {
