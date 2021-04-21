@@ -1,6 +1,6 @@
 
 import { JsPlumbInstance } from "../core"
-import {Dictionary, jsPlumbElement, TypeDescriptor} from '../common'
+import {ConnectionTypeDescriptor, Dictionary, jsPlumbElement, TypeDescriptor} from '../common'
 import {AbstractConnector, ConnectorWithOptions} from "./abstract-connector"
 import {Endpoint} from "../endpoint/endpoint"
 import {PaintStyle} from "../styles"
@@ -215,6 +215,7 @@ export class Connection<E = any> extends OverlayCapableComponent {
 
         this.params = {
             cssClass: params.cssClass,
+            hoverClass:params.hoverClass,
             "pointer-events": params["pointer-events"],
             overlays: params.overlays
         }
@@ -341,7 +342,7 @@ export class Connection<E = any> extends OverlayCapableComponent {
         this.reattach = reattach === true
     }
 
-    applyType(t:TypeDescriptor, typeMap:any):void {
+    applyType(t:ConnectionTypeDescriptor, typeMap:any):void {
 
         let _connector = null
         if (t.connector != null) {
@@ -476,7 +477,7 @@ export class Connection<E = any> extends OverlayCapableComponent {
     prepareConnector(connectorSpec:ConnectorSpec, typeId?:string):AbstractConnector {
         let connectorArgs = {
                 cssClass: this.params.cssClass,
-                container: this.params.container,
+                hoverClass:this.params.hoverClass,
                 "pointer-events": this.params["pointer-events"]
             },
             connector
