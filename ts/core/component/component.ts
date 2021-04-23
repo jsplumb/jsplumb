@@ -103,7 +103,9 @@ export abstract class Component extends EventGenerator {
 
     clone: () => Component
 
-    segment?:number
+    deleted:boolean
+
+    segment:number
     x:number
     y:number
     w:number
