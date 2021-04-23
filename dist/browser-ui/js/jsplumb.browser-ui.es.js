@@ -2476,6 +2476,16 @@ function () {
         this.ep = this.instance.addEndpoint(targetEl, tempEndpointParams);
         this.ep.deleteOnEmpty = true;
         this._originalAnchor = def.anchor || this.instance.Defaults.anchor;
+        var payload = {};
+        if (def.extract) {
+          for (var att in def.extract) {
+            var v = targetEl.getAttribute(att);
+            if (v) {
+              payload[def.extract[att]] = v;
+            }
+          }
+          this.ep.setParameters(payload);
+        }
         if (def.uniqueEndpoint) {
           if (!sourceDef.endpoint) {
             sourceDef.endpoint = this.ep;
@@ -2486,15 +2496,6 @@ function () {
         }
         sourceElement._jsPlumbOrphanedEndpoints = sourceElement._jsPlumbOrphanedEndpoints || [];
         sourceElement._jsPlumbOrphanedEndpoints.push(this.ep);
-        var payload = {};
-        if (def.extract) {
-          for (var att in def.extract) {
-            var v = targetEl.getAttribute(att);
-            if (v) {
-              payload[def.extract[att]] = v;
-            }
-          }
-        }
         this.instance.trigger(this.ep.endpoint.canvas, EVENT_MOUSEDOWN, e, payload);
       }
     }
@@ -2774,6 +2775,11 @@ function () {
               r: null
             };
             d.el = findParent(el, SELECTOR_MANAGED_ELEMENT, _this.instance.getContainer(), true);
+            if (targetDef.def.def.allowLoopback === false || _this._activeDefinition && _this._activeDefinition.def.allowLoopback === false) {
+              if (d.el === _this.ep.element) {
+                return;
+              }
+            }
             var o = _this.instance.getOffset(el),
                 s = _this.instance.getSize(el);
             d.r = {
@@ -2782,7 +2788,7 @@ function () {
               w: s.w,
               h: s.h
             };
-            d.def = targetDef;
+            d.def = targetDef.def;
             if (targetDef.def.def.rank != null) {
               d.rank = targetDef.def.def.rank;
             }
@@ -3096,6 +3102,16 @@ function () {
         dropEndpoint = this.instance.addEndpoint(this.currentDropTarget.el, pp);
         dropEndpoint._mtNew = true;
         dropEndpoint.deleteOnEmpty = true;
+        if (targetDefinition.def.extract) {
+          var tpayload = {};
+          for (var att in targetDefinition.def.extract) {
+            var v = this.currentDropTarget.el.getAttribute(att);
+            if (v) {
+              tpayload[targetDefinition.def.extract[att]] = v;
+            }
+          }
+          dropEndpoint.setParameters(tpayload);
+        }
         if (dropEndpoint.anchor.positionFinder != null) {
           var finalPos = p.finalPos || p.pos;
           var dropPosition = {
