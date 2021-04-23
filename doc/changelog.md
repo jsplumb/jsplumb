@@ -1,5 +1,7 @@
 ## 4.0.0-RC89
 
+23rd April 2021
+
 - Fixed issue where multiple calls to `deleteConnection` for a given Connection would fail.
 
 ## 4.0.0-RC88
@@ -7,6 +9,7 @@
 22nd April 2021
 
 - Some extra unit testing
+- Reinstated support for connector hoverClass on endpoint definitions 
 
 ## 4.0.0-RC87
 
