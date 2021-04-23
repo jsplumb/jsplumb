@@ -221,6 +221,19 @@ export class EndpointDragHandler implements DragHandler {
             // keep a reference to the anchor we want to use if the connection is finalised.
             this._originalAnchor = def.anchor || this.instance.Defaults.anchor
 
+            // optionally check for attributes to extract from the source element
+            let payload = {}
+            if (def.extract) {
+                for (let att in def.extract) {
+                    let v = targetEl.getAttribute(att)
+                    if (v) {
+                        payload[def.extract[att]] = v
+                    }
+                }
+
+                this.ep.setParameters(payload)
+            }
+
             // if unique endpoint and it's already been created, push it onto the endpoint we create. at the end
             // of a successful connection we'll switch to that endpoint.
             // TODO this is the same code as the programmatic endpoints create on line 1050 ish
@@ -239,17 +252,6 @@ export class EndpointDragHandler implements DragHandler {
             // the list is then cleared.
             sourceElement._jsPlumbOrphanedEndpoints = sourceElement._jsPlumbOrphanedEndpoints || []
             sourceElement._jsPlumbOrphanedEndpoints.push(this.ep)
-
-            // optionally check for attributes to extract from the source element
-            let payload = {}
-            if (def.extract) {
-                for (let att in def.extract) {
-                    let v = targetEl.getAttribute(att)
-                    if (v) {
-                        payload[def.extract[att]] = v
-                    }
-                }
-            }
 
             // and then trigger its mousedown event, which will kick off a drag, which will start dragging
             // a new connection from this endpoint. The entry point is the `onStart` method in this class.
@@ -591,7 +593,7 @@ export class EndpointDragHandler implements DragHandler {
                 return tSel.isEnabled()
             })
 
-            targetDefs.forEach(targetDef => {
+            targetDefs.forEach((targetDef:TargetSelector) => {
                 const targetZones = this.instance.getContainer().querySelectorAll(targetDef.selector)
                 forEach(targetZones, (el:Element) => {
                     let d: any = {r: null}
@@ -601,7 +603,7 @@ export class EndpointDragHandler implements DragHandler {
                     const o = this.instance.getOffset(el), s = this.instance.getSize(el)
                     d.r= {x: o.x, y: o.y, w: s.w, h: s.h}
 
-                    d.def = targetDef
+                    d.def = targetDef.def
 
                     if (targetDef.def.def.rank != null) {
                         d.rank = targetDef.def.def.rank
@@ -1013,6 +1015,18 @@ export class EndpointDragHandler implements DragHandler {
             dropEndpoint = this.instance.addEndpoint(this.currentDropTarget.el, pp) as Endpoint
             (<any>dropEndpoint)._mtNew = true
             dropEndpoint.deleteOnEmpty = true
+
+            if (targetDefinition.def.extract) {
+                let tpayload = {}
+                for (let att in targetDefinition.def.extract) {
+                    let v = this.currentDropTarget.el.getAttribute(att)
+                    if (v) {
+                        tpayload[targetDefinition.def.extract[att]] = v
+                    }
+                }
+
+                dropEndpoint.setParameters(tpayload)
+            }
 
             if (dropEndpoint.anchor.positionFinder != null) {
 
