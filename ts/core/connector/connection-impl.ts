@@ -447,6 +447,7 @@ export class Connection<E = any> extends OverlayCapableComponent {
         this.instance.destroyConnection(this)
 
         this.connector = null
+        this.deleted = true
         super.destroy(force)
     }
 
