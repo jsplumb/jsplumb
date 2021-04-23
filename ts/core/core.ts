@@ -656,8 +656,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      * @param params Optional extra parameters.
      */
     deleteConnection (connection:Connection, params?:DeleteConnectionOptions):boolean {
-
-        if (connection != null) {
+        if (connection != null && connection.deleted !== true) {
             params = params || {}
 
             if (params.force || functionChain(true, false, [
