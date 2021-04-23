@@ -24,7 +24,8 @@ export declare abstract class Component extends EventGenerator {
     abstract getIdPrefix(): string;
     abstract getXY(): PointXY;
     clone: () => Component;
-    segment?: number;
+    deleted: boolean;
+    segment: number;
     x: number;
     y: number;
     w: number;

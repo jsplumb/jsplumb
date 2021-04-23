@@ -3456,6 +3456,7 @@ function (_EventGenerator) {
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Component).call(this));
     _this.instance = instance;
     _defineProperty(_assertThisInitialized(_this), "clone", void 0);
+    _defineProperty(_assertThisInitialized(_this), "deleted", void 0);
     _defineProperty(_assertThisInitialized(_this), "segment", void 0);
     _defineProperty(_assertThisInitialized(_this), "x", void 0);
     _defineProperty(_assertThisInitialized(_this), "y", void 0);
@@ -5128,6 +5129,7 @@ function (_OverlayCapableCompon) {
       this.target = null;
       this.instance.destroyConnection(this);
       this.connector = null;
+      this.deleted = true;
       _get(_getPrototypeOf(Connection.prototype), "destroy", this).call(this, force);
     }
   }, {
@@ -8259,7 +8261,7 @@ function (_EventGenerator) {
   }, {
     key: "deleteConnection",
     value: function deleteConnection(connection, params) {
-      if (connection != null) {
+      if (connection != null && connection.deleted !== true) {
         params = params || {};
         if (params.force || functionChain(true, false, [[connection.endpoints[0], IS_DETACH_ALLOWED, [connection]], [connection.endpoints[1], IS_DETACH_ALLOWED, [connection]], [connection, IS_DETACH_ALLOWED, [connection]], [this, CHECK_CONDITION, [INTERCEPT_BEFORE_DETACH, connection]]])) {
           removeManagedConnection(connection, this._managedElements[connection.sourceId], this._managedElements[connection.targetId]);

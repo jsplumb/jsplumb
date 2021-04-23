@@ -4931,7 +4931,7 @@
     }, {
       key: "deleteConnection",
       value: function deleteConnection(connection, params) {
-        if (connection != null) {
+        if (connection != null && connection.deleted !== true) {
           this.setEndpointHover(connection.endpoints[0], false, true);
           this.setEndpointHover(connection.endpoints[1], false, true);
           return _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "deleteConnection", this).call(this, connection, params);
