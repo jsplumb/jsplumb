@@ -395,6 +395,40 @@ var testSuite = function () {
 
     })
 
+    test("addSourceSelector, loopback not allowed, per the source definition", function() {
+        var sourceNode = makeSourceNode()
+        var zone = addZone(sourceNode, "zone1")
+        var zone2 = addZone(sourceNode, "zone2")
+
+        _jsPlumb.addSourceSelector(".zone1", {
+            allowLoopback:false
+        })
+
+        _jsPlumb.addTargetSelector(".zone2")
+
+        var c = support.dragConnection(zone, zone2)
+
+        equal(0, _jsPlumb.select().length, "connection not established because loopback not allowed")
+
+    });
+
+    test("addSourceSelector, loopback not allowed, per the target definition", function() {
+        var sourceNode = makeSourceNode()
+        var zone = addZone(sourceNode, "zone1")
+        var zone2 = addZone(sourceNode, "zone2")
+
+        _jsPlumb.addSourceSelector(".zone1")
+
+        _jsPlumb.addTargetSelector(".zone2", {
+            allowLoopback:false
+        })
+
+        var c = support.dragConnection(zone, zone2)
+
+        equal(0, _jsPlumb.select().length, "connection not established because loopback not allowed")
+
+    });
+
     test("addTargetSelector", function() {
         var targetNode = makeTargetNode()
         var zone = addZone(targetNode, "zone1")

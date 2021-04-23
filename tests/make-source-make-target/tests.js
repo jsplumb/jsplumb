@@ -175,6 +175,36 @@ var testSuite = function () {
         ok(support.getEndpointCanvas(d2d1.endpoints[1]).parentNode != null, "target canvas put back into DOM");
     });
 
+    test("drag connection so it turns into a self-loop, loopback not allowed per the source definition", function() {
+        var d1 = _addDiv("d1", 50, 50, 100, 100),
+            d2 = _addDiv("d2", 250, 250, 100, 100),
+            d3 = _addDiv("d3", 450, 450, 100, 100),
+            d4 = _addDiv("d4", 650, 650, 100, 100);
+
+        [d1,d2,d3,d4].forEach(function(el) {
+            _jsPlumb.makeSource(el, {
+                maxConnections:-1,
+                allowLoopback:false
+            });
+
+            _jsPlumb.makeTarget(el, {
+                maxConnections:-1
+            });
+        });
+
+        ok(_jsPlumb.isSource(d1), "d1 is a connection source");
+        ok(_jsPlumb.isTarget(d2), "d2 is a connection target");
+
+        // as a test: connect d3 to itself. 2 endpoints?
+        var d3d3 = support.dragConnection(d3, d3);
+        equal(0, _jsPlumb.select().length, "0 connections in the instance, as loopback was not allowed")
+        equal(_jsPlumb.selectEndpoints().length, 0, "0 endpoints");
+
+        var d2d1 = support.dragConnection(d3, d1);
+        equal(_jsPlumb.select().length, 1, "one connection after drag");
+
+    });
+
     test("drag connection so it turns into a self-loop. ensure endpoints registered correctly. target is continuous anchor so is hidden. (issue 419)", function() {
         var d1 = _addDiv("d1", 50, 50, 100, 100),
             d2 = _addDiv("d2", 250, 250, 100, 100),
