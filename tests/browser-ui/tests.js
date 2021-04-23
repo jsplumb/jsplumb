@@ -375,8 +375,8 @@ var testSuite = function () {
         expect(0);
     });
 
-    // test that detach does not fire an event by default
-    test(': _jsPlumb.detach should fire detach event by default', function () {
+    // test that deletConnection does not fire an event by default
+    test(': _jsPlumb.deleteConnection should fire connection:detach event by default', function () {
         var d5 = support.addDiv("d5"), d6 = support.addDiv("d6");
         var conn = _jsPlumb.connect({source: d5, target: d6});
         var eventCount = 0;
@@ -387,8 +387,29 @@ var testSuite = function () {
         equal(eventCount, 1);
     });
 
+    // test that you can try to delete a connection multiple times without it failing
+    test(': _jsPlumb.deleteConnection can be called multiple times with the same connection without it failing', function () {
+        var d5 = support.addDiv("d5"), d6 = support.addDiv("d6");
+        var conn = _jsPlumb.connect({source: d5, target: d6});
+        var eventCount = 0;
+        _jsPlumb.bind("connection:detach", function (c) {
+            eventCount++;
+        });
+        _jsPlumb.deleteConnection(conn);
+        equal(eventCount, 1);
+        ok(conn.deleted === true, "Connection has `deleted` flag set")
+
+        try {
+            _jsPlumb.deleteConnection(conn)
+            ok(true, "Deleted connection twice without code throwing an error")
+        }
+        catch (e) {
+            ok(false, "Should have been able to delete connection twice without code throwing an error")
+        }
+    });
+
     // test that detach does not fire an event by default
-    test(': _jsPlumb.detach should fire detach event by default, using params object', function () {
+    test(': _jsPlumb.deleteConnection should fire detach event by default, using params object', function () {
         var d5 = support.addDiv("d5"), d6 = support.addDiv("d6");
         var conn = _jsPlumb.connect({source: d5, target: d6});
         var eventCount = 0;
@@ -400,7 +421,7 @@ var testSuite = function () {
     });
 
     // test that detach fires an event when instructed to do so
-    test(': _jsPlumb.detach should not fire detach event when instructed to not do so', function () {
+    test(': _jsPlumb.deleteConnection should not fire detach event when instructed to not do so', function () {
         var d5 = support.addDiv("d5"), d6 = support.addDiv("d6");
         var conn = _jsPlumb.connect({source: d5, target: d6});
         var eventCount = 0;
@@ -412,7 +433,7 @@ var testSuite = function () {
     });
 
     // issue 81
-    test(': _jsPlumb.detach should fire only one detach event (pass Connection as argument)', function () {
+    test(': _jsPlumb.deleteConnection should fire only one detach event (pass Connection as argument)', function () {
         var d5 = support.addDiv("d5"), d6 = support.addDiv("d6");
         var conn = _jsPlumb.connect({source: d5, target: d6});
         var eventCount = 0;
@@ -424,7 +445,7 @@ var testSuite = function () {
     });
 
     // issue 81
-    test(': _jsPlumb.detach should fire only one detach event (pass Connection as param in argument)', function () {
+    test(': _jsPlumb.deleteConnection should fire only one detach event (pass Connection as param in argument)', function () {
         var d5 = support.addDiv("d5"), d6 = support.addDiv("d6");
         var conn = _jsPlumb.connect({source: d5, target: d6});
         var eventCount = 0;
@@ -436,7 +457,7 @@ var testSuite = function () {
     });
 
     // issue 81
-    test(': delete should fire only one detach event (pass source and targets as elements as arguments in params object)', function () {
+    test('select().deleteAll should fire only one detach event (pass source and targets as elements as arguments in params object)', function () {
         var d5 = support.addDiv("d5"), d6 = support.addDiv("d6");
         var conn = _jsPlumb.connect({source: d5, target: d6});
         var eventCount = 0;
@@ -448,7 +469,7 @@ var testSuite = function () {
     });
 
     // issue 81
-    test(': detach should fire only one detach event (pass source and targets as divs as arguments in params object)', function () {
+    test('select().deleteAll should fire only one detach event (pass source and targets as divs as arguments in params object)', function () {
         var d5 = support.addDiv("d5"), d6 = support.addDiv("d6");
         var conn = _jsPlumb.connect({source: d5, target: d6});
         var eventCount = 0;
