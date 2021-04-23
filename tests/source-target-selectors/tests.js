@@ -244,6 +244,50 @@ var testSuite = function () {
         equal(1, _jsPlumb.select().length, "one connection in the instance")
 
         equal(c.getData().fooAttribute, "the value of foo", "attribute values extracted properly");
+
+        equal(c.endpoints[0].getParameter("fooAttribute"), "the value of foo", "attribute values extracted and set as parameters on Endpoint");
+    });
+
+    test("addSourceSelector, addTargetSelector, extractor atts defined on source and target", function() {
+
+        var sourceNode = makeSourceNode()
+        var zone = addZone(sourceNode, "zone1")
+        sourceNode.setAttribute("foo", "the value of foo");
+
+        var targetNode = makeTargetNode()
+        var tzone = addZone(targetNode, "zone2")
+        targetNode.setAttribute("foo", "the value of foo target");
+
+
+        let elDragged = false;
+        _jsPlumb.bind("drag:move", function() {
+            elDragged = true
+        })
+
+        _jsPlumb.addSourceSelector(".zone1", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart",
+            extract:{
+                "foo":"fooAttribute"
+            }
+        })
+
+        _jsPlumb.addTargetSelector(".zone2", {
+            extract:{
+                "foo":"fooAttribute"
+            }
+        })
+
+        var c = support.dragConnection(zone, tzone, true)
+
+        ok(elDragged === false, "element was not dragged")
+        equal(1, _jsPlumb.select().length, "one connection in the instance")
+
+        equal(c.getData().fooAttribute, "the value of foo", "attribute values extracted properly");
+
+        equal(c.endpoints[0].getParameter("fooAttribute"), "the value of foo", "attribute values extracted and set as parameters on source Endpoint");
+        equal(c.endpoints[1].getParameter("fooAttribute"), "the value of foo target", "attribute values extracted and set as parameters on target Endpoint");
     });
 
     test("addSourceSelector, exclude:true", function() {

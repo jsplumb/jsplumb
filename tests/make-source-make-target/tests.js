@@ -251,6 +251,8 @@ var testSuite = function () {
         var con = support.dragConnection(d1, d2);
         equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
         equal(con.getData().fooAttribute, "the value of foo", "attribute values extracted properly");
+
+        equal(con.endpoints[0].getParameter("fooAttribute"), "the value of foo", "attribute values extracted and set as parameters on Endpoint");
     });
 
     test("connection dragging, simple drag and detach case, beforeDetach interceptor says no.", function() {
