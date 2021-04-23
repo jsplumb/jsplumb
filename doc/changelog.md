@@ -1,3 +1,11 @@
+## 4.0.0-RC90
+
+23rd April 2021
+
+- Add support for disabling "loopback" connections when using `addSourceSelector` and/or `addTargetSelector`
+- Add support for extracting attribute values to source/target Endpoints when using `makeSource`, `makeTarget`, `addSourceSelector`, `addTargetSelector`
+
+
 ## 4.0.0-RC89
 
 23rd April 2021
