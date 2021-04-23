@@ -571,7 +571,6 @@ export class EndpointDragHandler implements DragHandler {
                 const targetZones = this.instance.getContainer().querySelectorAll(sourceDef.selector)
                 forEach(targetZones, (el:Element) => {
                     let d: any = {r: null}
-                    // TODO check loopback here
                     d.el = findParent(el as unknown as jsPlumbDOMElement, SELECTOR_MANAGED_ELEMENT, this.instance.getContainer(), true)
 
                     const o = this.instance.getOffset(d.el), s = this.instance.getSize(d.el)
@@ -597,8 +596,14 @@ export class EndpointDragHandler implements DragHandler {
                 const targetZones = this.instance.getContainer().querySelectorAll(targetDef.selector)
                 forEach(targetZones, (el:Element) => {
                     let d: any = {r: null}
-                    // TODO check loopback here
                     d.el = findParent(el as unknown as jsPlumbDOMElement, SELECTOR_MANAGED_ELEMENT, this.instance.getContainer(), true)
+
+                    // if loopback disallowed on source or target definition and this target is the current element, skip it
+                    if (targetDef.def.def.allowLoopback === false || (this._activeDefinition && this._activeDefinition.def.allowLoopback === false)) {
+                        if (d.el === this.ep.element) {
+                            return
+                        }
+                    }
 
                     const o = this.instance.getOffset(el), s = this.instance.getSize(el)
                     d.r= {x: o.x, y: o.y, w: s.w, h: s.h}
@@ -1016,6 +1021,7 @@ export class EndpointDragHandler implements DragHandler {
             (<any>dropEndpoint)._mtNew = true
             dropEndpoint.deleteOnEmpty = true
 
+            // if `extract` defined, read out attributes values and write to the drop endpoint's parameters
             if (targetDefinition.def.extract) {
                 let tpayload = {}
                 for (let att in targetDefinition.def.extract) {
