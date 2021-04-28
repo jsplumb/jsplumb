@@ -1,3 +1,14 @@
+## 4.0.0-RC92
+
+29th April 2021
+
+- added `mergeParameters(...)` method to `Component`
+
+### Breaking
+
+- replaced `getParameters()` / `setParameters(..)` with direct `parameters` member on the Component class.
+- replaced `getParameter(key)` and `setParameter(key, value)` with direct access on the `parameters` member (or the `mergeParameters` method)
+
 ## 4.0.0-RC91
 
 28th April 2021
