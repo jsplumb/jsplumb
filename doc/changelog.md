@@ -1,3 +1,10 @@
+## 4.0.0-RC91
+
+28th April 2021
+
+- Refactored drag code to check for an instance-wide source selector before looking on the element from which a connection drag has started
+- Added support for `elementTap` and `elementDblTap` events to be fired from a jsPlumb instance.
+
 ## 4.0.0-RC90
 
 23rd April 2021
