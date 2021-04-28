@@ -245,7 +245,7 @@ export class EndpointDragHandler implements DragHandler {
                     }
                 }
 
-                this.ep.setParameters(payload)
+                this.ep.mergeParameters(payload)
             }
 
             // if unique endpoint and it's already been created, push it onto the endpoint we create. at the end
@@ -1052,7 +1052,7 @@ export class EndpointDragHandler implements DragHandler {
                     }
                 }
 
-                dropEndpoint.setParameters(tpayload)
+                dropEndpoint.parameters = tpayload
             }
 
             if (dropEndpoint.anchor.positionFinder != null) {
@@ -1153,10 +1153,7 @@ export class EndpointDragHandler implements DragHandler {
         dropEndpoint.addConnection(this.jpc)
 
         // copy our parameters in to the connection:
-        let params = dropEndpoint.getParameters()
-        for (let aParam in params) {
-            this.jpc.setParameter(aParam, params[aParam])
-        }
+        this.jpc.mergeParameters(dropEndpoint.parameters)
 
         if (this.jpc.suspendedEndpoint) {
             let suspendedElementId = this.jpc.suspendedEndpoint.elementId
