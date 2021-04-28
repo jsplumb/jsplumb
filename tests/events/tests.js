@@ -113,6 +113,67 @@ var testSuite = function () {
         ok(clicked, "click event fired")
     })
 
+    test("elementClick", function() {
+        var d = _addDiv("one", 50, 50, 100, 100)
+
+        _jsPlumb.manage(d)
+
+        var clicked = false
+        _jsPlumb.bind("elementClick", function(el, evt) {
+            clicked = true
+        })
+
+        support.clickOnElement(d)
+
+        ok(clicked, "elementClick event fired")
+    })
+
+    test("elementTap", function() {
+        var d = _addDiv("one", 50, 50, 100, 100)
+
+        _jsPlumb.manage(d)
+
+        var clicked = false
+        _jsPlumb.bind("elementTap", function(el, evt) {
+            clicked = true
+        })
+
+        support.tapOnElement(d)
+
+        ok(clicked, "elementTap event fired")
+    })
+
+    test("elementDblClick", function() {
+        var d = _addDiv("one", 50, 50, 100, 100)
+
+        _jsPlumb.manage(d)
+
+        var clicked = false
+        _jsPlumb.bind("elementDblClick", function(el, evt) {
+            clicked = true
+        })
+
+        support.clickOnElement(d)
+        support.clickOnElement(d, 2)
+
+        ok(clicked, "elementDblClick event fired")
+    })
+
+    test("elementDblTap", function() {
+        var d = _addDiv("one", 50, 50, 100, 100)
+
+        _jsPlumb.manage(d)
+
+        var clicked = false
+        _jsPlumb.bind("elementDblTap", function(el, evt) {
+            clicked = true
+        })
+
+        support.dblTapOnElement(d)
+
+        ok(clicked, "elementDblTap event fired")
+    })
+
 
     test("dblclick", function() {
         var d = _addDiv("one", 50, 50, 100, 100)
