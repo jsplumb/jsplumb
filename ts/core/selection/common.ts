@@ -94,12 +94,12 @@ export class SelectionBase<T extends OverlayCapableComponent>{
     }
 
     setParameter(name:string, value:string):SelectionBase<T> {
-        this.each((c:T) => c.setParameter(name, value))
+        this.each((c:T) => c.parameters[name] = value)
         return this
     }
 
     setParameters(p:Dictionary<string>):SelectionBase<T> {
-        this.each((c:T) => c.setParameters(p))
+        this.each((c:T) => c.parameters = p)
         return this
     }
 
