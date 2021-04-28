@@ -282,7 +282,7 @@ var testSuite = function () {
         equal(_jsPlumb.select().length, 1, "1 connection in jsplumb instance.");
         equal(con.getData().fooAttribute, "the value of foo", "attribute values extracted properly");
 
-        equal(con.endpoints[0].getParameter("fooAttribute"), "the value of foo", "attribute values extracted and set as parameters on Endpoint");
+        equal(con.endpoints[0].parameters["fooAttribute"], "the value of foo", "attribute values extracted and set as parameters on Endpoint");
     });
 
     test("connection dragging, simple drag and detach case, beforeDetach interceptor says no.", function() {
@@ -911,7 +911,7 @@ var testSuite = function () {
         support.assertEndpointCount(d16, 1);
         support.assertEndpointCount(d17, 1);
         var e = _jsPlumb.getEndpoints(d17);
-        equal(e[0].getParameter("foo"), "bar", "parameter was set on endpoint made from makeSource call");
+        equal(e[0].parameters["foo"], "bar", "parameter was set on endpoint made from makeSource call");
     });
 
     test(": _jsPlumb.connect after makeTarget (simple case, two connect calls, uniqueEndpoint set)", function () {
@@ -1408,8 +1408,8 @@ var testSuite = function () {
         support.assertEndpointCount(d16, 1);
         support.assertEndpointCount(d17, 1);
         var e = _jsPlumb.getEndpoints(d17);
-        equal(e[0].getParameter("foo"), "foo", "makeSource created endpoint has parameters");
-        equal(e16.getParameter("foo"), "foo", "normally created endpoint has parameters");
+        equal(e[0].parameters["foo"], "foo", "makeSource created endpoint has parameters");
+        equal(e16.parameters["foo"], "foo", "normally created endpoint has parameters");
     });
 
     // makeSource, then unmake it. should not be able to make a connection from it. then connect to it, which should succeed,

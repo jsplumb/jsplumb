@@ -245,7 +245,7 @@ var testSuite = function () {
 
         equal(c.getData().fooAttribute, "the value of foo", "attribute values extracted properly");
 
-        equal(c.endpoints[0].getParameter("fooAttribute"), "the value of foo", "attribute values extracted and set as parameters on Endpoint");
+        equal(c.endpoints[0].parameters["fooAttribute"], "the value of foo", "attribute values extracted and set as parameters on Endpoint");
     });
 
     test("addSourceSelector, addTargetSelector, extractor atts defined on source and target", function() {
@@ -286,8 +286,8 @@ var testSuite = function () {
 
         equal(c.getData().fooAttribute, "the value of foo", "attribute values extracted properly");
 
-        equal(c.endpoints[0].getParameter("fooAttribute"), "the value of foo", "attribute values extracted and set as parameters on source Endpoint");
-        equal(c.endpoints[1].getParameter("fooAttribute"), "the value of foo target", "attribute values extracted and set as parameters on target Endpoint");
+        equal(c.endpoints[0].parameters["fooAttribute"], "the value of foo", "attribute values extracted and set as parameters on source Endpoint");
+        equal(c.endpoints[1].parameters["fooAttribute"], "the value of foo target", "attribute values extracted and set as parameters on target Endpoint");
     });
 
     test("addSourceSelector, exclude:true", function() {

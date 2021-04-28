@@ -880,12 +880,12 @@ var testSuite = function () {
         // first try creating one with the parameters
         c = _jsPlumb.connect({source: d1, target: d2, type: "basic"});
 
-        equal(c.getParameter("foo"), 1, "foo param correct");
-        equal(c.getParameter("bar"), 2, "bar param correct");
+        equal(c.parameters["foo"], 1, "foo param correct");
+        equal(c.parameters["bar"], 2, "bar param correct");
 
         c.addType("frank");
-        equal(c.getParameter("foo"), 1, "foo param correct");
-        equal(c.getParameter("bar"), 5, "bar param correct");
+        equal(c.parameters["foo"], 1, "foo param correct");
+        equal(c.parameters["bar"], 5, "bar param correct");
     });
 
     test(" set connection type on existing connection, parameterised type", function () {

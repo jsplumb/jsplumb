@@ -3691,9 +3691,9 @@ var testSuite = function () {
                     "function": f
                 }
             });
-        ok(e.getParameter("string") === "param1", "getParameter(String) works correctly");
-        ok(e.getParameter("int") === 4, "getParameter(int) works correctly");
-        ok(e.getParameter("function") == f, "getParameter(Function) works correctly");
+        ok(e.parameters["string"] === "param1", "getParameter(String) works correctly");
+        ok(e.parameters["int"] === 4, "getParameter(int) works correctly");
+        ok(e.parameters["function"] == f, "getParameter(Function) works correctly");
     });
 
 
@@ -3711,9 +3711,9 @@ var testSuite = function () {
                 "function": f
             }
         });
-        ok(c.getParameter("string") === "param1", "getParameter(String) works correctly");
-        ok(c.getParameter("int") === 4, "getParameter(int) works correctly");
-        ok(c.getParameter("function") == f, "getParameter(Function) works correctly");
+        ok(c.parameters["string"] === "param1", "getParameter(String) works correctly");
+        ok(c.parameters["int"] === 4, "getParameter(int) works correctly");
+        ok(c.parameters["function"] == f, "getParameter(Function) works correctly");
     });
 
     test(" parameters set on Endpoints and Connections are all merged, and merged correctly at that.", function () {
@@ -3744,9 +3744,9 @@ var testSuite = function () {
                 }
             }});
 
-        ok(c.getParameter("string") === "sourceEndpoint", "getParameter(String) works correctly");
-        ok(c.getParameter("int") === 0, "getParameter(int) works correctly");
-        ok(c.getParameter("function")() == "connection", "getParameter(Function) works correctly");
+        ok(c.parameters["string"] === "sourceEndpoint", "getParameter(String) works correctly");
+        ok(c.parameters["int"] === 0, "getParameter(int) works correctly");
+        ok(c.parameters["function"]() == "connection", "getParameter(Function) works correctly");
     });
 
     test(" Continuous anchor default face, no faces supplied", function () {
@@ -4547,7 +4547,7 @@ var testSuite = function () {
 
         for (var j = 0; j < 5; j++) {
             equal(_length(s.get(j).getOverlays()), 1, "one overlay: the label");
-            equal(s.get(j).getParameter("foo"), "bar", "parameter foo has value 'bar'");
+            equal(s.get(j).parameters["foo"], "bar", "parameter foo has value 'bar'");
             ok(!(s.get(j).isHover()), "hover is set to false");
             equal(s.get(j).getLabel(), "baz", "label is set to 'baz'");
         }
@@ -4583,7 +4583,7 @@ var testSuite = function () {
     //         });
     //     }
     //
-    //     var params = _jsPlumb.select().removeAllOverlays().setParameter("foo", "bar").getParameter("foo");
+    //     var params = _jsPlumb.select().removeAllOverlays().setParameter("foo", "bar").parameters["foo"];
     //     equal(params.length, 5, "there are five params");
     //
     //     for (var j = 0; j < 5; j++) {
