@@ -159,21 +159,35 @@ export class EndpointDragHandler implements DragHandler {
 
     private _mousedownHandler (e:MouseEvent) {
 
+        let targetEl:jsPlumbDOMElement
+        let sourceDef:SourceDefinition
+
         if (e.which === 3 || e.button === 2) {
             return
         }
 
-        let targetEl:any = findParent((e.target || e.srcElement) as jsPlumbDOMElement, SELECTOR_MANAGED_ELEMENT, this.instance.getContainer())
+        sourceDef = this._getSourceDefinitionFromInstance(e)
 
-        if (targetEl == null) {
-            return
+        // first test for a source definition registered on the instance whose selector matches the target of this event
+        if (sourceDef != null) {
+            // then get the associated element, using the definition's own `parentSelector`, if provided, or the default.
+            targetEl = findParent((e.target || e.srcElement) as jsPlumbDOMElement, sourceDef.def.parentSelector || SELECTOR_MANAGED_ELEMENT, this.instance.getContainer())
+            if (targetEl == null) {
+                return
+            }
+        } else {
+            // if no instance-wide selector found, get the managed element that is the event target's ancestor
+            targetEl = findParent((e.target || e.srcElement) as jsPlumbDOMElement, SELECTOR_MANAGED_ELEMENT, this.instance.getContainer())
+            if (targetEl == null) {
+                return
+            }
+            // and if found, look for a source definition on that element.
+            sourceDef = this._getSourceDefinitionFromElement(targetEl, e)
         }
 
-        let sourceDef = this._getSourceDefinition(targetEl, e),
-            sourceElement = e.currentTarget as jsPlumbDOMElement,
-            def
-
         if (sourceDef) {
+
+            let sourceElement = e.currentTarget as jsPlumbDOMElement, def
 
             consume(e)
 
@@ -967,7 +981,12 @@ export class EndpointDragHandler implements DragHandler {
         }
     }
 
-    private _getSourceDefinitionFromInstance(evt:Event, ignoreFilter?:boolean):SourceDefinition {
+    /**
+     * Looks for a source selector on the instance that matches the target of the given event.
+     * @param evt
+     * @private
+     */
+    private _getSourceDefinitionFromInstance(evt:Event):SourceDefinition {
         let selector
         for (let i = 0; i < this.instance.sourceSelectors.length; i++) {
             selector = this.instance.sourceSelectors[i]
@@ -980,10 +999,12 @@ export class EndpointDragHandler implements DragHandler {
         }
     }
 
-    private _getSourceDefinition(fromElement:jsPlumbDOMElement, evt:Event, ignoreFilter?:boolean):SourceDefinition {
-        return this._getSourceDefinitionFromElement(fromElement, evt, ignoreFilter) || this._getSourceDefinitionFromInstance(evt, ignoreFilter)
-    }
-
+    /**
+     * Create - or retrieve - an appropriate endpoint for a connection drop.
+     * @param p
+     * @param jpc
+     * @private
+     */
     private _getDropEndpoint(p:DragStopEventParams, jpc:Connection):Endpoint {
         let dropEndpoint:Endpoint
 
