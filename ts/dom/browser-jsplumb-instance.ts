@@ -65,7 +65,15 @@ import {
     isCustomOverlay,
     DeleteConnectionOptions,
     forEach,
-    fromArray, isArray, PointXY, BehaviouralTypeDescriptor, SourceSelector, EVENT_TAP, EVENT_DBL_TAP
+    fromArray,
+    isArray,
+    PointXY,
+    BehaviouralTypeDescriptor,
+    SourceSelector,
+    EVENT_TAP,
+    EVENT_DBL_TAP,
+    EVENT_ELEMENT_TAP,
+    EVENT_ELEMENT_DBL_TAP
 } from '@jsplumb/core'
 
 import { _attr,
@@ -240,6 +248,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     _overlayMouseout:Function
 
     _elementClick:Function
+    _elementTap:Function
+    _elementDblTap:Function
     _elementMouseenter:Function
     _elementMouseexit:Function
     _elementMousemove:Function
@@ -388,6 +398,20 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             }
         }
         this._elementClick = _elementClick.bind(this, EVENT_ELEMENT_CLICK)
+
+        const _elementTap = function(event:string, e:MouseEvent, target:HTMLElement) {
+            if (!e.defaultPrevented) {
+                this.fire(EVENT_ELEMENT_TAP, target, e)
+            }
+        }
+        this._elementTap = _elementTap.bind(this, EVENT_ELEMENT_TAP)
+
+        const _elementDblTap = function(event:string, e:MouseEvent, target:HTMLElement) {
+            if (!e.defaultPrevented) {
+                this.fire(EVENT_ELEMENT_DBL_TAP, target, e)
+            }
+        }
+        this._elementDblTap = _elementDblTap.bind(this, EVENT_ELEMENT_DBL_TAP)
 
         const _elementHover = function(state:boolean, e:MouseEvent) {
             this.fire(state ? EVENT_ELEMENT_MOUSE_OVER : EVENT_ELEMENT_MOUSE_OUT, getEventSource(e), e)
@@ -574,8 +598,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
      * @param originalEvent Optional event that gave rise to this method being called.
      * @param payload Optional `payload` to set on the Event that is created.
      */
-    trigger(el:Document | Element, event:string, originalEvent?:Event, payload?:any) {
-        this.eventManager.trigger(el, event, originalEvent, payload)
+    trigger(el:Document | Element, event:string, originalEvent?:Event, payload?:any, detail?:number) {
+        this.eventManager.trigger(el, event, originalEvent, payload, detail)
     }
 
     getOffsetRelativeToRoot(el:Element) {
@@ -699,6 +723,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         this.eventManager.on(currentContainer, EVENT_DBL_CLICK, SELECTOR_ENDPOINT, this._endpointDblClick)
 
         this.eventManager.on(currentContainer, EVENT_CLICK, SELECTOR_MANAGED_ELEMENT, this._elementClick)
+        this.eventManager.on(currentContainer, EVENT_TAP, SELECTOR_MANAGED_ELEMENT, this._elementTap)
+        this.eventManager.on(currentContainer, EVENT_DBL_TAP, SELECTOR_MANAGED_ELEMENT, this._elementDblTap)
 
         this.eventManager.on(currentContainer, EVENT_MOUSEOVER, SELECTOR_CONNECTOR, this._connectorMouseover)
         this.eventManager.on(currentContainer, EVENT_MOUSEOUT, SELECTOR_CONNECTOR, this._connectorMouseout)
@@ -732,6 +758,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             this.eventManager.off(currentContainer, EVENT_DBL_TAP, this._overlayDblTap)
 
             this.eventManager.off(currentContainer, EVENT_CLICK, this._elementClick)
+            this.eventManager.off(currentContainer, EVENT_TAP, this._elementTap)
+            this.eventManager.off(currentContainer, EVENT_DBL_TAP, this._elementDblTap)
 
             this.eventManager.off(currentContainer, EVENT_MOUSEOVER, this._connectorMouseover)
             this.eventManager.off(currentContainer, EVENT_MOUSEOUT, this._connectorMouseout)
