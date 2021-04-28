@@ -5,7 +5,6 @@ import { extend, log, merge, populate, setToArray } from "../util"
 import {EventGenerator} from "../event-generator"
 import {Connection} from "../connector/connection-impl"
 import {Endpoint} from "../endpoint/endpoint"
-import {convertToFullOverlaySpec, OverlaySpec} from "../overlay/overlay"
 import { INTERCEPT_BEFORE_DROP } from '../constants'
 
 export type ComponentParameters = Record<string, any>
@@ -325,11 +324,7 @@ export abstract class Component extends EventGenerator {
     applyType(t:TypeDescriptor, params?:any):void {
         this.setPaintStyle(t.paintStyle)
         this.setHoverPaintStyle(t.hoverPaintStyle)
-        if (t.parameters) {
-            for (let i in t.parameters) {
-                this.setParameter(i, t.parameters[i])
-            }
-        }
+        this.mergeParameters(t.parameters)
         this.paintStyleInUse = this.getPaintStyle()
     }
 
@@ -364,20 +359,10 @@ export abstract class Component extends EventGenerator {
         return this._hover
     }
 
-    getParameter(name:string):any {
-        return this.parameters[name]
-    }
-
-    setParameter(name:string, value:any) {
-        this.parameters[name] = value
-    }
-
-    getParameters():ComponentParameters {
-        return this.parameters
-    }
-
-    setParameters(p:ComponentParameters) {
-        this.parameters = p
+    mergeParameters(p:ComponentParameters) {
+        if (p != null) {
+            extend(this.parameters, p)
+        }
     }
 
     setVisible(v:boolean) {
