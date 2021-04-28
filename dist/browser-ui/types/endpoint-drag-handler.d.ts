@@ -93,8 +93,18 @@ export declare class EndpointDragHandler implements DragHandler {
      * @private
      */
     private _getSourceDefinitionFromElement;
+    /**
+     * Looks for a source selector on the instance that matches the target of the given event.
+     * @param evt
+     * @private
+     */
     private _getSourceDefinitionFromInstance;
-    private _getSourceDefinition;
+    /**
+     * Create - or retrieve - an appropriate endpoint for a connection drop.
+     * @param p
+     * @param jpc
+     * @private
+     */
     private _getDropEndpoint;
     private _doForceReattach;
     private _shouldReattach;

@@ -16,7 +16,7 @@ export declare class EventManager {
     private _doBind;
     on(el: any, event: string, children?: string | Function, fn?: Function): this;
     off(el: any, event: string, fn: any): this;
-    trigger(el: any, event: string, originalEvent: any, payload?: any): this;
+    trigger(el: any, event: string, originalEvent: any, payload?: any, detail?: number): this;
 }
 export declare function setForceTouchEvents(value: boolean): void;
 export declare function setForceMouseEvents(value: boolean): void;

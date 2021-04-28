@@ -1,4 +1,4 @@
-import { isString, forEach, fastTrim, isArray, log, NONE, EVENT_CONTEXTMENU, removeWithFunction, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, uuid, IS, extend, wrap, getWithFunction, SELECTOR_MANAGED_ELEMENT, cls, CLASS_OVERLAY, ATTRIBUTE_NOT_DRAGGABLE, FALSE as FALSE$1, optional, getFromSetWithFunction, intersects, CLASS_ENDPOINT, each, SOURCE, TARGET, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_START_DETACH, makeAnchorFromSpec, AnchorLocations, ATTRIBUTE_SCOPE_PREFIX, SELECTOR_JTK_TARGET, SELECTOR_JTK_SOURCE, findWithFunction, findAllWithFunction, getAllWithFunction, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, isAssignableFrom, EndpointRepresentation, SELECTOR_GROUP, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, Connection, Endpoint, Overlay, TRUE as TRUE$1, UNDEFINED, EVENT_CLICK, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, fromArray, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE as EVENT_MOUSEMOVE$1, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/core';
+import { isString, forEach, fastTrim, isArray, log, NONE, EVENT_CONTEXTMENU, removeWithFunction, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, uuid, IS, extend, wrap, getWithFunction, SELECTOR_MANAGED_ELEMENT, cls, CLASS_OVERLAY, ATTRIBUTE_NOT_DRAGGABLE, FALSE as FALSE$1, optional, getFromSetWithFunction, intersects, CLASS_ENDPOINT, each, SOURCE, TARGET, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_START_DETACH, makeAnchorFromSpec, AnchorLocations, ATTRIBUTE_SCOPE_PREFIX, SELECTOR_JTK_TARGET, SELECTOR_JTK_SOURCE, findWithFunction, findAllWithFunction, getAllWithFunction, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, isAssignableFrom, EndpointRepresentation, SELECTOR_GROUP, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, Connection, Endpoint, Overlay, TRUE as TRUE$1, UNDEFINED, EVENT_CLICK, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_TAP, EVENT_ELEMENT_DBL_TAP, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, fromArray, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE as EVENT_MOUSEMOVE$1, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/core';
 
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -855,7 +855,7 @@ function () {
     }
   }, {
     key: "trigger",
-    value: function trigger(el, event, originalEvent, payload) {
+    value: function trigger(el, event, originalEvent, payload, detail) {
       var originalIsMouse = isMouseDevice && (typeof MouseEvent === "undefined" || originalEvent == null || originalEvent.constructor === MouseEvent);
       var eventToBind = isTouchDevice && !isMouseDevice && touchMap[event] ? touchMap[event] : event,
           bindingAMouseEvent = !(isTouchDevice && !isMouseDevice && touchMap[event]);
@@ -882,7 +882,7 @@ function () {
             init(eventToBind, true, true, window, null, sl.x, sl.y, cl.x, cl.y, false, false, false, false, touchList, touchList, touchList, 1, 0);
           },
           "MouseEvents": function MouseEvents(evt) {
-            evt.initMouseEvent(eventToBind, true, true, window, 0, sl.x, sl.y, cl.x, cl.y, false, false, false, false, 1, _el);
+            evt.initMouseEvent(eventToBind, true, true, window, detail == null ? 1 : detail, sl.x, sl.y, cl.x, cl.y, false, false, false, false, 1, _el);
           }
         };
         var ite = !bindingAMouseEvent && !originalIsMouse && isTouchDevice && touchMap[event],
@@ -2437,17 +2437,27 @@ function () {
   _createClass(EndpointDragHandler, [{
     key: "_mousedownHandler",
     value: function _mousedownHandler(e) {
+      var targetEl;
+      var sourceDef;
       if (e.which === 3 || e.button === 2) {
         return;
       }
-      var targetEl = findParent(e.target || e.srcElement, SELECTOR_MANAGED_ELEMENT, this.instance.getContainer());
-      if (targetEl == null) {
-        return;
+      sourceDef = this._getSourceDefinitionFromInstance(e);
+      if (sourceDef != null) {
+        targetEl = findParent(e.target || e.srcElement, sourceDef.def.parentSelector || SELECTOR_MANAGED_ELEMENT, this.instance.getContainer());
+        if (targetEl == null) {
+          return;
+        }
+      } else {
+        targetEl = findParent(e.target || e.srcElement, SELECTOR_MANAGED_ELEMENT, this.instance.getContainer());
+        if (targetEl == null) {
+          return;
+        }
+        sourceDef = this._getSourceDefinitionFromElement(targetEl, e);
       }
-      var sourceDef = this._getSourceDefinition(targetEl, e),
-          sourceElement = e.currentTarget,
-          def;
       if (sourceDef) {
+        var sourceElement = e.currentTarget,
+            def;
         consume(e);
         this._activeDefinition = sourceDef;
         def = sourceDef.def;
@@ -3058,7 +3068,7 @@ function () {
     }
   }, {
     key: "_getSourceDefinitionFromInstance",
-    value: function _getSourceDefinitionFromInstance(evt, ignoreFilter) {
+    value: function _getSourceDefinitionFromInstance(evt) {
       var selector;
       for (var i = 0; i < this.instance.sourceSelectors.length; i++) {
         selector = this.instance.sourceSelectors[i];
@@ -3069,11 +3079,6 @@ function () {
           }
         }
       }
-    }
-  }, {
-    key: "_getSourceDefinition",
-    value: function _getSourceDefinition(fromElement, evt, ignoreFilter) {
-      return this._getSourceDefinitionFromElement(fromElement, evt, ignoreFilter) || this._getSourceDefinitionFromInstance(evt, ignoreFilter);
     }
   }, {
     key: "_getDropEndpoint",
@@ -3989,6 +3994,8 @@ function (_JsPlumbInstance) {
     _defineProperty(_assertThisInitialized(_this), "_overlayMouseover", void 0);
     _defineProperty(_assertThisInitialized(_this), "_overlayMouseout", void 0);
     _defineProperty(_assertThisInitialized(_this), "_elementClick", void 0);
+    _defineProperty(_assertThisInitialized(_this), "_elementTap", void 0);
+    _defineProperty(_assertThisInitialized(_this), "_elementDblTap", void 0);
     _defineProperty(_assertThisInitialized(_this), "_elementMouseenter", void 0);
     _defineProperty(_assertThisInitialized(_this), "_elementMouseexit", void 0);
     _defineProperty(_assertThisInitialized(_this), "_elementMousemove", void 0);
@@ -4108,6 +4115,18 @@ function (_JsPlumbInstance) {
       }
     };
     _this._elementClick = _elementClick.bind(_assertThisInitialized(_this), EVENT_ELEMENT_CLICK);
+    var _elementTap = function _elementTap(event, e, target) {
+      if (!e.defaultPrevented) {
+        this.fire(EVENT_ELEMENT_TAP, target, e);
+      }
+    };
+    _this._elementTap = _elementTap.bind(_assertThisInitialized(_this), EVENT_ELEMENT_TAP);
+    var _elementDblTap = function _elementDblTap(event, e, target) {
+      if (!e.defaultPrevented) {
+        this.fire(EVENT_ELEMENT_DBL_TAP, target, e);
+      }
+    };
+    _this._elementDblTap = _elementDblTap.bind(_assertThisInitialized(_this), EVENT_ELEMENT_DBL_TAP);
     var _elementHover = function _elementHover(state, e) {
       this.fire(state ? EVENT_ELEMENT_MOUSE_OVER : EVENT_ELEMENT_MOUSE_OUT, getEventSource(e), e);
     };
@@ -4258,8 +4277,8 @@ function (_JsPlumbInstance) {
     }
   }, {
     key: "trigger",
-    value: function trigger(el, event, originalEvent, payload) {
-      this.eventManager.trigger(el, event, originalEvent, payload);
+    value: function trigger(el, event, originalEvent, payload, detail) {
+      this.eventManager.trigger(el, event, originalEvent, payload, detail);
     }
   }, {
     key: "getOffsetRelativeToRoot",
@@ -4372,6 +4391,8 @@ function (_JsPlumbInstance) {
       this.eventManager.on(currentContainer, EVENT_CLICK, SELECTOR_ENDPOINT, this._endpointClick);
       this.eventManager.on(currentContainer, EVENT_DBL_CLICK, SELECTOR_ENDPOINT, this._endpointDblClick);
       this.eventManager.on(currentContainer, EVENT_CLICK, SELECTOR_MANAGED_ELEMENT, this._elementClick);
+      this.eventManager.on(currentContainer, EVENT_TAP, SELECTOR_MANAGED_ELEMENT, this._elementTap);
+      this.eventManager.on(currentContainer, EVENT_DBL_TAP, SELECTOR_MANAGED_ELEMENT, this._elementDblTap);
       this.eventManager.on(currentContainer, EVENT_MOUSEOVER, SELECTOR_CONNECTOR, this._connectorMouseover);
       this.eventManager.on(currentContainer, EVENT_MOUSEOUT, SELECTOR_CONNECTOR, this._connectorMouseout);
       this.eventManager.on(currentContainer, EVENT_MOUSEOVER, SELECTOR_ENDPOINT, this._endpointMouseover);
@@ -4398,6 +4419,8 @@ function (_JsPlumbInstance) {
         this.eventManager.off(currentContainer, EVENT_TAP, this._overlayTap);
         this.eventManager.off(currentContainer, EVENT_DBL_TAP, this._overlayDblTap);
         this.eventManager.off(currentContainer, EVENT_CLICK, this._elementClick);
+        this.eventManager.off(currentContainer, EVENT_TAP, this._elementTap);
+        this.eventManager.off(currentContainer, EVENT_DBL_TAP, this._elementDblTap);
         this.eventManager.off(currentContainer, EVENT_MOUSEOVER, this._connectorMouseover);
         this.eventManager.off(currentContainer, EVENT_MOUSEOUT, this._connectorMouseout);
         this.eventManager.off(currentContainer, EVENT_MOUSEOVER, this._endpointMouseover);

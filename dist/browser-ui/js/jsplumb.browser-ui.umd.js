@@ -859,7 +859,7 @@
       }
     }, {
       key: "trigger",
-      value: function trigger(el, event, originalEvent, payload) {
+      value: function trigger(el, event, originalEvent, payload, detail) {
         var originalIsMouse = isMouseDevice && (typeof MouseEvent === "undefined" || originalEvent == null || originalEvent.constructor === MouseEvent);
         var eventToBind = isTouchDevice && !isMouseDevice && touchMap[event] ? touchMap[event] : event,
             bindingAMouseEvent = !(isTouchDevice && !isMouseDevice && touchMap[event]);
@@ -886,7 +886,7 @@
               init(eventToBind, true, true, window, null, sl.x, sl.y, cl.x, cl.y, false, false, false, false, touchList, touchList, touchList, 1, 0);
             },
             "MouseEvents": function MouseEvents(evt) {
-              evt.initMouseEvent(eventToBind, true, true, window, 0, sl.x, sl.y, cl.x, cl.y, false, false, false, false, 1, _el);
+              evt.initMouseEvent(eventToBind, true, true, window, detail == null ? 1 : detail, sl.x, sl.y, cl.x, cl.y, false, false, false, false, 1, _el);
             }
           };
           var ite = !bindingAMouseEvent && !originalIsMouse && isTouchDevice && touchMap[event],
@@ -2441,17 +2441,27 @@
     _createClass(EndpointDragHandler, [{
       key: "_mousedownHandler",
       value: function _mousedownHandler(e) {
+        var targetEl;
+        var sourceDef;
         if (e.which === 3 || e.button === 2) {
           return;
         }
-        var targetEl = findParent(e.target || e.srcElement, core.SELECTOR_MANAGED_ELEMENT, this.instance.getContainer());
-        if (targetEl == null) {
-          return;
+        sourceDef = this._getSourceDefinitionFromInstance(e);
+        if (sourceDef != null) {
+          targetEl = findParent(e.target || e.srcElement, sourceDef.def.parentSelector || core.SELECTOR_MANAGED_ELEMENT, this.instance.getContainer());
+          if (targetEl == null) {
+            return;
+          }
+        } else {
+          targetEl = findParent(e.target || e.srcElement, core.SELECTOR_MANAGED_ELEMENT, this.instance.getContainer());
+          if (targetEl == null) {
+            return;
+          }
+          sourceDef = this._getSourceDefinitionFromElement(targetEl, e);
         }
-        var sourceDef = this._getSourceDefinition(targetEl, e),
-            sourceElement = e.currentTarget,
-            def;
         if (sourceDef) {
+          var sourceElement = e.currentTarget,
+              def;
           consume(e);
           this._activeDefinition = sourceDef;
           def = sourceDef.def;
@@ -3062,7 +3072,7 @@
       }
     }, {
       key: "_getSourceDefinitionFromInstance",
-      value: function _getSourceDefinitionFromInstance(evt, ignoreFilter) {
+      value: function _getSourceDefinitionFromInstance(evt) {
         var selector;
         for (var i = 0; i < this.instance.sourceSelectors.length; i++) {
           selector = this.instance.sourceSelectors[i];
@@ -3073,11 +3083,6 @@
             }
           }
         }
-      }
-    }, {
-      key: "_getSourceDefinition",
-      value: function _getSourceDefinition(fromElement, evt, ignoreFilter) {
-        return this._getSourceDefinitionFromElement(fromElement, evt, ignoreFilter) || this._getSourceDefinitionFromInstance(evt, ignoreFilter);
       }
     }, {
       key: "_getDropEndpoint",
@@ -3993,6 +3998,8 @@
       _defineProperty(_assertThisInitialized(_this), "_overlayMouseover", void 0);
       _defineProperty(_assertThisInitialized(_this), "_overlayMouseout", void 0);
       _defineProperty(_assertThisInitialized(_this), "_elementClick", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_elementTap", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_elementDblTap", void 0);
       _defineProperty(_assertThisInitialized(_this), "_elementMouseenter", void 0);
       _defineProperty(_assertThisInitialized(_this), "_elementMouseexit", void 0);
       _defineProperty(_assertThisInitialized(_this), "_elementMousemove", void 0);
@@ -4112,6 +4119,18 @@
         }
       };
       _this._elementClick = _elementClick.bind(_assertThisInitialized(_this), core.EVENT_ELEMENT_CLICK);
+      var _elementTap = function _elementTap(event, e, target) {
+        if (!e.defaultPrevented) {
+          this.fire(core.EVENT_ELEMENT_TAP, target, e);
+        }
+      };
+      _this._elementTap = _elementTap.bind(_assertThisInitialized(_this), core.EVENT_ELEMENT_TAP);
+      var _elementDblTap = function _elementDblTap(event, e, target) {
+        if (!e.defaultPrevented) {
+          this.fire(core.EVENT_ELEMENT_DBL_TAP, target, e);
+        }
+      };
+      _this._elementDblTap = _elementDblTap.bind(_assertThisInitialized(_this), core.EVENT_ELEMENT_DBL_TAP);
       var _elementHover = function _elementHover(state, e) {
         this.fire(state ? core.EVENT_ELEMENT_MOUSE_OVER : core.EVENT_ELEMENT_MOUSE_OUT, getEventSource(e), e);
       };
@@ -4262,8 +4281,8 @@
       }
     }, {
       key: "trigger",
-      value: function trigger(el, event, originalEvent, payload) {
-        this.eventManager.trigger(el, event, originalEvent, payload);
+      value: function trigger(el, event, originalEvent, payload, detail) {
+        this.eventManager.trigger(el, event, originalEvent, payload, detail);
       }
     }, {
       key: "getOffsetRelativeToRoot",
@@ -4376,6 +4395,8 @@
         this.eventManager.on(currentContainer, core.EVENT_CLICK, core.SELECTOR_ENDPOINT, this._endpointClick);
         this.eventManager.on(currentContainer, core.EVENT_DBL_CLICK, core.SELECTOR_ENDPOINT, this._endpointDblClick);
         this.eventManager.on(currentContainer, core.EVENT_CLICK, core.SELECTOR_MANAGED_ELEMENT, this._elementClick);
+        this.eventManager.on(currentContainer, core.EVENT_TAP, core.SELECTOR_MANAGED_ELEMENT, this._elementTap);
+        this.eventManager.on(currentContainer, core.EVENT_DBL_TAP, core.SELECTOR_MANAGED_ELEMENT, this._elementDblTap);
         this.eventManager.on(currentContainer, core.EVENT_MOUSEOVER, core.SELECTOR_CONNECTOR, this._connectorMouseover);
         this.eventManager.on(currentContainer, core.EVENT_MOUSEOUT, core.SELECTOR_CONNECTOR, this._connectorMouseout);
         this.eventManager.on(currentContainer, core.EVENT_MOUSEOVER, core.SELECTOR_ENDPOINT, this._endpointMouseover);
@@ -4402,6 +4423,8 @@
           this.eventManager.off(currentContainer, core.EVENT_TAP, this._overlayTap);
           this.eventManager.off(currentContainer, core.EVENT_DBL_TAP, this._overlayDblTap);
           this.eventManager.off(currentContainer, core.EVENT_CLICK, this._elementClick);
+          this.eventManager.off(currentContainer, core.EVENT_TAP, this._elementTap);
+          this.eventManager.off(currentContainer, core.EVENT_DBL_TAP, this._elementDblTap);
           this.eventManager.off(currentContainer, core.EVENT_MOUSEOVER, this._connectorMouseover);
           this.eventManager.off(currentContainer, core.EVENT_MOUSEOUT, this._connectorMouseout);
           this.eventManager.off(currentContainer, core.EVENT_MOUSEOVER, this._endpointMouseover);

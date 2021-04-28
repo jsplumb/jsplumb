@@ -70,6 +70,8 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     _overlayMouseover: Function;
     _overlayMouseout: Function;
     _elementClick: Function;
+    _elementTap: Function;
+    _elementDblTap: Function;
     _elementMouseenter: Function;
     _elementMouseexit: Function;
     _elementMousemove: Function;
@@ -165,7 +167,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
      * @param originalEvent Optional event that gave rise to this method being called.
      * @param payload Optional `payload` to set on the Event that is created.
      */
-    trigger(el: Document | Element, event: string, originalEvent?: Event, payload?: any): void;
+    trigger(el: Document | Element, event: string, originalEvent?: Event, payload?: any, detail?: number): void;
     getOffsetRelativeToRoot(el: Element): PointXY;
     getOffset(el: Element): PointXY;
     getSize(el: Element): Size;
