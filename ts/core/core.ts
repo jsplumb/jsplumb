@@ -2441,7 +2441,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     abstract on (el:Document | T["E"] | ArrayLike<T["E"]>, event:string, callbackOrSelector:Function | string, callback?:Function):void
     abstract off (el:Document | T["E"] | ArrayLike<T["E"]>, event:string, callback:Function):void
-    abstract trigger(el:Document | T["E"], event:string, originalEvent?:Event, payload?:any):void
+    abstract trigger(el:Document | T["E"], event:string, originalEvent?:Event, payload?:any, detail?:number):void
 
     abstract getPath(segment:Segment, isFirstSegment:boolean):string
 
