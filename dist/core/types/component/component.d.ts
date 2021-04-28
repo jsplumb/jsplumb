@@ -72,10 +72,7 @@ export declare abstract class Component extends EventGenerator {
     getHoverPaintStyle(): PaintStyle;
     destroy(force?: boolean): void;
     isHover(): boolean;
-    getParameter(name: string): any;
-    setParameter(name: string, value: any): void;
-    getParameters(): ComponentParameters;
-    setParameters(p: ComponentParameters): void;
+    mergeParameters(p: ComponentParameters): void;
     setVisible(v: boolean): void;
     isVisible(): boolean;
     addClass(clazz: string, dontUpdateOverlays?: boolean): void;

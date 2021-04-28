@@ -3673,11 +3673,7 @@ function (_EventGenerator) {
     value: function applyType(t, params) {
       this.setPaintStyle(t.paintStyle);
       this.setHoverPaintStyle(t.hoverPaintStyle);
-      if (t.parameters) {
-        for (var i in t.parameters) {
-          this.setParameter(i, t.parameters[i]);
-        }
-      }
+      this.mergeParameters(t.parameters);
       this.paintStyleInUse = this.getPaintStyle();
     }
   }, {
@@ -3717,24 +3713,11 @@ function (_EventGenerator) {
       return this._hover;
     }
   }, {
-    key: "getParameter",
-    value: function getParameter(name) {
-      return this.parameters[name];
-    }
-  }, {
-    key: "setParameter",
-    value: function setParameter(name, value) {
-      this.parameters[name] = value;
-    }
-  }, {
-    key: "getParameters",
-    value: function getParameters() {
-      return this.parameters;
-    }
-  }, {
-    key: "setParameters",
-    value: function setParameters(p) {
-      this.parameters = p;
+    key: "mergeParameters",
+    value: function mergeParameters(p) {
+      if (p != null) {
+        extend(this.parameters, p);
+      }
     }
   }, {
     key: "setVisible",
@@ -4994,10 +4977,10 @@ function (_OverlayCapableCompon) {
     if (params.directed == null) {
       _this.directed = _this.endpoints[0].connectionsDirected;
     }
-    var _p = extend({}, _this.endpoints[1].getParameters());
-    extend(_p, _this.endpoints[0].getParameters());
-    extend(_p, _this.getParameters());
-    _this.setParameters(_p);
+    var _p = extend({}, _this.endpoints[1].parameters);
+    extend(_p, _this.endpoints[0].parameters);
+    extend(_p, _this.parameters);
+    _this.parameters = _p;
     _this.paintStyleInUse = _this.getPaintStyle() || {};
     _this.setConnector(_this.endpoints[0].connector || _this.endpoints[1].connector || params.connector || _this.instance.Defaults.connector, true);
     var data = params.data == null || !IS.anObject(params.data) ? {} : params.data;
@@ -7223,7 +7206,7 @@ function () {
     key: "setParameter",
     value: function setParameter(name, value) {
       this.each(function (c) {
-        return c.setParameter(name, value);
+        return c.parameters[name] = value;
       });
       return this;
     }
@@ -7231,7 +7214,7 @@ function () {
     key: "setParameters",
     value: function setParameters(p) {
       this.each(function (c) {
-        return c.setParameters(p);
+        return c.parameters = p;
       });
       return this;
     }

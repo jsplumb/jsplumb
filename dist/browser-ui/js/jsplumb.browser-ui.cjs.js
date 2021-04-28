@@ -2498,7 +2498,7 @@ function () {
               payload[def.extract[att]] = v;
             }
           }
-          this.ep.setParameters(payload);
+          this.ep.mergeParameters(payload);
         }
         if (def.uniqueEndpoint) {
           if (!sourceDef.endpoint) {
@@ -3119,7 +3119,7 @@ function () {
               tpayload[targetDefinition.def.extract[att]] = v;
             }
           }
-          dropEndpoint.setParameters(tpayload);
+          dropEndpoint.parameters = tpayload;
         }
         if (dropEndpoint.anchor.positionFinder != null) {
           var finalPos = p.finalPos || p.pos;
@@ -3192,10 +3192,7 @@ function () {
       }
       this.jpc.endpoints[idx] = dropEndpoint;
       dropEndpoint.addConnection(this.jpc);
-      var params = dropEndpoint.getParameters();
-      for (var aParam in params) {
-        this.jpc.setParameter(aParam, params[aParam]);
-      }
+      this.jpc.mergeParameters(dropEndpoint.parameters);
       if (this.jpc.suspendedEndpoint) {
         var suspendedElementId = this.jpc.suspendedEndpoint.elementId;
         this.instance.fireMoveEvent({
