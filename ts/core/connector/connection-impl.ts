@@ -295,10 +295,10 @@ export class Connection<E = any> extends OverlayCapableComponent {
         // merge all the parameters objects into the connection.  parameters set
         // on the connection take precedence; then source endpoint params, then
         // finally target endpoint params.
-        let _p = extend({}, this.endpoints[1].getParameters())
-        extend(_p, this.endpoints[0].getParameters())
-        extend(_p, this.getParameters())
-        this.setParameters(_p)
+        let _p = extend({}, this.endpoints[1].parameters)
+        extend(_p, this.endpoints[0].parameters)
+        extend(_p, this.parameters)
+        this.parameters = _p
 // END PARAMETERS
 
 // PAINTING
