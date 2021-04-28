@@ -435,8 +435,8 @@ if (Array.prototype.forEach == null) {
                     _fireEventOnConnection(_jsPlumb, connection, "mouseup")
                 },
 
-                clickOnElement:function(element) {
-                    _jsPlumb.trigger(element, "click")
+                clickOnElement:function(element, clickCount) {
+                    _jsPlumb.trigger(element, "click", null, null, clickCount == null ? 1 : clickCount)
                 },
                 dblClickOnElement:function(element) {
                     _jsPlumb.trigger(element, "dblclick")
