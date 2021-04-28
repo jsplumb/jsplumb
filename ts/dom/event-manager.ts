@@ -499,7 +499,7 @@ export class EventManager {
         return this
     }
 
-    trigger (el:any, event:string, originalEvent:any, payload?:any) {
+    trigger (el:any, event:string, originalEvent:any, payload?:any, detail?:number) {
         // MouseEvent undefined in old IE; that's how we know it's a mouse event.  A fine Microsoft paradox.
         const originalIsMouse = isMouseDevice && (typeof MouseEvent === "undefined" || originalEvent == null || originalEvent.constructor === MouseEvent)
 
@@ -533,7 +533,7 @@ export class EventManager {
                         touchList, touchList, touchList, 1, 0)
                 },
                 "MouseEvents": (evt:any) => {
-                    evt.initMouseEvent(eventToBind, true, true, window, 0,
+                    evt.initMouseEvent(eventToBind, true, true, window, detail == null ? 1 : detail,
                         sl.x, sl.y,
                         cl.x, cl.y,
                         false, false, false, false, 1, _el)
