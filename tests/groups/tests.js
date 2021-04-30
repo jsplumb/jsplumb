@@ -172,12 +172,12 @@ var testSuite = function () {
         g5 = _addGroup(_jsPlumb, "five", c5, [c5_1,c5_2], { orphan:true, droppable:false });
         g6 = _addGroup(_jsPlumb, "six", c6, [c6_1,c6_2], { orphan:true, droppable:false, proxied:false });
 
-        c1Id = c1.getAttribute("data-jtk-managed")
-        c2Id = c2.getAttribute("data-jtk-managed")
-        c3Id = c3.getAttribute("data-jtk-managed")
-        c4Id = c4.getAttribute("data-jtk-managed")
-        c5Id = c5.getAttribute("data-jtk-managed")
-        c6Id = c6.getAttribute("data-jtk-managed")
+        c1Id = c1.getAttribute("data-jtk-vertex-id")
+        c2Id = c2.getAttribute("data-jtk-vertex-id")
+        c3Id = c3.getAttribute("data-jtk-vertex-id")
+        c4Id = c4.getAttribute("data-jtk-vertex-id")
+        c5Id = c5.getAttribute("data-jtk-vertex-id")
+        c6Id = c6.getAttribute("data-jtk-vertex-id")
 
         if (!doNotMakeConnections) {
 
@@ -276,7 +276,7 @@ var testSuite = function () {
         equal(parseInt(c4_2.style.left), 180, "c4_2 at 180 left");
         equal(parseInt(c4_2.style.top), 530, "c4_2 at 530 top");
 
-        var c5Id = container5.getAttribute("data-jtk-managed")
+        var c5Id = container5.getAttribute("data-jtk-vertex-id")
 
         ok(_jsPlumb._managedElements[c5Id] != null, "container5 is being managed");
         _jsPlumb.removeGroup("five", true);
@@ -342,13 +342,13 @@ var testSuite = function () {
         _jsPlumb.addToGroup(g, d1);
         equal(g.children.length, 1, "1 member in group");
 
-         var d1Id = d1.getAttribute("data-jtk-managed")
-        var ggId = gg.getAttribute("data-jtk-managed")
+         var d1Id = d1.getAttribute("data-jtk-vertex-id")
+        var ggId = gg.getAttribute("data-jtk-vertex-id")
 
         ok(_jsPlumb._managedElements[d1Id] != null, "d1 is in the managed elements map")
         ok(_jsPlumb._managedElements[ggId] != null, "group1 element is in the managed elements map")
 
-        equal(groupElId, _jsPlumb._managedElements[d1Id].group, "group element's data-jtk-managed has been registered as `group` for element d1")
+        equal(groupElId, _jsPlumb._managedElements[d1Id].group, "group element's data-jtk-vertex-id has been registered as `group` for element d1")
 
         _jsPlumb.removeFromGroup(g, d1)
 
@@ -383,8 +383,8 @@ var testSuite = function () {
 
         equal(g.getGroups().length, 1, "1 child group in group1");
 
-        var gg2Id = gg2.getAttribute("data-jtk-managed")
-        var ggId = gg.getAttribute("data-jtk-managed")
+        var gg2Id = gg2.getAttribute("data-jtk-vertex-id")
+        var ggId = gg.getAttribute("data-jtk-vertex-id")
 
         ok(_jsPlumb._managedElements[gg2Id] != null, "group2 element is in the managed elements map")
         ok(_jsPlumb._managedElements[ggId] != null, "group1 element is in the managed elements map")
@@ -621,7 +621,7 @@ var testSuite = function () {
         equal(c3_1._jsPlumbParentGroup.id, "three", "group three is parent of c3_1");
 
         // 2. drag its source to group 1
-        _jsPlumb.makeSource(c4_1);
+        _jsPlumb.addSourceSelector("#c4_1");
         support.relocateSource(c, c4_1);
 
         equal(_jsPlumb.getGroup("three").connections.internal.length, 0, "zero internal connections in group 3");
@@ -861,7 +861,7 @@ var testSuite = function () {
 
         // a connection to the group to be collapsed
         var c = _jsPlumb.connect({source: c4_2, target: c3_1});
-        _jsPlumb.makeTarget(c2_1);
+        _jsPlumb.addTargetSelector("#c2_1");
 
         equal(_jsPlumb.getGroup("four").connections.source.length, 1, "one source conn in group 4");
         equal(_jsPlumb.getGroup("three").connections.target.length, 1, "one target conn in group 3");
@@ -880,7 +880,7 @@ var testSuite = function () {
 
         // a connection to the group to be collapsed
         var c = _jsPlumb.connect({source: c4_2, target: c3_1});
-        _jsPlumb.makeTarget(c2_1);
+        _jsPlumb.addTargetSelector("#c2_1");
 
         equal(_jsPlumb.getGroup("four").connections.source.length, 1, "one source conn in group 4");
         equal(_jsPlumb.getGroup("three").connections.target.length, 1, "one target conn in group 3");
@@ -987,13 +987,13 @@ var testSuite = function () {
 
     test("drag a connection from an element to a group", function() {
         var d1 = support.addDiv("d1", null, null, 0,0, 40, 40),
-            //c = _jsPlumb.connect({source:d1, target:d2}),
-            //c2 = _jsPlumb.connect({source:d1, target:d3}),
             g = support.addDiv("group", null, null, 600,600, 400, 400);
 
+        _jsPlumb.manageAll([d1])
+
         var group = _jsPlumb.addGroup({ el:g });
-        _jsPlumb.makeTarget(g);
-        _jsPlumb.makeSource(d1);
+        _jsPlumb.addTargetSelector("#group");
+        _jsPlumb.addSourceSelector("#d1");
 
         var c = support.dragConnection(d1, g);
         var conns = _jsPlumb.select();
@@ -1009,11 +1009,13 @@ var testSuite = function () {
             d2 = support.addDiv("d2", null, null, 0,0, 40, 40),
             g = support.addDiv("group", null, null, 600,600, 400, 400);
 
+        _jsPlumb.manageAll([d1, d2])
+
         var group = _jsPlumb.addGroup({ el:g });
         _jsPlumb.addToGroup(group, d2);
-        _jsPlumb.makeTarget(g, {rank:0});
-        _jsPlumb.makeSource(d1);
-        _jsPlumb.makeTarget(d2, {rank:10});
+        _jsPlumb.addTargetSelector("#group", {rank:0});
+        _jsPlumb.addSourceSelector("#d1");
+        _jsPlumb.addTargetSelector("#d2", {rank:10});
 
         d2.style.left = "40px";
         d2.style.top = "40px";
@@ -1031,15 +1033,15 @@ var testSuite = function () {
         var d1 = support.addDiv("d1", null, null, 0,0, 40, 40),
             g = support.addDiv("group", null, null, 600,600, 400, 400);
 
-        _jsPlumb.makeSource(d1);
+        _jsPlumb.manageAll([d1])
+        _jsPlumb.addSourceSelector("#d1");
 
         var group = _jsPlumb.addGroup({ el:g });
-        _jsPlumb.makeTarget(g, {rank:0});
-
+        _jsPlumb.addTargetSelector("#group", {rank:0});
 
         var d2 = support.addDiv("d2", null, null, 0,0, 40, 40);
         _jsPlumb.addToGroup(group, d2);
-        _jsPlumb.makeTarget(d2, {rank:10});
+        _jsPlumb.addTargetSelector("#d2", {rank:10});
 
         d2.style.left = "40px";
         d2.style.top = "40px";
@@ -1061,22 +1063,23 @@ var testSuite = function () {
 
         _addGroup(_jsPlumb, "g1", d1, [d2]);
 
-        _jsPlumb.makeTarget(d1, {rank:0});
+        _jsPlumb.manageAll([d1, d2, d3])
 
-        _jsPlumb.makeTarget(d2, {rank:10}/*, {
+        _jsPlumb.addTargetSelector("#d1", {rank:0});
+
+        _jsPlumb.addTargetSelector("#d2", {rank:10}/*, {
          dropOptions:{
          rank:10
          }
          }*/);
 
-        _jsPlumb.makeSource(d3);
+        _jsPlumb.addSourceSelector("#d3");
 
         var sourceEvent = support.makeEvent(d3);
         var d2TargetEvent = support.makeEvent(d2);
 
         _jsPlumb.trigger(d3, "mousedown", sourceEvent);
         _jsPlumb.trigger(document, "mousemove", d2TargetEvent);
-
 
         ok(d2.classList.contains("jtk-drag-hover"), "d2 has hover class");
         ok(!d1.classList.contains("jtk-drag-hover"), "d1 does not have hover class; only d2 has, and it was first.");
@@ -1130,17 +1133,17 @@ var testSuite = function () {
 
         _addGroup(_jsPlumb, "g1", d1, [d2]);
 
-        _jsPlumb.makeTarget(d1);
-        _jsPlumb.makeTarget(d2);
+        _jsPlumb.manageAll([d1, d2, d3])
+        _jsPlumb.addTargetSelector("#d1");
+        _jsPlumb.addTargetSelector("#d2");
 
-        _jsPlumb.makeSource(d3);
+        _jsPlumb.addSourceSelector("#d3");
 
         var sourceEvent = support.makeEvent(d3);
         var d2TargetEvent = support.makeEvent(d2);
 
         _jsPlumb.trigger(d3, "mousedown", sourceEvent);
         _jsPlumb.trigger(document, "mousemove", d2TargetEvent);
-
 
         ok(d2.classList.contains("jtk-drag-hover"), "d2 has hover class");
         ok(!d1.classList.contains("jtk-drag-hover"), "d1 does not have hover class; only d2 has, even though it was second.");
@@ -1159,17 +1162,18 @@ var testSuite = function () {
 
         _addGroup(_jsPlumb, "g1", d1, [d2]);
 
-        _jsPlumb.makeTarget(d2);
-        _jsPlumb.makeTarget(d1);
+        _jsPlumb.manageAll([d1, d2, d3])
 
-        _jsPlumb.makeSource(d3);
+        _jsPlumb.addTargetSelector("#d2");
+        _jsPlumb.addTargetSelector("#d1");
+
+        _jsPlumb.addSourceSelector("#d3");
 
         var sourceEvent = support.makeEvent(d3);
         var d2TargetEvent = support.makeEvent(d2);
 
         _jsPlumb.trigger(d3, "mousedown", sourceEvent);
         _jsPlumb.trigger(document, "mousemove", d2TargetEvent);
-
 
         ok(d2.classList.contains("jtk-drag-hover"), "d2 has hover class");
         ok(!d1.classList.contains("jtk-drag-hover"), "d1 does not have hover class; only d2 has, and it was first.");
@@ -1225,17 +1229,18 @@ var testSuite = function () {
 
         _addGroup(_jsPlumb, "g1", d1, [d2]);
 
-        _jsPlumb.makeTarget(d2, { rank:5 });
-        _jsPlumb.makeTarget(d1, { rank:5 });
+        _jsPlumb.manageAll([d2, d1, d3])
 
-        _jsPlumb.makeSource(d3);
+        _jsPlumb.addTargetSelector("#d2", { rank:5 });
+        _jsPlumb.addTargetSelector("#d1", { rank:5 });
+
+        _jsPlumb.addSourceSelector("#d3");
 
         var sourceEvent = support.makeEvent(d3);
         var d2TargetEvent = support.makeEvent(d2);
 
         _jsPlumb.trigger(d3, "mousedown", sourceEvent);
         _jsPlumb.trigger(document, "mousemove", d2TargetEvent);
-
 
         ok(d2.classList.contains("jtk-drag-hover"), "d2 has hover class");
         ok(!d1.classList.contains("jtk-drag-hover"), "d1 does not have hover class; only d2 has, and it was first.");
@@ -1252,11 +1257,7 @@ var testSuite = function () {
         var d2 = support.addDiv("d2", d1, null, 200, 200, 50, 50);
         var d3 = support.addDiv("d3", container, null, 700, 700, 50, 50);
 
-        _jsPlumb.manage(d1);
-        _jsPlumb.manage(d2);
-        _jsPlumb.manage(d3);
-
-       // _jsPlumb.draggable(d2);
+        _jsPlumb.manageAll([d1, d2, d3])
 
         var g1 = _addGroup(_jsPlumb, "g1", d1, [d2], {orphan:true});
         equal(g1.children.length, 1, "group 1 has one member");
@@ -1290,15 +1291,11 @@ var testSuite = function () {
         d2.style.zIndex = 5000;
         var d3 = support.addDiv("d3", container, null, 700, 700, 50, 50);
 
-       // _jsPlumb.draggable(d2);
-
         var g1 = _addGroup(_jsPlumb, "g1", d1, [d2], {orphan:true});
 
         var g3 = _addGroup(_jsPlumb, "g3", d3, [], {orphan:true});
 
-        _jsPlumb.manage(d1);
-        _jsPlumb.manage(d2);
-        _jsPlumb.manage(d3);
+        _jsPlumb.manageAll([d1, d2, d3])
 
         equal(g1.children.length, 1, "group 1 has one child");
 
