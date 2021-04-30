@@ -128,19 +128,10 @@ export interface BehaviouralTypeDescriptor extends EndpointTypeDescriptor {
     rank?:number
 
     /**
-     * Optional selector identifying the ancestor of the event target that will be the element to which connections
+     * Optional selector list identifying the ancestor(s) of the event target that could be the element to which connections
      * are added. By default this is the internal attribute jsPlumb uses to mark managed elements (data-jtk-managed)
-     *
-     * TODO this only applies to an instance-wide source selector
      */
-    parentSelector?:string
-
-    /**
-     * If true, an Endpoint is created prior to the user interacting with the element.
-     *
-     * TODO this only applies to element selectors, not instance wide selectors.
-     */
-    createEndpoint?:boolean
+    parentSelectors?:Array<string>
 
     /**
      * Optional filter that defines what parts of the element should respond to the mouse.
