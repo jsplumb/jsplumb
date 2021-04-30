@@ -35,21 +35,27 @@ function makeTwoLists(count1, count2) {
         c2 = l2.querySelectorAll("div");
 
     for (var i = 0; i < c1.length; i++) {
-        _jsPlumb.makeSource(c1[i], {
-            allowLoopback:false,
-            anchor:["Left", "Right"]
-        })
+        _jsPlumb.manage(c1[i])
+        c1[i].className = "sourceList"
+
     }
 
     for (i = 0; i < c2.length; i++) {
-        _jsPlumb.makeTarget(c2[i], {
-            allowLoopback:false,
-            anchor:["Left", "Right"]
-        })
+        _jsPlumb.manage(c2[i])
+        c2[i].className = "targetList"
     }
 
     _jsPlumb.addList(l1)
     _jsPlumb.addList(l2)
+
+    _jsPlumb.addSourceSelector(".sourceList", {
+        allowLoopback:false,
+        anchor:["Left", "Right"]
+    })
+    _jsPlumb.addTargetSelector(".targetList", {
+        allowLoopback:false,
+        anchor:["Left", "Right"]
+    })
 
     return [l1, l2]
 
@@ -85,8 +91,9 @@ var testSuite = function () {
         // now we have two lists whose child items overflow their viewport.
 
         QUnit.start()
-        equal(l1.getAttribute("jtk-scrollable-list"), "1_0", "scrollable list attribute set on l1");
-        equal(l2.getAttribute("jtk-scrollable-list"), "1_1", "scrollable list attribute set on l2");
+        var ii = _jsPlumb._instanceIndex
+        equal(l1.getAttribute("jtk-scrollable-list"), ii + "_0", "scrollable list attribute set on l1");
+        equal(l2.getAttribute("jtk-scrollable-list"), ii + "_1", "scrollable list attribute set on l2");
 
         // connect the first item of list 1 to the first item of list 2. no proxying should occur
         _jsPlumb.connect({source:l1.childNodes[0], target:l2.childNodes[0]});
@@ -125,8 +132,9 @@ var testSuite = function () {
         // now we have two lists whose child items overflow their viewport.
 
         QUnit.start()
-        equal(l1.getAttribute("jtk-scrollable-list"), "2_0", "scrollable list attribute set on l1");
-        equal(l2.getAttribute("jtk-scrollable-list"), "2_1", "scrollable list attribute set on l2");
+        var ii = _jsPlumb._instanceIndex
+        equal(l1.getAttribute("jtk-scrollable-list"), ii + "_0", "scrollable list attribute set on l1");
+        equal(l2.getAttribute("jtk-scrollable-list"), ii + "_1", "scrollable list attribute set on l2");
 
         var firstSourceChild = l1.childNodes[1];
         var secondSourceChild = l1.childNodes[1];
