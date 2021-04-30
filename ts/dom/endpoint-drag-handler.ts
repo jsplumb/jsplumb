@@ -32,18 +32,15 @@ import {
     EndpointRepresentation,
     EVENT_MAX_CONNECTIONS,
     extend,
-    findWithFunction,
     functionChain,
     IS,
     IS_DETACH_ALLOWED,
-    isString,
     makeAnchorFromSpec,
     PaintStyle,
     SOURCE,
     SourceDefinition,
     SourceOrTargetDefinition,
     TARGET,
-    TargetDefinition,
     AnchorSpec,
     forEach,
     EndpointSpec,
@@ -56,12 +53,9 @@ import {
     INTERCEPT_BEFORE_DRAG,
     INTERCEPT_BEFORE_START_DETACH,
     SELECTOR_MANAGED_ELEMENT,
-    SELECTOR_JTK_SOURCE,
-    SELECTOR_JTK_TARGET,
     CLASS_ENDPOINT,
     ATTRIBUTE_SCOPE_PREFIX,
     SourceSelector,
-    findAllWithFunction,
     getAllWithFunction,
     isAssignableFrom, InternalEndpointOptions
 } from "@jsplumb/core"
@@ -166,7 +160,7 @@ export class EndpointDragHandler implements DragHandler {
             return
         }
 
-        sourceDef = this._getSourceDefinitionFromInstance(e)
+        sourceDef = this._getSourceDefinition(e)
 
         // first test for a source definition registered on the instance whose selector matches the target of this event
         if (sourceDef != null) {
@@ -175,14 +169,6 @@ export class EndpointDragHandler implements DragHandler {
             if (targetEl == null) {
                 return
             }
-        } else {
-            // if no instance-wide selector found, get the managed element that is the event target's ancestor
-            targetEl = findParent((e.target || e.srcElement) as jsPlumbDOMElement, SELECTOR_MANAGED_ELEMENT, this.instance.getContainer())
-            if (targetEl == null) {
-                return
-            }
-            // and if found, look for a source definition on that element.
-            sourceDef = this._getSourceDefinitionFromElement(targetEl, e)
         }
 
         if (sourceDef) {
@@ -510,66 +496,6 @@ export class EndpointDragHandler implements DragHandler {
                     this.instance.addClass(candidate, CLASS_DRAG_ACTIVE)
                 }
             }
-        })
-
-        // at this point we are in fact uncertain about whether or not the given endpoint is a source/target. it may not have been
-        // specifically configured as one
-        let selectors = [ ]
-
-        if (!isSourceDrag) {
-            selectors.push([SELECTOR_JTK_TARGET, "[", ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]"].join(""))
-        } else {
-            selectors.push([SELECTOR_JTK_SOURCE, "[", ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]"].join(""))
-        }
-
-        const matchingElements:NodeListOf<Element> = this.instance.getContainer().querySelectorAll(selectors.join(","))
-        forEach(matchingElements, (candidate:Element) => {
-
-            const jel = candidate as unknown as jsPlumbDOMElement
-            const o = this.instance.getOffset(candidate), s = this.instance.getSize(candidate)
-            boundingRect = {x: o.x, y: o.y, w: s.w, h: s.h}
-            let d: any = {el: candidate, r: boundingRect}
-
-            if (isSourceDrag) {
-                // look for at least one source definition that is not disabled on the given element.
-                let sourceDefinitionIdx = findWithFunction((candidate  as jsPlumbDOMElement)._jsPlumbSourceDefinitions, (sdef: SourceDefinition) => {
-                    return sdef.enabled !== false  && (sdef.def.allowLoopback !== false || candidate !== this.ep.element) && (this._activeDefinition == null || this._activeDefinition.def.allowLoopback !== false || candidate !== this.ep.element)
-                })
-
-                // if there is at least one enabled source definition (if appropriate), add this element to the drop targets
-                if (sourceDefinitionIdx !== -1) {
-                    if (jel._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank != null) {
-                        d.rank = jel._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank
-                    }
-
-                    d.def = jel._jsPlumbSourceDefinitions[sourceDefinitionIdx]
-
-                    this.endpointDropTargets.push(d)
-                    this.instance.addClass(candidate, CLASS_DRAG_ACTIVE) // TODO get from defaults.
-                }
-
-            } else {
-
-                let targetDefinitionIndexes = findAllWithFunction((candidate as jsPlumbDOMElement)._jsPlumbTargetDefinitions, (tdef: TargetDefinition) => {
-                    return tdef.enabled !== false && (tdef.def.allowLoopback !== false || candidate !== this.ep.element) && (this._activeDefinition == null || this._activeDefinition.def.allowLoopback !== false || candidate !== this.ep.element)
-                })
-
-                // if there is at least one enabled target definition (if appropriate), add this element to the drop targets
-                forEach(targetDefinitionIndexes, (targetDefinitionIdx:number)=> {
-                    let d: any = {el: candidate, r: boundingRect}
-                    if (jel._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank != null) {
-                        d.rank = jel._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank
-                    }
-                    d.def = jel._jsPlumbTargetDefinitions[targetDefinitionIdx]
-                    this.endpointDropTargets.push(d)
-
-                })
-
-                if (targetDefinitionIndexes.length > 0) {
-                    this.instance.addClass(candidate, CLASS_DRAG_ACTIVE) // TODO get from defaults.
-                }
-            }
-
         })
 
         // search for source/target selector registered on the instance that matches
@@ -954,39 +880,11 @@ export class EndpointDragHandler implements DragHandler {
     }
 
     /**
-     * Lookup a source definition on the given element.
-     * @param fromElement Element to lookup the source definition
-     * @param evt Associated mouse event - for instance, the event that started a drag.
-     * @param ignoreFilter Used when we're getting a source definition to possibly use as a drop target, ie. when a
-     * connection's source endpoint is being dragged. in that scenario we don't want to filter - we want the source to basically
-     * behave as a target.
-     * @private
-     */
-    private _getSourceDefinitionFromElement(fromElement:jsPlumbDOMElement, evt:Event, ignoreFilter?:boolean):SourceDefinition {
-        let sourceDef
-        if (fromElement._jsPlumbSourceDefinitions) {
-            for (let i = 0; i < fromElement._jsPlumbSourceDefinitions.length; i++) {
-                sourceDef = fromElement._jsPlumbSourceDefinitions[i]
-                if (sourceDef.enabled !== false) {
-                    if (!ignoreFilter && sourceDef.def.filter) {
-                        let r = isString(sourceDef.def.filter) ? selectorFilter(evt, fromElement, sourceDef.def.filter as string, this.instance, sourceDef.def.filterExclude) : (sourceDef.def.filter as Function)(evt, fromElement)
-                        if (r !== false) {
-                            return sourceDef
-                        }
-                    } else {
-                        return sourceDef
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * Looks for a source selector on the instance that matches the target of the given event.
      * @param evt
      * @private
      */
-    private _getSourceDefinitionFromInstance(evt:Event):SourceDefinition {
+    private _getSourceDefinition(evt:Event):SourceDefinition {
         let selector
         for (let i = 0; i < this.instance.sourceSelectors.length; i++) {
             selector = this.instance.sourceSelectors[i]
