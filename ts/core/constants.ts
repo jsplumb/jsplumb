@@ -11,8 +11,6 @@ export function att(...attName:Array<string>):string {
     return attName.map((an:string) => "[" + an + "]").join(",")
 }
 
-export const SOURCE_DEFINITION_LIST = "_jsPlumbSourceDefinitions"
-export const TARGET_DEFINITION_LIST = "_jsPlumbTargetDefinitions"
 export const DEFAULT = "default"
 export const WILDCARD = "*"
 export const SOURCE = "source"
@@ -36,9 +34,7 @@ export const ATTRIBUTE_GROUP = "data-jtk-group"
 export const ATTRIBUTE_GROUP_CONTENT = "data-jtk-group-content"
 export const ATTRIBUTE_MANAGED = "data-jtk-managed"
 export const ATTRIBUTE_NOT_DRAGGABLE = "data-jtk-not-draggable"
-export const ATTRIBUTE_SOURCE = "data-jtk-source"
 export const ATTRIBUTE_TABINDEX = "tabindex"
-export const ATTRIBUTE_TARGET = "data-jtk-target"
 export const ATTRIBUTE_SCOPE = "data-jtk-scope"
 export const ATTRIBUTE_SCOPE_PREFIX = ATTRIBUTE_SCOPE + "-"
 
@@ -132,7 +128,5 @@ export const SELECTOR_GROUP = att(ATTRIBUTE_GROUP)
 export const SELECTOR_GROUP_CONTAINER = att(ATTRIBUTE_GROUP_CONTENT)
 export const SELECTOR_MANAGED_ELEMENT = att(ATTRIBUTE_MANAGED)
 export const SELECTOR_OVERLAY = cls(CLASS_OVERLAY)
-export const SELECTOR_JTK_SOURCE = att(ATTRIBUTE_SOURCE)
-export const SELECTOR_JTK_TARGET = att(ATTRIBUTE_TARGET)
 
 
