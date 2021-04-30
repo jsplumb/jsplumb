@@ -84,16 +84,6 @@ export declare class EndpointDragHandler implements DragHandler {
     private _reattachOrDiscard;
     onStop(p: DragStopEventParams): void;
     /**
-     * Lookup a source definition on the given element.
-     * @param fromElement Element to lookup the source definition
-     * @param evt Associated mouse event - for instance, the event that started a drag.
-     * @param ignoreFilter Used when we're getting a source definition to possibly use as a drop target, ie. when a
-     * connection's source endpoint is being dragged. in that scenario we don't want to filter - we want the source to basically
-     * behave as a target.
-     * @private
-     */
-    private _getSourceDefinitionFromElement;
-    /**
      * Looks for a source selector on the instance that matches the target of the given event.
      * @param evt
      * @private

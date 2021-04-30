@@ -3137,8 +3137,6 @@
       return "[" + an + "]";
     }).join(",");
   }
-  var SOURCE_DEFINITION_LIST = "_jsPlumbSourceDefinitions";
-  var TARGET_DEFINITION_LIST = "_jsPlumbTargetDefinitions";
   var DEFAULT = "default";
   var WILDCARD = "*";
   var SOURCE = "source";
@@ -3158,9 +3156,7 @@
   var ATTRIBUTE_GROUP_CONTENT = "data-jtk-group-content";
   var ATTRIBUTE_MANAGED = "data-jtk-managed";
   var ATTRIBUTE_NOT_DRAGGABLE = "data-jtk-not-draggable";
-  var ATTRIBUTE_SOURCE = "data-jtk-source";
   var ATTRIBUTE_TABINDEX = "tabindex";
-  var ATTRIBUTE_TARGET = "data-jtk-target";
   var ATTRIBUTE_SCOPE = "data-jtk-scope";
   var ATTRIBUTE_SCOPE_PREFIX = ATTRIBUTE_SCOPE + "-";
   var CHECK_CONDITION = "checkCondition";
@@ -3242,8 +3238,6 @@
   var SELECTOR_GROUP_CONTAINER = att(ATTRIBUTE_GROUP_CONTENT);
   var SELECTOR_MANAGED_ELEMENT = att(ATTRIBUTE_MANAGED);
   var SELECTOR_OVERLAY = cls(CLASS_OVERLAY);
-  var SELECTOR_JTK_SOURCE = att(ATTRIBUTE_SOURCE);
-  var SELECTOR_JTK_TARGET = att(ATTRIBUTE_TARGET);
 
   function pointSubtract(p1, p2) {
     return {
@@ -8115,18 +8109,15 @@
       value: function _set(c, el, idx) {
         var stTypes = [{
           el: "source",
-          elId: "sourceId",
-          epDefs: SOURCE_DEFINITION_LIST
+          elId: "sourceId"
         }, {
           el: "target",
-          elId: "targetId",
-          epDefs: TARGET_DEFINITION_LIST
+          elId: "targetId"
         }];
         var ep,
             _st = stTypes[idx],
             cId = c[_st.elId],
             sid,
-            sep,
             oldEndpoint = c.endpoints[idx];
         var evtParams = {
           index: idx,
@@ -8143,18 +8134,8 @@
           ep.addConnection(c);
         } else {
           sid = this.getId(el);
-          sep = el[_st.epDefs] ? el[_st.epDefs][0] : null;
           if (sid === c[_st.elId]) {
             ep = null;
-          } else if (sep) {
-            if (!sep.enabled) {
-              return;
-            }
-            ep = sep.endpoint != null ? sep.endpoint : this.addEndpoint(el, sep.def);
-            if (sep.uniqueEndpoint) {
-              sep.endpoint = ep;
-            }
-            ep.addConnection(c);
           } else {
             ep = c.makeEndpoint(idx === 0, el, sid);
           }
@@ -8388,12 +8369,6 @@
         this.removeAllEndpoints(el, true, affectedElements);
         var _one = function _one(_el) {
           var id = _this3.getId(_el);
-          if (_this3.isSource(_el)) {
-            _this3.unmakeSource(_el);
-          }
-          if (_this3.isTarget(_el)) {
-            _this3.unmakeTarget(_el);
-          }
           _this3.removeAttribute(_el, ID_ATTRIBUTE);
           _this3.removeAttribute(_el, ATTRIBUTE_MANAGED);
           delete _this3._managedElements[id];
@@ -8750,7 +8725,6 @@
     }, {
       key: "_prepareConnectionParams",
       value: function _prepareConnectionParams(params, referenceParams) {
-        var _this7 = this;
         var _p = extend({}, params);
         if (referenceParams) {
           extend(_p, referenceParams);
@@ -8788,64 +8762,6 @@
         }
         if (_p.sourceEndpoint && _p.sourceEndpoint.scope) {
           _p.scope = _p.sourceEndpoint.scope;
-        }
-        var _addEndpoint = function _addEndpoint(el, def, idx) {
-          var params = _mergeOverrides(def, {
-            anchor: _p.anchors ? _p.anchors[idx] : _p.anchor,
-            endpoint: _p.endpoints ? _p.endpoints[idx] : _p.endpoint,
-            paintStyle: _p.endpointStyles ? _p.endpointStyles[idx] : _p.endpointStyle,
-            hoverPaintStyle: _p.endpointHoverStyles ? _p.endpointHoverStyles[idx] : _p.endpointHoverStyle,
-            portId: _p.ports ? _p.ports[idx] : null
-          });
-          return _this7.addEndpoint(el, params);
-        };
-        var _oneElementDef = function _oneElementDef(type, idx, matchType, portId) {
-          if (_p[type] && !_p[type].endpoint && !_p[type + "Endpoint"] && !_p.newConnection) {
-            var elDefs = _p[type][type === SOURCE ? SOURCE_DEFINITION_LIST : TARGET_DEFINITION_LIST];
-            if (elDefs) {
-              var defIdx = findWithFunction(elDefs, function (d) {
-                return (d.def.connectionType == null || d.def.connectionType === matchType) && (d.def.portId == null || d.def.portId == portId);
-              });
-              if (defIdx >= 0) {
-                var tep = elDefs[defIdx];
-                if (tep) {
-                  if (!tep.enabled) {
-                    return false;
-                  }
-                  var epDef = extend({}, tep.def);
-                  delete epDef.label;
-                  var newEndpoint = tep.endpoint != null ? tep.endpoint : _addEndpoint(_p[type], epDef, idx);
-                  if (newEndpoint.isFull()) {
-                    return false;
-                  }
-                  _p[type + "Endpoint"] = newEndpoint;
-                  if (!_p.scope && epDef.scope) {
-                    _p.scope = epDef.scope;
-                  }
-                  if (tep.uniqueEndpoint) {
-                    if (!tep.endpoint) {
-                      tep.endpoint = newEndpoint;
-                      newEndpoint.deleteOnEmpty = false;
-                    } else {
-                      newEndpoint.finalEndpoint = tep.endpoint;
-                    }
-                  } else {
-                    newEndpoint.deleteOnEmpty = true;
-                  }
-                  if (idx === 0 && epDef.connectorOverlays) {
-                    _p.overlays = _p.overlays || [];
-                    Array.prototype.push.apply(_p.overlays, epDef.connectorOverlays);
-                  }
-                }
-              }
-            }
-          }
-        };
-        if (_oneElementDef(SOURCE, 0, _p.type || DEFAULT, _p.ports ? _p.ports[0] : null) === false) {
-          return;
-        }
-        if (_oneElementDef(TARGET, 1, _p.type || DEFAULT, _p.ports ? _p.ports[1] : null) === false) {
-          return;
         }
         if (_p.sourceEndpoint && _p.targetEndpoint) {
           if (!_scopeMatch(_p.sourceEndpoint, _p.targetEndpoint)) {
@@ -8911,165 +8827,6 @@
         return this;
       }
     }, {
-      key: "_setEnabled",
-      value: function _setEnabled(type, el, state, toggle, connectionType) {
-        var _this9 = this;
-        var originalState = [],
-            newState,
-            os;
-        var jel = el;
-        connectionType = connectionType || DEFAULT;
-        var defs = type === SOURCE ? jel._jsPlumbSourceDefinitions : jel._jsPlumbTargetDefinitions;
-        if (defs) {
-          forEach(defs, function (def) {
-            if (def.def.connectionType == null || def.def.connectionType === connectionType) {
-              os = def.enabled;
-              originalState.push(os);
-              newState = toggle ? !os : state;
-              def.enabled = newState;
-              var cls = ["jtk", type, "disabled"].join("-");
-              if (newState) {
-                _this9.removeClass(el, cls);
-              } else {
-                _this9.addClass(el, cls);
-              }
-            }
-          });
-        }
-        return originalState.length > 1 ? originalState : originalState[0];
-      }
-    }, {
-      key: "toggleSourceEnabled",
-      value: function toggleSourceEnabled(el, connectionType) {
-        this._setEnabled(SOURCE, el, null, true, connectionType);
-        return this.isSourceEnabled(el, connectionType);
-      }
-    }, {
-      key: "setSourceEnabled",
-      value: function setSourceEnabled(el, state, connectionType) {
-        return this._setEnabled(SOURCE, el, state, null, connectionType);
-      }
-    }, {
-      key: "findFirstSourceDefinition",
-      value: function findFirstSourceDefinition(el, connectionType) {
-        return this.findFirstDefinition(SOURCE_DEFINITION_LIST, el, connectionType);
-      }
-    }, {
-      key: "findFirstTargetDefinition",
-      value: function findFirstTargetDefinition(el, connectionType) {
-        return this.findFirstDefinition(TARGET_DEFINITION_LIST, el, connectionType);
-      }
-    }, {
-      key: "findFirstDefinition",
-      value: function findFirstDefinition(key, el, connectionType) {
-        if (el == null) {
-          return null;
-        } else {
-          var eldefs = el[key];
-          if (eldefs && eldefs.length > 0) {
-            var _idx = connectionType == null ? 0 : findWithFunction(eldefs, function (d) {
-              return d.def.connectionType === connectionType;
-            });
-            if (_idx >= 0) {
-              return eldefs[0];
-            }
-          }
-        }
-      }
-    }, {
-      key: "isSource",
-      value: function isSource(el, connectionType) {
-        return this.findFirstSourceDefinition(el, connectionType) != null;
-      }
-    }, {
-      key: "isSourceEnabled",
-      value: function isSourceEnabled(el, connectionType) {
-        var def = this.findFirstSourceDefinition(el, connectionType);
-        return def != null && def.enabled !== false;
-      }
-    }, {
-      key: "toggleTargetEnabled",
-      value: function toggleTargetEnabled(el, connectionType) {
-        this._setEnabled(TARGET, el, null, true, connectionType);
-        return this.isTargetEnabled(el, connectionType);
-      }
-    }, {
-      key: "isTarget",
-      value: function isTarget(el, connectionType) {
-        return this.findFirstTargetDefinition(el, connectionType) != null;
-      }
-    }, {
-      key: "isTargetEnabled",
-      value: function isTargetEnabled(el, connectionType) {
-        var def = this.findFirstTargetDefinition(el, connectionType);
-        return def != null && def.enabled !== false;
-      }
-    }, {
-      key: "setTargetEnabled",
-      value: function setTargetEnabled(el, state, connectionType) {
-        return this._setEnabled(TARGET, el, state, null, connectionType);
-      }
-    }, {
-      key: "_unmake",
-      value: function _unmake(type, key, el, connectionType) {
-        connectionType = connectionType || "*";
-        if (el[key]) {
-          if (connectionType === "*") {
-            delete el[key];
-            this.removeAttribute(el, "data-jtk-" + type);
-          } else {
-            var _t2 = [];
-            forEach(el[key], function (def) {
-              if (connectionType !== def.def.connectionType) {
-                _t2.push(def);
-              }
-            });
-            if (_t2.length > 0) {
-              el[key] = _t2;
-            } else {
-              delete el[key];
-              this.removeAttribute(el, "data-jtk-" + type);
-            }
-          }
-        }
-      }
-    }, {
-      key: "_unmakeEvery",
-      value: function _unmakeEvery(type, key, connectionType) {
-        var els = this.getSelector(this.getContainer(), "[data-jtk-" + type + "]");
-        for (var i = 0; i < els.length; i++) {
-          this._unmake(type, key, els[i], connectionType);
-        }
-      }
-    }, {
-      key: "unmakeTarget",
-      value: function unmakeTarget(el, connectionType) {
-        return this._unmake(TARGET, TARGET_DEFINITION_LIST, el, connectionType);
-      }
-    }, {
-      key: "unmakeSource",
-      value: function unmakeSource(el, connectionType) {
-        return this._unmake(SOURCE, SOURCE_DEFINITION_LIST, el, connectionType);
-      }
-    }, {
-      key: "unmakeEverySource",
-      value: function unmakeEverySource(connectionType) {
-        this._unmakeEvery(SOURCE, SOURCE_DEFINITION_LIST, connectionType || "*");
-      }
-    }, {
-      key: "unmakeEveryTarget",
-      value: function unmakeEveryTarget(connectionType) {
-        this._unmakeEvery(TARGET, TARGET_DEFINITION_LIST, connectionType || "*");
-      }
-    }, {
-      key: "_writeScopeAttribute",
-      value: function _writeScopeAttribute(el, scope) {
-        var scopes = scope.split(/\s/);
-        for (var i = 0; i < scopes.length; i++) {
-          this.setAttribute(el, ATTRIBUTE_SCOPE_PREFIX + scopes[i], "");
-        }
-      }
-    }, {
       key: "_createSourceDefinition",
       value: function _createSourceDefinition(params, referenceParams) {
         var p = extend({}, referenceParams);
@@ -9087,25 +8844,6 @@
           endpoint: null
         };
         return _def;
-      }
-    }, {
-      key: "makeSource",
-      value: function makeSource(el, params, referenceParams) {
-        var jel = el;
-        var p = extend(extend({}, params), referenceParams || {});
-        var _def = this._createSourceDefinition(params, referenceParams);
-        this.manage(el);
-        this.setAttribute(el, ATTRIBUTE_SOURCE, "");
-        this._writeScopeAttribute(el, p.scope || this.Defaults.scope);
-        this.setAttribute(el, [ATTRIBUTE_SOURCE, p.connectionType].join("-"), "");
-        jel._jsPlumbSourceDefinitions = jel._jsPlumbSourceDefinitions || [];
-        if (p.createEndpoint) {
-          _def.uniqueEndpoint = true;
-          _def.endpoint = this.addEndpoint(el, _def.def);
-          _def.endpoint.deleteOnEmpty = false;
-        }
-        jel._jsPlumbSourceDefinitions.push(_def);
-        return this;
       }
     }, {
       key: "addSourceSelector",
@@ -9140,55 +8878,6 @@
         return sel;
       }
     }, {
-      key: "_getScope",
-      value: function _getScope(el, defKey) {
-        if (el[defKey] && el[defKey].length > 0) {
-          return el[defKey][0].def.scope;
-        } else {
-          return null;
-        }
-      }
-    }, {
-      key: "getSourceScope",
-      value: function getSourceScope(el) {
-        return this._getScope(el, SOURCE_DEFINITION_LIST);
-      }
-    }, {
-      key: "getTargetScope",
-      value: function getTargetScope(el) {
-        return this._getScope(el, TARGET_DEFINITION_LIST);
-      }
-    }, {
-      key: "getScope",
-      value: function getScope(el) {
-        return this.getSourceScope(el) || this.getTargetScope(el);
-      }
-    }, {
-      key: "_setScope",
-      value: function _setScope(el, scope, defKey) {
-        if (el[defKey]) {
-          forEach(el[defKey], function (def) {
-            return def.def.scope = scope;
-          });
-        }
-      }
-    }, {
-      key: "setSourceScope",
-      value: function setSourceScope(el, scope) {
-        this._setScope(el, scope, SOURCE_DEFINITION_LIST);
-      }
-    }, {
-      key: "setTargetScope",
-      value: function setTargetScope(el, scope) {
-        this._setScope(el, scope, TARGET_DEFINITION_LIST);
-      }
-    }, {
-      key: "setScope",
-      value: function setScope(el, scope) {
-        this._setScope(el, scope, SOURCE_DEFINITION_LIST);
-        this._setScope(el, scope, TARGET_DEFINITION_LIST);
-      }
-    }, {
       key: "_createTargetDefinition",
       value: function _createTargetDefinition(params, referenceParams) {
         var p = extend({}, referenceParams);
@@ -9203,25 +8892,6 @@
           endpoint: null
         };
         return _def;
-      }
-    }, {
-      key: "makeTarget",
-      value: function makeTarget(el, params, referenceParams) {
-        var p = extend(extend({}, params), referenceParams || {});
-        var jel = el;
-        var _def = this._createTargetDefinition(params, referenceParams);
-        this.manage(el);
-        this.setAttribute(el, ATTRIBUTE_TARGET, "");
-        this._writeScopeAttribute(el, p.scope || this.Defaults.scope);
-        this.setAttribute(el, [ATTRIBUTE_TARGET, p.connectionType].join("-"), "");
-        jel._jsPlumbTargetDefinitions = jel._jsPlumbTargetDefinitions || [];
-        if (p.createEndpoint) {
-          _def.uniqueEndpoint = true;
-          _def.endpoint = this.addEndpoint(el, _def.def);
-          _def.endpoint.deleteOnEmpty = false;
-        }
-        jel._jsPlumbTargetDefinitions.push(_def);
-        return this;
       }
     }, {
       key: "show",
@@ -9503,16 +9173,16 @@
       key: "removeFromGroup",
       value: function removeFromGroup(group) {
         var _this$groupManager2,
-            _this10 = this;
+            _this9 = this;
         for (var _len2 = arguments.length, el = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
           el[_key2 - 1] = arguments[_key2];
         }
         (_this$groupManager2 = this.groupManager).removeFromGroup.apply(_this$groupManager2, [group, false].concat(el));
         forEach(el, function (_el) {
-          _this10._appendElement(_el, _this10.getContainer());
-          _this10.updateOffset({
+          _this9._appendElement(_el, _this9.getContainer());
+          _this9.updateOffset({
             recalc: true,
-            elId: _this10.getId(_el)
+            elId: _this9.getId(_el)
           });
         });
       }
@@ -9894,9 +9564,7 @@
   exports.ATTRIBUTE_NOT_DRAGGABLE = ATTRIBUTE_NOT_DRAGGABLE;
   exports.ATTRIBUTE_SCOPE = ATTRIBUTE_SCOPE;
   exports.ATTRIBUTE_SCOPE_PREFIX = ATTRIBUTE_SCOPE_PREFIX;
-  exports.ATTRIBUTE_SOURCE = ATTRIBUTE_SOURCE;
   exports.ATTRIBUTE_TABINDEX = ATTRIBUTE_TABINDEX;
-  exports.ATTRIBUTE_TARGET = ATTRIBUTE_TARGET;
   exports.AbstractConnector = AbstractConnector;
   exports.AbstractSegment = AbstractSegment;
   exports.Anchor = Anchor;
@@ -10017,12 +9685,9 @@
   exports.SELECTOR_ENDPOINT = SELECTOR_ENDPOINT;
   exports.SELECTOR_GROUP = SELECTOR_GROUP;
   exports.SELECTOR_GROUP_CONTAINER = SELECTOR_GROUP_CONTAINER;
-  exports.SELECTOR_JTK_SOURCE = SELECTOR_JTK_SOURCE;
-  exports.SELECTOR_JTK_TARGET = SELECTOR_JTK_TARGET;
   exports.SELECTOR_MANAGED_ELEMENT = SELECTOR_MANAGED_ELEMENT;
   exports.SELECTOR_OVERLAY = SELECTOR_OVERLAY;
   exports.SOURCE = SOURCE;
-  exports.SOURCE_DEFINITION_LIST = SOURCE_DEFINITION_LIST;
   exports.SOURCE_INDEX = SOURCE_INDEX;
   exports.STATIC = STATIC;
   exports.SourceSelector = SourceSelector;
@@ -10030,7 +9695,6 @@
   exports.StraightConnector = StraightConnector;
   exports.StraightSegment = StraightSegment;
   exports.TARGET = TARGET;
-  exports.TARGET_DEFINITION_LIST = TARGET_DEFINITION_LIST;
   exports.TARGET_INDEX = TARGET_INDEX;
   exports.TRUE = TRUE;
   exports.TWO_PI = TWO_PI;

@@ -1,4 +1,4 @@
-import { isString, forEach, fastTrim, isArray, log, NONE, EVENT_CONTEXTMENU, removeWithFunction, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, uuid, IS, extend, wrap, getWithFunction, SELECTOR_MANAGED_ELEMENT, cls, CLASS_OVERLAY, ATTRIBUTE_NOT_DRAGGABLE, FALSE as FALSE$1, optional, getFromSetWithFunction, intersects, CLASS_ENDPOINT, each, SOURCE, TARGET, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_START_DETACH, makeAnchorFromSpec, AnchorLocations, ATTRIBUTE_SCOPE_PREFIX, SELECTOR_JTK_TARGET, SELECTOR_JTK_SOURCE, findWithFunction, findAllWithFunction, getAllWithFunction, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, isAssignableFrom, EndpointRepresentation, SELECTOR_GROUP, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, Connection, Endpoint, Overlay, TRUE as TRUE$1, UNDEFINED, EVENT_CLICK, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_TAP, EVENT_ELEMENT_DBL_TAP, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, fromArray, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE as EVENT_MOUSEMOVE$1, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/core';
+import { isString, forEach, fastTrim, isArray, log, NONE, EVENT_CONTEXTMENU, removeWithFunction, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, uuid, IS, extend, wrap, getWithFunction, SELECTOR_MANAGED_ELEMENT, cls, CLASS_OVERLAY, ATTRIBUTE_NOT_DRAGGABLE, FALSE as FALSE$1, optional, getFromSetWithFunction, intersects, CLASS_ENDPOINT, each, SOURCE, TARGET, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_START_DETACH, makeAnchorFromSpec, AnchorLocations, ATTRIBUTE_SCOPE_PREFIX, getAllWithFunction, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, isAssignableFrom, EndpointRepresentation, SELECTOR_GROUP, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, Connection, Endpoint, Overlay, TRUE as TRUE$1, UNDEFINED, EVENT_CLICK, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_TAP, EVENT_ELEMENT_DBL_TAP, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, fromArray, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE as EVENT_MOUSEMOVE$1, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/core';
 
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -2448,12 +2448,6 @@ function () {
         if (targetEl == null) {
           return;
         }
-      } else {
-        targetEl = findParent(e.target || e.srcElement, SELECTOR_MANAGED_ELEMENT, this.instance.getContainer());
-        if (targetEl == null) {
-          return;
-        }
-        sourceDef = this._getSourceDefinitionFromElement(targetEl, e);
       }
       if (sourceDef) {
         var sourceElement = e.currentTarget,
@@ -2690,59 +2684,6 @@ function () {
               endpoint: candidate.jtk.endpoint,
               def: null
             });
-            _this.instance.addClass(candidate, CLASS_DRAG_ACTIVE);
-          }
-        }
-      });
-      var selectors = [];
-      if (!isSourceDrag) {
-        selectors.push([SELECTOR_JTK_TARGET, "[", ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]"].join(""));
-      } else {
-        selectors.push([SELECTOR_JTK_SOURCE, "[", ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]"].join(""));
-      }
-      var matchingElements = this.instance.getContainer().querySelectorAll(selectors.join(","));
-      forEach(matchingElements, function (candidate) {
-        var jel = candidate;
-        var o = _this.instance.getOffset(candidate),
-            s = _this.instance.getSize(candidate);
-        boundingRect = {
-          x: o.x,
-          y: o.y,
-          w: s.w,
-          h: s.h
-        };
-        var d = {
-          el: candidate,
-          r: boundingRect
-        };
-        if (isSourceDrag) {
-          var sourceDefinitionIdx = findWithFunction(candidate._jsPlumbSourceDefinitions, function (sdef) {
-            return sdef.enabled !== false && (sdef.def.allowLoopback !== false || candidate !== _this.ep.element) && (_this._activeDefinition == null || _this._activeDefinition.def.allowLoopback !== false || candidate !== _this.ep.element);
-          });
-          if (sourceDefinitionIdx !== -1) {
-            if (jel._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank != null) {
-              d.rank = jel._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank;
-            }
-            d.def = jel._jsPlumbSourceDefinitions[sourceDefinitionIdx];
-            _this.endpointDropTargets.push(d);
-            _this.instance.addClass(candidate, CLASS_DRAG_ACTIVE);
-          }
-        } else {
-          var targetDefinitionIndexes = findAllWithFunction(candidate._jsPlumbTargetDefinitions, function (tdef) {
-            return tdef.enabled !== false && (tdef.def.allowLoopback !== false || candidate !== _this.ep.element) && (_this._activeDefinition == null || _this._activeDefinition.def.allowLoopback !== false || candidate !== _this.ep.element);
-          });
-          forEach(targetDefinitionIndexes, function (targetDefinitionIdx) {
-            var d = {
-              el: candidate,
-              r: boundingRect
-            };
-            if (jel._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank != null) {
-              d.rank = jel._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank;
-            }
-            d.def = jel._jsPlumbTargetDefinitions[targetDefinitionIdx];
-            _this.endpointDropTargets.push(d);
-          });
-          if (targetDefinitionIndexes.length > 0) {
             _this.instance.addClass(candidate, CLASS_DRAG_ACTIVE);
           }
         }
@@ -3043,26 +2984,6 @@ function () {
         delete this.jpc.pending;
         if (dropEndpoint != null) {
           this._maybeCleanup(dropEndpoint);
-        }
-      }
-    }
-  }, {
-    key: "_getSourceDefinitionFromElement",
-    value: function _getSourceDefinitionFromElement(fromElement, evt, ignoreFilter) {
-      var sourceDef;
-      if (fromElement._jsPlumbSourceDefinitions) {
-        for (var i = 0; i < fromElement._jsPlumbSourceDefinitions.length; i++) {
-          sourceDef = fromElement._jsPlumbSourceDefinitions[i];
-          if (sourceDef.enabled !== false) {
-            if (!ignoreFilter && sourceDef.def.filter) {
-              var r = isString(sourceDef.def.filter) ? selectorFilter(evt, fromElement, sourceDef.def.filter, this.instance, sourceDef.def.filterExclude) : sourceDef.def.filter(evt, fromElement);
-              if (r !== false) {
-                return sourceDef;
-              }
-            } else {
-              return sourceDef;
-            }
-          }
         }
       }
     }

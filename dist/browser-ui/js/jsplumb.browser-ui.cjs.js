@@ -2452,12 +2452,6 @@ function () {
         if (targetEl == null) {
           return;
         }
-      } else {
-        targetEl = findParent(e.target || e.srcElement, core.SELECTOR_MANAGED_ELEMENT, this.instance.getContainer());
-        if (targetEl == null) {
-          return;
-        }
-        sourceDef = this._getSourceDefinitionFromElement(targetEl, e);
       }
       if (sourceDef) {
         var sourceElement = e.currentTarget,
@@ -2694,59 +2688,6 @@ function () {
               endpoint: candidate.jtk.endpoint,
               def: null
             });
-            _this.instance.addClass(candidate, CLASS_DRAG_ACTIVE);
-          }
-        }
-      });
-      var selectors = [];
-      if (!isSourceDrag) {
-        selectors.push([core.SELECTOR_JTK_TARGET, "[", core.ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]"].join(""));
-      } else {
-        selectors.push([core.SELECTOR_JTK_SOURCE, "[", core.ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]"].join(""));
-      }
-      var matchingElements = this.instance.getContainer().querySelectorAll(selectors.join(","));
-      core.forEach(matchingElements, function (candidate) {
-        var jel = candidate;
-        var o = _this.instance.getOffset(candidate),
-            s = _this.instance.getSize(candidate);
-        boundingRect = {
-          x: o.x,
-          y: o.y,
-          w: s.w,
-          h: s.h
-        };
-        var d = {
-          el: candidate,
-          r: boundingRect
-        };
-        if (isSourceDrag) {
-          var sourceDefinitionIdx = core.findWithFunction(candidate._jsPlumbSourceDefinitions, function (sdef) {
-            return sdef.enabled !== false && (sdef.def.allowLoopback !== false || candidate !== _this.ep.element) && (_this._activeDefinition == null || _this._activeDefinition.def.allowLoopback !== false || candidate !== _this.ep.element);
-          });
-          if (sourceDefinitionIdx !== -1) {
-            if (jel._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank != null) {
-              d.rank = jel._jsPlumbSourceDefinitions[sourceDefinitionIdx].def.rank;
-            }
-            d.def = jel._jsPlumbSourceDefinitions[sourceDefinitionIdx];
-            _this.endpointDropTargets.push(d);
-            _this.instance.addClass(candidate, CLASS_DRAG_ACTIVE);
-          }
-        } else {
-          var targetDefinitionIndexes = core.findAllWithFunction(candidate._jsPlumbTargetDefinitions, function (tdef) {
-            return tdef.enabled !== false && (tdef.def.allowLoopback !== false || candidate !== _this.ep.element) && (_this._activeDefinition == null || _this._activeDefinition.def.allowLoopback !== false || candidate !== _this.ep.element);
-          });
-          core.forEach(targetDefinitionIndexes, function (targetDefinitionIdx) {
-            var d = {
-              el: candidate,
-              r: boundingRect
-            };
-            if (jel._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank != null) {
-              d.rank = jel._jsPlumbTargetDefinitions[targetDefinitionIdx].def.rank;
-            }
-            d.def = jel._jsPlumbTargetDefinitions[targetDefinitionIdx];
-            _this.endpointDropTargets.push(d);
-          });
-          if (targetDefinitionIndexes.length > 0) {
             _this.instance.addClass(candidate, CLASS_DRAG_ACTIVE);
           }
         }
@@ -3047,26 +2988,6 @@ function () {
         delete this.jpc.pending;
         if (dropEndpoint != null) {
           this._maybeCleanup(dropEndpoint);
-        }
-      }
-    }
-  }, {
-    key: "_getSourceDefinitionFromElement",
-    value: function _getSourceDefinitionFromElement(fromElement, evt, ignoreFilter) {
-      var sourceDef;
-      if (fromElement._jsPlumbSourceDefinitions) {
-        for (var i = 0; i < fromElement._jsPlumbSourceDefinitions.length; i++) {
-          sourceDef = fromElement._jsPlumbSourceDefinitions[i];
-          if (sourceDef.enabled !== false) {
-            if (!ignoreFilter && sourceDef.def.filter) {
-              var r = core.isString(sourceDef.def.filter) ? selectorFilter(evt, fromElement, sourceDef.def.filter, this.instance, sourceDef.def.filterExclude) : sourceDef.def.filter(evt, fromElement);
-              if (r !== false) {
-                return sourceDef;
-              }
-            } else {
-              return sourceDef;
-            }
-          }
         }
       }
     }

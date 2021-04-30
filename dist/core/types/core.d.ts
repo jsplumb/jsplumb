@@ -4,7 +4,7 @@ import { Endpoint, EndpointSpec } from "./endpoint/endpoint";
 import { AnchorPlacement, RedrawResult } from "./router/router";
 import { RotatedPointXY } from "./util";
 import { Dictionary, UpdateOffsetOptions, Size, jsPlumbElement, ConnectParams, // <--
-SourceDefinition, TargetDefinition, BehaviouralTypeDescriptor, TypeDescriptor, Rotations, PointXY, ConnectionMovedParams, ConnectionTypeDescriptor, EndpointTypeDescriptor } from './common';
+SourceDefinition, BehaviouralTypeDescriptor, TypeDescriptor, Rotations, PointXY, ConnectionMovedParams, ConnectionTypeDescriptor, EndpointTypeDescriptor } from './common';
 import { EventGenerator } from "./event-generator";
 import { EndpointOptions, InternalEndpointOptions } from "./endpoint/endpoint";
 import { AddGroupOptions, GroupManager } from "./group/group-manager";
@@ -368,122 +368,7 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param affectedElements Used internally to access the full list of elements affected by this change.
      */
     removeAllEndpoints(el: T["E"], recurse?: boolean, affectedElements?: Array<T["E"]>): JsPlumbInstance;
-    /**
-     *
-     * @param type
-     * @param el
-     * @param state
-     * @param toggle
-     * @param connectionType
-     * @private
-     */
-    private _setEnabled;
-    /**
-     * Toggles whether the given element is currently enabled as a connection source. For this to have any effect you
-     * must first have called `makeSource` on the given element.
-     * @param el
-     * @param connectionType
-     */
-    toggleSourceEnabled(el: T["E"], connectionType?: string): any;
-    /**
-     * Sets whether the given element is currently enabled as a connection source. For this to have any effect you
-     * must first have called `makeSource` on the given element.
-     * @param el
-     * @param state
-     * @param connectionType
-     */
-    setSourceEnabled(el: T["E"], state: boolean, connectionType?: string): any;
-    findFirstSourceDefinition(el: T["E"], connectionType?: string): SourceDefinition;
-    findFirstTargetDefinition(el: T["E"], connectionType?: string): TargetDefinition;
-    private findFirstDefinition;
-    /**
-     * Returns whether or not the given element is configured as a connection source.
-     * @param el
-     * @param connectionType
-     */
-    isSource(el: T["E"], connectionType?: string): boolean;
-    /**
-     * Returns whether or not the given element is configured as a connection source and that it is currently enabled.
-     * @param el
-     * @param connectionType
-     */
-    isSourceEnabled(el: T["E"], connectionType?: string): boolean;
-    /**
-     * Toggle whether the given element is currently enabled as a connection target. For this to have any effect you
-     * must first have called `makeTarget` on the given element.
-     * @param el
-     * @param connectionType
-     */
-    toggleTargetEnabled(el: T["E"], connectionType?: string): boolean;
-    /**
-     * Returns whether or not the given element is configured as a connection target.
-     * @param el
-     * @param connectionType
-     */
-    isTarget(el: T["E"], connectionType?: string): boolean;
-    /**
-     * Returns whether or not the given element is both configured as a connection target, and is currently enabled.
-     * @param el
-     * @param connectionType
-     */
-    isTargetEnabled(el: T["E"], connectionType?: string): boolean;
-    /**
-     * Sets whether the given element is currently enabled as a connection target. For this to have any effect you
-     * must first have called `makeTarget` on the given element.
-     * @param el
-     * @param state
-     * @param connectionType
-     */
-    setTargetEnabled(el: T["E"], state: boolean, connectionType?: string): boolean;
-    /**
-     *
-     * @param type
-     * @param key
-     * @param el
-     * @param connectionType
-     * @private
-     */
-    private _unmake;
-    /**
-     *
-     * @param type
-     * @param key
-     * @param connectionType
-     * @private
-     */
-    private _unmakeEvery;
-    /**
-     * Unregister the given element from being a connection target.
-     * @param el
-     * @param connectionType
-     */
-    unmakeTarget(el: T["E"], connectionType?: string): void;
-    /**
-     * Unregister the given element from being a connection source.
-     * @param el
-     * @param connectionType
-     */
-    unmakeSource(el: T["E"], connectionType?: string): void;
-    /**
-     * Unregister every element that is currently configured as a connection source.
-     * @param connectionType
-     */
-    unmakeEverySource(connectionType?: string): void;
-    /**
-     * Unregister every element that is currently configured as a connection target.
-     * @param connectionType
-     */
-    unmakeEveryTarget(connectionType?: string): void;
-    private _writeScopeAttribute;
     protected _createSourceDefinition(params?: BehaviouralTypeDescriptor, referenceParams?: BehaviouralTypeDescriptor): SourceDefinition;
-    /**
-     * Register the given element as a connection source. NOTE from 4.0.0-RC84 onwards, you might wish to
-     * consider using the `addSourceSelector` method instead of this, an approach which is far more performant.
-     * @param el
-     * @param params
-     * @param referenceParams
-     */
-    makeSource(el: T["E"], params?: BehaviouralTypeDescriptor, referenceParams?: BehaviouralTypeDescriptor): JsPlumbInstance;
     /**
      * Registers a selector for connection drag on the instance. This is a newer version of the `makeSource` functionality
      * that has been in jsPlumb since the early days. With this approach, rather than calling `makeSource` on every element, you
@@ -514,23 +399,7 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param exclude If true, the selector defines an 'exclusion': anything _except_ elements that match this.
      */
     addTargetSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): TargetSelector;
-    private _getScope;
-    getSourceScope(el: T["E"]): string;
-    getTargetScope(el: T["E"]): string;
-    getScope(el: T["E"]): string;
-    private _setScope;
-    setSourceScope(el: T["E"], scope: string): void;
-    setTargetScope(el: T["E"], scope: string): void;
-    setScope(el: T["E"], scope: string): void;
     private _createTargetDefinition;
-    /**
-     * Make the given element a connection target. . NOTE from 4.0.0-RC84 onwards, you might wish to
-     * consider using the `addTargetSelector` method instead of this, which is far more performant.
-     * @param el
-     * @param params
-     * @param referenceParams
-     */
-    makeTarget(el: T["E"], params?: BehaviouralTypeDescriptor, referenceParams?: BehaviouralTypeDescriptor): JsPlumbInstance;
     show(el: T["E"], changeEndpoints?: boolean): JsPlumbInstance;
     hide(el: T["E"], changeEndpoints?: boolean): JsPlumbInstance;
     private _setVisible;
