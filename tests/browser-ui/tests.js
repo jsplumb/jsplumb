@@ -83,7 +83,7 @@ var testSuite = function () {
 
     test(': getId', function () {
         var d10 = support.addDiv('d10');
-        equal(_jsPlumb.getId(d10), d10.getAttribute("data-jtk-managed"));
+        equal(_jsPlumb.getId(d10), d10.getAttribute("data-jtk-vertex-id"));
     });
 
     test(': create a simple endpoint', function () {
@@ -2478,8 +2478,9 @@ var testSuite = function () {
 
     test(": delete endpoints on detach, makeSource and makeTarget)", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
-        _jsPlumb.makeSource(d1);
-        _jsPlumb.makeTarget(d2);
+        _jsPlumb.addSourceSelector("#d1")
+        _jsPlumb.addTargetSelector("#d2")
+        
         var c = _jsPlumb.connect({
             source: d1,
             target: d2
@@ -2495,7 +2496,7 @@ var testSuite = function () {
     test(": delete endpoints on detach, addEndpoint and makeTarget)", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var e = _jsPlumb.addEndpoint(d1);
-        _jsPlumb.makeTarget(d2);
+        _jsPlumb.addTargetSelector("#d2");
         var c = _jsPlumb.connect({
             source: e,
             target: d2
@@ -2510,7 +2511,7 @@ var testSuite = function () {
 
     test(": delete endpoints on detach, makeSource and addEndpoint)", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
-        _jsPlumb.makeSource(d1);
+        _jsPlumb.addSourceSelector("#d1");
         var e = _jsPlumb.addEndpoint(d2);
         var c = _jsPlumb.connect({
             source: d1,
@@ -3888,14 +3889,14 @@ var testSuite = function () {
             support2 = jsPlumbTestSupport.getInstance(_jsp2),
             d2 = support2.addDiv("d2");
 
-        d1.removeAttribute("data-jtk-managed");
-        d2.removeAttribute("data-jtk-managed");
+        d1.removeAttribute("data-jtk-vertex-id");
+        d2.removeAttribute("data-jtk-vertex-id");
 
         _jsPlumb.addEndpoint(d1);
         _jsp2.addEndpoint(d2);
 
-        var id1 = d1.getAttribute("data-jtk-managed"),
-            id2 = d2.getAttribute("data-jtk-managed");
+        var id1 = d1.getAttribute("data-jtk-vertex-id"),
+            id2 = d2.getAttribute("data-jtk-vertex-id");
 
         var idx = id1.indexOf("-"), idx2 = id1.lastIndexOf("-"), v1 = id1.substring(idx, idx2);
         var idx3 = id2.indexOf("-"), idx4 = id2.lastIndexOf("-"), v2 = id2.substring(idx3, idx4);
@@ -4155,7 +4156,7 @@ var testSuite = function () {
     //     var d2 = support.addDiv("d2", null, null, 250, 250, 100, 100);
     //
     //     // setup d1 as a source
-    //     _jsPlumb.makeSource(d1, {
+    //     _jsPlumb.addSourceSelector(d1, {
     //         endpoint:"Rectangle",
     //         parameters:{
     //             foo:"foo"
@@ -4186,7 +4187,7 @@ var testSuite = function () {
     //     var d2 = support.addDiv("d2", null, null, 250, 250, 100, 100);
     //
     //     // setup d1 as a source
-    //     _jsPlumb.makeSource(d1, {
+    //     _jsPlumb.addSourceSelector(d1, {
     //         endpoint:"Rectangle",
     //         parameters:{
     //             foo:"foo"
@@ -4221,7 +4222,7 @@ var testSuite = function () {
     //     var d2 = support.addDiv("d2",null, null, 250,250,100,100);
     //
     //     // setup d1 as a source
-    //     _jsPlumb.makeSource(d1, {
+    //     _jsPlumb.addSourceSelector(d1, {
     //         endpoint:"Rectangle",
     //         parameters:{
     //             foo:"foo"
@@ -4256,7 +4257,7 @@ var testSuite = function () {
     //     var d2 = support.addDiv("d2",null, null, 250,250,100,100);
     //
     //     // setup d1 as a source
-    //     _jsPlumb.makeSource(d1, {
+    //     _jsPlumb.addSourceSelector(d1, {
     //         endpoint:"Rectangle",
     //         parameters:{
     //             foo:"foo"
@@ -4796,61 +4797,61 @@ var testSuite = function () {
 
 // ------------------------------- manage -----------------------------------------
 
-    test("Manage adds data-jtk-managed attribute", function() {
+    test("Manage adds data-jtk-vertex-id attribute", function() {
         var d1 = support.addDiv("d1"), f1 = false;
 
         _jsPlumb.manage(d1);
-        ok(d1.getAttribute("data-jtk-managed") != null, "d1 is marked data-jtk-managed");
+        ok(d1.getAttribute("data-jtk-vertex-id") != null, "d1 is marked data-jtk-vertex-id");
         _jsPlumb.unmanage(d1);
-        ok(d1.getAttribute("data-jtk-managed") == null, "d1 is no longer marked data-jtk-managed");
+        ok(d1.getAttribute("data-jtk-vertex-id") == null, "d1 is no longer marked data-jtk-vertex-id");
     });
 
     test("Manage supports optional internal id", function() {
         var d1 = support.addDiv("d1"), f1 = false;
 
         _jsPlumb.manage(d1, "foo");
-        equal(d1.getAttribute("data-jtk-managed"), "foo", "data-jtk-managed attribute set per value passed in to manage method");
+        equal(d1.getAttribute("data-jtk-vertex-id"), "foo", "data-jtk-vertex-id attribute set per value passed in to manage method");
 
         _jsPlumb.unmanage(d1);
-        ok(d1.getAttribute("data-jtk-managed") == null, "d1 is no longer marked data-jtk-managed");
-        ok(d1.getAttribute("data-jtk-managed") == null, "d1 no longer has data-jtk-managed attribute");
+        ok(d1.getAttribute("data-jtk-vertex-id") == null, "d1 is no longer marked data-jtk-vertex-id");
+        ok(d1.getAttribute("data-jtk-vertex-id") == null, "d1 no longer has data-jtk-vertex-id attribute");
     });
 
-    test("manageAll, with array, adds data-jtk-managed attribute", function() {
+    test("manageAll, with array, adds data-jtk-vertex-id attribute", function() {
         var d1 = support.addDiv("d1"),
             d2 = support.addDiv("d2");
 
         _jsPlumb.manageAll([d1, d2]);
-        ok(d1.getAttribute("data-jtk-managed") != null, "d1 is marked data-jtk-managed");
-        ok(d2.getAttribute("data-jtk-managed") != null, "d2 is marked data-jtk-managed");
+        ok(d1.getAttribute("data-jtk-vertex-id") != null, "d1 is marked data-jtk-vertex-id");
+        ok(d2.getAttribute("data-jtk-vertex-id") != null, "d2 is marked data-jtk-vertex-id");
         _jsPlumb.unmanage(d1);
-        ok(d1.getAttribute("data-jtk-managed") == null, "d1 is no longer marked data-jtk-managed");
+        ok(d1.getAttribute("data-jtk-vertex-id") == null, "d1 is no longer marked data-jtk-vertex-id");
     });
 
-    test("manageAll, with NodeList, adds data-jtk-managed attribute", function() {
+    test("manageAll, with NodeList, adds data-jtk-vertex-id attribute", function() {
         var d1 = support.addDiv("d1", null, "foo"),
             d2 = support.addDiv("d2", null, "foo"),
             nl = document.querySelectorAll(".foo");
 
         _jsPlumb.manageAll(nl);
-        ok(d1.getAttribute("data-jtk-managed") != null, "d1 is marked data-jtk-managed");
-        ok(d2.getAttribute("data-jtk-managed") != null, "d2 is marked data-jtk-managed");
+        ok(d1.getAttribute("data-jtk-vertex-id") != null, "d1 is marked data-jtk-vertex-id");
+        ok(d2.getAttribute("data-jtk-vertex-id") != null, "d2 is marked data-jtk-vertex-id");
     });
 
-    test("manageAll, with CSS selector, adds data-jtk-managed attribute", function() {
+    test("manageAll, with CSS selector, adds data-jtk-vertex-id attribute", function() {
         var d1 = support.addDiv("d1", null, "foo"),
             d2 = support.addDiv("d2", null, "foo");
 
         _jsPlumb.manageAll(".foo");
-        ok(d1.getAttribute("data-jtk-managed") != null, "d1 is marked data-jtk-managed");
-        ok(d2.getAttribute("data-jtk-managed") != null, "d2 is marked data-jtk-managed");
+        ok(d1.getAttribute("data-jtk-vertex-id") != null, "d1 is marked data-jtk-vertex-id");
+        ok(d2.getAttribute("data-jtk-vertex-id") != null, "d2 is marked data-jtk-vertex-id");
     });
 
-    test("manageAll, with CSS ID selector, adds data-jtk-managed attribute", function() {
+    test("manageAll, with CSS ID selector, adds data-jtk-vertex-id attribute", function() {
         var d1 = support.addDiv("d1", null, "foo");
 
         _jsPlumb.manageAll("#d1");
-        ok(d1.getAttribute("data-jtk-managed") != null, "d1 is marked data-jtk-managed");
+        ok(d1.getAttribute("data-jtk-vertex-id") != null, "d1 is marked data-jtk-vertex-id");
     });
 
 
@@ -5032,7 +5033,7 @@ var testSuite = function () {
 
     test("endpointStyle on connect method, with makeSource prepared element", function () {
         support.addDivs(["d1", "d2"]);
-        _jsPlumb.makeSource(d1);
+        _jsPlumb.addSourceSelector("#d1");
 
         var c = _jsPlumb.connect({
             source: d1,
@@ -5104,11 +5105,11 @@ var testSuite = function () {
         canvas.style.width = "500px"
         canvas.style.height = "500px"
 
-
+        _jsPlumb.manage(box1)
 
         equal(document.querySelectorAll(".jtk-endpoint").length, 0, "0 endpoints to start")
 
-        _jsPlumb.makeSource(box1);
+        _jsPlumb.addSourceSelector("#box1");
 
         _jsPlumb.trigger(box1, "mousedown");
 
@@ -5201,7 +5202,7 @@ var testSuite = function () {
     test("offset cache cleared", function() {
        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         _jsPlumb.connect({source:d1, target:d2});
-        var id = d1.getAttribute("data-jtk-managed")
+        var id = d1.getAttribute("data-jtk-vertex-id")
         var cd = _jsPlumb.viewport.getPosition(id);
        ok(cd != null, "d1 is cached");
 
@@ -5646,8 +5647,8 @@ var testSuite = function () {
             }),
             c = _jsPlumb.connect({source:e1, target:e2});
 
-        var d1Id = d1.getAttribute("data-jtk-managed")
-        var d2Id = d2.getAttribute("data-jtk-managed")
+        var d1Id = d1.getAttribute("data-jtk-vertex-id")
+        var d2Id = d2.getAttribute("data-jtk-vertex-id")
 
         support.assertManagedEndpointCount(d1, 1)
         support.assertManagedEndpointCount(d2, 1)
