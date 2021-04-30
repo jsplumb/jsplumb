@@ -653,7 +653,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
     }
 
-    getSelector(ctx:string | Element, spec:string):ArrayLike<jsPlumbDOMElement> {
+    getSelector(ctx:string | Element, spec?:string):ArrayLike<jsPlumbDOMElement> {
 
         let sel:Array<jsPlumbDOMElement> = null
         if (arguments.length === 1) {
