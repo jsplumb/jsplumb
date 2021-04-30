@@ -800,6 +800,8 @@ var testSuite = function () {
     test(" makeSource connection type is honoured, programmatic connect", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
 
+        _jsPlumb.manageAll([d1, d2, d3])
+
         _jsPlumb.Defaults.paintStyle = {stroke: "blue", strokeWidth: 34};
 
         _jsPlumb.registerConnectionTypes({
@@ -814,7 +816,7 @@ var testSuite = function () {
             }
         });
 
-        _jsPlumb.makeSource(d1, {
+        _jsPlumb.addSourceSelector("#d1", {
             connectionType:"basic"
         });
 
@@ -825,7 +827,7 @@ var testSuite = function () {
 
         _jsPlumb.deleteConnection(c);
 
-        _jsPlumb.makeTarget(d2, {
+        _jsPlumb.addTargetSelector("#d2", {
             endpoint:"Blank"
         });
 
@@ -840,6 +842,8 @@ var testSuite = function () {
     test(" setType, scope", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3"),
             c = _jsPlumb.connect({source: d1, target: d2});
+
+        _jsPlumb.manageAll([d1, d2, d3])
 
         _jsPlumb.registerConnectionType("basic", {
             connector: "Flowchart",
@@ -1188,7 +1192,7 @@ var testSuite = function () {
     });
 
 
-    test(" multiple makeSource registrations, switched by connectionType", function () {
+    test(" multiple types, type set on `connect` call", function () {
         _jsPlumb.importDefaults({
             paintStyle:{strokeWidth:10, stroke:"red"}
         });
@@ -1196,41 +1200,34 @@ var testSuite = function () {
             connector: "Flowchart",
             paintStyle: { stroke: "yellow", strokeWidth: 4 },
             hoverPaintStyle: { stroke: "blue" },
-            cssClass: "FOO"
+            cssClass: "FOO",
+            endpoint:"Blank"
         };
         var otherType = {
             connector: "Straight",
             paintStyle: { stroke: "red", strokeWidth: 14 },
             hoverPaintStyle: { stroke: "green" },
-            cssClass: "BAR"
+            cssClass: "BAR",
+            endpoint:"Rectangle"
         };
 
         _jsPlumb.registerConnectionType("basic", basicType);
         _jsPlumb.registerConnectionType("other", otherType);
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
 
-        _jsPlumb.makeSource(d1, {
-            connectionType:"basic",
-            endpoint:"Blank"
-        });
+        _jsPlumb.manageAll([d1, d2])
 
-        // make a connection with type not provided; we should get the jsplumb defaults, as no default makeSource
-        // registration has been made.
+
+        // make a connection with type not provided; we should get the jsplumb defaults
         var c = _jsPlumb.connect({source: d1, target: d2});
         equal(c.getPaintStyle().strokeWidth, 10, "connect without type specified gives default type");
         ok(!_jsPlumb.hasClass(support.getConnectionCanvas(c), "FOO"), "css class not set on connector");
 
-        // make a connection whose type matches a register makeSource type; we should get its params.
+        // make a connection whose type matches a registered type
         var c2 = _jsPlumb.connect({source: d1, target: d2, type:"basic"});
         equal(c2.getPaintStyle().strokeWidth, 4, "connect with type specified matches");
         ok(_jsPlumb.hasClass(support.getConnectionCanvas(c2), "FOO"), "css class set on connector");
         equal(c2.endpoints[0].endpoint.getType(), "Blank", "source endpoint is blank, per basic type spec");
-
-        // next makeSource with a different type and try to match it:
-        _jsPlumb.makeSource(d1, {
-            connectionType:"other",
-            endpoint:"Rectangle"
-        });
 
         var c3 = _jsPlumb.connect({source: d1, target: d2, type:"other"});
         equal(c3.getPaintStyle().strokeWidth, 14, "connect with type specified matches");
@@ -1238,11 +1235,6 @@ var testSuite = function () {
         equal(c3.endpoints[0].endpoint.getType(), "Rectangle", "source endpoint is Rectangle, per basic type spec");
 
 
-        // finally add a default registration and connect without specifying type
-
-
-        /*var c2 = _jsPlumb.connect({source: d1, target: d2, type:"other"});
-        equal(c2.getPaintStyle().strokeWidth, 14, "connect with type specified matches");*/
 
     });
 
