@@ -2439,6 +2439,22 @@ function () {
     instance.on(container, EVENT_MOUSEUP, core.SELECTOR_MANAGED_ELEMENT, this.mouseupHandler);
   }
   _createClass(EndpointDragHandler, [{
+    key: "_resolveDragParent",
+    value: function _resolveDragParent(def, eventTarget) {
+      var candidates = [core.SELECTOR_MANAGED_ELEMENT];
+      var target;
+      var container = this.instance.getContainer();
+      if (def.parentSelectors != null) {
+        Array.prototype.unshift.apply(candidates, def.parentSelectors);
+      }
+      for (var i = 0; i < candidates.length; i++) {
+        target = findParent(eventTarget, candidates[i], container);
+        if (target != null) {
+          return target;
+        }
+      }
+    }
+  }, {
     key: "_mousedownHandler",
     value: function _mousedownHandler(e) {
       var targetEl;
@@ -2446,9 +2462,9 @@ function () {
       if (e.which === 3 || e.button === 2) {
         return;
       }
-      sourceDef = this._getSourceDefinitionFromInstance(e);
+      sourceDef = this._getSourceDefinition(e);
       if (sourceDef != null) {
-        targetEl = findParent(e.target || e.srcElement, sourceDef.def.parentSelector || core.SELECTOR_MANAGED_ELEMENT, this.instance.getContainer());
+        targetEl = this._resolveDragParent(sourceDef.def, e.target || e.srcElement);
         if (targetEl == null) {
           return;
         }
@@ -2466,7 +2482,7 @@ function () {
           consume(e);
           if (def.onMaxConnections) {
             def.onMaxConnections({
-              element: self,
+              element: this.ep.element,
               maxConnections: sourceDef.maxConnections
             }, e);
           }
@@ -2992,8 +3008,8 @@ function () {
       }
     }
   }, {
-    key: "_getSourceDefinitionFromInstance",
-    value: function _getSourceDefinitionFromInstance(evt) {
+    key: "_getSourceDefinition",
+    value: function _getSourceDefinition(evt) {
       var selector;
       for (var i = 0; i < this.instance.sourceSelectors.length; i++) {
         selector = this.instance.sourceSelectors[i];

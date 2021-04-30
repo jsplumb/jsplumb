@@ -38,6 +38,7 @@ export declare class EndpointDragHandler implements DragHandler {
     mouseupHandler: (e: any) => void;
     selector: string;
     constructor(instance: BrowserJsPlumbInstance);
+    private _resolveDragParent;
     private _mousedownHandler;
     private _mouseupHandler;
     /**
@@ -88,7 +89,7 @@ export declare class EndpointDragHandler implements DragHandler {
      * @param evt
      * @private
      */
-    private _getSourceDefinitionFromInstance;
+    private _getSourceDefinition;
     /**
      * Create - or retrieve - an appropriate endpoint for a connection drop.
      * @param p

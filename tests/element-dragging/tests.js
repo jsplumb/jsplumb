@@ -1198,8 +1198,8 @@ var testSuite = function () {
         _jsPlumb.manage(d);
         _jsPlumb.manage(d2);
 
-        _jsPlumb.makeSource(d)
-        _jsPlumb.makeTarget(d2)
+        _jsPlumb.addSourceSelector("#d1")
+        _jsPlumb.addTargetSelector("#d2")
 
         var scrollAtStart = document.documentElement.scrollTop
 
