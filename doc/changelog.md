@@ -1,3 +1,10 @@
+## 4.0.0
+
+30th April 2021
+
+- Marked `spec` as optional argument for `getSelector` in `BrowserJsPlumbInstance`, to match its superclass.
+
+
 ## 4.0.0-RC92
 
 29th April 2021

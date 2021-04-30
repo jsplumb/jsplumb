@@ -172,7 +172,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     getOffset(el: Element): PointXY;
     getSize(el: Element): Size;
     getStyle(el: Element, prop: string): any;
-    getSelector(ctx: string | Element, spec: string): ArrayLike<jsPlumbDOMElement>;
+    getSelector(ctx: string | Element, spec?: string): ArrayLike<jsPlumbDOMElement>;
     /**
      * Sets the position of the given element.
      * @param el Element to change position for
