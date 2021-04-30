@@ -57,7 +57,7 @@ import {
     ATTRIBUTE_SCOPE_PREFIX,
     SourceSelector,
     getAllWithFunction,
-    isAssignableFrom, InternalEndpointOptions
+    isAssignableFrom, InternalEndpointOptions, BehaviouralTypeDescriptor
 } from "@jsplumb/core"
 
 function _makeFloatingEndpoint (paintStyle:PaintStyle,
@@ -151,6 +151,21 @@ export class EndpointDragHandler implements DragHandler {
 
     }
 
+    private _resolveDragParent(def:BehaviouralTypeDescriptor, eventTarget:jsPlumbDOMElement):jsPlumbDOMElement {
+        const candidates = [ SELECTOR_MANAGED_ELEMENT ]
+        let target:jsPlumbDOMElement
+        let container = this.instance.getContainer()
+        if (def.parentSelectors != null) {
+            Array.prototype.unshift.apply(candidates, def.parentSelectors)
+        }
+        for (let i = 0; i < candidates.length; i++) {
+            target = findParent(eventTarget, candidates[i], container)
+            if (target != null) {
+                return target
+            }
+        }
+    }
+
     private _mousedownHandler (e:MouseEvent) {
 
         let targetEl:jsPlumbDOMElement
@@ -165,7 +180,8 @@ export class EndpointDragHandler implements DragHandler {
         // first test for a source definition registered on the instance whose selector matches the target of this event
         if (sourceDef != null) {
             // then get the associated element, using the definition's own `parentSelector`, if provided, or the default.
-            targetEl = findParent((e.target || e.srcElement) as jsPlumbDOMElement, sourceDef.def.parentSelector || SELECTOR_MANAGED_ELEMENT, this.instance.getContainer())
+            targetEl = this._resolveDragParent(sourceDef.def, (e.target || e.srcElement) as jsPlumbDOMElement)
+            //targetEl = findParent((e.target || e.srcElement) as jsPlumbDOMElement, sourceDef.def.parentSelector || SELECTOR_MANAGED_ELEMENT, this.instance.getContainer())
             if (targetEl == null) {
                 return
             }
@@ -189,7 +205,7 @@ export class EndpointDragHandler implements DragHandler {
                 // TODO this is incorrect - "self"
                 if (def.onMaxConnections) {
                     def.onMaxConnections({
-                        element: self,
+                        element: this.ep.element,
                         maxConnections: sourceDef.maxConnections
                     }, e)
                 }
