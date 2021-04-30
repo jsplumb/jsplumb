@@ -46,7 +46,8 @@ var testSuite = function () {
 
         var d2 = support.addDiv("d2")
         d2.className = "node"
-        _jsPlumb.makeTarget(d2)
+        _jsPlumb.manage(d2)
+        _jsPlumb.addTargetSelector("#d2")
 
         let elDragged = false;
         _jsPlumb.bind("drag:move", function() {
@@ -78,7 +79,8 @@ var testSuite = function () {
 
         var d2 = support.addDiv("d2")
         d2.className = "node"
-        _jsPlumb.makeTarget(d2)
+        _jsPlumb.manage(d2)
+        _jsPlumb.addTargetSelector("#d2")
 
         let elDragged = false;
         _jsPlumb.bind("drag:move", function() {
@@ -111,7 +113,8 @@ var testSuite = function () {
 
         var d2 = support.addDiv("d2")
         d2.className = "node"
-        _jsPlumb.makeTarget(d2)
+        _jsPlumb.manage(d2)
+        _jsPlumb.addTargetSelector("#d2")
 
         let elDragged = false;
         _jsPlumb.bind("drag:move", function() {
@@ -160,7 +163,8 @@ var testSuite = function () {
 
         var d2 = support.addDiv("d2")
         d2.className = "node"
-        _jsPlumb.makeTarget(d2)
+        _jsPlumb.manage(d2)
+        _jsPlumb.addTargetSelector("#d2")
 
         let elDragged = false;
         _jsPlumb.bind("drag:move", function() {
@@ -222,7 +226,8 @@ var testSuite = function () {
 
         var d2 = support.addDiv("d2")
         d2.className = "node"
-        _jsPlumb.makeTarget(d2)
+        _jsPlumb.manage(d2)
+        _jsPlumb.addTargetSelector("#d2")
 
         let elDragged = false;
         _jsPlumb.bind("drag:move", function() {
@@ -257,7 +262,6 @@ var testSuite = function () {
         var targetNode = makeTargetNode()
         var tzone = addZone(targetNode, "zone2")
         targetNode.setAttribute("foo", "the value of foo target");
-
 
         let elDragged = false;
         _jsPlumb.bind("drag:move", function() {
@@ -297,7 +301,8 @@ var testSuite = function () {
 
         var d2 = support.addDiv("d2")
         d2.className = "node"
-        _jsPlumb.makeTarget(d2)
+        _jsPlumb.manage(d2)
+        _jsPlumb.addTargetSelector("#d2")
 
         let elDragged = false;
         _jsPlumb.bind("drag:move", function() {
@@ -331,7 +336,8 @@ var testSuite = function () {
 
         var d2 = support.addDiv("d2")
         d2.className = "node"
-        _jsPlumb.makeTarget(d2)
+        _jsPlumb.manage(d2)
+        _jsPlumb.addTargetSelector("#d2")
 
         let elDragged = false;
         _jsPlumb.bind("drag:move", function() {
@@ -366,7 +372,8 @@ var testSuite = function () {
 
         var d2 = support.addDiv("d2")
         d2.className = "node"
-        _jsPlumb.makeTarget(d2)
+        _jsPlumb.manage(d2)
+        _jsPlumb.addTargetSelector("#d2")
 
         let elDragged = false;
         _jsPlumb.bind("drag:move", function() {
@@ -435,7 +442,8 @@ var testSuite = function () {
 
         var d2 = support.addDiv("d2")
         d2.className = "node"
-        _jsPlumb.makeSource(d2)
+        _jsPlumb.manage(d2)
+        _jsPlumb.addSourceSelector("#d2")
 
         let elDragged = false;
         _jsPlumb.bind("drag:move", function() {
@@ -469,7 +477,8 @@ var testSuite = function () {
 
         var d2 = support.addDiv("d2")
         d2.className = "node"
-        _jsPlumb.makeSource(d2)
+        _jsPlumb.manage(d2)
+        _jsPlumb.addSourceSelector("#d2")
 
         _jsPlumb.addTargetSelector(".zone1", {
             anchor:"Continuous",
@@ -496,7 +505,8 @@ var testSuite = function () {
 
         var d2 = support.addDiv("d2")
         d2.className = "node"
-        _jsPlumb.makeSource(d2)
+        _jsPlumb.manage(d2)
+        _jsPlumb.addSourceSelector("#d2")
 
         let elDragged = false;
         _jsPlumb.bind("drag:move", function() {
@@ -531,7 +541,8 @@ var testSuite = function () {
 
         var d2 = support.addDiv("d2")
         d2.className = "node"
-        _jsPlumb.makeSource(d2)
+        _jsPlumb.manage(d2)
+        _jsPlumb.addSourceSelector("#d2")
 
         let elDragged = false;
         _jsPlumb.bind("drag:move", function() {
