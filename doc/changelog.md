@@ -1,6 +1,12 @@
+## 5.0.0-RC1
+
+Version 4.0.0 was the first release from jsPlumb's port to Typescript, but just before reaching that goal some new functionality - the ability to register source/target selectors for dragging directly on the instance, using the `addSourceSelector` and `addTargetSelector` methods - was introduced, which I realised can be used in all cases instead of `makeSource` or `makeTarget`, and which is much more performant. Rather than remove a couple of methods that are the mainstay of how many people use jsPlumb, thus introducing further migration tasks, I decided to release 4.0.0 and then bump the major version to 5.0.0; 5.x will not have the `makeSource` or `makeTarget` methods (or any of their related methods such as `setSourceEnabled`, `isSource` etc). 
+
 ## 4.0.0
 
 30th April 2021
+
+4.0.0 marks the first release of jsPlumb's port to Typescript. 
 
 - Marked `spec` as optional argument for `getSelector` in `BrowserJsPlumbInstance`, to match its superclass.
 
