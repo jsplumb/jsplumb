@@ -476,8 +476,8 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     private _set (c:Connection, el:T["E"]|Endpoint, idx:number):ConnectionMovedParams {
 
         const stTypes = [
-            { el: "source", elId: "sourceId", epDefs: Constants.SOURCE_DEFINITION_LIST },
-            { el: "target", elId: "targetId", epDefs: Constants.TARGET_DEFINITION_LIST }
+            { el: "source", elId: "sourceId"},
+            { el: "target", elId: "targetId" }
         ]
 
         let ep,
@@ -503,21 +503,9 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         }
         else {
             sid = this.getId(el)
-            sep = el[_st.epDefs] ? el[_st.epDefs][0] : null
 
             if (sid === c[_st.elId]) {
                 ep = null; // dont change source/target if the element is already the one given.
-            }
-            else if (sep) {
-
-                if (!sep.enabled) {
-                    return
-                }
-                ep = sep.endpoint != null ? sep.endpoint : this.addEndpoint(el, sep.def)
-                if (sep.uniqueEndpoint) {
-                    sep.endpoint = ep
-                }
-                ep.addConnection(c)
             }
             else {
                 ep = c.makeEndpoint(idx === 0, el, sid)
@@ -839,13 +827,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         let _one = (_el:T["E"]) => {
 
             let id = this.getId(_el)
-
-            if (this.isSource(_el)) {
-                this.unmakeSource(_el)
-            }
-            if (this.isTarget(_el)) {
-                this.unmakeTarget(_el)
-            }
 
             this.removeAttribute(_el, ID_ATTRIBUTE)
             this.removeAttribute(_el, Constants.ATTRIBUTE_MANAGED)
@@ -1398,69 +1379,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             return this.addEndpoint(el, params)
         }
 
-        // check for makeSource/makeTarget specs.
-
-        let _oneElementDef = (type:string, idx:number, matchType:string, portId:string) => {
-            // `type` is "source" or "target". Check that it exists, and is not already an Endpoint.
-            if (_p[type] && !_p[type].endpoint && !_p[type + "Endpoint"] && !_p.newConnection) {
-
-                let elDefs = _p[type][type === Constants.SOURCE ? Constants.SOURCE_DEFINITION_LIST : Constants.TARGET_DEFINITION_LIST]
-                if (elDefs) {
-                    let defIdx = findWithFunction(elDefs, (d:any) => {
-                            return (d.def.connectionType == null || d.def.connectionType === matchType) && (d.def.portId == null || d.def.portId == portId)
-                    })
-                    if (defIdx >= 0) {
-
-                        let tep = elDefs[defIdx]
-                        if (tep) {
-                            // if not enabled, return.
-                            if (!tep.enabled) {
-                                return false
-                            }
-
-                            const epDef = extend({}, tep.def)
-                            delete epDef.label
-
-                            let newEndpoint = tep.endpoint != null ? tep.endpoint : _addEndpoint(_p[type], epDef, idx)
-                            if (newEndpoint.isFull()) {
-                                return false
-                            }
-                            _p[type + "Endpoint"] = newEndpoint
-                            if (!_p.scope && epDef.scope) {
-                                _p.scope = epDef.scope
-                            } // provide scope if not already provided and endpoint def has one.
-                            if (tep.uniqueEndpoint) {
-                                if (!tep.endpoint) {
-                                    tep.endpoint = newEndpoint
-                                    newEndpoint.deleteOnEmpty = false
-                                }
-                                else {
-                                    newEndpoint.finalEndpoint = tep.endpoint
-                                }
-                            } else {
-                                newEndpoint.deleteOnEmpty = true
-                            }
-
-                            //
-                            // copy in connector overlays if present on the source definition.
-                            //
-                            if (idx === 0 && epDef.connectorOverlays) {
-                                _p.overlays = _p.overlays || []
-                                Array.prototype.push.apply(_p.overlays, epDef.connectorOverlays)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        if (_oneElementDef(Constants.SOURCE, 0, _p.type || Constants.DEFAULT, _p.ports ? _p.ports[0] : null) === false) {
-            return
-        }
-        if (_oneElementDef(Constants.TARGET, 1, _p.type || Constants.DEFAULT, _p.ports ? _p.ports[1] : null) === false) {
-            return
-        }
-
         // last, ensure scopes match
         if (_p.sourceEndpoint && _p.targetEndpoint) {
             if (!_scopeMatch(_p.sourceEndpoint, _p.targetEndpoint)) {
@@ -1553,238 +1471,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return this
     }
 
-    /**
-     *
-     * @param type
-     * @param el
-     * @param state
-     * @param toggle
-     * @param connectionType
-     * @private
-     */
-    private _setEnabled (type:string, el:T["E"], state:boolean, toggle?:boolean, connectionType?:string):any {
-        let originalState:Array<any> = [], newState, os
-        let jel = el as unknown as jsPlumbElement<T["E"]>
-
-        connectionType = connectionType || Constants.DEFAULT
-
-        let defs = type === Constants.SOURCE ? jel._jsPlumbSourceDefinitions : jel._jsPlumbTargetDefinitions
-        if (defs) {
-            forEach(defs,(def: SourceOrTargetDefinition) => {
-                if (def.def.connectionType == null || def.def.connectionType === connectionType) {
-                    os = def.enabled
-                    originalState.push(os)
-                    newState = toggle ? !os : state
-                    def.enabled = newState
-                    const cls = ["jtk", type, "disabled"].join("-")
-                    if (newState) {
-                        this.removeClass(el, cls)
-                    } else {
-                        this.addClass(el, cls)
-                    }
-                }
-            })
-        }
-
-        return originalState.length > 1 ? originalState : originalState[0]
-
-    }
-
-    /**
-     * Toggles whether the given element is currently enabled as a connection source. For this to have any effect you
-     * must first have called `makeSource` on the given element.
-     * @param el
-     * @param connectionType
-     */
-    toggleSourceEnabled (el:T["E"], connectionType?:string):any {
-        this._setEnabled(Constants.SOURCE, el, null, true, connectionType)
-        return this.isSourceEnabled(el, connectionType)
-    }
-
-    /**
-     * Sets whether the given element is currently enabled as a connection source. For this to have any effect you
-     * must first have called `makeSource` on the given element.
-     * @param el
-     * @param state
-     * @param connectionType
-     */
-    setSourceEnabled (el:T["E"], state:boolean, connectionType?:string):any {
-        return this._setEnabled(Constants.SOURCE, el, state, null, connectionType)
-    }
-
-    findFirstSourceDefinition(el:T["E"], connectionType?:string):SourceDefinition {
-        return this.findFirstDefinition(Constants.SOURCE_DEFINITION_LIST, el, connectionType)
-    }
-
-    findFirstTargetDefinition(el:T["E"], connectionType?:string):TargetDefinition {
-        return this.findFirstDefinition(Constants.TARGET_DEFINITION_LIST, el, connectionType)
-    }
-
-    private findFirstDefinition<D>(key:string, el:T["E"], connectionType?:string):D {
-        if (el == null) {
-            return null
-        } else {
-            const eldefs = el[key]
-            if (eldefs && eldefs.length > 0) {
-                let idx = connectionType == null ? 0 : findWithFunction(eldefs, (d: any) => {
-                    return d.def.connectionType === connectionType
-                })
-                if (idx >= 0) {
-                    return eldefs[0]
-                }
-            }
-        }
-    }
-
-    /**
-     * Returns whether or not the given element is configured as a connection source.
-     * @param el
-     * @param connectionType
-     */
-    isSource (el:T["E"], connectionType?:string):boolean {
-        return this.findFirstSourceDefinition(el, connectionType) != null
-    }
-
-    /**
-     * Returns whether or not the given element is configured as a connection source and that it is currently enabled.
-     * @param el
-     * @param connectionType
-     */
-    isSourceEnabled (el:T["E"], connectionType?:string):boolean {
-        let def = this.findFirstSourceDefinition(el, connectionType)
-        return def != null && def.enabled !== false
-    }
-
-    /**
-     * Toggle whether the given element is currently enabled as a connection target. For this to have any effect you
-     * must first have called `makeTarget` on the given element.
-     * @param el
-     * @param connectionType
-     */
-    toggleTargetEnabled(el:T["E"], connectionType?:string):boolean {
-        this._setEnabled(Constants.TARGET, el, null, true, connectionType)
-        return this.isTargetEnabled(el, connectionType)
-    }
-
-    /**
-     * Returns whether or not the given element is configured as a connection target.
-     * @param el
-     * @param connectionType
-     */
-    isTarget(el:T["E"], connectionType?:string):boolean {
-        return this.findFirstTargetDefinition(el, connectionType) != null
-    }
-
-    /**
-     * Returns whether or not the given element is both configured as a connection target, and is currently enabled.
-     * @param el
-     * @param connectionType
-     */
-    isTargetEnabled (el:T["E"], connectionType?:string):boolean {
-        let def = this.findFirstTargetDefinition(el, connectionType)
-        return def != null && def.enabled !== false
-    }
-
-    /**
-     * Sets whether the given element is currently enabled as a connection target. For this to have any effect you
-     * must first have called `makeTarget` on the given element.
-     * @param el
-     * @param state
-     * @param connectionType
-     */
-    setTargetEnabled(el:T["E"], state:boolean, connectionType?:string):boolean {
-        return this._setEnabled(Constants.TARGET, el, state, null, connectionType)
-    }
-
-    /**
-     *
-     * @param type
-     * @param key
-     * @param el
-     * @param connectionType
-     * @private
-     */
-    private _unmake (type:string, key:string, el:T["E"], connectionType?:string) {
-
-        connectionType = connectionType || "*"
-
-        if (el[key]) {
-            if (connectionType === "*") {
-                delete el[key]
-                this.removeAttribute(el, "data-jtk-" + type)
-            } else {
-                let t: Array<any> = []
-                forEach(el[key], (def: any) => {
-                    if (connectionType !== def.def.connectionType) {
-                        t.push(def)
-                    }
-                })
-
-                if (t.length > 0) {
-                    el[key] = t
-                } else {
-                    delete el[key]
-                    this.removeAttribute(el, "data-jtk-" + type)
-                }
-            }
-        }
-    }
-
-    /**
-     *
-     * @param type
-     * @param key
-     * @param connectionType
-     * @private
-     */
-    private _unmakeEvery (type:string, key:string, connectionType?:string) {
-        let els = this.getSelector(this.getContainer(), "[data-jtk-" + type + "]")
-        for (let i = 0; i < els.length; i++) {
-            this._unmake(type, key, els[i], connectionType)
-        }
-    }
-
-    /**
-     * Unregister the given element from being a connection target.
-     * @param el
-     * @param connectionType
-     */
-    unmakeTarget (el:T["E"], connectionType?:string) {
-        return this._unmake(Constants.TARGET, Constants.TARGET_DEFINITION_LIST, el, connectionType)
-    }
-
-    /**
-     * Unregister the given element from being a connection source.
-     * @param el
-     * @param connectionType
-     */
-    unmakeSource (el:T["E"], connectionType?:string) {
-        return this._unmake(Constants.SOURCE, Constants.SOURCE_DEFINITION_LIST, el, connectionType)
-    }
-
-    /**
-     * Unregister every element that is currently configured as a connection source.
-     * @param connectionType
-     */
-    unmakeEverySource (connectionType?:string) {
-        this._unmakeEvery(Constants.SOURCE, Constants.SOURCE_DEFINITION_LIST, connectionType || "*")
-    }
-
-    /**
-     * Unregister every element that is currently configured as a connection target.
-     * @param connectionType
-     */
-    unmakeEveryTarget (connectionType?:string) {
-        this._unmakeEvery(Constants.TARGET, Constants.TARGET_DEFINITION_LIST, connectionType || "*")
-    }
-
-    private _writeScopeAttribute (el:T["E"], scope:string):void {
-        let scopes = scope.split(/\s/)
-        for (let i = 0; i < scopes.length; i++) {
-            this.setAttribute(el, Constants.ATTRIBUTE_SCOPE_PREFIX + scopes[i], "")
-        }
-    }
-
     protected _createSourceDefinition(params?:BehaviouralTypeDescriptor, referenceParams?:BehaviouralTypeDescriptor):SourceDefinition {
         let p:BehaviouralTypeDescriptor = extend({}, referenceParams)
         extend(p, params)
@@ -1801,38 +1487,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             endpoint:null as Endpoint
         }
         return _def
-    }
-
-    /**
-     * Register the given element as a connection source. NOTE from 4.0.0-RC84 onwards, you might wish to
-     * consider using the `addSourceSelector` method instead of this, an approach which is far more performant.
-     * @param el
-     * @param params
-     * @param referenceParams
-     */
-    makeSource(el:T["E"], params?:BehaviouralTypeDescriptor, referenceParams?:BehaviouralTypeDescriptor):JsPlumbInstance {
-
-        const jel = el as unknown as jsPlumbElement<T["E"]>
-        let p:BehaviouralTypeDescriptor = extend(extend({}, params), referenceParams || {})
-
-        const _def = this._createSourceDefinition(params, referenceParams)
-
-        this.manage(el)
-        this.setAttribute(el, Constants.ATTRIBUTE_SOURCE, "")
-        this._writeScopeAttribute(el, (p.scope || this.Defaults.scope))
-        this.setAttribute(el, [ Constants.ATTRIBUTE_SOURCE, p.connectionType].join("-"), "")
-
-        jel._jsPlumbSourceDefinitions = jel._jsPlumbSourceDefinitions || []
-
-        if (p.createEndpoint) {
-            _def.uniqueEndpoint = true
-            _def.endpoint = this.addEndpoint(el, _def.def)
-            _def.endpoint.deleteOnEmpty = false
-        }
-
-        jel._jsPlumbSourceDefinitions.push(_def)
-
-        return this
     }
 
     /**
@@ -1887,45 +1541,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return sel
     }
 
-    private _getScope(el:T["E"], defKey:string):string {
-        if (el[defKey] && el[defKey].length > 0) {
-            return el[defKey][0].def.scope
-        } else {
-            return null
-        }
-    }
-
-    getSourceScope(el:T["E"]):string {
-        return this._getScope(el, Constants.SOURCE_DEFINITION_LIST)
-    }
-
-    getTargetScope(el:T["E"]):string {
-        return this._getScope(el, Constants.TARGET_DEFINITION_LIST)
-    }
-
-    getScope(el:T["E"]):string {
-        return this.getSourceScope(el) || this.getTargetScope(el)
-    }
-
-    private _setScope(el:T["E"], scope:string, defKey:string):void {
-        if (el[defKey]) {
-            forEach(el[defKey], (def:any) => def.def.scope = scope)
-        }
-    }
-
-    setSourceScope(el:T["E"], scope:string):void {
-        this._setScope(el, scope, Constants.SOURCE_DEFINITION_LIST)
-    }
-
-    setTargetScope(el:T["E"], scope:string):void {
-        this._setScope(el, scope, Constants.TARGET_DEFINITION_LIST)
-    }
-
-    setScope(el:T["E"], scope:string):void {
-        this._setScope(el, scope, Constants.SOURCE_DEFINITION_LIST)
-        this._setScope(el, scope, Constants.TARGET_DEFINITION_LIST)
-    }
-
     private _createTargetDefinition(params?:BehaviouralTypeDescriptor, referenceParams?:BehaviouralTypeDescriptor):TargetDefinition {
 
         // put jsplumb ref into params without altering the params passed in
@@ -1945,38 +1560,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         }
 
         return _def
-    }
-
-    /**
-     * Make the given element a connection target. . NOTE from 4.0.0-RC84 onwards, you might wish to
-     * consider using the `addTargetSelector` method instead of this, which is far more performant.
-     * @param el
-     * @param params
-     * @param referenceParams
-     */
-    makeTarget (el:T["E"], params?:BehaviouralTypeDescriptor, referenceParams?:BehaviouralTypeDescriptor):JsPlumbInstance {
-
-        let p:BehaviouralTypeDescriptor = extend(extend({}, params), referenceParams || {})
-
-        let jel = el as unknown as jsPlumbElement<T["E"]>
-        let _def:TargetDefinition = this._createTargetDefinition(params, referenceParams)
-
-        this.manage(el)
-        this.setAttribute(el, Constants.ATTRIBUTE_TARGET, "")
-        this._writeScopeAttribute(el, (p.scope || this.Defaults.scope))
-        this.setAttribute(el, [Constants.ATTRIBUTE_TARGET, p.connectionType].join("-"), "")
-
-        jel._jsPlumbTargetDefinitions = jel._jsPlumbTargetDefinitions || []
-
-        if (p.createEndpoint) {
-            _def.uniqueEndpoint = true
-            _def.endpoint = this.addEndpoint(el, _def.def)
-            _def.endpoint.deleteOnEmpty = false
-        }
-
-        jel._jsPlumbTargetDefinitions.push(_def)
-
-        return this
     }
 
     show (el:T["E"], changeEndpoints?:boolean):JsPlumbInstance {
