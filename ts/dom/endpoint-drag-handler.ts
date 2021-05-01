@@ -151,24 +151,26 @@ export class EndpointDragHandler implements DragHandler {
 
     }
 
-    private _resolveDragParent(def:BehaviouralTypeDescriptor, eventTarget:jsPlumbDOMElement):jsPlumbDOMElement {
-        const candidates = [ SELECTOR_MANAGED_ELEMENT ]
-        let target:jsPlumbDOMElement
+    private _resolveDragParent(def:BehaviouralTypeDescriptor, eventTarget:jsPlumbDOMElement):{target:jsPlumbDOMElement, parent:jsPlumbDOMElement} {
         let container = this.instance.getContainer()
-        if (def.parentSelectors != null) {
-            Array.prototype.unshift.apply(candidates, def.parentSelectors)
-        }
-        for (let i = 0; i < candidates.length; i++) {
-            target = findParent(eventTarget, candidates[i], container)
-            if (target != null) {
-                return target
+
+        let parent = findParent(eventTarget, SELECTOR_MANAGED_ELEMENT, container, true);
+
+        if (def.parentSelector != null) {
+            const child = findParent(eventTarget, def.parentSelector, container, true);
+            if (child != null) {
+                parent = findParent(child.parentNode, SELECTOR_MANAGED_ELEMENT, container, false);
             }
+            return { target:child || parent, parent }
+        } else {
+            return { target:parent, parent }
         }
     }
 
     private _mousedownHandler (e:MouseEvent) {
 
-        let targetEl:jsPlumbDOMElement
+        let parentEl:jsPlumbDOMElement
+        let sourceEl:jsPlumbDOMElement
         let sourceDef:SourceDefinition
 
         if (e.which === 3 || e.button === 2) {
@@ -180,16 +182,18 @@ export class EndpointDragHandler implements DragHandler {
         // first test for a source definition registered on the instance whose selector matches the target of this event
         if (sourceDef != null) {
             // then get the associated element, using the definition's own `parentSelector`, if provided, or the default.
-            targetEl = this._resolveDragParent(sourceDef.def, (e.target || e.srcElement) as jsPlumbDOMElement)
-            //targetEl = findParent((e.target || e.srcElement) as jsPlumbDOMElement, sourceDef.def.parentSelector || SELECTOR_MANAGED_ELEMENT, this.instance.getContainer())
-            if (targetEl == null) {
+            const dragElements = this._resolveDragParent(sourceDef.def, (e.target || e.srcElement) as jsPlumbDOMElement)
+            sourceEl = dragElements.target
+            if (sourceEl == null) {
                 return
             }
+            parentEl = dragElements.parent
         }
 
         if (sourceDef) {
 
             let sourceElement = e.currentTarget as jsPlumbDOMElement, def
+            //let def
 
             consume(e)
 
@@ -199,7 +203,7 @@ export class EndpointDragHandler implements DragHandler {
 
             def = sourceDef.def
             // if maxConnections reached
-            let sourceCount = this.instance.select({source: targetEl}).length
+            let sourceCount = this.instance.select({source: sourceEl}).length
             if (sourceDef.maxConnections >= 0 && (sourceCount >= sourceDef.maxConnections)) {
                 consume(e)
                 // TODO this is incorrect - "self"
@@ -215,7 +219,7 @@ export class EndpointDragHandler implements DragHandler {
 
             // find the position on the element at which the mouse was pressed; this is where the endpoint
             // will be located.
-            let elxy = getPositionOnElement(e, targetEl, this.instance.currentZoom)
+            let elxy = getPositionOnElement(e, sourceEl, this.instance.currentZoom)
 
             // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
             // the params passed in, because after a connection is established we're going to reset the endpoint
@@ -231,7 +235,11 @@ export class EndpointDragHandler implements DragHandler {
 
             // add an endpoint to the element that is the connection source, using the anchor that will position it where
             // the mousedown event occurred.
-            this.ep = this.instance.addEndpoint(targetEl, tempEndpointParams)
+
+            // ideally we would have `managed` the sourceEl before this call, since if the element is not yet managed then
+            // an internal ID will be assigned here. but the toolkit edition would like this id to be `vertex.port`
+
+            this.ep = this.instance.addEndpoint(sourceEl, tempEndpointParams)
             // mark delete on empty
             this.ep.deleteOnEmpty = true
             // keep a reference to the anchor we want to use if the connection is finalised.
@@ -241,7 +249,7 @@ export class EndpointDragHandler implements DragHandler {
             let payload = {}
             if (def.extract) {
                 for (let att in def.extract) {
-                    let v = targetEl.getAttribute(att)
+                    let v = sourceEl.getAttribute(att)
                     if (v) {
                         payload[def.extract[att]] = v
                     }
@@ -282,6 +290,7 @@ export class EndpointDragHandler implements DragHandler {
     private _mouseupHandler(e:MouseEvent) {
         let el:any = e.currentTarget || e.srcElement
         if (el._jsPlumbOrphanedEndpoints) {
+            console.log("cleanup orphaned endpoint")
             each(el._jsPlumbOrphanedEndpoints, this.instance._maybePruneEndpoint.bind(this.instance))
             el._jsPlumbOrphanedEndpoints.length = 0
         }
@@ -671,20 +680,7 @@ export class EndpointDragHandler implements DragHandler {
 
             for (let i = 0; i < this.endpointDropTargets.length; i++) {
 
-                // test if this drop target has declared a filter (and possibly a value for filterExclude).
-                // if the filter excludes this drop target we don't consider it.
-                let cont = true,
-                    filter =  this.endpointDropTargets[i].def ? this.endpointDropTargets[i].def.def.filter : null,
-                    filterExclude = filter != null ? this.endpointDropTargets[i].def.def.filterExclude : null
-
-                if (filter != null) {
-                    let r = selectorFilter(params.e, this.endpointDropTargets[i].el, filter as string, this.instance, filterExclude)
-                    if (r === false) {
-                        cont = false
-                    }
-                }
-
-                if (cont && intersects(boundingRect, this.endpointDropTargets[i].r)) {
+                if (intersects(boundingRect, this.endpointDropTargets[i].r)) {
                     newDropTarget = this.endpointDropTargets[i]
                     break
                 }
@@ -956,6 +952,10 @@ export class EndpointDragHandler implements DragHandler {
             (<any>dropEndpoint)._mtNew = true
             dropEndpoint.deleteOnEmpty = true
 
+            if (targetDefinition.def.parameters) {
+                dropEndpoint.mergeParameters(targetDefinition.def.parameters)
+            }
+
             // if `extract` defined, read out attributes values and write to the drop endpoint's parameters
             if (targetDefinition.def.extract) {
                 let tpayload = {}
@@ -966,7 +966,7 @@ export class EndpointDragHandler implements DragHandler {
                     }
                 }
 
-                dropEndpoint.parameters = tpayload
+                dropEndpoint.mergeParameters(tpayload)
             }
 
             if (dropEndpoint.anchor.positionFinder != null) {
