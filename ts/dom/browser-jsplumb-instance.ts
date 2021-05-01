@@ -322,7 +322,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
         const _connClick = function(event:string, e:MouseEvent) {
             if (!e.defaultPrevented) {
-                let connectorElement = findParent(getEventSource(e), SELECTOR_CONNECTOR, this.getContainer())
+                let connectorElement = findParent(getEventSource(e), SELECTOR_CONNECTOR, this.getContainer(), true)
                 this.fire(event, connectorElement.jtk.connector.connection, e)
             }
         }
@@ -367,7 +367,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
         const _oClick = function(method:string, e:MouseEvent) {
             consume(e)
-            let overlayElement = findParent(getEventSource(e), SELECTOR_OVERLAY, this.getContainer())
+            let overlayElement = findParent(getEventSource(e), SELECTOR_OVERLAY, this.getContainer(), true)
             let overlay = overlayElement.jtk.overlay
             if (overlay) {
                 overlay[method](e)
@@ -380,7 +380,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         this._overlayDblTap = _oClick.bind(this, EVENT_DBL_TAP)
 
         const _overlayHover = function(state:boolean, e:MouseEvent) {
-            let overlayElement = findParent(getEventSource(e), SELECTOR_OVERLAY, this.getContainer())
+            let overlayElement = findParent(getEventSource(e), SELECTOR_OVERLAY, this.getContainer(), true)
             let overlay = overlayElement.jtk.overlay
             if (overlay) {
                 this.setOverlayHover(overlay, state)
@@ -422,7 +422,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
         const _elementMousemove = function(e:MouseEvent) {
             if (!e.defaultPrevented) {
-                let element = findParent(getEventSource(e), SELECTOR_MANAGED_ELEMENT, this.getContainer())
+                let element = findParent(getEventSource(e), SELECTOR_MANAGED_ELEMENT, this.getContainer(), true)
                 this.fire(EVENT_ELEMENT_MOUSE_MOVE, element, e)
             }
         }
