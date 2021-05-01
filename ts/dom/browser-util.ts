@@ -28,9 +28,14 @@ export function consume (e:Event, doNotPreventDefault?:boolean) {
     }
 }
 
-export function findParent(el:jsPlumbDOMElement, selector:string, container:HTMLElement, matchOnElementAlso?:boolean):jsPlumbDOMElement {
+export function findParent(el:jsPlumbDOMElement, selector:string, container:HTMLElement, matchOnElementAlso:boolean):jsPlumbDOMElement {
+    if (matchOnElementAlso && matchesSelector(el, selector, container)) {
+        return el
+    } else {
+       el = el.parentNode
+    }
     while (el != null && el !== container) {
-        if (matchesSelector(el, selector) || (matchOnElementAlso && matchesSelector(el, selector, container))) {
+        if (matchesSelector(el, selector)) {
             return el
         } else {
             el = el.parentNode
