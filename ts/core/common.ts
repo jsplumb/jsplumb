@@ -128,23 +128,10 @@ export interface BehaviouralTypeDescriptor extends EndpointTypeDescriptor {
     rank?:number
 
     /**
-     * Optional selector list identifying the ancestor(s) of the event target that could be the element to which connections
+     * Optional selector identifying the ancestor of the event target that could be the element to which connections
      * are added. By default this is the internal attribute jsPlumb uses to mark managed elements (data-jtk-managed)
      */
-    parentSelectors?:Array<string>
-
-    /**
-     * Optional filter that defines what parts of the element should respond to the mouse.
-     * TODO this only applies to element selectors, not instance wide selectors.
-     */
-    filter?:string | Function
-
-    /**
-     * Optional flag to indicate that `filter` defines parts of the element that should _not_ respond to the
-     * mouse. Only valid if `filter` is also set.
-     * TODO this only applies to element selectors, not instance wide selectors.
-     */
-    filterExclude?:boolean
+    parentSelector?:string
 }
 
 export interface SourceOrTargetDefinition {
