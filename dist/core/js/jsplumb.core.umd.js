@@ -3154,7 +3154,7 @@
   var ATTRIBUTE_CONTAINER = "data-jtk-container";
   var ATTRIBUTE_GROUP = "data-jtk-group";
   var ATTRIBUTE_GROUP_CONTENT = "data-jtk-group-content";
-  var ATTRIBUTE_MANAGED = "data-jtk-vertex-id";
+  var ATTRIBUTE_MANAGED = "data-jtk-managed";
   var ATTRIBUTE_NOT_DRAGGABLE = "data-jtk-not-draggable";
   var ATTRIBUTE_TABINDEX = "tabindex";
   var ATTRIBUTE_SCOPE = "data-jtk-scope";

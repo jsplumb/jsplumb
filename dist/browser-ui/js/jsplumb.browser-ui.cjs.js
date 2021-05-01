@@ -191,8 +191,13 @@ function consume(e, doNotPreventDefault) {
   }
 }
 function findParent(el, selector, container, matchOnElementAlso) {
+  if (matchOnElementAlso && matchesSelector(el, selector, container)) {
+    return el;
+  } else {
+    el = el.parentNode;
+  }
   while (el != null && el !== container) {
-    if (matchesSelector(el, selector) || matchOnElementAlso && matchesSelector(el, selector, container)) {
+    if (matchesSelector(el, selector)) {
       return el;
     } else {
       el = el.parentNode;
@@ -2441,33 +2446,41 @@ function () {
   _createClass(EndpointDragHandler, [{
     key: "_resolveDragParent",
     value: function _resolveDragParent(def, eventTarget) {
-      var candidates = [core.SELECTOR_MANAGED_ELEMENT];
-      var target;
       var container = this.instance.getContainer();
-      if (def.parentSelectors != null) {
-        Array.prototype.unshift.apply(candidates, def.parentSelectors);
-      }
-      for (var i = 0; i < candidates.length; i++) {
-        target = findParent(eventTarget, candidates[i], container);
-        if (target != null) {
-          return target;
+      var parent = findParent(eventTarget, core.SELECTOR_MANAGED_ELEMENT, container, true);
+      if (def.parentSelector != null) {
+        var child = findParent(eventTarget, def.parentSelector, container, true);
+        if (child != null) {
+          parent = findParent(child.parentNode, core.SELECTOR_MANAGED_ELEMENT, container, false);
         }
+        return {
+          target: child || parent,
+          parent: parent
+        };
+      } else {
+        return {
+          target: parent,
+          parent: parent
+        };
       }
     }
   }, {
     key: "_mousedownHandler",
     value: function _mousedownHandler(e) {
-      var targetEl;
+      var parentEl;
+      var sourceEl;
       var sourceDef;
       if (e.which === 3 || e.button === 2) {
         return;
       }
       sourceDef = this._getSourceDefinition(e);
       if (sourceDef != null) {
-        targetEl = this._resolveDragParent(sourceDef.def, e.target || e.srcElement);
-        if (targetEl == null) {
+        var dragElements = this._resolveDragParent(sourceDef.def, e.target || e.srcElement);
+        sourceEl = dragElements.target;
+        if (sourceEl == null) {
           return;
         }
+        parentEl = dragElements.parent;
       }
       if (sourceDef) {
         var sourceElement = e.currentTarget,
@@ -2476,7 +2489,7 @@ function () {
         this._activeDefinition = sourceDef;
         def = sourceDef.def;
         var sourceCount = this.instance.select({
-          source: targetEl
+          source: sourceEl
         }).length;
         if (sourceDef.maxConnections >= 0 && sourceCount >= sourceDef.maxConnections) {
           consume(e);
@@ -2489,7 +2502,7 @@ function () {
           e.stopImmediatePropagation && e.stopImmediatePropagation();
           return false;
         }
-        var elxy = getPositionOnElement(e, targetEl, this.instance.currentZoom);
+        var elxy = getPositionOnElement(e, sourceEl, this.instance.currentZoom);
         var tempEndpointParams = {};
         core.extend(tempEndpointParams, def);
         tempEndpointParams.isTemporarySource = true;
@@ -2497,13 +2510,13 @@ function () {
         if (def.scope) {
           tempEndpointParams.scope = def.scope;
         }
-        this.ep = this.instance.addEndpoint(targetEl, tempEndpointParams);
+        this.ep = this.instance.addEndpoint(sourceEl, tempEndpointParams);
         this.ep.deleteOnEmpty = true;
         this._originalAnchor = def.anchor || this.instance.Defaults.anchor;
         var payload = {};
         if (def.extract) {
           for (var att in def.extract) {
-            var v = targetEl.getAttribute(att);
+            var v = sourceEl.getAttribute(att);
             if (v) {
               payload[def.extract[att]] = v;
             }
@@ -2528,6 +2541,7 @@ function () {
     value: function _mouseupHandler(e) {
       var el = e.currentTarget || e.srcElement;
       if (el._jsPlumbOrphanedEndpoints) {
+        console.log("cleanup orphaned endpoint");
         core.each(el._jsPlumbOrphanedEndpoints, this.instance._maybePruneEndpoint.bind(this.instance));
         el._jsPlumbOrphanedEndpoints.length = 0;
       }
@@ -2847,15 +2861,7 @@ function () {
             idx,
             _cont;
         for (var i = 0; i < this.endpointDropTargets.length; i++) {
-          var cont = true,
-              filter = this.endpointDropTargets[i].def ? this.endpointDropTargets[i].def.def.filter : null,
-              filterExclude = filter != null ? this.endpointDropTargets[i].def.def.filterExclude : null;
-          if (filter != null) {
-            var r = selectorFilter(params.e, this.endpointDropTargets[i].el, filter, this.instance, filterExclude);
-            if (r === false) {
-              cont = false;
-            }
-          }
+          var cont = true;
           if (cont && core.intersects(boundingRect, this.endpointDropTargets[i].r)) {
             newDropTarget = this.endpointDropTargets[i];
             break;
@@ -3048,6 +3054,9 @@ function () {
         dropEndpoint = this.instance.addEndpoint(this.currentDropTarget.el, pp);
         dropEndpoint._mtNew = true;
         dropEndpoint.deleteOnEmpty = true;
+        if (targetDefinition.def.parameters) {
+          dropEndpoint.mergeParameters(targetDefinition.def.parameters);
+        }
         if (targetDefinition.def.extract) {
           var tpayload = {};
           for (var att in targetDefinition.def.extract) {
@@ -3056,7 +3065,7 @@ function () {
               tpayload[targetDefinition.def.extract[att]] = v;
             }
           }
-          dropEndpoint.parameters = tpayload;
+          dropEndpoint.mergeParameters(tpayload);
         }
         if (dropEndpoint.anchor.positionFinder != null) {
           var finalPos = p.finalPos || p.pos;
@@ -3993,7 +4002,7 @@ function (_JsPlumbInstance) {
     _this.dragManager.addHandler(_this.elementDragHandler, _this.elementDragOptions);
     var _connClick = function _connClick(event, e) {
       if (!e.defaultPrevented) {
-        var connectorElement = findParent(getEventSource(e), core.SELECTOR_CONNECTOR, this.getContainer());
+        var connectorElement = findParent(getEventSource(e), core.SELECTOR_CONNECTOR, this.getContainer(), true);
         this.fire(event, connectorElement.jtk.connector.connection, e);
       }
     };
@@ -4028,7 +4037,7 @@ function (_JsPlumbInstance) {
     _this._endpointMouseout = _endpointHover.bind(_assertThisInitialized(_this), false);
     var _oClick = function _oClick(method, e) {
       consume(e);
-      var overlayElement = findParent(getEventSource(e), core.SELECTOR_OVERLAY, this.getContainer());
+      var overlayElement = findParent(getEventSource(e), core.SELECTOR_OVERLAY, this.getContainer(), true);
       var overlay = overlayElement.jtk.overlay;
       if (overlay) {
         overlay[method](e);
@@ -4039,7 +4048,7 @@ function (_JsPlumbInstance) {
     _this._overlayTap = _oClick.bind(_assertThisInitialized(_this), core.EVENT_TAP);
     _this._overlayDblTap = _oClick.bind(_assertThisInitialized(_this), core.EVENT_DBL_TAP);
     var _overlayHover = function _overlayHover(state, e) {
-      var overlayElement = findParent(getEventSource(e), core.SELECTOR_OVERLAY, this.getContainer());
+      var overlayElement = findParent(getEventSource(e), core.SELECTOR_OVERLAY, this.getContainer(), true);
       var overlay = overlayElement.jtk.overlay;
       if (overlay) {
         this.setOverlayHover(overlay, state);
@@ -4072,7 +4081,7 @@ function (_JsPlumbInstance) {
     _this._elementMouseexit = _elementHover.bind(_assertThisInitialized(_this), false);
     var _elementMousemove = function _elementMousemove(e) {
       if (!e.defaultPrevented) {
-        var element = findParent(getEventSource(e), core.SELECTOR_MANAGED_ELEMENT, this.getContainer());
+        var element = findParent(getEventSource(e), core.SELECTOR_MANAGED_ELEMENT, this.getContainer(), true);
         this.fire(core.EVENT_ELEMENT_MOUSE_MOVE, element, e);
       }
     };
