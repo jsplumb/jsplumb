@@ -112,7 +112,76 @@ export function clone(a: any): any {
     }
 }
 
-export function merge(a: any, b: any, collations?: any, overwrites?:any) {
+/**
+ * Merge the values from `b` into the values from `a`, resulting in `c`.  `b` and `a` are unchanged by this method.
+ * Not every datatype can be merged - arrays can, and objects can, but primitives (strings/booleans/numbers/functions)
+ * cannot, and are overwritten in `c` by the value from `b`, if present.
+ *
+ * Collating Values
+ * ----------------
+ *
+ * You can choose to collate strings, booleans or functions if you wish, by providing their key names in the `collations` array. So if
+ * you had, say:
+ *
+ * a:{
+ *     foo:"hello"
+ * }
+ *
+ * b:{
+ *     foo:"world"
+ * }
+ *
+ * and you called  `merge(a, b, ["foo"])`, then the output would be
+ *
+ * {
+ *     foo:["hello", "world"]
+ * }
+ *
+ * if the value in `a` is already an Array then the value from `b` is simply appended:
+ *
+ * a:{
+ *     foo:["hello"]
+ * }
+ *
+ * b:{
+ *     foo:"world"
+ * }
+ *
+ * here the output would be
+ *
+ * {
+ *     foo:["hello", "world"]
+ * }
+ *
+ *
+ * Overwriting values
+ * -----------------
+ *
+ * If you wish to overwrite, rather than merge, specific values, you can provide their keys in the `overwrites` array. Note that it's unnecessary to
+ * specify any primitives in the `overwrites` array, as they will always be overwritten and not merged.
+ *
+ * a:{
+ *     foo:["hello", "world"]
+ * }
+ *
+ * b:{
+ *     foo:"world"
+ * }
+ *
+ * and you called  `merge(a, b, null, ["foo"])`, then the output would be
+ *
+ * {
+ *     foo:"world"
+ * }
+ *
+ * Note that it is irrelevant, in the case of overwriting, what the type of the parent's value is. It will be overwritten regardless.
+ *
+ * @param a Parent object
+ * @param b Child object
+ * @param collations Optional list of parameters to collate, rather than merging or overwriting.
+ * @param overwrites Optional list of parameters to overwrite, rather than merging.
+ */
+export function merge(a: Record<string, any>, b: Record<string, any>, collations?: Array<string>, overwrites?:Array<string>) {
     // first change the collations array - if present - into a lookup table, because its faster.
     let cMap = {}, ar: any, i: any, oMap = {}
     collations = collations || []
@@ -129,17 +198,15 @@ export function merge(a: any, b: any, collations?: any, overwrites?:any) {
         if (c[i] == null || oMap[i]) {
             c[i] = b[i]
         }
-        else if (isString(b[i]) || isBoolean(b[i])) {
-            if (!cMap[i]) {
-                c[i] = b[i]; // if we dont want to collate, just copy it in.
-            }
-            else {
-                ar = []
-                // if c's object is also an array we can keep its values.
-                ar.push.apply(ar, isArray(c[i]) ? c[i] : [c[i]])
-                ar.push.apply(ar, isBoolean(b[i]) ? b[i] : [b[i]])
-                c[i] = ar
-            }
+        else if (cMap[i]) {
+            ar = []
+            // if c's object is also an array we can keep its values.
+            ar.push.apply(ar, isArray(c[i]) ? c[i] : [c[i]])
+            ar.push(b[i])
+            c[i] = ar
+        }
+        else if (isString(b[i]) || isBoolean(b[i]) || isFunction(b[i]) || isNumber(b[i])) {
+            c[i] = b[i]
         }
         else {
             if (isArray(b[i])) {
@@ -532,63 +599,6 @@ export function map(obj: any, fn: Function) {
         o.push(fn(obj[i]))
     }
     return o
-}
-
-export function mergeWithParents(type: Array<string> | string, map: any, parentAttribute?: string): any {
-
-    parentAttribute = parentAttribute || "parent"
-
-    let _def = (id: string): any => {
-        return id ? map[id] : null
-    }
-
-    let _parent = (def: any): any => {
-        return def ? _def(def[parentAttribute]) : null
-    }
-
-    let _one = (parent: any, def: any): any => {
-        if (parent == null) {
-            return def
-        }
-        else {
-            let overrides = [ "anchor", "anchors", "cssClass", "connector", "paintStyle", "hoverPaintStyle", "endpoint", "endpoints"]
-            if (def.mergeStrategy === "override") {
-                Array.prototype.push.apply(overrides, [ "events", "overlays"])
-            }
-            let d = merge(parent, def, [], overrides)
-            return _one(_parent(parent), d)
-        }
-    }
-
-    let _getDef = (t: any): any => {
-        if (t == null) {
-            return {}
-        }
-        if (typeof t === "string") {
-            return _def(t)
-        }
-        else if (t.length) {
-            let done = false, i = 0, _dd
-            while (!done && i < t.length) {
-                _dd = _getDef(t[i])
-                if (_dd) {
-                    done = true
-                }
-                else {
-                    i++
-                }
-            }
-            return _dd
-        }
-    }
-
-    let d = _getDef(type)
-    if (d) {
-        return _one(_parent(d), d)
-    }
-    else {
-        return {}
-    }
 }
 
 export const logEnabled: boolean = true
