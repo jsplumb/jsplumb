@@ -91,7 +91,8 @@ export interface ConnectionTypeDescriptor extends TypeDescriptor {
     reattach?: boolean;
     endpoints?: [EndpointSpec, EndpointSpec];
 }
-export interface BehaviouralTypeDescriptor extends EndpointTypeDescriptor {
+export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescriptor {
+    parameterExtractor?: (el: T) => Dictionary<string>;
     extract?: Dictionary<string>;
     uniqueEndpoint?: boolean;
     /**

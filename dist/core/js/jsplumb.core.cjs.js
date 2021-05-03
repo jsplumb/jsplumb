@@ -494,15 +494,13 @@ function merge(a, b, collations, overwrites) {
   for (i in b) {
     if (c[i] == null || oMap[i]) {
       c[i] = b[i];
-    } else if (isString(b[i]) || isBoolean(b[i])) {
-      if (!cMap[i]) {
-        c[i] = b[i];
-      } else {
-        ar = [];
-        ar.push.apply(ar, isArray(c[i]) ? c[i] : [c[i]]);
-        ar.push.apply(ar, isBoolean(b[i]) ? b[i] : [b[i]]);
-        c[i] = ar;
-      }
+    } else if (cMap[i]) {
+      ar = [];
+      ar.push.apply(ar, isArray(c[i]) ? c[i] : [c[i]]);
+      ar.push(b[i]);
+      c[i] = ar;
+    } else if (isString(b[i]) || isBoolean(b[i]) || isFunction(b[i]) || isNumber(b[i])) {
+      c[i] = b[i];
     } else {
       if (isArray(b[i])) {
         ar = [];
@@ -780,54 +778,6 @@ function map(obj, fn) {
   }
   return o;
 }
-function mergeWithParents(type, map, parentAttribute) {
-  parentAttribute = parentAttribute || "parent";
-  var _def = function _def(id) {
-    return id ? map[id] : null;
-  };
-  var _parent = function _parent(def) {
-    return def ? _def(def[parentAttribute]) : null;
-  };
-  var _one = function _one(parent, def) {
-    if (parent == null) {
-      return def;
-    } else {
-      var overrides = ["anchor", "anchors", "cssClass", "connector", "paintStyle", "hoverPaintStyle", "endpoint", "endpoints"];
-      if (def.mergeStrategy === "override") {
-        Array.prototype.push.apply(overrides, ["events", "overlays"]);
-      }
-      var _d = merge(parent, def, [], overrides);
-      return _one(_parent(parent), _d);
-    }
-  };
-  var _getDef = function _getDef(t) {
-    if (t == null) {
-      return {};
-    }
-    if (typeof t === "string") {
-      return _def(t);
-    } else if (t.length) {
-      var done = false,
-          _i3 = 0,
-          _dd;
-      while (!done && _i3 < t.length) {
-        _dd = _getDef(t[_i3]);
-        if (_dd) {
-          done = true;
-        } else {
-          _i3++;
-        }
-      }
-      return _dd;
-    }
-  };
-  var d = _getDef(type);
-  if (d) {
-    return _one(_parent(d), d);
-  } else {
-    return {};
-  }
-}
 var logEnabled = true;
 function log() {
   for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
@@ -865,9 +815,9 @@ function sortHelper(_array, _fn) {
 }
 function _mergeOverrides(def, values) {
   var m = extend({}, def);
-  for (var _i4 in values) {
-    if (values[_i4]) {
-      m[_i4] = values[_i4];
+  for (var _i3 in values) {
+    if (values[_i3]) {
+      m[_i3] = values[_i3];
     }
   }
   return m;
@@ -3488,10 +3438,10 @@ function (_EventGenerator) {
     _this.beforeDrop = params.beforeDrop;
     _this._types = [];
     _this._typeCache = {};
-    _this.parameters = params.parameters || {};
+    _this.parameters = clone(params.parameters || {});
     _this.id = _this.getIdPrefix() + new Date().getTime();
     _this._defaultType = {
-      parameters: params.parameters || {},
+      parameters: _this.parameters,
       scope: params.scope || _this.instance.defaultScope
     };
     if (params.events) {
@@ -3521,15 +3471,13 @@ function (_EventGenerator) {
     }
   }, {
     key: "isDropAllowed",
-    value: function isDropAllowed(sourceId, targetId, scope, connection, dropEndpoint, source, target) {
+    value: function isDropAllowed(sourceId, targetId, scope, connection, dropEndpoint) {
       var r = this.instance.checkCondition(INTERCEPT_BEFORE_DROP, {
         sourceId: sourceId,
         targetId: targetId,
         scope: scope,
         connection: connection,
-        dropEndpoint: dropEndpoint,
-        source: source,
-        target: target
+        dropEndpoint: dropEndpoint
       });
       if (this.beforeDrop) {
         try {
@@ -3538,9 +3486,7 @@ function (_EventGenerator) {
             targetId: targetId,
             scope: scope,
             connection: connection,
-            dropEndpoint: dropEndpoint,
-            source: source,
-            target: target
+            dropEndpoint: dropEndpoint
           });
         } catch (e) {
           log("jsPlumb: beforeDrop callback failed", e);
@@ -9765,7 +9711,6 @@ exports.logEnabled = logEnabled;
 exports.makeAnchorFromSpec = makeAnchorFromSpec;
 exports.map = map;
 exports.merge = merge;
-exports.mergeWithParents = mergeWithParents;
 exports.nearestPointOnCurve = nearestPointOnCurve;
 exports.normal = normal;
 exports.optional = optional;

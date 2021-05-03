@@ -2523,6 +2523,9 @@ function () {
           }
           this.ep.mergeParameters(payload);
         }
+        if (def.parameterExtractor) {
+          this.ep.mergeParameters(def.parameterExtractor(sourceEl));
+        }
         if (def.uniqueEndpoint) {
           if (!sourceDef.endpoint) {
             sourceDef.endpoint = this.ep;
@@ -2637,6 +2640,7 @@ function () {
       this.jpc.suspendedElementType = anchorIdx === 0 ? core.SOURCE : core.TARGET;
       this.instance.setHover(this.jpc.suspendedEndpoint, false);
       this.floatingEndpoint.referenceEndpoint = this.jpc.suspendedEndpoint;
+      this.floatingEndpoint.mergeParameters(this.jpc.suspendedEndpoint.parameters);
       this.jpc.endpoints[anchorIdx] = this.floatingEndpoint;
       this.jpc.addClass(this.instance.draggingClass);
       this.floatingId = this.placeholderInfo.id;
@@ -2759,7 +2763,12 @@ function () {
             var d = {
               r: null
             };
-            d.el = findParent(el, core.SELECTOR_MANAGED_ELEMENT, _this.instance.getContainer(), true);
+            if (targetDef.def.def.parentSelector != null) {
+              d.el = findParent(el, targetDef.def.def.parentSelector, _this.instance.getContainer(), true);
+            }
+            if (d.el == null) {
+              d.el = findParent(el, core.SELECTOR_MANAGED_ELEMENT, _this.instance.getContainer(), true);
+            }
             if (targetDef.def.def.allowLoopback === false || _this._activeDefinition && _this._activeDefinition.def.allowLoopback === false) {
               if (d.el === _this.ep.element) {
                 return;
@@ -2861,8 +2870,7 @@ function () {
             idx,
             _cont;
         for (var i = 0; i < this.endpointDropTargets.length; i++) {
-          var cont = true;
-          if (cont && core.intersects(boundingRect, this.endpointDropTargets[i].r)) {
+          if (core.intersects(boundingRect, this.endpointDropTargets[i].r)) {
             newDropTarget = this.endpointDropTargets[i];
             break;
           }
@@ -3066,6 +3074,9 @@ function () {
             }
           }
           dropEndpoint.mergeParameters(tpayload);
+        }
+        if (targetDefinition.def.parameterExtractor) {
+          dropEndpoint.mergeParameters(targetDefinition.def.parameterExtractor(this.currentDropTarget.el));
         }
         if (dropEndpoint.anchor.positionFinder != null) {
           var finalPos = p.finalPos || p.pos;

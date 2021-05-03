@@ -51,7 +51,7 @@ export declare abstract class Component extends EventGenerator {
     beforeDrop: Function;
     constructor(instance: JsPlumbInstance, params?: ComponentOptions);
     isDetachAllowed(connection: Connection): boolean;
-    isDropAllowed(sourceId: string, targetId: string, scope: string, connection: Connection, dropEndpoint: Endpoint, source?: any, target?: any): any;
+    isDropAllowed(sourceId: string, targetId: string, scope: string, connection: Connection, dropEndpoint: Endpoint): any;
     getDefaultType(): TypeDescriptor;
     appendToDefaultType(obj: any): void;
     getId(): string;

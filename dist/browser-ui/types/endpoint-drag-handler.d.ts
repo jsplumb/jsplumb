@@ -62,7 +62,7 @@ export declare class EndpointDragHandler implements DragHandler {
     private startNewConnectionDrag;
     private startExistingConnectionDrag;
     /**
-     * Returns whether or not a connerction drag should start, and, if so, optionally returns a payload to associate with the drag.
+     * Returns whether or not a connection drag should start, and, if so, optionally returns a payload to associate with the drag.
      * @private
      */
     private _shouldStartDrag;

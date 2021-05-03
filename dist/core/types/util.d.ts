@@ -16,7 +16,76 @@ export declare const IS: {
     aString: (o: any) => boolean;
 };
 export declare function clone(a: any): any;
-export declare function merge(a: any, b: any, collations?: any, overwrites?: any): any;
+/**
+ * Merge the values from `b` into the values from `a`, resulting in `c`.  `b` and `a` are unchanged by this method.
+ * Not every datatype can be merged - arrays can, and objects can, but primitives (strings/booleans/numbers/functions)
+ * cannot, and are overwritten in `c` by the value from `b`, if present.
+ *
+ * Collating Values
+ * ----------------
+ *
+ * You can choose to collate strings, booleans or functions if you wish, by providing their key names in the `collations` array. So if
+ * you had, say:
+ *
+ * a:{
+ *     foo:"hello"
+ * }
+ *
+ * b:{
+ *     foo:"world"
+ * }
+ *
+ * and you called  `merge(a, b, ["foo"])`, then the output would be
+ *
+ * {
+ *     foo:["hello", "world"]
+ * }
+ *
+ * if the value in `a` is already an Array then the value from `b` is simply appended:
+ *
+ * a:{
+ *     foo:["hello"]
+ * }
+ *
+ * b:{
+ *     foo:"world"
+ * }
+ *
+ * here the output would be
+ *
+ * {
+ *     foo:["hello", "world"]
+ * }
+ *
+ *
+ * Overwriting values
+ * -----------------
+ *
+ * If you wish to overwrite, rather than merge, specific values, you can provide their keys in the `overwrites` array. Note that it's unnecessary to
+ * specify any primitives in the `overwrites` array, as they will always be overwritten and not merged.
+ *
+ * a:{
+ *     foo:["hello", "world"]
+ * }
+ *
+ * b:{
+ *     foo:"world"
+ * }
+ *
+ * and you called  `merge(a, b, null, ["foo"])`, then the output would be
+ *
+ * {
+ *     foo:"world"
+ * }
+ *
+ * Note that it is irrelevant, in the case of overwriting, what the type of the parent's value is. It will be overwritten regardless.
+ *
+ * @param a Parent object
+ * @param b Child object
+ * @param collations Optional list of parameters to collate, rather than merging or overwriting.
+ * @param overwrites Optional list of parameters to overwrite, rather than merging.
+ */
+export declare function merge(a: Record<string, any>, b: Record<string, any>, collations?: Array<string>, overwrites?: Array<string>): any;
 export declare function replace(inObj: any, path: string, value: any): any;
 export declare function functionChain(successValue: any, failValue: any, fns: Array<Array<any>>): any;
 /**
@@ -109,7 +178,6 @@ export declare function rotateAnchorOrientation(orientation: [number, number], r
 export declare function fastTrim(s: string): string;
 export declare function each(obj: any, fn: Function): void;
 export declare function map(obj: any, fn: Function): any[];
-export declare function mergeWithParents(type: Array<string> | string, map: any, parentAttribute?: string): any;
 export declare const logEnabled: boolean;
 export declare function log(...args: string[]): void;
 /**
