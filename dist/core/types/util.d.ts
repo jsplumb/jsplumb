@@ -17,6 +17,11 @@ export declare const IS: {
 };
 export declare function clone(a: any): any;
 /**
+ * Returns a copy of the given object that has no null values. Note this only operates one level deep.
+ * @param obj
+ */
+export declare function filterNull(obj: Record<string, any>): Record<string, any>;
+/**
  * Merge the values from `b` into the values from `a`, resulting in `c`.  `b` and `a` are unchanged by this method.
  * Not every datatype can be merged - arrays can, and objects can, but primitives (strings/booleans/numbers/functions)
  * cannot, and are overwritten in `c` by the value from `b`, if present.

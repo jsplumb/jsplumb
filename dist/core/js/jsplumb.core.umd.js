@@ -479,6 +479,15 @@
       return a;
     }
   }
+  function filterNull(obj) {
+    var o = {};
+    for (var k in obj) {
+      if (obj[k] != null) {
+        o[k] = obj[k];
+      }
+    }
+    return o;
+  }
   function merge(a, b, collations, overwrites) {
     var cMap = {},
         ar,
@@ -8626,11 +8635,7 @@
           _this6.viewport.reset();
           _this6.router.reset();
           _this6.groupManager.reset();
-          _this6._connectionTypes.clear();
-          _this6._endpointTypes.clear();
           _this6.connections.length = 0;
-          _this6.sourceSelectors.length = 0;
-          _this6.targetSelectors.length = 0;
         });
       }
     }, {
@@ -8638,6 +8643,10 @@
       value: function destroy() {
         this.reset();
         this.unbind();
+        this.sourceSelectors.length = 0;
+        this.targetSelectors.length = 0;
+        this._connectionTypes.clear();
+        this._endpointTypes.clear();
       }
     }, {
       key: "getEndpoints",
@@ -9673,6 +9682,7 @@
   exports.extend = extend;
   exports.fastTrim = fastTrim;
   exports.filterList = filterList;
+  exports.filterNull = filterNull;
   exports.findAllWithFunction = findAllWithFunction;
   exports.findWithFunction = findWithFunction;
   exports.forEach = forEach;
