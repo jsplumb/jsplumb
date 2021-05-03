@@ -258,6 +258,10 @@ export class EndpointDragHandler implements DragHandler {
                 this.ep.mergeParameters(payload)
             }
 
+            if (def.parameterExtractor) {
+                this.ep.mergeParameters(def.parameterExtractor(sourceEl))
+            }
+
             // if unique endpoint and it's already been created, push it onto the endpoint we create. at the end
             // of a successful connection we'll switch to that endpoint.
             // TODO this is the same code as the programmatic endpoints create on line 1050 ish
@@ -413,6 +417,7 @@ export class EndpointDragHandler implements DragHandler {
         this.instance.setHover(this.jpc.suspendedEndpoint, false)
 
         this.floatingEndpoint.referenceEndpoint = this.jpc.suspendedEndpoint
+        this.floatingEndpoint.mergeParameters(this.jpc.suspendedEndpoint.parameters)
         this.jpc.endpoints[anchorIdx] = this.floatingEndpoint
 
         this.jpc.addClass(this.instance.draggingClass)
@@ -422,7 +427,7 @@ export class EndpointDragHandler implements DragHandler {
     }
 
     /**
-     * Returns whether or not a connerction drag should start, and, if so, optionally returns a payload to associate with the drag.
+     * Returns whether or not a connection drag should start, and, if so, optionally returns a payload to associate with the drag.
      * @private
      */
     private _shouldStartDrag():[boolean, any] {
@@ -561,8 +566,13 @@ export class EndpointDragHandler implements DragHandler {
                 const targetZones = this.instance.getContainer().querySelectorAll(targetDef.selector)
                 forEach(targetZones, (el:Element) => {
                     let d: any = {r: null}
-                    d.el = findParent(el as unknown as jsPlumbDOMElement, SELECTOR_MANAGED_ELEMENT, this.instance.getContainer(), true)
+                    if (targetDef.def.def.parentSelector != null) {
+                        d.el = findParent(el as unknown as jsPlumbDOMElement, targetDef.def.def.parentSelector, this.instance.getContainer(), true)
+                    }
+                    if (d.el == null) {
+                        d.el = findParent(el as unknown as jsPlumbDOMElement, SELECTOR_MANAGED_ELEMENT, this.instance.getContainer(), true)
 
+                    }
                     // if loopback disallowed on source or target definition and this target is the current element, skip it
                     if (targetDef.def.def.allowLoopback === false || (this._activeDefinition && this._activeDefinition.def.allowLoopback === false)) {
                         if (d.el === this.ep.element) {
@@ -967,6 +977,10 @@ export class EndpointDragHandler implements DragHandler {
                 }
 
                 dropEndpoint.mergeParameters(tpayload)
+            }
+
+            if (targetDefinition.def.parameterExtractor) {
+                dropEndpoint.mergeParameters(targetDefinition.def.parameterExtractor(this.currentDropTarget.el))
             }
 
             if (dropEndpoint.anchor.positionFinder != null) {
