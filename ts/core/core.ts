@@ -1226,8 +1226,8 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     }
 
     /**
-     * Clears all endpoints and connections from the instance of jsplumb. Does not also clear out event listeners - for that,
-     * use `destroy()`.
+     * Clears all endpoints and connections from the instance of jsplumb. Does not also clear out event listeners, selectors, or
+     * connection/endpoint types - for that, use `destroy()`.
      */
     reset ():void {
         this.silently(() => {
@@ -1237,11 +1237,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             this.viewport.reset()
             this.router.reset()
             this.groupManager.reset()
-            this._connectionTypes.clear()
-            this._endpointTypes.clear()
             this.connections.length = 0
-            this.sourceSelectors.length = 0
-            this.targetSelectors.length = 0
         })
     }
 
@@ -1254,6 +1250,10 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     destroy():void {
         this.reset()
         this.unbind()
+        this.sourceSelectors.length = 0
+        this.targetSelectors.length = 0
+        this._connectionTypes.clear()
+        this._endpointTypes.clear()
     }
 
     /**
