@@ -1,7 +1,7 @@
 import {PaintStyle} from "../styles"
 import  { Dictionary, TypeDescriptor, PointXY} from '../common'
 import { JsPlumbInstance } from "../core"
-import { extend, log, merge, populate, setToArray } from "../util"
+import {clone, extend, log, merge, populate, setToArray} from "../util"
 import {EventGenerator} from "../event-generator"
 import {Connection} from "../connector/connection-impl"
 import {Endpoint} from "../endpoint/endpoint"
@@ -156,12 +156,12 @@ export abstract class Component extends EventGenerator {
         this._types = []
         this._typeCache = {}
 
-        this.parameters = params.parameters || {}
+        this.parameters = clone(params.parameters || {})
 
         this.id = this.getIdPrefix() + (new Date()).getTime()
 
         this._defaultType = {
-            parameters: params.parameters || {},
+            parameters: this.parameters,
             scope: params.scope || this.instance.defaultScope
         }
 
@@ -191,14 +191,13 @@ export abstract class Component extends EventGenerator {
         return r
     }
 
-    isDropAllowed(sourceId:string, targetId:string, scope:string, connection:Connection, dropEndpoint:Endpoint, source?:any, target?:any):any {
+    isDropAllowed(sourceId:string, targetId:string, scope:string, connection:Connection, dropEndpoint:Endpoint):any {
         let r = this.instance.checkCondition(INTERCEPT_BEFORE_DROP, {
             sourceId: sourceId,
             targetId: targetId,
             scope: scope,
             connection: connection,
-            dropEndpoint: dropEndpoint,
-            source: source, target: target
+            dropEndpoint: dropEndpoint
         })
         if (this.beforeDrop) {
             try {
@@ -207,8 +206,7 @@ export abstract class Component extends EventGenerator {
                     targetId: targetId,
                     scope: scope,
                     connection: connection,
-                    dropEndpoint: dropEndpoint,
-                    source: source, target: target
+                    dropEndpoint: dropEndpoint
                 })
             }
             catch (e) {
