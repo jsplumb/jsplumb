@@ -637,7 +637,7 @@ var testSuite = function () {
 
     })
 
-    test("source and target selectors are cleared on reset", function() {
+    test("source and target selectors are NOT cleared on `reset` but they are on `destroy`", function() {
 
 
         _jsPlumb.addSourceSelector(".zone1", {
@@ -662,6 +662,11 @@ var testSuite = function () {
         equal(1, _jsPlumb.targetSelectors.length, "1 target selector registered")
 
         _jsPlumb.reset()
+
+        equal(2, _jsPlumb.sourceSelectors.length, "2 source selectors registered")
+        equal(1, _jsPlumb.targetSelectors.length, "1 target selector registered")
+
+        _jsPlumb.destroy()
 
         equal(0, _jsPlumb.sourceSelectors.length, "0 source selectors registered")
         equal(0, _jsPlumb.targetSelectors.length, "0 target selector registered")
