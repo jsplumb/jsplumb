@@ -5746,5 +5746,148 @@ var testSuite = function () {
         equal(false, jsPlumbBrowserUI.isArrayLike(str), "string is NOT identified as array like")
     })
 
+    test("merge function, default behaviour", function() {
+        var a = {
+            "foo":"parent",
+            "bar":"parent",
+            "fooNumber":1,
+            "barNumber":1,
+                "fooBoolean":true,
+                "barBoolean":true,
+            "fooArray":[1,2,3],
+                "barArray":[4,5,6],
+            "fooObject":{
+                "foo":"parent",
+                "bar":"parent"
+            },
+            "barObject":{
+                "foo":"parent",
+                "bar":"parent"
+            },
+            "fooFunction":function() { return "parent"},
+                "barFunction":function() { return "parent"}
+        },
+        b = {
+            "foo":"child",
+            "fooNumber":2,
+            "fooBoolean":false,
+            "fooArray":[4,5],
+            "fooObject":{
+                "foo":"child"
+            },
+            "fooFunction":function() { return "child"}
+        },
+        c = jsPlumb.merge(a, b)
+
+        equal(c.foo, "child", "foo property overridden; child value present")
+        equal(c.bar, "parent", "bar property not overridden; no child value")
+        equal(c.fooNumber, 2, "fooNumber property overridden; child value present")
+        equal(c.barNumber, 1, "barNumber property not overridden; no child value")
+        equal(c.fooBoolean, false, "fooBoolean property overridden")
+        equal(c.barBoolean, true, "barBoolean property not overridden; there was only one value")
+        equal(c.fooArray.length, 5, "foo array merged child into parent")
+        equal(c.barArray.length, 3, "bar array not merged; no child value")
+        equal(c.fooObject.foo, "child", "fooObject.foo property overridden; child merged into parent")
+        equal(c.fooObject.bar, "parent", "fooObject.bar property not overridden; no child value")
+        equal(c.barObject.foo, "parent", "barObject property overridden")
+        equal(c.bar, "parent", "bar property not overridden; no child value")
+        equal(c.fooFunction(), "child", "foo function overridden by default")
+        equal(c.barFunction(), "parent", "barFunction not overridden; no child value")
+    })
+
+    test("merge function, collations", function() {
+        var a = {
+                "foo":"parent",
+                "bar":"parent",
+                "fooNumber":1,
+                "barNumber":1,
+                "fooBoolean":true,
+                "barBoolean":true,
+                "fooArray":[1,2,3],
+                "barArray":[4,5,6],
+                "fooObject":{
+                    "foo":"parent",
+                    "bar":"parent"
+                },
+                "barObject":{
+                    "foo":"parent",
+                    "bar":"parent"
+                },
+                "fooFunction":function() { return "parent"},
+                "barFunction":function() { return "parent"}
+            },
+            b = {
+                "foo":"child",
+                "fooNumber":2,
+                "fooBoolean":false,
+                "fooArray":[4,5],
+                "fooObject":{
+                    "foo":"child"
+                },
+                "fooFunction":function() { return "child"}
+            },
+            c = jsPlumb.merge(a, b, ["foo", "bar", "fooNumber", "barNumber", "fooArray", "fooObject", "fooFunction", "fooBoolean", "barBoolean"])
+
+        equal(c.foo.length, 2, "foo property collated")
+        equal(c.bar, "parent", "bar property not collated; there was only one value")
+        equal(c.fooNumber.length, 2, "fooNumber property collated")
+        equal(c.barNumber, 1, "barNumber property not collated; there was only one value")
+        equal(c.fooBoolean.length, 2, "fooBoolean property collated")
+        equal(c.barBoolean, 1, "barBoolean property not collated; there was only one value")
+        equal(c.fooArray.length, 4, "fooArray property collated")
+        equal(c.barArray.length, 3, "bar array not merged; no child value")
+        equal(c.fooObject.length, 2, "fooObject property collated")
+        equal(c.barObject.foo, "parent", "barObject property not collated; there was only one value")
+        equal(c.fooFunction.length, 2, "fooFunction property collated")
+        equal(c.barFunction(), "parent", "barFunction property not collated; there was only one value")
+    })
+
+
+    test("merge function, overrides", function() {
+        var a = {
+                "foo":"parent",
+                "bar":"parent",
+                "fooNumber":1,
+                "barNumber":1,
+                "fooBoolean":true,
+                "barBoolean":true,
+                "fooArray":[1,2,3],
+                "fooObject":{
+                    "foo":"parent",
+                    "bar":"parent"
+                },
+                "barObject":{
+                    "foo":"parent",
+                    "bar":"parent"
+                },
+                "fooFunction":function() { return "parent"},
+                "barFunction":function() { return "parent"}
+            },
+            b = {
+                "foo":"child",
+                "fooNumber":2,
+                "fooBoolean":false,
+                "fooArray":[4,5],
+                "fooObject":{
+                    "foo":"child"
+                },
+                "fooFunction":function() { return "child"}
+            },
+            c = jsPlumb.merge(a, b, null, ["foo", "bar", "fooNumber", "barNumber", "fooArray", "fooObject", "fooFunction", "fooBoolean", "barBoolean"])
+
+        equal(c.foo, "child", "foo property overridden")
+        equal(c.bar, "parent", "bar property not overridden; there was only one value")
+        equal(c.fooNumber, 2, "fooNumber property overridden")
+        equal(c.barNumber, 1, "barNumber property not collated; there was only one value")
+        equal(c.fooBoolean, false, "fooBoolean property overridden")
+        equal(c.barBoolean, true, "barBoolean property not overridden; there was only one value")
+        equal(c.fooArray.length, 2, "fooArray property overridden")
+        equal(c.fooObject.foo, "child", "fooObject property overridden")
+        equal(c.fooObject.bar, null, "fooObject property overridden")
+        equal(c.barObject.foo, "parent", "barObject property not overridden; there was only one value")
+        equal(c.fooFunction(), "child", "fooFunction property overridden")
+        equal(c.barFunction(), "parent", "barFunction property not overridden; there was only one value")
+    })
+
 };
 
