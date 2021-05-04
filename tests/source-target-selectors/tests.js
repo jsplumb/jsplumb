@@ -100,7 +100,7 @@ var testSuite = function () {
         equal(sourceNode, c.source, "connection's source is first source node")
 
         // relocate the dragged connection so that its source is the second source node.
-        support.relocateSource(c, sourceNode2)
+        support.relocateSource(c, zone2)
         equal(1, _jsPlumb.select().length, "one connection in the instance")
 
     })
@@ -222,7 +222,7 @@ var testSuite = function () {
 
         var sourceNode = makeSourceNode()
         var zone = addZone(sourceNode, "zone1")
-        sourceNode.setAttribute("foo", "the value of foo");
+        zone.setAttribute("foo", "the value of foo");
 
         var d2 = support.addDiv("d2")
         d2.className = "node"
@@ -257,11 +257,11 @@ var testSuite = function () {
 
         var sourceNode = makeSourceNode()
         var zone = addZone(sourceNode, "zone1")
-        sourceNode.setAttribute("foo", "the value of foo");
+        zone.setAttribute("foo", "the value of foo");
 
         var targetNode = makeTargetNode()
         var tzone = addZone(targetNode, "zone2")
-        targetNode.setAttribute("foo", "the value of foo target");
+        tzone.setAttribute("foo", "the value of foo target");
 
         let elDragged = false;
         _jsPlumb.bind("drag:move", function() {
@@ -470,6 +470,7 @@ var testSuite = function () {
     test("addTargetSelector, move target of dragged connection", function() {
         var targetNode = makeTargetNode()
         var zone = addZone(targetNode, "zone1")
+
         var targetNode2 = makeTargetNode()
         targetNode2.style.left = "600px"
         targetNode2.style.top = "600px"
@@ -489,12 +490,12 @@ var testSuite = function () {
         var c = support.dragConnection(d2, zone, true)
 
         equal(1, _jsPlumb.select().length, "one connection in the instance")
-        equal(targetNode, c.target, "connection's target is first target node")
+        equal(c.target, targetNode, "connection's target is first target node")
 
         // relocate the dragged connection so that its target is dropped on the second target node
         support.relocateTarget(c, zone2)
         equal(1, _jsPlumb.select().length, "one connection in the instance after target moved")
-        equal(targetNode2, c.target, "connection's target is second target node")
+        equal(c.target, targetNode2, "connection's target is second target node")
 
 
     })
