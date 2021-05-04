@@ -2473,9 +2473,10 @@
         if (e.which === 3 || e.button === 2) {
           return;
         }
+        var eventTarget = e.target || e.srcElement;
         sourceDef = this._getSourceDefinition(e);
         if (sourceDef != null) {
-          var dragElements = this._resolveDragParent(sourceDef.def, e.target || e.srcElement);
+          var dragElements = this._resolveDragParent(sourceDef.def, eventTarget);
           sourceEl = dragElements.target;
           if (sourceEl == null) {
             return;
@@ -2510,21 +2511,20 @@
           if (def.scope) {
             tempEndpointParams.scope = def.scope;
           }
+          var extractedParameters = def.parameterExtractor ? def.parameterExtractor(sourceEl, eventTarget) : {};
+          tempEndpointParams = core.merge(tempEndpointParams, extractedParameters);
           this.ep = this.instance.addEndpoint(sourceEl, tempEndpointParams);
           this.ep.deleteOnEmpty = true;
-          this._originalAnchor = def.anchor || this.instance.Defaults.anchor;
+          this._originalAnchor = tempEndpointParams.anchor || this.instance.Defaults.anchor;
           var payload = {};
           if (def.extract) {
             for (var att in def.extract) {
-              var v = sourceEl.getAttribute(att);
+              var v = eventTarget.getAttribute(att);
               if (v) {
                 payload[def.extract[att]] = v;
               }
             }
             this.ep.mergeParameters(payload);
-          }
-          if (def.parameterExtractor) {
-            this.ep.mergeParameters(def.parameterExtractor(sourceEl));
           }
           if (def.uniqueEndpoint) {
             if (!sourceDef.endpoint) {
@@ -2734,9 +2734,10 @@
             var targetZones = this.instance.getContainer().querySelectorAll(sourceDef.selector);
             core.forEach(targetZones, function (el) {
               var d = {
-                r: null
+                r: null,
+                el: el
               };
-              d.el = findParent(el, core.SELECTOR_MANAGED_ELEMENT, _this.instance.getContainer(), true);
+              d.targetEl = findParent(el, core.SELECTOR_MANAGED_ELEMENT, _this.instance.getContainer(), true);
               var o = _this.instance.getOffset(d.el),
                   s = _this.instance.getSize(d.el);
               d.r = {
@@ -2750,7 +2751,7 @@
               }
               d.def = sourceDef;
               _this.endpointDropTargets.push(d);
-              _this.instance.addClass(d.el, CLASS_DRAG_ACTIVE);
+              _this.instance.addClass(d.targetEl, CLASS_DRAG_ACTIVE);
             });
           }
         } else {
@@ -2761,16 +2762,17 @@
             var targetZones = _this.instance.getContainer().querySelectorAll(targetDef.selector);
             core.forEach(targetZones, function (el) {
               var d = {
-                r: null
+                r: null,
+                el: el
               };
               if (targetDef.def.def.parentSelector != null) {
-                d.el = findParent(el, targetDef.def.def.parentSelector, _this.instance.getContainer(), true);
+                d.targetEl = findParent(el, targetDef.def.def.parentSelector, _this.instance.getContainer(), true);
               }
-              if (d.el == null) {
-                d.el = findParent(el, core.SELECTOR_MANAGED_ELEMENT, _this.instance.getContainer(), true);
+              if (d.targetEl == null) {
+                d.targetEl = findParent(el, core.SELECTOR_MANAGED_ELEMENT, _this.instance.getContainer(), true);
               }
               if (targetDef.def.def.allowLoopback === false || _this._activeDefinition && _this._activeDefinition.def.allowLoopback === false) {
-                if (d.el === _this.ep.element) {
+                if (d.targetEl === _this.ep.element) {
                   return;
                 }
               }
@@ -2787,7 +2789,7 @@
                 d.rank = targetDef.def.def.rank;
               }
               _this.endpointDropTargets.push(d);
-              _this.instance.addClass(d.el, CLASS_DRAG_ACTIVE);
+              _this.instance.addClass(d.targetEl, CLASS_DRAG_ACTIVE);
             });
           });
         }
@@ -3041,6 +3043,7 @@
         var dropEndpoint;
         if (this.currentDropTarget.endpoint == null) {
           var targetDefinition = this.currentDropTarget.def;
+          var eventTarget = p.e.target || p.e.srcElement;
           if (targetDefinition == null) {
             return null;
           }
@@ -3053,13 +3056,12 @@
               anchor: targetDefinition.def.anchor || eps.anchors[1]
             });
           }
-          if (targetDefinition.def.parameters != null) {
-            pp.parameters = targetDefinition.def.parameters;
-          }
           if (targetDefinition.def.portId != null) {
             pp.portId = targetDefinition.def.portId;
           }
-          dropEndpoint = this.instance.addEndpoint(this.currentDropTarget.el, pp);
+          var extractedParameters = targetDefinition.def.parameterExtractor ? targetDefinition.def.parameterExtractor(this.currentDropTarget.el, eventTarget) : {};
+          pp = core.merge(pp, extractedParameters);
+          dropEndpoint = this.instance.addEndpoint(this.currentDropTarget.targetEl, pp);
           dropEndpoint._mtNew = true;
           dropEndpoint.deleteOnEmpty = true;
           if (targetDefinition.def.parameters) {
@@ -3075,17 +3077,14 @@
             }
             dropEndpoint.mergeParameters(tpayload);
           }
-          if (targetDefinition.def.parameterExtractor) {
-            dropEndpoint.mergeParameters(targetDefinition.def.parameterExtractor(this.currentDropTarget.el));
-          }
           if (dropEndpoint.anchor.positionFinder != null) {
             var finalPos = p.finalPos || p.pos;
             var dropPosition = {
               x: finalPos.x,
               y: finalPos.y
             };
-            var elPosition = this.instance.getOffset(this.currentDropTarget.el),
-                elSize = this.instance.getSize(this.currentDropTarget.el),
+            var elPosition = this.instance.getOffset(this.currentDropTarget.targetEl),
+                elSize = this.instance.getSize(this.currentDropTarget.targetEl),
                 ap = dropEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, dropEndpoint.anchor.constructorParams);
             dropEndpoint.anchor.x = ap[0];
             dropEndpoint.anchor.y = ap[1];
@@ -3149,7 +3148,6 @@
         }
         this.jpc.endpoints[idx] = dropEndpoint;
         dropEndpoint.addConnection(this.jpc);
-        this.jpc.mergeParameters(dropEndpoint.parameters);
         if (this.jpc.suspendedEndpoint) {
           var suspendedElementId = this.jpc.suspendedEndpoint.elementId;
           this.instance.fireMoveEvent({

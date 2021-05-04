@@ -1,4 +1,4 @@
-import { isString, forEach, fastTrim, isArray, log, NONE, EVENT_CONTEXTMENU, removeWithFunction, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, uuid, IS, extend, wrap, getWithFunction, SELECTOR_MANAGED_ELEMENT, cls, CLASS_OVERLAY, ATTRIBUTE_NOT_DRAGGABLE, FALSE as FALSE$1, optional, getFromSetWithFunction, intersects, CLASS_ENDPOINT, each, SOURCE, TARGET, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_START_DETACH, makeAnchorFromSpec, AnchorLocations, ATTRIBUTE_SCOPE_PREFIX, getAllWithFunction, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, isAssignableFrom, EndpointRepresentation, SELECTOR_GROUP, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, Connection, Endpoint, Overlay, TRUE as TRUE$1, UNDEFINED, EVENT_CLICK, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_TAP, EVENT_ELEMENT_DBL_TAP, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, fromArray, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE as EVENT_MOUSEMOVE$1, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/core';
+import { isString, forEach, fastTrim, isArray, log, NONE, EVENT_CONTEXTMENU, removeWithFunction, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, uuid, IS, extend, wrap, getWithFunction, SELECTOR_MANAGED_ELEMENT, cls, CLASS_OVERLAY, ATTRIBUTE_NOT_DRAGGABLE, FALSE as FALSE$1, optional, getFromSetWithFunction, intersects, CLASS_ENDPOINT, merge, each, SOURCE, TARGET, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_START_DETACH, makeAnchorFromSpec, AnchorLocations, ATTRIBUTE_SCOPE_PREFIX, getAllWithFunction, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, isAssignableFrom, EndpointRepresentation, SELECTOR_GROUP, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, Connection, Endpoint, Overlay, TRUE as TRUE$1, UNDEFINED, EVENT_CLICK, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_TAP, EVENT_ELEMENT_DBL_TAP, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, fromArray, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, EVENT_MOUSEMOVE as EVENT_MOUSEMOVE$1, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_MOVE } from '@jsplumb/core';
 
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -2469,9 +2469,10 @@ function () {
       if (e.which === 3 || e.button === 2) {
         return;
       }
+      var eventTarget = e.target || e.srcElement;
       sourceDef = this._getSourceDefinition(e);
       if (sourceDef != null) {
-        var dragElements = this._resolveDragParent(sourceDef.def, e.target || e.srcElement);
+        var dragElements = this._resolveDragParent(sourceDef.def, eventTarget);
         sourceEl = dragElements.target;
         if (sourceEl == null) {
           return;
@@ -2506,21 +2507,20 @@ function () {
         if (def.scope) {
           tempEndpointParams.scope = def.scope;
         }
+        var extractedParameters = def.parameterExtractor ? def.parameterExtractor(sourceEl, eventTarget) : {};
+        tempEndpointParams = merge(tempEndpointParams, extractedParameters);
         this.ep = this.instance.addEndpoint(sourceEl, tempEndpointParams);
         this.ep.deleteOnEmpty = true;
-        this._originalAnchor = def.anchor || this.instance.Defaults.anchor;
+        this._originalAnchor = tempEndpointParams.anchor || this.instance.Defaults.anchor;
         var payload = {};
         if (def.extract) {
           for (var att in def.extract) {
-            var v = sourceEl.getAttribute(att);
+            var v = eventTarget.getAttribute(att);
             if (v) {
               payload[def.extract[att]] = v;
             }
           }
           this.ep.mergeParameters(payload);
-        }
-        if (def.parameterExtractor) {
-          this.ep.mergeParameters(def.parameterExtractor(sourceEl));
         }
         if (def.uniqueEndpoint) {
           if (!sourceDef.endpoint) {
@@ -2730,9 +2730,10 @@ function () {
           var targetZones = this.instance.getContainer().querySelectorAll(sourceDef.selector);
           forEach(targetZones, function (el) {
             var d = {
-              r: null
+              r: null,
+              el: el
             };
-            d.el = findParent(el, SELECTOR_MANAGED_ELEMENT, _this.instance.getContainer(), true);
+            d.targetEl = findParent(el, SELECTOR_MANAGED_ELEMENT, _this.instance.getContainer(), true);
             var o = _this.instance.getOffset(d.el),
                 s = _this.instance.getSize(d.el);
             d.r = {
@@ -2746,7 +2747,7 @@ function () {
             }
             d.def = sourceDef;
             _this.endpointDropTargets.push(d);
-            _this.instance.addClass(d.el, CLASS_DRAG_ACTIVE);
+            _this.instance.addClass(d.targetEl, CLASS_DRAG_ACTIVE);
           });
         }
       } else {
@@ -2757,16 +2758,17 @@ function () {
           var targetZones = _this.instance.getContainer().querySelectorAll(targetDef.selector);
           forEach(targetZones, function (el) {
             var d = {
-              r: null
+              r: null,
+              el: el
             };
             if (targetDef.def.def.parentSelector != null) {
-              d.el = findParent(el, targetDef.def.def.parentSelector, _this.instance.getContainer(), true);
+              d.targetEl = findParent(el, targetDef.def.def.parentSelector, _this.instance.getContainer(), true);
             }
-            if (d.el == null) {
-              d.el = findParent(el, SELECTOR_MANAGED_ELEMENT, _this.instance.getContainer(), true);
+            if (d.targetEl == null) {
+              d.targetEl = findParent(el, SELECTOR_MANAGED_ELEMENT, _this.instance.getContainer(), true);
             }
             if (targetDef.def.def.allowLoopback === false || _this._activeDefinition && _this._activeDefinition.def.allowLoopback === false) {
-              if (d.el === _this.ep.element) {
+              if (d.targetEl === _this.ep.element) {
                 return;
               }
             }
@@ -2783,7 +2785,7 @@ function () {
               d.rank = targetDef.def.def.rank;
             }
             _this.endpointDropTargets.push(d);
-            _this.instance.addClass(d.el, CLASS_DRAG_ACTIVE);
+            _this.instance.addClass(d.targetEl, CLASS_DRAG_ACTIVE);
           });
         });
       }
@@ -3037,6 +3039,7 @@ function () {
       var dropEndpoint;
       if (this.currentDropTarget.endpoint == null) {
         var targetDefinition = this.currentDropTarget.def;
+        var eventTarget = p.e.target || p.e.srcElement;
         if (targetDefinition == null) {
           return null;
         }
@@ -3049,13 +3052,12 @@ function () {
             anchor: targetDefinition.def.anchor || eps.anchors[1]
           });
         }
-        if (targetDefinition.def.parameters != null) {
-          pp.parameters = targetDefinition.def.parameters;
-        }
         if (targetDefinition.def.portId != null) {
           pp.portId = targetDefinition.def.portId;
         }
-        dropEndpoint = this.instance.addEndpoint(this.currentDropTarget.el, pp);
+        var extractedParameters = targetDefinition.def.parameterExtractor ? targetDefinition.def.parameterExtractor(this.currentDropTarget.el, eventTarget) : {};
+        pp = merge(pp, extractedParameters);
+        dropEndpoint = this.instance.addEndpoint(this.currentDropTarget.targetEl, pp);
         dropEndpoint._mtNew = true;
         dropEndpoint.deleteOnEmpty = true;
         if (targetDefinition.def.parameters) {
@@ -3071,17 +3073,14 @@ function () {
           }
           dropEndpoint.mergeParameters(tpayload);
         }
-        if (targetDefinition.def.parameterExtractor) {
-          dropEndpoint.mergeParameters(targetDefinition.def.parameterExtractor(this.currentDropTarget.el));
-        }
         if (dropEndpoint.anchor.positionFinder != null) {
           var finalPos = p.finalPos || p.pos;
           var dropPosition = {
             x: finalPos.x,
             y: finalPos.y
           };
-          var elPosition = this.instance.getOffset(this.currentDropTarget.el),
-              elSize = this.instance.getSize(this.currentDropTarget.el),
+          var elPosition = this.instance.getOffset(this.currentDropTarget.targetEl),
+              elSize = this.instance.getSize(this.currentDropTarget.targetEl),
               ap = dropEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, dropEndpoint.anchor.constructorParams);
           dropEndpoint.anchor.x = ap[0];
           dropEndpoint.anchor.y = ap[1];
@@ -3145,7 +3144,6 @@ function () {
       }
       this.jpc.endpoints[idx] = dropEndpoint;
       dropEndpoint.addConnection(this.jpc);
-      this.jpc.mergeParameters(dropEndpoint.parameters);
       if (this.jpc.suspendedEndpoint) {
         var suspendedElementId = this.jpc.suspendedEndpoint.elementId;
         this.instance.fireMoveEvent({

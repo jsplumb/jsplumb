@@ -92,7 +92,7 @@ export interface ConnectionTypeDescriptor extends TypeDescriptor {
     endpoints?: [EndpointSpec, EndpointSpec];
 }
 export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescriptor {
-    parameterExtractor?: (el: T) => Dictionary<string>;
+    parameterExtractor?: (el: T, eventTarget: T) => Dictionary<string>;
     extract?: Dictionary<string>;
     uniqueEndpoint?: boolean;
     /**

@@ -315,8 +315,8 @@ export declare abstract class JsPlumbInstance<T extends {
      */
     addEndpoints(el: T["E"], endpoints: Array<EndpointOptions<T["E"]>>, referenceParams?: EndpointOptions<T["E"]>): Array<Endpoint>;
     /**
-     * Clears all endpoints and connections from the instance of jsplumb. Does not also clear out event listeners - for that,
-     * use `destroy()`.
+     * Clears all endpoints and connections from the instance of jsplumb. Does not also clear out event listeners, selectors, or
+     * connection/endpoint types - for that, use `destroy()`.
      */
     reset(): void;
     /**
