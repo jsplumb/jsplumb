@@ -231,14 +231,19 @@ export class EndpointDragHandler implements DragHandler {
             let tempEndpointParams:any = {}
             extend(tempEndpointParams, def)
             tempEndpointParams.isTemporarySource = true
-            tempEndpointParams.anchor = [ elxy.x, elxy.y , 0, 0]
 
             if (def.scope) {
                 tempEndpointParams.scope = def.scope
             }
 
+            // perhaps extract some parameters from a parameter extractor
             const extractedParameters = def.parameterExtractor ? def.parameterExtractor(sourceEl, eventTarget as Element) : {}
             tempEndpointParams = merge(tempEndpointParams, extractedParameters)
+
+            // keep a reference to the anchor we want to use if the connection is finalised, and then write a temp anchor
+            // for the drag
+            this._originalAnchor = tempEndpointParams.anchor || this.instance.Defaults.anchor
+            tempEndpointParams.anchor = [ elxy.x, elxy.y , 0, 0]
 
             // add an endpoint to the element that is the connection source, using the anchor that will position it where
             // the mousedown event occurred.
@@ -250,8 +255,7 @@ export class EndpointDragHandler implements DragHandler {
             // mark delete on empty
             this.ep.deleteOnEmpty = true
 
-            // keep a reference to the anchor we want to use if the connection is finalised.
-            this._originalAnchor = tempEndpointParams.anchor || this.instance.Defaults.anchor
+
 
             // optionally check for attributes to extract from the source element
             let payload = {}
