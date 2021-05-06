@@ -10,7 +10,7 @@ export interface RedrawResult {
     e:Set<Endpoint>
 }
 
-export type AnchorPlacement = [ number, number, number, number ]
+export type AnchorPlacement = [ number, number, number, number, number?, number? ]
 
 export interface Router<T extends {E:unknown}> {
 
