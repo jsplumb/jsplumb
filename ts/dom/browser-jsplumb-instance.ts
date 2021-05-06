@@ -13,7 +13,6 @@ import {
     Endpoint,
     Overlay,
     RedrawResult,
-    EVENT_ELEMENT_MOUSE_MOVE,
     EVENT_ELEMENT_MOUSE_OUT,
     EVENT_ELEMENT_MOUSE_OVER,
     SELECTOR_CONNECTOR,
@@ -252,7 +251,6 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     _elementDblTap:Function
     _elementMouseenter:Function
     _elementMouseexit:Function
-    _elementMousemove:Function
 
     eventManager:EventManager
     listManager:JsPlumbListManager
@@ -419,17 +417,6 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
         this._elementMouseenter = _elementHover.bind(this, true)
         this._elementMouseexit = _elementHover.bind(this, false)
-
-        const _elementMousemove = function(e:MouseEvent) {
-            if (!e.defaultPrevented) {
-                let element = findParent(getEventSource(e), SELECTOR_MANAGED_ELEMENT, this.getContainer(), true)
-                this.fire(EVENT_ELEMENT_MOUSE_MOVE, element, e)
-            }
-        }
-
-        this._elementMousemove = _elementMousemove.bind(this)
-
-        // ------------
 
         this._attachEventDelegates()
     }
@@ -737,7 +724,6 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
         this.eventManager.on(currentContainer, EVENT_MOUSEOVER, SELECTOR_MANAGED_ELEMENT, this._elementMouseenter)
         this.eventManager.on(currentContainer, EVENT_MOUSEOUT, SELECTOR_MANAGED_ELEMENT, this._elementMouseexit)
-        this.eventManager.on(currentContainer, EVENT_MOUSEMOVE, SELECTOR_MANAGED_ELEMENT, this._elementMousemove)
     }
 
     private _detachEventDelegates() {
@@ -772,7 +758,6 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
             this.eventManager.off(currentContainer, EVENT_MOUSEENTER, this._elementMouseenter)
             this.eventManager.off(currentContainer, EVENT_MOUSEEXIT, this._elementMouseexit)
-            this.eventManager.off(currentContainer, EVENT_MOUSEMOVE, this._elementMousemove)
         }
     }
 
