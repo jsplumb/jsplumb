@@ -7,7 +7,7 @@ export interface RedrawResult {
     c: Set<Connection>;
     e: Set<Endpoint>;
 }
-export declare type AnchorPlacement = [number, number, number, number];
+export declare type AnchorPlacement = [number, number, number, number, number?, number?];
 export interface Router<T extends {
     E: unknown;
 }> {

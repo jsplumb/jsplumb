@@ -56,7 +56,6 @@ export declare const EVENT_ELEMENT_CLICK = "elementClick";
 export declare const EVENT_ELEMENT_DBL_CLICK = "elementDblClick";
 export declare const EVENT_ELEMENT_TAP = "elementTap";
 export declare const EVENT_ELEMENT_DBL_TAP = "elementDblTap";
-export declare const EVENT_ELEMENT_MOUSE_MOVE = "elementMousemove";
 export declare const EVENT_ELEMENT_MOUSE_OUT = "elementMouseout";
 export declare const EVENT_ELEMENT_MOUSE_OVER = "elementMouseover";
 export declare const EVENT_ENDPOINT_CLICK = "endpointClick";

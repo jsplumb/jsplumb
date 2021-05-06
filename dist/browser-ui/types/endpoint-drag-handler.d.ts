@@ -3,6 +3,14 @@ import { BrowserJsPlumbInstance } from "./browser-jsplumb-instance";
 import { jsPlumbDOMElement } from './element-facade';
 import { Drag, DragStartEventParams, DragStopEventParams, DragEventParams } from "./collicat";
 import { FloatingAnchor, BoundingBox, Connection, Dictionary, Endpoint, EndpointRepresentation, SourceOrTargetDefinition } from "@jsplumb/core";
+declare type EndpointDropTarget = {
+    el: jsPlumbDOMElement;
+    endpoint: Endpoint;
+    r: BoundingBox;
+    def?: SourceOrTargetDefinition;
+    targetEl: jsPlumbDOMElement;
+    rank?: number;
+};
 export declare class EndpointDragHandler implements DragHandler {
     protected instance: BrowserJsPlumbInstance;
     jpc: Connection;
@@ -23,12 +31,7 @@ export declare class EndpointDragHandler implements DragHandler {
     floatingAnchor: FloatingAnchor;
     _stopped: boolean;
     inPlaceCopy: any;
-    endpointDropTargets: Array<{
-        el: jsPlumbDOMElement;
-        endpoint: Endpoint;
-        r: BoundingBox;
-        def?: SourceOrTargetDefinition;
-    }>;
+    endpointDropTargets: Array<EndpointDropTarget>;
     currentDropTarget: any;
     payload: any;
     floatingConnections: Dictionary<Connection>;
@@ -104,3 +107,4 @@ export declare class EndpointDragHandler implements DragHandler {
     private _registerFloatingConnection;
     private getFloatingAnchorIndex;
 }
+export {};

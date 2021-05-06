@@ -74,7 +74,6 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     _elementDblTap: Function;
     _elementMouseenter: Function;
     _elementMouseexit: Function;
-    _elementMousemove: Function;
     eventManager: EventManager;
     listManager: JsPlumbListManager;
     draggingClass: string;
