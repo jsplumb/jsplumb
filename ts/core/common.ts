@@ -118,7 +118,7 @@ export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescript
      * @param event
      */
     onMaxConnections?:(value:any, event?:any) => any
-    connectionType?:string
+    edgeType?:string
     portId?:string
 
     /**
