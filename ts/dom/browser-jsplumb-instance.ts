@@ -169,6 +169,8 @@ export interface BrowserJsPlumbDefaults extends jsPlumbDefaults<Element> {
      * Options for dragging - containment, grid, callbacks etc.
      */
     dragOptions?: DragOptions
+
+    managedElementsSelector?:string
 }
 
 export interface jsPlumbDOMInformation {
@@ -267,6 +269,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
     dragSelectClass = "jtk-drag-select"
 
+    managedElementsSelector:string
+
     /**
      * Whether or not elements should be draggable. This can be provided in the constructor arguments, or simply toggled on the
      * class. The default value is `true`.
@@ -283,6 +287,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
         // by default, elements are draggable
         this.elementsDraggable = defaults && defaults.elementsDraggable !== false
+
+        this.managedElementsSelector = defaults ? (defaults.managedElementsSelector || SELECTOR_MANAGED_ELEMENT) : SELECTOR_MANAGED_ELEMENT
 
         this.eventManager = new EventManager()
         this.dragManager = new DragManager(this, defaults && defaults.dragOptions ? defaults.dragOptions : null)
@@ -709,9 +715,9 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         this.eventManager.on(currentContainer, EVENT_CLICK, SELECTOR_ENDPOINT, this._endpointClick)
         this.eventManager.on(currentContainer, EVENT_DBL_CLICK, SELECTOR_ENDPOINT, this._endpointDblClick)
 
-        this.eventManager.on(currentContainer, EVENT_CLICK, SELECTOR_MANAGED_ELEMENT, this._elementClick)
-        this.eventManager.on(currentContainer, EVENT_TAP, SELECTOR_MANAGED_ELEMENT, this._elementTap)
-        this.eventManager.on(currentContainer, EVENT_DBL_TAP, SELECTOR_MANAGED_ELEMENT, this._elementDblTap)
+        this.eventManager.on(currentContainer, EVENT_CLICK, this.managedElementsSelector, this._elementClick)
+        this.eventManager.on(currentContainer, EVENT_TAP, this.managedElementsSelector, this._elementTap)
+        this.eventManager.on(currentContainer, EVENT_DBL_TAP, this.managedElementsSelector, this._elementDblTap)
 
         this.eventManager.on(currentContainer, EVENT_MOUSEOVER, SELECTOR_CONNECTOR, this._connectorMouseover)
         this.eventManager.on(currentContainer, EVENT_MOUSEOUT, SELECTOR_CONNECTOR, this._connectorMouseout)
