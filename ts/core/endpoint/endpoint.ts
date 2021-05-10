@@ -116,17 +116,17 @@ export interface EndpointOptions<E = any> {
     /**
      * Whether or not this Endpoint acts as a source for connections dragged with the mouse. Defaults to false.
      */
-    isSource?: boolean//= false
+    source?: boolean//= false
 
     /**
      * Whether or not this Endpoint acts as a target for connections dragged with the mouse. Defaults to false.
      */
-    isTarget?: boolean
+    target?: boolean
 
     /**
      * Optional 'type' for connections that have this endpoint as their source.
      */
-    connectionType?: string
+    edgeType?: string
 
     /**
      * Whether or not to set `reattach:true` on connections that have this endpoint as their source. Defaults to false.
@@ -224,7 +224,7 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
 
     referenceEndpoint:Endpoint<E>
 
-    connectionType:string
+    edgeType:string
     connector:ConnectorSpec
     connectorOverlays:Array<OverlaySpec>
 
@@ -233,7 +233,7 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
 
     deleteOnEmpty:boolean
 
-    private readonly uuid:string
+    uuid:string
 
     scope:string
 
@@ -244,7 +244,7 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         super(instance, params)
 
         this.appendToDefaultType({
-            connectionType:params.connectionType,
+            edgeType:params.edgeType,
             maxConnections: params.maxConnections == null ? this.instance.Defaults.maxConnections : params.maxConnections, // maximum number of connections this endpoint can be the source of.,
             paintStyle: params.paintStyle || this.instance.Defaults.endpointStyle,
             hoverPaintStyle: params.hoverPaintStyle || this.instance.Defaults.endpointHoverStyle,
@@ -272,20 +272,18 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
 
         this.connectorOverlays = params.connectorOverlays
 
-        this.connectionsDetachable = params.connectionsDetachable
-        this.reattachConnections = params.reattachConnections
         this.connectorStyle = params.connectorStyle
         this.connectorHoverStyle = params.connectorHoverStyle
         this.connector = params.connector
-        this.connectionType = params.connectionType
+        this.edgeType = params.edgeType
         this.connectorClass = params.connectorClass
         this.connectorHoverClass = params.connectorHoverClass
 
         this.deleteOnEmpty = params.deleteOnEmpty === true
 
-        this.isSource = params.isSource || false
+        this.isSource = params.source || false
         this.isTemporarySource = params.isTemporarySource || false
-        this.isTarget = params.isTarget || false
+        this.isTarget = params.target || false
 
         this.connections = params.connections || []
 
@@ -457,7 +455,7 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         this.connectorHoverStyle = t.connectorHoverStyle
         this.connector = t.connector
         this.connectorOverlays = t.connectorOverlays
-        this.connectionType = t.connectionType
+        this.edgeType = t.edgeType
 
         if (t.maxConnections != null) {
             this.maxConnections = t.maxConnections
