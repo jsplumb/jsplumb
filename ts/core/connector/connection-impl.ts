@@ -311,7 +311,7 @@ export class Connection<E = any> extends OverlayCapableComponent {
         this.setData(data)
 
         // the very last thing we do is apply types, if there are any.
-        let _types = [ "default", this.endpoints[0].connectionType, this.endpoints[1].connectionType,  params.type ].join(" ")
+        let _types = [ "default", this.endpoints[0].edgeType, this.endpoints[1].edgeType,  params.type ].join(" ")
         if (/[^\s]/.test(_types)) {
             this.addType(_types, params.data)
         }
