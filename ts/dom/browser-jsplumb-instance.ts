@@ -1,5 +1,5 @@
 import {
-    jsPlumbDefaults,
+    JsPlumbDefaults,
     Dictionary,
     Size,
     BoundingBox,
@@ -72,7 +72,7 @@ import {
     EVENT_TAP,
     EVENT_DBL_TAP,
     EVENT_ELEMENT_TAP,
-    EVENT_ELEMENT_DBL_TAP
+    EVENT_ELEMENT_DBL_TAP, Extents
 } from '@jsplumb/core'
 
 import { _attr,
@@ -160,7 +160,7 @@ export interface DragOptions {
     trackScroll?:boolean
 }
 
-export interface BrowserJsPlumbDefaults extends jsPlumbDefaults<Element> {
+export interface BrowserJsPlumbDefaults extends JsPlumbDefaults<Element> {
     /**
      * Whether or not elements should be draggable. Default value is `true`.
      */
@@ -1135,18 +1135,18 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         if (isFunction(o.label)) {
             let lt = (o.label)(this)
             if (lt != null) {
-                getLabelElement(o).innerHTML = lt.replace(/\r\n/g, "<br/>")
+                getLabelElement(o).innerText = lt
             } else {
-                getLabelElement(o).innerHTML = ""
+                getLabelElement(o).innerText = ""
             }
         }
         else {
             if (o.labelText == null) {
                 o.labelText = o.label as string
                 if (o.labelText != null) {
-                    getLabelElement(o).innerHTML = o.labelText.replace(/\r\n/g, "<br/>")
+                    getLabelElement(o).innerText = o.labelText
                 } else {
-                    getLabelElement(o).innerHTML = ""
+                    getLabelElement(o).innerText = ""
                 }
             }
         }
@@ -1163,8 +1163,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
     // ------------------------------- connectors ---------------------------------------------------------
 
-    // TODO what is the type of `extents` ?
-    paintConnector(connector:AbstractConnector, paintStyle:PaintStyle, extents?:any):void {
+    paintConnector(connector:AbstractConnector, paintStyle:PaintStyle, extents?:Extents):void {
         SvgElementConnector.paint(connector, paintStyle, extents)
     }
 
