@@ -95,15 +95,15 @@ export interface EndpointOptions<E = any> {
     /**
      * Whether or not this Endpoint acts as a source for connections dragged with the mouse. Defaults to false.
      */
-    isSource?: boolean;
+    source?: boolean;
     /**
      * Whether or not this Endpoint acts as a target for connections dragged with the mouse. Defaults to false.
      */
-    isTarget?: boolean;
+    target?: boolean;
     /**
      * Optional 'type' for connections that have this endpoint as their source.
      */
-    connectionType?: string;
+    edgeType?: string;
     /**
      * Whether or not to set `reattach:true` on connections that have this endpoint as their source. Defaults to false.
      */
@@ -173,13 +173,13 @@ export declare class Endpoint<E = any> extends OverlayCapableComponent {
     reattachConnections: boolean;
     currentAnchorClass: string;
     referenceEndpoint: Endpoint<E>;
-    connectionType: string;
+    edgeType: string;
     connector: ConnectorSpec;
     connectorOverlays: Array<OverlaySpec>;
     connectorStyle: PaintStyle;
     connectorHoverStyle: PaintStyle;
     deleteOnEmpty: boolean;
-    private readonly uuid;
+    uuid: string;
     scope: string;
     defaultLabelLocation: [number, number];
     getDefaultOverlayKey(): string;

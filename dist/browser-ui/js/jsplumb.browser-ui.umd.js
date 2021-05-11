@@ -1921,7 +1921,6 @@
     }, {
       key: "setOption",
       value: function setOption(handler, options) {
-        debugger;
         var handlerAndOptions = core.getWithFunction(this.handlers, function (p) {
           return p.handler === handler;
         });
@@ -2357,13 +2356,15 @@
           return _this9.instance.getId(el);
         });
         core.forEach(elementIds, function (id) {
-          core.optional(_this9._dragGroupByElementIdMap[id]).map(function (dragGroup) {
-            core.optional(core.getFromSetWithFunction(dragGroup.members, function (m) {
+          var dragGroup = _this9._dragGroupByElementIdMap[id];
+          if (dragGroup != null) {
+            var member = core.getFromSetWithFunction(dragGroup.members, function (m) {
               return m.elId === id;
-            })).map(function (member) {
-              member.active = state;
             });
-          });
+            if (member != null) {
+              member.active = state;
+            }
+          }
         });
       }
     }]);
@@ -2512,7 +2513,7 @@
           }
           var extractedParameters = def.parameterExtractor ? def.parameterExtractor(sourceEl, eventTarget) : {};
           tempEndpointParams = core.merge(tempEndpointParams, extractedParameters);
-          this._originalAnchor = tempEndpointParams.anchor || this.instance.Defaults.anchor;
+          this._originalAnchor = tempEndpointParams.anchor || this.instance.defaults.anchor;
           tempEndpointParams.anchor = [elxy.x, elxy.y, 0, 0];
           this.ep = this.instance.addEndpoint(sourceEl, tempEndpointParams);
           this.ep.deleteOnEmpty = true;
@@ -2612,7 +2613,7 @@
           hoverPaintStyle: this.ep.connectorHoverStyle,
           connector: this.ep.connector,
           overlays: this.ep.connectorOverlays,
-          type: this.ep.connectionType,
+          type: this.ep.edgeType,
           cssClass: this.ep.connectorClass,
           hoverClass: this.ep.connectorHoverClass,
           scope: scope,
@@ -2686,8 +2687,8 @@
       key: "_createFloatingEndpoint",
       value: function _createFloatingEndpoint(canvasElement) {
         var endpointToFloat = this.ep.endpoint;
-        if (this.ep.connectionType != null) {
-          var aae = this.instance._deriveEndpointAndAnchorSpec(this.ep.connectionType);
+        if (this.ep.edgeType != null) {
+          var aae = this.instance._deriveEndpointAndAnchorSpec(this.ep.edgeType);
           endpointToFloat = aae.endpoints[1];
         }
         var centerAnchor = core.makeAnchorFromSpec(this.instance, core.AnchorLocations.Center);
@@ -2975,7 +2976,7 @@
                   dropEndpoint.fire(core.EVENT_MAX_CONNECTIONS, {
                     endpoint: this,
                     connection: this.jpc,
-                    maxConnections: this.instance.Defaults.maxConnections
+                    maxConnections: this.instance.defaults.maxConnections
                   }, originalEvent);
                   this._reattachOrDiscard(p.e);
                 } else {
@@ -3331,7 +3332,7 @@
     }
   };
   var ATTR_SCROLLABLE_LIST = "jtk-scrollable-list";
-  var SELECTOR_SCROLLABLE_LIST = "[" + ATTR_SCROLLABLE_LIST + "]";
+  var SELECTOR_SCROLLABLE_LIST = core.att(ATTR_SCROLLABLE_LIST);
   var EVENT_SCROLL = "scroll";
   var JsPlumbListManager =
   function () {
@@ -3500,8 +3501,7 @@
       }
     }, {
       key: "_proxyConnection",
-      value: function _proxyConnection(el, conn, index,
-      edge) {
+      value: function _proxyConnection(el, conn, index, edge) {
         var _this3 = this;
         this.instance.proxyConnection(conn, index, this.domElement, function (c, index) {
           return _this3.deriveEndpoint(edge, index, conn.endpoints[index], conn);
@@ -3965,6 +3965,7 @@
       _defineProperty(_assertThisInitialized(_this), "hoverSourceClass", "jtk-source-hover");
       _defineProperty(_assertThisInitialized(_this), "hoverTargetClass", "jtk-target-hover");
       _defineProperty(_assertThisInitialized(_this), "dragSelectClass", "jtk-drag-select");
+      _defineProperty(_assertThisInitialized(_this), "managedElementsSelector", void 0);
       _defineProperty(_assertThisInitialized(_this), "elementsDraggable", void 0);
       _defineProperty(_assertThisInitialized(_this), "elementDragHandler", void 0);
       _defineProperty(_assertThisInitialized(_this), "groupDragOptions", void 0);
@@ -3981,6 +3982,7 @@
         }
       });
       _this.elementsDraggable = defaults && defaults.elementsDraggable !== false;
+      _this.managedElementsSelector = defaults ? defaults.managedElementsSelector || core.SELECTOR_MANAGED_ELEMENT : core.SELECTOR_MANAGED_ELEMENT;
       _this.eventManager = new EventManager();
       _this.dragManager = new DragManager(_assertThisInitialized(_this), defaults && defaults.dragOptions ? defaults.dragOptions : null);
       _this.listManager = new JsPlumbListManager(_assertThisInitialized(_this));
@@ -4339,9 +4341,9 @@
         this.eventManager.on(currentContainer, core.EVENT_DBL_TAP, core.SELECTOR_CONNECTOR, this._connectorDblTap);
         this.eventManager.on(currentContainer, core.EVENT_CLICK, core.SELECTOR_ENDPOINT, this._endpointClick);
         this.eventManager.on(currentContainer, core.EVENT_DBL_CLICK, core.SELECTOR_ENDPOINT, this._endpointDblClick);
-        this.eventManager.on(currentContainer, core.EVENT_CLICK, core.SELECTOR_MANAGED_ELEMENT, this._elementClick);
-        this.eventManager.on(currentContainer, core.EVENT_TAP, core.SELECTOR_MANAGED_ELEMENT, this._elementTap);
-        this.eventManager.on(currentContainer, core.EVENT_DBL_TAP, core.SELECTOR_MANAGED_ELEMENT, this._elementDblTap);
+        this.eventManager.on(currentContainer, core.EVENT_CLICK, this.managedElementsSelector, this._elementClick);
+        this.eventManager.on(currentContainer, core.EVENT_TAP, this.managedElementsSelector, this._elementTap);
+        this.eventManager.on(currentContainer, core.EVENT_DBL_TAP, this.managedElementsSelector, this._elementDblTap);
         this.eventManager.on(currentContainer, core.EVENT_MOUSEOVER, core.SELECTOR_CONNECTOR, this._connectorMouseover);
         this.eventManager.on(currentContainer, core.EVENT_MOUSEOUT, core.SELECTOR_CONNECTOR, this._connectorMouseout);
         this.eventManager.on(currentContainer, core.EVENT_MOUSEOVER, core.SELECTOR_ENDPOINT, this._endpointMouseover);
@@ -4732,17 +4734,17 @@
         if (core.isFunction(o.label)) {
           var lt = o.label(this);
           if (lt != null) {
-            getLabelElement(o).innerHTML = lt.replace(/\r\n/g, "<br/>");
+            getLabelElement(o).innerText = lt;
           } else {
-            getLabelElement(o).innerHTML = "";
+            getLabelElement(o).innerText = "";
           }
         } else {
           if (o.labelText == null) {
             o.labelText = o.label;
             if (o.labelText != null) {
-              getLabelElement(o).innerHTML = o.labelText.replace(/\r\n/g, "<br/>");
+              getLabelElement(o).innerText = o.labelText;
             } else {
-              getLabelElement(o).innerHTML = "";
+              getLabelElement(o).innerText = "";
             }
           }
         }
@@ -4937,10 +4939,11 @@
     return BrowserJsPlumbInstance;
   }(core.JsPlumbInstance);
 
+  var CIRCLE = "circle";
   var register = function register() {
-    registerEndpointRenderer("Dot", {
+    registerEndpointRenderer(core.DotEndpoint.type, {
       makeNode: function makeNode(ep, style) {
-        return _node("circle", {
+        return _node(CIRCLE, {
           "cx": ep.w / 2,
           "cy": ep.h / 2,
           "r": ep.radius
@@ -4956,10 +4959,11 @@
     });
   };
 
+  var RECT = "rect";
   var register$1 = function register() {
-    registerEndpointRenderer("Rectangle", {
+    registerEndpointRenderer(core.RectangleEndpoint.type, {
       makeNode: function makeNode(ep, style) {
-        return _node("rect", {
+        return _node(RECT, {
           "width": ep.w,
           "height": ep.h
         });
@@ -4980,7 +4984,7 @@
     "stroke": "transparent"
   };
   var register$2 = function register() {
-    registerEndpointRenderer("Blank", {
+    registerEndpointRenderer(core.BlankEndpoint.type, {
       makeNode: function makeNode(ep, style) {
         return _node("rect", BLANK_ATTRIBUTES);
       },

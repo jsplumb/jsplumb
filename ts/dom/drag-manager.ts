@@ -218,7 +218,6 @@ export class DragManager {
     }
 
     setOption(handler:DragHandler, options:DragHandlerOptions) {
-        debugger
         const handlerAndOptions = getWithFunction(this.handlers, (p) => p.handler === handler)
         if (handlerAndOptions != null) {
             extend(handlerAndOptions.options, options || {})

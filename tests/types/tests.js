@@ -37,7 +37,7 @@ var testSuite = function () {
         setup: function () {
             _jsPlumb = jsPlumbBrowserUI.newInstance({container:document.getElementById("container")});
             support = jsPlumbTestSupport.getInstance(_jsPlumb);
-            defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
+            defaults = jsPlumb.extend({}, _jsPlumb.defaults);
         }
     });
 
@@ -175,7 +175,7 @@ var testSuite = function () {
 
         c.setType("other");
         equal(_length(c.getOverlays()), 0, "no overlays after setting type to `other`, which has no overlays");
-        equal(c.getPaintStyle().strokeWidth, _jsPlumb.Defaults.paintStyle.strokeWidth, "paintStyle strokeWidth is default");
+        equal(c.getPaintStyle().strokeWidth, _jsPlumb.defaults.paintStyle.strokeWidth, "paintStyle strokeWidth is default");
 
         c.addType("basic");
         equal(_length(c.getOverlays()), 1, "one overlay after reinstating `basic` type");
@@ -245,7 +245,7 @@ var testSuite = function () {
         equal(c.hasType("basic"), true, "connection has 'basic' type");
         c.toggleType("basic");
         equal(c.hasType("basic"), false, "connection does not have 'basic' type");
-        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "connection has default stroke style");
+        equal(c.getPaintStyle().stroke, _jsPlumb.defaults.paintStyle.stroke, "connection has default stroke style");
         c.toggleType("basic");
         equal(c.hasType("basic"), true, "connection has 'basic' type");
         equal(c.getPaintStyle().stroke, "yellow", "connection has yellow stroke style");
@@ -317,7 +317,7 @@ var testSuite = function () {
         c.removeType("basic", {lbl:"FOO"});
         equal(c.hasType("basic"), false, "connection does not have 'basic' type");
         equal(c.hasType("other"), true, "connection has 'other' type");
-        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "connection has default stroke style");
+        equal(c.getPaintStyle().stroke, _jsPlumb.defaults.paintStyle.stroke, "connection has default stroke style");
         equal(c.getPaintStyle().strokeWidth, 14, "connection has strokeWidth 14");
         equal(_length(c.getOverlays()), 3, "three overlays after removing 'basic' type");
         ok(!_jsPlumb.hasClass(support.getConnectionCanvas(c), "FOO"), "FOO class was removed from canvas");
@@ -329,8 +329,8 @@ var testSuite = function () {
 
         c.toggleType("other");
         equal(c.hasType("other"), false, "connection does not have 'other' type");
-        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "connection has default stroke style");
-        equal(c.getPaintStyle().strokeWidth, _jsPlumb.Defaults.paintStyle.strokeWidth, "connection has default strokeWidth");
+        equal(c.getPaintStyle().stroke, _jsPlumb.defaults.paintStyle.stroke, "connection has default stroke style");
+        equal(c.getPaintStyle().strokeWidth, _jsPlumb.defaults.paintStyle.strokeWidth, "connection has default strokeWidth");
         equal(_length(c.getOverlays()), 1, "one overlay after toggling 'other' type. this is the original overlay now.");
         ok(!_jsPlumb.hasClass(support.getConnectionCanvas(c), "BAR"), "BAR class was removed from canvas");
 
@@ -567,8 +567,8 @@ var testSuite = function () {
         c.toggleType("other basic");
         equal(c.hasType("basic"), false, "after toggle, connection does not have 'basic' type");
         equal(c.hasType("other"), false, "after toggle, connection does not have 'other' type");
-        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "after toggle, connection has default stroke style");
-        equal(c.getPaintStyle().strokeWidth, _jsPlumb.Defaults.paintStyle.strokeWidth, "after toggle, connection has default strokeWidth");
+        equal(c.getPaintStyle().stroke, _jsPlumb.defaults.paintStyle.stroke, "after toggle, connection has default stroke style");
+        equal(c.getPaintStyle().strokeWidth, _jsPlumb.defaults.paintStyle.strokeWidth, "after toggle, connection has default strokeWidth");
         equal(_length(c.getOverlays()), 0, "after toggle, no overlays");
 
         c.toggleType("basic other");
@@ -581,8 +581,8 @@ var testSuite = function () {
         c.removeType("other basic");
         equal(c.hasType("basic"), false, "after remove, connection does not have 'basic' type");
         equal(c.hasType("other"), false, "after remove, connection does not have 'other' type");
-        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "after remove, connection has default stroke style");
-        equal(c.getPaintStyle().strokeWidth, _jsPlumb.Defaults.paintStyle.strokeWidth, "after remove, connection has default strokeWidth");
+        equal(c.getPaintStyle().stroke, _jsPlumb.defaults.paintStyle.stroke, "after remove, connection has default stroke style");
+        equal(c.getPaintStyle().strokeWidth, _jsPlumb.defaults.paintStyle.strokeWidth, "after remove, connection has default strokeWidth");
         equal(_length(c.getOverlays()), 0, "after remove, no overlays");
 
         c.addType("other basic");
@@ -626,16 +626,16 @@ var testSuite = function () {
         equal(c2.getPaintStyle().stroke, "yellow", "connection has yellow stroke style");
 
         _jsPlumb.select().toggleType("basic");
-        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "connection has default stroke style");
-        equal(c2.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "connection has default stroke style");
+        equal(c.getPaintStyle().stroke, _jsPlumb.defaults.paintStyle.stroke, "connection has default stroke style");
+        equal(c2.getPaintStyle().stroke, _jsPlumb.defaults.paintStyle.stroke, "connection has default stroke style");
 
         _jsPlumb.select().addType("basic");
         equal(c.getPaintStyle().stroke, "yellow", "connection has yellow stroke style");
         equal(c2.getPaintStyle().stroke, "yellow", "connection has yellow stroke style");
 
         _jsPlumb.select().removeType("basic").addType("other");
-        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "connection has default stroke style");
-        equal(c2.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "connection has default stroke style");
+        equal(c.getPaintStyle().stroke, _jsPlumb.defaults.paintStyle.stroke, "connection has default stroke style");
+        equal(c2.getPaintStyle().stroke, _jsPlumb.defaults.paintStyle.stroke, "connection has default stroke style");
 
 
     });
@@ -725,7 +725,7 @@ var testSuite = function () {
             c = _jsPlumb.connect({source: d1, target: d2});
 
         c.setType(null);
-        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "connection has default stroke style");
+        equal(c.getPaintStyle().stroke, _jsPlumb.defaults.paintStyle.stroke, "connection has default stroke style");
 
     });
 
@@ -734,7 +734,7 @@ var testSuite = function () {
             c = _jsPlumb.connect({source: d1, target: d2});
 
         c.setType("foo");
-        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "connection has default stroke style");
+        equal(c.getPaintStyle().stroke, _jsPlumb.defaults.paintStyle.stroke, "connection has default stroke style");
 
     });
 
@@ -758,7 +758,7 @@ var testSuite = function () {
         equal(c.getPaintStyle().stroke, "yellow", "connection has basic type's stroke style");
 
         c.removeType("basic baz");
-        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "connection has default stroke style");
+        equal(c.getPaintStyle().stroke, _jsPlumb.defaults.paintStyle.stroke, "connection has default stroke style");
 
         c.addType("basic foo bar baz");
         equal(c.getPaintStyle().stroke, "yellow", "connection has basic type's stroke style");
@@ -768,7 +768,7 @@ var testSuite = function () {
     test(" create connection using type parameter", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
 
-        _jsPlumb.Defaults.paintStyle = {stroke: "blue", strokeWidth: 34};
+        _jsPlumb.defaults.paintStyle = {stroke: "blue", strokeWidth: 34};
 
         _jsPlumb.registerConnectionTypes({
             "basic": {
@@ -785,10 +785,10 @@ var testSuite = function () {
             }
         });
 
-        equal(_jsPlumb.Defaults.paintStyle.stroke, "blue", "default value has not been messed up");
+        equal(_jsPlumb.defaults.paintStyle.stroke, "blue", "default value has not been messed up");
 
         var c = _jsPlumb.connect({source: d1, target: d2});
-        equal(c.getPaintStyle().stroke, _jsPlumb.Defaults.paintStyle.stroke, "connection has default stroke style");
+        equal(c.getPaintStyle().stroke, _jsPlumb.defaults.paintStyle.stroke, "connection has default stroke style");
 
         c = _jsPlumb.connect({source: d1, target: d2, type: "basic other"});
         equal(c.getPaintStyle().stroke, "yellow", "connection has basic type's stroke style");
@@ -802,7 +802,7 @@ var testSuite = function () {
 
         _jsPlumb.manageAll([d1, d2, d3])
 
-        _jsPlumb.Defaults.paintStyle = {stroke: "blue", strokeWidth: 34};
+        _jsPlumb.defaults.paintStyle = {stroke: "blue", strokeWidth: 34};
 
         _jsPlumb.registerConnectionTypes({
             "basic": {
@@ -817,7 +817,7 @@ var testSuite = function () {
         });
 
         _jsPlumb.addSourceSelector("#d1", {
-            connectionType:"basic"
+            edgeType:"basic"
         });
 
         var c = _jsPlumb.connect({source: d1, target: d2, type:"basic"});
@@ -856,7 +856,7 @@ var testSuite = function () {
             ]
         });
 
-        _jsPlumb.Defaults.connectionsDetachable = true;//just make sure we've setup the test correctly.
+        _jsPlumb.defaults.connectionsDetachable = true;//just make sure we've setup the test correctly.
 
         c.setType("basic");
         equal(c.scope, "BANANA", "scope is correct");
@@ -1034,7 +1034,7 @@ var testSuite = function () {
             detachable: true
         });
 
-        _jsPlumb.Defaults.connectionsDetachable = true;//just make sure we've setup the test correctly.
+        _jsPlumb.defaults.connectionsDetachable = true;//just make sure we've setup the test correctly.
 
         c.setType("basic frank");
         equal(c.scope, "OVERRIDE", "scope is correct");
@@ -1045,10 +1045,10 @@ var testSuite = function () {
     test(" create connection from Endpoints - type should be passed through.", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3"),
             e1 = _jsPlumb.addEndpoint(d1, {
-                connectionType: "basic"
+                edgeType: "basic"
             }),
             e2 = _jsPlumb.addEndpoint(d2, {
-                connectionType: "basic"
+                edgeType: "basic"
             });
 
         _jsPlumb.registerConnectionTypes({
@@ -1164,7 +1164,7 @@ var testSuite = function () {
         });
 
         _jsPlumb.registerEndpointType("basic", {
-            connectionType: "basic",
+            edgeType: "basic",
             paintStyle: {fill: "GAZOODA"}
         });
 

@@ -1,11 +1,11 @@
 
 
 import { _attr, _pos, _size  } from './svg-util'
-import {PaintStyle} from "@jsplumb/core"
+import {Extents, PaintStyle} from "@jsplumb/core"
 
 export class SvgComponent {
 
-    static paint<E>(connector:any, useDivWrapper:boolean, paintStyle:PaintStyle, extents?:any):void {
+    static paint<E>(connector:any, useDivWrapper:boolean, paintStyle:PaintStyle, extents?:Extents):void {
         if (paintStyle != null) {
 
             let xy = [ connector.x, connector.y ],

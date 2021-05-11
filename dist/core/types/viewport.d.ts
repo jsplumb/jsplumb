@@ -30,8 +30,6 @@ export declare class Viewport<T extends {
     _elementMap: Map<string, ViewportElement<T["E"]>>;
     _transformedElementMap: Map<string, TranslatedViewportElement<T["E"]>>;
     _bounds: Record<string, number>;
-    private _clearElementIndex;
-    private _updateElementIndex;
     private _updateBounds;
     private _recalculateBounds;
     recomputeBounds(): void;

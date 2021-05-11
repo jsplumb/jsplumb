@@ -93,11 +93,24 @@ const reverseEntryComparator = (value:[string, any], arrayEntry:[string, any]) =
     return entryComparator(value, arrayEntry) * -1
 }
 
+function _updateElementIndex(id:string, value:number, array:Array<[string, number]>, sortDescending?:boolean) {
+    insertSorted<[string, number]>([id, value], array, entryComparator, sortDescending)
+}
+
+function _clearElementIndex<T>(id:string, array:Array<T>) {
+    const idx = findWithFunction(array, (entry) => {
+        return entry[0] === id
+    })
+
+    if (idx > -1) {
+        array.splice(idx, 1)
+    }
+}
+
 export class Viewport<T extends{E:unknown}> extends EventGenerator {
 
 // --------------- PRIVATE  ------------------------------------------
 
-    //private _eventsSuspended:boolean = false
     private _currentTransaction:Transaction = null
 
     constructor(public instance:JsPlumbInstance<T>) {
@@ -129,32 +142,18 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
         maxy:0
     };
 
-    private _clearElementIndex<T>(id:string, array:Array<T>) {
-        const idx = findWithFunction(array, (entry) => {
-            return entry[0] === id
-        })
-
-        if (idx > -1) {
-            array.splice(idx, 1)
-        }
-    }
-
-    private _updateElementIndex(id:string, value:number, array:Array<[string, number]>, sortDescending?:boolean) {
-        insertSorted<[string, number]>([id, value], array, entryComparator, sortDescending)
-    }
-
     private _updateBounds (id:string, updatedElement:ViewportElement<T["E"]>, doNotRecalculateBounds?:boolean) {
         if (updatedElement != null) {
 
-            this._clearElementIndex(id, this._sortedElements.xmin)
-            this._clearElementIndex(id, this._sortedElements.xmax)
-            this._clearElementIndex(id, this._sortedElements.ymin)
-            this._clearElementIndex(id, this._sortedElements.ymax)
+            _clearElementIndex(id, this._sortedElements.xmin)
+            _clearElementIndex(id, this._sortedElements.xmax)
+            _clearElementIndex(id, this._sortedElements.ymin)
+            _clearElementIndex(id, this._sortedElements.ymax)
 
-            this._updateElementIndex(id, updatedElement.t.x, this._sortedElements.xmin, false)
-            this._updateElementIndex(id, updatedElement.t.x + updatedElement.t.w, this._sortedElements.xmax, true)
-            this._updateElementIndex(id, updatedElement.t.y, this._sortedElements.ymin, false)
-            this._updateElementIndex(id, updatedElement.t.y + updatedElement.t.h, this._sortedElements.ymax, true)
+            _updateElementIndex(id, updatedElement.t.x, this._sortedElements.xmin, false)
+            _updateElementIndex(id, updatedElement.t.x + updatedElement.t.w, this._sortedElements.xmax, true)
+            _updateElementIndex(id, updatedElement.t.y, this._sortedElements.ymin, false)
+            _updateElementIndex(id, updatedElement.t.y + updatedElement.t.h, this._sortedElements.ymax, true)
 
             if (doNotRecalculateBounds !== true) {
                 this._recalculateBounds()
@@ -416,10 +415,10 @@ export class Viewport<T extends{E:unknown}> extends EventGenerator {
      */
     remove (id:string) {
 
-        this._clearElementIndex(id, this._sortedElements.xmin)
-        this._clearElementIndex(id, this._sortedElements.xmax)
-        this._clearElementIndex(id, this._sortedElements.ymin)
-        this._clearElementIndex(id, this._sortedElements.ymax)
+        _clearElementIndex(id, this._sortedElements.xmin)
+        _clearElementIndex(id, this._sortedElements.xmax)
+        _clearElementIndex(id, this._sortedElements.ymin)
+        _clearElementIndex(id, this._sortedElements.ymax)
 
         this._elementMap.delete(id)
         this._transformedElementMap.delete(id)

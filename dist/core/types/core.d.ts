@@ -1,10 +1,10 @@
-import { jsPlumbDefaults } from "./defaults";
+import { JsPlumbDefaults } from "./defaults";
 import { Connection, ConnectionParams } from "./connector/connection-impl";
 import { Endpoint, EndpointSpec } from "./endpoint/endpoint";
 import { AnchorPlacement, RedrawResult } from "./router/router";
 import { RotatedPointXY } from "./util";
 import { Dictionary, UpdateOffsetOptions, Size, jsPlumbElement, ConnectParams, // <--
-SourceDefinition, BehaviouralTypeDescriptor, TypeDescriptor, Rotations, PointXY, ConnectionMovedParams, ConnectionTypeDescriptor, EndpointTypeDescriptor } from './common';
+SourceDefinition, BehaviouralTypeDescriptor, TypeDescriptor, Rotations, PointXY, ConnectionMovedParams, ConnectionTypeDescriptor, EndpointTypeDescriptor, Extents } from './common';
 import { EventGenerator } from "./event-generator";
 import { EndpointOptions, InternalEndpointOptions } from "./endpoint/endpoint";
 import { AddGroupOptions, GroupManager } from "./group/group-manager";
@@ -69,7 +69,7 @@ export declare abstract class JsPlumbInstance<T extends {
     E: unknown;
 } = any> extends EventGenerator {
     readonly _instanceIndex: number;
-    Defaults: jsPlumbDefaults<T["E"]>;
+    defaults: JsPlumbDefaults<T["E"]>;
     private _initialDefaults;
     isConnectionBeingDragged: boolean;
     currentlyDragging: boolean;
@@ -104,7 +104,11 @@ export declare abstract class JsPlumbInstance<T extends {
     readonly defaultScope: string;
     private _zoom;
     readonly currentZoom: number;
-    constructor(_instanceIndex: number, defaults?: jsPlumbDefaults<T["E"]>);
+    private attributeObserver;
+    private domObserver;
+    constructor(_instanceIndex: number, defaults?: JsPlumbDefaults<T["E"]>);
+    private removeMutationObserver;
+    private addMutationObserver;
     getContainer(): any;
     setZoom(z: number, repaintEverything?: boolean): boolean;
     _idstamp(): string;
@@ -335,6 +339,12 @@ export declare abstract class JsPlumbInstance<T extends {
      */
     getEndpoint(uuid: string): Endpoint;
     /**
+     * Set an endpoint's uuid, updating the internal map
+     * @param endpoint
+     * @param uuid
+     */
+    setEndpointUuid(endpoint: Endpoint, uuid: string): void;
+    /**
      * Connect one element to another.
      * @param params At the very least you need to supply {source:.., target:...}.
      * @param referenceParams Optional extra parameters. This can be useful when you're creating multiple connections that have some things in common.
@@ -415,7 +425,7 @@ export declare abstract class JsPlumbInstance<T extends {
     getType(id: string, typeDescriptor: string): TypeDescriptor;
     getConnectionType(id: string): ConnectionTypeDescriptor;
     getEndpointType(id: string): EndpointTypeDescriptor;
-    importDefaults(d: jsPlumbDefaults<T["E"]>): JsPlumbInstance;
+    importDefaults(d: JsPlumbDefaults<T["E"]>): JsPlumbInstance;
     restoreDefaults(): JsPlumbInstance;
     getManagedElements(): Dictionary<ManagedElement<T["E"]>>;
     proxyConnection(connection: Connection, index: number, proxyEl: T["E"], endpointGenerator: (c: Connection, idx: number) => EndpointSpec, anchorGenerator: (c: Connection, idx: number) => AnchorSpec): void;
@@ -483,7 +493,7 @@ export declare abstract class JsPlumbInstance<T extends {
     abstract reattachOverlay(o: Overlay, c: OverlayCapableComponent): void;
     abstract setOverlayHover(o: Overlay, hover: boolean): void;
     abstract setHover(component: Component, hover: boolean): void;
-    abstract paintConnector(connector: AbstractConnector, paintStyle: PaintStyle, extents?: any): void;
+    abstract paintConnector(connector: AbstractConnector, paintStyle: PaintStyle, extents?: Extents): void;
     abstract destroyConnection(connection: Connection, force?: boolean): void;
     abstract setConnectorHover(connector: AbstractConnector, h: boolean, doNotCascade?: boolean): void;
     abstract addConnectorClass(connector: AbstractConnector, clazz: string): void;

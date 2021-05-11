@@ -1,5 +1,10 @@
 import {addToDictionary, log, remove, uuid} from "./util"
 import {Dictionary} from "./common"
+
+/**
+ * Base class for classes that wish to support binding and firing of events. You need to implement the `shouldFireEvent` method
+ * in your concrete subclasses of this class.
+ */
 export abstract class EventGenerator {
 
     private _listeners: Dictionary<Array<Function>> = {}
@@ -13,6 +18,12 @@ export abstract class EventGenerator {
 
     constructor() { }
 
+    /**
+     * Fire the named event
+     * @param event Event to fire
+     * @param value Value to pass to event handlers
+     * @param originalEvent Optional original event that caused this event to be fired.
+     */
     fire<T>(event: string, value?: T, originalEvent?: Event): any {
         let ret = null
         if (!this.tick) {
@@ -48,6 +59,10 @@ export abstract class EventGenerator {
         return ret
     }
 
+    /**
+     * Drain the queue of pending event notifications
+     * @private
+     */
     private _drain (): void {
         let n = this.queue.pop()
         if (n) {
@@ -55,6 +70,12 @@ export abstract class EventGenerator {
         }
     }
 
+    /**
+     * Unbind the given event listener, or all listeners. If you call this method with no arguments then all event
+     * listeners are unbound.
+     * @param eventOrListener Either an event name, or an event handler function
+     * @param listener If `eventOrListener` is defined, this it eh event handler to unbind.
+     */
     unbind (eventOrListener?: string | Function, listener?: Function): EventGenerator {
 
         if (arguments.length === 0) {
@@ -110,12 +131,10 @@ export abstract class EventGenerator {
         return this
     }
 
-    cleanupListeners() {
-        for (let i in this._listeners) {
-            this._listeners[i] = null
-        }
-    }
-
+    /**
+     * Run the given function without firing any events.
+     * @param fn
+     */
     silently (fn: Function) {
         this.setSuspendEvents(true)
         try {
@@ -128,6 +147,9 @@ export abstract class EventGenerator {
     }
 }
 
+/**
+ * Subclass of EventGenerator with a default implementation of `shouldFireEvent`, which returns true always.
+ */
 export class OptimisticEventGenerator extends EventGenerator {
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean {
         return true

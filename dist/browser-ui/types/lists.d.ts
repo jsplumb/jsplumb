@@ -93,7 +93,6 @@ export declare class JsPlumbList {
      * @param el The element the connection is attached to.
      * @param conn The connection to proxy.
      * @param index 0 if the element is connection source, 1 if it is connection target
-     * @param elId ID of the element the connection is attached to
      * @param edge List edge to proxy the connection to - top or bottom.
      * @private
      */

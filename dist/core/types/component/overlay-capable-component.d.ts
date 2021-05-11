@@ -1,6 +1,6 @@
 import { Component, ComponentOptions } from "./component";
 import { Overlay, OverlaySpec } from "../overlay/overlay";
-import { Dictionary, PointXY } from '../common';
+import { Dictionary, Extents, PointXY } from '../common';
 import { JsPlumbInstance } from "../core";
 import { LabelOverlay } from "../overlay/label-overlay";
 export interface OverlayComponentOptions extends ComponentOptions {
@@ -14,12 +14,7 @@ export declare abstract class OverlayCapableComponent extends Component {
     defaultLabelLocation: number | [number, number];
     overlays: Dictionary<Overlay>;
     overlayPositions: Dictionary<PointXY>;
-    overlayPlacements: Dictionary<{
-        minX: number;
-        maxX: number;
-        minY: number;
-        maxY: number;
-    }>;
+    overlayPlacements: Dictionary<Extents>;
     constructor(instance: JsPlumbInstance, params: OverlayComponentOptions);
     addOverlay(overlay: OverlaySpec): Overlay;
     /**

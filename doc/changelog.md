@@ -1,6 +1,13 @@
 ## 5.0.0-RC1
 
-Version 4.0.0 was the first release from jsPlumb's port to Typescript, but just before reaching that goal some new functionality - the ability to register source/target selectors for dragging directly on the instance, using the `addSourceSelector` and `addTargetSelector` methods - was introduced, which I realised can be used in all cases instead of `makeSource` or `makeTarget`, and which is much more performant. Rather than remove a couple of methods that are the mainstay of how many people use jsPlumb, thus introducing further migration tasks, I decided to release 4.0.0 and then bump the major version to 5.0.0; 5.x will not have the `makeSource` or `makeTarget` methods (or any of their related methods such as `setSourceEnabled`, `isSource` etc). 
+Version 4.0.0 was the first release from jsPlumb's port to Typescript, but just before reaching that goal some new functionality - the ability to register source/target selectors for dragging directly on the instance, using the `addSourceSelector` and `addTargetSelector` methods - was introduced, which I realised can be used in all cases instead of `makeSource` or `makeTarget`, and which is much more performant. Rather than remove a couple of methods that are the mainstay of how many people use jsPlumb, thus introducing further migration tasks, I decided to release 4.0.0 and then bump the major version to 5.0.0; 5.x will not have the `makeSource` or `makeTarget` methods (or any of their related methods such as `setSourceEnabled`, `isSource` etc).
+
+### Breaking
+
+- mouse move events are no longer tracked or reported. Binding to `elementMousemove` will not do anything in 5.0.0.
+- the `isSource` and `isTarget` parameters in `EndpointOptions` have been renamed to `source` and `target` respectively.
+- `connectionType` in `EndpointOptions` has been renamed to `edgeType`
+ 
 
 ## 4.0.0
 

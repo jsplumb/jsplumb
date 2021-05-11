@@ -161,11 +161,40 @@ export declare function removeWithFunction<T>(a: Array<T>, f: (_a: T) => boolean
  * @return An Array
  */
 export declare function fromArray<T>(a: ArrayLike<T>): Array<T>;
+/**
+ * Remove an item from an array
+ * @param l Array to remove the item from
+ * @param v Item to remove.
+ * @return true if the item was removed, false otherwise.
+ */
 export declare function remove<T>(l: Array<T>, v: T): boolean;
+/**
+ * Adds an item to a list if the given hash function determines that the item is not already in the list
+ * @param list List to add to
+ * @param item Item to add
+ * @param hashFunction Function to use to check the current items of the list; if this function returns true for any current list item, the insertion does not proceed.
+ */
 export declare function addWithFunction<T>(list: Array<T>, item: T, hashFunction: (_a: T) => boolean): void;
 export declare function addToDictionary<T>(map: Dictionary<Array<T>>, key: string, value: any, insertAtStart?: boolean): Array<any>;
+/**
+ * Add an item to a list that is stored inside some map. This method is used internally.
+ * @param map A map of <string, Array> entries.
+ * @param key The ID of the list to search for in the map
+ * @param value The value to add to the list, if found
+ * @param insertAtStart If true, inserts the new item at the head of the list. Defaults to false.
+ */
 export declare function addToList<T>(map: Map<string, Array<T>>, key: string, value: any, insertAtStart?: boolean): Array<any>;
+/**
+ * Add the given item to the given list if it does not exist on the list already.
+ * @param list List to add to
+ * @param item Item to add
+ * @param insertAtHead If true, insert new item at head. Defaults to false.
+ */
 export declare function suggest(list: Array<any>, item: any, insertAtHead?: boolean): boolean;
+/**
+ * Generate a v4 UUID.
+ * @return String representation of a UUID
+ */
 export declare function uuid(): string;
 /**
  * Rotate the given point around the given center, by the given rotation (in degrees)
@@ -187,7 +216,7 @@ export declare const logEnabled: boolean;
 export declare function log(...args: string[]): void;
 /**
  * Wraps one function with another, creating a placeholder for the
- * wrapped function if it was null. this is used to wrap the various
+ * wrapped function if it was null. This is used to wrap the various
  * drag/drop event functions - to allow jsPlumb to be notified of
  * important lifecycle events without imposing itself on the user's
  * drag/drop functionality.
@@ -201,13 +230,6 @@ export declare function log(...args: string[]): void;
 export declare function wrap(wrappedFunction: Function, newFunction: Function, returnOnThisValue?: any): () => any;
 export declare function sortHelper<T>(_array: Array<T>, _fn: SortFunction<T>): Array<T>;
 export declare function _mergeOverrides(def: any, values: any): any;
-export declare type MapFunction<T, Q> = (v: T) => Q;
-export interface Optional<T> {
-    isDefined: () => boolean;
-    ifPresent: (fn: (v: T) => any) => void;
-    map: (fn: MapFunction<T, any>) => any;
-}
-export declare function optional<T>(obj: T): Optional<T>;
 /**
  * Get, or insert then get, a value from the map.
  * @param map Map to get the value from.

@@ -26,7 +26,7 @@ var testSuite = function () {
             makeContainer()
             _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
             support = jsPlumbTestSupport.getInstance(_jsPlumb);
-            defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
+            defaults = jsPlumb.extend({}, _jsPlumb.defaults);
         }
     });
 

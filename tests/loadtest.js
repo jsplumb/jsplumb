@@ -76,8 +76,8 @@ console.cTimeSummary = function() {
             paintStyle:{ fill:"#456", outlineStroke:"black", outlineWidth:2 },
             connectorPaintStyle:{strokeWidth:1, stroke:"red"},
             connectorHoverStyle:{stroke:"#943"},
-            isSource:true,
-            isTarget:true,
+            source:true,
+            target:true,
             maxConnections:-1
         },
 

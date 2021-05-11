@@ -110,7 +110,7 @@ var testSuite = function () {
     });
 
     test(": _jsPlumb.connect (default overlays)", function () {
-        _jsPlumb.Defaults.connectionOverlays = [
+        _jsPlumb.defaults.connectionOverlays = [
             { type:"Arrow", options:{ location: 0.1, id: "arrow" }}
         ];
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
@@ -120,7 +120,7 @@ var testSuite = function () {
     });
 
     test(": _jsPlumb.connect (default overlays + overlays specified in connect call)", function () {
-        _jsPlumb.Defaults.connectionOverlays = [
+        _jsPlumb.defaults.connectionOverlays = [
             { type:"Arrow", options:{ location: 0.1, id: "arrow" }}
         ];
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
@@ -133,7 +133,7 @@ var testSuite = function () {
     });
 
     test(": _jsPlumb.connect (default connection overlays)", function () {
-        _jsPlumb.Defaults.connectionOverlays = [
+        _jsPlumb.defaults.connectionOverlays = [
             { type:"Arrow", options:{ location: 0.1, id: "arrow" }}
         ];
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
@@ -143,7 +143,7 @@ var testSuite = function () {
     });
 
     test(": _jsPlumb.connect (default connection overlays + overlays specified in connect call)", function () {
-        _jsPlumb.Defaults.connectionOverlays = [
+        _jsPlumb.defaults.connectionOverlays = [
             { type:"Arrow", options:{ location: 0.1, id: "arrow" }}
         ];
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
@@ -156,7 +156,7 @@ var testSuite = function () {
     });
 
     test(": _jsPlumb.connect (default overlays + default connection overlays)", function () {
-        _jsPlumb.Defaults.connectionOverlays = [
+        _jsPlumb.defaults.connectionOverlays = [
             { type:"Arrow", options:{ location: 0.1, id: "arrow" }},
             { type:"Arrow", options:{ location: 0.1, id: "arrow2" }}
         ];
@@ -169,7 +169,7 @@ var testSuite = function () {
 
     test("overlay visible tests", function() {
 
-        _jsPlumb.Defaults.connectionOverlays = [
+        _jsPlumb.defaults.connectionOverlays = [
             { type:"Arrow", options:{ location: 0.1, id: "arrow" }},
             { type:"Arrow", options:{ location: 0.1, id: "arrow2" }},
             { type: "Label", options:{id:"label"}}
@@ -199,7 +199,7 @@ var testSuite = function () {
 
 
     test(": _jsPlumb.connect (default overlays + default connection overlays)", function () {
-        _jsPlumb.Defaults.connectionOverlays = [
+        _jsPlumb.defaults.connectionOverlays = [
             { type:"Arrow", options:{ location: 0.1, id: "arrow" }},
             { type:"Arrow", options:{ location: 0.1, id: "arrow2" }}
         ];
@@ -482,7 +482,7 @@ var testSuite = function () {
     });
 
     test(": _jsPlumb.connect (custom label overlay, set on Defaults, return plain DOM element)", function () {
-        _jsPlumb.Defaults.connectionOverlays = [
+        _jsPlumb.defaults.connectionOverlays = [
             {
                 type: "Custom",
                 options: {
@@ -506,7 +506,7 @@ var testSuite = function () {
     });
 
     test(": _jsPlumb.connect (custom label overlay, set on Defaults, return selector)", function () {
-        _jsPlumb.Defaults.connectionOverlays = [
+        _jsPlumb.defaults.connectionOverlays = [
             {
                 type: "Custom",
                 options: {
@@ -566,7 +566,7 @@ var testSuite = function () {
     //
     //test(" _jsPlumb.hide, two-arg version, endpoints should also be hidden", function() {
     //var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
-    //e = { isSource:true, isTarget:true, maxConnections:-1 },
+    //e = { source:true, target:true, maxConnections:-1 },
     //e1 = _jsPlumb.addEndpoint(d1, e),
     //e2 = _jsPlumb.addEndpoint(d2, e),
     //c1 = _jsPlumb.connect({source:e1, target:e2});
@@ -642,7 +642,7 @@ var testSuite = function () {
 
 
     test(": _jsPlumb.addEndpoints (default overlays)", function () {
-        _jsPlumb.Defaults.endpointOverlays = [
+        _jsPlumb.defaults.endpointOverlays = [
             { type: "Label", options:{ id: "label" } }
         ];
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17"),
@@ -655,7 +655,7 @@ var testSuite = function () {
 
 
     test(": _jsPlumb.addEndpoints (default overlays)", function () {
-        _jsPlumb.Defaults.endpointOverlays = [
+        _jsPlumb.defaults.endpointOverlays = [
             { type: "Label", options:{ id: "label" } }
         ];
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17"),

@@ -12,7 +12,7 @@ const BLANK_ATTRIBUTES:ElementAttributes = {
 
 export const register = () => {
 
-    registerEndpointRenderer<BlankEndpoint>("Blank", {
+    registerEndpointRenderer<BlankEndpoint>(BlankEndpoint.type, {
         makeNode: (ep: BlankEndpoint, style: PaintStyle) => {
             return _node("rect", BLANK_ATTRIBUTES)
         },

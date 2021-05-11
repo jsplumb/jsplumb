@@ -16,7 +16,6 @@ import {
     Dictionary,
     isString,
     JsPlumbInstance,
-    optional,
     RedrawResult,
     UIGroup,
     forEach,
@@ -479,11 +478,13 @@ export class ElementDragHandler implements DragHandler {
     setDragGroupState (state:boolean, ...els:Array<Element>) {
         const elementIds = els.map(el => this.instance.getId(el))
         forEach(elementIds,(id:string) => {
-            optional<DragGroup>(this._dragGroupByElementIdMap[id]).map(dragGroup => {
-                optional(getFromSetWithFunction(dragGroup.members,(m:DragGroupMemberSpec) => m.elId === id)).map ( member => {
+            const dragGroup = this._dragGroupByElementIdMap[id]
+            if (dragGroup != null) {
+                const member = getFromSetWithFunction(dragGroup.members,(m:DragGroupMemberSpec) => m.elId === id)
+                if (member != null) {
                     member.active = state
-                })
-            })
+                }
+            }
         })
     }
 

@@ -8,7 +8,7 @@ var reinit = function(defaults) {
 
     _jsPlumb = jsPlumbBrowserUI.newInstance((d));
     support = jsPlumbTestSupport.getInstance(_jsPlumb);
-    defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
+    defaults = jsPlumb.extend({}, _jsPlumb.defaults);
 }
 
 /**
@@ -49,7 +49,7 @@ var testSuite = function () {
         setup: function () {
             _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
             support = jsPlumbTestSupport.getInstance(_jsPlumb);
-            defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
+            defaults = jsPlumb.extend({}, _jsPlumb.defaults);
 
 
         }

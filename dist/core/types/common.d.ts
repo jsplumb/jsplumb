@@ -14,29 +14,99 @@ export interface jsPlumbElement<E> {
     _isJsPlumbGroup: boolean;
     parentNode: jsPlumbElement<E>;
 }
+/**
+ * Options for the `connect` call on a JsPlumbInstance
+ */
 export interface ConnectParams<E> {
+    /**
+     * Optional UUIDs to assign to the source and target endpoints.
+     */
     uuids?: [UUID, UUID];
+    /**
+     * Source for the connection - an Endpoint, or an element
+     */
     source?: Element | Endpoint;
+    /**
+     * Source for the connection - an Endpoint, or an element
+     */
     target?: Element | Endpoint;
+    /**
+     * Whether or not the connection is detachable. Defaults to true.
+     */
     detachable?: boolean;
+    /**
+     * Whether or not to delete the connection's endpoints when the connection is detached. Defaults to false. Does not
+     * delete endpoints if they have other connections.
+     */
     deleteEndpointsOnDetach?: boolean;
+    /**
+     * Whether or not to reattach this connection automatically should it be detached via user intervention. Defaults to false.
+     */
     reattach?: boolean;
+    /**
+     * Spec for the endpoint to use for both source and target endpoints.
+     */
     endpoint?: EndpointSpec;
-    anchor?: AnchorSpec;
-    anchors?: [AnchorSpec, AnchorSpec];
-    label?: string;
-    connector?: ConnectorSpec;
-    overlays?: Array<OverlaySpec>;
+    /**
+     * Individual endpoint specs for the source/target endpoints.
+     */
     endpoints?: [EndpointSpec, EndpointSpec];
-    endpointStyles?: [EndpointStyle, EndpointStyle];
-    endpointHoverStyles?: [EndpointStyle, EndpointStyle];
+    /**
+     * Spec for the anchor to use for both source and target endpoints.
+     */
+    anchor?: AnchorSpec;
+    /**
+     * Individual anchor specs for the source/target endpoints.
+     */
+    anchors?: [AnchorSpec, AnchorSpec];
+    /**
+     * Optional label to set on the connection. In the default browser UI implementation this is rendered as a `label` attribute on the SVG element representing the connection.
+     */
+    label?: string;
+    /**
+     * Spec for the connector used to paint the connection.
+     */
+    connector?: ConnectorSpec;
+    /**
+     * Optional list of overlays to attach to the connection.
+     */
+    overlays?: Array<OverlaySpec>;
+    /**
+     * Spec for the styles to use on both source and target endpoints
+     */
     endpointStyle?: EndpointStyle;
+    /**
+     * Individual specs for the source/target endpoint styles.
+     */
+    endpointStyles?: [EndpointStyle, EndpointStyle];
+    /**
+     * Spec for the styles to use on both source and target endpoints when they are in hover state
+     */
     endpointHoverStyle?: EndpointStyle;
+    /**
+     * Individual specs for the source/target endpoint styles when they are in hover state.
+     */
+    endpointHoverStyles?: [EndpointStyle, EndpointStyle];
+    /**
+     * Optional port IDs for the source and target endpoints
+     */
     ports?: [string, string];
+    /**
+     * Type of the connection. Used in conjunction with the `registerConnectionType` method.
+     */
     type?: string;
+    /**
+     * Paint style for the connector.
+     */
     paintStyle?: PaintStyle;
+    /**
+     * Paint style for the connector when in hover mode.
+     */
     hoverPaintStyle?: PaintStyle;
 }
+/**
+ * Internal extension of ConnectParams containing a few extra things needed to establish a connection.
+ */
 export interface InternalConnectParams<E> extends ConnectParams<E> {
     sourceEndpoint?: Endpoint<E>;
     targetEndpoint?: Endpoint<E>;
@@ -44,6 +114,9 @@ export interface InternalConnectParams<E> extends ConnectParams<E> {
     type?: string;
     newConnection?: (p: any) => Connection;
 }
+/**
+ * Definition of the parameters passed to a listener for the `connection` event.
+ */
 export interface ConnectionEstablishedParams<E = any> {
     connection: Connection<E>;
     source: E;
@@ -53,8 +126,14 @@ export interface ConnectionEstablishedParams<E = any> {
     targetEndpoint: Endpoint<E>;
     targetId: string;
 }
+/**
+ * Definition of the parameters passed to a listener for the `connection:detach` event.
+ */
 export interface ConnectionDetachedParams<E = any> extends ConnectionEstablishedParams<E> {
 }
+/**
+ * Definition of the parameters passed to a listener for the `connection:move` event.
+ */
 export interface ConnectionMovedParams<E = any> {
     connection: Connection<E>;
     index: number;
@@ -65,6 +144,26 @@ export interface ConnectionMovedParams<E = any> {
     originalEndpoint: Endpoint<E>;
     newEndpoint: Endpoint<E>;
 }
+/**
+ * Definition of the parameters passed to the `beforeDrop` interceptor.
+ */
+export interface BeforeDropParams {
+    sourceId: string;
+    targetId: string;
+    scope: string;
+    connection: Connection;
+    dropEndpoint: Endpoint;
+}
+export interface ManageElementParams<E = any> {
+    el: E;
+}
+export interface UnmanageElementParams<E = any> {
+    el: E;
+}
+/**
+ * Base interface for endpoint/connection types, which are registered via `registerConnectionType` and `registerEndpointType`. This interface
+ * contains parameters that are common between the two types.
+ */
 export interface TypeDescriptor {
     cssClass?: string;
     paintStyle?: PaintStyle;
@@ -81,11 +180,17 @@ export interface TypeDescriptor {
     connector?: ConnectorSpec;
     connectorClass?: string;
 }
+/**
+ * Definition of an endpoint type.
+ */
 export interface EndpointTypeDescriptor extends TypeDescriptor {
     connectionsDetachable?: boolean;
     reattachConnections?: boolean;
     maxConnections?: number;
 }
+/**
+ * Definition of a connection type.
+ */
 export interface ConnectionTypeDescriptor extends TypeDescriptor {
     detachable?: boolean;
     reattach?: boolean;
@@ -101,7 +206,7 @@ export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescript
      * @param event
      */
     onMaxConnections?: (value: any, event?: any) => any;
-    connectionType?: string;
+    edgeType?: string;
     portId?: string;
     /**
      * Defaults to true. If false, the user will not be permitted to drag a connection from the current node to itself.
@@ -168,3 +273,9 @@ export interface Rotation {
     c: PointXY;
 }
 export declare type Rotations = Array<Rotation>;
+export interface Extents {
+    xmin: number;
+    ymin: number;
+    xmax: number;
+    ymax: number;
+}

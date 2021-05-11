@@ -2,14 +2,14 @@
 import {SvgComponent} from "./svg-component"
 
 import {_appendAtIndex, _applyStyles, _attr, _node } from './svg-util'
-import {AbstractConnector, extend, PaintStyle} from "@jsplumb/core"
+import {AbstractConnector, extend, Extents, PaintStyle} from "@jsplumb/core"
 
 /**
  * Renderer for a connector that uses an `svg` element in the DOM.
  */
 export class SvgElementConnector {
 
-    static paint(connector:AbstractConnector, paintStyle:PaintStyle, extents?:any) {
+    static paint(connector:AbstractConnector, paintStyle:PaintStyle, extents?:Extents) {
 
         this.getConnectorElement(connector)
 

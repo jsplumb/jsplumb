@@ -5,15 +5,18 @@ import {
     Endpoint,
     Connection,
     AnchorSpec,
-    Anchor,
     extend,
     Dictionary,
     EVENT_CONNECTION,
     EVENT_MANAGE_ELEMENT,
     EVENT_UNMANAGE_ELEMENT,
     SELECTOR_MANAGED_ELEMENT,
-    TRUE,
-    INTERCEPT_BEFORE_DROP
+    INTERCEPT_BEFORE_DROP,
+    att,
+    BeforeDropParams,
+    ManageElementParams,
+    UnmanageElementParams,
+    ConnectionEstablishedParams
 } from '@jsplumb/core'
 
 export interface ListManagerOptions { }
@@ -40,7 +43,7 @@ const DEFAULT_LIST_OPTIONS = {
 }
 
 export const ATTR_SCROLLABLE_LIST = "jtk-scrollable-list"
-export const SELECTOR_SCROLLABLE_LIST = "[" + ATTR_SCROLLABLE_LIST + "]"
+export const SELECTOR_SCROLLABLE_LIST = att(ATTR_SCROLLABLE_LIST)
 export const EVENT_SCROLL = "scroll"
 
 
@@ -58,7 +61,7 @@ export class JsPlumbListManager {
         this.lists = {}
         this.options = params || {}
 
-        this.instance.bind(EVENT_MANAGE_ELEMENT, (p:any) => {
+        this.instance.bind<ManageElementParams>(EVENT_MANAGE_ELEMENT, (p:ManageElementParams) => {
 
             //look for [jtk-scrollable-list] elements and attach scroll listeners if necessary
             const scrollableLists = this.instance.getSelector(p.el, SELECTOR_SCROLLABLE_LIST)
@@ -68,11 +71,11 @@ export class JsPlumbListManager {
 
         })
 
-        this.instance.bind(EVENT_UNMANAGE_ELEMENT, (p:any) => {
+        this.instance.bind<UnmanageElementParams>(EVENT_UNMANAGE_ELEMENT, (p:UnmanageElementParams) => {
             this.removeList(p.el)
         })
 
-        this.instance.bind(EVENT_CONNECTION, (params:{connection:Connection, source:Element, target:Element}, evt:MouseEvent) => {
+        this.instance.bind<ConnectionEstablishedParams>(EVENT_CONNECTION, (params:ConnectionEstablishedParams, evt:MouseEvent) => {
             if (evt == null) {
 
                 const targetParent = this.findParentList(params.target as unknown as jsPlumbDOMElement)
@@ -92,7 +95,7 @@ export class JsPlumbListManager {
         // intercept connection drops, and if the drop element belongs to a list, ensure that it is currently within the visible viewport of
         // the list. If it is not, reject the connection. This was reported in issue 944.
         //
-        this.instance.bind(INTERCEPT_BEFORE_DROP, (p:any) => {
+        this.instance.bind<BeforeDropParams>(INTERCEPT_BEFORE_DROP, (p:BeforeDropParams) => {
             const el = p.dropEndpoint.element as unknown as jsPlumbDOMElement
             const dropList = this.findParentList(el)
             return dropList == null || (el.offsetTop >= dropList.domElement.scrollTop && (el.offsetTop + el.offsetHeight <= dropList.domElement.scrollTop + dropList.domElement.offsetHeight))
@@ -267,11 +270,10 @@ export class JsPlumbList {
      * @param el The element the connection is attached to.
      * @param conn The connection to proxy.
      * @param index 0 if the element is connection source, 1 if it is connection target
-     * @param elId ID of the element the connection is attached to
      * @param edge List edge to proxy the connection to - top or bottom.
      * @private
      */
-    private _proxyConnection(el:Element, conn:Connection, index:number, /*elId:string, */edge:SupportedEdge) {
+    private _proxyConnection(el:Element, conn:Connection, index:number, edge:SupportedEdge) {
         this.instance.proxyConnection(conn, index, this.domElement, (c:Connection, index:number) => {
             return this.deriveEndpoint(edge, index, conn.endpoints[index], conn)
         },  (c:Connection, index:number) => {

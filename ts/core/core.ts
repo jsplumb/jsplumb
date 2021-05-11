@@ -1,4 +1,4 @@
-import {jsPlumbDefaults} from "./defaults"
+import {JsPlumbDefaults} from "./defaults"
 
 import {Connection, ConnectionParams} from "./connector/connection-impl"
 import {Endpoint, EndpointSpec} from "./endpoint/endpoint"
@@ -25,7 +25,6 @@ import {
     ConnectParams,  // <--
     SourceDefinition,
     TargetDefinition,
-    SourceOrTargetDefinition,
     BehaviouralTypeDescriptor,  // <--
     InternalConnectParams,
     TypeDescriptor,
@@ -34,7 +33,7 @@ import {
     PointXY,
     ConnectionMovedParams,
     ConnectionDetachedParams,
-    ConnectionEstablishedParams, ConnectionTypeDescriptor, EndpointTypeDescriptor
+    ConnectionEstablishedParams, ConnectionTypeDescriptor, EndpointTypeDescriptor, Extents, ManageElementParams
 } from './common'
 
 import { EventGenerator } from "./event-generator"
@@ -60,6 +59,7 @@ import { PaintStyle} from './styles'
 import {AnchorComputeParams, AnchorSpec, AnchorLocations } from "./factory/anchor-factory"
 import {SourceSelector, TargetSelector} from "./source-selector"
 import {
+    ATTRIBUTE_MANAGED,
     CLASS_CONNECTED,
     CLASS_CONNECTOR,
     CLASS_CONNECTOR_OUTLINE,
@@ -68,7 +68,7 @@ import {
     CLASS_ENDPOINT_DROP_ALLOWED,
     CLASS_ENDPOINT_DROP_FORBIDDEN,
     CLASS_ENDPOINT_FULL,
-    CLASS_OVERLAY
+    CLASS_OVERLAY, SELECTOR_MANAGED_ELEMENT
 } from "./constants"
 
 function _scopeMatch(e1:Endpoint, e2:Endpoint):boolean {
@@ -233,12 +233,10 @@ export type ManagedElement<E> = {
     group?:string
 }
 
-const ID_ATTRIBUTE = Constants.ATTRIBUTE_MANAGED
-
 export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends EventGenerator {
 
-    Defaults:jsPlumbDefaults<T["E"]>
-    private _initialDefaults:jsPlumbDefaults<T["E"]> = {}
+    defaults:JsPlumbDefaults<T["E"]>
+    private _initialDefaults:JsPlumbDefaults<T["E"]> = {}
 
     isConnectionBeingDragged:boolean = false
     currentlyDragging:boolean = false
@@ -284,11 +282,14 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     private _zoom:number = 1
     get currentZoom() { return  this._zoom }
 
-    constructor(public readonly _instanceIndex:number, defaults?:jsPlumbDefaults<T["E"]>) {
+    private attributeObserver:MutationObserver
+    private domObserver:MutationObserver
+
+    constructor(public readonly _instanceIndex:number, defaults?:JsPlumbDefaults<T["E"]>) {
 
         super()
 
-        this.Defaults = {
+        this.defaults = {
             anchor: AnchorLocations.Bottom,
             anchors: [ null, null ],
             connectionsDetachable: true,
@@ -312,11 +313,11 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         }
 
         if (defaults) {
-            extend(this.Defaults, defaults)
+            extend(this.defaults, defaults)
         }
 
-        extend(this._initialDefaults, this.Defaults)
-        this.DEFAULT_SCOPE = this.Defaults.scope
+        extend(this._initialDefaults, this.defaults)
+        this.DEFAULT_SCOPE = this.defaults.scope
 
         this.allowNestedGroups = this._initialDefaults.allowNestedGroups !== false
 
@@ -325,6 +326,59 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         this.groupManager = new GroupManager(this)
 
         this.setContainer(this._initialDefaults.container)
+
+        this.addMutationObserver()
+    }
+
+    private removeMutationObserver() {
+        this.attributeObserver && this.attributeObserver.disconnect()
+        this.domObserver && this.domObserver.disconnect()
+    }
+
+    private addMutationObserver() {
+        // this.attributeObserver = new MutationObserver((mutations) => {
+        //     mutations.forEach((mutation) => {
+        //         console.log("ATTRIBUTE MUTATION :", mutation)
+        //         // if (mutation.attributeName === ATTRIBUTE_MANAGED) {
+        //         //     const value = (mutation.target as Element).getAttribute(ATTRIBUTE_MANAGED)
+        //         //     if (this._managedElements[value] == null) {
+        //         //         this.manage(mutation.target as any, value)
+        //         //     }
+        //         // }
+        //     });
+        // });
+        //
+        // this.attributeObserver.observe(this.getContainer(), {
+        //     attributes: true,
+        //     attributeFilter:['data-jtk-managed'],
+        //     childList: true
+        // });
+        //
+        // this.domObserver = new MutationObserver((mutations) => {
+        //
+        //     const additions:Array<Element> = [], removals:Array<Element> = []
+        //     mutations.forEach((mutation) => {
+        //
+        //         Array.prototype.push.apply(removals, flatMap(mutation.removedNodes, (removedNode:Node) => {
+        //             return removedNode instanceof HTMLElement && removedNode.matches(SELECTOR_MANAGED_ELEMENT) ? removedNode : null
+        //         }))
+        //
+        //         Array.prototype.push.apply(additions, flatMap(mutation.addedNodes, (addedNode:Node) => {
+        //             return addedNode instanceof HTMLElement && addedNode.parentNode != null && addedNode.matches(SELECTOR_MANAGED_ELEMENT) ? addedNode : null
+        //         }))
+        //     });
+        //
+        //     if (additions.length > 0 || removals.length > 0) {
+        //         this.batch(() => {
+        //             forEach(removals, (r) => this.unmanage(r))
+        //             forEach(additions, (r) => this.manage(r))
+        //         })
+        //     }
+        // });
+        //
+        // this.domObserver.observe(this.getContainer(), {
+        //     childList: true
+        // });
     }
 
     getContainer():any { return this._container; }
@@ -366,7 +420,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             return null
         }
 
-        let id:string = this.getAttribute(element, ID_ATTRIBUTE)
+        let id:string = this.getAttribute(element, ATTRIBUTE_MANAGED)
         if (!id || id === "undefined") {
             // check if fixed uuid parameter is given
             if (arguments.length === 2 && arguments[1] !== undefined) {
@@ -376,7 +430,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
                 id = "jsplumb-" + this._instanceIndex + "-" + this._idstamp()
             }
 
-            this.setAttribute(element, ID_ATTRIBUTE, id)
+            this.setAttribute(element, ATTRIBUTE_MANAGED, id)
         }
         return id
     }
@@ -469,7 +523,9 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     }
 
     setContainer(c:T["E"]):void {
+        this.removeMutationObserver()
         this._container = c
+        this.addMutationObserver()
         this.fire(Constants.EVENT_CONTAINER_CHANGE, this._container)
     }
 
@@ -769,9 +825,9 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      */
     manage (element:T["E"], internalId?:string, _recalc?:boolean):ManagedElement<T["E"]> {
 
-        if (this.getAttribute(element, ID_ATTRIBUTE) == null) {
-            internalId = internalId || uuid()
-            this.setAttribute(element, ID_ATTRIBUTE, internalId)
+        if (this.getAttribute(element, ATTRIBUTE_MANAGED) == null) {
+            internalId = internalId || this.getAttribute(element, "id") || uuid()
+            this.setAttribute(element, ATTRIBUTE_MANAGED, internalId)
         }
 
         const elId = this.getId(element)
@@ -794,7 +850,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
                 obj.viewportElement = this.updateOffset({elId: elId, recalc:true})
             }
 
-            this.fire<{el:T["E"]}>(Constants.EVENT_MANAGE_ELEMENT, {el:element})
+            this.fire<ManageElementParams>(Constants.EVENT_MANAGE_ELEMENT, {el:element})
 
         } else {
             if (_recalc) {
@@ -828,8 +884,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
             let id = this.getId(_el)
 
-            this.removeAttribute(_el, ID_ATTRIBUTE)
-            this.removeAttribute(_el, Constants.ATTRIBUTE_MANAGED)
+            this.removeAttribute(_el, ATTRIBUTE_MANAGED)
             delete this._managedElements[id]
 
             this.viewport.remove(id)
@@ -1192,11 +1247,13 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         referenceParams = referenceParams || {} as EndpointOptions<T["E"]>
         let p:EndpointOptions<T["E"]> = extend({}, referenceParams)
         extend<EndpointOptions<T["E"]>>(p, params || {})
-        p.endpoint = p.endpoint || this.Defaults.endpoint
-        p.paintStyle = p.paintStyle || this.Defaults.endpointStyle
+        p.endpoint = p.endpoint || this.defaults.endpoint
+        p.paintStyle = p.paintStyle || this.defaults.endpointStyle
         let _p:InternalEndpointOptions<T["E"]> = extend<InternalEndpointOptions<T["E"]>>({element:el}, p)
+        //let id = this.getId(_p.element)
+        // this.manage(el, id, !this._suspendDrawing)
+        this.manage(el, null, !this._suspendDrawing)
         let id = this.getId(_p.element)
-        this.manage(el, id, !this._suspendDrawing)
         let e = this._internal_newEndpoint(_p, id)
 
         addToDictionary(this.endpointsByElement, id, e)
@@ -1270,6 +1327,19 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      */
     getEndpoint(uuid:string):Endpoint {
         return this.endpointsByUUID.get(uuid)
+    }
+
+    /**
+     * Set an endpoint's uuid, updating the internal map
+     * @param endpoint
+     * @param uuid
+     */
+    setEndpointUuid(endpoint:Endpoint, uuid:string) {
+        if (endpoint.uuid) {
+            this.endpointsByUUID.delete(endpoint.uuid)
+        }
+        endpoint.uuid = uuid
+        this.endpointsByUUID.set(uuid, endpoint)
     }
 
     /**
@@ -1351,7 +1421,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
         // if source endpoint mandates connection type and nothing specified in our params, use it.
         if (!_p.type && _p.sourceEndpoint) {
-            _p.type = _p.sourceEndpoint.connectionType
+            _p.type = _p.sourceEndpoint.edgeType
         }
 
         // copy in any connectorOverlays that were specified on the source endpoint.
@@ -1474,8 +1544,8 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     protected _createSourceDefinition(params?:BehaviouralTypeDescriptor, referenceParams?:BehaviouralTypeDescriptor):SourceDefinition {
         let p:BehaviouralTypeDescriptor = extend({}, referenceParams)
         extend(p, params)
-        p.connectionType = p.connectionType || Constants.DEFAULT
-        let aae = this._deriveEndpointAndAnchorSpec(p.connectionType)
+        p.edgeType = p.edgeType || Constants.DEFAULT
+        let aae = this._deriveEndpointAndAnchorSpec(p.edgeType)
         p.endpoint = p.endpoint || aae.endpoints[0]
         p.anchor = p.anchor || aae.anchors[0]
         let maxConnections = p.maxConnections || -1
@@ -1546,7 +1616,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         // put jsplumb ref into params without altering the params passed in
         let p:BehaviouralTypeDescriptor = extend({}, referenceParams)
         extend(p, params)
-        p.connectionType  = p.connectionType || Constants.DEFAULT
+        p.edgeType  = p.edgeType || Constants.DEFAULT
 
         let maxConnections = p.maxConnections || -1;//,
 
@@ -1685,9 +1755,9 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return this._endpointTypes.get(id)
     }
 
-    importDefaults(d:jsPlumbDefaults<T["E"]>):JsPlumbInstance {
+    importDefaults(d:JsPlumbDefaults<T["E"]>):JsPlumbInstance {
         for (let i in d) {
-            this.Defaults[i] = d[i]
+            this.defaults[i] = d[i]
         }
         if (d.container) {
             this.setContainer(d.container)
@@ -1697,7 +1767,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     }
 
     restoreDefaults ():JsPlumbInstance {
-        this.Defaults = extend({}, this._initialDefaults)
+        this.defaults = extend({}, this._initialDefaults)
         return this
     }
 
@@ -1929,7 +1999,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
                 this.router.computePath(connection, timestamp);
 
-                let overlayExtents = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity }
+                let overlayExtents:Extents = { xmin: Infinity, ymin: Infinity, xmax: -Infinity, ymax: -Infinity }
 
                 // compute overlays. we do this first so we can get their placements, and adjust the
                 // container if needs be (if an overlay would be clipped)
@@ -1940,10 +2010,10 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
                             connection.overlayPlacements[i] = this.drawOverlay(o, connection.connector, connection.paintStyleInUse, connection.getAbsoluteOverlayPosition(o))
 
-                            overlayExtents.minX = Math.min(overlayExtents.minX, connection.overlayPlacements[i].minX)
-                            overlayExtents.maxX = Math.max(overlayExtents.maxX, connection.overlayPlacements[i].maxX)
-                            overlayExtents.minY = Math.min(overlayExtents.minY, connection.overlayPlacements[i].minY)
-                            overlayExtents.maxY = Math.max(overlayExtents.maxY, connection.overlayPlacements[i].maxY)
+                            overlayExtents.xmin = Math.min(overlayExtents.xmin, connection.overlayPlacements[i].xmin)
+                            overlayExtents.xmax = Math.max(overlayExtents.xmax, connection.overlayPlacements[i].xmax)
+                            overlayExtents.ymin = Math.min(overlayExtents.ymin, connection.overlayPlacements[i].ymin)
+                            overlayExtents.ymax = Math.max(overlayExtents.ymax, connection.overlayPlacements[i].ymax)
                         }
                     }
                 }
@@ -1951,10 +2021,10 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
                 let lineWidth = parseFloat("" + connection.paintStyleInUse.strokeWidth || "1") / 2,
                     outlineWidth = parseFloat("" + connection.paintStyleInUse.strokeWidth || "0"),
                     extents = {
-                        xmin: Math.min(connection.connector.bounds.minX - (lineWidth + outlineWidth), overlayExtents.minX),
-                        ymin: Math.min(connection.connector.bounds.minY - (lineWidth + outlineWidth), overlayExtents.minY),
-                        xmax: Math.max(connection.connector.bounds.maxX + (lineWidth + outlineWidth), overlayExtents.maxX),
-                        ymax: Math.max(connection.connector.bounds.maxY + (lineWidth + outlineWidth), overlayExtents.maxY)
+                        xmin: Math.min(connection.connector.bounds.minX - (lineWidth + outlineWidth), overlayExtents.xmin),
+                        ymin: Math.min(connection.connector.bounds.minY - (lineWidth + outlineWidth), overlayExtents.ymin),
+                        xmax: Math.max(connection.connector.bounds.maxX + (lineWidth + outlineWidth), overlayExtents.xmax),
+                        ymax: Math.max(connection.connector.bounds.maxY + (lineWidth + outlineWidth), overlayExtents.ymax)
                     }
 
                 this.paintConnector(connection.connector, connection.paintStyleInUse, extents)
@@ -2041,7 +2111,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     abstract setHover(component:Component, hover:boolean):void
 
-    abstract paintConnector(connector:AbstractConnector, paintStyle:PaintStyle, extents?:any):void
+    abstract paintConnector(connector:AbstractConnector, paintStyle:PaintStyle, extents?:Extents):void
     abstract destroyConnection(connection:Connection, force?:boolean):void
     abstract setConnectorHover(connector:AbstractConnector, h:boolean, doNotCascade?:boolean):void
     abstract addConnectorClass(connector:AbstractConnector, clazz:string):void

@@ -1,4 +1,4 @@
-import { jsPlumbDefaults, Dictionary, Size, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, OverlayCapableComponent, Segment, LabelOverlay, Connection, Component, DeleteConnectionOptions, PointXY, BehaviouralTypeDescriptor, SourceSelector } from '@jsplumb/core';
+import { JsPlumbDefaults, Dictionary, Size, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, OverlayCapableComponent, Segment, LabelOverlay, Connection, Component, DeleteConnectionOptions, PointXY, BehaviouralTypeDescriptor, SourceSelector, Extents } from '@jsplumb/core';
 import { DragManager } from "./drag-manager";
 import { jsPlumbDOMElement } from './element-facade';
 import { EventManager } from "./event-manager";
@@ -24,7 +24,7 @@ export interface DragOptions {
     grid?: [number, number];
     trackScroll?: boolean;
 }
-export interface BrowserJsPlumbDefaults extends jsPlumbDefaults<Element> {
+export interface BrowserJsPlumbDefaults extends JsPlumbDefaults<Element> {
     /**
      * Whether or not elements should be draggable. Default value is `true`.
      */
@@ -33,6 +33,7 @@ export interface BrowserJsPlumbDefaults extends jsPlumbDefaults<Element> {
      * Options for dragging - containment, grid, callbacks etc.
      */
     dragOptions?: DragOptions;
+    managedElementsSelector?: string;
 }
 export interface jsPlumbDOMInformation {
     connector?: AbstractConnector;
@@ -84,6 +85,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     hoverSourceClass: string;
     hoverTargetClass: string;
     dragSelectClass: string;
+    managedElementsSelector: string;
     /**
      * Whether or not elements should be draggable. This can be provided in the constructor arguments, or simply toggled on the
      * class. The default value is `true`.
@@ -248,7 +250,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     drawOverlay(o: Overlay, component: any, paintStyle: PaintStyle, absolutePosition?: PointXY): any;
     updateLabel(o: LabelOverlay): void;
     setHover(component: Component, hover: boolean): void;
-    paintConnector(connector: AbstractConnector, paintStyle: PaintStyle, extents?: any): void;
+    paintConnector(connector: AbstractConnector, paintStyle: PaintStyle, extents?: Extents): void;
     setConnectorHover(connector: AbstractConnector, h: boolean, doNotCascade?: boolean): void;
     destroyConnection(connection: Connection): void;
     addConnectorClass(connector: AbstractConnector, clazz: string): void;

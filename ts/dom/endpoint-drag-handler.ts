@@ -242,7 +242,7 @@ export class EndpointDragHandler implements DragHandler {
 
             // keep a reference to the anchor we want to use if the connection is finalised, and then write a temp anchor
             // for the drag
-            this._originalAnchor = tempEndpointParams.anchor || this.instance.Defaults.anchor
+            this._originalAnchor = tempEndpointParams.anchor || this.instance.defaults.anchor
             tempEndpointParams.anchor = [ elxy.x, elxy.y , 0, 0]
 
             // add an endpoint to the element that is the connection source, using the anchor that will position it where
@@ -380,7 +380,7 @@ export class EndpointDragHandler implements DragHandler {
             hoverPaintStyle: this.ep.connectorHoverStyle,
             connector: this.ep.connector, // this can also be null. Connection will use the default.
             overlays: this.ep.connectorOverlays,
-            type: this.ep.connectionType,
+            type: this.ep.edgeType,
             cssClass: this.ep.connectorClass,
             hoverClass: this.ep.connectorHoverClass,
             scope:scope,
@@ -496,8 +496,8 @@ export class EndpointDragHandler implements DragHandler {
      */
     private _createFloatingEndpoint(canvasElement:Element) {
         let endpointToFloat:EndpointSpec|EndpointRepresentation<any> = this.ep.endpoint
-        if (this.ep.connectionType != null) {
-            const aae = this.instance._deriveEndpointAndAnchorSpec(this.ep.connectionType)
+        if (this.ep.edgeType != null) {
+            const aae = this.instance._deriveEndpointAndAnchorSpec(this.ep.edgeType)
             endpointToFloat = aae.endpoints[1]
         }
         const centerAnchor = makeAnchorFromSpec(this.instance, AnchorLocations.Center)
@@ -835,7 +835,7 @@ export class EndpointDragHandler implements DragHandler {
                             dropEndpoint.fire(EVENT_MAX_CONNECTIONS, {
                                 endpoint: this,
                                 connection: this.jpc,
-                                maxConnections: this.instance.Defaults.maxConnections
+                                maxConnections: this.instance.defaults.maxConnections
                             }, originalEvent)
                             this._reattachOrDiscard(p.e)
                         } else {

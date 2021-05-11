@@ -148,7 +148,7 @@ export abstract class Component extends EventGenerator {
         params = params || ({} as ComponentOptions)
 
         this.cssClass = params.cssClass || ""
-        this.hoverClass = params.hoverClass || instance.Defaults.hoverClass
+        this.hoverClass = params.hoverClass || instance.defaults.hoverClass
 
         this.beforeDetach = params.beforeDetach
         this.beforeDrop = params.beforeDrop
@@ -348,7 +348,7 @@ export abstract class Component extends EventGenerator {
 
     destroy(force?:boolean):void {
         if (force || this.typeId == null) {
-            this.cleanupListeners(); // this is on EventGenerator
+            this.unbind() // this is on EventGenerator
             this.clone = null
         }
     }

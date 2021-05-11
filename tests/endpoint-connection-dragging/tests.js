@@ -26,7 +26,7 @@ var reinit = function(defaults) {
 
     _jsPlumb = jsPlumbBrowserUI.newInstance((d));
     support = jsPlumbTestSupport.getInstance(_jsPlumb);
-    defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
+    defaults = jsPlumb.extend({}, _jsPlumb.defaults);
 }
 
 /**
@@ -79,7 +79,7 @@ var testSuite = function () {
 
             _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
             support = jsPlumbTestSupport.getInstance(_jsPlumb);
-            defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
+            defaults = jsPlumb.extend({}, _jsPlumb.defaults);
 
             var epElCount = document.querySelectorAll(".jtk-endpoint").length,
                 connElCount = document.querySelectorAll(".jtk-connector").length;
@@ -106,8 +106,8 @@ var testSuite = function () {
      */
     test("connections via mouse between Endpoints configured with addEndpoint", function() {
         var d1 = support.addDiv("d1", null, null, 50, 50, 50, 50), d2 = support.addDiv("d2", null, null, 250, 250, 50, 50),
-            e1 = _jsPlumb.addEndpoint(d1, {isSource:true, isTarget:true, anchor:"Top"}),
-            e2 = _jsPlumb.addEndpoint(d2, {isSource:true, isTarget:true, anchor:"Top"});
+            e1 = _jsPlumb.addEndpoint(d1, {source:true, target:true, anchor:"Top"}),
+            e2 = _jsPlumb.addEndpoint(d2, {source:true, target:true, anchor:"Top"});
 
         support.assertManagedEndpointCount(d1, 1)
         support.assertManagedEndpointCount(d2, 1)
@@ -148,10 +148,10 @@ var testSuite = function () {
     test("endpoint:connectionsDetachable mouse interaction", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
             e1 = _jsPlumb.addEndpoint(d1, {
-                isSource:true, isTarget:true,
+                source:true, target:true,
                 connectionsDetachable:false
             }),
-            e2 = _jsPlumb.addEndpoint(d2, {isSource:true, isTarget:true});
+            e2 = _jsPlumb.addEndpoint(d2, {source:true, target:true});
 
         equal(_jsPlumb.select().length, 0, "zero connections before drag");
         support.dragConnection(e1, e2);
@@ -188,9 +188,9 @@ var testSuite = function () {
     test("connection:detach event is fired when no beforeDrop is active", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
         var e1 = _jsPlumb.addEndpoint(d1, {
-            isTarget:true
+            target:true
         });
-        var e2 = _jsPlumb.addEndpoint(d2, {isSource:true});
+        var e2 = _jsPlumb.addEndpoint(d2, {source:true});
         var evt = false, originalEvent, evtCount = 0;
         _jsPlumb.bind('connection:detach', function (info, oevt) {
             evt = true;
@@ -215,9 +215,9 @@ var testSuite = function () {
             beforeDrop:function() {
                 return false;
             },
-            isTarget:true
+            target:true
         });
-        var e2 = _jsPlumb.addEndpoint(d2, {isSource:true});
+        var e2 = _jsPlumb.addEndpoint(d2, {source:true});
         var evt = false, abortEvent = false;
         _jsPlumb.bind('connection:detach', function (info) {
             evt = true;
@@ -237,7 +237,7 @@ var testSuite = function () {
     test("connection:abort event", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 
-        var e2 = _jsPlumb.addEndpoint(d2, {isSource:true});
+        var e2 = _jsPlumb.addEndpoint(d2, {source:true});
         var evt = false, abortEvent = false;
         _jsPlumb.bind('connection:detach', function (info) {
             evt = true;
@@ -254,9 +254,9 @@ var testSuite = function () {
 
     test("endpoint: suspendedElement set correctly", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"),
-            e1 = _jsPlumb.addEndpoint(d1, { isSource:true, isTarget:true }),
-            e2 = _jsPlumb.addEndpoint(d2, {isSource:true, isTarget:true}),
-            e3 = _jsPlumb.addEndpoint(d3, {isSource:true, isTarget:true});
+            e1 = _jsPlumb.addEndpoint(d1, { source:true, target:true }),
+            e2 = _jsPlumb.addEndpoint(d2, {source:true, target:true}),
+            e3 = _jsPlumb.addEndpoint(d3, {source:true, target:true});
 
         equal(_jsPlumb.select().length, 0, "zero connections before drag");
         var c = support.dragConnection(e1, e2);
@@ -289,12 +289,12 @@ var testSuite = function () {
      bd = true;
      return true;
      },
-     isTarget:true,
+     target:true,
      onMaxConnections:function() {
      ok(bd === true, "beforeDrop was called before onMaxConnections");
      }
      });
-     var e2 = _jsPlumb.addEndpoint(d2, {isSource:true, maxConnections:-1});
+     var e2 = _jsPlumb.addEndpoint(d2, {source:true, maxConnections:-1});
      support.dragConnection(e2, e1);
      equal(e1.connections.length, 1, "one connection");
      equal(bd, true, "beforeDrop was called");
@@ -306,8 +306,8 @@ var testSuite = function () {
 
     test("drag connection between two endpoints", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-        var e1 = _jsPlumb.addEndpoint(d1, { isTarget:true, maxConnections:-1 });
-        var e2 = _jsPlumb.addEndpoint(d2, {isSource:true, maxConnections:-1 });
+        var e1 = _jsPlumb.addEndpoint(d1, { target:true, maxConnections:-1 });
+        var e2 = _jsPlumb.addEndpoint(d2, {source:true, maxConnections:-1 });
 
         var c1 = _jsPlumb.connect({source:e2, target:e1});
         equal(e1.connections.length, 1, "one conn now");
@@ -318,8 +318,8 @@ var testSuite = function () {
 
     test("drag connection between two endpoints, scope doesnt match", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-        var e1 = _jsPlumb.addEndpoint(d1, { isTarget:true, maxConnections:-1, scope:"foo" });
-        var e2 = _jsPlumb.addEndpoint(d2, {isSource:true, maxConnections:-1, scope:"bar" });
+        var e1 = _jsPlumb.addEndpoint(d1, { target:true, maxConnections:-1, scope:"foo" });
+        var e2 = _jsPlumb.addEndpoint(d2, {source:true, maxConnections:-1, scope:"bar" });
 
         var c1 = _jsPlumb.connect({source:e2, target:e1});
         equal(e1.connections.length, 0, "no connections; scope didnt match");
@@ -327,8 +327,8 @@ var testSuite = function () {
 
     test("drag connection between two endpoints, scope does match", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-        var e1 = _jsPlumb.addEndpoint(d1, { isTarget:true, maxConnections:-1, scope:"foo" });
-        var e2 = _jsPlumb.addEndpoint(d2, {isSource:true, maxConnections:-1, scope:"foo" });
+        var e1 = _jsPlumb.addEndpoint(d1, { target:true, maxConnections:-1, scope:"foo" });
+        var e2 = _jsPlumb.addEndpoint(d2, {source:true, maxConnections:-1, scope:"foo" });
 
         var c1 = _jsPlumb.connect({source:e2, target:e1});
         equal(e1.connections.length, 1, "one connection; scope matched");
@@ -336,8 +336,8 @@ var testSuite = function () {
 
     test("drag connection between two endpoints, scope does match, and then it doesnt. NOTE the css classes on the endpoint's element wont change.", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-        var e1 = _jsPlumb.addEndpoint(d1, { isTarget:true, maxConnections:-1, scope:"foo" });
-        var e2 = _jsPlumb.addEndpoint(d2, {isSource:true, maxConnections:-1, scope:"foo" });
+        var e1 = _jsPlumb.addEndpoint(d1, { target:true, maxConnections:-1, scope:"foo" });
+        var e2 = _jsPlumb.addEndpoint(d2, {source:true, maxConnections:-1, scope:"foo" });
 
         var c1 = _jsPlumb.connect({source:e2, target:e1});
         equal(e1.connections.length, 1, "one connection; scope matched");
@@ -351,9 +351,9 @@ var testSuite = function () {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
             d3 = _addDiv("d3");
 
-        var e1 = _jsPlumb.addEndpoint(d1, { isTarget:true });
-        var e2 = _jsPlumb.addEndpoint(d2, { isSource:true });
-        var e3 = _jsPlumb.addEndpoint(d3, { isSource:true });
+        var e1 = _jsPlumb.addEndpoint(d1, { target:true });
+        var e2 = _jsPlumb.addEndpoint(d2, { source:true });
+        var e3 = _jsPlumb.addEndpoint(d3, { source:true });
 
         var c1 = _jsPlumb.connect({source:e2, target:e1});
         equal(e1.connections.length, 1, "one conn now");
@@ -386,10 +386,10 @@ var testSuite = function () {
     test("endpoint:beforeDetach listener via mouse interaction", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), r = 0, s = 0, bd = 0,
             e1 = _jsPlumb.addEndpoint(d1, {
-                isSource:true, isTarget:true
+                source:true, target:true
 
             }),
-            e2 = _jsPlumb.addEndpoint(d2, {isSource:true, isTarget:true});
+            e2 = _jsPlumb.addEndpoint(d2, {source:true, target:true});
 
 
 
@@ -424,8 +424,8 @@ var testSuite = function () {
 
     test("connection dragging, redrop on original target endpoint", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
-        var e1 = _jsPlumb.addEndpoint(d1, { isSource:true });
-        var e2 = _jsPlumb.addEndpoint(d2, { isTarget:true });
+        var e1 = _jsPlumb.addEndpoint(d1, { source:true });
+        var e2 = _jsPlumb.addEndpoint(d2, { target:true });
 
         var c = _jsPlumb.connect({source: e1, target: e2});
         equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
@@ -439,10 +439,10 @@ var testSuite = function () {
 
     test("endpoint passes scope to connection, connection via mouse", function() {
         var sourceEndpoint = {
-                isSource: true,
+                source: true,
                 scope: "blue"
             }, targetEndpoint = {
-                isTarget:true,
+                target:true,
                 scope:"blue"
             },
             d1 = _addDiv("d1"), d2 = _addDiv("d2"),
@@ -457,10 +457,10 @@ var testSuite = function () {
     test("endpoint:click but not drag results in drag proxy being cleaned up", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
             e1 = _jsPlumb.addEndpoint(d1, {
-                isSource:true, isTarget:true,
+                source:true, target:true,
                 connectionsDetachable:false
             }),
-            e2 = _jsPlumb.addEndpoint(d2, {isSource:true, isTarget:true}),
+            e2 = _jsPlumb.addEndpoint(d2, {source:true, target:true}),
             ec1 = support.getEndpointCanvas(e1);
 
         equal(2, document.querySelectorAll("[data-jtk-managed]").length, 2, "two managed elements after init");
@@ -474,10 +474,10 @@ var testSuite = function () {
     test("endpoint:drag, attached classes removed afterwards.", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
             e1 = _jsPlumb.addEndpoint(d1, {
-                isSource:true, isTarget:true,
+                source:true, target:true,
                 connectionsDetachable:false
             }),
-            e2 = _jsPlumb.addEndpoint(d2, {isSource:true, isTarget:true}),
+            e2 = _jsPlumb.addEndpoint(d2, {source:true, target:true}),
             ec1 = support.getEndpointCanvas(e1);
 
         var conn = support.dragConnection(e1, e2),
@@ -493,9 +493,9 @@ var testSuite = function () {
     test("endpoint:drag to detach, classes removed afterwards.", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
             e1 = _jsPlumb.addEndpoint(d1, {
-                isSource:true, isTarget:true
+                source:true, target:true
             }),
-            e2 = _jsPlumb.addEndpoint(d2, {isSource:true, isTarget:true}),
+            e2 = _jsPlumb.addEndpoint(d2, {source:true, target:true}),
             ec1 = support.getEndpointCanvas(e1),
             ec2 = support.getEndpointCanvas(e2);
 

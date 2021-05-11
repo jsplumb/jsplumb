@@ -26,7 +26,7 @@ var reinit = function(defaults) {
 
     _jsPlumb = jsPlumbBrowserUI.newInstance((d));
     support = jsPlumbTestSupport.getInstance(_jsPlumb);
-    defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
+    defaults = jsPlumb.extend({}, _jsPlumb.defaults);
 }
 
 /**
@@ -79,7 +79,7 @@ var testSuite = function () {
 
             _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
             support = jsPlumbTestSupport.getInstance(_jsPlumb);
-            defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
+            defaults = jsPlumb.extend({}, _jsPlumb.defaults);
 
             var epElCount = document.querySelectorAll(".jtk-endpoint").length,
                 connElCount = document.querySelectorAll(".jtk-connector").length;
@@ -197,12 +197,12 @@ var testSuite = function () {
      bd = true;
      return true;
      },
-     isTarget:true,
+     target:true,
      onMaxConnections:function() {
      ok(bd === true, "beforeDrop was called before onMaxConnections");
      }
      });
-     var e2 = _jsPlumb.addEndpoint(d2, {isSource:true, maxConnections:-1});
+     var e2 = _jsPlumb.addEndpoint(d2, {source:true, maxConnections:-1});
      support.dragConnection(e2, e1);
      equal(e1.connections.length, 1, "one connection");
      equal(bd, true, "beforeDrop was called");

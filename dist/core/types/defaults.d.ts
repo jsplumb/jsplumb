@@ -6,7 +6,7 @@ import { ConnectorSpec } from "./connector/abstract-connector";
 export interface ListSpec {
     endpoint?: EndpointSpec;
 }
-export interface jsPlumbDefaults<E> {
+export interface JsPlumbDefaults<E> {
     endpoint?: EndpointSpec;
     endpoints?: [EndpointSpec, EndpointSpec];
     anchor?: AnchorSpec;

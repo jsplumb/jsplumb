@@ -1,8 +1,7 @@
-import {AnchorSpec, makeAnchorFromSpec} from "../factory/anchor-factory"
+import {AnchorLocations, AnchorSpec, makeAnchorFromSpec} from "../factory/anchor-factory"
 import { Anchor} from "../anchor/anchor"
 import {PaintStyle} from "../styles"
 import {OverlaySpec} from "../overlay/overlay"
-import {ComponentOptions} from "../component/component"
 import {ConnectorSpec} from "../connector/abstract-connector"
 import {Connection} from "../connector/connection-impl"
 import { EndpointFactory } from "../factory/endpoint-factory"
@@ -10,7 +9,7 @@ import { EndpointRepresentation } from './endpoints'
 import {extend, merge, isString, isAssignableFrom} from '../util'
 import {DeleteConnectionOptions, JsPlumbInstance} from '../core'
 import { OverlayCapableComponent } from '../component/overlay-capable-component'
-import {EVENT_ANCHOR_CHANGED, EVENT_MAX_CONNECTIONS} from "../constants"
+import {DEFAULT, EVENT_ANCHOR_CHANGED, EVENT_MAX_CONNECTIONS} from "../constants"
 
 export type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndpointId
 export type UserDefinedEndpointId = string
@@ -245,9 +244,9 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
 
         this.appendToDefaultType({
             edgeType:params.edgeType,
-            maxConnections: params.maxConnections == null ? this.instance.Defaults.maxConnections : params.maxConnections, // maximum number of connections this endpoint can be the source of.,
-            paintStyle: params.paintStyle || this.instance.Defaults.endpointStyle,
-            hoverPaintStyle: params.hoverPaintStyle || this.instance.Defaults.endpointHoverStyle,
+            maxConnections: params.maxConnections == null ? this.instance.defaults.maxConnections : params.maxConnections, // maximum number of connections this endpoint can be the source of.,
+            paintStyle: params.paintStyle || this.instance.defaults.endpointStyle,
+            hoverPaintStyle: params.hoverPaintStyle || this.instance.defaults.endpointHoverStyle,
             connectorStyle: params.connectorStyle,
             connectorHoverStyle: params.connectorHoverStyle,
             connectorClass: params.connectorClass,
@@ -289,8 +288,8 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
 
         this.scope = params.scope || instance.defaultScope
         this.timestamp = null
-        this.reattachConnections = params.reattachConnections || instance.Defaults.reattachConnections
-        this.connectionsDetachable = instance.Defaults.connectionsDetachable
+        this.reattachConnections = params.reattachConnections || instance.defaults.reattachConnections
+        this.connectionsDetachable = instance.defaults.connectionsDetachable
         if (params.connectionsDetachable === false) {
             this.connectionsDetachable = false
         }
@@ -300,18 +299,18 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
             this.bind(EVENT_MAX_CONNECTIONS, params.onMaxConnections)
         }
 
-        let ep = params.endpoint || params.existingEndpoint || instance.Defaults.endpoint
+        let ep = params.endpoint || params.existingEndpoint || instance.defaults.endpoint
         this.setEndpoint(ep)
 
         if (params.preparedAnchor != null) {
             this.setPreparedAnchor(params.preparedAnchor)
         } else {
-            let anchorParamsToUse:AnchorSpec|Array<AnchorSpec> = params.anchor ? params.anchor : params.anchors ? params.anchors : (instance.Defaults.anchor || "Top")
+            let anchorParamsToUse:AnchorSpec|Array<AnchorSpec> = params.anchor ? params.anchor : params.anchors ? params.anchors : (instance.defaults.anchor || AnchorLocations.Top)
             this.setAnchor(anchorParamsToUse)
         }
 
         // finally, set type if it was provided
-        let type = [ "default", (params.type || "")].join(" ")
+        let type = [ DEFAULT, (params.type || "")].join(" ")
         this.addType(type, params.data)
     }
 

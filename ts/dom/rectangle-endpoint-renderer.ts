@@ -4,11 +4,13 @@ import { _attr, _node } from './svg-util'
 
 import {PaintStyle, RectangleEndpoint} from "@jsplumb/core"
 
+const RECT = "rect"
+
 export const register = () => {
 
-    registerEndpointRenderer<RectangleEndpoint>("Rectangle", {
+    registerEndpointRenderer<RectangleEndpoint>(RectangleEndpoint.type, {
         makeNode: (ep: RectangleEndpoint, style: PaintStyle) => {
-            return _node("rect", {
+            return _node(RECT, {
                 "width": ep.w,
                 "height": ep.h
             })

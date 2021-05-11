@@ -1,6 +1,6 @@
 import {Component, ComponentOptions} from "./component"
 import {convertToFullOverlaySpec, FullOverlaySpec, LabelOverlayOptions, Overlay, OverlaySpec} from "../overlay/overlay"
-import {Dictionary, PointXY} from '../common'
+import {Dictionary, Extents, PointXY} from '../common'
 import { JsPlumbInstance } from "../core"
 import {LabelOverlay} from "../overlay/label-overlay"
 import {extend, isFunction, isString, uuid} from "../util"
@@ -59,7 +59,7 @@ export abstract class OverlayCapableComponent extends Component {
 
     overlays:Dictionary<Overlay> = {}
     overlayPositions:Dictionary<PointXY> = {}
-    overlayPlacements:Dictionary<{minX:number, maxX:number, minY:number, maxY:number}> = {}
+    overlayPlacements:Dictionary<Extents> = {}
 
     constructor(public instance:JsPlumbInstance, params: OverlayComponentOptions) {
         super(instance, params)
@@ -73,7 +73,7 @@ export abstract class OverlayCapableComponent extends Component {
         let defaultOverlayKey = this.getDefaultOverlayKey()
         if (defaultOverlayKey) {
 
-            const defaultOverlays = this.instance.Defaults[defaultOverlayKey]
+            const defaultOverlays = this.instance.defaults[defaultOverlayKey]
             if (defaultOverlays) {
                 o.push(...defaultOverlays)
             }
