@@ -91,6 +91,7 @@ export interface ComponentOptions {
     scope?:string
     cssClass?:string
     data?:any
+    id?:string
 }
 
 export abstract class Component extends EventGenerator {
@@ -158,7 +159,7 @@ export abstract class Component extends EventGenerator {
 
         this.parameters = clone(params.parameters || {})
 
-        this.id = this.getIdPrefix() + (new Date()).getTime()
+        this.id = params.id || this.getIdPrefix() + (new Date()).getTime()
 
         this._defaultType = {
             parameters: this.parameters,
