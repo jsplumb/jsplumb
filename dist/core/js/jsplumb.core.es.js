@@ -4169,41 +4169,31 @@ function (_Component) {
 }(Component);
 
 var Anchor =
-function (_EventGenerator) {
-  _inherits(Anchor, _EventGenerator);
+function () {
   function Anchor(instance, params) {
-    var _this;
     _classCallCheck(this, Anchor);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Anchor).call(this));
-    _this.instance = instance;
-    _defineProperty(_assertThisInitialized(_this), "type", void 0);
-    _defineProperty(_assertThisInitialized(_this), "isDynamic", false);
-    _defineProperty(_assertThisInitialized(_this), "isContinuous", false);
-    _defineProperty(_assertThisInitialized(_this), "isFloating", false);
-    _defineProperty(_assertThisInitialized(_this), "cssClass", "");
-    _defineProperty(_assertThisInitialized(_this), "elementId", void 0);
-    _defineProperty(_assertThisInitialized(_this), "id", void 0);
-    _defineProperty(_assertThisInitialized(_this), "locked", void 0);
-    _defineProperty(_assertThisInitialized(_this), "offsets", void 0);
-    _defineProperty(_assertThisInitialized(_this), "orientation", void 0);
-    _defineProperty(_assertThisInitialized(_this), "x", void 0);
-    _defineProperty(_assertThisInitialized(_this), "y", void 0);
-    _defineProperty(_assertThisInitialized(_this), "timestamp", void 0);
-    _defineProperty(_assertThisInitialized(_this), "lastReturnValue", void 0);
-    _defineProperty(_assertThisInitialized(_this), "_unrotatedOrientation", void 0);
-    _defineProperty(_assertThisInitialized(_this), "positionFinder", void 0);
-    _defineProperty(_assertThisInitialized(_this), "clone", void 0);
-    _this.id = uuid();
+    this.instance = instance;
+    _defineProperty(this, "type", void 0);
+    _defineProperty(this, "isDynamic", false);
+    _defineProperty(this, "isContinuous", false);
+    _defineProperty(this, "isFloating", false);
+    _defineProperty(this, "cssClass", "");
+    _defineProperty(this, "elementId", void 0);
+    _defineProperty(this, "id", void 0);
+    _defineProperty(this, "locked", void 0);
+    _defineProperty(this, "offsets", void 0);
+    _defineProperty(this, "orientation", void 0);
+    _defineProperty(this, "x", void 0);
+    _defineProperty(this, "y", void 0);
+    _defineProperty(this, "timestamp", void 0);
+    _defineProperty(this, "lastReturnValue", void 0);
+    _defineProperty(this, "_unrotatedOrientation", void 0);
+    _defineProperty(this, "clone", void 0);
+    this.id = uuid();
     params = params || {};
-    _this.cssClass = params.cssClass || "";
-    return _this;
+    this.cssClass = params.cssClass || "";
   }
   _createClass(Anchor, [{
-    key: "shouldFireEvent",
-    value: function shouldFireEvent(event, value, originalEvent) {
-      return true;
-    }
-  }, {
     key: "setPosition",
     value: function setPosition(x, y, ox, oy, overrideLock) {
       if (!this.locked || overrideLock) {
@@ -4235,24 +4225,9 @@ function (_EventGenerator) {
     value: function getCssClass() {
       return this.cssClass;
     }
-  }, {
-    key: "lock",
-    value: function lock() {
-      this.locked = true;
-    }
-  }, {
-    key: "unlock",
-    value: function unlock() {
-      this.locked = false;
-    }
-  }, {
-    key: "isLocked",
-    value: function isLocked() {
-      return this.locked;
-    }
   }]);
   return Anchor;
-}(EventGenerator);
+}();
 
 function _distance(anchor, cx, cy, xy, wh, rotation, targetRotation) {
   var ax = xy.x + anchor.x * wh.w,
@@ -4439,13 +4414,13 @@ function (_Anchor) {
     key: "lock",
     value: function lock() {
       this._lockedFace = this._currentFace;
-      _get(_getPrototypeOf(ContinuousAnchor.prototype), "lock", this).call(this);
+      this.locked = true;
     }
   }, {
     key: "unlock",
     value: function unlock() {
       this._lockedFace = null;
-      _get(_getPrototypeOf(ContinuousAnchor.prototype), "unlock", this).call(this);
+      this.locked = false;
     }
   }, {
     key: "lockCurrentAxis",
@@ -5271,17 +5246,18 @@ function (_OverlayCapableCompon) {
   }, {
     key: "setPreparedAnchor",
     value: function setPreparedAnchor(anchor) {
-      var _this2 = this;
       this.instance.router.setAnchor(this, anchor);
-      anchor.bind(EVENT_ANCHOR_CHANGED, function (currentAnchor) {
-        _this2.fire(EVENT_ANCHOR_CHANGED, {
-          endpoint: _this2,
-          anchor: currentAnchor
-        });
-        _this2._updateAnchorClass(currentAnchor);
-      });
       this._updateAnchorClass(anchor);
       return this;
+    }
+  }, {
+    key: "_anchorLocationChanged",
+    value: function _anchorLocationChanged(currentAnchor) {
+      this.fire(EVENT_ANCHOR_CHANGED, {
+        endpoint: this,
+        anchor: currentAnchor
+      });
+      this._updateAnchorClass(currentAnchor);
     }
   }, {
     key: "setAnchor",
@@ -6490,6 +6466,7 @@ function () {
     });
     instance.bind(EVENT_INTERNAL_ENDPOINT_UNREGISTERED, function (ep) {
       _this._removeEndpointFromAnchorLists(ep);
+      anchorMap$1["delete"](ep.id);
     });
   }
   _createClass(DefaultRouter, [{
@@ -6568,7 +6545,7 @@ function () {
           txy = params.txy,
           twh = params.twh;
       anchor.timestamp = params.timestamp;
-      if (anchor.isLocked() || txy == null || twh == null) {
+      if (anchor.locked || txy == null || twh == null) {
         anchor.lastReturnValue = this.computeAnchorLocation(anchor._curAnchor, params);
         return anchor.lastReturnValue;
       } else {
@@ -6578,7 +6555,7 @@ function () {
       anchor.x = anchor._curAnchor.x;
       anchor.y = anchor._curAnchor.y;
       if (anchor._curAnchor !== anchor._lastAnchor) {
-        anchor.fire(EVENT_ANCHOR_CHANGED, anchor._curAnchor);
+        params.element._anchorLocationChanged(anchor._curAnchor);
       }
       anchor._lastAnchor = anchor._curAnchor;
       anchor.lastReturnValue = this.defaultAnchorCompute(anchor._curAnchor, params);
@@ -6836,9 +6813,7 @@ function () {
                   var sourceRotation = _this3.instance._getRotations(sourceId);
                   var targetRotation = _this3.instance._getRotations(targetId);
                   if (!o) {
-                    o = _this3.calculateOrientation(sourceId, targetId, sd, td,
-                    anchorMap$1.get(conn.endpoints[0].id), anchorMap$1.get(conn.endpoints[1].id),
-                    sourceRotation, targetRotation);
+                    o = _this3.calculateOrientation(sourceId, targetId, sd, td, anchorMap$1.get(conn.endpoints[0].id), anchorMap$1.get(conn.endpoints[1].id), sourceRotation, targetRotation);
                     orientationCache[oKey] = o;
                   }
                   if (sourceContinuous) {

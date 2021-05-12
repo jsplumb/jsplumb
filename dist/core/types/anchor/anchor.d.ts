@@ -1,9 +1,7 @@
-import { PointXY, Size } from '../common';
 import { JsPlumbInstance } from "../core";
-import { EventGenerator } from "../event-generator";
 import { AnchorId, AnchorOptions, AnchorOrientationHint, Orientation } from "../factory/anchor-factory";
 import { AnchorPlacement } from "../router/router";
-export declare class Anchor extends EventGenerator {
+export declare class Anchor {
     instance: JsPlumbInstance;
     type: AnchorId;
     isDynamic: boolean;
@@ -20,15 +18,10 @@ export declare class Anchor extends EventGenerator {
     timestamp: string;
     lastReturnValue: AnchorPlacement;
     _unrotatedOrientation: Orientation;
-    positionFinder: (dropPosition: PointXY, elPosition: PointXY, elSize: Size, constructorParams: any) => any;
     clone: () => Anchor;
     constructor(instance: JsPlumbInstance, params?: AnchorOptions);
-    shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
     setPosition(x: number, y: number, ox: AnchorOrientationHint, oy: AnchorOrientationHint, overrideLock?: boolean): void;
     setInitialOrientation(ox: number, oy: number): void;
     equals(anchor: Anchor): boolean;
     getCssClass(): string;
-    lock(): void;
-    unlock(): void;
-    isLocked(): boolean;
 }

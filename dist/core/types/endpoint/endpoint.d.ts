@@ -1,4 +1,5 @@
 import { AnchorSpec } from "../factory/anchor-factory";
+import { Anchor } from "../anchor/anchor";
 import { PaintStyle } from "../styles";
 import { OverlaySpec } from "../overlay/overlay";
 import { ConnectorSpec } from "../connector/abstract-connector";
@@ -60,6 +61,11 @@ export declare class Endpoint<E = any> extends OverlayCapableComponent {
     constructor(instance: JsPlumbInstance, params: InternalEndpointOptions<E>);
     private _updateAnchorClass;
     private setPreparedAnchor;
+    /**
+     * Called by the router when a dynamic anchor has changed its current location.
+     * @param currentAnchor
+     */
+    _anchorLocationChanged(currentAnchor: Anchor): void;
     setAnchor(anchorParams: AnchorSpec | Array<AnchorSpec>): Endpoint;
     addConnection(conn: Connection): void;
     /**
