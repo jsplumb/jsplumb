@@ -1,6 +1,11 @@
 
-import { _attr, _node, _appendAtIndex } from './svg-util'
-import {Connection, Endpoint, Overlay} from "@jsplumb/core"
+import { _attr, _node, _appendAtIndex, ELEMENT_PATH } from './svg-util'
+import {Component, Connection, Endpoint, Extents, Overlay, PaintStyle} from "@jsplumb/core"
+
+export interface SvgOverlayPaintParams extends Extents, PaintStyle {
+    component:Component
+    d?:any
+}
 
 export abstract class SVGElementOverlay extends Overlay {
 
@@ -9,7 +14,7 @@ export abstract class SVGElementOverlay extends Overlay {
     static ensurePath(o:SVGElementOverlay):SVGElement {
 
         if (o.path == null) {
-            o.path = _node("path", {"jtk-overlay-id": o.id})
+            o.path = _node(ELEMENT_PATH, {"jtk-overlay-id": o.id})
             let parent:SVGElement = null
 
             if (o.component instanceof Connection) {
@@ -32,7 +37,7 @@ export abstract class SVGElementOverlay extends Overlay {
         return o.path
     }
 
-    static paint(o:SVGElementOverlay, path:string, params:any, extents:any):void {
+    static paint(o:SVGElementOverlay, path:string, params:SvgOverlayPaintParams, extents:Extents):void {
 
         this.ensurePath(o)
 
@@ -46,7 +51,7 @@ export abstract class SVGElementOverlay extends Overlay {
         }
 
         let a = {
-            "d": path,//this.makePath(params.d),
+            "d": path,
             stroke: params.stroke ? params.stroke : null,
             fill: params.fill ? params.fill : null,
             transform: "translate(" + offset[0] + "," + offset[1] + ")",
