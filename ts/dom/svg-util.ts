@@ -1,7 +1,7 @@
 
 
 import {createElementNS} from './browser-util'
-import {Component, Dictionary, NONE, forEach} from "@jsplumb/core"
+import {Dictionary, NONE, forEach} from "@jsplumb/core"
 
 const svgAttributeMap = {
         "stroke-linejoin": "stroke-linejoin",
@@ -15,6 +15,8 @@ export const FILL = "fill"
 export const STROKE = "stroke"
 export const STROKE_WIDTH = "stroke-width"
 export const LINE_WIDTH = "strokeWidth"
+export const ELEMENT_SVG = "svg"
+export const ELEMENT_PATH = "path"
 
 export type ElementAttributes = Dictionary<string | number>
 
@@ -39,7 +41,7 @@ export function _pos (d:[number, number]):string {
     return "position:absolute;left:" + d[0] + "px;top:" + d[1] + "px"
 }
 
-export function _applyStyles(parent:any, node:SVGElement, style:any, dimensions:any, uiComponent:Component) {
+export function _applyStyles(parent:any, node:SVGElement, style:any) {
 
     node.setAttribute(FILL, style.fill ? style.fill : NONE)
     node.setAttribute(STROKE, style.stroke ? style.stroke : NONE)
