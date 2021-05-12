@@ -757,3 +757,6 @@ export function insertSorted<T>(value:T, array:Array<T>, comparator:(v1:T, v2:T)
         array.splice(index, 0, value)
     }
 }
+
+export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
+export type Merge<M, N> = Omit<M, Extract<keyof M, keyof N>> & N;
