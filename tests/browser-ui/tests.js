@@ -240,7 +240,7 @@ var testSuite = function () {
     test(': defaultEndpointMaxConnections', function () {
         var d3 = support.addDiv("d3"), d4 = support.addDiv("d4");
         var e3 = _jsPlumb.addEndpoint(d3, {source: true});
-        ok(e3.anchor, 'endpoint 3 has an anchor');
+        ok(_jsPlumb.router.getAnchor(e3), 'endpoint 3 has an anchor');
         var e4 = _jsPlumb.addEndpoint(d4, {source: true});
         support.assertEndpointCount(d3, 1, _jsPlumb);
         support.assertEndpointCount(d4, 1, _jsPlumb);
@@ -254,7 +254,7 @@ var testSuite = function () {
     test(': specifiedEndpointMaxConnections', function () {
         var d5 = support.addDiv("d5"), d6 = support.addDiv("d6");
         var e5 = _jsPlumb.addEndpoint(d5, {source: true, maxConnections: 3});
-        ok(e5.anchor, 'endpoint 5 has an anchor');
+        ok(_jsPlumb.router.getAnchor(e5), 'endpoint 5 has an anchor');
         var e6 = _jsPlumb.addEndpoint(d6, {source: true, maxConnections: 2});  // this one has max TWO
         support.assertEndpointCount(d5, 1, _jsPlumb);
         support.assertEndpointCount(d6, 1, _jsPlumb);
@@ -297,32 +297,40 @@ var testSuite = function () {
         var d3 = support.addDiv("d3"), d4 = support.addDiv("d4");
         var c = _jsPlumb.connect({source:d3, target:d4, anchors:[
                 [0, 1, 1, 1], [0, 1, 1, 1]
-            ]});
-        ok(c.endpoints[0].anchor.equals(c.endpoints[1].anchor), "anchors are the same according to their equals method")
+            ]}),
+            sa = _jsPlumb.router.getAnchor(c.endpoints[0]),
+            ta = _jsPlumb.router.getAnchor(c.endpoints[1]);
+        ok(sa.equals(ta), "anchors are the same according to their equals method")
     });
 
     test(': anchors equal with offsets', function () {
         var d3 = support.addDiv("d3"), d4 = support.addDiv("d4");
         var c = _jsPlumb.connect({source:d3, target:d4, anchors:[
                 [0, 1, 1, 1, 10, 13], [0, 1, 1, 1, 10, 13]
-            ]});
-        ok(c.endpoints[0].anchor.equals(c.endpoints[1].anchor), "anchors are the same according to their equals method")
+            ]}),
+            sa = _jsPlumb.router.getAnchor(c.endpoints[0]),
+            ta = _jsPlumb.router.getAnchor(c.endpoints[1]);
+        ok(sa.equals(ta), "anchors are the same according to their equals method")
     });
 
     test(': anchors not equal', function () {
         var d3 = support.addDiv("d3"), d4 = support.addDiv("d4");
         var c = _jsPlumb.connect({source:d3, target:d4, anchors:[
                 [0, 1, 0, 1], [0, 1, 1, 1]
-            ]});
-        ok(!c.endpoints[0].anchor.equals(c.endpoints[1].anchor), "anchors are different, according to their equals method")
+            ]}),
+            sa = _jsPlumb.router.getAnchor(c.endpoints[0]),
+            ta = _jsPlumb.router.getAnchor(c.endpoints[1]);
+        ok(!sa.equals(ta), "anchors are different, according to their equals method")
     });
 
     test(': anchor not equal with offsets', function () {
         var d3 = support.addDiv("d3"), d4 = support.addDiv("d4");
         var c = _jsPlumb.connect({source:d3, target:d4, anchors:[
                 [0, 1, 1, 1, 10, 13], [0, 1, 1, 1]
-            ]});
-        ok(!c.endpoints[0].anchor.equals(c.endpoints[1].anchor), "anchors are different, according to their equals method")
+            ]}),
+            sa = _jsPlumb.router.getAnchor(c.endpoints[0]),
+            ta = _jsPlumb.router.getAnchor(c.endpoints[1]);
+        ok(!sa.equals(ta), "anchors are different, according to their equals method")
     });
 
     // test('simple makeAnchor, dynamicAnchors', function () {
@@ -1391,7 +1399,7 @@ var testSuite = function () {
     test(": Endpoint.detachFrom", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         var e16 = _jsPlumb.addEndpoint(d16, {source: true});
-        ok(e16.anchor, 'endpoint 16 has an anchor');
+        ok(_jsPlumb.router.getAnchor(e16), 'endpoint 16 has an anchor');
         var e17 = _jsPlumb.addEndpoint(d17, {source: true});
         var conn = _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17});
         assertConnectionCount(e16, 1);
@@ -1411,7 +1419,7 @@ var testSuite = function () {
         equal(false, _jsPlumb.hasClass(c16, _jsPlumb.endpointConnectedClass), "endpoint does not have connected class");
         equal(false, _jsPlumb.hasClass(c16, _jsPlumb.endpointFullClass), "endpoint does not have full class");
 
-        ok(e16.anchor, 'endpoint 16 has an anchor');
+        ok(_jsPlumb.router.getAnchor(e16), 'endpoint 16 has an anchor');
         var e17 = _jsPlumb.addEndpoint(d17, {source: true});
         var conn = _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17});
 
@@ -1435,7 +1443,7 @@ var testSuite = function () {
     test(": Endpoint.detachAll", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17"), d18 = support.addDiv("d18");
         var e16 = _jsPlumb.addEndpoint(d16, {source: true, maxConnections: -1});
-        ok(e16.anchor, 'endpoint 16 has an anchor');
+        ok(_jsPlumb.router.getAnchor(e16), 'endpoint 16 has an anchor');
         var e17 = _jsPlumb.addEndpoint(d17, {source: true});
         var e18 = _jsPlumb.addEndpoint(d18, {source: true});
         _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17});
@@ -1453,7 +1461,7 @@ var testSuite = function () {
     test(": Endpoint.detach", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         var e16 = _jsPlumb.addEndpoint(d16, {source: true});
-        ok(e16.anchor, 'endpoint 16 has an anchor');
+        ok(_jsPlumb.router.getAnchor(e16), 'endpoint 16 has an anchor');
         var e17 = _jsPlumb.addEndpoint(d17, {source: true});
         var conn = _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17});
         assertConnectionCount(e16, 1);
@@ -1781,11 +1789,14 @@ var testSuite = function () {
     test(": _jsPlumb.addEndpoint (simple case)", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         var e16 = _jsPlumb.addEndpoint(d16, {anchor: [0, 0.5, 0, -1]});
-        var e17 = _jsPlumb.addEndpoint(d17, {anchor: "Top"});
-        equal(e16.anchor.x, 0);
-        equal(e16.anchor.y, 0.5);
-        equal(e17.anchor.x, 0.5);
-        equal(e17.anchor.y, 0);
+        var e17 = _jsPlumb.addEndpoint(d17, {anchor: "Top"}),
+            sa = _jsPlumb.router.getAnchor(e16),
+            ta = _jsPlumb.router.getAnchor(e17);
+
+        equal(sa.x, 0);
+        equal(sa.y, 0.5);
+        equal(ta.x, 0.5);
+        equal(ta.y, 0);
     });
 
 
@@ -1795,21 +1806,25 @@ var testSuite = function () {
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        var e17 = _jsPlumb.addEndpoint(d17, {anchor: ["Top", "Bottom"]});
-        equal(e16.anchor.isDynamic, true, "Endpoint 16 has a dynamic anchor");
-        equal(e17.anchor.isDynamic, true, "Endpoint 17 has a dynamic anchor");
+        var e17 = _jsPlumb.addEndpoint(d17, {anchor: ["Top", "Bottom"]}),
+            sa = _jsPlumb.router.getAnchor(e16),
+            ta = _jsPlumb.router.getAnchor(e17);
+        equal(sa.isDynamic, true, "Endpoint 16 has a dynamic anchor");
+        equal(ta.isDynamic, true, "Endpoint 17 has a dynamic anchor");
     });
 
     test(": _jsPlumb.addEndpoint (simple case, two arg method)", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         var e16 = _jsPlumb.addEndpoint(d16, {source: true, target: false}, {anchor: [0, 0.5, 0, -1]});
-        var e17 = _jsPlumb.addEndpoint(d17, {target: true, source: false}, {anchor: "Top"});
-        equal(e16.anchor.x, 0);
-        equal(e16.anchor.y, 0.5);
+        var e17 = _jsPlumb.addEndpoint(d17, {target: true, source: false}, {anchor: "Top"}),
+            sa = _jsPlumb.router.getAnchor(e16),
+            ta = _jsPlumb.router.getAnchor(e17);
+        equal(sa.x, 0);
+        equal(sa.y, 0.5);
         equal(false, e16.isTarget);
         equal(true, e16.isSource);
-        equal(e17.anchor.x, 0.5);
-        equal(e17.anchor.y, 0);
+        equal(ta.x, 0.5);
+        equal(ta.y, 0);
         equal(true, e17.isTarget);
         equal(false, e17.isSource);
     });
@@ -1820,13 +1835,15 @@ var testSuite = function () {
         var e16 = _jsPlumb.addEndpoints(d16, [
             {source: true, target: false, anchor: [0, 0.5, 0, -1] },
             { target: true, source: false, anchor: "Top" }
-        ]);
-        equal(e16[0].anchor.x, 0);
-        equal(e16[0].anchor.y, 0.5);
+        ]),
+            sa = _jsPlumb.router.getAnchor(e16[0]),
+            ta = _jsPlumb.router.getAnchor(e16[1]);
+        equal(sa.x, 0);
+        equal(sa.y, 0.5);
         equal(false, e16[0].isTarget);
         equal(true, e16[0].isSource);
-        equal(e16[1].anchor.x, 0.5);
-        equal(e16[1].anchor.y, 0);
+        equal(ta.x, 0.5);
+        equal(ta.y, 0);
         equal(true, e16[1].isTarget);
         equal(false, e16[1].isSource);
     });
@@ -1844,13 +1861,15 @@ var testSuite = function () {
         var e16 = _jsPlumb.addEndpoints(d16, [
             {source: true, target: false},
             { target: true, source: false }
-        ], refParams);
-        equal(e16[0].anchor.x, 1);
-        equal(e16[0].anchor.y, 0.5);
+        ], refParams),
+            sa = _jsPlumb.router.getAnchor(e16[0]),
+            ta = _jsPlumb.router.getAnchor(e16[1]);
+        equal(sa.x, 1);
+        equal(sa.y, 0.5);
         equal(false, e16[0].isTarget);
         equal(true, e16[0].isSource);
-        equal(e16[1].anchor.x, 1);
-        equal(e16[1].anchor.y, 0.5);
+        equal(ta.x, 1);
+        equal(ta.y, 0.5);
         equal(true, e16[1].isTarget);
         equal(false, e16[1].isSource);
     });
@@ -1861,9 +1880,11 @@ var testSuite = function () {
             [0, 0.5, 0, -1],
             [1, 0.5, 0, 1]
         ]});
-        var e17 = _jsPlumb.addEndpoint(d17, {target: true, source: false}, {anchor: ["Top", "Bottom"]});
-        equal(e16.anchor.isDynamic, true, "Endpoint 16 has a dynamic anchor");
-        equal(e17.anchor.isDynamic, true, "Endpoint 17 has a dynamic anchor");
+        var e17 = _jsPlumb.addEndpoint(d17, {target: true, source: false}, {anchor: ["Top", "Bottom"]}),
+            sa = _jsPlumb.router.getAnchor(e16),
+            ta = _jsPlumb.router.getAnchor(e17);
+        equal(sa.isDynamic, true, "Endpoint 16 has a dynamic anchor");
+        equal(ta.isDynamic, true, "Endpoint 17 has a dynamic anchor");
     });
 
     test(": _jsPlumb.addEndpoints (default overlays)", function () {
@@ -2288,7 +2309,7 @@ var testSuite = function () {
             anchor:[[0.2, 0, 0, -1], [1, 0.2, 1, 0],[0.8, 1, 0, 1], [0, 0.8, -1, 0]]
         })
 
-        var dynamicAnchor = ep.anchor;
+        var dynamicAnchor = _jsPlumb.router.getAnchor(ep)
 
         var a = dynamicAnchor.getAnchors();
         equal(a.length, 4, "Dynamic Anchors has four anchors");
@@ -2808,24 +2829,25 @@ var testSuite = function () {
     test(" Continuous anchor default face, no faces supplied", function () {
         var d3 = support.addDiv("d3"), ep = _jsPlumb.addEndpoint(d3, {
             anchor: "Continuous"
-        });
+        }),
+            a = _jsPlumb.router.getAnchor(ep)
 
-        equal(ep.anchor.getDefaultFace(), "top", "default is top when no faces specified");
+        equal(a.getDefaultFace(), "top", "default is top when no faces specified");
     });
 
 
     test(" Continuous anchor default face, faces supplied", function () {
         var d3 = support.addDiv("d3"), ep = _jsPlumb.addEndpoint(d3, {
             anchor: {type:"Continuous", options:{ faces: [ "bottom", "left" ] } }
-        });
+        }), a = _jsPlumb.router.getAnchor(ep)
 
-        equal(ep.anchor.getDefaultFace(), "bottom", "default is bottom");
-        ok(ep.anchor.isEdgeSupported("bottom"), "bottom edge supported");
-        ok(ep.anchor.isEdgeSupported("left"), "left edge supported");
-        ok(!ep.anchor.isEdgeSupported("right"), "right edge not supported");
-        ok(!ep.anchor.isEdgeSupported("top"), "top edge not supported");
+        equal(a.getDefaultFace(), "bottom", "default is bottom");
+        ok(a.isEdgeSupported("bottom"), "bottom edge supported");
+        ok(a.isEdgeSupported("left"), "left edge supported");
+        ok(!a.isEdgeSupported("right"), "right edge not supported");
+        ok(!a.isEdgeSupported("top"), "top edge not supported");
 
-        ok(!ep.anchor.isEdgeSupported("unknown"), "unknown edge not supported");
+        ok(!a.isEdgeSupported("unknown"), "unknown edge not supported");
 
         // TODO: support locking to a specific face.
         //ep.anchor.lock();
@@ -2836,22 +2858,24 @@ var testSuite = function () {
             ep3 = _jsPlumb.addEndpoint(d3, {
                 anchor: "Continuous"
             }),
+            a3 = _jsPlumb.router.getAnchor(ep3),
             d4 = support.addDiv("d4", null, "", 50, 450, 200, 200),
             ep4 = _jsPlumb.addEndpoint(d4, {
                 anchor: "Continuous"
-            });
+            }),
+            a4 = _jsPlumb.router.getAnchor(ep4)
 
         _jsPlumb.connect({source:ep3, target:ep4});
 
         // we should have picked 'bottom' face for ep3 and 'top' for ep4, based on the orientation of their elements.
-        equal(ep3.anchor.getCurrentFace(), "bottom", "ep3's anchor is 'bottom'");
-        equal(ep4.anchor.getCurrentFace(), "top", "ep4's anchor is 'top'");
+        equal(a3.getCurrentFace(), "bottom", "ep3's anchor is 'bottom'");
+        equal(a4.getCurrentFace(), "top", "ep4's anchor is 'top'");
 
         // move d3, redraw, and check the anchors have changed appropriately.
         d3.style.top = "1050px";
         _jsPlumb.revalidate(d3);
-        equal(ep3.anchor.getCurrentFace(), "top", "ep3's anchor is 'top' after d3 moved below d4");
-        equal(ep4.anchor.getCurrentFace(), "bottom", "ep4's anchor is 'bottom' after d3 moved below d4");
+        equal(a3.getCurrentFace(), "top", "ep3's anchor is 'top' after d3 moved below d4");
+        equal(a4.getCurrentFace(), "bottom", "ep4's anchor is 'bottom' after d3 moved below d4");
     });
 
     test(" Continuous anchor lock current face", function () {
@@ -2859,29 +2883,31 @@ var testSuite = function () {
             ep3 = _jsPlumb.addEndpoint(d3, {
                 anchor: "Continuous"
             }),
+            a3 = _jsPlumb.router.getAnchor(ep3),
             d4 = support.addDiv("d4", null, "", 50, 450, 200, 200),
             ep4 = _jsPlumb.addEndpoint(d4, {
                 anchor: "Continuous"
-            });
+            }),
+            a4 = _jsPlumb.router.getAnchor(ep4);
 
         _jsPlumb.connect({source:ep3, target:ep4});
 
         // as before, we should have picked 'bottom' face for ep3 and 'top' for ep4, based on the orientation of their elements.
-        equal(ep3.anchor.getCurrentFace(), "bottom", "ep3's anchor is 'bottom'");
-        equal(ep4.anchor.getCurrentFace(), "top", "ep4's anchor is 'top'");
+        equal(a3.getCurrentFace(), "bottom", "ep3's anchor is 'bottom'");
+        equal(a4.getCurrentFace(), "top", "ep4's anchor is 'top'");
 
         // lock ep3's face, move, redraw, check that only ep4's face has changed.
-        ep3.anchor.lock();
+        a3.lock();
         d3.style.top = "1050px";
         _jsPlumb.revalidate(d3);
-        equal(ep3.anchor.getCurrentFace(), "bottom", "ep3's anchor is 'bottom' after d3 moved below d4, because ep3's current face is locked");
-        equal(ep4.anchor.getCurrentFace(), "bottom", "ep4's anchor is 'bottom' after d3 moved below d4");
+        equal(a3.getCurrentFace(), "bottom", "ep3's anchor is 'bottom' after d3 moved below d4, because ep3's current face is locked");
+        equal(a4.getCurrentFace(), "bottom", "ep4's anchor is 'bottom' after d3 moved below d4");
 
         // unlock ep3's face, redraw, check that only ep4's face has changed.
-        ep3.anchor.unlock();
+        a3.unlock();
         _jsPlumb.revalidate(d3);
-        equal(ep3.anchor.getCurrentFace(), "top", "ep3's anchor is 'top' after ep3's current face unlocked and a redraw called");
-        equal(ep4.anchor.getCurrentFace(), "bottom", "ep4's anchor is 'bottom' after d3 moved below d4");
+        equal(a3.getCurrentFace(), "top", "ep3's anchor is 'top' after ep3's current face unlocked and a redraw called");
+        equal(a4.getCurrentFace(), "bottom", "ep4's anchor is 'bottom' after d3 moved below d4");
     });
 
     test(" Continuous anchor lock current axis", function () {
@@ -2892,44 +2918,46 @@ var testSuite = function () {
             d4 = support.addDiv("d4", null, "", 50, 450, 200, 200),
             ep4 = _jsPlumb.addEndpoint(d4, {
                 anchor: "Continuous"
-            });
+            }),
+            a4 = _jsPlumb.router.getAnchor(ep4),
+            a3 = _jsPlumb.router.getAnchor(ep3)
 
         _jsPlumb.connect({source:ep3, target:ep4});
 
         // as before, we should have picked 'bottom' face for ep3 and 'top' for ep4, based on the orientation of their elements.
-        equal(ep3.anchor.getCurrentFace(), "bottom", "ep3's anchor is 'bottom'");
-        equal(ep4.anchor.getCurrentFace(), "top", "ep4's anchor is 'top'");
+        equal(a3.getCurrentFace(), "bottom", "ep3's anchor is 'bottom'");
+        equal(a4.getCurrentFace(), "top", "ep4's anchor is 'top'");
 
         // move d3 to the right of d4, redraw, check that the anchor faces are correct
 
         d3.style.top = "450px";
         d3.style.left = "450px";
         _jsPlumb.revalidate(d3);
-        equal(ep3.anchor.getCurrentFace(), "left", "ep3's anchor is 'left' after d3 moved to the right of d4");
-        equal(ep4.anchor.getCurrentFace(), "right", "ep4's anchor is 'right' after d3 moved to the right of d4");
+        equal(a3.getCurrentFace(), "left", "ep3's anchor is 'left' after d3 moved to the right of d4");
+        equal(a4.getCurrentFace(), "right", "ep4's anchor is 'right' after d3 moved to the right of d4");
 
         // lock ep3's face, move, redraw, check that ep3's axis is 'right' (on the x axis; the choice of right is
         // a result of the face picking algorithm. it's directly underneath so it could be left or right without
         // affecting the user's perception)
-        ep3.anchor.lockCurrentAxis();
+        a3.lockCurrentAxis();
         d3.style.top = "1050px";
         d3.style.left = "0px";
         _jsPlumb.revalidate(d3);
-        equal(ep3.anchor.getCurrentFace(), "right", "ep3's anchor is 'right' after d3 moved below d4, because ep3's current axis is locked");
-        equal(ep4.anchor.getCurrentFace(), "bottom", "ep4's anchor is 'bottom' after d3 moved below d4");
+        equal(a3.getCurrentFace(), "right", "ep3's anchor is 'right' after d3 moved below d4, because ep3's current axis is locked");
+        equal(a4.getCurrentFace(), "bottom", "ep4's anchor is 'bottom' after d3 moved below d4");
 
         // now move d3 over to the right far enough that the anchor would ordinarily switch to 'top', but the axis is locked.
         d3.style.top = "1050px";
         d3.style.left = "350px";
         _jsPlumb.revalidate(d3);
-        equal(ep3.anchor.getCurrentFace(), "left", "ep3's anchor is 'left' after d3 moved below d4, because ep3's current axis is locked");
-        equal(ep4.anchor.getCurrentFace(), "bottom", "ep4's anchor is 'bottom' after d3 moved below d4");
+        equal(a3.getCurrentFace(), "left", "ep3's anchor is 'left' after d3 moved below d4, because ep3's current axis is locked");
+        equal(a4.getCurrentFace(), "bottom", "ep4's anchor is 'bottom' after d3 moved below d4");
 
         // unlock the axis for ep3, redraw. should move to 'top' now.
-        ep3.anchor.unlockCurrentAxis();
+        a3.unlockCurrentAxis();
         _jsPlumb.revalidate(d3);
-        equal(ep3.anchor.getCurrentFace(), "top", "ep3's anchor is 'top' after axis unlocked");
-        equal(ep4.anchor.getCurrentFace(), "bottom", "ep4's anchor is 'bottom' after d3 moved below d4");
+        equal(a3.getCurrentFace(), "top", "ep3's anchor is 'top' after axis unlocked");
+        equal(a4.getCurrentFace(), "bottom", "ep4's anchor is 'bottom' after d3 moved below d4");
     });
 
 
@@ -2938,22 +2966,25 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"),
             d2 = support.addDiv(d2),
             c = _jsPlumb.connect({source: d1, target: d2}),
-            e = c.endpoints[0];
+            e = c.endpoints[0],
+            a = _jsPlumb.router.getAnchor(e)
 
-        equal(e.anchor.x, 0, "left middle anchor");
-        equal(e.anchor.y, 0.5, "left middle anchor");
+        equal(a.x, 0, "left middle anchor");
+        equal(a.y, 0.5, "left middle anchor");
 
         _jsPlumb.importDefaults({
             anchors: ["TopLeft", "TopRight"]
         });
 
         var conn = _jsPlumb.connect({source: d1, target: d2}),
-            e1 = conn.endpoints[0], e2 = conn.endpoints[1];
+            e1 = conn.endpoints[0], e2 = conn.endpoints[1],
+            a1 = _jsPlumb.router.getAnchor(e1),
+            a2 = _jsPlumb.router.getAnchor(e2)
 
-        equal(e1.anchor.x, 0, "top leftanchor");
-        equal(e2.anchor.y, 0, "top left anchor");
-        equal(e2.anchor.x, 1, "top right anchor");
-        equal(e2.anchor.y, 0, "top right anchor");
+        equal(a1.x, 0, "top leftanchor");
+        equal(a2.y, 0, "top left anchor");
+        equal(a2.x, 1, "top right anchor");
+        equal(a2.y, 0, "top right anchor");
 
     });
 
@@ -2964,22 +2995,26 @@ var testSuite = function () {
         });
 
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), conn = _jsPlumb.connect({source: d1, target: d2}),
-            e1 = conn.endpoints[0], e2 = conn.endpoints[1];
+            e1 = conn.endpoints[0], e2 = conn.endpoints[1],
+            a1 = _jsPlumb.router.getAnchor(e1),
+            a2 = _jsPlumb.router.getAnchor(e2)
 
-        equal(e1.anchor.x, 0, "top leftanchor");
-        equal(e2.anchor.y, 0, "top left anchor");
-        equal(e2.anchor.x, 1, "top right anchor");
-        equal(e2.anchor.y, 0, "top right anchor");
+        equal(a1.x, 0, "top leftanchor");
+        equal(a2.y, 0, "top left anchor");
+        equal(a2.x, 1, "top right anchor");
+        equal(a2.y, 0, "top right anchor");
 
         _jsPlumb.restoreDefaults();
 
         var conn2 = _jsPlumb.connect({source: d1, target: d2}),
-            e3 = conn2.endpoints[0], e4 = conn2.endpoints[1];
+            e3 = conn2.endpoints[0], e4 = conn2.endpoints[1],
+            a3 = _jsPlumb.router.getAnchor(e3),
+            a4 = _jsPlumb.router.getAnchor(e4)
 
-        equal(e3.anchor.x, 0.5, "bottom center anchor");
-        equal(e3.anchor.y, 1, "bottom center anchor");
-        equal(e4.anchor.x, 0.5, "bottom center anchor");
-        equal(e4.anchor.y, 1, "bottom center anchor");
+        equal(a3.x, 0.5, "bottom center anchor");
+        equal(a3.y, 1, "bottom center anchor");
+        equal(a4.x, 0.5, "bottom center anchor");
+        equal(a4.y, 1, "bottom center anchor");
     });
 
 

@@ -46,10 +46,12 @@ var testSuite = function () {
 
         var e16 = _jsPlumb.addEndpoint(d16, {anchor: "Bottom"});
         var e17 = _jsPlumb.addEndpoint(d17, {anchor: "Top"});
-        _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" });
+        var c = _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" }),
+            sa = _jsPlumb.router.getAnchor(c.endpoints[0]),
+            ta = _jsPlumb.router.getAnchor(c.endpoints[1])
 
-        var e16Loc = e16.anchor.lastReturnValue.slice(),
-            e17Loc = e17.anchor.lastReturnValue.slice();
+        var e16Loc = sa.lastReturnValue.slice(),
+            e17Loc = ta.lastReturnValue.slice();
 
         equal(e16Loc[0], 100, "e16 x position is correct initially");
         equal(e16Loc[1], 200, "e16 y position is correct initially");
@@ -72,16 +74,16 @@ var testSuite = function () {
         // now rotate e16 by 90 degrees
         _jsPlumb.rotate(d16, 90);
 
-        e16Loc = e16.anchor.lastReturnValue.slice();
-        e17Loc = e17.anchor.lastReturnValue.slice();
+        e16Loc = sa.lastReturnValue.slice();
+        e17Loc = ta.lastReturnValue.slice();
 
         equal(e16Loc[2], 0.5, "e16 x position is still middle after rotation");
         equal(e16Loc[3], 1, "e16 y position is still bottom after rotation");
         equal(e17Loc[2], 0.5, "e17 x position is still middle after rotation");
         equal(e17Loc[3], 0, "e17 y position is still top after rotation");
 
-        var e16Loc2 = e16.anchor.lastReturnValue.slice();
-        var e17Loc2 = e17.anchor.lastReturnValue.slice();
+        var e16Loc2 = sa.lastReturnValue.slice();
+        var e17Loc2 = ta.lastReturnValue.slice();
 
         equal("center center", d16.style.transformOrigin, "transform origin was set");
         equal(d16.style.transform, "rotate(90deg)", "rotate transform was set");
@@ -95,8 +97,8 @@ var testSuite = function () {
         // rotate d17 by 90 degrees
         _jsPlumb.rotate(d17, 90);
 
-        var e16Loc3 = e16.anchor.lastReturnValue.slice();
-        var e17Loc3 = e17.anchor.lastReturnValue.slice();
+        var e16Loc3 = sa.lastReturnValue.slice();
+        var e17Loc3 = ta.lastReturnValue.slice();
 
         equal("center center", d17.style.transformOrigin, "d17 transform origin was set");
         equal(d17.style.transform, "rotate(90deg)", "d17 rotate transform was set");
@@ -112,10 +114,12 @@ var testSuite = function () {
 
         var e16 = _jsPlumb.addEndpoint(d16, {anchor: "AutoDefault"});
         var e17 = _jsPlumb.addEndpoint(d17, {anchor: "AutoDefault"});
-        _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" });
+        var c = _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" }),
+            sa = _jsPlumb.router.getAnchor(c.endpoints[0]),
+            ta = _jsPlumb.router.getAnchor(c.endpoints[1])
 
-        var e16Loc = e16.anchor.lastReturnValue.slice(),
-            e17Loc = e17.anchor.lastReturnValue.slice();
+        var e16Loc = sa.lastReturnValue.slice(),
+            e17Loc = ta.lastReturnValue.slice();
 
         equal(e16Loc[0], 150, "e16 x position is correct initially");
         equal(e16Loc[1], 125, "e16 y position is correct initially");
@@ -132,8 +136,8 @@ var testSuite = function () {
         // now rotate e16 by 90 degrees
         _jsPlumb.rotate(d16, 90);
 
-        var e16Loc2 = e16.anchor.lastReturnValue.slice();
-        var e17Loc2 = e17.anchor.lastReturnValue.slice();
+        var e16Loc2 = sa.lastReturnValue.slice();
+        var e17Loc2 = ta.lastReturnValue.slice();
 
         equal("center center", d16.style.transformOrigin, "transform origin was set");
         equal(d16.style.transform, "rotate(90deg)", "rotate transform was set");
@@ -147,8 +151,8 @@ var testSuite = function () {
         // rotate d17 by 90 degrees
         _jsPlumb.rotate(d17, 90);
 
-        var e16Loc3 = e16.anchor.lastReturnValue.slice();
-        var e17Loc3 = e17.anchor.lastReturnValue.slice();
+        var e16Loc3 = sa.lastReturnValue.slice();
+        var e17Loc3 = ta.lastReturnValue.slice();
 
         equal("center center", d17.style.transformOrigin, "d17 transform origin was set");
         equal(d17.style.transform, "rotate(90deg)", "d17 rotate transform was set");
@@ -163,22 +167,24 @@ var testSuite = function () {
 
         var e16 = _jsPlumb.addEndpoint(d16, {anchor: "Continuous"});
         var e17 = _jsPlumb.addEndpoint(d17, {anchor: "Continuous"});
-        _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" });
+        var c = _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" }),
+            sa = _jsPlumb.router.getAnchor(c.endpoints[0]),
+            ta = _jsPlumb.router.getAnchor(c.endpoints[1])
 
-        equal(e16.anchor.getCurrentFace(), "right", "e16's anchor face is 'right'") ;
-        equal(e17.anchor.getCurrentFace(), "top", "e17's anchor face is 'top'");
+        equal(sa.getCurrentFace(), "right", "e16's anchor face is 'right'") ;
+        equal(ta.getCurrentFace(), "top", "e17's anchor face is 'top'");
 
         // now rotate e16 by 90 degrees
         _jsPlumb.rotate(d16, 180);
 
-        equal(e16.anchor.getCurrentFace(), "left", "e16's anchor face is 'left'") ;
-        equal(e17.anchor.getCurrentFace(), "top", "e17's anchor face is 'top'");
+        equal(sa.getCurrentFace(), "left", "e16's anchor face is 'left'") ;
+        equal(ta.getCurrentFace(), "top", "e17's anchor face is 'top'");
 
         // rotate d17 by 90 degrees
         _jsPlumb.rotate(d17, 90);
 
-        equal(e16.anchor.getCurrentFace(), "top", "e16's anchor face is 'top'") ;
-        equal(e17.anchor.getCurrentFace(), "bottom", "e17's anchor face is 'bottom'");
+        equal(sa.getCurrentFace(), "top", "e16's anchor face is 'top'") ;
+        equal(ta.getCurrentFace(), "bottom", "e17's anchor face is 'bottom'");
 
         equal("center center", d17.style.transformOrigin, "d17 transform origin was set");
         equal(d17.style.transform, "rotate(90deg)", "d17 rotate transform was set");
@@ -194,8 +200,10 @@ var testSuite = function () {
 
         var e16 = _jsPlumb.addEndpoint(d16, {anchor: "Bottom"});
         var e17 = _jsPlumb.addEndpoint(d17, {anchor: "Top"});
-        _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" });
-        var e16Loc = e16.anchor.lastReturnValue.slice();//[600, 700, 0.5, 1]
+        var c = _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" }),
+            sa = _jsPlumb.router.getAnchor(c.endpoints[0]),
+            ta = _jsPlumb.router.getAnchor(c.endpoints[1])
+        var e16Loc = sa.lastReturnValue.slice();//[600, 700, 0.5, 1]
         var e16o = _jsPlumb.router.getEndpointOrientation(e16)
 
         equal(600, e16Loc[0], "x pos is 600 before rotation");
@@ -205,7 +213,7 @@ var testSuite = function () {
 
         _jsPlumb.rotate(d16, 90);
 
-        var e16LocRotated = e16.anchor.lastReturnValue.slice(); // [525, 625, 0.5, 1]
+        var e16LocRotated = sa.lastReturnValue.slice(); // [525, 625, 0.5, 1]
         var e16or = _jsPlumb.router.getEndpointOrientation(e16)
 
         equal(525, e16LocRotated[0], "x pos is 525 after rotation");
@@ -232,9 +240,11 @@ var testSuite = function () {
 
         var e16 = _jsPlumb.addEndpoint(d16, {anchor: "Bottom"});
         var e17 = _jsPlumb.addEndpoint(d17, {anchor: "Top"});
-        _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" });
+        var c = _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" }),
+            sa = _jsPlumb.router.getAnchor(c.endpoints[0]),
+            ta = _jsPlumb.router.getAnchor(c.endpoints[1])
 
-        var e16Loc = e16.anchor.lastReturnValue.slice();//[600, 700, 0.5, 1]
+        var e16Loc = sa.lastReturnValue.slice();//[600, 700, 0.5, 1]
         var e16o = _jsPlumb.router.getEndpointOrientation(e16)
 
         equal(600, e16Loc[0], "x pos is 600 before rotation");
@@ -244,7 +254,7 @@ var testSuite = function () {
 
         _jsPlumb.rotate(g1.el, 90);
 
-        var e16LocRotated = e16.anchor.lastReturnValue.slice();
+        var e16LocRotated = sa.lastReturnValue.slice();
         console.log(e16LocRotated);
 
         var e16or = _jsPlumb.router.getEndpointOrientation(e16)
@@ -272,8 +282,10 @@ var testSuite = function () {
 
         var e16 = _jsPlumb.addEndpoint(d16, {anchor: "Bottom"});
         var e17 = _jsPlumb.addEndpoint(d17, {anchor: "Top"});
-        _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" });
-        var e16Loc = e16.anchor.lastReturnValue.slice();//[600, 700, 0.5, 1]
+        var c = _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" }),
+            sa = _jsPlumb.router.getAnchor(c.endpoints[0]),
+            ta = _jsPlumb.router.getAnchor(c.endpoints[1])
+        var e16Loc = sa.lastReturnValue.slice();//[600, 700, 0.5, 1]
         var e16o = _jsPlumb.router.getEndpointOrientation(e16)
 
         equal(600, e16Loc[0], "x pos is 600 before rotation");
@@ -283,7 +295,7 @@ var testSuite = function () {
 
         _jsPlumb.rotate(d16, 90);
 
-        var e16LocRotated = e16.anchor.lastReturnValue.slice(); // [525, 625, 0.5, 1]
+        var e16LocRotated = sa.lastReturnValue.slice(); // [525, 625, 0.5, 1]
         var e16or = _jsPlumb.router.getEndpointOrientation(e16)
 
         equal(525, e16LocRotated[0], "x pos is 525 after rotation");
@@ -294,7 +306,7 @@ var testSuite = function () {
 
         _jsPlumb.rotate(g1.el, 90);
 
-        e16LocRotated = e16.anchor.lastReturnValue.slice(); // [525, 625, 0.5, 1]
+        e16LocRotated = sa.lastReturnValue.slice(); // [525, 625, 0.5, 1]
         e16or = _jsPlumb.router.getEndpointOrientation(e16)
 
         equal(975, e16LocRotated[0], "x pos is 975 after rotation of group the node is a member of");
