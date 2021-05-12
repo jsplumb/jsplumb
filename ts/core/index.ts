@@ -41,6 +41,7 @@ export * from './connector/statemachine-connector'
 export * from "./selection/connection-selection"
 
 export * from './endpoint/endpoint'
+export * from './endpoint/endpoint-options'
 export * from './factory/endpoint-factory'
 export * from './endpoint/endpoints'
 export * from './endpoint/dot-endpoint'
