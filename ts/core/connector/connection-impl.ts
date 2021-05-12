@@ -92,7 +92,6 @@ export type ConnectionOptions<E = any>  =  Merge<OnlyPluralsConnectParams<E>,  {
 
 export class Connection<E = any> extends OverlayCapableComponent {
 
-    id:string
     connector:AbstractConnector
     defaultLabelLocation:number = 0.5
     scope:string
@@ -355,9 +354,9 @@ export class Connection<E = any> extends OverlayCapableComponent {
             }
         }
         if (_anchors != null) {
-            this.endpoints[0].anchor = _anchors[0]
-            this.endpoints[1].anchor = _anchors[1]
-            if (this.endpoints[1].anchor.isDynamic) {
+            this.instance.router.setConnectionAnchors(this, _anchors)
+
+            if (this.instance.router.isDynamicAnchor(this.endpoints[1])) {
                 this.instance.repaint(this.endpoints[1].element)
             }
         }
