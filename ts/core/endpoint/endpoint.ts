@@ -34,10 +34,7 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         return { x:this.endpoint.x, y:this.endpoint.y }
     }
 
-    anchorId:string
-
     connections:Array<Connection<E>> = []
-    anchor:Anchor
     endpoint:EndpointRepresentation<any>
     element:E
     elementId:string
@@ -161,8 +158,9 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         this.addType(type, params.data)
     }
 
-    private _updateAnchorClass ():void {
-        const ac = this.anchor.getCssClass()
+    private _updateAnchorClass (anchor?:Anchor):void {
+        anchor = anchor || this.instance.router.getAnchor(this)
+        const ac = anchor && anchor.getCssClass()
         if (ac != null && ac.length > 0) {
             // stash old, get new
             let oldAnchorClass = this.instance.endpointAnchorClassPrefix + "-" + this.currentAnchorClass
@@ -179,14 +177,16 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
     }
 
     private setPreparedAnchor (anchor:Anchor):Endpoint {
-
-        this.anchor = anchor
-        this._updateAnchorClass()
+        this.instance.router.setAnchor(this, anchor)
+        anchor.bind(EVENT_ANCHOR_CHANGED, (currentAnchor:Anchor) => {
+            this.fire(EVENT_ANCHOR_CHANGED, {endpoint: this, anchor: currentAnchor})
+            this._updateAnchorClass(currentAnchor)
+        })
+        this._updateAnchorClass(anchor)
         return this
     }
 
     setAnchor (anchorParams:AnchorSpec | Array<AnchorSpec>):Endpoint {
-
         const a = this.instance.router.prepareAnchor(this, anchorParams)
         this.setPreparedAnchor(a)
         return this
@@ -312,7 +312,6 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
 
         let anchorClass = this.instance.endpointAnchorClassPrefix + (this.currentAnchorClass ? "-" + this.currentAnchorClass : "")
         this.instance.removeClass(this.element, anchorClass)
-        this.anchor = null
         if(this.endpoint != null) {
             this.instance.destroyEndpoint(this)
         }
@@ -325,7 +324,7 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
     }
 
     isFloating():boolean {
-        return this.anchor != null && this.anchor.isFloating
+        return this.instance.router.isFloating(this)
     }
 
     /**
@@ -349,9 +348,9 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         this.dragAllowedWhenFull = allowed
     }
 
-    equals(endpoint:Endpoint):boolean {
-        return this.anchor.equals(endpoint.anchor)
-    }
+    // equals(endpoint:Endpoint):boolean {
+    //     return this.anchor.equals(endpoint.anchor)
+    // }
 
     getUuid():string {
         return this.uuid
