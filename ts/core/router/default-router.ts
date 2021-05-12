@@ -72,6 +72,14 @@ const edgeSortFunctions:Dictionary<SortFunction<AnchorListEntry>> = {
     "left": leftAndTopSort
 }
 
+function isContinuous(a:Anchor):a is ContinuousAnchor {
+    return a.isContinuous
+}
+
+function isDynamic(a:Anchor):a is DynamicAnchor {
+    return a.constructor === DynamicAnchor
+}
+
 interface ConnectionFacade {
     endpoints: [ Endpoint, Endpoint ]
 }
@@ -130,7 +138,8 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
 
     getEndpointLocation(endpoint: Endpoint<any>, params:AnchorComputeParams): AnchorPlacement {
         params = params || {}
-        return (endpoint.anchor.lastReturnValue == null || (params.timestamp != null && endpoint.anchor.timestamp !== params.timestamp)) ? this.computeAnchorLocation(endpoint.anchor, params) : endpoint.anchor.lastReturnValue
+        const anchor = anchorMap.get(endpoint.id)
+        return (anchor.lastReturnValue == null || (params.timestamp != null && anchor.timestamp !== params.timestamp)) ? this.computeAnchorLocation(anchor, params) : anchor.lastReturnValue
     }
 
     computeAnchorLocation(anchor: Anchor, params: AnchorComputeParams): AnchorPlacement {
@@ -147,6 +156,11 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
         }
 
         return anchor.lastReturnValue
+    }
+
+    isFloating(ep: Endpoint<any>): boolean {
+        const a = anchorMap.get(ep.id)
+        return a != null && a.isFloating
     }
 
 
@@ -218,7 +232,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
     }
 
     getEndpointOrientation(endpoint: Endpoint): Orientation {
-        return this.getAnchorOrientation(endpoint.anchor, endpoint)
+        return this.getAnchorOrientation(anchorMap.get(endpoint.id), endpoint)
     }
 
 
@@ -244,16 +258,30 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
         }
     }
 
+    setAnchor(endpoint:Endpoint, anchor:Anchor):void {
+        anchorMap.set(endpoint.id, anchor)
+    }
+
     prepareAnchor(endpoint: Endpoint<any>, params: AnchorSpec | Array<AnchorSpec>): Anchor {
         let a = makeAnchorFromSpec(this.instance, params, endpoint.elementId)
-        anchorMap.set(endpoint.id, a)
-
-        // a.bind(EVENT_ANCHOR_CHANGED, (currentAnchor:Anchor) => {
-        //     this.fire(EVENT_ANCHOR_CHANGED, {endpoint: this, anchor: currentAnchor})
-        //     this._updateAnchorClass()
-        // })
         return a
     }
+
+    setConnectionAnchors(conn:Connection, anchors:[Anchor, Anchor]) {
+        anchorMap.set(conn.endpoints[0].id, anchors[0])
+        anchorMap.set(conn.endpoints[1].id, anchors[1])
+    }
+
+    isDynamicAnchor(ep:Endpoint):boolean {
+        const a = anchorMap.get(ep.id)
+        return a == null ? false : a.isDynamic
+    }
+
+    getAnchor(ep: Endpoint<any>): Anchor {
+        return anchorMap.get(ep.id)
+    }
+
+
 
     computePath(connection: Connection, timestamp:string): void {
         let sourceInfo = this.instance.viewport.getPosition(connection.sourceId),
@@ -429,14 +457,16 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
 
             timestamp = timestamp || uuid()
 
-            let orientationCache = {}
+            let orientationCache = {}, a:Anchor
 
             forEach(ep, (anEndpoint) => {
 
                 endpointsToPaint.add(anEndpoint)
+                a = anchorMap.get(anEndpoint.id)
 
                 if (anEndpoint.connections.length === 0) {
-                    if (anEndpoint.anchor.isContinuous) {
+
+                    if (isContinuous(a)) {
                         if (!this.anchorLists[elementId]) {
                             this.anchorLists[elementId] = { top: [], right: [], bottom: [], left: [] }
                         }
@@ -449,7 +479,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
                             elementId,
                             0,
                             false,
-                            (<ContinuousAnchor>anEndpoint.anchor).getDefaultFace(),
+                            a.getDefaultFace(),
                             connectionsToPaint,
                             endpointsToPaint)
                         anchorsToUpdate.add(elementId)
@@ -460,8 +490,8 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
                         let conn = anEndpoint.connections[i],
                             sourceId = conn.sourceId,
                             targetId = conn.targetId,
-                            sourceContinuous = conn.endpoints[0].anchor.isContinuous,
-                            targetContinuous = conn.endpoints[1].anchor.isContinuous
+                            sourceContinuous = isContinuous(anchorMap.get(conn.endpoints[0].id)),//conn.endpoints[0].anchor.isContinuous,
+                            targetContinuous = isContinuous(anchorMap.get(conn.endpoints[0].id))//conn.endpoints[1].anchor.isContinuous
 
                         if (sourceContinuous || targetContinuous) {
                             let oKey = sourceId + "_" + targetId,
@@ -492,8 +522,8 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
 
                                 if (!o) {
                                     o = this.calculateOrientation(sourceId, targetId, sd, td,
-                                        (conn.endpoints[0].anchor as ContinuousAnchor),
-                                        (conn.endpoints[1].anchor as ContinuousAnchor),
+                                        anchorMap.get(conn.endpoints[0].id) as ContinuousAnchor,
+                                        anchorMap.get(conn.endpoints[1].id) as ContinuousAnchor,
                                         sourceRotation,
                                         targetRotation
                                     )
@@ -521,9 +551,10 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
                             }
                         }
                         else {
-                            let otherEndpoint = anEndpoint.connections[i].endpoints[conn.sourceId === elementId ? 1 : 0]
+                            let otherEndpoint = anEndpoint.connections[i].endpoints[conn.sourceId === elementId ? 1 : 0],
+                                otherAnchor = anchorMap.get(otherEndpoint.id)
 
-                            if (otherEndpoint.anchor.constructor === DynamicAnchor) {
+                            if (isDynamic(otherAnchor)) {
 
                                 this.instance.paintEndpoint(otherEndpoint, { elementWithPrecedence: elementId, timestamp: timestamp })
 
