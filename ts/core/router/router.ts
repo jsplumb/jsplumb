@@ -26,6 +26,12 @@ export interface Router<T extends {E:unknown}> {
     getAnchorOrientation(anchor:Anchor, endpoint?: Endpoint): Orientation
     getEndpointOrientation(endpoint: Endpoint): Orientation
 
+    setAnchor(endpoint:Endpoint, anchor:Anchor):void
     prepareAnchor(endpoint:Endpoint, params:AnchorSpec | Array<AnchorSpec>):Anchor
+    setConnectionAnchors(conn:Connection, anchors:[Anchor, Anchor]):void
+    isDynamicAnchor(ep:Endpoint):boolean
+    getAnchor(ep:Endpoint):Anchor
+
+    isFloating(ep:Endpoint):boolean
 
 }
