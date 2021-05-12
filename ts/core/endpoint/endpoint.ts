@@ -178,12 +178,17 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
 
     private setPreparedAnchor (anchor:Anchor):Endpoint {
         this.instance.router.setAnchor(this, anchor)
-        anchor.bind(EVENT_ANCHOR_CHANGED, (currentAnchor:Anchor) => {
-            this.fire(EVENT_ANCHOR_CHANGED, {endpoint: this, anchor: currentAnchor})
-            this._updateAnchorClass(currentAnchor)
-        })
         this._updateAnchorClass(anchor)
         return this
+    }
+
+    /**
+     * Called by the router when a dynamic anchor has changed its current location.
+     * @param currentAnchor
+     */
+    _anchorLocationChanged(currentAnchor:Anchor) {
+        this.fire(EVENT_ANCHOR_CHANGED, {endpoint: this, anchor: currentAnchor})
+        this._updateAnchorClass(currentAnchor)
     }
 
     setAnchor (anchorParams:AnchorSpec | Array<AnchorSpec>):Endpoint {
