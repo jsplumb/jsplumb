@@ -311,14 +311,16 @@ export class FlowchartConnector extends AbstractConnector {
                         ]
                     }[axis]
                 },
-                opposite: function (axis:string, ss:number, oss:number, es:number, oes:number):any {
+                opposite: (axis:string, ss:number, oss:number, es:number, oes:number):any => {
                     let pi = paintInfo,
-                        otherAxis = {"x": "y", "y": "x"}[axis],
+                        otherAxis:string = {"x": "y", "y": "x"}[axis],
                         dim = {"x": "h", "y": "w"}[axis],
                         comparator = pi["is" + axis.toUpperCase() + "GreaterThanStubTimes2"]
 
                     if (params.sourceEndpoint.elementId === params.targetEndpoint.elementId) {
-                        let _val = oss + ((1 - params.sourceEndpoint.anchor[otherAxis]) * params.sourceInfo[dim]) + this.maxStub
+                        const sourceAnchor = this.instance.router.getAnchor(params.sourceEndpoint)
+                        //let _val = oss + ((1 - params.sourceEndpoint.anchor[otherAxis]) * params.sourceInfo[dim]) + this.maxStub
+                        let _val = oss + ((1 - sourceAnchor[otherAxis]) * params.sourceInfo[dim]) + this.maxStub
                         return {
                             "x": [
                                 [ss, _val],
