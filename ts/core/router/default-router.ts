@@ -5,7 +5,14 @@ import { Connection } from '../connector/connection-impl'
 import { Endpoint } from '../endpoint/endpoint'
 import {ViewportElement} from "../viewport"
 import {ConnectionDetachedParams, Dictionary, PointXY, Rotations, SortFunction} from "../common"
-import {AnchorComputeParams, AnchorOrientationHint, Face, Orientation} from "../factory/anchor-factory"
+import {
+    AnchorComputeParams,
+    AnchorOrientationHint,
+    AnchorSpec,
+    Face,
+    makeAnchorFromSpec,
+    Orientation
+} from "../factory/anchor-factory"
 import { DynamicAnchor } from "../anchor/dynamic-anchor"
 import {findWithFunction, removeWithFunction, rotatePoint, sortHelper, uuid, forEach, RotatedPointXY} from "../util"
 import {ContinuousAnchor} from "../anchor/continuous-anchor"
@@ -86,6 +93,8 @@ function floatingAnchorCompute(anchor:FloatingAnchor, params:AnchorComputeParams
     anchor._lastResult = [ xy.x + (anchor.size.w / 2), xy.y + (anchor.size.h / 2), 0, 0 ] as AnchorPlacement; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
     return anchor._lastResult
 }
+
+const anchorMap:Map<string, Anchor> = new Map()
 
 /*
  * Default router. Handles placement of anchors and connector paint routines for paths.
@@ -233,6 +242,17 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
         } else {
             return anchor.orientation
         }
+    }
+
+    prepareAnchor(endpoint: Endpoint<any>, params: AnchorSpec | Array<AnchorSpec>): Anchor {
+        let a = makeAnchorFromSpec(this.instance, params, endpoint.elementId)
+        anchorMap.set(endpoint.id, a)
+
+        // a.bind(EVENT_ANCHOR_CHANGED, (currentAnchor:Anchor) => {
+        //     this.fire(EVENT_ANCHOR_CHANGED, {endpoint: this, anchor: currentAnchor})
+        //     this._updateAnchorClass()
+        // })
+        return a
     }
 
     computePath(connection: Connection, timestamp:string): void {

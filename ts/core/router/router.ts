@@ -1,9 +1,8 @@
 import {Connection} from '../connector/connection-impl'
 import { Endpoint } from '../endpoint/endpoint'
 import { PointXY } from '../common'
-import {ViewportElement} from "../viewport"
 import {Anchor} from "../anchor/anchor"
-import {AnchorComputeParams, Orientation} from "../factory/anchor-factory"
+import {AnchorComputeParams, AnchorSpec, Orientation} from "../factory/anchor-factory"
 
 export interface RedrawResult {
     c:Set<Connection>
@@ -26,5 +25,7 @@ export interface Router<T extends {E:unknown}> {
     // TODO does this definitely have to be exposed, or does all the code that calls it now site inside router?
     getAnchorOrientation(anchor:Anchor, endpoint?: Endpoint): Orientation
     getEndpointOrientation(endpoint: Endpoint): Orientation
+
+    prepareAnchor(endpoint:Endpoint, params:AnchorSpec | Array<AnchorSpec>):Anchor
 
 }
