@@ -3,6 +3,7 @@ import { JsPlumbInstance } from "../core"
 import {EventGenerator} from "../event-generator"
 import { AnchorId, AnchorOptions, AnchorOrientationHint, Orientation } from "../factory/anchor-factory"
 import {AnchorPlacement} from "../router/router"
+import {uuid} from "../util"
 
 export class Anchor extends EventGenerator {
 
@@ -12,7 +13,7 @@ export class Anchor extends EventGenerator {
     isFloating:boolean = false
     cssClass: string = ""
     elementId: string
-    id: string
+    readonly id: string
     locked: boolean
     offsets: [number, number]
     orientation: Orientation
@@ -29,6 +30,7 @@ export class Anchor extends EventGenerator {
 
     constructor(public instance:JsPlumbInstance,  params?:AnchorOptions) {
         super()
+        this.id = uuid()
         params = params || {}
         this.cssClass = params.cssClass || ""
     }
