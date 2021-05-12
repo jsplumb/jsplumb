@@ -36,7 +36,7 @@ import {
 
 import { EventGenerator } from "./event-generator"
 import * as Constants from "./constants"
-import {EndpointOptions, InternalEndpointOptions} from "./endpoint/endpoint"
+import {EndpointOptions} from "./endpoint/endpoint-options"
 import {AddGroupOptions, GroupManager} from "./group/group-manager"
 import {UIGroup} from "./group/group"
 
@@ -70,9 +70,9 @@ import {
     CLASS_OVERLAY,
     ERROR_SOURCE_DOES_NOT_EXIST,
     ERROR_SOURCE_ENDPOINT_FULL, ERROR_TARGET_DOES_NOT_EXIST,
-    ERROR_TARGET_ENDPOINT_FULL,
-    SELECTOR_MANAGED_ELEMENT
+    ERROR_TARGET_ENDPOINT_FULL
 } from "./constants"
+import {InternalEndpointOptions} from "@jsplumb/core/endpoint/endpoint-options"
 
 function _scopeMatch(e1:Endpoint, e2:Endpoint):boolean {
     let s1 = e1.scope.split(/\s/), s2 = e2.scope.split(/\s/)
