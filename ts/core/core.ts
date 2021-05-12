@@ -1010,9 +1010,9 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     _internal_newEndpoint(params:InternalEndpointOptions<T["E"]>, id?:string):Endpoint {
         let _p:InternalEndpointOptions<T["E"]> = extend<InternalEndpointOptions<T["E"]>>({}, params)
         _p.elementId = id || this.getId(_p.element)
+        _p.id = "ep_" + this._idstamp()
 
         let ep = new Endpoint(this, _p)
-        ep.id = "ep_" + this._idstamp()
         const managedElement = this.manage(_p.element)
 
         addManagedEndpoint(managedElement, ep)
@@ -1997,7 +1997,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
                 let ap = params.anchorLoc
                 if (ap == null) {
                     let anchorParams:AnchorComputeParams = { xy, wh: info, element: endpoint, timestamp: timestamp }
-                    if (recalc && endpoint.anchor.isDynamic && endpoint.connections.length > 0) {
+                    if (recalc && this.router.isDynamicAnchor(endpoint)&& endpoint.connections.length > 0) {
                         let c = findConnectionToUseForDynamicAnchor(endpoint),
                             oIdx = c.endpoints[0] === endpoint ? 1 : 0,
                             oId = oIdx === 0 ? c.sourceId : c.targetId,
@@ -2016,7 +2016,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
                     anchorParams.rotation = this._getRotations(endpoint.elementId)
 
-                    ap = this.router.computeAnchorLocation(endpoint.anchor, anchorParams)
+                    ap = this.router.computeAnchorLocation(this.router.getAnchor(endpoint), anchorParams)
                 }
 
                 endpoint.endpoint.compute(ap, this.router.getEndpointOrientation(endpoint), endpoint.paintStyleInUse)
