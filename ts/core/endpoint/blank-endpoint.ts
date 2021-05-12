@@ -30,9 +30,7 @@ export class BlankEndpoint extends EndpointRepresentation<ComputedBlankEndpoint>
     }
 
     static type = "Blank"
-    getType(): string {
-        return BlankEndpoint.type
-    }
+    type = BlankEndpoint.type
 }
 
 

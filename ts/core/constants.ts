@@ -128,4 +128,9 @@ export const SELECTOR_GROUP_CONTAINER = att(ATTRIBUTE_GROUP_CONTENT)
 export const SELECTOR_MANAGED_ELEMENT = att(ATTRIBUTE_MANAGED)
 export const SELECTOR_OVERLAY = cls(CLASS_OVERLAY)
 
+export const ERROR_SOURCE_ENDPOINT_FULL = "Cannot establish connection: source endpoint is full"
+export const ERROR_TARGET_ENDPOINT_FULL = "Cannot establish connection: target endpoint is full"
+export const ERROR_SOURCE_DOES_NOT_EXIST = "Cannot establish connection: source does not exist"
+export const ERROR_TARGET_DOES_NOT_EXIST = "Cannot establish connection: target does not exist"
+
 

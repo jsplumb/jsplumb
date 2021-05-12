@@ -1,8 +1,8 @@
 import { JsPlumbInstance } from "../core";
 import { Orientation } from "../factory/anchor-factory";
-import { SegmentBounds } from "../connector/abstract-segment";
 import { Endpoint } from "./endpoint";
 import { AnchorPlacement } from "../router/router";
+import { Extents } from "@jsplumb/core";
 /**
  * Superclass for all types of Endpoint. This class is renderer
  * agnostic, as are any subclasses of it.
@@ -15,10 +15,10 @@ export declare abstract class EndpointRepresentation<C> {
     w: number;
     h: number;
     computedValue: C;
-    bounds: SegmentBounds;
+    bounds: Extents;
     classes: Array<string>;
     instance: JsPlumbInstance;
-    abstract getType(): string;
+    abstract type: string;
     abstract _compute(anchorPoint: AnchorPlacement, orientation: Orientation, endpointStyle: any): C;
     /**
      * Subclasses must implement this for the clone functionality: they return an object containing the type specific

@@ -10,5 +10,5 @@ export declare class BlankEndpoint extends EndpointRepresentation<ComputedBlankE
     getParams(): Record<string, any>;
     _compute(anchorPoint: AnchorPlacement, orientation: Orientation, endpointStyle: any): ComputedBlankEndpoint;
     static type: string;
-    getType(): string;
+    type: string;
 }

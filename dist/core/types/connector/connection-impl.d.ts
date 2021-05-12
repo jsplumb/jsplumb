@@ -1,46 +1,21 @@
 import { JsPlumbInstance } from "../core";
-import { ConnectionTypeDescriptor } from '../common';
+import { ConnectionTypeDescriptor, ConnectParams } from '../common';
 import { AbstractConnector } from "./abstract-connector";
 import { Endpoint } from "../endpoint/endpoint";
 import { PaintStyle } from "../styles";
 import { OverlayCapableComponent } from "../component/overlay-capable-component";
-import { OverlaySpec } from "../overlay/overlay";
+import { Merge, Omit } from "../util";
 import { AnchorSpec } from "../factory/anchor-factory";
 import { ConnectorSpec } from "./abstract-connector";
 import { EndpointSpec } from "../endpoint/endpoint";
-export interface ConnectionParams<E = any> {
-    id?: string;
+declare type OnlyPluralsConnectParams<E> = Omit<ConnectParams<E>, 'anchor' | 'endpointStyle' | 'endpoint' | 'endpointHoverStyle'>;
+export declare type ConnectionOptions<E = any> = Merge<OnlyPluralsConnectParams<E>, {
     source?: E;
     target?: E;
     sourceEndpoint?: Endpoint;
     targetEndpoint?: Endpoint;
-    scope?: string;
-    overlays?: Array<OverlaySpec>;
-    connector?: ConnectorSpec;
-    type?: string;
-    endpoints?: [EndpointSpec, EndpointSpec];
-    endpoint?: EndpointSpec;
-    endpointStyles?: [PaintStyle, PaintStyle];
-    endpointStyle?: PaintStyle;
-    endpointHoverStyle?: PaintStyle;
-    endpointHoverStyles?: [PaintStyle, PaintStyle];
-    outlineStroke?: number;
-    outlineWidth?: number;
-    uuids?: [string, string];
-    deleteEndpointsOnEmpty?: boolean;
-    detachable?: boolean;
-    reattach?: boolean;
-    directed?: boolean;
-    cost?: number;
-    data?: any;
-    cssClass?: string;
-    hoverClass?: string;
-    paintStyle?: PaintStyle;
-    hoverPaintStyle?: PaintStyle;
-    previousConnection?: Connection;
-    anchors?: [AnchorSpec, AnchorSpec];
-    anchor?: AnchorSpec;
-}
+    previousConnection?: Connection<E>;
+}>;
 export declare class Connection<E = any> extends OverlayCapableComponent {
     instance: JsPlumbInstance;
     id: string;
@@ -66,11 +41,8 @@ export declare class Connection<E = any> extends OverlayCapableComponent {
     directed: boolean;
     endpoints: [Endpoint<E>, Endpoint<E>];
     endpointStyles: [PaintStyle, PaintStyle];
-    readonly endpointSpec: EndpointSpec;
     readonly endpointsSpec: [EndpointSpec, EndpointSpec];
-    endpointStyle: PaintStyle;
-    endpointHoverStyle: PaintStyle;
-    endpointHoverStyles: [PaintStyle, PaintStyle];
+    readonly endpointHoverStyles: [PaintStyle, PaintStyle];
     suspendedEndpoint: Endpoint<E>;
     suspendedIndex: number;
     suspendedElement: E;
@@ -83,7 +55,7 @@ export declare class Connection<E = any> extends OverlayCapableComponent {
         originalEp: Endpoint<E>;
     }>;
     pending: boolean;
-    constructor(instance: JsPlumbInstance, params: ConnectionParams<E>);
+    constructor(instance: JsPlumbInstance, params: ConnectionOptions<E>);
     makeEndpoint(isSource: boolean, el: any, elId: string, anchor?: AnchorSpec, ep?: Endpoint): Endpoint;
     getTypeDescriptor(): string;
     isDetachable(ep?: Endpoint): boolean;
@@ -112,3 +84,4 @@ export declare class Connection<E = any> extends OverlayCapableComponent {
      */
     replaceEndpoint(idx: number, endpointDef: EndpointSpec): void;
 }
+export {};

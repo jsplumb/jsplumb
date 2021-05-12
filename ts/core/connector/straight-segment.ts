@@ -1,5 +1,5 @@
-import {AbstractSegment, PointNearPath, SegmentBounds} from "./abstract-segment"
-import { PointXY } from '../common'
+import {AbstractSegment, PointNearPath} from "./abstract-segment"
+import {Extents, PointXY} from '../common'
 import { JsPlumbInstance } from "../core"
 import {gradient, lineLength, pointOnLine} from "../geom"
 
@@ -46,12 +46,12 @@ export class StraightSegment extends AbstractSegment {
     }
 
 
-    getBounds():SegmentBounds {
+    getBounds():Extents {
         return {
-            minX: Math.min(this.x1, this.x2),
-            minY: Math.min(this.y1, this.y2),
-            maxX: Math.max(this.x1, this.x2),
-            maxY: Math.max(this.y1, this.y2)
+            xmin: Math.min(this.x1, this.x2),
+            ymin: Math.min(this.y1, this.y2),
+            xmax: Math.max(this.x1, this.x2),
+            ymax: Math.max(this.y1, this.y2)
         }
     }
 

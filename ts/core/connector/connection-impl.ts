@@ -1,12 +1,12 @@
 
 import { JsPlumbInstance } from "../core"
-import {ConnectionTypeDescriptor, Dictionary, jsPlumbElement, TypeDescriptor} from '../common'
+import {ConnectionTypeDescriptor, ConnectParams, Dictionary } from '../common'
 import {AbstractConnector, ConnectorWithOptions} from "./abstract-connector"
 import {Endpoint} from "../endpoint/endpoint"
 import {PaintStyle} from "../styles"
 import {OverlayCapableComponent} from "../component/overlay-capable-component"
-import {extend, IS, isString, merge, uuid, addToDictionary, isEmpty} from "../util"
-import {Overlay, OverlaySpec} from "../overlay/overlay"
+import {extend, IS, isString, merge, uuid, addToDictionary, Merge, Omit} from "../util"
+import {Overlay} from "../overlay/overlay"
 import {Connectors} from "./connectors"
 import {AnchorSpec, makeAnchorFromSpec} from "../factory/anchor-factory"
 import {ConnectorSpec} from "./abstract-connector"
@@ -16,7 +16,7 @@ import * as Constants from "../constants"
 const TYPE_ITEM_ANCHORS = "anchors"
 const TYPE_ITEM_CONNECTOR = "connector"
 
-function prepareEndpoint<E>(conn:Connection, existing:Endpoint, index:number, anchor?:AnchorSpec, element?:E, elementId?:string, endpoint?:EndpointSpec):Endpoint {
+function prepareEndpoint<E>(conn:Connection<E>, existing:Endpoint, index:number, anchor?:AnchorSpec, element?:E, elementId?:string, endpoint?:EndpointSpec):Endpoint {
 
     let e
 
@@ -25,9 +25,9 @@ function prepareEndpoint<E>(conn:Connection, existing:Endpoint, index:number, an
         existing.addConnection(conn)
     } else {
 
-        let ep = endpoint || conn.endpointSpec || conn.endpointsSpec[index] || conn.instance.defaults.endpoints[index] || conn.instance.defaults.endpoint
+        let ep = endpoint /*|| conn.endpointSpec*/ || conn.endpointsSpec[index] || conn.instance.defaults.endpoints[index] || conn.instance.defaults.endpoint
 
-        let es = conn.endpointStyles[index] || conn.endpointStyle || conn.instance.defaults.endpointStyles[index] || conn.instance.defaults.endpointStyle
+        let es = conn.endpointStyles[index] /*|| conn.endpointStyle*/ || conn.instance.defaults.endpointStyles[index] || conn.instance.defaults.endpointStyle
 
         // Endpoints derive their fill from the connector's stroke, if no fill was specified.
         if (es.fill == null && conn.paintStyle != null) {
@@ -41,7 +41,7 @@ function prepareEndpoint<E>(conn:Connection, existing:Endpoint, index:number, an
             es.outlineWidth = conn.paintStyle.outlineWidth
         }
 
-        let ehs = conn.endpointHoverStyles[index] || conn.endpointHoverStyle || conn.endpointHoverStyle || conn.instance.defaults.endpointHoverStyles[index] || conn.instance.defaults.endpointHoverStyle
+        let ehs = conn.endpointHoverStyles[index] /*|| conn.endpointHoverStyle || conn.endpointHoverStyle*/ || conn.instance.defaults.endpointHoverStyles[index] || conn.instance.defaults.endpointHoverStyle
         // endpoint hover fill style is derived from connector's hover stroke style
         if (conn.hoverPaintStyle != null) {
             if (ehs == null) {
@@ -78,51 +78,17 @@ function prepareEndpoint<E>(conn:Connection, existing:Endpoint, index:number, an
     return e
 }
 
-export interface ConnectionParams<E = any> {
+type OnlyPluralsConnectParams<E> = Omit<ConnectParams<E>, 'anchor' | 'endpointStyle' | 'endpoint' | 'endpointHoverStyle'>
 
-    id?:string
+export type ConnectionOptions<E = any>  =  Merge<OnlyPluralsConnectParams<E>,  {
+
     source?:E
     target?:E
     sourceEndpoint?:Endpoint
     targetEndpoint?:Endpoint
-    scope?:string
 
-    overlays?:Array<OverlaySpec>
-
-    connector?:ConnectorSpec
-
-    type?:string
-    endpoints?:[EndpointSpec, EndpointSpec]
-    endpoint?:EndpointSpec
-
-    endpointStyles?:[PaintStyle, PaintStyle]
-    endpointStyle?:PaintStyle
-    endpointHoverStyle?:PaintStyle
-    endpointHoverStyles?:[PaintStyle, PaintStyle]
-    outlineStroke?:number
-    outlineWidth?:number
-    uuids?:[string, string]
-
-    deleteEndpointsOnEmpty?:boolean
-    detachable?:boolean
-    reattach?:boolean
-
-    directed?:boolean
-    cost?:number
-
-    data?:any
-
-    cssClass?:string
-    hoverClass?:string
-
-    paintStyle?:PaintStyle
-    hoverPaintStyle?:PaintStyle
-
-    previousConnection?:Connection
-
-    anchors?:[AnchorSpec, AnchorSpec]
-    anchor?:AnchorSpec
-}
+    previousConnection?:Connection<E>
+}>
 
 export class Connection<E = any> extends OverlayCapableComponent {
 
@@ -157,11 +123,11 @@ export class Connection<E = any> extends OverlayCapableComponent {
     endpoints:[Endpoint<E>, Endpoint<E>] = [null, null]
     endpointStyles:[PaintStyle, PaintStyle]
 
-    readonly endpointSpec:EndpointSpec
+    //readonly endpointSpec:EndpointSpec
     readonly endpointsSpec:[EndpointSpec, EndpointSpec]
-    endpointStyle:PaintStyle = {}
-    endpointHoverStyle:PaintStyle = {}
-    endpointHoverStyles:[PaintStyle, PaintStyle]
+    //endpointStyle:PaintStyle = {}
+    //endpointHoverStyle:PaintStyle = {}
+    readonly endpointHoverStyles:[PaintStyle, PaintStyle]
 
     suspendedEndpoint:Endpoint<E>
     suspendedIndex:number
@@ -176,7 +142,7 @@ export class Connection<E = any> extends OverlayCapableComponent {
     
     pending:boolean = false
 
-    constructor(public instance:JsPlumbInstance, params:ConnectionParams<E>) {
+    constructor(public instance:JsPlumbInstance, params:ConnectionOptions<E>) {
 
         super(instance, params)
 
@@ -205,8 +171,8 @@ export class Connection<E = any> extends OverlayCapableComponent {
 
         this.scope = params.scope
 
-        const sourceAnchor = params.anchors ? params.anchors[0] : params.anchor
-        const targetAnchor = params.anchors ? params.anchors[1] : params.anchor
+        const sourceAnchor = params.anchors ? params.anchors[0] : null//params.anchor
+        const targetAnchor = params.anchors ? params.anchors[1] : null //params.anchor
 
         instance.manage(this.source)
         instance.manage(this.target)
@@ -225,10 +191,10 @@ export class Connection<E = any> extends OverlayCapableComponent {
             params.endpoints = params.endpoints || this.instance._deriveEndpointAndAnchorSpec(params.type).endpoints
         }
 
-        this.endpointSpec = params.endpoint
+        //this.endpointSpec = params.endpoint
         this.endpointsSpec = params.endpoints || [null, null]
-        this.endpointStyle = params.endpointStyle
-        this.endpointHoverStyle = params.endpointHoverStyle
+        //this.endpointStyle = params.endpointStyle
+        //this.endpointHoverStyle = params.endpointHoverStyle
         this.endpointStyles = params.endpointStyles || [null, null]
         this.endpointHoverStyles = params.endpointHoverStyles || [null, null]
         this.paintStyle = params.paintStyle
@@ -267,7 +233,7 @@ export class Connection<E = any> extends OverlayCapableComponent {
         }
 
         this.endpointsSpec = params.endpoints || [null, null]
-        this.endpointSpec = params.endpoint || null
+        //this.endpointSpec = params.endpoint || null
 
         let _reattach = params.reattach || this.endpoints[0].reattachConnections || this.endpoints[1].reattachConnections || this.instance.defaults.reattachConnections
 
@@ -439,6 +405,7 @@ export class Connection<E = any> extends OverlayCapableComponent {
 
     destroy(force?:boolean) {
         this.endpoints = null
+        this.endpointStyles = null
         this.source = null
         this.target = null
 

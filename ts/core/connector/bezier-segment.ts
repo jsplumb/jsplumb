@@ -1,5 +1,5 @@
-import {AbstractSegment, PointNearPath, SegmentBounds} from "./abstract-segment"
-import { PointXY } from '../common'
+import {AbstractSegment, PointNearPath} from "./abstract-segment"
+import {Extents, PointXY} from '../common'
 import { JsPlumbInstance } from "../core"
 import {
     computeBezierLength,
@@ -18,7 +18,7 @@ export class BezierSegment extends AbstractSegment {
     cp1y:number
     cp2x:number
     cp2y:number
-    bounds:SegmentBounds
+    bounds:Extents
     x1:number
     x2:number
     y1:number
@@ -50,10 +50,10 @@ export class BezierSegment extends AbstractSegment {
         // of a bezier curve, it works for the types of curves that this segment
         // type produces.
         this.bounds = {
-            minX: Math.min(this.x1, this.x2, this.cp1x, this.cp2x),
-            minY: Math.min(this.y1, this.y2, this.cp1y, this.cp2y),
-            maxX: Math.max(this.x1, this.x2, this.cp1x, this.cp2x),
-            maxY: Math.max(this.y1, this.y2, this.cp1y, this.cp2y)
+            xmin: Math.min(this.x1, this.x2, this.cp1x, this.cp2x),
+            ymin: Math.min(this.y1, this.y2, this.cp1y, this.cp2y),
+            xmax: Math.max(this.x1, this.x2, this.cp1x, this.cp2x),
+            ymax: Math.max(this.y1, this.y2, this.cp1y, this.cp2y)
         }
     }
 
@@ -96,7 +96,7 @@ export class BezierSegment extends AbstractSegment {
         return this.length
     }
 
-    getBounds ():SegmentBounds {
+    getBounds ():Extents {
         return this.bounds
     }
 

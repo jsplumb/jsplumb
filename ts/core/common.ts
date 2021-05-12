@@ -38,10 +38,17 @@ export interface ConnectParams<E> {
      */
     detachable?: boolean
     /**
-     * Whether or not to delete the connection's endpoints when the connection is detached. Defaults to false. Does not
+     * Whether or not to delete the connection's endpoints when this connection is detached. Defaults to false. Does not
      * delete endpoints if they have other connections.
      */
     deleteEndpointsOnDetach?: boolean
+
+    /**
+     * Whether or not to delete any endpoints that were created by this connect call if at some
+     * point in the future the endpoint has no remaining connections. Defaults to false.
+     */
+    deleteEndpointsOnEmpty?:boolean
+
     /**
      * Whether or not to reattach this connection automatically should it be detached via user intervention. Defaults to false.
      */
@@ -57,7 +64,7 @@ export interface ConnectParams<E> {
     /**
      * Spec for the anchor to use for both source and target endpoints.
      */
-    anchor?: AnchorSpec
+     anchor?: AnchorSpec
     /**
      * Individual anchor specs for the source/target endpoints.
      */
@@ -106,7 +113,31 @@ export interface ConnectParams<E> {
      * Paint style for the connector when in hover mode.
      */
     hoverPaintStyle?:PaintStyle
+
+    /**
+     * Whether or not the connection is considered to be 'directed'
+     */
+    directed?:boolean
+
+    /**
+     * Cost of the connection. Defaults to 1.
+     */
+    cost?:number
+
+    id?:string
+
+    data?:any
+
+    cssClass?:string
+    hoverClass?:string
+
+    outlineStroke?:number
+    outlineWidth?:number
+
+    scope?:string
 }
+
+
 
 /**
  * Internal extension of ConnectParams containing a few extra things needed to establish a connection.
@@ -117,6 +148,7 @@ export interface InternalConnectParams<E> extends ConnectParams<E> {
     scope?:string
     type?:string
     newConnection?:(p:any) => Connection
+    id?:string
 }
 
 /**

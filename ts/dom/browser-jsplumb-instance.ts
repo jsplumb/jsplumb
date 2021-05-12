@@ -127,6 +127,8 @@ export function registerEndpointRenderer<C>(name:string, fns:EndpointHelperFunct
     endpointMap[name] = fns
 }
 
+export const ELEMENT_DIV = "div"
+
 export function getPositionOnElement(evt:Event, el:Element, zoom:number):PointXY {
     const jel = el as jsPlumbDOMElement
     let box:any = typeof el.getBoundingClientRect !== UNDEFINED ? el.getBoundingClientRect() : { left: 0, top: 0, width: 0, height: 0 },
@@ -1113,14 +1115,14 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
                 return {
                     component: o,
                     d: {minx: minx, miny: miny, td: td, cxy: cxy},
-                    minX: minx,
-                    maxX: minx + td.w,
-                    minY: miny,
-                    maxY: miny + td.h
+                    xmin: minx,
+                    xmax: minx + td.w,
+                    ymin: miny,
+                    ymax: miny + td.h
                 }
             }
             else {
-                return {minX: 0, maxX: 0, minY: 0, maxY: 0}
+                return {xmin: 0, xmax: 0, ymin: 0, ymax: 0}
             }
 
         } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
@@ -1254,11 +1256,11 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     }
 
     renderEndpoint(ep: Endpoint, paintStyle: PaintStyle): void {
-        const renderer = endpointMap[ep.endpoint.getType()]
+        const renderer = endpointMap[ep.endpoint.type]
         if (renderer != null) {
             SvgEndpoint.paint(ep.endpoint, renderer, paintStyle)
         } else {
-            console.log("JSPLUMB: no endpoint renderer found for type [" + ep.endpoint.getType() + "]")
+            console.log("JSPLUMB: no endpoint renderer found for type [" + ep.endpoint.type + "]")
         }
     }
 

@@ -1,4 +1,4 @@
-import {BoundingBox, PointXY} from "../common"
+import {BoundingBox, Extents, PointXY} from "../common"
 
 export interface SegmentParams {
     x1:number
@@ -32,14 +32,7 @@ function noSuchPoint():PointNearPath {
     }
 }
 
-export type SegmentBounds = {
-    minX: number
-    minY: number
-    maxX: number
-    maxY: number
-}
-
-export function EMPTY_BOUNDS():SegmentBounds { return  { minX:Infinity, maxX:-Infinity, minY:Infinity, maxY:-Infinity }; }
+export function EMPTY_BOUNDS():Extents { return  { xmin:Infinity, xmax:-Infinity, ymin:Infinity, ymax:-Infinity }; }
 
 export interface Segment {
 
@@ -50,7 +43,7 @@ export interface Segment {
 
     type:string
 
-    getBounds ():SegmentBounds
+    extents:Extents
     lineIntersection (x1:number, y1:number, x2:number, y2:number):Array<PointXY>
     boxIntersection (x:number, y:number, w:number, h:number):Array<PointXY>
     boundingBoxIntersection (box:BoundingBox):Array<PointXY>
@@ -68,7 +61,7 @@ export abstract class AbstractSegment implements Segment {
     y1:number
     y2:number
 
-    protected bounds:SegmentBounds
+    extents:Extents = EMPTY_BOUNDS()
 
     abstract type:string
     abstract getLength():number
@@ -82,10 +75,6 @@ export abstract class AbstractSegment implements Segment {
         this.y1 = params.y1
         this.x2 = params.x2
         this.y2 = params.y2
-    }
-
-    getBounds ():SegmentBounds {
-        return this.bounds
     }
 
     /**

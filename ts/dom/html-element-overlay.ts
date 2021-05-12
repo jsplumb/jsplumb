@@ -1,7 +1,8 @@
 
 import {createElement} from './browser-util'
 import { jsPlumbDOMElement} from './element-facade'
-import {Component, JsPlumbInstance, Overlay, Size} from "../core"
+import {Component, JsPlumbInstance, Overlay, Size, NONE, ABSOLUTE} from "@jsplumb/core"
+import {ELEMENT_DIV} from "./browser-jsplumb-instance"
 
 interface HTMLElementOverlayHolder extends Overlay {
     canvas:jsPlumbDOMElement
@@ -17,7 +18,7 @@ export class HTMLElementOverlay {
     }
 
     static createElement(o:HTMLElementOverlayHolder):Element {
-        const el = createElement("div", {}, o.instance.overlayClass + " " +
+        const el = createElement(ELEMENT_DIV, {}, o.instance.overlayClass + " " +
             (o.cssClass ? o.cssClass : ""))
 
         o.instance.setAttribute(el, "jtk-overlay-id", o.id)
@@ -33,7 +34,7 @@ export class HTMLElementOverlay {
                 o.canvas = HTMLElementOverlay.createElement(o) as jsPlumbDOMElement
             }
 
-            o.canvas.style.position = "absolute"
+            o.canvas.style.position = ABSOLUTE
             o.instance._appendElement(o.canvas, o.instance.getContainer())
             o.instance.getId(o.canvas)
             
@@ -45,7 +46,7 @@ export class HTMLElementOverlay {
             (<any>o.canvas.style).transform = ts
     
             if (!o.isVisible()) {
-                o.canvas.style.display = "none"
+                o.canvas.style.display = NONE
             }
 
             (<any>o.canvas).jtk = { overlay:o }

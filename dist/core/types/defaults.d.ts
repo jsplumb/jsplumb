@@ -1,4 +1,4 @@
-import { EndpointSpec, EndpointStyle } from "./endpoint/endpoint";
+import { EndpointOptions, EndpointSpec, EndpointStyle } from "./endpoint/endpoint";
 import { AnchorSpec } from "./factory/anchor-factory";
 import { PaintStyle } from "./styles";
 import { OverlaySpec } from "./overlay/overlay";
@@ -28,4 +28,5 @@ export interface JsPlumbDefaults<E> {
     maxConnections?: number;
     hoverClass?: string;
     allowNestedGroups?: boolean;
+    parameterExtractor?: (element: E, index: number) => EndpointOptions;
 }

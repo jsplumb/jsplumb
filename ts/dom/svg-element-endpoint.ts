@@ -1,9 +1,18 @@
 import {SvgComponent} from "./svg-component"
-import {EndpointHelperFunctions} from "./browser-jsplumb-instance"
+import {ELEMENT_DIV, EndpointHelperFunctions} from "./browser-jsplumb-instance"
 import { createElement } from './browser-util'
 
-import {_node, _applyStyles, _size} from './svg-util'
-import {ATTRIBUTE_SCOPE_PREFIX, EndpointRepresentation, extend, PaintStyle, TRUE} from "@jsplumb/core"
+import {_node, _applyStyles, _size, ELEMENT_SVG} from './svg-util'
+import {
+    ABSOLUTE,
+    ATTRIBUTE_SCOPE_PREFIX,
+    BLOCK,
+    EndpointRepresentation,
+    extend,
+    NONE,
+    PaintStyle,
+    TRUE
+} from "@jsplumb/core"
 
 /**
  * Superclass for endpoint renderers that use an `svg` element wrapped in a `div` in the DOM.
@@ -16,16 +25,16 @@ export abstract class SvgEndpoint<C> {
         if ((ep as any).canvas != null) {
             return (ep as any).canvas
         } else {
-            const svg = _node("svg", {
+            const svg = _node(ELEMENT_SVG, {
                 "style": "",
                 "width": "0",
                 "height": "0",
-                "pointer-events": "none",
-                "position": "absolute"
+                "pointer-events": NONE,
+                "position": ABSOLUTE
             });
             (ep as any).svg = svg
 
-            const canvas:any = createElement("div", { position : "absolute" });
+            const canvas:any = createElement(ELEMENT_DIV, { position : ABSOLUTE });
             (ep as any).canvas = canvas
 
             const classes = ep.classes.join(" ")
@@ -51,7 +60,7 @@ export abstract class SvgEndpoint<C> {
             canvas.jtk = canvas.jtk || { }
             canvas.jtk.endpoint = ep.endpoint
 
-            canvas.style.display = ep.endpoint.visible !== false ? "block" : "none"
+            canvas.style.display = ep.endpoint.visible !== false ? BLOCK : NONE
 
             return canvas as HTMLElement
         }
@@ -76,7 +85,7 @@ export abstract class SvgEndpoint<C> {
             handlers.updateNode(ep, (ep as any).node)
         }
 
-        _applyStyles((ep as any).canvas, (ep as any).node, s, [ ep.x, ep.y, ep.w, ep.h], null)
+        _applyStyles((ep as any).canvas, (ep as any).node, s)
     }
 }
 

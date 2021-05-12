@@ -66,7 +66,7 @@ var testSuite = function () {
         equal(c.getHoverPaintStyle().stroke, "blue", "paintStyle stroke is yellow");
         equal(c.getHoverPaintStyle().strokeWidth, 4, "hoverPaintStyle strokeWidth is 6");
         ok(_jsPlumb.hasClass(support.getConnectionCanvas(c), "FOO"), "FOO class was set on canvas");
-        equal(c.endpoints[0].endpoint.getType(), "Dot", "endpoint is not of type rectangle, because that only works for new connections");
+        equal(c.endpoints[0].endpoint.type, "Dot", "endpoint is not of type rectangle, because that only works for new connections");
     });
 
     test(" add connection type on existing connection", function () {
@@ -793,7 +793,7 @@ var testSuite = function () {
         c = _jsPlumb.connect({source: d1, target: d2, type: "basic other"});
         equal(c.getPaintStyle().stroke, "yellow", "connection has basic type's stroke style");
         equal(c.getPaintStyle().strokeWidth, 14, "connection has other type's strokeWidth");
-        equal(c.endpoints[0].endpoint.getType(), "Rectangle", "endpoint is of type rectangle");
+        equal(c.endpoints[0].endpoint.type, "Rectangle", "endpoint is of type rectangle");
 
     });
 
@@ -823,7 +823,7 @@ var testSuite = function () {
         var c = _jsPlumb.connect({source: d1, target: d2, type:"basic"});
         equal(c.getPaintStyle().stroke, "yellow", "connection has basic type's stroke style");
         equal(c.getPaintStyle().strokeWidth, 4, "connection has basic type's strokeWidth");
-        equal(c.endpoints[0].endpoint.getType(), "Rectangle", "endpoint is of type rectangle");
+        equal(c.endpoints[0].endpoint.type, "Rectangle", "endpoint is of type rectangle");
 
         _jsPlumb.deleteConnection(c);
 
@@ -835,7 +835,7 @@ var testSuite = function () {
         c = _jsPlumb.select().get(0);
         equal(c.getPaintStyle().stroke, "yellow", "connection has basic type's stroke style");
         equal(c.getPaintStyle().strokeWidth, 4, "connection has basic type's strokeWidth");
-        equal(c.endpoints[0].endpoint.getType(), "Rectangle", "source endpoint is of type rectangle");
+        equal(c.endpoints[0].endpoint.type, "Rectangle", "source endpoint is of type rectangle");
         //equal(c.endpoints[1].type, "Blank", "target endpoint is of type Blank - it was overriden from the type's endpoint.");
     });
 
@@ -1227,12 +1227,12 @@ var testSuite = function () {
         var c2 = _jsPlumb.connect({source: d1, target: d2, type:"basic"});
         equal(c2.getPaintStyle().strokeWidth, 4, "connect with type specified matches");
         ok(_jsPlumb.hasClass(support.getConnectionCanvas(c2), "FOO"), "css class set on connector");
-        equal(c2.endpoints[0].endpoint.getType(), "Blank", "source endpoint is blank, per basic type spec");
+        equal(c2.endpoints[0].endpoint.type, "Blank", "source endpoint is blank, per basic type spec");
 
         var c3 = _jsPlumb.connect({source: d1, target: d2, type:"other"});
         equal(c3.getPaintStyle().strokeWidth, 14, "connect with type specified matches");
         ok(_jsPlumb.hasClass(support.getConnectionCanvas(c3), "BAR"), "css class set on connector");
-        equal(c3.endpoints[0].endpoint.getType(), "Rectangle", "source endpoint is Rectangle, per basic type spec");
+        equal(c3.endpoints[0].endpoint.type, "Rectangle", "source endpoint is Rectangle, per basic type spec");
 
 
 

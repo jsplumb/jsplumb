@@ -150,10 +150,10 @@ function noSuchPoint() {
 }
 function EMPTY_BOUNDS() {
   return {
-    minX: Infinity,
-    maxX: -Infinity,
-    minY: Infinity,
-    maxY: -Infinity
+    xmin: Infinity,
+    xmax: -Infinity,
+    ymin: Infinity,
+    ymax: -Infinity
   };
 }
 var AbstractSegment =
@@ -165,7 +165,7 @@ function () {
     _defineProperty(this, "x2", void 0);
     _defineProperty(this, "y1", void 0);
     _defineProperty(this, "y2", void 0);
-    _defineProperty(this, "bounds", void 0);
+    _defineProperty(this, "extents", EMPTY_BOUNDS());
     _defineProperty(this, "type", void 0);
     this.x1 = params.x1;
     this.y1 = params.y1;
@@ -173,11 +173,6 @@ function () {
     this.y2 = params.y2;
   }
   _createClass(AbstractSegment, [{
-    key: "getBounds",
-    value: function getBounds() {
-      return this.bounds;
-    }
-  }, {
     key: "findClosestPointOnPath",
     value: function findClosestPointOnPath(x, y) {
       return noSuchPoint();
@@ -220,6 +215,7 @@ function () {
     _defineProperty(this, "bounds", EMPTY_BOUNDS());
     _defineProperty(this, "classes", []);
     _defineProperty(this, "instance", void 0);
+    _defineProperty(this, "type", void 0);
     this.instance = endpoint.instance;
     if (endpoint.cssClass) {
       this.classes.push(endpoint.cssClass);
@@ -243,10 +239,10 @@ function () {
     key: "compute",
     value: function compute(anchorPoint, orientation, endpointStyle) {
       this.computedValue = this._compute(anchorPoint, orientation, endpointStyle);
-      this.bounds.minX = this.x;
-      this.bounds.minY = this.y;
-      this.bounds.maxX = this.x + this.w;
-      this.bounds.maxY = this.y + this.h;
+      this.bounds.xmin = this.x;
+      this.bounds.ymin = this.y;
+      this.bounds.xmax = this.x + this.w;
+      this.bounds.ymax = this.y + this.h;
     }
   }, {
     key: "setVisible",
@@ -267,6 +263,7 @@ function (_EndpointRepresentati) {
     _defineProperty(_assertThisInitialized(_this), "radius", void 0);
     _defineProperty(_assertThisInitialized(_this), "defaultOffset", void 0);
     _defineProperty(_assertThisInitialized(_this), "defaultInnerRadius", void 0);
+    _defineProperty(_assertThisInitialized(_this), "type", DotEndpoint.type);
     params = params || {};
     _this.radius = params.radius || 5;
     _this.defaultOffset = 0.5 * _this.radius;
@@ -300,11 +297,6 @@ function (_EndpointRepresentati) {
       this.h = h;
       return [x, y, w, h, this.radius];
     }
-  }, {
-    key: "getType",
-    value: function getType() {
-      return DotEndpoint.type;
-    }
   }]);
   return DotEndpoint;
 }(EndpointRepresentation);
@@ -314,8 +306,11 @@ var BlankEndpoint =
 function (_EndpointRepresentati) {
   _inherits(BlankEndpoint, _EndpointRepresentati);
   function BlankEndpoint(endpoint, params) {
+    var _this;
     _classCallCheck(this, BlankEndpoint);
-    return _possibleConstructorReturn(this, _getPrototypeOf(BlankEndpoint).call(this, endpoint));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(BlankEndpoint).call(this, endpoint));
+    _defineProperty(_assertThisInitialized(_this), "type", BlankEndpoint.type);
+    return _this;
   }
   _createClass(BlankEndpoint, [{
     key: "getParams",
@@ -331,11 +326,6 @@ function (_EndpointRepresentati) {
       this.h = 0;
       return [anchorPoint[0], anchorPoint[1], 10, 0];
     }
-  }, {
-    key: "getType",
-    value: function getType() {
-      return BlankEndpoint.type;
-    }
   }]);
   return BlankEndpoint;
 }(EndpointRepresentation);
@@ -350,6 +340,7 @@ function (_EndpointRepresentati) {
     _this = _possibleConstructorReturn(this, _getPrototypeOf(RectangleEndpoint).call(this, endpoint));
     _defineProperty(_assertThisInitialized(_this), "width", void 0);
     _defineProperty(_assertThisInitialized(_this), "height", void 0);
+    _defineProperty(_assertThisInitialized(_this), "type", RectangleEndpoint.type);
     params = params || {};
     _this.width = params.width || 10;
     _this.height = params.height || 10;
@@ -375,11 +366,6 @@ function (_EndpointRepresentati) {
       this.w = width;
       this.h = height;
       return [x, y, width, height];
-    }
-  }, {
-    key: "getType",
-    value: function getType() {
-      return RectangleEndpoint.type;
     }
   }]);
   return RectangleEndpoint;
@@ -1250,11 +1236,11 @@ function () {
   }, {
     key: "updateBounds",
     value: function updateBounds(segment) {
-      var segBounds = segment.getBounds();
-      this.bounds.minX = Math.min(this.bounds.minX, segBounds.minX);
-      this.bounds.maxX = Math.max(this.bounds.maxX, segBounds.maxX);
-      this.bounds.minY = Math.min(this.bounds.minY, segBounds.minY);
-      this.bounds.maxY = Math.max(this.bounds.maxY, segBounds.maxY);
+      var segBounds = segment.extents;
+      this.bounds.xmin = Math.min(this.bounds.xmin, segBounds.xmin);
+      this.bounds.xmax = Math.max(this.bounds.xmax, segBounds.xmax);
+      this.bounds.ymin = Math.min(this.bounds.ymin, segBounds.ymin);
+      this.bounds.ymax = Math.max(this.bounds.ymax, segBounds.ymax);
     }
   }, {
     key: "dumpSegmentsToConsole",
@@ -1373,10 +1359,10 @@ function (_AbstractSegment) {
     key: "getBounds",
     value: function getBounds() {
       return {
-        minX: Math.min(this.x1, this.x2),
-        minY: Math.min(this.y1, this.y2),
-        maxX: Math.max(this.x1, this.x2),
-        maxY: Math.max(this.y1, this.y2)
+        xmin: Math.min(this.x1, this.x2),
+        ymin: Math.min(this.y1, this.y2),
+        xmax: Math.max(this.x1, this.x2),
+        ymax: Math.max(this.y1, this.y2)
       };
     }
   }, {
@@ -1671,11 +1657,11 @@ function (_AbstractSegment) {
     _this.circumference = 2 * Math.PI * _this.radius;
     _this.frac = _this.sweep / TWO_PI;
     _this.length = _this.circumference * _this.frac;
-    _this.bounds = {
-      minX: _this.cx - _this.radius,
-      maxX: _this.cx + _this.radius,
-      minY: _this.cy - _this.radius,
-      maxY: _this.cy + _this.radius
+    _this.extents = {
+      xmin: _this.cx - _this.radius,
+      xmax: _this.cx + _this.radius,
+      ymin: _this.cy - _this.radius,
+      ymax: _this.cy + _this.radius
     };
     return _this;
   }
@@ -2722,10 +2708,10 @@ function (_AbstractSegment) {
       y: _this.y2
     }];
     _this.bounds = {
-      minX: Math.min(_this.x1, _this.x2, _this.cp1x, _this.cp2x),
-      minY: Math.min(_this.y1, _this.y2, _this.cp1y, _this.cp2y),
-      maxX: Math.max(_this.x1, _this.x2, _this.cp1x, _this.cp2x),
-      maxY: Math.max(_this.y1, _this.y2, _this.cp1y, _this.cp2y)
+      xmin: Math.min(_this.x1, _this.x2, _this.cp1x, _this.cp2x),
+      ymin: Math.min(_this.y1, _this.y2, _this.cp1y, _this.cp2y),
+      xmax: Math.max(_this.x1, _this.x2, _this.cp1x, _this.cp2x),
+      ymax: Math.max(_this.y1, _this.y2, _this.cp1y, _this.cp2y)
     };
     return _this;
   }
@@ -3049,7 +3035,7 @@ var EndpointFactory = {
     endpointMap[name] = ep;
   },
   clone: function clone(epr) {
-    return EndpointFactory.get(epr.endpoint, epr.getType(), epr.getParams());
+    return EndpointFactory.get(epr.endpoint, epr.type, epr.getParams());
   }
 };
 
@@ -3175,6 +3161,10 @@ var SELECTOR_GROUP = att(ATTRIBUTE_GROUP);
 var SELECTOR_GROUP_CONTAINER = att(ATTRIBUTE_GROUP_CONTENT);
 var SELECTOR_MANAGED_ELEMENT = att(ATTRIBUTE_MANAGED);
 var SELECTOR_OVERLAY = cls(CLASS_OVERLAY);
+var ERROR_SOURCE_ENDPOINT_FULL = "Cannot establish connection: source endpoint is full";
+var ERROR_TARGET_ENDPOINT_FULL = "Cannot establish connection: target endpoint is full";
+var ERROR_SOURCE_DOES_NOT_EXIST = "Cannot establish connection: source does not exist";
+var ERROR_TARGET_DOES_NOT_EXIST = "Cannot establish connection: target does not exist";
 
 function pointSubtract(p1, p2) {
   return {
@@ -4714,8 +4704,10 @@ function prepareEndpoint(conn, existing, index, anchor, element, elementId, endp
     conn.endpoints[index] = existing;
     existing.addConnection(conn);
   } else {
-    var ep = endpoint || conn.endpointSpec || conn.endpointsSpec[index] || conn.instance.defaults.endpoints[index] || conn.instance.defaults.endpoint;
-    var es = conn.endpointStyles[index] || conn.endpointStyle || conn.instance.defaults.endpointStyles[index] || conn.instance.defaults.endpointStyle;
+    var ep = endpoint
+    || conn.endpointsSpec[index] || conn.instance.defaults.endpoints[index] || conn.instance.defaults.endpoint;
+    var es = conn.endpointStyles[index]
+    || conn.instance.defaults.endpointStyles[index] || conn.instance.defaults.endpointStyle;
     if (es.fill == null && conn.paintStyle != null) {
       es.fill = conn.paintStyle.stroke;
     }
@@ -4725,7 +4717,8 @@ function prepareEndpoint(conn, existing, index, anchor, element, elementId, endp
     if (es.outlineWidth == null && conn.paintStyle != null) {
       es.outlineWidth = conn.paintStyle.outlineWidth;
     }
-    var ehs = conn.endpointHoverStyles[index] || conn.endpointHoverStyle || conn.endpointHoverStyle || conn.instance.defaults.endpointHoverStyles[index] || conn.instance.defaults.endpointHoverStyle;
+    var ehs = conn.endpointHoverStyles[index]
+    || conn.instance.defaults.endpointHoverStyles[index] || conn.instance.defaults.endpointHoverStyle;
     if (conn.hoverPaintStyle != null) {
       if (ehs == null) {
         ehs = {};
@@ -4799,10 +4792,7 @@ function (_OverlayCapableCompon) {
     _defineProperty(_assertThisInitialized(_this), "directed", void 0);
     _defineProperty(_assertThisInitialized(_this), "endpoints", [null, null]);
     _defineProperty(_assertThisInitialized(_this), "endpointStyles", void 0);
-    _defineProperty(_assertThisInitialized(_this), "endpointSpec", void 0);
     _defineProperty(_assertThisInitialized(_this), "endpointsSpec", void 0);
-    _defineProperty(_assertThisInitialized(_this), "endpointStyle", {});
-    _defineProperty(_assertThisInitialized(_this), "endpointHoverStyle", {});
     _defineProperty(_assertThisInitialized(_this), "endpointHoverStyles", void 0);
     _defineProperty(_assertThisInitialized(_this), "suspendedEndpoint", void 0);
     _defineProperty(_assertThisInitialized(_this), "suspendedIndex", void 0);
@@ -4830,8 +4820,8 @@ function (_OverlayCapableCompon) {
       _this.targetId = instance.getId(_this.target);
     }
     _this.scope = params.scope;
-    var sourceAnchor = params.anchors ? params.anchors[0] : params.anchor;
-    var targetAnchor = params.anchors ? params.anchors[1] : params.anchor;
+    var sourceAnchor = params.anchors ? params.anchors[0] : null;
+    var targetAnchor = params.anchors ? params.anchors[1] : null;
     instance.manage(_this.source);
     instance.manage(_this.target);
     _this.visible = true;
@@ -4845,10 +4835,7 @@ function (_OverlayCapableCompon) {
     if (params.type) {
       params.endpoints = params.endpoints || _this.instance._deriveEndpointAndAnchorSpec(params.type).endpoints;
     }
-    _this.endpointSpec = params.endpoint;
     _this.endpointsSpec = params.endpoints || [null, null];
-    _this.endpointStyle = params.endpointStyle;
-    _this.endpointHoverStyle = params.endpointHoverStyle;
     _this.endpointStyles = params.endpointStyles || [null, null];
     _this.endpointHoverStyles = params.endpointHoverStyles || [null, null];
     _this.paintStyle = params.paintStyle;
@@ -4880,7 +4867,6 @@ function (_OverlayCapableCompon) {
       _detachable = false;
     }
     _this.endpointsSpec = params.endpoints || [null, null];
-    _this.endpointSpec = params.endpoint || null;
     var _reattach = params.reattach || _this.endpoints[0].reattachConnections || _this.endpoints[1].reattachConnections || _this.instance.defaults.reattachConnections;
     _this.appendToDefaultType({
       detachable: _detachable,
@@ -5035,6 +5021,7 @@ function (_OverlayCapableCompon) {
     key: "destroy",
     value: function destroy(force) {
       this.endpoints = null;
+      this.endpointStyles = null;
       this.source = null;
       this.target = null;
       this.instance.destroyConnection(this);
@@ -8648,29 +8635,61 @@ function (_EventGenerator) {
   }, {
     key: "connect",
     value: function connect(params, referenceParams) {
-      var _p = this._prepareConnectionParams(params, referenceParams),
-          jpc;
-      if (_p) {
-        if (_p.source == null && _p.sourceEndpoint == null) {
-          log("Cannot establish connection - source does not exist");
-          return;
-        }
-        if (_p.target == null && _p.targetEndpoint == null) {
-          log("Cannot establish connection - target does not exist");
-          return;
-        }
-        jpc = this._newConnection(_p);
+      try {
+        var _p = this._prepareConnectionParams(params, referenceParams),
+            jpc = this._newConnection(_p);
         this._finaliseConnection(jpc, _p);
+        return jpc;
+      } catch (errorMessage) {
+        log(errorMessage);
+        return;
       }
-      return jpc;
+    }
+  }, {
+    key: "_pluralizeConnectionParameters",
+    value: function _pluralizeConnectionParameters(p) {
+      if (p.anchor) {
+        p.anchors = [p.anchor, p.anchor];
+        delete p.anchor;
+      }
+      if (p.endpoint) {
+        p.endpoints = [p.endpoint, p.endpoint];
+        delete p.endpoint;
+      }
+      if (p.endpointStyle) {
+        p.endpointStyles = [p.endpointStyle, p.endpointStyle];
+        delete p.endpointStyle;
+      }
+      if (p.endpointHoverStyle) {
+        p.endpointHoverStyles = [p.endpointHoverStyle, p.endpointHoverStyle];
+        delete p.endpointHoverStyle;
+      }
+    }
+  }, {
+    key: "_populateFromParameterExtractor",
+    value: function _populateFromParameterExtractor(el, index, _p, values) {
+      var params = this.defaults.parameterExtractor ? this.defaults.parameterExtractor(el, index) : null;
+      if (params) {
+        forEach(values, function (value) {
+          if (params[value.endpointOption]) {
+            if (_p[value.pluralKey] != null) {
+              _p[value.pluralKey][index] = params[value.endpointOption];
+            } else {
+              _p[value.pluralKey] = [params[value.endpointOption], params[value.endpointOption]];
+            }
+          }
+        });
+      }
     }
   }, {
     key: "_prepareConnectionParams",
     value: function _prepareConnectionParams(params, referenceParams) {
-      var _p = extend({}, params);
+      var temp = extend({}, params);
       if (referenceParams) {
-        extend(_p, referenceParams);
+        extend(temp, referenceParams);
       }
+      this._pluralizeConnectionParameters(temp);
+      var _p = temp;
       if (_p.source) {
         if (_p.source.endpoint) {
           _p.sourceEndpoint = _p.source;
@@ -8685,29 +8704,67 @@ function (_EventGenerator) {
         _p.sourceEndpoint = this.getEndpoint(params.uuids[0]);
         _p.targetEndpoint = this.getEndpoint(params.uuids[1]);
       }
-      if (_p.sourceEndpoint && _p.sourceEndpoint.isFull()) {
-        log("could not add connection; source endpoint is full");
-        return;
-      }
-      if (_p.targetEndpoint && _p.targetEndpoint.isFull()) {
-        log("could not add connection; target endpoint is full");
-        return;
-      }
-      if (!_p.type && _p.sourceEndpoint) {
-        _p.type = _p.sourceEndpoint.edgeType;
-      }
-      if (_p.sourceEndpoint && _p.sourceEndpoint.connectorOverlays) {
-        _p.overlays = _p.overlays || [];
-        for (var i = 0, j = _p.sourceEndpoint.connectorOverlays.length; i < j; i++) {
-          _p.overlays.push(_p.sourceEndpoint.connectorOverlays[i]);
+      if (_p.sourceEndpoint != null) {
+        if (_p.sourceEndpoint.isFull()) {
+          throw ERROR_SOURCE_ENDPOINT_FULL;
+        }
+        if (!_p.type) {
+          _p.type = _p.sourceEndpoint.edgeType;
+        }
+        if (_p.sourceEndpoint.connectorOverlays) {
+          _p.overlays = _p.overlays || [];
+          for (var i = 0, j = _p.sourceEndpoint.connectorOverlays.length; i < j; i++) {
+            _p.overlays.push(_p.sourceEndpoint.connectorOverlays[i]);
+          }
+        }
+        if (_p.sourceEndpoint.scope) {
+          _p.scope = _p.sourceEndpoint.scope;
+        }
+      } else {
+        if (_p.source == null) {
+          throw ERROR_SOURCE_DOES_NOT_EXIST;
+        } else {
+          this._populateFromParameterExtractor(_p.source, 0, _p, [{
+            endpointOption: "anchor",
+            pluralKey: "anchors"
+          }, {
+            endpointOption: "endpoint",
+            pluralKey: "endpoints"
+          }, {
+            endpointOption: "paintStyle",
+            pluralKey: "endpointStyles"
+          }, {
+            endpointOption: "hoverPaintStyle",
+            pluralKey: "endpointHoverStyles"
+          }]);
         }
       }
-      if (_p.sourceEndpoint && _p.sourceEndpoint.scope) {
-        _p.scope = _p.sourceEndpoint.scope;
+      if (_p.targetEndpoint != null) {
+        if (_p.targetEndpoint.isFull()) {
+          throw ERROR_TARGET_ENDPOINT_FULL;
+        }
+      } else {
+        if (_p.target == null) {
+          throw ERROR_TARGET_DOES_NOT_EXIST;
+        } else {
+          this._populateFromParameterExtractor(_p.target, 1, _p, [{
+            endpointOption: "anchor",
+            pluralKey: "anchors"
+          }, {
+            endpointOption: "endpoint",
+            pluralKey: "endpoints"
+          }, {
+            endpointOption: "paintStyle",
+            pluralKey: "endpointStyles"
+          }, {
+            endpointOption: "hoverPaintStyle",
+            pluralKey: "endpointHoverStyles"
+          }]);
+        }
       }
       if (_p.sourceEndpoint && _p.targetEndpoint) {
         if (!_scopeMatch(_p.sourceEndpoint, _p.targetEndpoint)) {
-          _p = null;
+          throw "Cannot establish connection: scopes do not match";
         }
       }
       return _p;
@@ -8747,22 +8804,22 @@ function (_EventGenerator) {
   }, {
     key: "removeAllEndpoints",
     value: function removeAllEndpoints(el, recurse, affectedElements) {
-      var _this8 = this;
+      var _this7 = this;
       affectedElements = affectedElements || [];
       var _one = function _one(_el) {
-        var id = _this8.getId(_el),
-            ebe = _this8.endpointsByElement[id],
+        var id = _this7.getId(_el),
+            ebe = _this7.endpointsByElement[id],
             i,
             ii;
         if (ebe) {
           affectedElements.push(_el);
           for (i = 0, ii = ebe.length; i < ii; i++) {
-            _this8.deleteEndpoint(ebe[i]);
+            _this7.deleteEndpoint(ebe[i]);
           }
         }
-        delete _this8.endpointsByElement[id];
+        delete _this7.endpointsByElement[id];
         if (recurse) {
-          _this8._getChildElements(_el).map(_one);
+          _this7._getChildElements(_el).map(_one);
         }
       };
       _one(el);
@@ -9115,16 +9172,16 @@ function (_EventGenerator) {
     key: "removeFromGroup",
     value: function removeFromGroup(group) {
       var _this$groupManager2,
-          _this9 = this;
+          _this8 = this;
       for (var _len2 = arguments.length, el = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
         el[_key2 - 1] = arguments[_key2];
       }
       (_this$groupManager2 = this.groupManager).removeFromGroup.apply(_this$groupManager2, [group, false].concat(el));
       forEach(el, function (_el) {
-        _this9._appendElement(_el, _this9.getContainer());
-        _this9.updateOffset({
+        _this8._appendElement(_el, _this8.getContainer());
+        _this8.updateOffset({
           recalc: true,
-          elId: _this9.getId(_el)
+          elId: _this8.getId(_el)
         });
       });
     }
@@ -9231,10 +9288,10 @@ function (_EventGenerator) {
           var lineWidth = parseFloat("" + connection.paintStyleInUse.strokeWidth || "1") / 2,
               outlineWidth = parseFloat("" + connection.paintStyleInUse.strokeWidth || "0"),
               _extents = {
-            xmin: Math.min(connection.connector.bounds.minX - (lineWidth + outlineWidth), overlayExtents.xmin),
-            ymin: Math.min(connection.connector.bounds.minY - (lineWidth + outlineWidth), overlayExtents.ymin),
-            xmax: Math.max(connection.connector.bounds.maxX + (lineWidth + outlineWidth), overlayExtents.xmax),
-            ymax: Math.max(connection.connector.bounds.maxY + (lineWidth + outlineWidth), overlayExtents.ymax)
+            xmin: Math.min(connection.connector.bounds.xmin - (lineWidth + outlineWidth), overlayExtents.xmin),
+            ymin: Math.min(connection.connector.bounds.ymin - (lineWidth + outlineWidth), overlayExtents.ymin),
+            xmax: Math.max(connection.connector.bounds.xmax + (lineWidth + outlineWidth), overlayExtents.xmax),
+            ymax: Math.max(connection.connector.bounds.ymax + (lineWidth + outlineWidth), overlayExtents.ymax)
           };
           this.paintConnector(connection.connector, connection.paintStyleInUse, _extents);
           for (var j in connection.overlays) {
@@ -9347,10 +9404,10 @@ function (_Overlay) {
           "stroke-width": lineWidth,
           stroke: stroke,
           fill: fill,
-          minX: Math.min(hxy.x, tail[0].x, tail[1].x),
-          maxX: Math.max(hxy.x, tail[0].x, tail[1].x),
-          minY: Math.min(hxy.y, tail[0].y, tail[1].y),
-          maxY: Math.max(hxy.y, tail[0].y, tail[1].y)
+          xmin: Math.min(hxy.x, tail[0].x, tail[1].x),
+          xmax: Math.max(hxy.x, tail[0].x, tail[1].x),
+          ymin: Math.min(hxy.y, tail[0].y, tail[1].y),
+          ymax: Math.max(hxy.y, tail[0].y, tail[1].y)
         };
       }
     }
@@ -9548,6 +9605,10 @@ exports.DiamondOverlay = DiamondOverlay;
 exports.DotEndpoint = DotEndpoint;
 exports.DynamicAnchor = DynamicAnchor;
 exports.EMPTY_BOUNDS = EMPTY_BOUNDS;
+exports.ERROR_SOURCE_DOES_NOT_EXIST = ERROR_SOURCE_DOES_NOT_EXIST;
+exports.ERROR_SOURCE_ENDPOINT_FULL = ERROR_SOURCE_ENDPOINT_FULL;
+exports.ERROR_TARGET_DOES_NOT_EXIST = ERROR_TARGET_DOES_NOT_EXIST;
+exports.ERROR_TARGET_ENDPOINT_FULL = ERROR_TARGET_ENDPOINT_FULL;
 exports.EVENT_ANCHOR_CHANGED = EVENT_ANCHOR_CHANGED;
 exports.EVENT_CLICK = EVENT_CLICK;
 exports.EVENT_CONNECTION = EVENT_CONNECTION;

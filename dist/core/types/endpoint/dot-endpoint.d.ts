@@ -14,5 +14,5 @@ export declare class DotEndpoint extends EndpointRepresentation<ComputedDotEndpo
     getParams(): Record<string, any>;
     _compute(anchorPoint: AnchorPlacement, orientation: Orientation, endpointStyle: any): ComputedDotEndpoint;
     static type: string;
-    getType(): string;
+    type: string;
 }

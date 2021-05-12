@@ -1,6 +1,5 @@
 import {EndpointRepresentation} from "./endpoints"
 import {Orientation} from "../factory/anchor-factory"
-import {EndpointFactory} from "../factory/endpoint-factory"
 import {Endpoint} from "./endpoint"
 import {AnchorPlacement} from "../router/router"
 
@@ -56,9 +55,6 @@ export class DotEndpoint extends EndpointRepresentation<ComputedDotEndpoint> {
     }
 
     static type = "Dot"
-
-    getType(): string {
-        return DotEndpoint.type
-    }
+    type = DotEndpoint.type
 }
 

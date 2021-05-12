@@ -1,10 +1,9 @@
 import {isArray, log} from "../util"
-import { PointXY, TypeDescriptor} from '../common'
+import {Extents, PointXY, TypeDescriptor} from '../common'
 import { JsPlumbInstance } from "../core"
-import {EMPTY_BOUNDS, Segment, SegmentBounds} from "./abstract-segment"
+import {EMPTY_BOUNDS, Segment} from "./abstract-segment"
 import {AnchorPlacement} from "../router/router"
 import { Connection} from '../connector/connection-impl'
-import { ComponentOptions} from '../component/component'
 import { Orientation} from '../factory/anchor-factory'
 import { Endpoint} from '../endpoint/endpoint'
 import {pointXYFromArray, quadrant} from "../geom"
@@ -104,7 +103,7 @@ export abstract class AbstractConnector implements Connector {
     w:number
     h:number
     segment:number
-    bounds:SegmentBounds = EMPTY_BOUNDS()
+    bounds:Extents = EMPTY_BOUNDS()
     cssClass:string
     hoverClass:string
 
@@ -379,11 +378,11 @@ export abstract class AbstractConnector implements Connector {
     }
 
     updateBounds (segment:Segment):void {
-        let segBounds = segment.getBounds()
-        this.bounds.minX = Math.min(this.bounds.minX, segBounds.minX)
-        this.bounds.maxX = Math.max(this.bounds.maxX, segBounds.maxX)
-        this.bounds.minY = Math.min(this.bounds.minY, segBounds.minY)
-        this.bounds.maxY = Math.max(this.bounds.maxY, segBounds.maxY)
+        let segBounds = segment.extents
+        this.bounds.xmin = Math.min(this.bounds.xmin, segBounds.xmin)
+        this.bounds.xmax = Math.max(this.bounds.xmax, segBounds.xmax)
+        this.bounds.ymin = Math.min(this.bounds.ymin, segBounds.ymin)
+        this.bounds.ymax = Math.max(this.bounds.ymax, segBounds.ymax)
     }
 
     private dumpSegmentsToConsole ():void {

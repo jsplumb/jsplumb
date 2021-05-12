@@ -47,10 +47,8 @@ export class RectangleEndpoint extends EndpointRepresentation<ComputedRectangleE
         return [ x, y, width, height]
     }
 
-    static type= "Rectangle"
-    getType(): string {
-        return RectangleEndpoint.type
-    }
+    static type = "Rectangle"
+    type = RectangleEndpoint.type
 }
 
 

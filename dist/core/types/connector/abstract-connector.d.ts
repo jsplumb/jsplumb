@@ -1,6 +1,6 @@
-import { PointXY, TypeDescriptor } from '../common';
+import { Extents, PointXY, TypeDescriptor } from '../common';
 import { JsPlumbInstance } from "../core";
-import { Segment, SegmentBounds } from "./abstract-segment";
+import { Segment } from "./abstract-segment";
 import { AnchorPlacement } from "../router/router";
 import { Connection } from '../connector/connection-impl';
 import { Orientation } from '../factory/anchor-factory';
@@ -104,7 +104,7 @@ export declare abstract class AbstractConnector implements Connector {
     w: number;
     h: number;
     segment: number;
-    bounds: SegmentBounds;
+    bounds: Extents;
     cssClass: string;
     hoverClass: string;
     abstract getDefaultStubs(): [number, number];

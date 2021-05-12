@@ -245,3 +245,5 @@ export declare function getsert<K, V>(map: Map<K, V>, key: K, valueGenerator: ()
  */
 export declare function isAssignableFrom(object: any, cls: any): boolean;
 export declare function insertSorted<T>(value: T, array: Array<T>, comparator: (v1: T, v2: T) => number, sortDescending?: boolean): void;
+export declare type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+export declare type Merge<M, N> = Omit<M, Extract<keyof M, keyof N>> & N;

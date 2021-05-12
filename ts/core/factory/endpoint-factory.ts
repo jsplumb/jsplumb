@@ -19,6 +19,6 @@ export const EndpointFactory = {
     },
 
     clone:<C>(epr:EndpointRepresentation<C>):EndpointRepresentation<C> => {
-        return EndpointFactory.get(epr.endpoint, epr.getType(), epr.getParams())
+        return EndpointFactory.get(epr.endpoint, epr.type, epr.getParams())
     }
 }

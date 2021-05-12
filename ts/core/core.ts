@@ -1,12 +1,11 @@
 import {JsPlumbDefaults} from "./defaults"
 
-import {Connection, ConnectionParams} from "./connector/connection-impl"
+import {Connection, ConnectionOptions} from "./connector/connection-impl"
 import {Endpoint, EndpointSpec} from "./endpoint/endpoint"
 import { DotEndpoint } from './endpoint/dot-endpoint'
 import {convertToFullOverlaySpec, FullOverlaySpec} from "./overlay/overlay"
 import {AnchorPlacement, RedrawResult} from "./router/router"
 import {
-    _mergeOverrides,
     findWithFunction,
     functionChain,
     isString,
@@ -26,7 +25,6 @@ import {
     SourceDefinition,
     TargetDefinition,
     BehaviouralTypeDescriptor,  // <--
-    InternalConnectParams,
     TypeDescriptor,
     Rotation,
     Rotations,
@@ -63,12 +61,17 @@ import {
     CLASS_CONNECTED,
     CLASS_CONNECTOR,
     CLASS_CONNECTOR_OUTLINE,
-    CLASS_ENDPOINT, CLASS_ENDPOINT_ANCHOR_PREFIX,
+    CLASS_ENDPOINT,
+    CLASS_ENDPOINT_ANCHOR_PREFIX,
     CLASS_ENDPOINT_CONNECTED,
     CLASS_ENDPOINT_DROP_ALLOWED,
     CLASS_ENDPOINT_DROP_FORBIDDEN,
     CLASS_ENDPOINT_FULL,
-    CLASS_OVERLAY, SELECTOR_MANAGED_ELEMENT
+    CLASS_OVERLAY,
+    ERROR_SOURCE_DOES_NOT_EXIST,
+    ERROR_SOURCE_ENDPOINT_FULL, ERROR_TARGET_DOES_NOT_EXIST,
+    ERROR_TARGET_ENDPOINT_FULL,
+    SELECTOR_MANAGED_ELEMENT
 } from "./constants"
 
 function _scopeMatch(e1:Endpoint, e2:Endpoint):boolean {
@@ -1349,31 +1352,71 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      */
     connect (params:ConnectParams<T["E"]>, referenceParams?:ConnectParams<T["E"]>):Connection {
 
-        // prepare a final set of parameters to create connection with
-
-        let _p = this._prepareConnectionParams(params, referenceParams), jpc:Connection
-        // TODO probably a nicer return value if the connection was not made.  _prepareConnectionParams
-        // will return null (and log something) if either endpoint was full.  what would be nicer is to
-        // create a dedicated 'error' object.
-        if (_p) {
-            if (_p.source == null && _p.sourceEndpoint == null) {
-                log("Cannot establish connection - source does not exist")
-                return
-            }
-            if (_p.target == null && _p.targetEndpoint == null) {
-                log("Cannot establish connection - target does not exist")
-                return
-            }
-
-            // create the connection.  it is not yet registered
-            jpc = this._newConnection(_p)
+        try {
+            // prepare a final set of parameters to create connection with
+            let _p = this._prepareConnectionParams(params, referenceParams),
+                jpc = this._newConnection(_p)
 
             // now add it the model, fire an event, and redraw
-
             this._finaliseConnection(jpc, _p)
+            return jpc
+        }
+        catch(errorMessage) {
+            log(errorMessage)
+            return
+        }
+    }
+
+    /**
+     * Converts some singular values - which are allowed for the user's convenience - into
+     * their plural equivalents, which are expected by the ConnectionOptions interface
+     * @param p
+     * @private
+     */
+    private _pluralizeConnectionParameters(p:ConnectParams<T["E"]>) {
+        if (p.anchor) {
+            p.anchors = [p.anchor, p.anchor]
+            delete p.anchor
         }
 
-        return jpc
+        if (p.endpoint) {
+            p.endpoints = [p.endpoint, p.endpoint]
+            delete p.endpoint
+        }
+
+        if (p.endpointStyle) {
+            p.endpointStyles = [p.endpointStyle, p.endpointStyle]
+            delete p.endpointStyle
+        }
+
+        if (p.endpointHoverStyle) {
+            p.endpointHoverStyles = [p.endpointHoverStyle, p.endpointHoverStyle]
+            delete p.endpointHoverStyle
+        }
+    }
+
+    /**
+     * Extracts EndpointOptions from the given element, and if found, injects them in the appropriate place in the given ConnectParams
+     * @param el
+     * @param index
+     * @param _p
+     * @param values
+     * @private
+     */
+    private _populateFromParameterExtractor(el:T["E"], index:number, _p:any, values:Array<{endpointOption:string, pluralKey:string}>) {
+
+        const params = this.defaults.parameterExtractor ? this.defaults.parameterExtractor(el, index) : null
+        if (params) {
+            forEach(values, value => {
+                if (params[value.endpointOption]) {
+                    if (_p[value.pluralKey] != null) {
+                        _p[value.pluralKey][index] = params[value.endpointOption]
+                    } else {
+                        _p[value.pluralKey] = [ params[value.endpointOption], params[value.endpointOption] ]
+                    }
+                }
+            })
+        }
     }
 
     /**
@@ -1381,14 +1424,18 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      * @param referenceParams
      * @private
      */
-    private _prepareConnectionParams(params:ConnectParams<T["E"]>, referenceParams?:ConnectParams<T["E"]>):InternalConnectParams<T["E"]> {
+    private _prepareConnectionParams(params:ConnectParams<T["E"]>, referenceParams?:ConnectParams<T["E"]>):ConnectionOptions<T["E"]> {
 
-        let _p:InternalConnectParams<T["E"]> = extend({ }, params)
+        let temp:ConnectParams<T["E"]> = extend({}, params)
         if (referenceParams) {
-            extend(_p, referenceParams)
+            extend(temp, referenceParams)
         }
 
-        // wire endpoints passed as source or target to sourceEndpoint/targetEndpoint, respectively.
+        this._pluralizeConnectionParameters(temp)
+
+        let _p:ConnectionOptions<T["E"]> = temp as ConnectionOptions<T["E"]>
+
+        // If endpoints were passed as source and/or target, set them as sourceEndpoint/targetEndpoint, respectively.
         if (_p.source) {
             if ((_p.source as Endpoint).endpoint) {
                 _p.sourceEndpoint = (_p.source as Endpoint)
@@ -1406,53 +1453,60 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             _p.targetEndpoint = this.getEndpoint(params.uuids[1])
         }
 
-        // now ensure that if we do have Endpoints already, they're not full.
-        // source:
-        if (_p.sourceEndpoint && _p.sourceEndpoint.isFull()) {
-            log("could not add connection; source endpoint is full")
-            return
-        }
+        // ensure that if we do have Endpoints already, they're not full, and that we have a source of some type.
+        if (_p.sourceEndpoint != null) {
+            if (_p.sourceEndpoint.isFull()) {
+                throw ERROR_SOURCE_ENDPOINT_FULL
+            }
 
-        // target:
-        if (_p.targetEndpoint && _p.targetEndpoint.isFull()) {
-            log("could not add connection; target endpoint is full")
-            return
-        }
+            if (!_p.type) {
+                _p.type = _p.sourceEndpoint.edgeType
+            }
+            if (_p.sourceEndpoint.connectorOverlays) {
+                _p.overlays = _p.overlays || []
+                for (let i = 0, j = _p.sourceEndpoint.connectorOverlays.length; i < j; i++) {
+                    _p.overlays.push(_p.sourceEndpoint.connectorOverlays[i])
+                }
+            }
+            if (_p.sourceEndpoint.scope) {
+                _p.scope = _p.sourceEndpoint.scope
+            }
 
-        // if source endpoint mandates connection type and nothing specified in our params, use it.
-        if (!_p.type && _p.sourceEndpoint) {
-            _p.type = _p.sourceEndpoint.edgeType
-        }
-
-        // copy in any connectorOverlays that were specified on the source endpoint.
-        // it doesnt copy target endpoint overlays.  i'm not sure if we want it to or not.
-        if (_p.sourceEndpoint && _p.sourceEndpoint.connectorOverlays) {
-            _p.overlays = _p.overlays || []
-            for (let i = 0, j = _p.sourceEndpoint.connectorOverlays.length; i < j; i++) {
-                _p.overlays.push(_p.sourceEndpoint.connectorOverlays[i])
+        } else {
+            if (_p.source == null) {
+                throw ERROR_SOURCE_DOES_NOT_EXIST
+            } else {
+                this._populateFromParameterExtractor(_p.source, 0, _p, [
+                    { endpointOption:"anchor", pluralKey:"anchors"},
+                    { endpointOption:"endpoint", pluralKey:"endpoints"},
+                    { endpointOption:"paintStyle", pluralKey:"endpointStyles" },
+                    { endpointOption:"hoverPaintStyle", pluralKey:"endpointHoverStyles" },
+                ])
             }
         }
 
-        // scope
-        if (_p.sourceEndpoint && _p.sourceEndpoint.scope) {
-            _p.scope = _p.sourceEndpoint.scope
+        if (_p.targetEndpoint != null) {
+            if (_p.targetEndpoint.isFull()) {
+                throw ERROR_TARGET_ENDPOINT_FULL
+            }
+        } else {
+            if(_p.target == null) {
+                throw ERROR_TARGET_DOES_NOT_EXIST
+            } else {
+                this._populateFromParameterExtractor(_p.target, 1, _p, [
+                    { endpointOption:"anchor", pluralKey:"anchors"},
+                    { endpointOption:"endpoint", pluralKey:"endpoints"},
+                    { endpointOption:"paintStyle", pluralKey:"endpointStyles" },
+                    { endpointOption:"hoverPaintStyle", pluralKey:"endpointHoverStyles" },
+                ])
+            }
         }
 
-        let _addEndpoint = (el:any, def?:any, idx?:number):Endpoint | Array<Endpoint> => {
-            const params = _mergeOverrides(def, {
-                anchor: _p.anchors ? _p.anchors[idx] : _p.anchor,
-                endpoint: _p.endpoints ? _p.endpoints[idx] : _p.endpoint,
-                paintStyle: _p.endpointStyles ? _p.endpointStyles[idx] : _p.endpointStyle,
-                hoverPaintStyle: _p.endpointHoverStyles ? _p.endpointHoverStyles[idx] : _p.endpointHoverStyle,
-                portId: _p.ports ? _p.ports[idx] : null
-            })
-            return this.addEndpoint(el, params)
-        }
-
-        // last, ensure scopes match
+        // last, ensure scopes match. always leave this as the last thing we do in this method, as scope could have come from
+        // any of the preceding code.
         if (_p.sourceEndpoint && _p.targetEndpoint) {
             if (!_scopeMatch(_p.sourceEndpoint, _p.targetEndpoint)) {
-                _p = null
+                throw "Cannot establish connection: scopes do not match"
             }
         }
         return _p
@@ -1463,7 +1517,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      * @param params
      * @private
      */
-    _newConnection (params:ConnectionParams):Connection {
+    _newConnection (params:ConnectionOptions<T["E"]>):Connection {
         params.id = "con_" + this._idstamp()
         const c = new Connection(this, params)
 
@@ -2021,10 +2075,10 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
                 let lineWidth = parseFloat("" + connection.paintStyleInUse.strokeWidth || "1") / 2,
                     outlineWidth = parseFloat("" + connection.paintStyleInUse.strokeWidth || "0"),
                     extents = {
-                        xmin: Math.min(connection.connector.bounds.minX - (lineWidth + outlineWidth), overlayExtents.xmin),
-                        ymin: Math.min(connection.connector.bounds.minY - (lineWidth + outlineWidth), overlayExtents.ymin),
-                        xmax: Math.max(connection.connector.bounds.maxX + (lineWidth + outlineWidth), overlayExtents.xmax),
-                        ymax: Math.max(connection.connector.bounds.maxY + (lineWidth + outlineWidth), overlayExtents.ymax)
+                        xmin: Math.min(connection.connector.bounds.xmin - (lineWidth + outlineWidth), overlayExtents.xmin),
+                        ymin: Math.min(connection.connector.bounds.ymin - (lineWidth + outlineWidth), overlayExtents.ymin),
+                        xmax: Math.max(connection.connector.bounds.xmax + (lineWidth + outlineWidth), overlayExtents.xmax),
+                        ymax: Math.max(connection.connector.bounds.ymax + (lineWidth + outlineWidth), overlayExtents.ymax)
                     }
 
                 this.paintConnector(connection.connector, connection.paintStyleInUse, extents)

@@ -1118,7 +1118,7 @@ var testSuite = function () {
     //*/
     asyncTest("dragging, parent container scrolled during drag", function() {
         window.scrollTo(0,0)
-        debugger
+        // debugger
         var d = _addDiv("d1");
 
         d.style.left = "50px";
@@ -1173,7 +1173,7 @@ var testSuite = function () {
      * be adjusted to account for the scroll delta.
      */
     asyncTest("connection dragging, parent container scrolled during drag", function() {
-        debugger
+        // debugger
          window.scrollTo(0,0)
         var d = _addDiv("d1", 50, 50, 100, 100);
         d.style.outline = "10px solid green"

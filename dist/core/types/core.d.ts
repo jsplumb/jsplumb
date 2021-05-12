@@ -1,10 +1,11 @@
 import { JsPlumbDefaults } from "./defaults";
-import { Connection, ConnectionParams } from "./connector/connection-impl";
+import { Connection, ConnectionOptions } from "./connector/connection-impl";
 import { Endpoint, EndpointSpec } from "./endpoint/endpoint";
 import { AnchorPlacement, RedrawResult } from "./router/router";
 import { RotatedPointXY } from "./util";
 import { Dictionary, UpdateOffsetOptions, Size, jsPlumbElement, ConnectParams, // <--
-SourceDefinition, BehaviouralTypeDescriptor, TypeDescriptor, Rotations, PointXY, ConnectionMovedParams, ConnectionTypeDescriptor, EndpointTypeDescriptor, Extents } from './common';
+SourceDefinition, BehaviouralTypeDescriptor, // <--
+TypeDescriptor, Rotations, PointXY, ConnectionMovedParams, ConnectionTypeDescriptor, EndpointTypeDescriptor, Extents } from './common';
 import { EventGenerator } from "./event-generator";
 import { EndpointOptions, InternalEndpointOptions } from "./endpoint/endpoint";
 import { AddGroupOptions, GroupManager } from "./group/group-manager";
@@ -351,6 +352,22 @@ export declare abstract class JsPlumbInstance<T extends {
      */
     connect(params: ConnectParams<T["E"]>, referenceParams?: ConnectParams<T["E"]>): Connection;
     /**
+     * Converts some singular values - which are allowed for the user's convenience - into
+     * their plural equivalents, which are expected by the ConnectionOptions interface
+     * @param p
+     * @private
+     */
+    private _pluralizeConnectionParameters;
+    /**
+     * Extracts EndpointOptions from the given element, and if found, injects them in the appropriate place in the given ConnectParams
+     * @param el
+     * @param index
+     * @param _p
+     * @param values
+     * @private
+     */
+    private _populateFromParameterExtractor;
+    /**
      * @param params
      * @param referenceParams
      * @private
@@ -361,7 +378,7 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param params
      * @private
      */
-    _newConnection(params: ConnectionParams): Connection;
+    _newConnection(params: ConnectionOptions<T["E"]>): Connection;
     /**
      * Adds the connection to the backing model, fires an event if necessary and then redraws. This is a package-private method, not intended to be
      * called by external code.

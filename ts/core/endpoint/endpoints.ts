@@ -1,8 +1,9 @@
 import { JsPlumbInstance } from "../core"
 import {Orientation} from "../factory/anchor-factory"
-import {EMPTY_BOUNDS, SegmentBounds} from "../connector/abstract-segment"
+import {EMPTY_BOUNDS} from "../connector/abstract-segment"
 import {Endpoint} from "./endpoint"
 import {AnchorPlacement} from "../router/router"
+import {Extents} from "@jsplumb/core"
 
 /**
  * Superclass for all types of Endpoint. This class is renderer
@@ -19,13 +20,13 @@ export abstract class EndpointRepresentation<C> {
 
     computedValue:C
 
-    bounds:SegmentBounds = EMPTY_BOUNDS()
+    bounds:Extents = EMPTY_BOUNDS()
 
     classes:Array<string> = []
 
     instance:JsPlumbInstance
 
-    abstract getType():string
+    abstract type:string
     // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
     // it would be much more lightweight as we'd not need to create a class for each one.
     abstract _compute(anchorPoint:AnchorPlacement, orientation:Orientation, endpointStyle:any):C
@@ -57,10 +58,10 @@ export abstract class EndpointRepresentation<C> {
         // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
         // it would be much more lightweight as we'd not need to create a class for each one.
         this.computedValue = this._compute(anchorPoint, orientation, endpointStyle)
-        this.bounds.minX = this.x
-        this.bounds.minY = this.y
-        this.bounds.maxX = this.x + this.w
-        this.bounds.maxY = this.y + this.h
+        this.bounds.xmin = this.x
+        this.bounds.ymin = this.y
+        this.bounds.xmax = this.x + this.w
+        this.bounds.ymax = this.y + this.h
     }
 
     setVisible(v:boolean){

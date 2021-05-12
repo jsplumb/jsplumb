@@ -13,6 +13,7 @@ export declare type EndpointHelperFunctions<E> = {
     updateNode: (ep: E, node: SVGElement) => void;
 };
 export declare function registerEndpointRenderer<C>(name: string, fns: EndpointHelperFunctions<C>): void;
+export declare const ELEMENT_DIV = "div";
 export declare function getPositionOnElement(evt: Event, el: Element, zoom: number): PointXY;
 export interface DragOptions {
     containment?: ContainmentType;

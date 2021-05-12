@@ -1,4 +1,4 @@
-import { isString, forEach, fastTrim, isArray, log, NONE, EVENT_CONTEXTMENU, removeWithFunction, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, uuid, IS, extend, wrap, getWithFunction, SELECTOR_MANAGED_ELEMENT, cls, CLASS_OVERLAY, ATTRIBUTE_NOT_DRAGGABLE, FALSE as FALSE$1, getFromSetWithFunction, intersects, CLASS_ENDPOINT, merge, each, SOURCE, TARGET, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_START_DETACH, makeAnchorFromSpec, AnchorLocations, ATTRIBUTE_SCOPE_PREFIX, getAllWithFunction, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, isAssignableFrom, EndpointRepresentation, SELECTOR_GROUP, att, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, Connection, Endpoint, Overlay, TRUE as TRUE$1, UNDEFINED, EVENT_CLICK, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_TAP, EVENT_ELEMENT_DBL_TAP, PROPERTY_POSITION, STATIC, ABSOLUTE, FIXED, fromArray, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, DotEndpoint, RectangleEndpoint, BlankEndpoint } from '@jsplumb/core';
+import { isString, forEach, fastTrim, isArray, log, NONE, EVENT_CONTEXTMENU, removeWithFunction, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, uuid, IS, extend, wrap, getWithFunction, SELECTOR_MANAGED_ELEMENT, cls, CLASS_OVERLAY, ATTRIBUTE_NOT_DRAGGABLE, FALSE as FALSE$1, getFromSetWithFunction, intersects, CLASS_ENDPOINT, merge, each, SOURCE, TARGET, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_START_DETACH, makeAnchorFromSpec, AnchorLocations, ATTRIBUTE_SCOPE_PREFIX, getAllWithFunction, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, isAssignableFrom, EndpointRepresentation, SELECTOR_GROUP, att, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, ABSOLUTE, Connection, Endpoint, Overlay, TRUE as TRUE$1, BLOCK, UNDEFINED, EVENT_CLICK, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_TAP, EVENT_ELEMENT_DBL_TAP, PROPERTY_POSITION, STATIC, FIXED, fromArray, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, DotEndpoint, RectangleEndpoint, BlankEndpoint } from '@jsplumb/core';
 
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -385,6 +385,8 @@ var FILL = "fill";
 var STROKE = "stroke";
 var STROKE_WIDTH = "stroke-width";
 var LINE_WIDTH = "strokeWidth";
+var ELEMENT_SVG = "svg";
+var ELEMENT_PATH = "path";
 var ns = {
   svg: "http://www.w3.org/2000/svg"
 };
@@ -402,7 +404,7 @@ function _node(name, attributes) {
 function _pos(d) {
   return "position:absolute;left:" + d[0] + "px;top:" + d[1] + "px";
 }
-function _applyStyles(parent, node, style, dimensions, uiComponent) {
+function _applyStyles(parent, node, style) {
   node.setAttribute(FILL, style.fill ? style.fill : NONE);
   node.setAttribute(STROKE, style.stroke ? style.stroke : NONE);
   if (style.strokeWidth) {
@@ -2565,7 +2567,7 @@ function () {
     key: "_makeDraggablePlaceholder",
     value: function _makeDraggablePlaceholder(ipco, ips) {
       this.placeholderInfo = this.placeholderInfo || {};
-      var n = createElement("div", {
+      var n = createElement(ELEMENT_DIV, {
         position: "absolute"
       });
       this.instance._appendElement(n, this.instance.getContainer());
@@ -3320,8 +3322,8 @@ var SupportedEdge;
   SupportedEdge[SupportedEdge["bottom"] = 1] = "bottom";
 })(SupportedEdge || (SupportedEdge = {}));
 var DEFAULT_ANCHOR_LOCATIONS = new Map();
-DEFAULT_ANCHOR_LOCATIONS.set(SupportedEdge.top, ["TopRight", "TopLeft"]);
-DEFAULT_ANCHOR_LOCATIONS.set(SupportedEdge.bottom, ["BottomRight", "BottomLeft"]);
+DEFAULT_ANCHOR_LOCATIONS.set(SupportedEdge.top, [AnchorLocations.TopRight, AnchorLocations.TopLeft]);
+DEFAULT_ANCHOR_LOCATIONS.set(SupportedEdge.bottom, [AnchorLocations.BottomRight, AnchorLocations.BottomLeft]);
 var DEFAULT_LIST_OPTIONS = {
   deriveAnchor: function deriveAnchor(edge, index, ep, conn) {
     return DEFAULT_ANCHOR_LOCATIONS.get(edge)[index];
@@ -3440,7 +3442,7 @@ function () {
   }, {
     key: "deriveEndpoint",
     value: function deriveEndpoint(edge, index, ep, conn) {
-      return this.options.deriveEndpoint ? this.options.deriveEndpoint(edge, index, ep, conn) : this.options.endpoint ? this.options.endpoint : ep.endpoint.getType();
+      return this.options.deriveEndpoint ? this.options.deriveEndpoint(edge, index, ep, conn) : this.options.endpoint ? this.options.endpoint : ep.endpoint.type;
     }
   }, {
     key: "newConnection",
@@ -3456,7 +3458,6 @@ function () {
     value: function scrollHandler() {
       var _this2 = this;
       var children = this.instance.getSelector(this.el, SELECTOR_MANAGED_ELEMENT);
-      var elId = this.instance.getId(this.el);
       var _loop = function _loop(i) {
         if (children[i].offsetTop < _this2.el.scrollTop) {
           children[i]._jsPlumbProxies = children[i]._jsPlumbProxies || [];
@@ -3538,7 +3539,7 @@ function () {
   _createClass(HTMLElementOverlay, null, [{
     key: "createElement",
     value: function createElement$1(o) {
-      var el = createElement("div", {}, o.instance.overlayClass + " " + (o.cssClass ? o.cssClass : ""));
+      var el = createElement(ELEMENT_DIV, {}, o.instance.overlayClass + " " + (o.cssClass ? o.cssClass : ""));
       o.instance.setAttribute(el, "jtk-overlay-id", o.id);
       return el;
     }
@@ -3551,7 +3552,7 @@ function () {
         } else {
           o.canvas = HTMLElementOverlay.createElement(o);
         }
-        o.canvas.style.position = "absolute";
+        o.canvas.style.position = ABSOLUTE;
         o.instance._appendElement(o.canvas, o.instance.getContainer());
         o.instance.getId(o.canvas);
         var ts = "translate(-50%, -50%)";
@@ -3561,7 +3562,7 @@ function () {
         o.canvas.style.oTransform = ts;
         o.canvas.style.transform = ts;
         if (!o.isVisible()) {
-          o.canvas.style.display = "none";
+          o.canvas.style.display = NONE;
         }
         o.canvas.jtk = {
           overlay: o
@@ -3610,7 +3611,7 @@ function (_Overlay) {
     key: "ensurePath",
     value: function ensurePath(o) {
       if (o.path == null) {
-        o.path = _node("path", {
+        o.path = _node(ELEMENT_PATH, {
           "jtk-overlay-id": o.id
         });
         var parent = null;
@@ -3751,7 +3752,7 @@ function () {
           outlineStyle.stroke = paintStyle.outlineStroke;
           outlineStyle.strokeWidth = outlineStrokeWidth;
           if (connector.bgPath == null) {
-            connector.bgPath = _node("path", a);
+            connector.bgPath = _node(ELEMENT_PATH, a);
             connector.instance.addClass(connector.bgPath, connector.instance.connectorOutlineClass);
             _appendAtIndex(connector.canvas, connector.bgPath, 0);
           } else {
@@ -3760,7 +3761,7 @@ function () {
           _applyStyles(connector.canvas, connector.bgPath, outlineStyle);
         }
         if (connector.path == null) {
-          connector.path = _node("path", a);
+          connector.path = _node(ELEMENT_PATH, a);
           _appendAtIndex(connector.canvas, connector.path, paintStyle.outlineStroke ? 1 : 0);
         } else {
           _attr(connector.path, a);
@@ -3774,12 +3775,12 @@ function () {
       if (c.canvas != null) {
         return c.canvas;
       } else {
-        var svg = _node("svg", {
+        var svg = _node(ELEMENT_SVG, {
           "style": "",
           "width": "0",
           "height": "0",
-          "pointer-events": "none",
-          "position": "absolute"
+          "pointer-events": NONE,
+          "position": ABSOLUTE
         });
         c.canvas = svg;
         c.instance._appendElement(c.canvas, c.instance.getContainer());
@@ -3807,16 +3808,16 @@ function () {
       if (ep.canvas != null) {
         return ep.canvas;
       } else {
-        var svg = _node("svg", {
+        var svg = _node(ELEMENT_SVG, {
           "style": "",
           "width": "0",
           "height": "0",
-          "pointer-events": "none",
-          "position": "absolute"
+          "pointer-events": NONE,
+          "position": ABSOLUTE
         });
         ep.svg = svg;
-        var canvas = createElement("div", {
-          position: "absolute"
+        var canvas = createElement(ELEMENT_DIV, {
+          position: ABSOLUTE
         });
         ep.canvas = canvas;
         var classes = ep.classes.join(" ");
@@ -3836,7 +3837,7 @@ function () {
         ep.instance.addClass(canvas, ep.instance.endpointClass);
         canvas.jtk = canvas.jtk || {};
         canvas.jtk.endpoint = ep.endpoint;
-        canvas.style.display = ep.endpoint.visible !== false ? "block" : "none";
+        canvas.style.display = ep.endpoint.visible !== false ? BLOCK : NONE;
         return canvas;
       }
     }
@@ -3855,7 +3856,7 @@ function () {
       } else if (handlers.updateNode != null) {
         handlers.updateNode(ep, ep.node);
       }
-      _applyStyles(ep.canvas, ep.node, s, [ep.x, ep.y, ep.w, ep.h]);
+      _applyStyles(ep.canvas, ep.node, s);
     }
   }]);
   return SvgEndpoint;
@@ -3865,6 +3866,7 @@ var endpointMap = {};
 function registerEndpointRenderer(name, fns) {
   endpointMap[name] = fns;
 }
+var ELEMENT_DIV = "div";
 function getPositionOnElement(evt, el, zoom) {
   var jel = el;
   var box = _typeof(el.getBoundingClientRect) !== UNDEFINED ? el.getBoundingClientRect() : {
@@ -4705,17 +4707,17 @@ function (_JsPlumbInstance) {
               td: td,
               cxy: cxy
             },
-            minX: minx,
-            maxX: minx + td.w,
-            minY: miny,
-            maxY: miny + td.h
+            xmin: minx,
+            xmax: minx + td.w,
+            ymin: miny,
+            ymax: miny + td.h
           };
         } else {
           return {
-            minX: 0,
-            maxX: 0,
-            minY: 0,
-            maxY: 0
+            xmin: 0,
+            xmax: 0,
+            ymin: 0,
+            ymax: 0
           };
         }
       } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
@@ -4854,11 +4856,11 @@ function (_JsPlumbInstance) {
   }, {
     key: "renderEndpoint",
     value: function renderEndpoint(ep, paintStyle) {
-      var renderer = endpointMap[ep.endpoint.getType()];
+      var renderer = endpointMap[ep.endpoint.type];
       if (renderer != null) {
         SvgEndpoint.paint(ep.endpoint, renderer, paintStyle);
       } else {
-        console.log("JSPLUMB: no endpoint renderer found for type [" + ep.endpoint.getType() + "]");
+        console.log("JSPLUMB: no endpoint renderer found for type [" + ep.endpoint.type + "]");
       }
     }
   }, {
@@ -5013,4 +5015,4 @@ function ready(f) {
   _do();
 }
 
-export { BrowserJsPlumbInstance, Collicat, Drag, EVENT_BEFORE_START, EVENT_CONNECTION_ABORT, EVENT_CONNECTION_DRAG, EVENT_DRAG, EVENT_DRAG_MOVE, EVENT_DRAG_START, EVENT_DRAG_STOP, EVENT_DROP, EVENT_OUT, EVENT_OVER, EVENT_START, EVENT_STOP, EventManager, addClass, consume, createElement, createElementNS, findParent, getClass, getEventSource, getPositionOnElement, getTouch, hasClass, isArrayLike, isNodeList, matchesSelector, newInstance, offsetRelativeToRoot, pageLocation, ready, registerEndpointRenderer, removeClass, size, toggleClass, touchCount, touches };
+export { BrowserJsPlumbInstance, Collicat, Drag, ELEMENT_DIV, EVENT_BEFORE_START, EVENT_CONNECTION_ABORT, EVENT_CONNECTION_DRAG, EVENT_DRAG, EVENT_DRAG_MOVE, EVENT_DRAG_START, EVENT_DRAG_STOP, EVENT_DROP, EVENT_OUT, EVENT_OVER, EVENT_START, EVENT_STOP, EventManager, addClass, consume, createElement, createElementNS, findParent, getClass, getEventSource, getPositionOnElement, getTouch, hasClass, isArrayLike, isNodeList, matchesSelector, newInstance, offsetRelativeToRoot, pageLocation, ready, registerEndpointRenderer, removeClass, size, toggleClass, touchCount, touches };

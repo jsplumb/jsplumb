@@ -93,10 +93,10 @@ export class ArrowOverlay extends Overlay {
                 "stroke-width": lineWidth,
                 stroke: stroke,
                 fill: fill,
-                minX: Math.min(hxy.x, tail[0].x, tail[1].x),
-                maxX: Math.max(hxy.x, tail[0].x, tail[1].x),
-                minY: Math.min(hxy.y, tail[0].y, tail[1].y),
-                maxY: Math.max(hxy.y, tail[0].y, tail[1].y)
+                xmin: Math.min(hxy.x, tail[0].x, tail[1].x),
+                xmax: Math.max(hxy.x, tail[0].x, tail[1].x),
+                ymin: Math.min(hxy.y, tail[0].y, tail[1].y),
+                ymax: Math.max(hxy.y, tail[0].y, tail[1].y)
             }
         }
     }

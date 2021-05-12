@@ -1,8 +1,8 @@
 
 import {SvgComponent} from "./svg-component"
 
-import {_appendAtIndex, _applyStyles, _attr, _node } from './svg-util'
-import {AbstractConnector, extend, Extents, PaintStyle} from "@jsplumb/core"
+import {_appendAtIndex, _applyStyles, _attr, _node, ELEMENT_PATH, ELEMENT_SVG} from './svg-util'
+import {ABSOLUTE, AbstractConnector, extend, Extents, NONE, PaintStyle} from "@jsplumb/core"
 
 /**
  * Renderer for a connector that uses an `svg` element in the DOM.
@@ -46,7 +46,7 @@ export class SvgElementConnector {
                 outlineStyle.strokeWidth = outlineStrokeWidth
 
                 if ((connector as any).bgPath == null) {
-                    (connector as any).bgPath = _node("path", a)
+                    (connector as any).bgPath = _node(ELEMENT_PATH, a)
                     connector.instance.addClass((connector as any).bgPath as any, connector.instance.connectorOutlineClass)
                     _appendAtIndex((connector as any).canvas, (connector as any).bgPath, 0)
                 }
@@ -54,18 +54,18 @@ export class SvgElementConnector {
                     _attr((connector as any).bgPath, a)
                 }
 
-                _applyStyles((connector as any).canvas, (connector as any).bgPath, outlineStyle, d, null)
+                _applyStyles((connector as any).canvas, (connector as any).bgPath, outlineStyle)
             }
 
             if ((connector as any).path == null) {
-                (connector as any).path = _node("path", a)
+                (connector as any).path = _node(ELEMENT_PATH, a)
                 _appendAtIndex((connector as any).canvas, (connector as any).path, paintStyle.outlineStroke ? 1 : 0)
             }
             else {
                 _attr((connector as any).path, a)
             }
 
-            _applyStyles((connector as any).canvas, (connector as any).path, paintStyle, d, <any>this)
+            _applyStyles((connector as any).canvas, (connector as any).path, paintStyle, )
         }
     }
 
@@ -73,12 +73,12 @@ export class SvgElementConnector {
         if ((c as any).canvas != null) {
             return (c as any).canvas
         } else {
-            const svg:any = _node("svg", {
+            const svg:any = _node(ELEMENT_SVG, {
                 "style": "",
                 "width": "0",
                 "height": "0",
-                "pointer-events": "none",
-                "position": "absolute"
+                "pointer-events": NONE,
+                "position": ABSOLUTE
             });
             (c as any).canvas = svg
             c.instance._appendElement((c as any).canvas, c.instance.getContainer())

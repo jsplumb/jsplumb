@@ -14,5 +14,5 @@ export declare class RectangleEndpoint extends EndpointRepresentation<ComputedRe
     getParams(): Record<string, any>;
     _compute(anchorPoint: AnchorPlacement, orientation: Orientation, endpointStyle: any): ComputedRectangleEndpoint;
     static type: string;
-    getType(): string;
+    type: string;
 }

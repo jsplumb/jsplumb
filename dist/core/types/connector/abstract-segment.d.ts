@@ -1,4 +1,4 @@
-import { BoundingBox, PointXY } from "../common";
+import { BoundingBox, Extents, PointXY } from "../common";
 export interface SegmentParams {
     x1: number;
     x2: number;
@@ -16,20 +16,14 @@ export declare type PointNearPath = {
     y1: number;
     y2: number;
 };
-export declare type SegmentBounds = {
-    minX: number;
-    minY: number;
-    maxX: number;
-    maxY: number;
-};
-export declare function EMPTY_BOUNDS(): SegmentBounds;
+export declare function EMPTY_BOUNDS(): Extents;
 export interface Segment {
     x1: number;
     x2: number;
     y1: number;
     y2: number;
     type: string;
-    getBounds(): SegmentBounds;
+    extents: Extents;
     lineIntersection(x1: number, y1: number, x2: number, y2: number): Array<PointXY>;
     boxIntersection(x: number, y: number, w: number, h: number): Array<PointXY>;
     boundingBoxIntersection(box: BoundingBox): Array<PointXY>;
@@ -45,14 +39,13 @@ export declare abstract class AbstractSegment implements Segment {
     x2: number;
     y1: number;
     y2: number;
-    protected bounds: SegmentBounds;
+    extents: Extents;
     abstract type: string;
     abstract getLength(): number;
     abstract pointOnPath(location: number, absolute?: boolean): PointXY;
     abstract gradientAtPoint(location: number, absolute?: boolean): number;
     abstract pointAlongPathFrom(location: number, distance: number, absolute?: boolean): PointXY;
     constructor(params: SegmentParams);
-    getBounds(): SegmentBounds;
     /**
      * Function: findClosestPointOnPath
      * Finds the closest point on this segment to the given [x, y],

@@ -75,11 +75,11 @@ export class ArcSegment extends AbstractSegment {
         this.frac = this.sweep / TWO_PI
         this.length = this.circumference * this.frac
 
-        this.bounds = {
-            minX: this.cx - this.radius,
-            maxX: this.cx + this.radius,
-            minY: this.cy - this.radius,
-            maxY: this.cy + this.radius
+        this.extents = {
+            xmin: this.cx - this.radius,
+            xmax: this.cx + this.radius,
+            ymin: this.cy - this.radius,
+            ymax: this.cy + this.radius
         }
     }
 

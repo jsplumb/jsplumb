@@ -7,7 +7,7 @@ import {
     EVENT_CONNECTION_ABORT,
     EVENT_CONNECTION_DRAG
 } from "./drag-manager"
-import {BrowserJsPlumbInstance, getPositionOnElement} from "./browser-jsplumb-instance"
+import {BrowserJsPlumbInstance, ELEMENT_DIV, getPositionOnElement} from "./browser-jsplumb-instance"
 import { jsPlumbDOMElement} from './element-facade'
 
 import {consume, createElement, findParent} from "./browser-util"
@@ -337,10 +337,8 @@ export class EndpointDragHandler implements DragHandler {
      * @private
      */
     private _makeDraggablePlaceholder(ipco:PointXY, ips:Size):HTMLElement {
-
         this.placeholderInfo = this.placeholderInfo || {}
-
-        let n = createElement("div", { position : "absolute" }) as jsPlumbDOMElement
+        let n = createElement(ELEMENT_DIV, { position : "absolute" }) as jsPlumbDOMElement
         this.instance._appendElement(n, this.instance.getContainer())
         let id = this.instance.getId(n)
         this.instance.setPosition(n, ipco)
