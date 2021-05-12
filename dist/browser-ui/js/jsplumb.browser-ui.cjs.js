@@ -2696,7 +2696,8 @@ function () {
       var centerAnchor = core.makeAnchorFromSpec(this.instance, core.AnchorLocations.Center);
       centerAnchor.isFloating = true;
       this.floatingEndpoint = _makeFloatingEndpoint(this.ep.getPaintStyle(), centerAnchor, endpointToFloat, canvasElement, this.placeholderInfo.element, this.instance, this.ep.scope);
-      this.floatingAnchor = this.floatingEndpoint.anchor;
+      this.floatingAnchor = this.instance.router.getAnchor(this.floatingEndpoint)
+      ;
       this.floatingEndpoint.deleteOnEmpty = true;
       this.floatingElement = this.floatingEndpoint.endpoint.canvas;
       this.floatingId = this.instance.getId(this.floatingElement);
@@ -2908,7 +2909,7 @@ function () {
                 newDropTarget.endpoint.endpoint.removeClass(this.instance.endpointDropAllowedClass);
                 newDropTarget.endpoint.endpoint.addClass(this.instance.endpointDropForbiddenClass);
               }
-              this.floatingAnchor.over(newDropTarget.endpoint.anchor, newDropTarget.endpoint);
+              this.floatingAnchor.over(this.instance.router.getAnchor(newDropTarget.endpoint), newDropTarget.endpoint);
             } else {
               newDropTarget = null;
             }
@@ -3080,18 +3081,6 @@ function () {
             }
           }
           dropEndpoint.mergeParameters(tpayload);
-        }
-        if (dropEndpoint.anchor.positionFinder != null) {
-          var finalPos = p.finalPos || p.pos;
-          var dropPosition = {
-            x: finalPos.x,
-            y: finalPos.y
-          };
-          var elPosition = this.instance.getOffset(this.currentDropTarget.targetEl),
-              elSize = this.instance.getSize(this.currentDropTarget.targetEl),
-              ap = dropEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, dropEndpoint.anchor.constructorParams);
-          dropEndpoint.anchor.x = ap[0];
-          dropEndpoint.anchor.y = ap[1];
         }
       } else {
         dropEndpoint = this.currentDropTarget.endpoint;

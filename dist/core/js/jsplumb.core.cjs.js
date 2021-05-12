@@ -1997,7 +1997,8 @@ function (_AbstractConnector) {
           }[axis],
               comparator = pi["is" + axis.toUpperCase() + "GreaterThanStubTimes2"];
           if (params.sourceEndpoint.elementId === params.targetEndpoint.elementId) {
-            var _val = oss + (1 - params.sourceEndpoint.anchor[otherAxis]) * params.sourceInfo[dim] + this.maxStub;
+            var sourceAnchor = _this2.instance.router.getAnchor(params.sourceEndpoint);
+            var _val = oss + (1 - sourceAnchor[otherAxis]) * params.sourceInfo[dim] + _this2.maxStub;
             return {
               "x": [[ss, _val], [es, _val]],
               "y": [[_val, ss], [_val, es]]
@@ -3411,7 +3412,7 @@ function (_EventGenerator) {
     _this._types = [];
     _this._typeCache = {};
     _this.parameters = clone(params.parameters || {});
-    _this.id = _this.getIdPrefix() + new Date().getTime();
+    _this.id = params.id || _this.getIdPrefix() + new Date().getTime();
     _this._defaultType = {
       parameters: _this.parameters,
       scope: params.scope || _this.instance.defaultScope
@@ -4776,7 +4777,6 @@ function (_OverlayCapableCompon) {
     _classCallCheck(this, Connection);
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Connection).call(this, instance, params));
     _this.instance = instance;
-    _defineProperty(_assertThisInitialized(_this), "id", void 0);
     _defineProperty(_assertThisInitialized(_this), "connector", void 0);
     _defineProperty(_assertThisInitialized(_this), "defaultLabelLocation", 0.5);
     _defineProperty(_assertThisInitialized(_this), "scope", void 0);
@@ -4971,9 +4971,8 @@ function (_OverlayCapableCompon) {
         }
       }
       if (_anchors != null) {
-        this.endpoints[0].anchor = _anchors[0];
-        this.endpoints[1].anchor = _anchors[1];
-        if (this.endpoints[1].anchor.isDynamic) {
+        this.instance.router.setConnectionAnchors(this, _anchors);
+        if (this.instance.router.isDynamicAnchor(this.endpoints[1])) {
           this.instance.repaint(this.endpoints[1].element);
         }
       }
@@ -5167,9 +5166,7 @@ function (_OverlayCapableCompon) {
     _classCallCheck(this, Endpoint);
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Endpoint).call(this, instance, params));
     _this.instance = instance;
-    _defineProperty(_assertThisInitialized(_this), "anchorId", void 0);
     _defineProperty(_assertThisInitialized(_this), "connections", []);
-    _defineProperty(_assertThisInitialized(_this), "anchor", void 0);
     _defineProperty(_assertThisInitialized(_this), "endpoint", void 0);
     _defineProperty(_assertThisInitialized(_this), "element", void 0);
     _defineProperty(_assertThisInitialized(_this), "elementId", void 0);
@@ -5259,8 +5256,9 @@ function (_OverlayCapableCompon) {
   }
   _createClass(Endpoint, [{
     key: "_updateAnchorClass",
-    value: function _updateAnchorClass() {
-      var ac = this.anchor.getCssClass();
+    value: function _updateAnchorClass(anchor) {
+      anchor = anchor || this.instance.router.getAnchor(this);
+      var ac = anchor && anchor.getCssClass();
       if (ac != null && ac.length > 0) {
         var oldAnchorClass = this.instance.endpointAnchorClassPrefix + "-" + this.currentAnchorClass;
         this.currentAnchorClass = ac;
@@ -5276,8 +5274,16 @@ function (_OverlayCapableCompon) {
   }, {
     key: "setPreparedAnchor",
     value: function setPreparedAnchor(anchor) {
-      this.anchor = anchor;
-      this._updateAnchorClass();
+      var _this2 = this;
+      this.instance.router.setAnchor(this, anchor);
+      anchor.bind(EVENT_ANCHOR_CHANGED, function (currentAnchor) {
+        _this2.fire(EVENT_ANCHOR_CHANGED, {
+          endpoint: _this2,
+          anchor: currentAnchor
+        });
+        _this2._updateAnchorClass(currentAnchor);
+      });
+      this._updateAnchorClass(anchor);
       return this;
     }
   }, {
@@ -5385,7 +5391,6 @@ function (_OverlayCapableCompon) {
     value: function destroy(force) {
       var anchorClass = this.instance.endpointAnchorClassPrefix + (this.currentAnchorClass ? "-" + this.currentAnchorClass : "");
       this.instance.removeClass(this.element, anchorClass);
-      this.anchor = null;
       if (this.endpoint != null) {
         this.instance.destroyEndpoint(this);
       }
@@ -5399,7 +5404,7 @@ function (_OverlayCapableCompon) {
   }, {
     key: "isFloating",
     value: function isFloating() {
-      return this.anchor != null && this.anchor.isFloating;
+      return this.instance.router.isFloating(this);
     }
   }, {
     key: "isConnectedTo",
@@ -5419,11 +5424,6 @@ function (_OverlayCapableCompon) {
     key: "setDragAllowedWhenFull",
     value: function setDragAllowedWhenFull(allowed) {
       this.dragAllowedWhenFull = allowed;
-    }
-  }, {
-    key: "equals",
-    value: function equals(endpoint) {
-      return this.anchor.equals(endpoint.anchor);
     }
   }, {
     key: "getUuid",
@@ -6466,6 +6466,12 @@ var edgeSortFunctions = {
   "bottom": rightAndBottomSort,
   "left": leftAndTopSort
 };
+function isContinuous(a) {
+  return a.isContinuous;
+}
+function isDynamic(a) {
+  return a.constructor === DynamicAnchor;
+}
 function floatingAnchorCompute(anchor, params) {
   var xy = params.xy;
   anchor._lastResult = [xy.x + anchor.size.w / 2, xy.y + anchor.size.h / 2, 0, 0];
@@ -6498,7 +6504,8 @@ function () {
     key: "getEndpointLocation",
     value: function getEndpointLocation(endpoint, params) {
       params = params || {};
-      return endpoint.anchor.lastReturnValue == null || params.timestamp != null && endpoint.anchor.timestamp !== params.timestamp ? this.computeAnchorLocation(endpoint.anchor, params) : endpoint.anchor.lastReturnValue;
+      var anchor = anchorMap$1.get(endpoint.id);
+      return anchor.lastReturnValue == null || params.timestamp != null && anchor.timestamp !== params.timestamp ? this.computeAnchorLocation(anchor, params) : anchor.lastReturnValue;
     }
   }, {
     key: "computeAnchorLocation",
@@ -6513,6 +6520,12 @@ function () {
         anchor.lastReturnValue = this.defaultAnchorCompute(anchor, params);
       }
       return anchor.lastReturnValue;
+    }
+  }, {
+    key: "isFloating",
+    value: function isFloating(ep) {
+      var a = anchorMap$1.get(ep.id);
+      return a != null && a.isFloating;
     }
   }, {
     key: "defaultAnchorCompute",
@@ -6577,7 +6590,7 @@ function () {
   }, {
     key: "getEndpointOrientation",
     value: function getEndpointOrientation(endpoint) {
-      return this.getAnchorOrientation(endpoint.anchor, endpoint);
+      return this.getAnchorOrientation(anchorMap$1.get(endpoint.id), endpoint);
     }
   }, {
     key: "getAnchorOrientation",
@@ -6598,11 +6611,32 @@ function () {
       }
     }
   }, {
+    key: "setAnchor",
+    value: function setAnchor(endpoint, anchor) {
+      anchorMap$1.set(endpoint.id, anchor);
+    }
+  }, {
     key: "prepareAnchor",
     value: function prepareAnchor(endpoint, params) {
       var a = makeAnchorFromSpec(this.instance, params, endpoint.elementId);
-      anchorMap$1.set(endpoint.id, a);
       return a;
+    }
+  }, {
+    key: "setConnectionAnchors",
+    value: function setConnectionAnchors(conn, anchors) {
+      anchorMap$1.set(conn.endpoints[0].id, anchors[0]);
+      anchorMap$1.set(conn.endpoints[1].id, anchors[1]);
+    }
+  }, {
+    key: "isDynamicAnchor",
+    value: function isDynamicAnchor(ep) {
+      var a = anchorMap$1.get(ep.id);
+      return a == null ? false : a.isDynamic;
+    }
+  }, {
+    key: "getAnchor",
+    value: function getAnchor(ep) {
+      return anchorMap$1.get(ep.id);
     }
   }, {
     key: "computePath",
@@ -6749,11 +6783,13 @@ function () {
       if (!this.instance._suspendDrawing) {
         var ep = this.instance.endpointsByElement[elementId] || [];
         timestamp = timestamp || uuid();
-        var orientationCache = {};
+        var orientationCache = {},
+            a;
         forEach(ep, function (anEndpoint) {
           endpointsToPaint.add(anEndpoint);
+          a = anchorMap$1.get(anEndpoint.id);
           if (anEndpoint.connections.length === 0) {
-            if (anEndpoint.anchor.isContinuous) {
+            if (isContinuous(a)) {
               if (!_this3.anchorLists[elementId]) {
                 _this3.anchorLists[elementId] = {
                   top: [],
@@ -6764,7 +6800,7 @@ function () {
               }
               _this3._updateAnchorList(_this3.anchorLists[elementId], -Math.PI / 2, 0, {
                 endpoints: [anEndpoint, anEndpoint]
-              }, false, elementId, 0, false, anEndpoint.anchor.getDefaultFace(), connectionsToPaint, endpointsToPaint);
+              }, false, elementId, 0, false, a.getDefaultFace(), connectionsToPaint, endpointsToPaint);
               anchorsToUpdate.add(elementId);
             }
           } else {
@@ -6772,8 +6808,8 @@ function () {
               var conn = anEndpoint.connections[i],
                   sourceId = conn.sourceId,
                   targetId = conn.targetId,
-                  sourceContinuous = conn.endpoints[0].anchor.isContinuous,
-                  targetContinuous = conn.endpoints[1].anchor.isContinuous;
+                  sourceContinuous = isContinuous(anchorMap$1.get(conn.endpoints[0].id)),
+              targetContinuous = isContinuous(anchorMap$1.get(conn.endpoints[0].id));
               if (sourceContinuous || targetContinuous) {
                 var oKey = sourceId + "_" + targetId,
                     o = orientationCache[oKey],
@@ -6803,7 +6839,9 @@ function () {
                   var sourceRotation = _this3.instance._getRotations(sourceId);
                   var targetRotation = _this3.instance._getRotations(targetId);
                   if (!o) {
-                    o = _this3.calculateOrientation(sourceId, targetId, sd, td, conn.endpoints[0].anchor, conn.endpoints[1].anchor, sourceRotation, targetRotation);
+                    o = _this3.calculateOrientation(sourceId, targetId, sd, td,
+                    anchorMap$1.get(conn.endpoints[0].id), anchorMap$1.get(conn.endpoints[1].id),
+                    sourceRotation, targetRotation);
                     orientationCache[oKey] = o;
                   }
                   if (sourceContinuous) {
@@ -6824,8 +6862,9 @@ function () {
                   endpointsToPaint.add(conn.endpoints[oIdx]);
                 }
               } else {
-                var otherEndpoint = anEndpoint.connections[i].endpoints[conn.sourceId === elementId ? 1 : 0];
-                if (otherEndpoint.anchor.constructor === DynamicAnchor) {
+                var otherEndpoint = anEndpoint.connections[i].endpoints[conn.sourceId === elementId ? 1 : 0],
+                    otherAnchor = anchorMap$1.get(otherEndpoint.id);
+                if (isDynamic(otherAnchor)) {
                   _this3.instance.paintEndpoint(otherEndpoint, {
                     elementWithPrecedence: elementId,
                     timestamp: timestamp
@@ -8382,8 +8421,8 @@ function (_EventGenerator) {
     value: function _internal_newEndpoint(params, id) {
       var _p = extend({}, params);
       _p.elementId = id || this.getId(_p.element);
+      _p.id = "ep_" + this._idstamp();
       var ep = new Endpoint(this, _p);
-      ep.id = "ep_" + this._idstamp();
       var managedElement = this.manage(_p.element);
       addManagedEndpoint(managedElement, ep);
       if (params.uuid) {
@@ -9217,7 +9256,7 @@ function (_EventGenerator) {
               element: endpoint,
               timestamp: timestamp
             };
-            if (recalc && endpoint.anchor.isDynamic && endpoint.connections.length > 0) {
+            if (recalc && this.router.isDynamicAnchor(endpoint) && endpoint.connections.length > 0) {
               var _c3 = findConnectionToUseForDynamicAnchor(endpoint),
                   oIdx = _c3.endpoints[0] === endpoint ? 1 : 0,
                   oId = oIdx === 0 ? _c3.sourceId : _c3.targetId,
@@ -9232,7 +9271,7 @@ function (_EventGenerator) {
               anchorParams.connection = endpoint.connections[0];
             }
             anchorParams.rotation = this._getRotations(endpoint.elementId);
-            ap = this.router.computeAnchorLocation(endpoint.anchor, anchorParams);
+            ap = this.router.computeAnchorLocation(this.router.getAnchor(endpoint), anchorParams);
           }
           endpoint.endpoint.compute(ap, this.router.getEndpointOrientation(endpoint), endpoint.paintStyleInUse);
           this.renderEndpoint(endpoint, endpoint.paintStyleInUse);

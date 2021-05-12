@@ -18,7 +18,6 @@ export declare type ConnectionOptions<E = any> = Merge<OnlyPluralsConnectParams<
 }>;
 export declare class Connection<E = any> extends OverlayCapableComponent {
     instance: JsPlumbInstance;
-    id: string;
     connector: AbstractConnector;
     defaultLabelLocation: number;
     scope: string;

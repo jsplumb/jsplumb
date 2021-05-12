@@ -1,5 +1,4 @@
 import { AnchorSpec } from "../factory/anchor-factory";
-import { Anchor } from "../anchor/anchor";
 import { PaintStyle } from "../styles";
 import { OverlaySpec } from "../overlay/overlay";
 import { ConnectorSpec } from "../connector/abstract-connector";
@@ -26,9 +25,7 @@ export declare class Endpoint<E = any> extends OverlayCapableComponent {
         x: number;
         y: number;
     };
-    anchorId: string;
     connections: Array<Connection<E>>;
-    anchor: Anchor;
     endpoint: EndpointRepresentation<any>;
     element: E;
     elementId: string;
@@ -94,7 +91,6 @@ export declare class Endpoint<E = any> extends OverlayCapableComponent {
      */
     isConnectedTo(otherEndpoint: Endpoint): boolean;
     setDragAllowedWhenFull(allowed: boolean): void;
-    equals(endpoint: Endpoint): boolean;
     getUuid(): string;
     connectorSelector(): Connection;
     private prepareEndpoint;

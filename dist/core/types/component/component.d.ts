@@ -16,6 +16,7 @@ export interface ComponentOptions {
     scope?: string;
     cssClass?: string;
     data?: any;
+    id?: string;
 }
 export declare abstract class Component extends EventGenerator {
     instance: JsPlumbInstance;

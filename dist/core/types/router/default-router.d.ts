@@ -16,11 +16,16 @@ export declare class DefaultRouter<T extends {
     reset(): void;
     getEndpointLocation(endpoint: Endpoint<any>, params: AnchorComputeParams): AnchorPlacement;
     computeAnchorLocation(anchor: Anchor, params: AnchorComputeParams): AnchorPlacement;
+    isFloating(ep: Endpoint<any>): boolean;
     private defaultAnchorCompute;
     private dynamicAnchorCompute;
     getEndpointOrientation(endpoint: Endpoint): Orientation;
     getAnchorOrientation(anchor: Anchor, endpoint?: Endpoint): Orientation;
+    setAnchor(endpoint: Endpoint, anchor: Anchor): void;
     prepareAnchor(endpoint: Endpoint<any>, params: AnchorSpec | Array<AnchorSpec>): Anchor;
+    setConnectionAnchors(conn: Connection, anchors: [Anchor, Anchor]): void;
+    isDynamicAnchor(ep: Endpoint): boolean;
+    getAnchor(ep: Endpoint<any>): Anchor;
     computePath(connection: Connection, timestamp: string): void;
     private placeAnchors;
     private _removeEndpointFromAnchorLists;
