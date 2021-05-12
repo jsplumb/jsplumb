@@ -16,7 +16,7 @@ import {
     BeforeDropParams,
     ManageElementParams,
     UnmanageElementParams,
-    ConnectionEstablishedParams
+    ConnectionEstablishedParams, AnchorLocations
 } from '@jsplumb/core'
 
 export interface ListManagerOptions { }
@@ -25,16 +25,39 @@ export enum SupportedEdge {
     top, bottom
 }
 
+/**
+ * Constructor options for a list.
+ */
 export interface JsPlumbListOptions {
+    /**
+     * Optional spec for the anchor to use when parking connections in response to a scroll.
+     */
     anchor?:AnchorSpec
+    /**
+     * Optional function to use to get an anchor spec when parking a connection.
+     * @param edge The edge of the element on which the connection is to be parked - top or bottom.
+     * @param index Index of the endpoint that is being parked - 0 if source endpoint, 1 if target endpoint.
+     * @param ep The endpoint that is being parked
+     * @param conn The connection that is being parked
+     */
     deriveAnchor?:(edge:SupportedEdge, index:number, ep:Endpoint, conn:Connection) => AnchorSpec
+    /**
+     * Optional spec for the endpoint to use when parking connections in response to a scroll.
+     */
     endpoint?:EndpointSpec
+    /**
+     * Optional function to use to get an endpoint spec when parking a connection.
+     * @param edge The edge of the element on which the connection is to be parked - top or bottom.
+     * @param index Index of the endpoint that is being parked - 0 if source endpoint, 1 if target endpoint.
+     * @param ep The endpoint that is being parked
+     * @param conn The connection that is being parked
+     */
     deriveEndpoint?:(edge:SupportedEdge, index:number, ep:Endpoint, conn:Connection) => EndpointSpec
 }
 
 const DEFAULT_ANCHOR_LOCATIONS:Map<SupportedEdge, [string, string]> = new Map()
-DEFAULT_ANCHOR_LOCATIONS.set(SupportedEdge.top, ["TopRight", "TopLeft"])
-DEFAULT_ANCHOR_LOCATIONS.set(SupportedEdge.bottom, ["BottomRight", "BottomLeft"])
+DEFAULT_ANCHOR_LOCATIONS.set(SupportedEdge.top, [AnchorLocations.TopRight, AnchorLocations.TopLeft])
+DEFAULT_ANCHOR_LOCATIONS.set(SupportedEdge.bottom, [AnchorLocations.BottomRight, AnchorLocations.BottomLeft])
 
 const DEFAULT_LIST_OPTIONS = {
     deriveAnchor:(edge:SupportedEdge, index:number, ep:Endpoint, conn:Connection) => {
@@ -200,7 +223,7 @@ export class JsPlumbList {
      * @param conn the connection that is being proxied
      */
     private deriveEndpoint(edge:SupportedEdge, index:number, ep:Endpoint, conn:Connection):EndpointSpec {
-        return this.options.deriveEndpoint ? this.options.deriveEndpoint(edge, index, ep, conn) : this.options.endpoint ? this.options.endpoint : ep.endpoint.getType()
+        return this.options.deriveEndpoint ? this.options.deriveEndpoint(edge, index, ep, conn) : this.options.endpoint ? this.options.endpoint : ep.endpoint.type
     }
 
     /**
@@ -226,7 +249,6 @@ export class JsPlumbList {
     private scrollHandler () {
 
         const children = this.instance.getSelector(this.el, SELECTOR_MANAGED_ELEMENT)
-        const elId = this.instance.getId(this.el)
 
         for (let i = 0; i < children.length; i++) {
 
