@@ -24,8 +24,6 @@ export class Anchor extends EventGenerator {
 
     _unrotatedOrientation:Orientation
 
-    positionFinder:(dropPosition:PointXY, elPosition:PointXY, elSize:Size, constructorParams:any) => any
-
     clone:() => Anchor
 
     constructor(public instance:JsPlumbInstance,  params?:AnchorOptions) {

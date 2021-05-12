@@ -996,27 +996,6 @@ export class EndpointDragHandler implements DragHandler {
                 dropEndpoint.mergeParameters(tpayload)
             }
 
-            // if (targetDefinition.def.parameterExtractor) {
-            //     dropEndpoint.mergeParameters(targetDefinition.def.parameterExtractor(this.currentDropTarget.el))
-            // }
-
-            // if (dropEndpoint.anchor.positionFinder != null) {
-            //
-            //     let finalPos:PointXY = p.finalPos || p.pos
-            //     let dropPosition = { x:finalPos.x, y:finalPos.y }
-            //
-            //     let elPosition = this.instance.getOffset(this.currentDropTarget.targetEl),
-            //         elSize = this.instance.getSize(this.currentDropTarget.targetEl),
-            //         ap = dropEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, (<any>dropEndpoint.anchor).constructorParams)
-            //
-            //     dropEndpoint.anchor.x = ap[0]
-            //     dropEndpoint.anchor.y = ap[1]
-            //     // now figure an orientation for it..kind of hard to know what to do actually. probably the best thing i can do is to
-            //     // support specifying an orientation in the anchor's spec. if one is not supplied then i will make the orientation
-            //     // be what will cause the most natural link to the source: it will be pointing at the source, but it needs to be
-            //     // specified in one axis only, and so how to make that choice? i think i will use whichever axis is the one in which
-            //     // the target is furthest away from the source.
-            // }
         } else {
             dropEndpoint = this.currentDropTarget.endpoint
         }
