@@ -129,6 +129,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
 
         instance.bind<Endpoint<T["E"]>>(Constants.EVENT_INTERNAL_ENDPOINT_UNREGISTERED, (ep:Endpoint<T["E"]>) => {
             this._removeEndpointFromAnchorLists(ep)
+            anchorMap.delete(ep.id)
         })
     }
 
@@ -209,7 +210,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
         // if anchor is locked or an opposite element was not given, we
         // maintain our state. anchor will be locked
         // if it is the source of a drag and drop.
-        if (anchor.isLocked() || txy == null || twh == null) {
+        if (anchor.locked || txy == null || twh == null) {
             anchor.lastReturnValue = this.computeAnchorLocation(anchor._curAnchor, params)
             return anchor.lastReturnValue
         }
@@ -222,7 +223,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
         anchor.y = anchor._curAnchor.y
 
         if (anchor._curAnchor !== anchor._lastAnchor) {
-            anchor.fire(EVENT_ANCHOR_CHANGED, anchor._curAnchor)
+            params.element._anchorLocationChanged(anchor._curAnchor)
         }
 
         anchor._lastAnchor = anchor._curAnchor
@@ -280,8 +281,6 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
     getAnchor(ep: Endpoint<any>): Anchor {
         return anchorMap.get(ep.id)
     }
-
-
 
     computePath(connection: Connection, timestamp:string): void {
         let sourceInfo = this.instance.viewport.getPosition(connection.sourceId),
