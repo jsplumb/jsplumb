@@ -7,7 +7,7 @@ import { Dictionary, UpdateOffsetOptions, Size, jsPlumbElement, ConnectParams, /
 SourceDefinition, BehaviouralTypeDescriptor, // <--
 TypeDescriptor, Rotations, PointXY, ConnectionMovedParams, ConnectionTypeDescriptor, EndpointTypeDescriptor, Extents } from './common';
 import { EventGenerator } from "./event-generator";
-import { EndpointOptions, InternalEndpointOptions } from "./endpoint/endpoint";
+import { EndpointOptions } from "./endpoint/endpoint-options";
 import { AddGroupOptions, GroupManager } from "./group/group-manager";
 import { UIGroup } from "./group/group";
 import { Router } from "./router/router";
@@ -23,6 +23,7 @@ import { OverlayCapableComponent } from './component/overlay-capable-component';
 import { PaintStyle } from './styles';
 import { AnchorSpec } from "./factory/anchor-factory";
 import { SourceSelector, TargetSelector } from "./source-selector";
+import { InternalEndpointOptions } from "@jsplumb/core/endpoint/endpoint-options";
 export declare type ElementSelectionSpecifier<E> = E | Array<E> | '*';
 export declare type SelectionList = '*' | Array<string>;
 export interface AbstractSelectOptions<E> {

@@ -4196,6 +4196,7 @@ function (_EventGenerator) {
     _defineProperty(_assertThisInitialized(_this), "_unrotatedOrientation", void 0);
     _defineProperty(_assertThisInitialized(_this), "positionFinder", void 0);
     _defineProperty(_assertThisInitialized(_this), "clone", void 0);
+    _this.id = uuid();
     params = params || {};
     _this.cssClass = params.cssClass || "";
     return _this;
@@ -5166,6 +5167,7 @@ function (_OverlayCapableCompon) {
     _classCallCheck(this, Endpoint);
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Endpoint).call(this, instance, params));
     _this.instance = instance;
+    _defineProperty(_assertThisInitialized(_this), "anchorId", void 0);
     _defineProperty(_assertThisInitialized(_this), "connections", []);
     _defineProperty(_assertThisInitialized(_this), "anchor", void 0);
     _defineProperty(_assertThisInitialized(_this), "endpoint", void 0);
@@ -5272,20 +5274,6 @@ function (_OverlayCapableCompon) {
       }
     }
   }, {
-    key: "prepareAnchor",
-    value: function prepareAnchor(anchorParams) {
-      var _this2 = this;
-      var a = makeAnchorFromSpec(this.instance, anchorParams, this.elementId);
-      a.bind(EVENT_ANCHOR_CHANGED, function (currentAnchor) {
-        _this2.fire(EVENT_ANCHOR_CHANGED, {
-          endpoint: _this2,
-          anchor: currentAnchor
-        });
-        _this2._updateAnchorClass();
-      });
-      return a;
-    }
-  }, {
     key: "setPreparedAnchor",
     value: function setPreparedAnchor(anchor) {
       this.anchor = anchor;
@@ -5295,7 +5283,7 @@ function (_OverlayCapableCompon) {
   }, {
     key: "setAnchor",
     value: function setAnchor(anchorParams) {
-      var a = this.prepareAnchor(anchorParams);
+      var a = this.instance.router.prepareAnchor(this, anchorParams);
       this.setPreparedAnchor(a);
       return this;
     }
@@ -6483,6 +6471,7 @@ function floatingAnchorCompute(anchor, params) {
   anchor._lastResult = [xy.x + anchor.size.w / 2, xy.y + anchor.size.h / 2, 0, 0];
   return anchor._lastResult;
 }
+var anchorMap$1 = new Map();
 var DefaultRouter =
 function () {
   function DefaultRouter(instance) {
@@ -6607,6 +6596,13 @@ function () {
       } else {
         return anchor.orientation;
       }
+    }
+  }, {
+    key: "prepareAnchor",
+    value: function prepareAnchor(endpoint, params) {
+      var a = makeAnchorFromSpec(this.instance, params, endpoint.elementId);
+      anchorMap$1.set(endpoint.id, a);
+      return a;
     }
   }, {
     key: "computePath",

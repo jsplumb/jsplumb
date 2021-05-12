@@ -11,7 +11,7 @@ export declare class Anchor extends EventGenerator {
     isFloating: boolean;
     cssClass: string;
     elementId: string;
-    id: string;
+    readonly id: string;
     locked: boolean;
     offsets: [number, number];
     orientation: Orientation;

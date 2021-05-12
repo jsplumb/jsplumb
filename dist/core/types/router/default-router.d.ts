@@ -3,7 +3,7 @@ import { JsPlumbInstance } from "../core";
 import { Connection } from '../connector/connection-impl';
 import { Endpoint } from '../endpoint/endpoint';
 import { Dictionary, PointXY } from "../common";
-import { AnchorComputeParams, Orientation } from "../factory/anchor-factory";
+import { AnchorComputeParams, AnchorSpec, Orientation } from "../factory/anchor-factory";
 import { Anchor } from '../anchor/anchor';
 export declare class DefaultRouter<T extends {
     E: unknown;
@@ -20,6 +20,7 @@ export declare class DefaultRouter<T extends {
     private dynamicAnchorCompute;
     getEndpointOrientation(endpoint: Endpoint): Orientation;
     getAnchorOrientation(anchor: Anchor, endpoint?: Endpoint): Orientation;
+    prepareAnchor(endpoint: Endpoint<any>, params: AnchorSpec | Array<AnchorSpec>): Anchor;
     computePath(connection: Connection, timestamp: string): void;
     private placeAnchors;
     private _removeEndpointFromAnchorLists;
