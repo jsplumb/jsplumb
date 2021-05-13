@@ -1,5 +1,4 @@
 import { AnchorSpec } from "../factory/anchor-factory";
-import { Anchor } from "../anchor/anchor";
 import { PaintStyle } from "../styles";
 import { OverlaySpec } from "../overlay/overlay";
 import { ConnectorSpec } from "../connector/abstract-connector";
@@ -7,7 +6,8 @@ import { Connection } from "../connector/connection-impl";
 import { EndpointRepresentation } from './endpoints';
 import { DeleteConnectionOptions, JsPlumbInstance } from '../core';
 import { OverlayCapableComponent } from '../component/overlay-capable-component';
-import { InternalEndpointOptions } from "@jsplumb/core";
+import { InternalEndpointOptions } from "./endpoint-options";
+import { LightweightAnchor } from '../factory/anchor-record-factory';
 export declare type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndpointId;
 export declare type UserDefinedEndpointId = string;
 export declare type EndpointParams = any;
@@ -66,7 +66,7 @@ export declare class Endpoint<E = any> extends OverlayCapableComponent {
      * Called by the router when a dynamic anchor has changed its current location.
      * @param currentAnchor
      */
-    _anchorLocationChanged(currentAnchor: Anchor): void;
+    _anchorLocationChanged(currentAnchor: LightweightAnchor): void;
     setAnchor(anchorParams: AnchorSpec | Array<AnchorSpec>): Endpoint;
     addConnection(conn: Connection): void;
     /**

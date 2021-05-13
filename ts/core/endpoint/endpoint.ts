@@ -1,5 +1,4 @@
 import {AnchorLocations, AnchorSpec, makeAnchorFromSpec} from "../factory/anchor-factory"
-import { Anchor} from "../anchor/anchor"
 import {PaintStyle} from "../styles"
 import {OverlaySpec} from "../overlay/overlay"
 import {ConnectorSpec} from "../connector/abstract-connector"
@@ -10,7 +9,8 @@ import {extend, merge, isString, isAssignableFrom} from '../util'
 import {DeleteConnectionOptions, JsPlumbInstance} from '../core'
 import { OverlayCapableComponent } from '../component/overlay-capable-component'
 import {DEFAULT, EVENT_ANCHOR_CHANGED, EVENT_MAX_CONNECTIONS} from "../constants"
-import {InternalEndpointOptions} from "@jsplumb/core"
+import {InternalEndpointOptions} from "./endpoint-options"
+import { LightweightAnchor } from '../factory/anchor-record-factory'
 
 export type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndpointId
 export type UserDefinedEndpointId = string
@@ -160,9 +160,9 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         this.addType(type, params.data)
     }
 
-    private _updateAnchorClass (anchor?:Anchor):void {
+    private _updateAnchorClass (anchor?:LightweightAnchor):void {
         anchor = anchor || this.instance.router.getAnchor(this)
-        const ac = anchor && anchor.getCssClass()
+        const ac = anchor && anchor.cssClass
         if (ac != null && ac.length > 0) {
             // stash old, get new
             let oldAnchorClass = this.instance.endpointAnchorClassPrefix + "-" + this.currentAnchorClass
@@ -178,7 +178,7 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         }
     }
 
-    private setPreparedAnchor (anchor:Anchor):Endpoint {
+    private setPreparedAnchor (anchor:LightweightAnchor):Endpoint {
         this.instance.router.setAnchor(this, anchor)
         this._updateAnchorClass(anchor)
         return this
@@ -188,7 +188,7 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
      * Called by the router when a dynamic anchor has changed its current location.
      * @param currentAnchor
      */
-    _anchorLocationChanged(currentAnchor:Anchor) {
+    _anchorLocationChanged(currentAnchor:LightweightAnchor) {
         this.fire(EVENT_ANCHOR_CHANGED, {endpoint: this, anchor: currentAnchor})
         this._updateAnchorClass(currentAnchor)
     }
