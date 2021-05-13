@@ -1,6 +1,13 @@
 
 import {Endpoint} from "../endpoint/endpoint"
-import {AnchorComputeParams, AnchorOrientationHint, AnchorSpec, Face, Orientation} from "../factory/anchor-factory"
+import {
+    AnchorComputeParams,
+    AnchorOrientationHint,
+    AnchorSpec,
+    Face,
+    Orientation,
+    X_AXIS_FACES, Y_AXIS_FACES
+} from "../factory/anchor-factory"
 import {
     AnchorRecord,
     LightweightAnchor,
@@ -13,7 +20,16 @@ import {AnchorPlacement, RedrawResult, Router} from "./router"
 import {Connection} from "../connector/connection-impl"
 import {JsPlumbInstance} from "../core"
 import * as Constants from "../constants"
-import {findWithFunction, forEach, removeWithFunction, RotatedPointXY, rotatePoint, sortHelper, uuid} from "../util"
+import {
+    extend,
+    findWithFunction,
+    forEach,
+    removeWithFunction,
+    RotatedPointXY,
+    rotatePoint,
+    sortHelper,
+    uuid
+} from "../util"
 import {ViewportElement} from "../viewport"
 import {lineLength} from "../geom"
 
@@ -33,6 +49,7 @@ interface OrientationResult {
     theta2?:number
 }
 
+// TODO surely we want anchorId:string,  here
 type AnchorListEntry = {theta:number, order:number, c:ConnectionFacade, b:boolean, elId:string, epId:string }
 type AnchorLists = { top: Array<AnchorListEntry>, right: Array<AnchorListEntry>, bottom: Array<AnchorListEntry>, left: Array<AnchorListEntry> }
 type ContinuousAnchorPlacement = { x:number, y:number, xLoc:number, yLoc:number, c:ConnectionFacade  }
@@ -154,8 +171,7 @@ function _placeAnchors (instance:JsPlumbInstance, elementId:string, _anchorLists
 
             // takes a computed anchor position and adjusts it for parent offset and scroll, then stores it.
             let _setAnchorLocation = (endpoint:Endpoint, anchorPos:ContinuousAnchorPlacement) => {
-                this.continuousAnchorLocations[endpoint.id] = [ anchorPos.x, anchorPos.y, anchorPos.xLoc, anchorPos.yLoc ]
-                this.continuousAnchorOrientations[endpoint.id] = orientation
+                anchorLocations.set(endpoint._anchorId, {curX:anchorPos.x, curY:anchorPos.y, x:anchorPos.xLoc, y:anchorPos.yLoc, ox:orientation[0], oy:orientation[1] })
             }
 
             for (let i = 0; i < anchors.length; i++) {
@@ -177,7 +193,7 @@ function _placeAnchors (instance:JsPlumbInstance, elementId:string, _anchorLists
 }
 
 function _removeEndpointFromAnchorLists (endpoint:Endpoint):void {
-    const listsForElement = this.anchorLists[endpoint.elementId]
+    const listsForElement = anchorLists.get(endpoint.elementId)
     let total = 0;
 
     (function (list, eId) {
@@ -199,11 +215,10 @@ function _removeEndpointFromAnchorLists (endpoint:Endpoint):void {
 
     // remove entry from anchor lists if there are no anchors left.
     if (total === 0) {
-        delete this.anchorLists[endpoint.elementId]
+        anchorLists.delete(endpoint.elementId)
     }
 
-    delete this.continuousAnchorLocations[endpoint.id]
-    delete this.continuousAnchorOrientations[endpoint.id]
+    anchorLocations.delete(endpoint._anchorId)
 }
 
 const opposites:Dictionary<Face> = {"top": "bottom", "right": "left", "left": "right", "bottom": "top"}
@@ -214,7 +229,12 @@ function _getCurrentFace(a:LightweightContinuousAnchor):Face {
     return a.currentFace
 }
 
-function _getDefaultFace(a:LightweightContinuousAnchor):Face {
+/**
+ *
+ * @param a
+ * @private
+ */
+export function _getDefaultFace(a:LightweightContinuousAnchor):Face {
     return a.faces.length === 0 ? "top" : a.faces[0]
 }
 
@@ -260,7 +280,13 @@ function verifyEdge (a:LightweightContinuousAnchor, edge:Face):Face {
     return edge // we have to give them something.
 }
 
-function _isEdgeSupported (a:LightweightContinuousAnchor, edge:Face):boolean {
+/**
+ *
+ * @param a
+ * @param edge
+ * @private
+ */
+export function _isEdgeSupported (a:LightweightContinuousAnchor, edge:Face):boolean {
     return  a.lockedAxis == null ?
         (a.lockedFace == null ? _isFaceAvailable(a, edge) === true : a.lockedFace === edge)
         : a.lockedAxis.indexOf(edge) !== -1
@@ -285,16 +311,6 @@ function _setCurrentFace (a:LightweightContinuousAnchor, face:Face, overrideLock
 //     return af
 // }
 
-function lock(a:LightweightContinuousAnchor) {
-    a.lockedFace = a.currentFace
-    a.locked = true
-}
-
-function unlock(a:LightweightContinuousAnchor):void {
-    a.lockedFace = null
-    a.locked = false
-}
-
 // -------------------- / internal data structures --------------------------------------
 
 function isContinuous(a:LightweightAnchor):a is LightweightContinuousAnchor {
@@ -314,6 +330,7 @@ export function getAnchorOrientation(anchor:LightweightAnchor, endpoint?: Endpoi
     //     return this.continuousAnchorOrientations[endpoint.id] || [ 0, 0 ]
     // } else if (anchor.isDynamic) {
     //     return (anchor as DynamicAnchor)._curAnchor != null ? (anchor as DynamicAnchor)._curAnchor.orientation : [ 0, 0 ]
+
     // } else if (anchor.isFloating) {
     //     if (anchor.orientation) {
     //         return anchor.orientation
@@ -331,24 +348,12 @@ export function getAnchorOrientation(anchor:LightweightAnchor, endpoint?: Endpoi
     // }
     //return anchorOrientations.get(anchor.id) || [0, 0]
     const loc = anchorLocations.get(anchor.id)
-    return loc ? [loc[2], loc[3]] : [0,0]
-}
-
-export function anchorsEqual(a1:LightweightAnchor, a2:LightweightAnchor):boolean {
-    if (!a1 || !a2) {
-        return false
-    }
-    let ao = getAnchorOrientation(a2),
-        o = getAnchorOrientation(a1),
-        l1 = a1.locations[a1.currentLocation],
-        l2 = a2.locations[a2.currentLocation]
-
-    return l1.x === l2.x && l1.y === l2.y && l1.offx === l2.offx && l1.offy === l2.offy && o[0] === ao[0] && o[1] === ao[1]
+    return loc ? [loc.ox, loc.oy] : [0,0]
 }
 
 function floatingAnchorCompute(instance:JsPlumbInstance, anchor:LightweightFloatingAnchor, params:AnchorComputeParams):AnchorPlacement {
     let xy = params.xy
-    const pos = [ xy.x + (anchor.size.w / 2), xy.y + (anchor.size.h / 2), 0, 0 ] as AnchorPlacement; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
+    const pos = {curX:xy.x + (anchor.size.w / 2), curY:xy.y + (anchor.size.h / 2), x:0, y:0, ox:0, oy:0 } // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
     anchorLocations.set(anchor.id, pos)
     return pos
 }
@@ -358,15 +363,14 @@ function getCurrentLocation(anchor:LightweightAnchor):[number, AnchorRecord] {
 }
 
 function computeSingleLocation(instance:JsPlumbInstance, loc:AnchorRecord, xy:PointXY, wh:Size, params:AnchorComputeParams):AnchorPlacement {
-    const candidate:[ number, number, number, number ] = [ xy.x + (loc.x * wh.w) + loc.offx, xy.y + (loc.y * wh.h) + loc.offy, loc.x, loc.y ]
+    const candidate:AnchorPlacement = {curX:xy.x + (loc.x * wh.w) + loc.offx, curY:xy.y + (loc.y * wh.h) + loc.offy, x:loc.x, y:loc.y, ox:0, oy:0 }
 
     let pos:AnchorPlacement
     const rotation = params.rotation;
     if (rotation != null && rotation.length > 0) {
 
         let o = [loc.iox,loc.ioy],
-            s = candidate.slice(),
-            current:RotatedPointXY = {x:s[0], y:s[1], cr:0, sr:0}
+            current:RotatedPointXY = {x:candidate.curX, y:candidate.curY, cr:0, sr:0}
 
         forEach(rotation, (r) => {
             current = rotatePoint(current, r.c, r.r)
@@ -377,12 +381,16 @@ function computeSingleLocation(instance:JsPlumbInstance, loc:AnchorRecord, xy:Po
 
         loc.ox = o[0]
         loc.oy = o[1]
-        pos = [current.x, current.y, loc.x, loc.y]
+        pos = {curX:current.x, curY:current.y, x:loc.x, y:loc.y, ox:o[0], oy:o[1] }
 
     } else {
         loc.ox = loc.iox
         loc.oy = loc.ioy
-        pos = candidate
+        //pos = candidate
+        pos = extend({
+            ox:loc.iox,
+            oy:loc.ioy
+        } as any, candidate)
     }
 
     return pos
@@ -404,7 +412,7 @@ function _singleAnchorCompute(instance:JsPlumbInstance, anchor:LightweightAnchor
         return pos
     }
 
-    const [currentIdx, currentLoc] = getCurrentLocation(anchor)
+    const [_, currentLoc] = getCurrentLocation(anchor)
 
     pos = computeSingleLocation(instance, currentLoc, xy, wh, params)
 
@@ -441,21 +449,10 @@ function defaultAnchorCompute(instance:JsPlumbInstance, anchor:LightweightAnchor
 
 
         if(newIdx !== currentIdx) {
-            //params.element._anchorLocationChanged(newAnchor)
+            anchor.cssClass = newLoc.cls || anchor.cssClass
+            params.element._anchorLocationChanged(anchor)
         }
         pos = computeSingleLocation(instance, newLoc, xy, wh, params)
-
-        // anchor._curAnchor = anchor._anchorSelector(xy, wh, txy, twh, params.rotation, params.tRotation, anchor.anchors)
-        // anchor.x = anchor._curAnchor.x
-        // anchor.y = anchor._curAnchor.y
-        //
-        // if (anchor._curAnchor !== anchor._lastAnchor) {
-        //     params.element._anchorLocationChanged(anchor._curAnchor)
-        // }
-        //
-        // anchor._lastAnchor = anchor._curAnchor
-        //
-        // anchor.lastReturnValue = this.defaultAnchorCompute(anchor._curAnchor, params)
     }
 
     anchorLocations.set(anchor.id, pos)
@@ -510,7 +507,7 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
     computeAnchorLocation(anchor: LightweightAnchor, params: AnchorComputeParams): AnchorPlacement {
         let pos:AnchorPlacement
         if (isContinuous(anchor)) {
-            pos = anchorLocations.get(anchor.id) || [0,0,0,0,0,0]
+            pos = anchorLocations.get(anchor.id) || {curX:0, curY:0, x:0, y:0, ox:0, oy:0}
         } else if (isFloating(anchor)) {
             pos = floatingAnchorCompute(this.instance, anchor, params)
         } else {
@@ -546,8 +543,8 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
         connection.connector.compute({
             sourcePos: sAnchorP,
             targetPos: tAnchorP,
-            sourceOrientation:this.getEndpointOrientation(sE),
-            targetOrientation:this.getEndpointOrientation(tE),
+            // sourceOrientation:[sAnchorP.ox, sAnchorP.oy],
+            // targetOrientation:[tAnchorP.ox, tAnchorP.oy],
             sourceEndpoint: connection.endpoints[0],
             targetEndpoint: connection.endpoints[1],
             strokeWidth: connection.paintStyleInUse.strokeWidth,
@@ -573,7 +570,6 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
             anchorLocations.set(anchor.id, pos)
         }
         return pos
-        //return (anchor.lastReturnValue == null || (params.timestamp != null && anchor.timestamp !== params.timestamp)) ? this.computeAnchorLocation(anchor, params) : anchor.lastReturnValue
     }
 
     getEndpointOrientation(endpoint: Endpoint<any>): [number, number] {
@@ -590,12 +586,11 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
 
     isFloating(ep: Endpoint<any>): boolean {
         const a = this.getAnchor(ep)
-        return a ? !isFloating(a) : false
+        return a ? isFloating(a) : false
     }
 
     prepareAnchor(endpoint: Endpoint<any>, params: AnchorSpec | Array<AnchorSpec>): LightweightAnchor {
-        const a = makeLightweightAnchorFromSpec(params)
-        return a
+        return makeLightweightAnchorFromSpec(params)
     }
 
     redraw(elementId: string, timestamp?: string, offsetToUI?: PointXY): RedrawResult {
@@ -623,9 +618,6 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
                         if (!anchorLists.has(elementId)) {
                             anchorLists.set(elementId, { top: [], right: [], bottom: [], left: [] })
                         }
-                        // if (!this.anchorLists[elementId]) {
-                        //     this.anchorLists[elementId] = { top: [], right: [], bottom: [], left: [] }
-                        // }
                         _updateAnchorList(
                             anchorLists.get(elementId),
                             -Math.PI / 2,
@@ -646,8 +638,8 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
                         let conn = anEndpoint.connections[i],
                             sourceId = conn.sourceId,
                             targetId = conn.targetId,
-                            sourceContinuous = isContinuous(anchorMap.get(conn.endpoints[0].id)),//conn.endpoints[0].anchor.isContinuous,
-                            targetContinuous = isContinuous(anchorMap.get(conn.endpoints[0].id))//conn.endpoints[1].anchor.isContinuous
+                            sourceContinuous = isContinuous(anchorMap.get(conn.endpoints[0].id)),
+                            targetContinuous = isContinuous(anchorMap.get(conn.endpoints[0].id))
 
                         if (sourceContinuous || targetContinuous) {
                             let oKey = sourceId + "_" + targetId,
@@ -755,14 +747,15 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
 
     reset(): void {
         anchorMap.clear()
-        //anchorOrientations.clear()
         anchorLocations.clear()
         anchorLists.clear()
     }
 
     setAnchor(endpoint: Endpoint<any>, anchor: LightweightAnchor): void {
-        anchorMap.set(endpoint.id, anchor)
-        endpoint._anchorId = anchor.id
+        if(anchor != null) {
+            anchorMap.set(endpoint.id, anchor)
+            endpoint._anchorId = anchor.id
+        }
     }
 
     setConnectionAnchors(conn: Connection<any>, anchors: [LightweightAnchor, LightweightAnchor]): void {
@@ -902,5 +895,40 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
         }
     }
 
+    lock(a:LightweightAnchor) {
+        a.locked = true
+        if (isContinuous(a)) {
+            a.lockedFace = a.currentFace
+        }
+    }
+
+    unlock(a:LightweightAnchor):void {
+        a.locked = false
+        if (isContinuous(a)) {
+            a.lockedFace = null
+        }
+    }
+
+    lockCurrentAxis(a:LightweightContinuousAnchor) {
+        if (a.currentFace != null) {
+            a.lockedAxis = (a.currentFace ===  LEFT || a.currentFace === RIGHT) ? X_AXIS_FACES : Y_AXIS_FACES
+        }
+    }
+
+    unlockCurrentAxis(a:LightweightContinuousAnchor):void {
+        a.lockedAxis = null
+    }
+
+    anchorsEqual(a1:LightweightAnchor, a2:LightweightAnchor):boolean {
+        if (!a1 || !a2) {
+            return false
+        }
+        let ao = getAnchorOrientation(a2),
+            o = getAnchorOrientation(a1),
+            l1 = a1.locations[a1.currentLocation],
+            l2 = a2.locations[a2.currentLocation]
+
+        return l1.x === l2.x && l1.y === l2.y && l1.offx === l2.offx && l1.offy === l2.offy && o[0] === ao[0] && o[1] === ao[1]
+    }
 
 }
