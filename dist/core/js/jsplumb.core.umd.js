@@ -2174,22 +2174,22 @@
       value: function importGeometry(geometry) {
         if (geometry != null) {
           if (geometry.controlPoints == null || geometry.controlPoints.length != 2) {
-            console.log("Bezier: cannot import geometry; controlPoints missing or does not have length 2");
+            log("jsPlumb Bezier: cannot import geometry; controlPoints missing or does not have length 2");
             this.setGeometry(null, true);
             return false;
           }
           if (geometry.controlPoints[0].length != 2 || geometry.controlPoints[1].length != 2) {
-            console.log("Bezier: cannot import geometry; controlPoints malformed");
+            log("jsPlumb Bezier: cannot import geometry; controlPoints malformed");
             this.setGeometry(null, true);
             return false;
           }
           if (geometry.source == null || geometry.source.length != 4) {
-            console.log("Bezier: cannot import geometry; source missing or malformed");
+            log("jsPlumb Bezier: cannot import geometry; source missing or malformed");
             this.setGeometry(null, true);
             return false;
           }
           if (geometry.target == null || geometry.target.length != 4) {
-            console.log("Bezier: cannot import geometry; target missing or malformed");
+            log("jsPlumb Bezier: cannot import geometry; target missing or malformed");
             this.setGeometry(null, true);
             return false;
           }
@@ -7807,8 +7807,6 @@
       _defineProperty(_assertThisInitialized(_this), "_managedElements", {});
       _defineProperty(_assertThisInitialized(_this), "DEFAULT_SCOPE", void 0);
       _defineProperty(_assertThisInitialized(_this), "_zoom", 1);
-      _defineProperty(_assertThisInitialized(_this), "attributeObserver", void 0);
-      _defineProperty(_assertThisInitialized(_this), "domObserver", void 0);
       _this.defaults = {
         anchor: exports.AnchorLocations.Bottom,
         anchors: [null, null],
@@ -7845,20 +7843,9 @@
       _this.router = new LightweightRouter(_assertThisInitialized(_this));
       _this.groupManager = new GroupManager(_assertThisInitialized(_this));
       _this.setContainer(_this._initialDefaults.container);
-      _this.addMutationObserver();
       return _this;
     }
     _createClass(JsPlumbInstance, [{
-      key: "removeMutationObserver",
-      value: function removeMutationObserver() {
-        this.attributeObserver && this.attributeObserver.disconnect();
-        this.domObserver && this.domObserver.disconnect();
-      }
-    }, {
-      key: "addMutationObserver",
-      value: function addMutationObserver() {
-      }
-    }, {
       key: "getContainer",
       value: function getContainer() {
         return this._container;
@@ -7991,9 +7978,7 @@
     }, {
       key: "setContainer",
       value: function setContainer(c) {
-        this.removeMutationObserver();
         this._container = c;
-        this.addMutationObserver();
         this.fire(EVENT_CONTAINER_CHANGE, this._container);
       }
     }, {

@@ -2540,7 +2540,6 @@ function () {
     value: function _mouseupHandler(e) {
       var el = e.currentTarget || e.srcElement;
       if (el._jsPlumbOrphanedEndpoints) {
-        console.log("cleanup orphaned endpoint");
         each(el._jsPlumbOrphanedEndpoints, this.instance._maybePruneEndpoint.bind(this.instance));
         el._jsPlumbOrphanedEndpoints.length = 0;
       }
@@ -2879,7 +2878,6 @@ function () {
             this.currentDropTarget.endpoint.endpoint.removeClass(this.instance.endpointDropAllowedClass);
             this.currentDropTarget.endpoint.endpoint.removeClass(this.instance.endpointDropForbiddenClass);
           }
-          console.log("FLOATING ANCHOR OUT EVENT");
           this.floatingAnchor.out();
         }
         if (newDropTarget != null) {
@@ -2900,7 +2898,6 @@ function () {
                 newDropTarget.endpoint.endpoint.removeClass(this.instance.endpointDropAllowedClass);
                 newDropTarget.endpoint.endpoint.addClass(this.instance.endpointDropForbiddenClass);
               }
-              console.log("FLOATING ANCHOR HOVER TODO");
               this.floatingAnchor.over(newDropTarget.endpoint);
             } else {
               newDropTarget = null;
@@ -4845,7 +4842,7 @@ function (_JsPlumbInstance) {
       if (renderer != null) {
         SvgEndpoint.paint(ep.endpoint, renderer, paintStyle);
       } else {
-        console.log("JSPLUMB: no endpoint renderer found for type [" + ep.endpoint.type + "]");
+        log("jsPlumb: no endpoint renderer found for type [" + ep.endpoint.type + "]");
       }
     }
   }, {

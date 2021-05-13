@@ -686,12 +686,6 @@ export class Drag extends Base {
         _setPosition(this._dragEl, {x:cPos.x + this._ghostDx, y:cPos.y + this._ghostDy})
 
         this._dispatch<DragEventParams>("drag", {el:this.el, pos:cPos, e:e, drag:this})
-
-        /* test to see if the parent needs to be scrolled (future)
-         if (scroll) {
-         var pnsl = dragEl.parentNode.scrollLeft, pnst = dragEl.parentNode.scrollTop
-         console.log("scroll!", pnsl, pnst)
-         }*/
     }
 
     abort() {

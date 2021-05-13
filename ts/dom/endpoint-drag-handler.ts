@@ -304,7 +304,6 @@ export class EndpointDragHandler implements DragHandler {
     private _mouseupHandler(e:MouseEvent) {
         let el:any = e.currentTarget || e.srcElement
         if (el._jsPlumbOrphanedEndpoints) {
-            console.log("cleanup orphaned endpoint")
             each(el._jsPlumbOrphanedEndpoints, this.instance._maybePruneEndpoint.bind(this.instance))
             el._jsPlumbOrphanedEndpoints.length = 0
         }
@@ -713,8 +712,6 @@ export class EndpointDragHandler implements DragHandler {
                     this.currentDropTarget.endpoint.endpoint.removeClass(this.instance.endpointDropForbiddenClass)
                 }
 
-            // TODO
-                console.log("FLOATING ANCHOR OUT EVENT")
                 this.floatingAnchor.out()
             }
 
@@ -741,8 +738,6 @@ export class EndpointDragHandler implements DragHandler {
                             newDropTarget.endpoint.endpoint.addClass(this.instance.endpointDropForbiddenClass)
                         }
 
-            // TODO make the router do this?
-                        console.log("FLOATING ANCHOR HOVER TODO")
                         this.floatingAnchor.over(newDropTarget.endpoint)
                     } else {
                         newDropTarget = null

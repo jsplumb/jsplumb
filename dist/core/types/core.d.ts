@@ -106,11 +106,7 @@ export declare abstract class JsPlumbInstance<T extends {
     readonly defaultScope: string;
     private _zoom;
     readonly currentZoom: number;
-    private attributeObserver;
-    private domObserver;
     constructor(_instanceIndex: number, defaults?: JsPlumbDefaults<T["E"]>);
-    private removeMutationObserver;
-    private addMutationObserver;
     getContainer(): any;
     setZoom(z: number, repaintEverything?: boolean): boolean;
     _idstamp(): string;

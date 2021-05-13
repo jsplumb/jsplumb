@@ -4,6 +4,7 @@ import { Connection } from '../connector/connection-impl'
 import { JsPlumbInstance } from "../core"
 import {AnchorPlacement} from "../router/router"
 import { PointXY} from '../common'
+import {log} from "../util"
 
 export interface AbstractBezierOptions {
     showLoopback?:boolean
@@ -114,25 +115,25 @@ export abstract class AbstractBezierConnector extends AbstractConnector {
         if (geometry != null) {
 
             if (geometry.controlPoints == null || geometry.controlPoints.length != 2) {
-                console.log("Bezier: cannot import geometry; controlPoints missing or does not have length 2")
+                log("jsPlumb Bezier: cannot import geometry; controlPoints missing or does not have length 2")
                 this.setGeometry(null, true)
                 return false
             }
 
             if (geometry.controlPoints[0].length != 2 || geometry.controlPoints[1].length != 2) {
-                console.log("Bezier: cannot import geometry; controlPoints malformed")
+                log("jsPlumb Bezier: cannot import geometry; controlPoints malformed")
                 this.setGeometry(null, true)
                 return false
             }
 
             if (geometry.source == null || geometry.source.length != 4) {
-                console.log("Bezier: cannot import geometry; source missing or malformed")
+                log("jsPlumb Bezier: cannot import geometry; source missing or malformed")
                 this.setGeometry(null, true)
                 return false
             }
 
             if (geometry.target == null || geometry.target.length != 4) {
-                console.log("Bezier: cannot import geometry; target missing or malformed")
+                log("jsPlumb Bezier: cannot import geometry; target missing or malformed")
                 this.setGeometry(null, true)
                 return false
             }

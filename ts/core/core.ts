@@ -286,9 +286,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     private _zoom:number = 1
     get currentZoom() { return  this._zoom }
 
-    private attributeObserver:MutationObserver
-    private domObserver:MutationObserver
-
     constructor(public readonly _instanceIndex:number, defaults?:JsPlumbDefaults<T["E"]>) {
 
         super()
@@ -331,58 +328,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
         this.setContainer(this._initialDefaults.container)
 
-        this.addMutationObserver()
-    }
-
-    private removeMutationObserver() {
-        this.attributeObserver && this.attributeObserver.disconnect()
-        this.domObserver && this.domObserver.disconnect()
-    }
-
-    private addMutationObserver() {
-        // this.attributeObserver = new MutationObserver((mutations) => {
-        //     mutations.forEach((mutation) => {
-        //         console.log("ATTRIBUTE MUTATION :", mutation)
-        //         // if (mutation.attributeName === ATTRIBUTE_MANAGED) {
-        //         //     const value = (mutation.target as Element).getAttribute(ATTRIBUTE_MANAGED)
-        //         //     if (this._managedElements[value] == null) {
-        //         //         this.manage(mutation.target as any, value)
-        //         //     }
-        //         // }
-        //     });
-        // });
-        //
-        // this.attributeObserver.observe(this.getContainer(), {
-        //     attributes: true,
-        //     attributeFilter:['data-jtk-managed'],
-        //     childList: true
-        // });
-        //
-        // this.domObserver = new MutationObserver((mutations) => {
-        //
-        //     const additions:Array<Element> = [], removals:Array<Element> = []
-        //     mutations.forEach((mutation) => {
-        //
-        //         Array.prototype.push.apply(removals, flatMap(mutation.removedNodes, (removedNode:Node) => {
-        //             return removedNode instanceof HTMLElement && removedNode.matches(SELECTOR_MANAGED_ELEMENT) ? removedNode : null
-        //         }))
-        //
-        //         Array.prototype.push.apply(additions, flatMap(mutation.addedNodes, (addedNode:Node) => {
-        //             return addedNode instanceof HTMLElement && addedNode.parentNode != null && addedNode.matches(SELECTOR_MANAGED_ELEMENT) ? addedNode : null
-        //         }))
-        //     });
-        //
-        //     if (additions.length > 0 || removals.length > 0) {
-        //         this.batch(() => {
-        //             forEach(removals, (r) => this.unmanage(r))
-        //             forEach(additions, (r) => this.manage(r))
-        //         })
-        //     }
-        // });
-        //
-        // this.domObserver.observe(this.getContainer(), {
-        //     childList: true
-        // });
     }
 
     getContainer():any { return this._container; }
@@ -527,9 +472,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     }
 
     setContainer(c:T["E"]):void {
-        this.removeMutationObserver()
         this._container = c
-        this.addMutationObserver()
         this.fire(Constants.EVENT_CONTAINER_CHANGE, this._container)
     }
 

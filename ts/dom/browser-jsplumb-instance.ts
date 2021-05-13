@@ -72,7 +72,7 @@ import {
     EVENT_TAP,
     EVENT_DBL_TAP,
     EVENT_ELEMENT_TAP,
-    EVENT_ELEMENT_DBL_TAP, Extents
+    EVENT_ELEMENT_DBL_TAP, Extents, log
 } from '@jsplumb/core'
 
 import { _attr,
@@ -98,11 +98,10 @@ import {
 import {EventManager, pageLocation} from "./event-manager"
 
 import {
-    Drag,
     DragHandlerOptions,
     DragStartEventParams,
     DragEventParams,
-    DragStopEventParams, ContainmentType, Grid
+    DragStopEventParams, ContainmentType
 } from './collicat'
 
 import {JsPlumbList, JsPlumbListManager, JsPlumbListOptions} from "./lists"
@@ -1260,7 +1259,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         if (renderer != null) {
             SvgEndpoint.paint(ep.endpoint, renderer, paintStyle)
         } else {
-            console.log("JSPLUMB: no endpoint renderer found for type [" + ep.endpoint.type + "]")
+            log("jsPlumb: no endpoint renderer found for type [" + ep.endpoint.type + "]")
         }
     }
 
