@@ -1,5 +1,5 @@
 import { AbstractSegment, PointNearPath } from "./abstract-segment";
-import { Extents, PointXY } from '../common';
+import { PointXY } from '../common';
 import { JsPlumbInstance } from "../core";
 export declare type StraightSegmentCoordinates = {
     x1: number;
@@ -23,7 +23,6 @@ export declare class StraightSegment extends AbstractSegment {
     getLength(): number;
     getGradient(): number;
     private _setCoordinates;
-    getBounds(): Extents;
     /**
      * returns the point on the segment's path that is 'location' along the length of the path, where 'location' is a decimal from
      * 0 to 1 inclusive. for the straight line segment this is simple maths.
