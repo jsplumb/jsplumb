@@ -4,7 +4,6 @@ import {
 
 import {StraightSegment} from "./straight-segment"
 import {ArcSegment} from "./arc-segment"
-import {Connectors} from "./connectors"
 
 import { Dictionary } from '../common'
 import { JsPlumbInstance } from "../core"
