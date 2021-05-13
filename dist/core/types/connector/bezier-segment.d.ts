@@ -1,5 +1,5 @@
 import { AbstractSegment, PointNearPath } from "./abstract-segment";
-import { Extents, PointXY } from '../common';
+import { PointXY } from '../common';
 import { JsPlumbInstance } from "../core";
 import { Curve } from "../bezier";
 export declare class BezierSegment extends AbstractSegment {
@@ -8,7 +8,6 @@ export declare class BezierSegment extends AbstractSegment {
     cp1y: number;
     cp2x: number;
     cp2y: number;
-    bounds: Extents;
     x1: number;
     x2: number;
     y1: number;
@@ -29,7 +28,6 @@ export declare class BezierSegment extends AbstractSegment {
     gradientAtPoint(location: number, absolute?: boolean): number;
     pointAlongPathFrom(location: number, distance: number, absolute?: boolean): PointXY;
     getLength(): number;
-    getBounds(): Extents;
     findClosestPointOnPath(x: number, y: number): PointNearPath;
     lineIntersection(x1: number, y1: number, x2: number, y2: number): Array<PointXY>;
 }
