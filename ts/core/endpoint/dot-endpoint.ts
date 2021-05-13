@@ -33,8 +33,8 @@ export class DotEndpoint extends EndpointRepresentation<ComputedDotEndpoint> {
     // it would be much more lightweight as we'd not need to create a class for each one.
     _compute(anchorPoint:AnchorPlacement, orientation:Orientation, endpointStyle:any):ComputedDotEndpoint {
         //this.radius = endpointStyle.radius || this.radius
-        let x = anchorPoint[0] - this.radius,
-            y = anchorPoint[1] - this.radius,
+        let x = anchorPoint.curX - this.radius,
+            y = anchorPoint.curY - this.radius,
             w = this.radius * 2,
             h = this.radius * 2
 
