@@ -6,6 +6,7 @@ import {PaintStyle} from "../styles"
 import {ConnectorSpec} from "../connector/abstract-connector"
 import {OverlaySpec} from "../overlay/overlay"
 import {EndpointSpec} from "./endpoint"
+import {LightweightAnchor} from "../factory/anchor-record-factory"
 
 export interface InternalEndpointOptions<E> extends EndpointOptions<E> {
     isTemporarySource?:boolean
@@ -13,7 +14,7 @@ export interface InternalEndpointOptions<E> extends EndpointOptions<E> {
     _transient?:boolean
     type?: string; // "Dot", etc.
     id?: string
-    preparedAnchor?:Anchor
+    preparedAnchor?:LightweightAnchor
     connections?:Array<Connection>
     element?:E
     existingEndpoint?:EndpointRepresentation<E>
