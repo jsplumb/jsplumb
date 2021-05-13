@@ -1,6 +1,6 @@
 import {AnchorOrientationHint, AnchorSpec, Axis, Face, FullAnchorSpec} from "./anchor-factory"
 import {extend, isArray, isNumber, isString, uuid, map} from "../util"
-import {Size} from "../common"
+import {Dictionary, Size} from "../common"
 
 export interface AnchorRecord {
     x:number
@@ -47,16 +47,28 @@ export const BOTTOM = "bottom"
 export const LEFT = "left"
 export const RIGHT = "right"
 
+const _top = {x:0.5, y:0, ox:0, oy:-1, offx:0, offy:0 },
+    _bottom = {x:0.5, y:1, ox:0, oy:1, offx:0, offy:0 },
+    _left = {x:0, y:0.5, ox:-1, oy:0, offx:0, offy:0 },
+    _right = {x:1, y:0.5, ox:1, oy:0, offx:0, offy:0 },
+    _topLeft = {x:0, y:0, ox:0, oy:-1, offx:0, offy:0 },
+    _topRight = {x:1, y:0, ox:1, oy:-1, offx:0, offy:0 },
+    _bottomLeft = {x:0, y:1, ox:0, oy:1, offx:0, offy:0 },
+    _bottomRight = {x:1, y:1, ox:0, oy:1, offx:0, offy:0 },
+    _center = {x:0.5, y:0.5, ox:0, oy:0, offx:0, offy:0 }
+
 const namedValues = {
-    "Top":{x:0.5, y:0, ox:0, oy:-1, offs:0, offy:0 },
-    "Bottom":{x:0.5, y:1, ox:0, oy:1, offs:0, offy:0 },
-    "Left":{x:0, y:0.5, ox:-1, oy:0, offs:0, offy:0 },
-    "Right":{x:1, y:0.5, ox:1, oy:0, offs:0, offy:0 },
-    "TopLeft":{x:0, y:0, ox:0, oy:-1, offs:0, offy:0 },
-    "TopRight":{x:1, y:0, ox:1, oy:-1, offs:0, offy:0 },
-    "BottomLeft":{x:0, y:1, ox:0, oy:1, offs:0, offy:0 },
-    "BottomRight":{x:1, y:1, ox:0, oy:1, offs:0, offy:0 },
-    "Center":{x:0.5, y:0.5, ox:0, oy:0, offs:0, offy:0 },
+    "Top":[_top],
+    "Bottom":[_bottom],
+    "Left":[_left],
+    "Right":[_right],
+    "TopLeft":[_topLeft],
+    "TopRight":[_topRight],
+    "BottomLeft":[_bottomLeft],
+    "BottomRight":[_bottomRight],
+    "Center":[_center],
+    "AutoDefault":[_top, _left, _bottom, _right]
+
 }
 
 const namedContinuousValues = {
@@ -67,20 +79,22 @@ const namedContinuousValues = {
     "ContinuousLeft":{faces:[LEFT]},
     "ContinuousLeftRight":{faces:[LEFT, RIGHT]},
     "ContinuousTopBottom":{faces:[TOP, BOTTOM]}
-
 }
+
 
 function getNamedAnchor(name:string, params?:Record<string, any>):LightweightAnchor {
     params = params || {}
     let a = namedValues[name]
     if (a != null) {
-        return _createAnchor(name, [ extend({iox:0, ioy:0}, a)], params)
+        return _createAnchor(name, map(a, (_a:any) => extend({iox:_a.ox, ioy:_a.oy}, _a)), params)
     }
 
     a = namedContinuousValues[name]
     if (a != null) {
         return _createContinuousAnchor(name, a.faces, params)
     }
+
+    throw {message:"jsPlumb: unknown anchor type '" + name + "'"}
 }
 
 function _createAnchor(type:string, locations:Array<AnchorRecord>, params:Record<string, any>):LightweightAnchor {
@@ -98,18 +112,24 @@ function _createAnchor(type:string, locations:Array<AnchorRecord>, params:Record
     }
 }
 
-// function _createFloatingAnchor(type:string, locations:Array<AnchorRecord>, params:Record<string, any>, size:PointXY):LightweightFloatingAnchor {
-//     const a = _createAnchor(type, locations, params) as LightweightFloatingAnchor
-//     a.isFloating = true;
-//     a.size = { x:size.x, y:size.y}
-//     return a
-// }
 
-function _createFloatingAnchor(a:LightweightAnchor, size:Size):LightweightFloatingAnchor {
-    const _a = a as LightweightFloatingAnchor
-    _a.isFloating = true;
-    _a.size = { w:size.w, h:size.h}
-    return _a
+
+export function createFloatingAnchor(size:Size):LightweightFloatingAnchor {
+    return {
+        isFloating:true,
+        size:{w:size.w, h:size.h},
+        locations:[
+           { x:0.5, y:0.5, ox:0, oy:0, offx:0, offy:0, cls:"", iox:0, ioy:0 }
+        ],
+        locked:false,
+        currentLocation:0,
+        id:uuid(),
+        cssClass:"",
+        isDynamic:false,
+        type:"Floating",
+        isContinuous:false,
+        timestamp:null
+    }
 }
 
 function _createContinuousAnchor(type:string, faces:Array<Face>, params:Record<string, any>):LightweightContinuousAnchor {
@@ -124,7 +144,7 @@ function _createContinuousAnchor(type:string, faces:Array<Face>, params:Record<s
         isContinuous:true,
         isDynamic:false,
         timestamp:null,
-        faces,
+        faces:params.faces || faces,
         lockedFace:null,
         currentFace:null,
         lockedAxis:null,
@@ -168,7 +188,9 @@ export function makeLightweightAnchorFromSpec(spec:AnchorSpec|Array<AnchorSpec>)
             const locations:Array<AnchorRecord> = map(spec as Array<AnchorSpec>, (aSpec:AnchorSpec) => {
                 if (isString(aSpec)) {
                     let a = namedValues[aSpec as string]
-                    return a != null ? extend({iox:0, ioy:0}, a) : null
+                    // note here we get the 0th location from the named anchor, making the assumption that it has only one (and that 'AutoDefault' has not been
+                    // used as an arg for a multiple location anchor)
+                    return a != null ? extend({iox:0, ioy:0, cls:""}, a[0]) : null
                 } else if (isPrimitiveAnchorSpec(aSpec as Array<any>)) {
                     return {
                         x:aSpec[0],
