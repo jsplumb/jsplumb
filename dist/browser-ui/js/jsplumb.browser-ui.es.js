@@ -1,4 +1,4 @@
-import { isString, forEach, fastTrim, isArray, log, NONE, EVENT_CONTEXTMENU, removeWithFunction, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, uuid, IS, extend, wrap, getWithFunction, SELECTOR_MANAGED_ELEMENT, cls, CLASS_OVERLAY, ATTRIBUTE_NOT_DRAGGABLE, FALSE as FALSE$1, getFromSetWithFunction, intersects, CLASS_ENDPOINT, merge, each, SOURCE, TARGET, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_START_DETACH, makeAnchorFromSpec, AnchorLocations, ATTRIBUTE_SCOPE_PREFIX, getAllWithFunction, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, FloatingAnchor, isAssignableFrom, EndpointRepresentation, SELECTOR_GROUP, att, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, ABSOLUTE, Connection, Endpoint, Overlay, TRUE as TRUE$1, BLOCK, UNDEFINED, EVENT_CLICK, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_TAP, EVENT_ELEMENT_DBL_TAP, PROPERTY_POSITION, STATIC, FIXED, fromArray, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, DotEndpoint, RectangleEndpoint, BlankEndpoint } from '@jsplumb/core';
+import { isString, forEach, fastTrim, isArray, log, NONE, EVENT_CONTEXTMENU, removeWithFunction, EVENT_MOUSEDOWN as EVENT_MOUSEDOWN$1, EVENT_MOUSEUP as EVENT_MOUSEUP$1, EVENT_MOUSEOVER, EVENT_MOUSEOUT, EVENT_TAP, EVENT_DBL_TAP, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_FOCUS, ATTRIBUTE_TABINDEX, uuid, IS, extend, wrap, getWithFunction, SELECTOR_MANAGED_ELEMENT, cls, CLASS_OVERLAY, ATTRIBUTE_NOT_DRAGGABLE, FALSE as FALSE$1, getFromSetWithFunction, intersects, CLASS_ENDPOINT, merge, each, SOURCE, TARGET, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_START_DETACH, ATTRIBUTE_SCOPE_PREFIX, getAllWithFunction, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, functionChain, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, addToDictionary, createFloatingAnchor, isAssignableFrom, EndpointRepresentation, SELECTOR_GROUP, AnchorLocations, att, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, ABSOLUTE, Connection, Endpoint, Overlay, TRUE as TRUE$1, BLOCK, UNDEFINED, EVENT_CLICK, EVENT_DBL_CLICK, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_TAP, EVENT_ELEMENT_DBL_TAP, PROPERTY_POSITION, STATIC, FIXED, fromArray, SELECTOR_OVERLAY, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, ATTRIBUTE_CONTAINER, CLASS_CONNECTOR, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, isFunction, JsPlumbInstance, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEOUT, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_OUT, DotEndpoint, RectangleEndpoint, BlankEndpoint } from '@jsplumb/core';
 
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -2369,11 +2369,8 @@ function () {
   return ElementDragHandler;
 }();
 
-function _makeFloatingEndpoint(paintStyle, referenceAnchor, endpoint, referenceCanvas, sourceElement, instance, scope) {
-  var floatingAnchor = new FloatingAnchor(instance, {
-    reference: referenceAnchor,
-    referenceCanvas: referenceCanvas
-  });
+function _makeFloatingEndpoint(paintStyle, endpoint, referenceCanvas, sourceElement, instance, scope) {
+  var floatingAnchor = createFloatingAnchor(instance.getSize(sourceElement));
   var p = {
     paintStyle: paintStyle,
     preparedAnchor: floatingAnchor,
@@ -2689,9 +2686,7 @@ function () {
         var aae = this.instance._deriveEndpointAndAnchorSpec(this.ep.edgeType);
         endpointToFloat = aae.endpoints[1];
       }
-      var centerAnchor = makeAnchorFromSpec(this.instance, AnchorLocations.Center);
-      centerAnchor.isFloating = true;
-      this.floatingEndpoint = _makeFloatingEndpoint(this.ep.getPaintStyle(), centerAnchor, endpointToFloat, canvasElement, this.placeholderInfo.element, this.instance, this.ep.scope);
+      this.floatingEndpoint = _makeFloatingEndpoint(this.ep.getPaintStyle(), endpointToFloat, canvasElement, this.placeholderInfo.element, this.instance, this.ep.scope);
       this.floatingAnchor = this.instance.router.getAnchor(this.floatingEndpoint)
       ;
       this.floatingEndpoint.deleteOnEmpty = true;
@@ -2879,7 +2874,7 @@ function () {
           }
         }
         if (newDropTarget !== this.currentDropTarget && this.currentDropTarget != null) {
-          idx = this.getFloatingAnchorIndex(this.jpc);
+          idx = this._getFloatingAnchorIndex();
           this.instance.removeClass(this.currentDropTarget.el, CLASS_DRAG_HOVER);
           if (this.currentDropTarget.endpoint) {
             this.currentDropTarget.endpoint.endpoint.removeClass(this.instance.endpointDropAllowedClass);
@@ -2889,7 +2884,7 @@ function () {
         }
         if (newDropTarget != null) {
           this.instance.addClass(newDropTarget.el, CLASS_DRAG_HOVER);
-          idx = this.getFloatingAnchorIndex(this.jpc);
+          idx = this._getFloatingAnchorIndex();
           if (newDropTarget.endpoint != null) {
             _cont = newDropTarget.endpoint.isSource && idx === 0 || newDropTarget.endpoint.isTarget && idx !== 0 || this.jpc.suspendedEndpoint && newDropTarget.endpoint.referenceEndpoint && newDropTarget.endpoint.referenceEndpoint.id === this.jpc.suspendedEndpoint.id;
             if (_cont) {
@@ -2905,7 +2900,7 @@ function () {
                 newDropTarget.endpoint.endpoint.removeClass(this.instance.endpointDropAllowedClass);
                 newDropTarget.endpoint.endpoint.addClass(this.instance.endpointDropForbiddenClass);
               }
-              this.floatingAnchor.over(this.instance.router.getAnchor(newDropTarget.endpoint), newDropTarget.endpoint);
+              console.log("FLOATING ANCHOR HOVER TODO");
             } else {
               newDropTarget = null;
             }
@@ -2927,7 +2922,7 @@ function () {
     key: "_reattachOrDiscard",
     value: function _reattachOrDiscard(originalEvent) {
       var existingConnection = this.jpc.suspendedEndpoint != null;
-      var idx = this.getFloatingAnchorIndex(this.jpc);
+      var idx = this._getFloatingAnchorIndex();
       if (existingConnection && this._shouldReattach(originalEvent)) {
         if (idx === 0) {
           this.jpc.source = this.jpc.suspendedElement;
@@ -2957,7 +2952,7 @@ function () {
       });
       if (this.jpc && this.jpc.endpoints != null) {
         var existingConnection = this.jpc.suspendedEndpoint != null;
-        var idx = this.getFloatingAnchorIndex(this.jpc);
+        var idx = this._getFloatingAnchorIndex();
         var suspendedEndpoint = this.jpc.suspendedEndpoint;
         var dropEndpoint;
         var discarded = false;
@@ -3179,9 +3174,9 @@ function () {
       addToDictionary(this.instance.endpointsByElement, info.id, ep);
     }
   }, {
-    key: "getFloatingAnchorIndex",
-    value: function getFloatingAnchorIndex(jpc) {
-      return jpc.endpoints[0].isFloating() ? 0 : jpc.endpoints[1].isFloating() ? 1 : 1;
+    key: "_getFloatingAnchorIndex",
+    value: function _getFloatingAnchorIndex() {
+      return this.floatingIndex == null ? 1 : this.floatingIndex;
     }
   }]);
   return EndpointDragHandler;

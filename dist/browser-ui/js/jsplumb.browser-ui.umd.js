@@ -2373,11 +2373,8 @@
     return ElementDragHandler;
   }();
 
-  function _makeFloatingEndpoint(paintStyle, referenceAnchor, endpoint, referenceCanvas, sourceElement, instance, scope) {
-    var floatingAnchor = new core.FloatingAnchor(instance, {
-      reference: referenceAnchor,
-      referenceCanvas: referenceCanvas
-    });
+  function _makeFloatingEndpoint(paintStyle, endpoint, referenceCanvas, sourceElement, instance, scope) {
+    var floatingAnchor = core.createFloatingAnchor(instance.getSize(sourceElement));
     var p = {
       paintStyle: paintStyle,
       preparedAnchor: floatingAnchor,
@@ -2693,9 +2690,7 @@
           var aae = this.instance._deriveEndpointAndAnchorSpec(this.ep.edgeType);
           endpointToFloat = aae.endpoints[1];
         }
-        var centerAnchor = core.makeAnchorFromSpec(this.instance, core.AnchorLocations.Center);
-        centerAnchor.isFloating = true;
-        this.floatingEndpoint = _makeFloatingEndpoint(this.ep.getPaintStyle(), centerAnchor, endpointToFloat, canvasElement, this.placeholderInfo.element, this.instance, this.ep.scope);
+        this.floatingEndpoint = _makeFloatingEndpoint(this.ep.getPaintStyle(), endpointToFloat, canvasElement, this.placeholderInfo.element, this.instance, this.ep.scope);
         this.floatingAnchor = this.instance.router.getAnchor(this.floatingEndpoint)
         ;
         this.floatingEndpoint.deleteOnEmpty = true;
@@ -2883,7 +2878,7 @@
             }
           }
           if (newDropTarget !== this.currentDropTarget && this.currentDropTarget != null) {
-            idx = this.getFloatingAnchorIndex(this.jpc);
+            idx = this._getFloatingAnchorIndex();
             this.instance.removeClass(this.currentDropTarget.el, CLASS_DRAG_HOVER);
             if (this.currentDropTarget.endpoint) {
               this.currentDropTarget.endpoint.endpoint.removeClass(this.instance.endpointDropAllowedClass);
@@ -2893,7 +2888,7 @@
           }
           if (newDropTarget != null) {
             this.instance.addClass(newDropTarget.el, CLASS_DRAG_HOVER);
-            idx = this.getFloatingAnchorIndex(this.jpc);
+            idx = this._getFloatingAnchorIndex();
             if (newDropTarget.endpoint != null) {
               _cont = newDropTarget.endpoint.isSource && idx === 0 || newDropTarget.endpoint.isTarget && idx !== 0 || this.jpc.suspendedEndpoint && newDropTarget.endpoint.referenceEndpoint && newDropTarget.endpoint.referenceEndpoint.id === this.jpc.suspendedEndpoint.id;
               if (_cont) {
@@ -2909,7 +2904,7 @@
                   newDropTarget.endpoint.endpoint.removeClass(this.instance.endpointDropAllowedClass);
                   newDropTarget.endpoint.endpoint.addClass(this.instance.endpointDropForbiddenClass);
                 }
-                this.floatingAnchor.over(this.instance.router.getAnchor(newDropTarget.endpoint), newDropTarget.endpoint);
+                console.log("FLOATING ANCHOR HOVER TODO");
               } else {
                 newDropTarget = null;
               }
@@ -2931,7 +2926,7 @@
       key: "_reattachOrDiscard",
       value: function _reattachOrDiscard(originalEvent) {
         var existingConnection = this.jpc.suspendedEndpoint != null;
-        var idx = this.getFloatingAnchorIndex(this.jpc);
+        var idx = this._getFloatingAnchorIndex();
         if (existingConnection && this._shouldReattach(originalEvent)) {
           if (idx === 0) {
             this.jpc.source = this.jpc.suspendedElement;
@@ -2961,7 +2956,7 @@
         });
         if (this.jpc && this.jpc.endpoints != null) {
           var existingConnection = this.jpc.suspendedEndpoint != null;
-          var idx = this.getFloatingAnchorIndex(this.jpc);
+          var idx = this._getFloatingAnchorIndex();
           var suspendedEndpoint = this.jpc.suspendedEndpoint;
           var dropEndpoint;
           var discarded = false;
@@ -3183,9 +3178,9 @@
         core.addToDictionary(this.instance.endpointsByElement, info.id, ep);
       }
     }, {
-      key: "getFloatingAnchorIndex",
-      value: function getFloatingAnchorIndex(jpc) {
-        return jpc.endpoints[0].isFloating() ? 0 : jpc.endpoints[1].isFloating() ? 1 : 1;
+      key: "_getFloatingAnchorIndex",
+      value: function _getFloatingAnchorIndex() {
+        return this.floatingIndex == null ? 1 : this.floatingIndex;
       }
     }]);
     return EndpointDragHandler;

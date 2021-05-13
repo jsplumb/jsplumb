@@ -118,6 +118,10 @@
     return _get(target, property, receiver || target);
   }
 
+  function _slicedToArray(arr, i) {
+    return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
+  }
+
   function _toConsumableArray(arr) {
     return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
   }
@@ -130,12 +134,46 @@
     }
   }
 
+  function _arrayWithHoles(arr) {
+    if (Array.isArray(arr)) return arr;
+  }
+
   function _iterableToArray(iter) {
     if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
   }
 
+  function _iterableToArrayLimit(arr, i) {
+    var _arr = [];
+    var _n = true;
+    var _d = false;
+    var _e = undefined;
+
+    try {
+      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+        _arr.push(_s.value);
+
+        if (i && _arr.length === i) break;
+      }
+    } catch (err) {
+      _d = true;
+      _e = err;
+    } finally {
+      try {
+        if (!_n && _i["return"] != null) _i["return"]();
+      } finally {
+        if (_d) throw _e;
+      }
+    }
+
+    return _arr;
+  }
+
   function _nonIterableSpread() {
     throw new TypeError("Invalid attempt to spread non-iterable instance");
+  }
+
+  function _nonIterableRest() {
+    throw new TypeError("Invalid attempt to destructure non-iterable instance");
   }
 
   function noSuchPoint() {
@@ -282,8 +320,8 @@
     }, {
       key: "_compute",
       value: function _compute(anchorPoint, orientation, endpointStyle) {
-        var x = anchorPoint[0] - this.radius,
-            y = anchorPoint[1] - this.radius,
+        var x = anchorPoint.curX - this.radius,
+            y = anchorPoint.curY - this.radius,
             w = this.radius * 2,
             h = this.radius * 2;
         if (endpointStyle && endpointStyle.stroke) {
@@ -322,11 +360,11 @@
     }, {
       key: "_compute",
       value: function _compute(anchorPoint, orientation, endpointStyle) {
-        this.x = anchorPoint[0];
-        this.y = anchorPoint[1];
+        this.x = anchorPoint.curX;
+        this.y = anchorPoint.curY;
         this.w = 10;
         this.h = 0;
-        return [anchorPoint[0], anchorPoint[1], 10, 0];
+        return [anchorPoint.curX, anchorPoint.curY, 10, 0];
       }
     }]);
     return BlankEndpoint;
@@ -361,8 +399,8 @@
       value: function _compute(anchorPoint, orientation, endpointStyle) {
         var width = endpointStyle.width || this.width,
             height = endpointStyle.height || this.height,
-            x = anchorPoint[0] - width / 2,
-            y = anchorPoint[1] - height / 2;
+            x = anchorPoint.curX - width / 2,
+            y = anchorPoint.curY - height / 2;
         this.x = x;
         this.y = y;
         this.w = width;
@@ -1173,23 +1211,32 @@
       key: "_prepareCompute",
       value: function _prepareCompute(params) {
         this.strokeWidth = params.strokeWidth;
-        var segment = quadrant(pointXYFromArray(params.sourcePos), pointXYFromArray(params.targetPos)),
-            swapX = params.targetPos[0] < params.sourcePos[0],
-            swapY = params.targetPos[1] < params.sourcePos[1],
-            lw = params.strokeWidth || 1,
-            so = this.instance.router.getEndpointOrientation(params.sourceEndpoint),
-            to = this.instance.router.getEndpointOrientation(params.targetEndpoint),
-            x = swapX ? params.targetPos[0] : params.sourcePos[0],
-            y = swapY ? params.targetPos[1] : params.sourcePos[1],
-            w = Math.abs(params.targetPos[0] - params.sourcePos[0]),
-            h = Math.abs(params.targetPos[1] - params.sourcePos[1]);
+        var x1 = params.sourcePos.curX,
+            x2 = params.targetPos.curX,
+            y1 = params.sourcePos.curY,
+            y2 = params.targetPos.curY,
+            segment = quadrant({
+          x: x1,
+          y: y1
+        }, {
+          x: x2,
+          y: y2
+        }),
+            swapX = x2 < x1,
+            swapY = y2 < y1,
+            so = [params.sourcePos.ox, params.sourcePos.oy],
+            to = [params.targetPos.ox, params.targetPos.oy],
+            x = swapX ? x2 : x1,
+            y = swapY ? y2 : y1,
+            w = Math.abs(x2 - x1),
+            h = Math.abs(y2 - y1);
         if (so[0] === 0 && so[1] === 0 || to[0] === 0 && to[1] === 0) {
           var index = w > h ? 0 : 1,
-              oIndex = [1, 0][index];
-          so = [0, 0];
-          to = [0, 0];
-          so[index] = params.sourcePos[index] > params.targetPos[index] ? -1 : 1;
-          to[index] = params.sourcePos[index] > params.targetPos[index] ? 1 : -1;
+              oIndex = [1, 0][index],
+              v1 = index === 0 ? x1 : y1,
+              v2 = index === 0 ? x2 : y2;
+          so[index] = v1 > v2 ? -1 : 1;
+          to[index] = v1 > v2 ? 1 : -1;
           so[oIndex] = 0;
           to[oIndex] = 0;
         }
@@ -1337,6 +1384,12 @@
           y: this.y2
         });
         this.m2 = -1 / this.m;
+        this.extents = {
+          xmin: Math.min(this.x1, this.x2),
+          ymin: Math.min(this.y1, this.y2),
+          xmax: Math.max(this.x1, this.x2),
+          ymax: Math.max(this.y1, this.y2)
+        };
       }
     }, {
       key: "getLength",
@@ -1356,16 +1409,6 @@
         this.x2 = coords.x2;
         this.y2 = coords.y2;
         this._recalc();
-      }
-    }, {
-      key: "getBounds",
-      value: function getBounds() {
-        return {
-          xmin: Math.min(this.x1, this.x2),
-          ymin: Math.min(this.y1, this.y2),
-          xmax: Math.max(this.x1, this.x2),
-          ymax: Math.max(this.y1, this.y2)
-        };
       }
     }, {
       key: "pointOnPath",
@@ -2071,15 +2114,15 @@
       value: function _compute(paintInfo, p) {
         var sp = p.sourcePos,
             tp = p.targetPos,
-            _w = Math.abs(sp[0] - tp[0]),
-            _h = Math.abs(sp[1] - tp[1]);
+            _w = Math.abs(sp.curX - tp.curX),
+            _h = Math.abs(sp.curY - tp.curY);
         if (!this.showLoopback || p.sourceEndpoint.elementId !== p.targetEndpoint.elementId) {
           this.isLoopbackCurrently = false;
           this._computeBezier(paintInfo, p, sp, tp, _w, _h);
         } else {
           this.isLoopbackCurrently = true;
-          var x1 = p.sourcePos[0],
-              y1 = p.sourcePos[1] - this.margin,
+          var x1 = p.sourcePos.curX,
+              y1 = p.sourcePos.curY - this.margin,
               cx = x1,
               cy = y1 - this.loopbackRadius,
           _x = cx - this.loopbackRadius,
@@ -2682,7 +2725,6 @@
       _defineProperty(_assertThisInitialized(_this), "cp1y", void 0);
       _defineProperty(_assertThisInitialized(_this), "cp2x", void 0);
       _defineProperty(_assertThisInitialized(_this), "cp2y", void 0);
-      _defineProperty(_assertThisInitialized(_this), "bounds", void 0);
       _defineProperty(_assertThisInitialized(_this), "x1", void 0);
       _defineProperty(_assertThisInitialized(_this), "x2", void 0);
       _defineProperty(_assertThisInitialized(_this), "y1", void 0);
@@ -2710,7 +2752,7 @@
         x: _this.x2,
         y: _this.y2
       }];
-      _this.bounds = {
+      _this.extents = {
         xmin: Math.min(_this.x1, _this.x2, _this.cp1x, _this.cp2x),
         ymin: Math.min(_this.y1, _this.y2, _this.cp1y, _this.cp2y),
         xmax: Math.max(_this.x1, _this.x2, _this.cp1x, _this.cp2x),
@@ -2743,11 +2785,6 @@
           this.length = computeBezierLength(this.curve);
         }
         return this.length;
-      }
-    }, {
-      key: "getBounds",
-      value: function getBounds() {
-        return this.bounds;
       }
     }, {
       key: "findClosestPointOnPath",
@@ -2842,10 +2879,10 @@
       value: function _computeBezier(paintInfo, p, sp, tp, _w, _h) {
         var _CP,
             _CP2,
-            _sx = sp[0] < tp[0] ? _w : 0,
-            _sy = sp[1] < tp[1] ? _h : 0,
-            _tx = sp[0] < tp[0] ? 0 : _w,
-            _ty = sp[1] < tp[1] ? 0 : _h;
+            _sx = sp.curX < tp.curX ? _w : 0,
+            _sy = sp.curY < tp.curY ? _h : 0,
+            _tx = sp.curX < tp.curX ? 0 : _w,
+            _ty = sp.curY < tp.curY ? 0 : _h;
         if (this.edited !== true) {
           _CP = this._findControlPoint([_sx, _sy], sp, tp, paintInfo.so, paintInfo.to);
           _CP2 = this._findControlPoint([_tx, _ty], tp, sp, paintInfo.to, paintInfo.so);
@@ -2889,34 +2926,34 @@
       return [midx, midy];
     }
     if (segment === 1) {
-      if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) {
-        return [midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy];
-      } else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) {
-        return [midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy)];
+      if (sourceEdge.y <= 0 && targetEdge.y >= 1) {
+        return [midx + (sourceEdge.x < 0.5 ? -1 * dx : dx), midy];
+      } else if (sourceEdge.x >= 1 && targetEdge.x <= 0) {
+        return [midx, midy + (sourceEdge.y < 0.5 ? -1 * dy : dy)];
       } else {
         return [midx + -1 * dx, midy + -1 * dy];
       }
     } else if (segment === 2) {
-      if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) {
-        return [midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy];
-      } else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) {
-        return [midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy)];
+      if (sourceEdge.y >= 1 && targetEdge.y <= 0) {
+        return [midx + (sourceEdge.x < 0.5 ? -1 * dx : dx), midy];
+      } else if (sourceEdge.x >= 1 && targetEdge.x <= 0) {
+        return [midx, midy + (sourceEdge.y < 0.5 ? -1 * dy : dy)];
       } else {
         return [midx + dx, midy + -1 * dy];
       }
     } else if (segment === 3) {
-      if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) {
-        return [midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy];
-      } else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) {
-        return [midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy)];
+      if (sourceEdge.y >= 1 && targetEdge.y <= 0) {
+        return [midx + (sourceEdge.x < 0.5 ? -1 * dx : dx), midy];
+      } else if (sourceEdge.x <= 0 && targetEdge.x >= 1) {
+        return [midx, midy + (sourceEdge.y < 0.5 ? -1 * dy : dy)];
       } else {
         return [midx + -1 * dx, midy + -1 * dy];
       }
     } else if (segment === 4) {
-      if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) {
-        return [midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy];
-      } else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) {
-        return [midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy)];
+      if (sourceEdge.y <= 0 && targetEdge.y >= 1) {
+        return [midx + (sourceEdge.x < 0.5 ? -1 * dx : dx), midy];
+      } else if (sourceEdge.x <= 0 && targetEdge.x >= 1) {
+        return [midx, midy + (sourceEdge.y < 0.5 ? -1 * dy : dy)];
       } else {
         return [midx + dx, midy + -1 * dy];
       }
@@ -2942,32 +2979,32 @@
     _createClass(StateMachineConnector, [{
       key: "_computeBezier",
       value: function _computeBezier(paintInfo, params, sp, tp, w, h) {
-        var _sx = params.sourcePos[0] < params.targetPos[0] ? 0 : w,
-            _sy = params.sourcePos[1] < params.targetPos[1] ? 0 : h,
-            _tx = params.sourcePos[0] < params.targetPos[0] ? w : 0,
-            _ty = params.sourcePos[1] < params.targetPos[1] ? h : 0;
-        if (params.sourcePos[2] === 0) {
+        var _sx = sp.curX < tp.curX ? 0 : w,
+            _sy = sp.curY < tp.curY ? 0 : h,
+            _tx = sp.curX < tp.curX ? w : 0,
+            _ty = sp.curY < tp.curY ? h : 0;
+        if (sp.ox === 0) {
           _sx -= this.margin;
         }
-        if (params.sourcePos[2] === 1) {
+        if (sp.ox === 1) {
           _sx += this.margin;
         }
-        if (params.sourcePos[3] === 0) {
+        if (sp.oy === 0) {
           _sy -= this.margin;
         }
-        if (params.sourcePos[3] === 1) {
+        if (sp.oy === 1) {
           _sy += this.margin;
         }
-        if (params.targetPos[2] === 0) {
+        if (tp.ox === 0) {
           _tx -= this.margin;
         }
-        if (params.targetPos[2] === 1) {
+        if (tp.ox === 1) {
           _tx += this.margin;
         }
-        if (params.targetPos[3] === 0) {
+        if (tp.oy === 0) {
           _ty -= this.margin;
         }
-        if (params.targetPos[3] === 1) {
+        if (tp.oy === 1) {
           _ty += this.margin;
         }
         if (this.edited !== true) {
@@ -4174,6 +4211,686 @@
     return OverlayCapableComponent;
   }(Component);
 
+  var TOP = "top";
+  var BOTTOM = "bottom";
+  var LEFT = "left";
+  var RIGHT = "right";
+  var _top = {
+    x: 0.5,
+    y: 0,
+    ox: 0,
+    oy: -1,
+    offx: 0,
+    offy: 0
+  },
+      _bottom = {
+    x: 0.5,
+    y: 1,
+    ox: 0,
+    oy: 1,
+    offx: 0,
+    offy: 0
+  },
+      _left = {
+    x: 0,
+    y: 0.5,
+    ox: -1,
+    oy: 0,
+    offx: 0,
+    offy: 0
+  },
+      _right = {
+    x: 1,
+    y: 0.5,
+    ox: 1,
+    oy: 0,
+    offx: 0,
+    offy: 0
+  },
+      _topLeft = {
+    x: 0,
+    y: 0,
+    ox: 0,
+    oy: -1,
+    offx: 0,
+    offy: 0
+  },
+      _topRight = {
+    x: 1,
+    y: 0,
+    ox: 1,
+    oy: -1,
+    offx: 0,
+    offy: 0
+  },
+      _bottomLeft = {
+    x: 0,
+    y: 1,
+    ox: 0,
+    oy: 1,
+    offx: 0,
+    offy: 0
+  },
+      _bottomRight = {
+    x: 1,
+    y: 1,
+    ox: 0,
+    oy: 1,
+    offx: 0,
+    offy: 0
+  },
+      _center = {
+    x: 0.5,
+    y: 0.5,
+    ox: 0,
+    oy: 0,
+    offx: 0,
+    offy: 0
+  };
+  var namedValues = {
+    "Top": [_top],
+    "Bottom": [_bottom],
+    "Left": [_left],
+    "Right": [_right],
+    "TopLeft": [_topLeft],
+    "TopRight": [_topRight],
+    "BottomLeft": [_bottomLeft],
+    "BottomRight": [_bottomRight],
+    "Center": [_center],
+    "AutoDefault": [_top, _left, _bottom, _right]
+  };
+  var namedContinuousValues = {
+    "Continuous": {
+      faces: [TOP, LEFT, BOTTOM, RIGHT]
+    },
+    "ContinuousTop": {
+      faces: [TOP]
+    },
+    "ContinuousRight": {
+      faces: [RIGHT]
+    },
+    "ContinuousBottom": {
+      faces: [BOTTOM]
+    },
+    "ContinuousLeft": {
+      faces: [LEFT]
+    },
+    "ContinuousLeftRight": {
+      faces: [LEFT, RIGHT]
+    },
+    "ContinuousTopBottom": {
+      faces: [TOP, BOTTOM]
+    }
+  };
+  function getNamedAnchor(name, params) {
+    params = params || {};
+    var a = namedValues[name];
+    if (a != null) {
+      return _createAnchor(name, map(a, function (_a) {
+        return extend({
+          iox: _a.ox,
+          ioy: _a.oy
+        }, _a);
+      }), params);
+    }
+    a = namedContinuousValues[name];
+    if (a != null) {
+      return _createContinuousAnchor(name, a.faces, params);
+    }
+    throw {
+      message: "jsPlumb: unknown anchor type '" + name + "'"
+    };
+  }
+  function _createAnchor(type, locations, params) {
+    return {
+      type: type,
+      locations: locations,
+      currentLocation: 0,
+      locked: false,
+      id: uuid(),
+      isFloating: false,
+      isContinuous: false,
+      isDynamic: locations.length > 1,
+      timestamp: null,
+      cssClass: params.cssClass || ""
+    };
+  }
+  function createFloatingAnchor(size) {
+    return {
+      isFloating: true,
+      size: {
+        w: size.w,
+        h: size.h
+      },
+      locations: [{
+        x: 0.5,
+        y: 0.5,
+        ox: 0,
+        oy: 0,
+        offx: 0,
+        offy: 0,
+        cls: "",
+        iox: 0,
+        ioy: 0
+      }],
+      locked: false,
+      currentLocation: 0,
+      id: uuid(),
+      cssClass: "",
+      isDynamic: false,
+      type: "Floating",
+      isContinuous: false,
+      timestamp: null
+    };
+  }
+  function _createContinuousAnchor(type, faces, params) {
+    return {
+      type: type,
+      locations: [],
+      currentLocation: 0,
+      locked: false,
+      id: uuid(),
+      cssClass: params.cssClass || "",
+      isFloating: false,
+      isContinuous: true,
+      isDynamic: false,
+      timestamp: null,
+      faces: params.faces || faces,
+      lockedFace: null,
+      currentFace: null,
+      lockedAxis: null,
+      clockwise: !(params.clockwise === false)
+    };
+  }
+  function isPrimitiveAnchorSpec(sa) {
+    return sa.length < 7 && sa.every(isNumber) || sa.length === 7 && sa.slice(0, 5).every(isNumber) && isString(sa[6]);
+  }
+  function makeLightweightAnchorFromSpec(spec) {
+    if (isString(spec)) {
+      return getNamedAnchor(spec, null);
+    } else if (isArray(spec)) {
+      if (isPrimitiveAnchorSpec(spec)) {
+        return _createAnchor(null, [{
+          x: spec[0],
+          y: spec[1],
+          ox: spec[2],
+          oy: spec[3],
+          offx: spec[4] == null ? 0 : spec[4],
+          offy: spec[5] == null ? 0 : spec[5],
+          iox: spec[2],
+          ioy: spec[3],
+          cls: spec[6] || ""
+        }], {
+          cssClass: spec[6] || ""
+        });
+      } else {
+        var locations = map(spec, function (aSpec) {
+          if (isString(aSpec)) {
+            var a = namedValues[aSpec];
+            return a != null ? extend({
+              iox: 0,
+              ioy: 0,
+              cls: ""
+            }, a[0]) : null;
+          } else if (isPrimitiveAnchorSpec(aSpec)) {
+            return {
+              x: aSpec[0],
+              y: aSpec[1],
+              ox: aSpec[2],
+              oy: aSpec[3],
+              offx: aSpec[4] == null ? 0 : aSpec[4],
+              offy: aSpec[5] == null ? 0 : aSpec[5],
+              iox: aSpec[2],
+              ioy: aSpec[3],
+              cls: aSpec[6] || ""
+            };
+          }
+        }).filter(function (ar) {
+          return ar != null;
+        });
+        return _createAnchor("Dynamic", locations, {});
+      }
+    } else {
+      var sa = spec;
+      return getNamedAnchor(sa.type, sa.options);
+    }
+  }
+
+  var TYPE_ITEM_ANCHORS = "anchors";
+  var TYPE_ITEM_CONNECTOR = "connector";
+  function prepareEndpoint(conn, existing, index, anchor, element, elementId, endpoint) {
+    var e;
+    if (existing) {
+      conn.endpoints[index] = existing;
+      existing.addConnection(conn);
+    } else {
+      var ep = endpoint
+      || conn.endpointsSpec[index] || conn.instance.defaults.endpoints[index] || conn.instance.defaults.endpoint;
+      var es = conn.endpointStyles[index]
+      || conn.instance.defaults.endpointStyles[index] || conn.instance.defaults.endpointStyle;
+      if (es.fill == null && conn.paintStyle != null) {
+        es.fill = conn.paintStyle.stroke;
+      }
+      if (es.outlineStroke == null && conn.paintStyle != null) {
+        es.outlineStroke = conn.paintStyle.outlineStroke;
+      }
+      if (es.outlineWidth == null && conn.paintStyle != null) {
+        es.outlineWidth = conn.paintStyle.outlineWidth;
+      }
+      var ehs = conn.endpointHoverStyles[index]
+      || conn.instance.defaults.endpointHoverStyles[index] || conn.instance.defaults.endpointHoverStyle;
+      if (conn.hoverPaintStyle != null) {
+        if (ehs == null) {
+          ehs = {};
+        }
+        if (ehs.fill == null) {
+          ehs.fill = conn.hoverPaintStyle.stroke;
+        }
+      }
+      var u = conn.uuids ? conn.uuids[index] : null;
+      anchor = anchor != null ? anchor : conn.instance.defaults.anchors != null ? conn.instance.defaults.anchors[index] : conn.instance.defaults.anchor;
+      e = conn.instance._internal_newEndpoint({
+        paintStyle: es,
+        hoverPaintStyle: ehs,
+        endpoint: ep,
+        connections: [conn],
+        uuid: u,
+        element: element,
+        scope: conn.scope,
+        anchor: anchor,
+        reattachConnections: conn.reattach || conn.instance.defaults.reattachConnections,
+        connectionsDetachable: conn.detachable || conn.instance.defaults.connectionsDetachable
+      });
+      if (existing == null) {
+        e.deleteOnEmpty = true;
+      }
+      conn.endpoints[index] = e;
+    }
+    return e;
+  }
+  var Connection =
+  function (_OverlayCapableCompon) {
+    _inherits(Connection, _OverlayCapableCompon);
+    _createClass(Connection, [{
+      key: "getIdPrefix",
+      value: function getIdPrefix() {
+        return "_jsPlumb_c";
+      }
+    }, {
+      key: "getDefaultOverlayKey",
+      value: function getDefaultOverlayKey() {
+        return "connectionOverlays";
+      }
+    }, {
+      key: "getXY",
+      value: function getXY() {
+        return {
+          x: this.connector.x,
+          y: this.connector.y
+        };
+      }
+    }]);
+    function Connection(instance, params) {
+      var _this;
+      _classCallCheck(this, Connection);
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Connection).call(this, instance, params));
+      _this.instance = instance;
+      _defineProperty(_assertThisInitialized(_this), "connector", void 0);
+      _defineProperty(_assertThisInitialized(_this), "defaultLabelLocation", 0.5);
+      _defineProperty(_assertThisInitialized(_this), "scope", void 0);
+      _defineProperty(_assertThisInitialized(_this), "typeId", "_jsplumb_connection");
+      _defineProperty(_assertThisInitialized(_this), "previousConnection", void 0);
+      _defineProperty(_assertThisInitialized(_this), "sourceId", void 0);
+      _defineProperty(_assertThisInitialized(_this), "targetId", void 0);
+      _defineProperty(_assertThisInitialized(_this), "source", void 0);
+      _defineProperty(_assertThisInitialized(_this), "target", void 0);
+      _defineProperty(_assertThisInitialized(_this), "detachable", true);
+      _defineProperty(_assertThisInitialized(_this), "reattach", false);
+      _defineProperty(_assertThisInitialized(_this), "uuids", void 0);
+      _defineProperty(_assertThisInitialized(_this), "cost", void 0);
+      _defineProperty(_assertThisInitialized(_this), "directed", void 0);
+      _defineProperty(_assertThisInitialized(_this), "endpoints", [null, null]);
+      _defineProperty(_assertThisInitialized(_this), "endpointStyles", void 0);
+      _defineProperty(_assertThisInitialized(_this), "endpointsSpec", void 0);
+      _defineProperty(_assertThisInitialized(_this), "endpointHoverStyles", void 0);
+      _defineProperty(_assertThisInitialized(_this), "suspendedEndpoint", void 0);
+      _defineProperty(_assertThisInitialized(_this), "suspendedIndex", void 0);
+      _defineProperty(_assertThisInitialized(_this), "suspendedElement", void 0);
+      _defineProperty(_assertThisInitialized(_this), "suspendedElementId", void 0);
+      _defineProperty(_assertThisInitialized(_this), "suspendedElementType", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_forceReattach", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_forceDetach", void 0);
+      _defineProperty(_assertThisInitialized(_this), "proxies", []);
+      _defineProperty(_assertThisInitialized(_this), "pending", false);
+      _this.id = params.id;
+      _this.previousConnection = params.previousConnection;
+      _this.source = params.source;
+      _this.target = params.target;
+      if (params.sourceEndpoint) {
+        _this.source = params.sourceEndpoint.element;
+        _this.sourceId = params.sourceEndpoint.elementId;
+      } else {
+        _this.sourceId = instance.getId(_this.source);
+      }
+      if (params.targetEndpoint) {
+        _this.target = params.targetEndpoint.element;
+        _this.targetId = params.targetEndpoint.elementId;
+      } else {
+        _this.targetId = instance.getId(_this.target);
+      }
+      _this.scope = params.scope;
+      var sourceAnchor = params.anchors ? params.anchors[0] : null;
+      var targetAnchor = params.anchors ? params.anchors[1] : null;
+      instance.manage(_this.source);
+      instance.manage(_this.target);
+      _this.visible = true;
+      _this.params = {
+        cssClass: params.cssClass,
+        hoverClass: params.hoverClass,
+        "pointer-events": params["pointer-events"],
+        overlays: params.overlays
+      };
+      _this.lastPaintedAt = null;
+      if (params.type) {
+        params.endpoints = params.endpoints || _this.instance._deriveEndpointAndAnchorSpec(params.type).endpoints;
+      }
+      _this.endpointsSpec = params.endpoints || [null, null];
+      _this.endpointStyles = params.endpointStyles || [null, null];
+      _this.endpointHoverStyles = params.endpointHoverStyles || [null, null];
+      _this.paintStyle = params.paintStyle;
+      _this.hoverPaintStyle = params.hoverPaintStyle;
+      _this.uuids = params.uuids;
+      var eS = _this.makeEndpoint(true, _this.source, _this.sourceId, sourceAnchor, params.sourceEndpoint),
+          eT = _this.makeEndpoint(false, _this.target, _this.targetId, targetAnchor, params.targetEndpoint);
+      if (eS) {
+        addToDictionary(instance.endpointsByElement, _this.sourceId, eS);
+      }
+      if (eT) {
+        addToDictionary(instance.endpointsByElement, _this.targetId, eT);
+      }
+      if (!_this.scope) {
+        _this.scope = _this.endpoints[0].scope;
+      }
+      if (params.deleteEndpointsOnEmpty != null) {
+        _this.endpoints[0].deleteOnEmpty = params.deleteEndpointsOnEmpty;
+        _this.endpoints[1].deleteOnEmpty = params.deleteEndpointsOnEmpty;
+      }
+      var _detachable = _this.instance.defaults.connectionsDetachable;
+      if (params.detachable === false) {
+        _detachable = false;
+      }
+      if (_this.endpoints[0].connectionsDetachable === false) {
+        _detachable = false;
+      }
+      if (_this.endpoints[1].connectionsDetachable === false) {
+        _detachable = false;
+      }
+      _this.endpointsSpec = params.endpoints || [null, null];
+      var _reattach = params.reattach || _this.endpoints[0].reattachConnections || _this.endpoints[1].reattachConnections || _this.instance.defaults.reattachConnections;
+      _this.appendToDefaultType({
+        detachable: _detachable,
+        reattach: _reattach,
+        paintStyle: _this.endpoints[0].connectorStyle || _this.endpoints[1].connectorStyle || params.paintStyle || _this.instance.defaults.paintStyle,
+        hoverPaintStyle: _this.endpoints[0].connectorHoverStyle || _this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _this.instance.defaults.hoverPaintStyle
+      });
+      if (!_this.instance._suspendDrawing) {
+        var initialTimestamp = _this.instance._suspendedAt || uuid();
+        _this.instance.paintEndpoint(_this.endpoints[0], {
+          timestamp: initialTimestamp
+        });
+        _this.instance.paintEndpoint(_this.endpoints[1], {
+          timestamp: initialTimestamp
+        });
+      }
+      _this.cost = params.cost || _this.endpoints[0].connectionCost;
+      _this.directed = params.directed;
+      if (params.directed == null) {
+        _this.directed = _this.endpoints[0].connectionsDirected;
+      }
+      var _p = extend({}, _this.endpoints[1].parameters);
+      extend(_p, _this.endpoints[0].parameters);
+      extend(_p, _this.parameters);
+      _this.parameters = _p;
+      _this.paintStyleInUse = _this.getPaintStyle() || {};
+      _this.setConnector(_this.endpoints[0].connector || _this.endpoints[1].connector || params.connector || _this.instance.defaults.connector, true);
+      var data = params.data == null || !IS.anObject(params.data) ? {} : params.data;
+      _this.setData(data);
+      var _types = ["default", _this.endpoints[0].edgeType, _this.endpoints[1].edgeType, params.type].join(" ");
+      if (/[^\s]/.test(_types)) {
+        _this.addType(_types, params.data);
+      }
+      return _this;
+    }
+    _createClass(Connection, [{
+      key: "makeEndpoint",
+      value: function makeEndpoint(isSource, el, elId, anchor, ep) {
+        elId = elId || this.instance.getId(el);
+        return prepareEndpoint(this, ep, isSource ? 0 : 1, anchor, el);
+      }
+    }, {
+      key: "getTypeDescriptor",
+      value: function getTypeDescriptor() {
+        return "connection";
+      }
+    }, {
+      key: "isDetachable",
+      value: function isDetachable(ep) {
+        return this.detachable === false ? false : ep != null ? ep.connectionsDetachable === true : this.detachable === true;
+      }
+    }, {
+      key: "setDetachable",
+      value: function setDetachable(detachable) {
+        this.detachable = detachable === true;
+      }
+    }, {
+      key: "isReattach",
+      value: function isReattach() {
+        return this.reattach === true || this.endpoints[0].reattachConnections === true || this.endpoints[1].reattachConnections === true;
+      }
+    }, {
+      key: "setReattach",
+      value: function setReattach(reattach) {
+        this.reattach = reattach === true;
+      }
+    }, {
+      key: "applyType",
+      value: function applyType(t, typeMap) {
+        var _connector = null;
+        if (t.connector != null) {
+          _connector = this.getCachedTypeItem(TYPE_ITEM_CONNECTOR, typeMap.connector);
+          if (_connector == null) {
+            _connector = this.prepareConnector(t.connector, typeMap.connector);
+            this.cacheTypeItem(TYPE_ITEM_CONNECTOR, _connector, typeMap.connector);
+          }
+          this.setPreparedConnector(_connector);
+        }
+        _get(_getPrototypeOf(Connection.prototype), "applyType", this).call(this, t, typeMap);
+        if (t.detachable != null) {
+          this.setDetachable(t.detachable);
+        }
+        if (t.reattach != null) {
+          this.setReattach(t.reattach);
+        }
+        if (t.scope) {
+          this.scope = t.scope;
+        }
+        var _anchors = null;
+        if (t.anchor) {
+          _anchors = this.getCachedTypeItem(TYPE_ITEM_ANCHORS, typeMap.anchor);
+          if (_anchors == null) {
+            _anchors = [makeLightweightAnchorFromSpec(t.anchor), makeLightweightAnchorFromSpec(t.anchor)];
+            this.cacheTypeItem(TYPE_ITEM_ANCHORS, _anchors, typeMap.anchor);
+          }
+        } else if (t.anchors) {
+          _anchors = this.getCachedTypeItem(TYPE_ITEM_ANCHORS, typeMap.anchors);
+          if (_anchors == null) {
+            _anchors = [makeLightweightAnchorFromSpec(t.anchors[0]), makeLightweightAnchorFromSpec(t.anchors[1])];
+            this.cacheTypeItem(TYPE_ITEM_ANCHORS, _anchors, typeMap.anchors);
+          }
+        }
+        if (_anchors != null) {
+          this.instance.router.setConnectionAnchors(this, _anchors);
+          if (this.instance.router.isDynamicAnchor(this.endpoints[1])) {
+            this.instance.repaint(this.endpoints[1].element);
+          }
+        }
+        this.instance.applyConnectorType(this.connector, t);
+      }
+    }, {
+      key: "addClass",
+      value: function addClass(c, informEndpoints) {
+        _get(_getPrototypeOf(Connection.prototype), "addClass", this).call(this, c);
+        if (informEndpoints) {
+          this.endpoints[0].addClass(c);
+          this.endpoints[1].addClass(c);
+          if (this.suspendedEndpoint) {
+            this.suspendedEndpoint.addClass(c);
+          }
+        }
+        if (this.connector) {
+          this.instance.addConnectorClass(this.connector, c);
+        }
+      }
+    }, {
+      key: "removeClass",
+      value: function removeClass(c, informEndpoints) {
+        _get(_getPrototypeOf(Connection.prototype), "removeClass", this).call(this, c);
+        if (informEndpoints) {
+          this.endpoints[0].removeClass(c);
+          this.endpoints[1].removeClass(c);
+          if (this.suspendedEndpoint) {
+            this.suspendedEndpoint.removeClass(c);
+          }
+        }
+        if (this.connector) {
+          this.instance.removeConnectorClass(this.connector, c);
+        }
+      }
+    }, {
+      key: "setVisible",
+      value: function setVisible(v) {
+        _get(_getPrototypeOf(Connection.prototype), "setVisible", this).call(this, v);
+        if (this.connector) {
+          this.instance.setConnectorVisible(this.connector, v);
+        }
+        this.instance.paintConnection(this);
+      }
+    }, {
+      key: "destroy",
+      value: function destroy(force) {
+        this.endpoints = null;
+        this.endpointStyles = null;
+        this.source = null;
+        this.target = null;
+        this.instance.destroyConnection(this);
+        this.connector = null;
+        this.deleted = true;
+        _get(_getPrototypeOf(Connection.prototype), "destroy", this).call(this, force);
+      }
+    }, {
+      key: "getUuids",
+      value: function getUuids() {
+        return [this.endpoints[0].getUuid(), this.endpoints[1].getUuid()];
+      }
+    }, {
+      key: "getCost",
+      value: function getCost() {
+        return this.cost == null ? 1 : this.cost;
+      }
+    }, {
+      key: "setCost",
+      value: function setCost(c) {
+        this.cost = c;
+      }
+    }, {
+      key: "isDirected",
+      value: function isDirected() {
+        return this.directed;
+      }
+    }, {
+      key: "getConnector",
+      value: function getConnector() {
+        return this.connector;
+      }
+    }, {
+      key: "makeConnector",
+      value: function makeConnector(name, args) {
+        return Connectors.get(this.instance, this, name, args);
+      }
+    }, {
+      key: "prepareConnector",
+      value: function prepareConnector(connectorSpec, typeId) {
+        var connectorArgs = {
+          cssClass: this.params.cssClass,
+          hoverClass: this.params.hoverClass,
+          "pointer-events": this.params["pointer-events"]
+        },
+            connector;
+        if (isString(connectorSpec)) {
+          connector = this.makeConnector(connectorSpec, connectorArgs);
+        } else {
+          var co = connectorSpec;
+          connector = this.makeConnector(co.type, merge(co.options, connectorArgs));
+        }
+        if (typeId != null) {
+          connector.typeId = typeId;
+        }
+        return connector;
+      }
+    }, {
+      key: "setPreparedConnector",
+      value: function setPreparedConnector(connector, doNotRepaint, doNotChangeListenerComponent, typeId) {
+        if (this.connector !== connector) {
+          var previous,
+              previousClasses = "";
+          if (this.connector != null) {
+            previous = this.connector;
+            previousClasses = this.instance.getConnectorClass(this.connector);
+            this.instance.destroyConnection(this);
+          }
+          this.connector = connector;
+          if (typeId) {
+            this.cacheTypeItem(TYPE_ITEM_CONNECTOR, connector, typeId);
+          }
+          this.addClass(previousClasses);
+          if (previous != null) {
+            var o = this.getOverlays();
+            for (var i in o) {
+              this.instance.reattachOverlay(o[i], this);
+            }
+          }
+          if (!doNotRepaint) {
+            this.instance.paintConnection(this);
+          }
+        }
+      }
+    }, {
+      key: "setConnector",
+      value: function setConnector(connectorSpec, doNotRepaint, doNotChangeListenerComponent, typeId) {
+        var connector = this.prepareConnector(connectorSpec, typeId);
+        this.setPreparedConnector(connector, doNotRepaint, doNotChangeListenerComponent, typeId);
+      }
+    }, {
+      key: "replaceEndpoint",
+      value: function replaceEndpoint(idx, endpointDef) {
+        var current = this.endpoints[idx],
+            elId = current.elementId,
+            ebe = this.instance.getEndpoints(current.element),
+            _idx = ebe.indexOf(current),
+            _new = prepareEndpoint(this, null, idx, null, current.element, elId, endpointDef);
+        this.endpoints[idx] = _new;
+        ebe.splice(_idx, 1, _new);
+        current.detachFromConnection(this);
+        this.instance.deleteEndpoint(current);
+        this.instance.fire(EVENT_ENDPOINT_REPLACED, {
+          previous: current,
+          current: _new
+        });
+      }
+    }]);
+    return Connection;
+  }(OverlayCapableComponent);
+
   var Anchor =
   function () {
     function Anchor(instance, params) {
@@ -4497,7 +5214,7 @@
     }
     return a;
   }
-  function getNamedAnchor(instance, name, args, elementId) {
+  function getNamedAnchor$1(instance, name, args, elementId) {
     var a = Anchors.get(instance, name, args);
     a.elementId = elementId;
     return a;
@@ -4512,14 +5229,14 @@
     a.cssClass = cssClass || "";
     return a;
   }
-  function isPrimitiveAnchorSpec(sa) {
+  function isPrimitiveAnchorSpec$1(sa) {
     return sa.length < 7 && sa.every(isNumber) || sa.length === 7 && sa.slice(0, 5).every(isNumber) && isString(sa[6]);
   }
   function makeAnchorFromSpec(instance, spec, elementId) {
     if (isString(spec)) {
-      return getNamedAnchor(instance, spec, null, elementId);
+      return getNamedAnchor$1(instance, spec, null, elementId);
     } else if (isArray(spec)) {
-      if (isPrimitiveAnchorSpec(spec)) {
+      if (isPrimitiveAnchorSpec$1(spec)) {
         return getAnchorWithValues(instance, spec[0], spec[1], [spec[2], spec[3]], [spec[4] || 0, spec[5] || 0], elementId, spec[6]);
       } else {
         return new DynamicAnchor(instance, {
@@ -4529,7 +5246,7 @@
       }
     } else {
       var sa = spec;
-      return getNamedAnchor(instance, sa.type, sa.options, elementId);
+      return getNamedAnchor$1(instance, sa.type, sa.options, elementId);
     }
   }
   function _curryAnchor(x, y, ox, oy, type, fnInit) {
@@ -4555,7 +5272,7 @@
   anchorMap[exports.AnchorLocations.AutoDefault] = function (instance, params) {
     var a = new DynamicAnchor(instance, {
       anchors: DEFAULT_DYNAMIC_ANCHORS.map(function (da) {
-        return getNamedAnchor(instance, da, params);
+        return getNamedAnchor$1(instance, da, params);
       })
     });
     a.type = exports.AnchorLocations.AutoDefault;
@@ -4674,441 +5391,6 @@
   _curryContinuousAnchor(exports.AnchorLocations.ContinuousBottom, ["bottom"]);
   _curryContinuousAnchor(exports.AnchorLocations.ContinuousLeftRight, ["left", "right"]);
   _curryContinuousAnchor(exports.AnchorLocations.ContinuousTopBottom, ["top", "bottom"]);
-
-  var TYPE_ITEM_ANCHORS = "anchors";
-  var TYPE_ITEM_CONNECTOR = "connector";
-  function prepareEndpoint(conn, existing, index, anchor, element, elementId, endpoint) {
-    var e;
-    if (existing) {
-      conn.endpoints[index] = existing;
-      existing.addConnection(conn);
-    } else {
-      var ep = endpoint
-      || conn.endpointsSpec[index] || conn.instance.defaults.endpoints[index] || conn.instance.defaults.endpoint;
-      var es = conn.endpointStyles[index]
-      || conn.instance.defaults.endpointStyles[index] || conn.instance.defaults.endpointStyle;
-      if (es.fill == null && conn.paintStyle != null) {
-        es.fill = conn.paintStyle.stroke;
-      }
-      if (es.outlineStroke == null && conn.paintStyle != null) {
-        es.outlineStroke = conn.paintStyle.outlineStroke;
-      }
-      if (es.outlineWidth == null && conn.paintStyle != null) {
-        es.outlineWidth = conn.paintStyle.outlineWidth;
-      }
-      var ehs = conn.endpointHoverStyles[index]
-      || conn.instance.defaults.endpointHoverStyles[index] || conn.instance.defaults.endpointHoverStyle;
-      if (conn.hoverPaintStyle != null) {
-        if (ehs == null) {
-          ehs = {};
-        }
-        if (ehs.fill == null) {
-          ehs.fill = conn.hoverPaintStyle.stroke;
-        }
-      }
-      var u = conn.uuids ? conn.uuids[index] : null;
-      anchor = anchor != null ? anchor : conn.instance.defaults.anchors != null ? conn.instance.defaults.anchors[index] : conn.instance.defaults.anchor;
-      e = conn.instance._internal_newEndpoint({
-        paintStyle: es,
-        hoverPaintStyle: ehs,
-        endpoint: ep,
-        connections: [conn],
-        uuid: u,
-        element: element,
-        scope: conn.scope,
-        anchor: anchor,
-        reattachConnections: conn.reattach || conn.instance.defaults.reattachConnections,
-        connectionsDetachable: conn.detachable || conn.instance.defaults.connectionsDetachable
-      });
-      if (existing == null) {
-        e.deleteOnEmpty = true;
-      }
-      conn.endpoints[index] = e;
-    }
-    return e;
-  }
-  var Connection =
-  function (_OverlayCapableCompon) {
-    _inherits(Connection, _OverlayCapableCompon);
-    _createClass(Connection, [{
-      key: "getIdPrefix",
-      value: function getIdPrefix() {
-        return "_jsPlumb_c";
-      }
-    }, {
-      key: "getDefaultOverlayKey",
-      value: function getDefaultOverlayKey() {
-        return "connectionOverlays";
-      }
-    }, {
-      key: "getXY",
-      value: function getXY() {
-        return {
-          x: this.connector.x,
-          y: this.connector.y
-        };
-      }
-    }]);
-    function Connection(instance, params) {
-      var _this;
-      _classCallCheck(this, Connection);
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(Connection).call(this, instance, params));
-      _this.instance = instance;
-      _defineProperty(_assertThisInitialized(_this), "connector", void 0);
-      _defineProperty(_assertThisInitialized(_this), "defaultLabelLocation", 0.5);
-      _defineProperty(_assertThisInitialized(_this), "scope", void 0);
-      _defineProperty(_assertThisInitialized(_this), "typeId", "_jsplumb_connection");
-      _defineProperty(_assertThisInitialized(_this), "previousConnection", void 0);
-      _defineProperty(_assertThisInitialized(_this), "sourceId", void 0);
-      _defineProperty(_assertThisInitialized(_this), "targetId", void 0);
-      _defineProperty(_assertThisInitialized(_this), "source", void 0);
-      _defineProperty(_assertThisInitialized(_this), "target", void 0);
-      _defineProperty(_assertThisInitialized(_this), "detachable", true);
-      _defineProperty(_assertThisInitialized(_this), "reattach", false);
-      _defineProperty(_assertThisInitialized(_this), "uuids", void 0);
-      _defineProperty(_assertThisInitialized(_this), "cost", void 0);
-      _defineProperty(_assertThisInitialized(_this), "directed", void 0);
-      _defineProperty(_assertThisInitialized(_this), "endpoints", [null, null]);
-      _defineProperty(_assertThisInitialized(_this), "endpointStyles", void 0);
-      _defineProperty(_assertThisInitialized(_this), "endpointsSpec", void 0);
-      _defineProperty(_assertThisInitialized(_this), "endpointHoverStyles", void 0);
-      _defineProperty(_assertThisInitialized(_this), "suspendedEndpoint", void 0);
-      _defineProperty(_assertThisInitialized(_this), "suspendedIndex", void 0);
-      _defineProperty(_assertThisInitialized(_this), "suspendedElement", void 0);
-      _defineProperty(_assertThisInitialized(_this), "suspendedElementId", void 0);
-      _defineProperty(_assertThisInitialized(_this), "suspendedElementType", void 0);
-      _defineProperty(_assertThisInitialized(_this), "_forceReattach", void 0);
-      _defineProperty(_assertThisInitialized(_this), "_forceDetach", void 0);
-      _defineProperty(_assertThisInitialized(_this), "proxies", []);
-      _defineProperty(_assertThisInitialized(_this), "pending", false);
-      _this.id = params.id;
-      _this.previousConnection = params.previousConnection;
-      _this.source = params.source;
-      _this.target = params.target;
-      if (params.sourceEndpoint) {
-        _this.source = params.sourceEndpoint.element;
-        _this.sourceId = params.sourceEndpoint.elementId;
-      } else {
-        _this.sourceId = instance.getId(_this.source);
-      }
-      if (params.targetEndpoint) {
-        _this.target = params.targetEndpoint.element;
-        _this.targetId = params.targetEndpoint.elementId;
-      } else {
-        _this.targetId = instance.getId(_this.target);
-      }
-      _this.scope = params.scope;
-      var sourceAnchor = params.anchors ? params.anchors[0] : null;
-      var targetAnchor = params.anchors ? params.anchors[1] : null;
-      instance.manage(_this.source);
-      instance.manage(_this.target);
-      _this.visible = true;
-      _this.params = {
-        cssClass: params.cssClass,
-        hoverClass: params.hoverClass,
-        "pointer-events": params["pointer-events"],
-        overlays: params.overlays
-      };
-      _this.lastPaintedAt = null;
-      if (params.type) {
-        params.endpoints = params.endpoints || _this.instance._deriveEndpointAndAnchorSpec(params.type).endpoints;
-      }
-      _this.endpointsSpec = params.endpoints || [null, null];
-      _this.endpointStyles = params.endpointStyles || [null, null];
-      _this.endpointHoverStyles = params.endpointHoverStyles || [null, null];
-      _this.paintStyle = params.paintStyle;
-      _this.hoverPaintStyle = params.hoverPaintStyle;
-      _this.uuids = params.uuids;
-      var eS = _this.makeEndpoint(true, _this.source, _this.sourceId, sourceAnchor, params.sourceEndpoint),
-          eT = _this.makeEndpoint(false, _this.target, _this.targetId, targetAnchor, params.targetEndpoint);
-      if (eS) {
-        addToDictionary(instance.endpointsByElement, _this.sourceId, eS);
-      }
-      if (eT) {
-        addToDictionary(instance.endpointsByElement, _this.targetId, eT);
-      }
-      if (!_this.scope) {
-        _this.scope = _this.endpoints[0].scope;
-      }
-      if (params.deleteEndpointsOnEmpty != null) {
-        _this.endpoints[0].deleteOnEmpty = params.deleteEndpointsOnEmpty;
-        _this.endpoints[1].deleteOnEmpty = params.deleteEndpointsOnEmpty;
-      }
-      var _detachable = _this.instance.defaults.connectionsDetachable;
-      if (params.detachable === false) {
-        _detachable = false;
-      }
-      if (_this.endpoints[0].connectionsDetachable === false) {
-        _detachable = false;
-      }
-      if (_this.endpoints[1].connectionsDetachable === false) {
-        _detachable = false;
-      }
-      _this.endpointsSpec = params.endpoints || [null, null];
-      var _reattach = params.reattach || _this.endpoints[0].reattachConnections || _this.endpoints[1].reattachConnections || _this.instance.defaults.reattachConnections;
-      _this.appendToDefaultType({
-        detachable: _detachable,
-        reattach: _reattach,
-        paintStyle: _this.endpoints[0].connectorStyle || _this.endpoints[1].connectorStyle || params.paintStyle || _this.instance.defaults.paintStyle,
-        hoverPaintStyle: _this.endpoints[0].connectorHoverStyle || _this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _this.instance.defaults.hoverPaintStyle
-      });
-      if (!_this.instance._suspendDrawing) {
-        var initialTimestamp = _this.instance._suspendedAt || uuid();
-        _this.instance.paintEndpoint(_this.endpoints[0], {
-          timestamp: initialTimestamp
-        });
-        _this.instance.paintEndpoint(_this.endpoints[1], {
-          timestamp: initialTimestamp
-        });
-      }
-      _this.cost = params.cost || _this.endpoints[0].connectionCost;
-      _this.directed = params.directed;
-      if (params.directed == null) {
-        _this.directed = _this.endpoints[0].connectionsDirected;
-      }
-      var _p = extend({}, _this.endpoints[1].parameters);
-      extend(_p, _this.endpoints[0].parameters);
-      extend(_p, _this.parameters);
-      _this.parameters = _p;
-      _this.paintStyleInUse = _this.getPaintStyle() || {};
-      _this.setConnector(_this.endpoints[0].connector || _this.endpoints[1].connector || params.connector || _this.instance.defaults.connector, true);
-      var data = params.data == null || !IS.anObject(params.data) ? {} : params.data;
-      _this.setData(data);
-      var _types = ["default", _this.endpoints[0].edgeType, _this.endpoints[1].edgeType, params.type].join(" ");
-      if (/[^\s]/.test(_types)) {
-        _this.addType(_types, params.data);
-      }
-      return _this;
-    }
-    _createClass(Connection, [{
-      key: "makeEndpoint",
-      value: function makeEndpoint(isSource, el, elId, anchor, ep) {
-        elId = elId || this.instance.getId(el);
-        return prepareEndpoint(this, ep, isSource ? 0 : 1, anchor, el);
-      }
-    }, {
-      key: "getTypeDescriptor",
-      value: function getTypeDescriptor() {
-        return "connection";
-      }
-    }, {
-      key: "isDetachable",
-      value: function isDetachable(ep) {
-        return this.detachable === false ? false : ep != null ? ep.connectionsDetachable === true : this.detachable === true;
-      }
-    }, {
-      key: "setDetachable",
-      value: function setDetachable(detachable) {
-        this.detachable = detachable === true;
-      }
-    }, {
-      key: "isReattach",
-      value: function isReattach() {
-        return this.reattach === true || this.endpoints[0].reattachConnections === true || this.endpoints[1].reattachConnections === true;
-      }
-    }, {
-      key: "setReattach",
-      value: function setReattach(reattach) {
-        this.reattach = reattach === true;
-      }
-    }, {
-      key: "applyType",
-      value: function applyType(t, typeMap) {
-        var _connector = null;
-        if (t.connector != null) {
-          _connector = this.getCachedTypeItem(TYPE_ITEM_CONNECTOR, typeMap.connector);
-          if (_connector == null) {
-            _connector = this.prepareConnector(t.connector, typeMap.connector);
-            this.cacheTypeItem(TYPE_ITEM_CONNECTOR, _connector, typeMap.connector);
-          }
-          this.setPreparedConnector(_connector);
-        }
-        _get(_getPrototypeOf(Connection.prototype), "applyType", this).call(this, t, typeMap);
-        if (t.detachable != null) {
-          this.setDetachable(t.detachable);
-        }
-        if (t.reattach != null) {
-          this.setReattach(t.reattach);
-        }
-        if (t.scope) {
-          this.scope = t.scope;
-        }
-        var _anchors = null;
-        if (t.anchor) {
-          _anchors = this.getCachedTypeItem(TYPE_ITEM_ANCHORS, typeMap.anchor);
-          if (_anchors == null) {
-            _anchors = [makeAnchorFromSpec(this.instance, t.anchor, this.sourceId), makeAnchorFromSpec(this.instance, t.anchor, this.targetId)];
-            this.cacheTypeItem(TYPE_ITEM_ANCHORS, _anchors, typeMap.anchor);
-          }
-        } else if (t.anchors) {
-          _anchors = this.getCachedTypeItem(TYPE_ITEM_ANCHORS, typeMap.anchors);
-          if (_anchors == null) {
-            _anchors = [makeAnchorFromSpec(this.instance, t.anchors[0], this.sourceId), makeAnchorFromSpec(this.instance, t.anchors[1], this.targetId)];
-            this.cacheTypeItem(TYPE_ITEM_ANCHORS, _anchors, typeMap.anchors);
-          }
-        }
-        if (_anchors != null) {
-          this.instance.router.setConnectionAnchors(this, _anchors);
-          if (this.instance.router.isDynamicAnchor(this.endpoints[1])) {
-            this.instance.repaint(this.endpoints[1].element);
-          }
-        }
-        this.instance.applyConnectorType(this.connector, t);
-      }
-    }, {
-      key: "addClass",
-      value: function addClass(c, informEndpoints) {
-        _get(_getPrototypeOf(Connection.prototype), "addClass", this).call(this, c);
-        if (informEndpoints) {
-          this.endpoints[0].addClass(c);
-          this.endpoints[1].addClass(c);
-          if (this.suspendedEndpoint) {
-            this.suspendedEndpoint.addClass(c);
-          }
-        }
-        if (this.connector) {
-          this.instance.addConnectorClass(this.connector, c);
-        }
-      }
-    }, {
-      key: "removeClass",
-      value: function removeClass(c, informEndpoints) {
-        _get(_getPrototypeOf(Connection.prototype), "removeClass", this).call(this, c);
-        if (informEndpoints) {
-          this.endpoints[0].removeClass(c);
-          this.endpoints[1].removeClass(c);
-          if (this.suspendedEndpoint) {
-            this.suspendedEndpoint.removeClass(c);
-          }
-        }
-        if (this.connector) {
-          this.instance.removeConnectorClass(this.connector, c);
-        }
-      }
-    }, {
-      key: "setVisible",
-      value: function setVisible(v) {
-        _get(_getPrototypeOf(Connection.prototype), "setVisible", this).call(this, v);
-        if (this.connector) {
-          this.instance.setConnectorVisible(this.connector, v);
-        }
-        this.instance.paintConnection(this);
-      }
-    }, {
-      key: "destroy",
-      value: function destroy(force) {
-        this.endpoints = null;
-        this.endpointStyles = null;
-        this.source = null;
-        this.target = null;
-        this.instance.destroyConnection(this);
-        this.connector = null;
-        this.deleted = true;
-        _get(_getPrototypeOf(Connection.prototype), "destroy", this).call(this, force);
-      }
-    }, {
-      key: "getUuids",
-      value: function getUuids() {
-        return [this.endpoints[0].getUuid(), this.endpoints[1].getUuid()];
-      }
-    }, {
-      key: "getCost",
-      value: function getCost() {
-        return this.cost == null ? 1 : this.cost;
-      }
-    }, {
-      key: "setCost",
-      value: function setCost(c) {
-        this.cost = c;
-      }
-    }, {
-      key: "isDirected",
-      value: function isDirected() {
-        return this.directed;
-      }
-    }, {
-      key: "getConnector",
-      value: function getConnector() {
-        return this.connector;
-      }
-    }, {
-      key: "makeConnector",
-      value: function makeConnector(name, args) {
-        return Connectors.get(this.instance, this, name, args);
-      }
-    }, {
-      key: "prepareConnector",
-      value: function prepareConnector(connectorSpec, typeId) {
-        var connectorArgs = {
-          cssClass: this.params.cssClass,
-          hoverClass: this.params.hoverClass,
-          "pointer-events": this.params["pointer-events"]
-        },
-            connector;
-        if (isString(connectorSpec)) {
-          connector = this.makeConnector(connectorSpec, connectorArgs);
-        } else {
-          var co = connectorSpec;
-          connector = this.makeConnector(co.type, merge(co.options, connectorArgs));
-        }
-        if (typeId != null) {
-          connector.typeId = typeId;
-        }
-        return connector;
-      }
-    }, {
-      key: "setPreparedConnector",
-      value: function setPreparedConnector(connector, doNotRepaint, doNotChangeListenerComponent, typeId) {
-        if (this.connector !== connector) {
-          var previous,
-              previousClasses = "";
-          if (this.connector != null) {
-            previous = this.connector;
-            previousClasses = this.instance.getConnectorClass(this.connector);
-            this.instance.destroyConnection(this);
-          }
-          this.connector = connector;
-          if (typeId) {
-            this.cacheTypeItem(TYPE_ITEM_CONNECTOR, connector, typeId);
-          }
-          this.addClass(previousClasses);
-          if (previous != null) {
-            var o = this.getOverlays();
-            for (var i in o) {
-              this.instance.reattachOverlay(o[i], this);
-            }
-          }
-          if (!doNotRepaint) {
-            this.instance.paintConnection(this);
-          }
-        }
-      }
-    }, {
-      key: "setConnector",
-      value: function setConnector(connectorSpec, doNotRepaint, doNotChangeListenerComponent, typeId) {
-        var connector = this.prepareConnector(connectorSpec, typeId);
-        this.setPreparedConnector(connector, doNotRepaint, doNotChangeListenerComponent, typeId);
-      }
-    }, {
-      key: "replaceEndpoint",
-      value: function replaceEndpoint(idx, endpointDef) {
-        var current = this.endpoints[idx],
-            elId = current.elementId,
-            ebe = this.instance.getEndpoints(current.element),
-            _idx = ebe.indexOf(current),
-            _new = prepareEndpoint(this, null, idx, null, current.element, elId, endpointDef);
-        this.endpoints[idx] = _new;
-        ebe.splice(_idx, 1, _new);
-        current.detachFromConnection(this);
-        this.instance.deleteEndpoint(current);
-        this.instance.fire(EVENT_ENDPOINT_REPLACED, {
-          previous: current,
-          current: _new
-        });
-      }
-    }]);
-    return Connection;
-  }(OverlayCapableComponent);
 
   var typeParameters = ["connectorStyle", "connectorHoverStyle", "connectorOverlays", "connector", "connectionType", "connectorClass", "connectorHoverClass"];
   var Endpoint =
@@ -5236,7 +5518,7 @@
       key: "_updateAnchorClass",
       value: function _updateAnchorClass(anchor) {
         anchor = anchor || this.instance.router.getAnchor(this);
-        var ac = anchor && anchor.getCssClass();
+        var ac = anchor && anchor.cssClass;
         if (ac != null && ac.length > 0) {
           var oldAnchorClass = this.instance.endpointAnchorClassPrefix + "-" + this.currentAnchorClass;
           this.currentAnchorClass = ac;
@@ -5538,7 +5820,7 @@
     }, {
       key: "getAnchor",
       value: function getAnchor(conn, endpointIndex) {
-        return this.anchor || ContinuousAnchor.type;
+        return this.anchor || "Continuous";
       }
     }, {
       key: "getEndpoint",
@@ -6396,605 +6678,6 @@
     return GroupManager;
   }();
 
-  function placeAnchorsOnLine(element, connections, horizontal, otherMultiplier, reverse) {
-    var sizeInAxis = horizontal ? element.w : element.h;
-    var sizeInOtherAxis = horizontal ? element.h : element.w;
-    var a = [],
-        step = sizeInAxis / (connections.length + 1);
-    for (var i = 0; i < connections.length; i++) {
-      var val = (i + 1) * step,
-          other = otherMultiplier * sizeInOtherAxis;
-      if (reverse) {
-        val = sizeInAxis - val;
-      }
-      var dx = horizontal ? val : other,
-          x = element.x + dx,
-          xp = dx / element.w;
-      var dy = horizontal ? other : val,
-          y = element.y + dy,
-          yp = dy / element.h;
-      if (element.r !== 0 && element.r != null) {
-        var rotated = rotatePoint({
-          x: x,
-          y: y
-        }, element.c, element.r);
-        x = rotated.x;
-        y = rotated.y;
-      }
-      a.push({
-        x: x,
-        y: y,
-        xLoc: xp,
-        yLoc: yp,
-        c: connections[i].c
-      });
-    }
-    return a;
-  }
-  function rightAndBottomSort(a, b) {
-    return b.theta - a.theta;
-  }
-  function leftAndTopSort(a, b) {
-    var p1 = a.theta < 0 ? -Math.PI - a.theta : Math.PI - a.theta,
-        p2 = b.theta < 0 ? -Math.PI - b.theta : Math.PI - b.theta;
-    return p1 - p2;
-  }
-  var edgeSortFunctions = {
-    "top": leftAndTopSort,
-    "right": rightAndBottomSort,
-    "bottom": rightAndBottomSort,
-    "left": leftAndTopSort
-  };
-  function isContinuous(a) {
-    return a.isContinuous;
-  }
-  function isDynamic(a) {
-    return a.constructor === DynamicAnchor;
-  }
-  function floatingAnchorCompute(anchor, params) {
-    var xy = params.xy;
-    anchor._lastResult = [xy.x + anchor.size.w / 2, xy.y + anchor.size.h / 2, 0, 0];
-    return anchor._lastResult;
-  }
-  var anchorMap$1 = new Map();
-  var DefaultRouter =
-  function () {
-    function DefaultRouter(instance) {
-      var _this = this;
-      _classCallCheck(this, DefaultRouter);
-      this.instance = instance;
-      _defineProperty(this, "continuousAnchorLocations", {});
-      _defineProperty(this, "continuousAnchorOrientations", {});
-      _defineProperty(this, "anchorLists", {});
-      instance.bind(EVENT_INTERNAL_CONNECTION_DETACHED, function (p) {
-        _this._removeEndpointFromAnchorLists(p.sourceEndpoint);
-        _this._removeEndpointFromAnchorLists(p.targetEndpoint);
-      });
-      instance.bind(EVENT_INTERNAL_ENDPOINT_UNREGISTERED, function (ep) {
-        _this._removeEndpointFromAnchorLists(ep);
-        anchorMap$1["delete"](ep.id);
-      });
-    }
-    _createClass(DefaultRouter, [{
-      key: "reset",
-      value: function reset() {
-        this.anchorLists = {};
-      }
-    }, {
-      key: "getEndpointLocation",
-      value: function getEndpointLocation(endpoint, params) {
-        params = params || {};
-        var anchor = anchorMap$1.get(endpoint.id);
-        return anchor.lastReturnValue == null || params.timestamp != null && anchor.timestamp !== params.timestamp ? this.computeAnchorLocation(anchor, params) : anchor.lastReturnValue;
-      }
-    }, {
-      key: "computeAnchorLocation",
-      value: function computeAnchorLocation(anchor, params) {
-        if (anchor.isContinuous) {
-          anchor.lastReturnValue = this.continuousAnchorLocations[params.element.id] || [0, 0, 0, 0];
-        } else if (anchor.isDynamic) {
-          anchor.lastReturnValue = this.dynamicAnchorCompute(anchor, params);
-        } else if (anchor.isFloating) {
-          anchor.lastReturnValue = floatingAnchorCompute(anchor, params);
-        } else {
-          anchor.lastReturnValue = this.defaultAnchorCompute(anchor, params);
-        }
-        return anchor.lastReturnValue;
-      }
-    }, {
-      key: "isFloating",
-      value: function isFloating(ep) {
-        var a = anchorMap$1.get(ep.id);
-        return a != null && a.isFloating;
-      }
-    }, {
-      key: "defaultAnchorCompute",
-      value: function defaultAnchorCompute(anchor, params) {
-        var xy = params.xy,
-            wh = params.wh,
-            timestamp = params.timestamp;
-        if (timestamp && timestamp === anchor.timestamp) {
-          return anchor.lastReturnValue;
-        }
-        var candidate = [xy.x + anchor.x * wh.w + anchor.offsets[0], xy.y + anchor.y * wh.h + anchor.offsets[1], anchor.x, anchor.y];
-        var rotation = params.rotation;
-        if (rotation != null && rotation.length > 0) {
-          var o = anchor._unrotatedOrientation.slice(),
-              s = candidate.slice(),
-              current = {
-            x: s[0],
-            y: s[1],
-            cr: 0,
-            sr: 0
-          };
-          forEach(rotation, function (r) {
-            current = rotatePoint(current, r.c, r.r);
-            var _o = [Math.round(o[0] * current.cr - o[1] * current.sr), Math.round(o[1] * current.cr + o[0] * current.sr)];
-            o = _o.slice();
-          });
-          anchor.orientation[0] = o[0];
-          anchor.orientation[1] = o[1];
-          anchor.lastReturnValue = [current.x, current.y, anchor.x, anchor.y];
-        } else {
-          anchor.orientation[0] = anchor._unrotatedOrientation[0];
-          anchor.orientation[1] = anchor._unrotatedOrientation[1];
-          anchor.lastReturnValue = candidate;
-        }
-        anchor.timestamp = timestamp;
-        return anchor.lastReturnValue;
-      }
-    }, {
-      key: "dynamicAnchorCompute",
-      value: function dynamicAnchorCompute(anchor, params) {
-        var xy = params.xy,
-            wh = params.wh,
-            txy = params.txy,
-            twh = params.twh;
-        anchor.timestamp = params.timestamp;
-        if (anchor.locked || txy == null || twh == null) {
-          anchor.lastReturnValue = this.computeAnchorLocation(anchor._curAnchor, params);
-          return anchor.lastReturnValue;
-        } else {
-          params.timestamp = null;
-        }
-        anchor._curAnchor = anchor._anchorSelector(xy, wh, txy, twh, params.rotation, params.tRotation, anchor.anchors);
-        anchor.x = anchor._curAnchor.x;
-        anchor.y = anchor._curAnchor.y;
-        if (anchor._curAnchor !== anchor._lastAnchor) {
-          params.element._anchorLocationChanged(anchor._curAnchor);
-        }
-        anchor._lastAnchor = anchor._curAnchor;
-        anchor.lastReturnValue = this.defaultAnchorCompute(anchor._curAnchor, params);
-        return anchor.lastReturnValue;
-      }
-    }, {
-      key: "getEndpointOrientation",
-      value: function getEndpointOrientation(endpoint) {
-        return this.getAnchorOrientation(anchorMap$1.get(endpoint.id), endpoint);
-      }
-    }, {
-      key: "getAnchorOrientation",
-      value: function getAnchorOrientation(anchor, endpoint) {
-        if (anchor.isContinuous) {
-          return this.continuousAnchorOrientations[endpoint.id] || [0, 0];
-        } else if (anchor.isDynamic) {
-          return anchor._curAnchor != null ? anchor._curAnchor.orientation : [0, 0];
-        } else if (anchor.isFloating) {
-          if (anchor.orientation) {
-            return anchor.orientation;
-          } else {
-            var o = this.getAnchorOrientation(anchor.ref, endpoint);
-            return [Math.abs(o[0]) * anchor.xDir * -1, Math.abs(o[1]) * anchor.yDir * -1];
-          }
-        } else {
-          return anchor.orientation;
-        }
-      }
-    }, {
-      key: "setAnchor",
-      value: function setAnchor(endpoint, anchor) {
-        anchorMap$1.set(endpoint.id, anchor);
-        endpoint._anchorId = anchor.id;
-      }
-    }, {
-      key: "prepareAnchor",
-      value: function prepareAnchor(endpoint, params) {
-        var a = makeAnchorFromSpec(this.instance, params, endpoint.elementId);
-        return a;
-      }
-    }, {
-      key: "setConnectionAnchors",
-      value: function setConnectionAnchors(conn, anchors) {
-        anchorMap$1.set(conn.endpoints[0].id, anchors[0]);
-        anchorMap$1.set(conn.endpoints[1].id, anchors[1]);
-      }
-    }, {
-      key: "isDynamicAnchor",
-      value: function isDynamicAnchor(ep) {
-        var a = anchorMap$1.get(ep.id);
-        return a == null ? false : a.isDynamic;
-      }
-    }, {
-      key: "getAnchor",
-      value: function getAnchor(ep) {
-        return anchorMap$1.get(ep.id);
-      }
-    }, {
-      key: "computePath",
-      value: function computePath(connection, timestamp) {
-        var sourceInfo = this.instance.viewport.getPosition(connection.sourceId),
-            targetInfo = this.instance.viewport.getPosition(connection.targetId),
-            sE = connection.endpoints[0],
-            tE = connection.endpoints[1];
-        var sAnchorP = this.getEndpointLocation(sE, {
-          xy: sourceInfo,
-          wh: sourceInfo,
-          element: sE,
-          timestamp: timestamp,
-          rotation: this.instance._getRotations(connection.sourceId)
-        }),
-            tAnchorP = this.getEndpointLocation(tE, {
-          xy: targetInfo,
-          wh: targetInfo,
-          element: tE,
-          timestamp: timestamp,
-          rotation: this.instance._getRotations(connection.targetId)
-        });
-        connection.connector.resetBounds();
-        connection.connector.compute({
-          sourcePos: sAnchorP,
-          targetPos: tAnchorP,
-          sourceOrientation: this.getEndpointOrientation(sE),
-          targetOrientation: this.getEndpointOrientation(tE),
-          sourceEndpoint: connection.endpoints[0],
-          targetEndpoint: connection.endpoints[1],
-          strokeWidth: connection.paintStyleInUse.strokeWidth,
-          sourceInfo: sourceInfo,
-          targetInfo: targetInfo
-        });
-      }
-    }, {
-      key: "placeAnchors",
-      value: function placeAnchors(instance, elementId, _anchorLists) {
-        var _this2 = this;
-        var cd = instance.viewport.getPosition(elementId),
-            placeSomeAnchors = function placeSomeAnchors(desc, element, unsortedConnections, isHorizontal, otherMultiplier, orientation) {
-          if (unsortedConnections.length > 0) {
-            var sc = sortHelper(unsortedConnections, edgeSortFunctions[desc]),
-            reverse = desc === "right" || desc === "top",
-                anchors = placeAnchorsOnLine(cd, sc, isHorizontal, otherMultiplier, reverse);
-            var _setAnchorLocation = function _setAnchorLocation(endpoint, anchorPos) {
-              _this2.continuousAnchorLocations[endpoint.id] = [anchorPos.x, anchorPos.y, anchorPos.xLoc, anchorPos.yLoc];
-              _this2.continuousAnchorOrientations[endpoint.id] = orientation;
-            };
-            for (var i = 0; i < anchors.length; i++) {
-              var c = anchors[i].c,
-                  weAreSource = c.endpoints[0].elementId === elementId,
-                  weAreTarget = c.endpoints[1].elementId === elementId;
-              if (weAreSource) {
-                _setAnchorLocation(c.endpoints[0], anchors[i]);
-              }
-              if (weAreTarget) {
-                _setAnchorLocation(c.endpoints[1], anchors[i]);
-              }
-            }
-          }
-        };
-        placeSomeAnchors("bottom", cd, _anchorLists.bottom, true, 1, [0, 1]);
-        placeSomeAnchors("top", cd, _anchorLists.top, true, 0, [0, -1]);
-        placeSomeAnchors("left", cd, _anchorLists.left, false, 0, [-1, 0]);
-        placeSomeAnchors("right", cd, _anchorLists.right, false, 1, [1, 0]);
-      }
-    }, {
-      key: "_removeEndpointFromAnchorLists",
-      value: function _removeEndpointFromAnchorLists(endpoint) {
-        var listsForElement = this.anchorLists[endpoint.elementId];
-        var total = 0;
-        (function (list, eId) {
-          if (list) {
-            var f = function f(e) {
-              return e.epId === eId;
-            };
-            removeWithFunction(list.top, f);
-            removeWithFunction(list.left, f);
-            removeWithFunction(list.bottom, f);
-            removeWithFunction(list.right, f);
-            total += list.top.length;
-            total += list.left.length;
-            total += list.bottom.length;
-            total += list.right.length;
-          }
-        })(listsForElement, endpoint.id);
-        if (total === 0) {
-          delete this.anchorLists[endpoint.elementId];
-        }
-        delete this.continuousAnchorLocations[endpoint.id];
-        delete this.continuousAnchorOrientations[endpoint.id];
-      }
-    }, {
-      key: "_updateAnchorList",
-      value: function _updateAnchorList(lists, theta, order, conn, aBoolean, otherElId, idx, reverse, edgeId, connsToPaint, endpointsToPaint) {
-        var endpoint = conn.endpoints[idx],
-            endpointId = endpoint.id,
-            oIdx = [1, 0][idx],
-            values = {
-          theta: theta,
-          order: order,
-          c: conn,
-          b: aBoolean,
-          elId: otherElId,
-          epId: endpointId
-        },
-            listToAddTo = lists[edgeId],
-            listToRemoveFrom = endpoint._continuousAnchorEdge ? lists[endpoint._continuousAnchorEdge] : null,
-            candidate;
-        if (listToRemoveFrom) {
-          var rIdx = findWithFunction(listToRemoveFrom, function (e) {
-            return e.epId === endpointId;
-          });
-          if (rIdx !== -1) {
-            listToRemoveFrom.splice(rIdx, 1);
-            for (var i = 0; i < listToRemoveFrom.length; i++) {
-              candidate = listToRemoveFrom[i].c;
-              connsToPaint.add(candidate);
-              endpointsToPaint.add(listToRemoveFrom[i].c.endpoints[idx]);
-              endpointsToPaint.add(listToRemoveFrom[i].c.endpoints[oIdx]);
-            }
-          }
-        }
-        for (var _i = 0; _i < listToAddTo.length; _i++) {
-          candidate = listToAddTo[_i].c;
-          connsToPaint.add(candidate);
-          endpointsToPaint.add(listToAddTo[_i].c.endpoints[idx]);
-          endpointsToPaint.add(listToAddTo[_i].c.endpoints[oIdx]);
-        }
-        {
-          var insertIdx = reverse ?  0 : listToAddTo.length;
-          listToAddTo.splice(insertIdx, 0, values);
-        }
-        endpoint._continuousAnchorEdge = edgeId;
-      }
-    }, {
-      key: "redraw",
-      value: function redraw(elementId, timestamp, offsetToUI) {
-        var _this3 = this;
-        var connectionsToPaint = new Set(),
-            endpointsToPaint = new Set(),
-            anchorsToUpdate = new Set();
-        if (!this.instance._suspendDrawing) {
-          var ep = this.instance.endpointsByElement[elementId] || [];
-          timestamp = timestamp || uuid();
-          var orientationCache = {},
-              a;
-          forEach(ep, function (anEndpoint) {
-            endpointsToPaint.add(anEndpoint);
-            a = anchorMap$1.get(anEndpoint.id);
-            if (anEndpoint.connections.length === 0) {
-              if (isContinuous(a)) {
-                if (!_this3.anchorLists[elementId]) {
-                  _this3.anchorLists[elementId] = {
-                    top: [],
-                    right: [],
-                    bottom: [],
-                    left: []
-                  };
-                }
-                _this3._updateAnchorList(_this3.anchorLists[elementId], -Math.PI / 2, 0, {
-                  endpoints: [anEndpoint, anEndpoint]
-                }, false, elementId, 0, false, a.getDefaultFace(), connectionsToPaint, endpointsToPaint);
-                anchorsToUpdate.add(elementId);
-              }
-            } else {
-              for (var i = 0; i < anEndpoint.connections.length; i++) {
-                var conn = anEndpoint.connections[i],
-                    sourceId = conn.sourceId,
-                    targetId = conn.targetId,
-                    sourceContinuous = isContinuous(anchorMap$1.get(conn.endpoints[0].id)),
-                targetContinuous = isContinuous(anchorMap$1.get(conn.endpoints[0].id));
-                if (sourceContinuous || targetContinuous) {
-                  var oKey = sourceId + "_" + targetId,
-                      o = orientationCache[oKey],
-                      oIdx = conn.sourceId === elementId ? 1 : 0;
-                  if (sourceContinuous && !_this3.anchorLists[sourceId]) {
-                    _this3.anchorLists[sourceId] = {
-                      top: [],
-                      right: [],
-                      bottom: [],
-                      left: []
-                    };
-                  }
-                  if (targetContinuous && !_this3.anchorLists[targetId]) {
-                    _this3.anchorLists[targetId] = {
-                      top: [],
-                      right: [],
-                      bottom: [],
-                      left: []
-                    };
-                  }
-                  var td = _this3.instance.viewport.getPosition(targetId),
-                      sd = _this3.instance.viewport.getPosition(sourceId);
-                  if (targetId === sourceId && (sourceContinuous || targetContinuous)) {
-                    _this3._updateAnchorList(_this3.anchorLists[sourceId], -Math.PI / 2, 0, conn, false, targetId, 0, false, "top", connectionsToPaint, endpointsToPaint);
-                    _this3._updateAnchorList(_this3.anchorLists[targetId], -Math.PI / 2, 0, conn, false, sourceId, 1, false, "top", connectionsToPaint, endpointsToPaint);
-                  } else {
-                    var sourceRotation = _this3.instance._getRotations(sourceId);
-                    var targetRotation = _this3.instance._getRotations(targetId);
-                    if (!o) {
-                      o = _this3.calculateOrientation(sourceId, targetId, sd, td, anchorMap$1.get(conn.endpoints[0].id), anchorMap$1.get(conn.endpoints[1].id), sourceRotation, targetRotation);
-                      orientationCache[oKey] = o;
-                    }
-                    if (sourceContinuous) {
-                      _this3._updateAnchorList(_this3.anchorLists[sourceId], o.theta, 0, conn, false, targetId, 0, false, o.a[0], connectionsToPaint, endpointsToPaint);
-                    }
-                    if (targetContinuous) {
-                      _this3._updateAnchorList(_this3.anchorLists[targetId], o.theta2, -1, conn, true, sourceId, 1, true, o.a[1], connectionsToPaint, endpointsToPaint);
-                    }
-                  }
-                  if (sourceContinuous) {
-                    anchorsToUpdate.add(sourceId);
-                  }
-                  if (targetContinuous) {
-                    anchorsToUpdate.add(targetId);
-                  }
-                  connectionsToPaint.add(conn);
-                  if (sourceContinuous && oIdx === 0 || targetContinuous && oIdx === 1) {
-                    endpointsToPaint.add(conn.endpoints[oIdx]);
-                  }
-                } else {
-                  var otherEndpoint = anEndpoint.connections[i].endpoints[conn.sourceId === elementId ? 1 : 0],
-                      otherAnchor = anchorMap$1.get(otherEndpoint.id);
-                  if (isDynamic(otherAnchor)) {
-                    _this3.instance.paintEndpoint(otherEndpoint, {
-                      elementWithPrecedence: elementId,
-                      timestamp: timestamp
-                    });
-                    connectionsToPaint.add(anEndpoint.connections[i]);
-                    for (var k = 0; k < otherEndpoint.connections.length; k++) {
-                      if (otherEndpoint.connections[k] !== anEndpoint.connections[i]) {
-                        connectionsToPaint.add(otherEndpoint.connections[k]);
-                      }
-                    }
-                  } else {
-                    connectionsToPaint.add(anEndpoint.connections[i]);
-                  }
-                }
-              }
-            }
-          });
-          anchorsToUpdate.forEach(function (anchor) {
-            _this3.placeAnchors(_this3.instance, anchor, _this3.anchorLists[anchor]);
-          });
-          endpointsToPaint.forEach(function (ep) {
-            var cd = _this3.instance.viewport.getPosition(ep.elementId);
-            _this3.instance.paintEndpoint(ep, {
-              timestamp: timestamp,
-              offset: cd
-            });
-          });
-          connectionsToPaint.forEach(function (c) {
-            _this3.instance.paintConnection(c, {
-              timestamp: timestamp
-            });
-          });
-        }
-        return {
-          c: connectionsToPaint,
-          e: endpointsToPaint
-        };
-      }
-    }, {
-      key: "calculateOrientation",
-      value: function calculateOrientation(sourceId, targetId, sd, td, sourceAnchor, targetAnchor, sourceRotation, targetRotation) {
-        var _this4 = this;
-        var Orientation = {
-          HORIZONTAL: "horizontal",
-          VERTICAL: "vertical",
-          DIAGONAL: "diagonal",
-          IDENTITY: "identity"
-        };
-        if (sourceId === targetId) {
-          return {
-            orientation: Orientation.IDENTITY,
-            a: ["top", "top"]
-          };
-        }
-        var theta = Math.atan2(td.c.y - sd.c.y, td.c.x - sd.c.x),
-            theta2 = Math.atan2(sd.c.y - td.c.y, sd.c.x - td.c.x);
-        var candidates = [],
-            midpoints = {};
-        (function (types, dim) {
-          for (var i = 0; i < types.length; i++) {
-            midpoints[types[i]] = {
-              "left": {
-                x: dim[i][0].x,
-                y: dim[i][0].c.y
-              },
-              "right": {
-                x: dim[i][0].x + dim[i][0].w,
-                y: dim[i][0].c.y
-              },
-              "top": {
-                x: dim[i][0].c.x,
-                y: dim[i][0].y
-              },
-              "bottom": {
-                x: dim[i][0].c.x,
-                y: dim[i][0].y + dim[i][0].h
-              }
-            };
-            if (dim[i][1] != null && dim[i][1].length > 0) {
-              for (var axis in midpoints[types[i]]) {
-                midpoints[types[i]][axis] = _this4.instance._applyRotationsXY(midpoints[types[i]][axis], dim[i][1]);
-              }
-            }
-          }
-        })(["source", "target"], [[sd, sourceRotation], [td, targetRotation]]);
-        var FACES = ["top", "right", "left", "bottom"];
-        for (var sf = 0; sf < FACES.length; sf++) {
-          for (var tf = 0; tf < FACES.length; tf++) {
-            candidates.push({
-              source: FACES[sf],
-              target: FACES[tf],
-              dist: lineLength(midpoints.source[FACES[sf]], midpoints.target[FACES[tf]])
-            });
-          }
-        }
-        candidates.sort(function (a, b) {
-          if (a.dist < b.dist) {
-            return -1;
-          } else if (b.dist < a.dist) {
-            return 1;
-          } else {
-            var axisIndices = {
-              "left": 0,
-              "top": 1,
-              "right": 2,
-              "bottom": 3
-            },
-                ais = axisIndices[a.source],
-                bis = axisIndices[b.source],
-                ait = axisIndices[a.target],
-                bit = axisIndices[b.target];
-            return ais < bis ? -1 : bis < ais ? 1 : ait < bit ? -1 : bit < ait ? 1 : 0;
-          }
-        });
-        var sourceEdge = candidates[0].source,
-            targetEdge = candidates[0].target;
-        for (var i = 0; i < candidates.length; i++) {
-          if (sourceAnchor.isContinuous && sourceAnchor.locked) {
-            sourceEdge = sourceAnchor.getCurrentFace();
-          } else if (!sourceAnchor.isContinuous || sourceAnchor.isEdgeSupported(candidates[i].source)) {
-            sourceEdge = candidates[i].source;
-          } else {
-            sourceEdge = null;
-          }
-          if (targetAnchor.isContinuous && targetAnchor.locked) {
-            targetEdge = targetAnchor.getCurrentFace();
-          } else if (!targetAnchor.isContinuous || targetAnchor.isEdgeSupported(candidates[i].target)) {
-            targetEdge = candidates[i].target;
-          } else {
-            targetEdge = null;
-          }
-          if (sourceEdge != null && targetEdge != null) {
-            break;
-          }
-        }
-        if (sourceAnchor.isContinuous) {
-          sourceAnchor.setCurrentFace(sourceEdge);
-        }
-        if (targetAnchor.isContinuous) {
-          targetAnchor.setCurrentFace(targetEdge);
-        }
-        return {
-          a: [sourceEdge, targetEdge],
-          theta: theta,
-          theta2: theta2
-        };
-      }
-    }]);
-    return DefaultRouter;
-  }();
-
   var SelectionBase =
   function () {
     function SelectionBase(instance, entries) {
@@ -7706,6 +7389,736 @@
     return TargetSelector;
   }(ConnectionDragSelector);
 
+  var anchorMap$1 = new Map();
+  var anchorLocations = new Map();
+  var anchorLists = new Map();
+  function _placeAnchorsOnLine(element, connections, horizontal, otherMultiplier, reverse) {
+    var sizeInAxis = horizontal ? element.w : element.h;
+    var sizeInOtherAxis = horizontal ? element.h : element.w;
+    var a = [],
+        step = sizeInAxis / (connections.length + 1);
+    for (var i = 0; i < connections.length; i++) {
+      var val = (i + 1) * step,
+          other = otherMultiplier * sizeInOtherAxis;
+      if (reverse) {
+        val = sizeInAxis - val;
+      }
+      var dx = horizontal ? val : other,
+          x = element.x + dx,
+          xp = dx / element.w;
+      var dy = horizontal ? other : val,
+          y = element.y + dy,
+          yp = dy / element.h;
+      if (element.r !== 0 && element.r != null) {
+        var rotated = rotatePoint({
+          x: x,
+          y: y
+        }, element.c, element.r);
+        x = rotated.x;
+        y = rotated.y;
+      }
+      a.push({
+        x: x,
+        y: y,
+        xLoc: xp,
+        yLoc: yp,
+        c: connections[i].c
+      });
+    }
+    return a;
+  }
+  function _rightAndBottomSort(a, b) {
+    return b.theta - a.theta;
+  }
+  function _leftAndTopSort(a, b) {
+    var p1 = a.theta < 0 ? -Math.PI - a.theta : Math.PI - a.theta,
+        p2 = b.theta < 0 ? -Math.PI - b.theta : Math.PI - b.theta;
+    return p1 - p2;
+  }
+  var edgeSortFunctions = {
+    "top": _leftAndTopSort,
+    "right": _rightAndBottomSort,
+    "bottom": _rightAndBottomSort,
+    "left": _leftAndTopSort
+  };
+  function _updateAnchorList(lists, theta, order, conn, aBoolean, otherElId, idx, reverse, edgeId, connsToPaint, endpointsToPaint) {
+    var endpoint = conn.endpoints[idx],
+        endpointId = endpoint.id,
+        oIdx = [1, 0][idx],
+        values = {
+      theta: theta,
+      order: order,
+      c: conn,
+      b: aBoolean,
+      elId: otherElId,
+      epId: endpointId
+    },
+        listToAddTo = lists[edgeId],
+        listToRemoveFrom = endpoint._continuousAnchorEdge ? lists[endpoint._continuousAnchorEdge] : null,
+        candidate;
+    if (listToRemoveFrom) {
+      var rIdx = findWithFunction(listToRemoveFrom, function (e) {
+        return e.epId === endpointId;
+      });
+      if (rIdx !== -1) {
+        listToRemoveFrom.splice(rIdx, 1);
+        for (var i = 0; i < listToRemoveFrom.length; i++) {
+          candidate = listToRemoveFrom[i].c;
+          connsToPaint.add(candidate);
+          endpointsToPaint.add(listToRemoveFrom[i].c.endpoints[idx]);
+          endpointsToPaint.add(listToRemoveFrom[i].c.endpoints[oIdx]);
+        }
+      }
+    }
+    for (var _i = 0; _i < listToAddTo.length; _i++) {
+      candidate = listToAddTo[_i].c;
+      connsToPaint.add(candidate);
+      endpointsToPaint.add(listToAddTo[_i].c.endpoints[idx]);
+      endpointsToPaint.add(listToAddTo[_i].c.endpoints[oIdx]);
+    }
+    {
+      var insertIdx = reverse ?  0 : listToAddTo.length;
+      listToAddTo.splice(insertIdx, 0, values);
+    }
+    endpoint._continuousAnchorEdge = edgeId;
+  }
+  function _placeAnchors(instance, elementId, _anchorLists) {
+    var cd = instance.viewport.getPosition(elementId),
+        placeSomeAnchors = function placeSomeAnchors(desc, element, unsortedConnections, isHorizontal, otherMultiplier, orientation) {
+      if (unsortedConnections.length > 0) {
+        var sc = sortHelper(unsortedConnections, edgeSortFunctions[desc]),
+        reverse = desc === RIGHT || desc === TOP,
+            anchors = _placeAnchorsOnLine(cd, sc, isHorizontal, otherMultiplier, reverse);
+        var _setAnchorLocation = function _setAnchorLocation(endpoint, anchorPos) {
+          anchorLocations.set(endpoint._anchorId, {
+            curX: anchorPos.x,
+            curY: anchorPos.y,
+            x: anchorPos.xLoc,
+            y: anchorPos.yLoc,
+            ox: orientation[0],
+            oy: orientation[1]
+          });
+        };
+        for (var i = 0; i < anchors.length; i++) {
+          var c = anchors[i].c,
+              weAreSource = c.endpoints[0].elementId === elementId,
+              weAreTarget = c.endpoints[1].elementId === elementId;
+          if (weAreSource) {
+            _setAnchorLocation(c.endpoints[0], anchors[i]);
+          }
+          if (weAreTarget) {
+            _setAnchorLocation(c.endpoints[1], anchors[i]);
+          }
+        }
+      }
+    };
+    placeSomeAnchors(BOTTOM, cd, _anchorLists.bottom, true, 1, [0, 1]);
+    placeSomeAnchors(TOP, cd, _anchorLists.top, true, 0, [0, -1]);
+    placeSomeAnchors(LEFT, cd, _anchorLists.left, false, 0, [-1, 0]);
+    placeSomeAnchors(RIGHT, cd, _anchorLists.right, false, 1, [1, 0]);
+  }
+  function _removeEndpointFromAnchorLists(endpoint) {
+    var listsForElement = anchorLists.get(endpoint.elementId);
+    var total = 0;
+    (function (list, eId) {
+      if (list) {
+        var f = function f(e) {
+          return e.epId === eId;
+        };
+        removeWithFunction(list.top, f);
+        removeWithFunction(list.left, f);
+        removeWithFunction(list.bottom, f);
+        removeWithFunction(list.right, f);
+        total += list.top.length;
+        total += list.left.length;
+        total += list.bottom.length;
+        total += list.right.length;
+      }
+    })(listsForElement, endpoint.id);
+    if (total === 0) {
+      anchorLists["delete"](endpoint.elementId);
+    }
+    anchorLocations["delete"](endpoint._anchorId);
+  }
+  function _getCurrentFace(a) {
+    return a.currentFace;
+  }
+  function _getDefaultFace(a) {
+    return a.faces.length === 0 ? "top" : a.faces[0];
+  }
+  function _isFaceAvailable(a, face) {
+    return a.faces.indexOf(face) !== -1;
+  }
+  function _isEdgeSupported(a, edge) {
+    return a.lockedAxis == null ? a.lockedFace == null ? _isFaceAvailable(a, edge) === true : a.lockedFace === edge : a.lockedAxis.indexOf(edge) !== -1;
+  }
+  function _setCurrentFace(a, face, overrideLock) {
+    a.currentFace = face;
+    if (overrideLock && a.lockedFace != null) {
+      a.lockedFace = a.currentFace;
+    }
+  }
+  function isContinuous(a) {
+    return a.isContinuous === true;
+  }
+  function _isFloating(a) {
+    return a.isContinuous === true;
+  }
+  function isDynamic(a) {
+    return a.locations.length > 1;
+  }
+  function _getAnchorOrientation(anchor, endpoint) {
+    var loc = anchorLocations.get(anchor.id);
+    return loc ? [loc.ox, loc.oy] : [0, 0];
+  }
+  function floatingAnchorCompute(instance, anchor, params) {
+    var xy = params.xy;
+    var pos = {
+      curX: xy.x + anchor.size.w / 2,
+      curY: xy.y + anchor.size.h / 2,
+      x: 0,
+      y: 0,
+      ox: 0,
+      oy: 0
+    };
+    anchorLocations.set(anchor.id, pos);
+    return pos;
+  }
+  function getCurrentLocation(anchor) {
+    return [anchor.currentLocation, anchor.locations[anchor.currentLocation]];
+  }
+  function computeSingleLocation(instance, loc, xy, wh, params) {
+    var candidate = {
+      curX: xy.x + loc.x * wh.w + loc.offx,
+      curY: xy.y + loc.y * wh.h + loc.offy,
+      x: loc.x,
+      y: loc.y,
+      ox: 0,
+      oy: 0
+    };
+    var pos;
+    var rotation = params.rotation;
+    if (rotation != null && rotation.length > 0) {
+      var o = [loc.iox, loc.ioy],
+          current = {
+        x: candidate.curX,
+        y: candidate.curY,
+        cr: 0,
+        sr: 0
+      };
+      forEach(rotation, function (r) {
+        current = rotatePoint(current, r.c, r.r);
+        var _o = [Math.round(o[0] * current.cr - o[1] * current.sr), Math.round(o[1] * current.cr + o[0] * current.sr)];
+        o = _o.slice();
+      });
+      loc.ox = o[0];
+      loc.oy = o[1];
+      pos = {
+        curX: current.x,
+        curY: current.y,
+        x: loc.x,
+        y: loc.y,
+        ox: o[0],
+        oy: o[1]
+      };
+    } else {
+      loc.ox = loc.iox;
+      loc.oy = loc.ioy;
+      pos = extend({
+        ox: loc.iox,
+        oy: loc.ioy
+      }, candidate);
+    }
+    return pos;
+  }
+  function _singleAnchorCompute(instance, anchor, params) {
+    var xy = params.xy,
+        wh = params.wh,
+        timestamp = params.timestamp;
+    var pos = anchorLocations.get(anchor.id);
+    if (pos != null && timestamp && timestamp === anchor.timestamp) {
+      return pos;
+    }
+    var _getCurrentLocation = getCurrentLocation(anchor),
+        _getCurrentLocation2 = _slicedToArray(_getCurrentLocation, 2),
+        _ = _getCurrentLocation2[0],
+        currentLoc = _getCurrentLocation2[1];
+    pos = computeSingleLocation(instance, currentLoc, xy, wh, params);
+    anchorLocations.set(anchor.id, pos);
+    anchor.timestamp = timestamp;
+    return pos;
+  }
+  function defaultAnchorCompute(instance, anchor, params) {
+    var pos;
+    if (anchor.locations.length === 1) {
+      return _singleAnchorCompute(instance, anchor, params);
+    }
+    var xy = params.xy,
+        wh = params.wh,
+        txy = params.txy,
+        twh = params.twh;
+    var _getCurrentLocation3 = getCurrentLocation(anchor),
+        _getCurrentLocation4 = _slicedToArray(_getCurrentLocation3, 2),
+        currentIdx = _getCurrentLocation4[0],
+        currentLoc = _getCurrentLocation4[1];
+    if (anchor.locked || txy == null || twh == null) {
+      pos = computeSingleLocation(instance, currentLoc, xy, wh, params);
+    } else {
+      var _anchorSelector2 = _anchorSelector(instance, xy, wh, txy, twh, params.rotation, params.tRotation, anchor.locations),
+          _anchorSelector3 = _slicedToArray(_anchorSelector2, 2),
+          newIdx = _anchorSelector3[0],
+          newLoc = _anchorSelector3[1];
+      anchor.currentLocation = newIdx;
+      if (newIdx !== currentIdx) {
+        anchor.cssClass = newLoc.cls || anchor.cssClass;
+        params.element._anchorLocationChanged(anchor);
+      }
+      pos = computeSingleLocation(instance, newLoc, xy, wh, params);
+    }
+    anchorLocations.set(anchor.id, pos);
+    anchor.timestamp = params.timestamp;
+    return pos;
+  }
+  function _distance$1(instance, anchor, cx, cy, xy, wh, rotation, targetRotation) {
+    var ax = xy.x + anchor.x * wh.w,
+        ay = xy.y + anchor.y * wh.h,
+        acx = xy.x + wh.w / 2,
+        acy = xy.y + wh.h / 2;
+    if (rotation != null && rotation.length > 0) {
+      var rotated = instance._applyRotations([ax, ay, 0, 0], rotation);
+      ax = rotated.x;
+      ay = rotated.y;
+    }
+    return Math.sqrt(Math.pow(cx - ax, 2) + Math.pow(cy - ay, 2)) + Math.sqrt(Math.pow(acx - ax, 2) + Math.pow(acy - ay, 2));
+  }
+  function _anchorSelector(instance, xy, wh, txy, twh, rotation, targetRotation, locations) {
+    var cx = txy.x + twh.w / 2,
+        cy = txy.y + twh.h / 2;
+    var minIdx = -1,
+        minDist = Infinity;
+    for (var i = 0; i < locations.length; i++) {
+      var d = _distance$1(instance, locations[i], cx, cy, xy, wh, rotation);
+      if (d < minDist) {
+        minIdx = i + 0;
+        minDist = d;
+      }
+    }
+    return [minIdx, locations[minIdx]];
+  }
+  var LightweightRouter =
+  function () {
+    function LightweightRouter(instance) {
+      _classCallCheck(this, LightweightRouter);
+      this.instance = instance;
+      instance.bind(EVENT_INTERNAL_CONNECTION_DETACHED, function (p) {
+        _removeEndpointFromAnchorLists(p.sourceEndpoint);
+        _removeEndpointFromAnchorLists(p.targetEndpoint);
+      });
+      instance.bind(EVENT_INTERNAL_ENDPOINT_UNREGISTERED, function (ep) {
+        _removeEndpointFromAnchorLists(ep);
+        anchorMap$1["delete"](ep.id);
+      });
+    }
+    _createClass(LightweightRouter, [{
+      key: "computeAnchorLocation",
+      value: function computeAnchorLocation(anchor, params) {
+        var pos;
+        if (isContinuous(anchor)) {
+          pos = anchorLocations.get(anchor.id) || {
+            curX: 0,
+            curY: 0,
+            x: 0,
+            y: 0,
+            ox: 0,
+            oy: 0
+          };
+        } else if (_isFloating(anchor)) {
+          pos = floatingAnchorCompute(this.instance, anchor, params);
+        } else {
+          pos = defaultAnchorCompute(this.instance, anchor, params);
+        }
+        anchor.timestamp = params.timestamp;
+        return pos;
+      }
+    }, {
+      key: "computePath",
+      value: function computePath(connection, timestamp) {
+        var sourceInfo = this.instance.viewport.getPosition(connection.sourceId),
+            targetInfo = this.instance.viewport.getPosition(connection.targetId),
+            sE = connection.endpoints[0],
+            tE = connection.endpoints[1];
+        var sAnchorP = this.getEndpointLocation(sE, {
+          xy: sourceInfo,
+          wh: sourceInfo,
+          element: sE,
+          timestamp: timestamp,
+          rotation: this.instance._getRotations(connection.sourceId)
+        }),
+            tAnchorP = this.getEndpointLocation(tE, {
+          xy: targetInfo,
+          wh: targetInfo,
+          element: tE,
+          timestamp: timestamp,
+          rotation: this.instance._getRotations(connection.targetId)
+        });
+        connection.connector.resetBounds();
+        connection.connector.compute({
+          sourcePos: sAnchorP,
+          targetPos: tAnchorP,
+          sourceEndpoint: connection.endpoints[0],
+          targetEndpoint: connection.endpoints[1],
+          strokeWidth: connection.paintStyleInUse.strokeWidth,
+          sourceInfo: sourceInfo,
+          targetInfo: targetInfo
+        });
+      }
+    }, {
+      key: "getAnchor",
+      value: function getAnchor(ep) {
+        return anchorMap$1.get(ep.id);
+      }
+    }, {
+      key: "getAnchorOrientation",
+      value: function getAnchorOrientation(anchor, endpoint) {
+        return _getAnchorOrientation(anchor);
+      }
+    }, {
+      key: "getEndpointLocation",
+      value: function getEndpointLocation(endpoint, params) {
+        params = params || {};
+        var anchor = anchorMap$1.get(endpoint.id);
+        var pos = anchorLocations.get(anchor.id);
+        if (pos == null || params.timestamp != null && anchor.timestamp !== params.timestamp) {
+          pos = this.computeAnchorLocation(anchor, params);
+          anchorLocations.set(anchor.id, pos);
+        }
+        return pos;
+      }
+    }, {
+      key: "getEndpointOrientation",
+      value: function getEndpointOrientation(endpoint) {
+        var a = this.getAnchor(endpoint);
+        return a ? _getAnchorOrientation(a) : [0, 0];
+      }
+    }, {
+      key: "isDynamicAnchor",
+      value: function isDynamicAnchor(ep) {
+        var a = this.getAnchor(ep);
+        return a ? !isContinuous(a) && a.locations.length > 1 : false;
+      }
+    }, {
+      key: "isFloating",
+      value: function isFloating(ep) {
+        var a = this.getAnchor(ep);
+        return a ? _isFloating(a) : false;
+      }
+    }, {
+      key: "prepareAnchor",
+      value: function prepareAnchor(endpoint, params) {
+        return makeLightweightAnchorFromSpec(params);
+      }
+    }, {
+      key: "redraw",
+      value: function redraw(elementId, timestamp, offsetToUI) {
+        var _this = this;
+        var connectionsToPaint = new Set(),
+            endpointsToPaint = new Set(),
+            anchorsToUpdate = new Set();
+        if (!this.instance._suspendDrawing) {
+          var ep = this.instance.endpointsByElement[elementId] || [];
+          timestamp = timestamp || uuid();
+          var orientationCache = {},
+              a;
+          forEach(ep, function (anEndpoint) {
+            endpointsToPaint.add(anEndpoint);
+            a = anchorMap$1.get(anEndpoint.id);
+            if (anEndpoint.connections.length === 0) {
+              if (isContinuous(a)) {
+                if (!anchorLists.has(elementId)) {
+                  anchorLists.set(elementId, {
+                    top: [],
+                    right: [],
+                    bottom: [],
+                    left: []
+                  });
+                }
+                _updateAnchorList(anchorLists.get(elementId), -Math.PI / 2, 0, {
+                  endpoints: [anEndpoint, anEndpoint]
+                }, false, elementId, 0, false, _getDefaultFace(a), connectionsToPaint, endpointsToPaint);
+                anchorsToUpdate.add(elementId);
+              }
+            } else {
+              for (var i = 0; i < anEndpoint.connections.length; i++) {
+                var conn = anEndpoint.connections[i],
+                    sourceId = conn.sourceId,
+                    targetId = conn.targetId,
+                    sourceContinuous = isContinuous(anchorMap$1.get(conn.endpoints[0].id)),
+                    targetContinuous = isContinuous(anchorMap$1.get(conn.endpoints[0].id));
+                if (sourceContinuous || targetContinuous) {
+                  var oKey = sourceId + "_" + targetId,
+                      o = orientationCache[oKey],
+                      oIdx = conn.sourceId === elementId ? 1 : 0;
+                  if (sourceContinuous && !anchorLists.has(sourceId)) {
+                    anchorLists.set(sourceId, {
+                      top: [],
+                      right: [],
+                      bottom: [],
+                      left: []
+                    });
+                  }
+                  if (targetContinuous && !anchorLists.has(targetId)) {
+                    anchorLists.set(targetId, {
+                      top: [],
+                      right: [],
+                      bottom: [],
+                      left: []
+                    });
+                  }
+                  var td = _this.instance.viewport.getPosition(targetId),
+                      sd = _this.instance.viewport.getPosition(sourceId);
+                  if (targetId === sourceId && (sourceContinuous || targetContinuous)) {
+                    _updateAnchorList(anchorLists.get(sourceId), -Math.PI / 2, 0, conn, false, targetId, 0, false, "top", connectionsToPaint, endpointsToPaint);
+                    _updateAnchorList(anchorLists.get(targetId), -Math.PI / 2, 0, conn, false, sourceId, 1, false, "top", connectionsToPaint, endpointsToPaint);
+                  } else {
+                    var sourceRotation = _this.instance._getRotations(sourceId);
+                    var targetRotation = _this.instance._getRotations(targetId);
+                    if (!o) {
+                      o = _this._calculateOrientation(sourceId, targetId, sd, td, anchorMap$1.get(conn.endpoints[0].id), anchorMap$1.get(conn.endpoints[1].id), sourceRotation, targetRotation);
+                      orientationCache[oKey] = o;
+                    }
+                    if (sourceContinuous) {
+                      _updateAnchorList(anchorLists.get(sourceId), o.theta, 0, conn, false, targetId, 0, false, o.a[0], connectionsToPaint, endpointsToPaint);
+                    }
+                    if (targetContinuous) {
+                      _updateAnchorList(anchorLists.get(targetId), o.theta2, -1, conn, true, sourceId, 1, true, o.a[1], connectionsToPaint, endpointsToPaint);
+                    }
+                  }
+                  if (sourceContinuous) {
+                    anchorsToUpdate.add(sourceId);
+                  }
+                  if (targetContinuous) {
+                    anchorsToUpdate.add(targetId);
+                  }
+                  connectionsToPaint.add(conn);
+                  if (sourceContinuous && oIdx === 0 || targetContinuous && oIdx === 1) {
+                    endpointsToPaint.add(conn.endpoints[oIdx]);
+                  }
+                } else {
+                  var otherEndpoint = anEndpoint.connections[i].endpoints[conn.sourceId === elementId ? 1 : 0],
+                      otherAnchor = anchorMap$1.get(otherEndpoint.id);
+                  if (isDynamic(otherAnchor)) {
+                    _this.instance.paintEndpoint(otherEndpoint, {
+                      elementWithPrecedence: elementId,
+                      timestamp: timestamp
+                    });
+                    connectionsToPaint.add(anEndpoint.connections[i]);
+                    for (var k = 0; k < otherEndpoint.connections.length; k++) {
+                      if (otherEndpoint.connections[k] !== anEndpoint.connections[i]) {
+                        connectionsToPaint.add(otherEndpoint.connections[k]);
+                      }
+                    }
+                  } else {
+                    connectionsToPaint.add(anEndpoint.connections[i]);
+                  }
+                }
+              }
+            }
+          });
+          anchorsToUpdate.forEach(function (anchor) {
+            _placeAnchors(_this.instance, anchor, anchorLists.get(anchor));
+          });
+          endpointsToPaint.forEach(function (ep) {
+            var cd = _this.instance.viewport.getPosition(ep.elementId);
+            _this.instance.paintEndpoint(ep, {
+              timestamp: timestamp,
+              offset: cd
+            });
+          });
+          connectionsToPaint.forEach(function (c) {
+            _this.instance.paintConnection(c, {
+              timestamp: timestamp
+            });
+          });
+        }
+        return {
+          c: connectionsToPaint,
+          e: endpointsToPaint
+        };
+      }
+    }, {
+      key: "reset",
+      value: function reset() {
+        anchorMap$1.clear();
+        anchorLocations.clear();
+        anchorLists.clear();
+      }
+    }, {
+      key: "setAnchor",
+      value: function setAnchor(endpoint, anchor) {
+        if (anchor != null) {
+          anchorMap$1.set(endpoint.id, anchor);
+          endpoint._anchorId = anchor.id;
+        }
+      }
+    }, {
+      key: "setConnectionAnchors",
+      value: function setConnectionAnchors(conn, anchors) {
+        anchorMap$1.set(conn.endpoints[0].id, anchors[0]);
+        anchorMap$1.set(conn.endpoints[1].id, anchors[1]);
+      }
+    }, {
+      key: "_calculateOrientation",
+      value: function _calculateOrientation(sourceId, targetId, sd, td, sourceAnchor, targetAnchor, sourceRotation, targetRotation) {
+        var _this2 = this;
+        var Orientation = {
+          HORIZONTAL: "horizontal",
+          VERTICAL: "vertical",
+          DIAGONAL: "diagonal",
+          IDENTITY: "identity"
+        };
+        if (sourceId === targetId) {
+          return {
+            orientation: Orientation.IDENTITY,
+            a: ["top", "top"]
+          };
+        }
+        var theta = Math.atan2(td.c.y - sd.c.y, td.c.x - sd.c.x),
+            theta2 = Math.atan2(sd.c.y - td.c.y, sd.c.x - td.c.x);
+        var candidates = [],
+            midpoints = {};
+        (function (types, dim) {
+          for (var i = 0; i < types.length; i++) {
+            midpoints[types[i]] = {
+              "left": {
+                x: dim[i][0].x,
+                y: dim[i][0].c.y
+              },
+              "right": {
+                x: dim[i][0].x + dim[i][0].w,
+                y: dim[i][0].c.y
+              },
+              "top": {
+                x: dim[i][0].c.x,
+                y: dim[i][0].y
+              },
+              "bottom": {
+                x: dim[i][0].c.x,
+                y: dim[i][0].y + dim[i][0].h
+              }
+            };
+            if (dim[i][1] != null && dim[i][1].length > 0) {
+              for (var axis in midpoints[types[i]]) {
+                midpoints[types[i]][axis] = _this2.instance._applyRotationsXY(midpoints[types[i]][axis], dim[i][1]);
+              }
+            }
+          }
+        })(["source", "target"], [[sd, sourceRotation], [td, targetRotation]]);
+        var FACES = ["top", "right", "left", "bottom"];
+        for (var sf = 0; sf < FACES.length; sf++) {
+          for (var tf = 0; tf < FACES.length; tf++) {
+            candidates.push({
+              source: FACES[sf],
+              target: FACES[tf],
+              dist: lineLength(midpoints.source[FACES[sf]], midpoints.target[FACES[tf]])
+            });
+          }
+        }
+        candidates.sort(function (a, b) {
+          if (a.dist < b.dist) {
+            return -1;
+          } else if (b.dist < a.dist) {
+            return 1;
+          } else {
+            var axisIndices = {
+              "left": 0,
+              "top": 1,
+              "right": 2,
+              "bottom": 3
+            },
+                ais = axisIndices[a.source],
+                bis = axisIndices[b.source],
+                ait = axisIndices[a.target],
+                bit = axisIndices[b.target];
+            return ais < bis ? -1 : bis < ais ? 1 : ait < bit ? -1 : bit < ait ? 1 : 0;
+          }
+        });
+        var sourceEdge = candidates[0].source,
+            targetEdge = candidates[0].target;
+        for (var i = 0; i < candidates.length; i++) {
+          if (isContinuous(sourceAnchor) && sourceAnchor.locked) {
+            sourceEdge = _getCurrentFace(sourceAnchor);
+          } else if (!sourceAnchor.isContinuous || _isEdgeSupported(sourceAnchor, candidates[i].source)) {
+            sourceEdge = candidates[i].source;
+          } else {
+            sourceEdge = null;
+          }
+          if (targetAnchor.isContinuous && targetAnchor.locked) {
+            targetEdge = _getCurrentFace(targetAnchor);
+          } else if (!targetAnchor.isContinuous || _isEdgeSupported(targetAnchor, candidates[i].target)) {
+            targetEdge = candidates[i].target;
+          } else {
+            targetEdge = null;
+          }
+          if (sourceEdge != null && targetEdge != null) {
+            break;
+          }
+        }
+        if (sourceAnchor.isContinuous) {
+          _setCurrentFace(sourceAnchor, sourceEdge);
+        }
+        if (targetAnchor.isContinuous) {
+          _setCurrentFace(targetAnchor, targetEdge);
+        }
+        return {
+          a: [sourceEdge, targetEdge],
+          theta: theta,
+          theta2: theta2
+        };
+      }
+    }, {
+      key: "lock",
+      value: function lock(a) {
+        a.locked = true;
+        if (isContinuous(a)) {
+          a.lockedFace = a.currentFace;
+        }
+      }
+    }, {
+      key: "unlock",
+      value: function unlock(a) {
+        a.locked = false;
+        if (isContinuous(a)) {
+          a.lockedFace = null;
+        }
+      }
+    }, {
+      key: "lockCurrentAxis",
+      value: function lockCurrentAxis(a) {
+        if (a.currentFace != null) {
+          a.lockedAxis = a.currentFace === LEFT || a.currentFace === RIGHT ? X_AXIS_FACES : Y_AXIS_FACES;
+        }
+      }
+    }, {
+      key: "unlockCurrentAxis",
+      value: function unlockCurrentAxis(a) {
+        a.lockedAxis = null;
+      }
+    }, {
+      key: "anchorsEqual",
+      value: function anchorsEqual(a1, a2) {
+        if (!a1 || !a2) {
+          return false;
+        }
+        var ao = _getAnchorOrientation(a2),
+            o = _getAnchorOrientation(a1),
+            l1 = a1.locations[a1.currentLocation],
+            l2 = a2.locations[a2.currentLocation];
+        return l1.x === l2.x && l1.y === l2.y && l1.offx === l2.offx && l1.offy === l2.offy && o[0] === ao[0] && o[1] === ao[1];
+      }
+    }]);
+    return LightweightRouter;
+  }();
+
   function _scopeMatch(e1, e2) {
     var s1 = e1.scope.split(/\s/),
         s2 = e2.scope.split(/\s/);
@@ -7885,7 +8298,7 @@
       extend(_this._initialDefaults, _this.defaults);
       _this.DEFAULT_SCOPE = _this.defaults.scope;
       _this.allowNestedGroups = _this._initialDefaults.allowNestedGroups !== false;
-      _this.router = new DefaultRouter(_assertThisInitialized(_this));
+      _this.router = new LightweightRouter(_assertThisInitialized(_this));
       _this.groupManager = new GroupManager(_assertThisInitialized(_this));
       _this.setContainer(_this._initialDefaults.container);
       _this.addMutationObserver();
@@ -9534,7 +9947,6 @@
       key: "compute",
       value: function compute(params) {
         var xy = params.xy;
-        this._lastResult = [xy[0] + this.size.w / 2, xy[1] + this.size.h / 2, 0, 0];
         return this._lastResult;
       }
     }, {
@@ -9585,6 +9997,7 @@
   exports.ArcSegment = ArcSegment;
   exports.ArrowOverlay = ArrowOverlay;
   exports.BLOCK = BLOCK;
+  exports.BOTTOM = BOTTOM;
   exports.BezierConnector = BezierConnector;
   exports.BezierSegment = BezierSegment;
   exports.BlankEndpoint = BlankEndpoint;
@@ -9614,7 +10027,6 @@
   exports.ContinuousAnchor = ContinuousAnchor;
   exports.CustomOverlay = CustomOverlay;
   exports.DEFAULT = DEFAULT;
-  exports.DefaultRouter = DefaultRouter;
   exports.DiamondOverlay = DiamondOverlay;
   exports.DotEndpoint = DotEndpoint;
   exports.DynamicAnchor = DynamicAnchor;
@@ -9688,7 +10100,9 @@
   exports.IS = IS;
   exports.IS_DETACH_ALLOWED = IS_DETACH_ALLOWED;
   exports.JsPlumbInstance = JsPlumbInstance;
+  exports.LEFT = LEFT;
   exports.LabelOverlay = LabelOverlay;
+  exports.LightweightRouter = LightweightRouter;
   exports.NONE = NONE;
   exports.OptimisticEventGenerator = OptimisticEventGenerator;
   exports.Overlay = Overlay;
@@ -9696,6 +10110,7 @@
   exports.OverlayFactory = OverlayFactory;
   exports.PROPERTY_POSITION = PROPERTY_POSITION;
   exports.PlainArrowOverlay = PlainArrowOverlay;
+  exports.RIGHT = RIGHT;
   exports.RectangleEndpoint = RectangleEndpoint;
   exports.SELECTOR_CONNECTOR = SELECTOR_CONNECTOR;
   exports.SELECTOR_ENDPOINT = SELECTOR_ENDPOINT;
@@ -9712,6 +10127,7 @@
   exports.StraightSegment = StraightSegment;
   exports.TARGET = TARGET;
   exports.TARGET_INDEX = TARGET_INDEX;
+  exports.TOP = TOP;
   exports.TRUE = TRUE;
   exports.TWO_PI = TWO_PI;
   exports.TargetSelector = TargetSelector;
@@ -9722,6 +10138,8 @@
   exports.WILDCARD = WILDCARD;
   exports.X_AXIS_FACES = X_AXIS_FACES;
   exports.Y_AXIS_FACES = Y_AXIS_FACES;
+  exports._getDefaultFace = _getDefaultFace;
+  exports._isEdgeSupported = _isEdgeSupported;
   exports._mergeOverrides = _mergeOverrides;
   exports._removeTypeCssHelper = _removeTypeCssHelper;
   exports._updateHoverStyle = _updateHoverStyle;
@@ -9736,6 +10154,7 @@
   exports.cls = cls;
   exports.computeBezierLength = computeBezierLength;
   exports.convertToFullOverlaySpec = convertToFullOverlaySpec;
+  exports.createFloatingAnchor = createFloatingAnchor;
   exports.dist = dist;
   exports.distanceFromCurve = distanceFromCurve;
   exports.each = each;
@@ -9750,6 +10169,7 @@
   exports.fromArray = fromArray;
   exports.functionChain = functionChain;
   exports.getAllWithFunction = getAllWithFunction;
+  exports.getAnchorOrientation = _getAnchorOrientation;
   exports.getFromSetWithFunction = getFromSetWithFunction;
   exports.getWithFunction = getWithFunction;
   exports.getsert = getsert;
@@ -9782,6 +10202,7 @@
   exports.log = log;
   exports.logEnabled = logEnabled;
   exports.makeAnchorFromSpec = makeAnchorFromSpec;
+  exports.makeLightweightAnchorFromSpec = makeLightweightAnchorFromSpec;
   exports.map = map;
   exports.merge = merge;
   exports.nearestPointOnCurve = nearestPointOnCurve;
