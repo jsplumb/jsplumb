@@ -51,13 +51,13 @@ var testSuite = function () {
         };
 
         var e1 = _jsPlumb.addEndpoint(d1, {anchor:"Center"})
-        var a = _jsPlumb.router.getAnchor(e1)
+        var a = _jsPlumb.router.getEndpointLocation(e1)
 
         equal(0, gsc, "_jsPlumb DOM getSize called 0 times, because it's been overridden by a fixed size return")
         equal(1, gsc2, "overridden viewport getSize called 1 time")
 
-        equal(a.lastReturnValue[0], 150, "anchor x positioned according to fixed size")
-        equal(a.lastReturnValue[1], 300, "anchor y positioned according to fixed size")
+        equal(a.curX, 150, "anchor x positioned according to fixed size")
+        equal(a.curY, 300, "anchor y positioned according to fixed size")
 
     });
 
@@ -85,10 +85,10 @@ var testSuite = function () {
         };
 
         var e1 = _jsPlumb.addEndpoint(d1, {anchor:"Center"}),
-            a = _jsPlumb.router.getAnchor(e1)
+            a = _jsPlumb.router.getEndpointLocation(e1)
 
-        equal(a.lastReturnValue[0], 450, "anchor x positioned according to fixed offset")
-        equal(a.lastReturnValue[1], 650, "anchor y positioned according to fixed offset")
+        equal(a.curX, 450, "anchor x positioned according to fixed offset")
+        equal(a.curY, 650, "anchor y positioned according to fixed offset")
 
     });
 
@@ -124,16 +124,16 @@ var testSuite = function () {
         };
 
         var e1 = _jsPlumb.addEndpoint(d1, {anchor:"Center"}),
-            sa = _jsPlumb.router.getAnchor(e1)
+            sa = _jsPlumb.router.getEndpointLocation(e1)
 
 
-        equal(sa.lastReturnValue[0], 400 + (300 / 2), "anchor x positioned according to fixed offset and size")
-        equal(sa.lastReturnValue[1], 600 + (600 / 2), "anchor y positioned according to fixed offset and size")
+        equal(sa.curX, 400 + (300 / 2), "anchor x positioned according to fixed offset and size")
+        equal(sa.curY, 600 + (600 / 2), "anchor y positioned according to fixed offset and size")
 
         var e2 = _jsPlumb.addEndpoint(d2, {anchor:"Center"}),
-        ta = _jsPlumb.router.getAnchor(e2)
-        equal(ta.lastReturnValue[0], 1400 + (300 / 2), "anchor x positioned according to fixed offset and size")
-        equal(ta.lastReturnValue[1], 2000 + (600 / 2), "anchor y positioned according to fixed offset and size")
+        ta = _jsPlumb.router.getEndpointLocation(e2)
+        equal(ta.curX, 1400 + (300 / 2), "anchor x positioned according to fixed offset and size")
+        equal(ta.curY, 2000 + (600 / 2), "anchor y positioned according to fixed offset and size")
 
     });
 

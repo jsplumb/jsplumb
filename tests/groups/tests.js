@@ -7,8 +7,8 @@ var makeContainer = function() {
     document.documentElement.appendChild(container)
     container.style.position = "relative"
     container.style.overflow = "hidden"
-    container.style.width="500px"
-    container.style.height="500px"
+    container.style.width="1500px"
+    container.style.height="1500px"
     container.style.outline = "1px solid"
 }
 
