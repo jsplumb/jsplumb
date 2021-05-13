@@ -18,7 +18,6 @@ export class BezierSegment extends AbstractSegment {
     cp1y:number
     cp2x:number
     cp2y:number
-    bounds:Extents
     x1:number
     x2:number
     y1:number
@@ -49,7 +48,7 @@ export class BezierSegment extends AbstractSegment {
         // although this is not a strictly rigorous determination of bounds
         // of a bezier curve, it works for the types of curves that this segment
         // type produces.
-        this.bounds = {
+        this.extents = {
             xmin: Math.min(this.x1, this.x2, this.cp1x, this.cp2x),
             ymin: Math.min(this.y1, this.y2, this.cp1y, this.cp2y),
             xmax: Math.max(this.x1, this.x2, this.cp1x, this.cp2x),
@@ -94,10 +93,6 @@ export class BezierSegment extends AbstractSegment {
             this.length = computeBezierLength(this.curve)
         }
         return this.length
-    }
-
-    getBounds ():Extents {
-        return this.bounds
     }
 
     findClosestPointOnPath (x:number, y:number):PointNearPath {

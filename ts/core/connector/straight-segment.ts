@@ -24,6 +24,13 @@ export class StraightSegment extends AbstractSegment {
         this.length = Math.sqrt(Math.pow(this.x2 - this.x1, 2) + Math.pow(this.y2 - this.y1, 2))
         this.m = gradient({x: this.x1, y: this.y1}, {x: this.x2, y: this.y2})
         this.m2 = -1 / this.m
+
+        this.extents = {
+            xmin: Math.min(this.x1, this.x2),
+            ymin: Math.min(this.y1, this.y2),
+            xmax: Math.max(this.x1, this.x2),
+            ymax: Math.max(this.y1, this.y2)
+        }
     }
 
     static segmentType:string = "Straight"
@@ -43,16 +50,6 @@ export class StraightSegment extends AbstractSegment {
         this.x2 = coords.x2
         this.y2 = coords.y2
         this._recalc()
-    }
-
-
-    getBounds():Extents {
-        return {
-            xmin: Math.min(this.x1, this.x2),
-            ymin: Math.min(this.y1, this.y2),
-            xmax: Math.max(this.x1, this.x2),
-            ymax: Math.max(this.y1, this.y2)
-        }
     }
 
     /**
