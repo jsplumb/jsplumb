@@ -1,6 +1,64 @@
-import {AnchorOrientationHint, AnchorSpec, Axis, Face, FullAnchorSpec} from "./anchor-factory"
 import {extend, isArray, isNumber, isString, uuid, map} from "../util"
-import {Dictionary, Size} from "../common"
+import {PointXY, Rotations, Size} from "../common"
+import {AnchorPlacement} from "../router/router"
+import {Connection, Endpoint, JsPlumbInstance} from "@jsplumb/core"
+import {jsPlumbDOMElement} from "@jsplumb/dom"
+
+export type AnchorOrientationHint = -1 | 0 | 1
+export type Orientation = [  number, number ]
+
+export type Face = "top" | "right" | "bottom" | "left"
+export type Axis = [ Face, Face ]
+
+export const X_AXIS_FACES:Axis = ["left", "right"]
+export const Y_AXIS_FACES:Axis = ["top", "bottom"]
+
+export interface AnchorOptions extends Record<string, any> {
+    cssClass?:string
+}
+
+export type AnchorComputeParams = {
+    xy?: PointXY
+    wh?: Size
+    txy?:PointXY
+    twh?:Size
+    element?:Endpoint
+    timestamp?: string
+    index?:number
+    tElement?:Endpoint
+    connection?:Connection
+    elementId?:string
+    rotation?:Rotations
+    tRotation?:Rotations
+}
+
+export enum AnchorLocations {
+    Assign = "Assign",
+    AutoDefault = "AutoDefault",
+    Bottom = "Bottom",
+    BottomLeft = "BottomLeft",
+    BottomRight = "BottomRight",
+    Center = "Center",
+    Continuous = "Continuous",
+    ContinuousBottom = "ContinuousBottom",
+    ContinuousLeft = "ContinuousLeft",
+    ContinuousRight = "ContinuousRight",
+    ContinuousTop = "ContinuousTop",
+    ContinuousLeftRight = "ContinuousLeftRight",
+    ContinuousTopBottom = "ContinuousTopBottom",
+    Left = "Left",
+    Perimeter = "Perimeter",
+    Right = "Right",
+    Top = "Top",
+    TopLeft = "TopLeft",
+    TopRight = "TopRight"
+}
+
+export type AnchorId = keyof typeof AnchorLocations
+
+export type FullAnchorSpec = {type:AnchorId, options:AnchorOptions}
+export type SingleAnchorSpec = AnchorId | FullAnchorSpec | AnchorPlacement | Array<AnchorPlacement>
+export type AnchorSpec = SingleAnchorSpec | Array<SingleAnchorSpec>
 
 export interface AnchorRecord {
     x:number
@@ -37,9 +95,51 @@ export interface LightweightContinuousAnchor extends LightweightAnchor {
     clockwise:boolean
 }
 
-export interface LightweightFloatingAnchor extends LightweightAnchor {
-    isFloating:true
+export class LightweightFloatingAnchor implements LightweightAnchor {
+
+    isFloating = true
+    isContinuous:false
+    isDynamic:false
+
+    locations = [ {x:0, y:0, ox:0, oy:0, offx:0, offy:0, iox:0, ioy:0, cls:''} as any]
+    currentLocation = 0
+    locked = false
+    cssClass = ''
+    timestamp:string = null
+
+    type = "Floating"
+
+    id = uuid()
+
+    orientation:Orientation = [0,0]
+
     size:Size
+
+    constructor(public instance:JsPlumbInstance, public element:jsPlumbDOMElement) {
+        this.size = instance.getSize(element)
+    }
+
+    /**
+     * notification the endpoint associated with this anchor is hovering
+     * over another anchor; we want to assume that anchor's orientation
+     * for the duration of the hover.
+     */
+    over (endpoint:Endpoint) {
+        this.orientation = this.instance.router.getEndpointOrientation(endpoint)
+        this.locations[0].ox = this.orientation[0]
+        this.locations[0].oy = this.orientation[1]
+    }
+
+    /**
+     * notification the endpoint associated with this anchor is no
+     * longer hovering over another anchor; we should resume calculating
+     * orientation as we normally do.
+     */
+    out ():void {
+        this.orientation = null
+        this.locations[0].ox = this.locations[0].iox
+        this.locations[0].oy = this.locations[0].ioy
+    }
 }
 
 export const TOP = "top"
@@ -112,24 +212,8 @@ function _createAnchor(type:string, locations:Array<AnchorRecord>, params:Record
     }
 }
 
-
-
-export function createFloatingAnchor(size:Size):LightweightFloatingAnchor {
-    return {
-        isFloating:true,
-        size:{w:size.w, h:size.h},
-        locations:[
-           { x:0.5, y:0.5, ox:0, oy:0, offx:0, offy:0, cls:"", iox:0, ioy:0 }
-        ],
-        locked:false,
-        currentLocation:0,
-        id:uuid(),
-        cssClass:"",
-        isDynamic:false,
-        type:"Floating",
-        isContinuous:false,
-        timestamp:null
-    }
+export function createFloatingAnchor(instance:JsPlumbInstance, element:jsPlumbDOMElement):LightweightFloatingAnchor {
+    return new LightweightFloatingAnchor(instance, element)
 }
 
 function _createContinuousAnchor(type:string, faces:Array<Face>, params:Record<string, any>):LightweightContinuousAnchor {
