@@ -2305,7 +2305,7 @@ var testSuite = function () {
         equal(support.getConnectionCanvas(c1).style.display, "none");
         c1.setVisible(true);
         equal(true, c1.isVisible(), "Connection is visible after calling setVisible(true).");
-        equal(support.getConnectionCanvas(c1).style.display, "block");
+        equal(support.getConnectionCanvas(c1).style.display, "");
     });
 
 
