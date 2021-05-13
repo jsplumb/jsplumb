@@ -36,8 +36,8 @@ export class RectangleEndpoint extends EndpointRepresentation<ComputedRectangleE
     _compute(anchorPoint:AnchorPlacement, orientation:Orientation, endpointStyle:any):ComputedRectangleEndpoint {
         let width = endpointStyle.width || this.width,
             height = endpointStyle.height || this.height,
-            x = anchorPoint[0] - (width / 2),
-            y = anchorPoint[1] - (height / 2)
+            x = anchorPoint.curX - (width / 2),
+            y = anchorPoint.curY - (height / 2)
 
         this.x = x
         this.y = y
