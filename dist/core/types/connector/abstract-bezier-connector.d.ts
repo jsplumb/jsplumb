@@ -1,7 +1,7 @@
 import { AbstractConnector, ConnectorComputeParams, PaintGeometry } from "./abstract-connector";
-import { AnchorPlacement } from '../router/router';
 import { Connection } from '../connector/connection-impl';
 import { JsPlumbInstance } from "../core";
+import { PointXY } from "@jsplumb/core";
 export interface AbstractBezierOptions {
     showLoopback?: boolean;
     curviness?: number;
@@ -22,13 +22,13 @@ export declare abstract class AbstractBezierConnector extends AbstractConnector 
     isLoopbackCurrently: boolean;
     geometry: {
         controlPoints: [any, any];
-        source: AnchorPlacement;
-        target: AnchorPlacement;
+        source: PointXY;
+        target: PointXY;
     };
     getDefaultStubs(): [number, number];
     constructor(instance: JsPlumbInstance, connection: Connection, params: any);
     _compute(paintInfo: PaintGeometry, p: ConnectorComputeParams): void;
     exportGeometry(): any;
     importGeometry(geometry: any): boolean;
-    abstract _computeBezier(paintInfo: PaintGeometry, p: ConnectorComputeParams, sp: AnchorPlacement, tp: AnchorPlacement, _w: number, _h: number): void;
+    abstract _computeBezier(paintInfo: PaintGeometry, p: ConnectorComputeParams, sp: PointXY, tp: PointXY, _w: number, _h: number): void;
 }

@@ -1,8 +1,8 @@
 import {AbstractConnector, ConnectorComputeParams, PaintGeometry} from "./abstract-connector"
 import {ArcSegment} from "./arc-segment"
-import { AnchorPlacement } from '../router/router'
 import { Connection } from '../connector/connection-impl'
 import { JsPlumbInstance } from "../core"
+import {PointXY} from "@jsplumb/core"
 
 export interface AbstractBezierOptions {
     showLoopback?:boolean
@@ -52,8 +52,8 @@ export abstract class AbstractBezierConnector extends AbstractConnector {
 
         let sp = p.sourcePos,
             tp = p.targetPos,
-            _w = Math.abs(sp[0] - tp[0]),
-            _h = Math.abs(sp[1] - tp[1])
+            _w = Math.abs(sp.curX - tp.curX),
+            _h = Math.abs(sp.curY - tp.curY)
 
         if (!this.showLoopback || (p.sourceEndpoint.elementId !== p.targetEndpoint.elementId)) {
             this.isLoopbackCurrently = false
@@ -61,7 +61,7 @@ export abstract class AbstractBezierConnector extends AbstractConnector {
         } else {
             this.isLoopbackCurrently = true
             // a loopback connector.  draw an arc from one anchor to the other.
-            let x1 = p.sourcePos[0], y1 = p.sourcePos[1] - this.margin,
+            let x1 = p.sourcePos.curX, y1 = p.sourcePos.curY - this.margin,
                 cx = x1, cy = y1 - this.loopbackRadius,
                 // canvas sizing stuff, to ensure the whole painted area is visible.
                 _x = cx - this.loopbackRadius,
@@ -143,6 +143,6 @@ export abstract class AbstractBezierConnector extends AbstractConnector {
         }
     }
 
-    abstract _computeBezier(paintInfo:PaintGeometry, p:ConnectorComputeParams, sp:AnchorPlacement, tp:AnchorPlacement, _w:number, _h:number):void
+    abstract _computeBezier(paintInfo:PaintGeometry, p:ConnectorComputeParams, sp:PointXY, tp:PointXY, _w:number, _h:number):void
 
 }
