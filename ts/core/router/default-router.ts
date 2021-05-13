@@ -97,7 +97,7 @@ type AnchorDictionary = Dictionary<AnchorLists>
 
 function floatingAnchorCompute(anchor:FloatingAnchor, params:AnchorComputeParams):AnchorPlacement {
     let xy = params.xy
-    anchor._lastResult = [ xy.x + (anchor.size.w / 2), xy.y + (anchor.size.h / 2), 0, 0 ] as AnchorPlacement; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
+    //anchor._lastResult = [ xy.x + (anchor.size.w / 2), xy.y + (anchor.size.h / 2), 0, 0 ] as AnchorPlacement; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
     return anchor._lastResult
 }
 
@@ -144,7 +144,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T, Anchor> {
 
     computeAnchorLocation(anchor: Anchor, params: AnchorComputeParams): AnchorPlacement {
         if (anchor.isContinuous) {
-            anchor.lastReturnValue = this.continuousAnchorLocations[params.element.id] || [0, 0, 0, 0]
+            //anchor.lastReturnValue = this.continuousAnchorLocations[params.element.id] || [0, 0, 0, 0]
         } else if (anchor.isDynamic) {
             anchor.lastReturnValue = this.dynamicAnchorCompute(anchor as DynamicAnchor, params)
         }
@@ -189,12 +189,12 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T, Anchor> {
 
             anchor.orientation[0] = o[0]
             anchor.orientation[1] = o[1]
-            anchor.lastReturnValue = [current.x, current.y, anchor.x, anchor.y]
+            //anchor.lastReturnValue = [current.x, current.y, anchor.x, anchor.y]
 
         } else {
             anchor.orientation[0] = anchor._unrotatedOrientation[0];
             anchor.orientation[1] = anchor._unrotatedOrientation[1];
-            anchor.lastReturnValue = candidate;
+            //anchor.lastReturnValue = candidate;
         }
 
         anchor.timestamp = timestamp
@@ -222,7 +222,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T, Anchor> {
         anchor.y = anchor._curAnchor.y
 
         if (anchor._curAnchor !== anchor._lastAnchor) {
-            params.element._anchorLocationChanged(anchor._curAnchor)
+            //params.element._anchorLocationChanged(anchor._curAnchor)
         }
 
         anchor._lastAnchor = anchor._curAnchor
@@ -307,8 +307,8 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T, Anchor> {
         connection.connector.compute({
             sourcePos: sAnchorP,
             targetPos: tAnchorP,
-            sourceOrientation:this.getEndpointOrientation(sE),
-            targetOrientation:this.getEndpointOrientation(tE),
+            // sourceOrientation:this.getEndpointOrientation(sE),
+            // targetOrientation:this.getEndpointOrientation(tE),
             sourceEndpoint: connection.endpoints[0],
             targetEndpoint: connection.endpoints[1],
             strokeWidth: connection.paintStyleInUse.strokeWidth,
