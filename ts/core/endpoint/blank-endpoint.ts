@@ -21,12 +21,12 @@ export class BlankEndpoint extends EndpointRepresentation<ComputedBlankEndpoint>
     // it would be much more lightweight as we'd not need to create a class for each one.
     _compute(anchorPoint:AnchorPlacement, orientation:Orientation, endpointStyle:any):ComputedBlankEndpoint {
 
-        this.x = anchorPoint[0]
-        this.y = anchorPoint[1]
+        this.x = anchorPoint.curX
+        this.y = anchorPoint.curY
         this.w = 10
         this.h = 0
 
-        return [anchorPoint[0], anchorPoint[1], 10, 0]
+        return [anchorPoint.curX, anchorPoint.curY, 10, 0]
     }
 
     static type = "Blank"
