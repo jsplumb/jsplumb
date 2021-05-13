@@ -80,7 +80,7 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
 
     scope:string
 
-    _anchorId:string
+    _anchor:LightweightAnchor
 
     defaultLabelLocation = [ 0.5, 0.5 ] as [number, number]
     getDefaultOverlayKey () { return "endpointOverlays"; }
@@ -160,9 +160,8 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         this.addType(type, params.data)
     }
 
-    private _updateAnchorClass (anchor?:LightweightAnchor):void {
-        anchor = anchor || this.instance.router.getAnchor(this)
-        const ac = anchor && anchor.cssClass
+    private _updateAnchorClass ():void {
+        const ac = this._anchor && this._anchor.cssClass
         if (ac != null && ac.length > 0) {
             // stash old, get new
             let oldAnchorClass = this.instance.endpointAnchorClassPrefix + "-" + this.currentAnchorClass
@@ -180,7 +179,7 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
 
     private setPreparedAnchor (anchor:LightweightAnchor):Endpoint {
         this.instance.router.setAnchor(this, anchor)
-        this._updateAnchorClass(anchor)
+        this._updateAnchorClass()
         return this
     }
 
@@ -190,7 +189,7 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
      */
     _anchorLocationChanged(currentAnchor:LightweightAnchor) {
         this.fire(EVENT_ANCHOR_CHANGED, {endpoint: this, anchor: currentAnchor})
-        this._updateAnchorClass(currentAnchor)
+        this._updateAnchorClass()
     }
 
     setAnchor (anchorParams:AnchorSpec | Array<AnchorSpec>):Endpoint {

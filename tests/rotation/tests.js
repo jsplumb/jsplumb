@@ -47,8 +47,8 @@ var testSuite = function () {
         var e16 = _jsPlumb.addEndpoint(d16, {anchor: "Bottom"});
         var e17 = _jsPlumb.addEndpoint(d17, {anchor: "Top"});
         var c = _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" }),
-            sa = _jsPlumb.router.getAnchor(c.endpoints[0]),
-            ta = _jsPlumb.router.getAnchor(c.endpoints[1])
+            sa = c.endpoints[0]._anchor,
+            ta = c.endpoints[1]._anchor
 
         var e16Loc = _jsPlumb.router.getEndpointLocation(c.endpoints[0]),
             e17Loc = _jsPlumb.router.getEndpointLocation(c.endpoints[1]);
@@ -163,8 +163,8 @@ var testSuite = function () {
         var e16 = _jsPlumb.addEndpoint(d16, {anchor: "Continuous"});
         var e17 = _jsPlumb.addEndpoint(d17, {anchor: "Continuous"});
         var c = _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" }),
-            sa = _jsPlumb.router.getAnchor(c.endpoints[0]),
-            ta = _jsPlumb.router.getAnchor(c.endpoints[1])
+            sa = c.endpoints[0]._anchor,
+            ta = c.endpoints[1]._anchor
 
         equal(sa.currentFace, "right", "e16's anchor face is 'right'") ;
         equal(ta.currentFace, "top", "e17's anchor face is 'top'");

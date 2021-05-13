@@ -1960,7 +1960,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
                     anchorParams.rotation = this._getRotations(endpoint.elementId)
 
-                    ap = this.router.computeAnchorLocation(this.router.getAnchor(endpoint), anchorParams)
+                    ap = this.router.computeAnchorLocation(endpoint._anchor, anchorParams)
                 }
 
                 endpoint.endpoint.compute(ap, this.router.getEndpointOrientation(endpoint), endpoint.paintStyleInUse)

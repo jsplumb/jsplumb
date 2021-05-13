@@ -1,7 +1,12 @@
 import {Connection} from '../connector/connection-impl'
 import { Endpoint } from '../endpoint/endpoint'
 import { PointXY } from '../common'
-import {AnchorComputeParams, AnchorSpec, Orientation} from "../factory/anchor-record-factory"
+import {
+    AnchorComputeParams,
+    AnchorSpec, Face,
+    LightweightContinuousAnchor,
+    Orientation
+} from "../factory/anchor-record-factory"
 
 export interface RedrawResult {
     c:Set<Connection>
@@ -36,8 +41,17 @@ export interface Router<T extends {E:unknown}, A> {
     prepareAnchor(endpoint:Endpoint, params:AnchorSpec | Array<AnchorSpec>):A
     setConnectionAnchors(conn:Connection, anchors:[A, A]):void
     isDynamicAnchor(ep:Endpoint):boolean
-    getAnchor(ep:Endpoint):A
 
     isFloating(ep:Endpoint):boolean
+
+    setCurrentFace (a:LightweightContinuousAnchor, face:Face, overrideLock?:boolean):void
+
+    lock(a:A):void
+    unlock(a:A):void
+
+    anchorsEqual(a:A, b:A):boolean
+
+    selectAnchorLocation(a:A, coords:{x:number, y:number}):boolean
+
 
 }

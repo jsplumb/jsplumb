@@ -65,8 +65,8 @@ var testSuite = function () {
             target:d2,
             anchors:["ContinuousLeft", "ContinuousRight"]
         }),
-            sa = _jsPlumb.router.getAnchor(conn.endpoints[0]),
-            ta = _jsPlumb.router.getAnchor(conn.endpoints[1])
+            sa = conn.endpoints[0]._anchor,
+            ta = conn.endpoints[1]._anchor
 
         equal(sa.type, "ContinuousLeft")
         equal(ta.type, "ContinuousRight")
@@ -78,8 +78,8 @@ var testSuite = function () {
             source:d1,
             target:d2,
             anchors:["ContinuousTop", "ContinuousBottom"]
-        }),sa = _jsPlumb.router.getAnchor(conn.endpoints[0]),
-            ta = _jsPlumb.router.getAnchor(conn.endpoints[1])
+        }),sa = conn.endpoints[0]._anchor,
+            ta = conn.endpoints[1]._anchor
 
         equal(sa.type, "ContinuousTop")
         equal(ta.type, "ContinuousBottom")
@@ -95,8 +95,9 @@ var testSuite = function () {
             anchor:"ContinuousLeft"
         })
 
-        var conn = _jsPlumb.connect({source:ep1, target:ep2}),sa = _jsPlumb.router.getAnchor(conn.endpoints[0]),
-            ta = _jsPlumb.router.getAnchor(conn.endpoints[1])
+        var conn = _jsPlumb.connect({source:ep1, target:ep2}),
+            sa = conn.endpoints[0]._anchor,
+            ta = conn.endpoints[1]._anchor
 
         equal(sa.type, "ContinuousRight")
         equal(ta.type, "ContinuousLeft")
@@ -114,8 +115,9 @@ var testSuite = function () {
             uuid:"bar"
         })
 
-        var conn = _jsPlumb.connect({uuids:["foo", "bar"]}),sa = _jsPlumb.router.getAnchor(conn.endpoints[0]),
-            ta = _jsPlumb.router.getAnchor(conn.endpoints[1])
+        var conn = _jsPlumb.connect({uuids:["foo", "bar"]}),
+            sa = conn.endpoints[0]._anchor,
+            ta = conn.endpoints[1]._anchor
 
         equal(sa.type, "ContinuousRight")
         equal(ta.type, "ContinuousLeft")
@@ -132,8 +134,8 @@ var testSuite = function () {
         })
 
         var conn = _jsPlumb.connect({source:ep1, target:ep2}),
-            sa = _jsPlumb.router.getAnchor(conn.endpoints[0]),
-            ta = _jsPlumb.router.getAnchor(conn.endpoints[1])
+            sa = conn.endpoints[0]._anchor,
+            ta = conn.endpoints[1]._anchor
 
         equal(sa.type, "ContinuousTop")
         equal(ta.type, "ContinuousBottom")

@@ -241,7 +241,7 @@ var testSuite = function () {
     test(': defaultEndpointMaxConnections', function () {
         var d3 = support.addDiv("d3"), d4 = support.addDiv("d4");
         var e3 = _jsPlumb.addEndpoint(d3, {source: true});
-        ok(_jsPlumb.router.getAnchor(e3), 'endpoint 3 has an anchor');
+        ok(e3._anchor, 'endpoint 3 has an anchor');
         var e4 = _jsPlumb.addEndpoint(d4, {source: true});
         support.assertEndpointCount(d3, 1, _jsPlumb);
         support.assertEndpointCount(d4, 1, _jsPlumb);
@@ -255,7 +255,7 @@ var testSuite = function () {
     test(': specifiedEndpointMaxConnections', function () {
         var d5 = support.addDiv("d5"), d6 = support.addDiv("d6");
         var e5 = _jsPlumb.addEndpoint(d5, {source: true, maxConnections: 3});
-        ok(_jsPlumb.router.getAnchor(e5), 'endpoint 5 has an anchor');
+        ok(e5._anchor, 'endpoint 5 has an anchor');
         var e6 = _jsPlumb.addEndpoint(d6, {source: true, maxConnections: 2});  // this one has max TWO
         support.assertEndpointCount(d5, 1, _jsPlumb);
         support.assertEndpointCount(d6, 1, _jsPlumb);
@@ -299,8 +299,8 @@ var testSuite = function () {
         var c = _jsPlumb.connect({source:d3, target:d4, anchors:[
                 [0, 1, 1, 1], [0, 1, 1, 1]
             ]}),
-            sa = _jsPlumb.router.getAnchor(c.endpoints[0]),
-            ta = _jsPlumb.router.getAnchor(c.endpoints[1]);
+            sa = c.endpoints[0]._anchor,
+            ta = c.endpoints[1]._anchor;
 
         ok(_jsPlumb.router.anchorsEqual(sa, ta), "anchors are the same according to their equals method")
     });
@@ -310,8 +310,8 @@ var testSuite = function () {
         var c = _jsPlumb.connect({source:d3, target:d4, anchors:[
                 [0, 1, 1, 1, 10, 13], [0, 1, 1, 1, 10, 13]
             ]}),
-            sa = _jsPlumb.router.getAnchor(c.endpoints[0]),
-            ta = _jsPlumb.router.getAnchor(c.endpoints[1]);
+            sa = c.endpoints[0]._anchor,
+            ta = c.endpoints[1]._anchor;
 
         ok(_jsPlumb.router.anchorsEqual(sa, ta), "anchors are the same according to their equals method")
     });
@@ -321,8 +321,8 @@ var testSuite = function () {
         var c = _jsPlumb.connect({source:d3, target:d4, anchors:[
                 [0, 1, 0, 1], [0, 1, 1, 1]
             ]}),
-            sa = _jsPlumb.router.getAnchor(c.endpoints[0]),
-            ta = _jsPlumb.router.getAnchor(c.endpoints[1]);
+            sa = c.endpoints[0]._anchor,
+            ta = c.endpoints[1]._anchor;
         ok(!_jsPlumb.router.anchorsEqual(sa, ta), "anchors are different, according to their equals method")
     });
 
@@ -331,8 +331,8 @@ var testSuite = function () {
         var c = _jsPlumb.connect({source:d3, target:d4, anchors:[
                 [0, 1, 1, 1, 10, 13], [0, 1, 1, 1]
             ]}),
-            sa = _jsPlumb.router.getAnchor(c.endpoints[0]),
-            ta = _jsPlumb.router.getAnchor(c.endpoints[1]);
+            sa = c.endpoints[0]._anchor,
+            ta = c.endpoints[1]._anchor;
         ok(!_jsPlumb.router.anchorsEqual(sa, ta), "anchors are different, according to their equals method")
     });
 
@@ -1402,7 +1402,7 @@ var testSuite = function () {
     test(": Endpoint.detachFrom", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         var e16 = _jsPlumb.addEndpoint(d16, {source: true});
-        ok(_jsPlumb.router.getAnchor(e16), 'endpoint 16 has an anchor');
+        ok(e16._anchor, 'endpoint 16 has an anchor');
         var e17 = _jsPlumb.addEndpoint(d17, {source: true});
         var conn = _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17});
         assertConnectionCount(e16, 1);
@@ -1422,7 +1422,7 @@ var testSuite = function () {
         equal(false, _jsPlumb.hasClass(c16, _jsPlumb.endpointConnectedClass), "endpoint does not have connected class");
         equal(false, _jsPlumb.hasClass(c16, _jsPlumb.endpointFullClass), "endpoint does not have full class");
 
-        ok(_jsPlumb.router.getAnchor(e16), 'endpoint 16 has an anchor');
+        ok(e16._anchor, 'endpoint 16 has an anchor');
         var e17 = _jsPlumb.addEndpoint(d17, {source: true});
         var conn = _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17});
 
@@ -1446,7 +1446,7 @@ var testSuite = function () {
     test(": Endpoint.detachAll", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17"), d18 = support.addDiv("d18");
         var e16 = _jsPlumb.addEndpoint(d16, {source: true, maxConnections: -1});
-        ok(_jsPlumb.router.getAnchor(e16), 'endpoint 16 has an anchor');
+        ok(e16._anchor, 'endpoint 16 has an anchor');
         var e17 = _jsPlumb.addEndpoint(d17, {source: true});
         var e18 = _jsPlumb.addEndpoint(d18, {source: true});
         _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17});
@@ -1464,7 +1464,7 @@ var testSuite = function () {
     test(": Endpoint.detach", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         var e16 = _jsPlumb.addEndpoint(d16, {source: true});
-        ok(_jsPlumb.router.getAnchor(e16), 'endpoint 16 has an anchor');
+        ok(e16._anchor, 'endpoint 16 has an anchor');
         var e17 = _jsPlumb.addEndpoint(d17, {source: true});
         var conn = _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17});
         assertConnectionCount(e16, 1);
@@ -1793,8 +1793,8 @@ var testSuite = function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         var e16 = _jsPlumb.addEndpoint(d16, {anchor: [0, 0.5, 0, -1]});
         var e17 = _jsPlumb.addEndpoint(d17, {anchor: "Top"}),
-            sa = _jsPlumb.router.getAnchor(e16).locations[0],
-            ta = _jsPlumb.router.getAnchor(e17).locations[0];
+            sa = e16._anchor.locations[0],
+            ta = e17._anchor.locations[0];
 
         var e16l = _jsPlumb.router.getEndpointLocation(e16)
 
@@ -1812,8 +1812,8 @@ var testSuite = function () {
             [1, 0.5, 0, 1]
         ]});
         var e17 = _jsPlumb.addEndpoint(d17, {anchor: ["Top", "Bottom"]}),
-            sa = _jsPlumb.router.getAnchor(e16),
-            ta = _jsPlumb.router.getAnchor(e17);
+            sa = e16._anchor,
+            ta = e17._anchor;
         equal(sa.isDynamic, true, "Endpoint 16 has a dynamic anchor");
         equal(ta.isDynamic, true, "Endpoint 17 has a dynamic anchor");
     });
@@ -1822,8 +1822,8 @@ var testSuite = function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         var e16 = _jsPlumb.addEndpoint(d16, {source: true, target: false}, {anchor: [0, 0.5, 0, -1]});
         var e17 = _jsPlumb.addEndpoint(d17, {target: true, source: false}, {anchor: "Top"}),
-            sa = _jsPlumb.router.getAnchor(e16).locations[0],
-            ta = _jsPlumb.router.getAnchor(e17).locations[0];
+            sa = e16._anchor.locations[0],
+            ta = e17._anchor.locations[0];
         equal(sa.x, 0);
         equal(sa.y, 0.5);
         equal(false, e16.isTarget);
@@ -1841,8 +1841,8 @@ var testSuite = function () {
             {source: true, target: false, anchor: [0, 0.5, 0, -1] },
             { target: true, source: false, anchor: "Top" }
         ]),
-            sa = _jsPlumb.router.getAnchor(e16[0]).locations[0],
-            ta = _jsPlumb.router.getAnchor(e16[1]).locations[0];
+            sa = e16[0]._anchor.locations[0],
+            ta = e16[1]._anchor.locations[0];
         equal(sa.x, 0);
         equal(sa.y, 0.5);
         equal(false, e16[0].isTarget);
@@ -1867,8 +1867,8 @@ var testSuite = function () {
             {source: true, target: false},
             { target: true, source: false }
         ], refParams),
-            sa = _jsPlumb.router.getAnchor(e16[0]).locations[0],
-            ta = _jsPlumb.router.getAnchor(e16[1]).locations[0];
+            sa = e16[0]._anchor.locations[0],
+            ta = e16[1]._anchor.locations[0];
         equal(sa.x, 1);
         equal(sa.y, 0.5);
         equal(false, e16[0].isTarget);
@@ -1886,8 +1886,8 @@ var testSuite = function () {
             [1, 0.5, 0, 1]
         ]});
         var e17 = _jsPlumb.addEndpoint(d17, {target: true, source: false}, {anchor: ["Top", "Bottom"]}),
-            sa = _jsPlumb.router.getAnchor(e16),
-            ta = _jsPlumb.router.getAnchor(e17);
+            sa = e16._anchor,
+            ta = e17._anchor;
         equal(sa.isDynamic, true, "Endpoint 16 has a dynamic anchor");
         equal(ta.isDynamic, true, "Endpoint 17 has a dynamic anchor");
     });
@@ -2314,7 +2314,7 @@ var testSuite = function () {
             anchor:[[0.2, 0, 0, -1], [1, 0.2, 1, 0],[0.8, 1, 0, 1], [0, 0.8, -1, 0]]
         })
 
-        var dynamicAnchor = _jsPlumb.router.getAnchor(ep)
+        var dynamicAnchor = ep._anchor
 
         var a = dynamicAnchor.locations
         equal(a.length, 4, "Dynamic Anchors has four anchors");
@@ -2839,7 +2839,7 @@ var testSuite = function () {
         var d3 = support.addDiv("d3"), ep = _jsPlumb.addEndpoint(d3, {
             anchor: "Continuous"
         }),
-            a = _jsPlumb.router.getAnchor(ep)
+            a = ep._anchor
 
         equal(a.faces.length, 4, "default is all faces when no faces specified");
     });
@@ -2848,7 +2848,7 @@ var testSuite = function () {
     test(" Continuous anchor default face, faces supplied", function () {
         var d3 = support.addDiv("d3"), ep = _jsPlumb.addEndpoint(d3, {
             anchor: {type:"Continuous", options:{ faces: [ "bottom", "left" ] } }
-        }), a = _jsPlumb.router.getAnchor(ep)
+        }), a = ep._anchor
 
         equal(a.faces.length, 2, "2 faces declared on continuous anchor")
 
@@ -2869,12 +2869,12 @@ var testSuite = function () {
             ep3 = _jsPlumb.addEndpoint(d3, {
                 anchor: "Continuous"
             }),
-            a3 = _jsPlumb.router.getAnchor(ep3),
+            a3 = ep3._anchor,
             d4 = support.addDiv("d4", null, "", 50, 450, 200, 200),
             ep4 = _jsPlumb.addEndpoint(d4, {
                 anchor: "Continuous"
             }),
-            a4 = _jsPlumb.router.getAnchor(ep4)
+            a4 = ep4._anchor
 
         _jsPlumb.connect({source:ep3, target:ep4});
 
@@ -2894,12 +2894,12 @@ var testSuite = function () {
             ep3 = _jsPlumb.addEndpoint(d3, {
                 anchor: "Continuous"
             }),
-            a3 = _jsPlumb.router.getAnchor(ep3),
+            a3 = ep3._anchor,
             d4 = support.addDiv("d4", null, "", 50, 450, 200, 200),
             ep4 = _jsPlumb.addEndpoint(d4, {
                 anchor: "Continuous"
             }),
-            a4 = _jsPlumb.router.getAnchor(ep4);
+            a4 = ep4._anchor;
 
         _jsPlumb.connect({source:ep3, target:ep4});
 
@@ -2930,8 +2930,8 @@ var testSuite = function () {
             ep4 = _jsPlumb.addEndpoint(d4, {
                 anchor: "Continuous"
             }),
-            a4 = _jsPlumb.router.getAnchor(ep4),
-            a3 = _jsPlumb.router.getAnchor(ep3)
+            a4 = ep4._anchor,
+            a3 = ep3._anchor
 
         _jsPlumb.connect({source:ep3, target:ep4});
 
@@ -2979,7 +2979,7 @@ var testSuite = function () {
             d2 = support.addDiv(d2),
             c = _jsPlumb.connect({source: d1, target: d2}),
             e = c.endpoints[0],
-            a = _jsPlumb.router.getAnchor(e).locations[0]
+            a = e._anchor.locations[0]
 
         equal(a.x, 0, "left middle anchor");
         equal(a.y, 0.5, "left middle anchor");
@@ -2990,8 +2990,8 @@ var testSuite = function () {
 
         var conn = _jsPlumb.connect({source: d1, target: d2}),
             e1 = conn.endpoints[0], e2 = conn.endpoints[1],
-            a1 = _jsPlumb.router.getAnchor(e1).locations[0],
-            a2 = _jsPlumb.router.getAnchor(e2).locations[0]
+            a1 = e1._anchor.locations[0],
+            a2 = e2._anchor.locations[0]
 
         equal(a1.x, 0, "top leftanchor");
         equal(a2.y, 0, "top left anchor");
@@ -3008,8 +3008,8 @@ var testSuite = function () {
 
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), conn = _jsPlumb.connect({source: d1, target: d2}),
             e1 = conn.endpoints[0], e2 = conn.endpoints[1],
-            a1 = _jsPlumb.router.getAnchor(e1).locations[0],
-            a2 = _jsPlumb.router.getAnchor(e2).locations[0]
+            a1 = e1._anchor.locations[0],
+            a2 = e2._anchor.locations[0]
 
         equal(a1.x, 0, "top leftanchor");
         equal(a2.y, 0, "top left anchor");
@@ -3020,8 +3020,8 @@ var testSuite = function () {
 
         var conn2 = _jsPlumb.connect({source: d1, target: d2}),
             e3 = conn2.endpoints[0], e4 = conn2.endpoints[1],
-            a3 = _jsPlumb.router.getAnchor(e3).locations[0],
-            a4 = _jsPlumb.router.getAnchor(e4).locations[0]
+            a3 = e3._anchor.locations[0],
+            a4 = e4._anchor.locations[0]
 
         equal(a3.x, 0.5, "bottom center anchor");
         equal(a3.y, 1, "bottom center anchor");

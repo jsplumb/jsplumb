@@ -500,7 +500,7 @@ export class EndpointDragHandler implements DragHandler {
         }
 
         this.floatingEndpoint = _makeFloatingEndpoint(this.ep.getPaintStyle(), endpointToFloat, canvasElement, this.placeholderInfo.element, this.instance, this.ep.scope)
-        this.floatingAnchor = this.instance.router.getAnchor(this.floatingEndpoint)
+        this.floatingAnchor = this.floatingEndpoint._anchor as LightweightFloatingAnchor//this.instance.router.getAnchor(this.floatingEndpoint)
 
         this.floatingEndpoint.deleteOnEmpty = true
         this.floatingElement = (this.floatingEndpoint.endpoint as any).canvas

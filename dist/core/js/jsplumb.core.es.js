@@ -2036,8 +2036,7 @@ function (_AbstractConnector) {
           }[axis],
               comparator = pi["is" + axis.toUpperCase() + "GreaterThanStubTimes2"];
           if (params.sourceEndpoint.elementId === params.targetEndpoint.elementId) {
-            var sourceAnchor = _this2.instance.router.getAnchor(params.sourceEndpoint);
-            var _val = oss + (1 - sourceAnchor[otherAxis]) * params.sourceInfo[dim] + _this2.maxStub;
+            var _val = oss + (1 - params.sourceEndpoint._anchor[otherAxis]) * params.sourceInfo[dim] + _this2.maxStub;
             return {
               "x": [[ss, _val], [es, _val]],
               "y": [[_val, ss], [_val, es]]
@@ -4994,7 +4993,7 @@ function (_OverlayCapableCompon) {
     _defineProperty(_assertThisInitialized(_this), "deleteOnEmpty", void 0);
     _defineProperty(_assertThisInitialized(_this), "uuid", void 0);
     _defineProperty(_assertThisInitialized(_this), "scope", void 0);
-    _defineProperty(_assertThisInitialized(_this), "_anchorId", void 0);
+    _defineProperty(_assertThisInitialized(_this), "_anchor", void 0);
     _defineProperty(_assertThisInitialized(_this), "defaultLabelLocation", [0.5, 0.5]);
     _this.appendToDefaultType({
       edgeType: params.edgeType,
@@ -5055,9 +5054,8 @@ function (_OverlayCapableCompon) {
   }
   _createClass(Endpoint, [{
     key: "_updateAnchorClass",
-    value: function _updateAnchorClass(anchor) {
-      anchor = anchor || this.instance.router.getAnchor(this);
-      var ac = anchor && anchor.cssClass;
+    value: function _updateAnchorClass() {
+      var ac = this._anchor && this._anchor.cssClass;
       if (ac != null && ac.length > 0) {
         var oldAnchorClass = this.instance.endpointAnchorClassPrefix + "-" + this.currentAnchorClass;
         this.currentAnchorClass = ac;
@@ -5074,7 +5072,7 @@ function (_OverlayCapableCompon) {
     key: "setPreparedAnchor",
     value: function setPreparedAnchor(anchor) {
       this.instance.router.setAnchor(this, anchor);
-      this._updateAnchorClass(anchor);
+      this._updateAnchorClass();
       return this;
     }
   }, {
@@ -5084,7 +5082,7 @@ function (_OverlayCapableCompon) {
         endpoint: this,
         anchor: currentAnchor
       });
-      this._updateAnchorClass(currentAnchor);
+      this._updateAnchorClass();
     }
   }, {
     key: "setAnchor",
@@ -7029,7 +7027,7 @@ function _placeAnchors(instance, elementId, _anchorLists) {
       reverse = desc === RIGHT || desc === TOP,
           anchors = _placeAnchorsOnLine(cd, sc, isHorizontal, otherMultiplier, reverse);
       var _setAnchorLocation = function _setAnchorLocation(endpoint, anchorPos) {
-        anchorLocations.set(endpoint._anchorId, {
+        anchorLocations.set(endpoint._anchor.id, {
           curX: anchorPos.x,
           curY: anchorPos.y,
           x: anchorPos.xLoc,
@@ -7077,7 +7075,7 @@ function _removeEndpointFromAnchorLists(endpoint) {
   if (total === 0) {
     anchorLists["delete"](endpoint.elementId);
   }
-  anchorLocations["delete"](endpoint._anchorId);
+  anchorLocations["delete"](endpoint._anchor.id);
 }
 function _getCurrentFace(a) {
   return a.currentFace;
@@ -7090,12 +7088,6 @@ function _isFaceAvailable(a, face) {
 }
 function _isEdgeSupported(a, edge) {
   return a.lockedAxis == null ? a.lockedFace == null ? _isFaceAvailable(a, edge) === true : a.lockedFace === edge : a.lockedAxis.indexOf(edge) !== -1;
-}
-function _setCurrentFace(a, face, overrideLock) {
-  a.currentFace = face;
-  if (overrideLock && a.lockedFace != null) {
-    a.lockedFace = a.currentFace;
-  }
 }
 function isContinuous(a) {
   return a.isContinuous === true;
@@ -7312,11 +7304,6 @@ function () {
       });
     }
   }, {
-    key: "getAnchor",
-    value: function getAnchor(ep) {
-      return anchorMap.get(ep.id);
-    }
-  }, {
     key: "getAnchorOrientation",
     value: function getAnchorOrientation(anchor, endpoint) {
       return _getAnchorOrientation(anchor);
@@ -7335,21 +7322,18 @@ function () {
     }
   }, {
     key: "getEndpointOrientation",
-    value: function getEndpointOrientation(endpoint) {
-      var a = this.getAnchor(endpoint);
-      return a ? _getAnchorOrientation(a) : [0, 0];
+    value: function getEndpointOrientation(ep) {
+      return ep._anchor ? _getAnchorOrientation(ep._anchor) : [0, 0];
     }
   }, {
     key: "isDynamicAnchor",
     value: function isDynamicAnchor(ep) {
-      var a = this.getAnchor(ep);
-      return a ? !isContinuous(a) && a.locations.length > 1 : false;
+      return ep._anchor ? !isContinuous(ep._anchor) && ep._anchor.locations.length > 1 : false;
     }
   }, {
     key: "isFloating",
     value: function isFloating(ep) {
-      var a = this.getAnchor(ep);
-      return a ? _isFloating(a) : false;
+      return ep._anchor ? _isFloating(ep._anchor) : false;
     }
   }, {
     key: "prepareAnchor",
@@ -7496,12 +7480,14 @@ function () {
     value: function setAnchor(endpoint, anchor) {
       if (anchor != null) {
         anchorMap.set(endpoint.id, anchor);
-        endpoint._anchorId = anchor.id;
+        endpoint._anchor = anchor;
       }
     }
   }, {
     key: "setConnectionAnchors",
     value: function setConnectionAnchors(conn, anchors) {
+      conn.endpoints[0]._anchor = anchors[0];
+      conn.endpoints[1]._anchor = anchors[1];
       anchorMap.set(conn.endpoints[0].id, anchors[0]);
       anchorMap.set(conn.endpoints[1].id, anchors[1]);
     }
@@ -7603,16 +7589,24 @@ function () {
         }
       }
       if (sourceAnchor.isContinuous) {
-        _setCurrentFace(sourceAnchor, sourceEdge);
+        this.setCurrentFace(sourceAnchor, sourceEdge);
       }
       if (targetAnchor.isContinuous) {
-        _setCurrentFace(targetAnchor, targetEdge);
+        this.setCurrentFace(targetAnchor, targetEdge);
       }
       return {
         a: [sourceEdge, targetEdge],
         theta: theta,
         theta2: theta2
       };
+    }
+  }, {
+    key: "setCurrentFace",
+    value: function setCurrentFace(a, face, overrideLock) {
+      a.currentFace = face;
+      if (overrideLock && a.lockedFace != null) {
+        a.lockedFace = a.currentFace;
+      }
     }
   }, {
     key: "lock",
@@ -7628,6 +7622,19 @@ function () {
       a.locked = false;
       if (isContinuous(a)) {
         a.lockedFace = null;
+      }
+    }
+  }, {
+    key: "selectAnchorLocation",
+    value: function selectAnchorLocation(a, coords) {
+      var idx = findWithFunction(a.locations, function (loc) {
+        return loc.x === coords.x && loc.y === coords.y;
+      });
+      if (idx !== -1) {
+        a.currentLocation = idx;
+        return true;
+      } else {
+        return false;
       }
     }
   }, {
@@ -7648,11 +7655,9 @@ function () {
       if (!a1 || !a2) {
         return false;
       }
-      var ao = _getAnchorOrientation(a2),
-          o = _getAnchorOrientation(a1),
-          l1 = a1.locations[a1.currentLocation],
+      var l1 = a1.locations[a1.currentLocation],
           l2 = a2.locations[a2.currentLocation];
-      return l1.x === l2.x && l1.y === l2.y && l1.offx === l2.offx && l1.offy === l2.offy && o[0] === ao[0] && o[1] === ao[1];
+      return l1.x === l2.x && l1.y === l2.y && l1.offx === l2.offx && l1.offy === l2.offy && l1.ox === l2.ox && l1.oy === l2.oy;
     }
   }]);
   return LightweightRouter;
@@ -9187,7 +9192,7 @@ function (_EventGenerator) {
               anchorParams.connection = endpoint.connections[0];
             }
             anchorParams.rotation = this._getRotations(endpoint.elementId);
-            ap = this.router.computeAnchorLocation(this.router.getAnchor(endpoint), anchorParams);
+            ap = this.router.computeAnchorLocation(endpoint._anchor, anchorParams);
           }
           endpoint.endpoint.compute(ap, this.router.getEndpointOrientation(endpoint), endpoint.paintStyleInUse);
           this.renderEndpoint(endpoint, endpoint.paintStyleInUse);

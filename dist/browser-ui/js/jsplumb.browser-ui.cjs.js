@@ -2690,7 +2690,7 @@ function () {
         endpointToFloat = aae.endpoints[1];
       }
       this.floatingEndpoint = _makeFloatingEndpoint(this.ep.getPaintStyle(), endpointToFloat, canvasElement, this.placeholderInfo.element, this.instance, this.ep.scope);
-      this.floatingAnchor = this.instance.router.getAnchor(this.floatingEndpoint);
+      this.floatingAnchor = this.floatingEndpoint._anchor;
       this.floatingEndpoint.deleteOnEmpty = true;
       this.floatingElement = this.floatingEndpoint.endpoint.canvas;
       this.floatingId = this.instance.getId(this.floatingElement);

@@ -203,27 +203,27 @@ var testSuite = function () {
         _jsPlumb.registerConnectionType("other", otherType);
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
             c = _jsPlumb.connect({source: d1, target: d2}),
-            sa = _jsPlumb.router.getAnchor(c.endpoints[0]),
-            ta = _jsPlumb.router.getAnchor(c.endpoints[1])
+            sa = c.endpoints[0]._anchor,
+            ta = c.endpoints[1]._anchor
 
         c.setType("basic");
-        sa = _jsPlumb.router.getAnchor(c.endpoints[0])
-        ta = _jsPlumb.router.getAnchor(c.endpoints[1])
+        sa = c.endpoints[0]._anchor
+        ta = c.endpoints[1]._anchor
         c.getConnector().testFlag = true;
         sa.testFlag = "source";
         ta.testFlag = "target";
         _head(c.getOverlays()).testFlag = true;
 
         c.setType("other");
-        sa = _jsPlumb.router.getAnchor(c.endpoints[0])
-        ta = _jsPlumb.router.getAnchor(c.endpoints[1])
+        sa = c.endpoints[0]._anchor
+        ta = c.endpoints[1]._anchor
         c.getConnector().testFlag = true;
-        ok(sa.testFlag == null, "test flag not set on source anchor");
-        ok(ta.testFlag == null, "test flag not set on target anchor");
+        equal(sa.testFlag, null, "test flag not set on source anchor");
+        equal(ta.testFlag, null, "test flag not set on target anchor");
 
         c.addType("basic");
-        sa = _jsPlumb.router.getAnchor(c.endpoints[0])
-        ta = _jsPlumb.router.getAnchor(c.endpoints[1])
+        sa = c.endpoints[0]._anchor
+        ta = c.endpoints[1]._anchor
         equal(_length(c.getOverlays()), 1, "one overlay after reinstating `basic` type");
         ok(c.getConnector().testFlag, "connector is the one that was created on first application of basic type");
         equal(sa.testFlag, "source", "test flag still set on source anchor: anchor was reused");

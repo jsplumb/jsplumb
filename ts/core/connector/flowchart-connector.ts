@@ -317,9 +317,7 @@ export class FlowchartConnector extends AbstractConnector {
                         comparator = pi["is" + axis.toUpperCase() + "GreaterThanStubTimes2"]
 
                     if (params.sourceEndpoint.elementId === params.targetEndpoint.elementId) {
-                        const sourceAnchor = this.instance.router.getAnchor(params.sourceEndpoint)
-                        //let _val = oss + ((1 - params.sourceEndpoint.anchor[otherAxis]) * params.sourceInfo[dim]) + this.maxStub
-                        let _val = oss + ((1 - sourceAnchor[otherAxis]) * params.sourceInfo[dim]) + this.maxStub
+                        let _val = oss + ((1 - params.sourceEndpoint._anchor[otherAxis]) * params.sourceInfo[dim]) + this.maxStub
                         return {
                             "x": [
                                 [ss, _val],
