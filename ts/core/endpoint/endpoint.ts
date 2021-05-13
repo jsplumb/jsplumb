@@ -80,6 +80,8 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
 
     scope:string
 
+    _anchorId:string
+
     defaultLabelLocation = [ 0.5, 0.5 ] as [number, number]
     getDefaultOverlayKey () { return "endpointOverlays"; }
 
