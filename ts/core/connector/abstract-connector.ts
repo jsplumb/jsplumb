@@ -20,8 +20,6 @@ type SegmentForPoint = { d: number, s: Segment, x: number, y: number, l: number,
 export type ConnectorComputeParams = {
     sourcePos: AnchorPlacement,
     targetPos: AnchorPlacement,
-    sourceOrientation:Orientation,
-    targetOrientation:Orientation,
     sourceEndpoint: Endpoint,
     targetEndpoint: Endpoint,
     strokeWidth: number,
@@ -318,26 +316,32 @@ export abstract class AbstractConnector implements Connector {
 
     private _prepareCompute (params:ConnectorComputeParams):PaintGeometry {
         this.strokeWidth = params.strokeWidth
-        let segment = quadrant(pointXYFromArray(params.sourcePos), pointXYFromArray(params.targetPos)),
-            swapX = params.targetPos[0] < params.sourcePos[0],
-            swapY = params.targetPos[1] < params.sourcePos[1],
-            lw = params.strokeWidth || 1,
-            so:Orientation = this.instance.router.getEndpointOrientation(params.sourceEndpoint),
-            to:Orientation = this.instance.router.getEndpointOrientation(params.targetEndpoint),
-            x = swapX ? params.targetPos[0] : params.sourcePos[0],
-            y = swapY ? params.targetPos[1] : params.sourcePos[1],
-            w = Math.abs(params.targetPos[0] - params.sourcePos[0]),
-            h = Math.abs(params.targetPos[1] - params.sourcePos[1])
+        let x1 = params.sourcePos.curX,
+            x2 = params.targetPos.curX,
+            y1 = params.sourcePos.curY,
+            y2 = params.targetPos.curY,
+
+            segment = quadrant({x:x1, y:y1}, {x:x2, y:y2}),
+            swapX = x2 < x1,
+            swapY = y2 < y1,
+            so:Orientation = [ params.sourcePos.ox, params.sourcePos.oy ],
+            to:Orientation = [ params.targetPos.ox, params.targetPos.oy ],
+            x = swapX ? x2 : x1,
+            y = swapY ? y2 : y1,
+            w = Math.abs(x2 - x1),
+            h = Math.abs(y2 - y1)
 
         // if either anchor does not have an orientation set, we derive one from their relative
         // positions.  we fix the axis to be the one in which the two elements are further apart, and
         // point each anchor at the other element.  this is also used when dragging a new connection.
         if (so[0] === 0 && so[1] === 0 || to[0] === 0 && to[1] === 0) {
-            let index = w > h ? 0 : 1, oIndex = [1, 0][index]
-            so = [0,0]
-            to = [0,0]
-            so[index] = params.sourcePos[index] > params.targetPos[index] ? -1 : 1
-            to[index] = params.sourcePos[index] > params.targetPos[index] ? 1 : -1
+            let index = w > h ? 0 : 1,
+                oIndex = [1, 0][index],
+                v1 = index === 0 ? x1 : y1,
+                v2 = index === 0 ? x2 : y2
+
+            so[index] = v1 > v2 ? -1 : 1
+            to[index] = v1 > v2 ? 1 : -1
             so[oIndex] = 0
             to[oIndex] = 0
         }

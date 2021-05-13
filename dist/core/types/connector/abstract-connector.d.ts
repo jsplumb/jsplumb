@@ -30,8 +30,6 @@ declare type SegmentForPoint = {
 export declare type ConnectorComputeParams = {
     sourcePos: AnchorPlacement;
     targetPos: AnchorPlacement;
-    sourceOrientation: Orientation;
-    targetOrientation: Orientation;
     sourceEndpoint: Endpoint;
     targetEndpoint: Endpoint;
     strokeWidth: number;
