@@ -8,7 +8,8 @@ import {OverlayCapableComponent} from "../component/overlay-capable-component"
 import {extend, IS, isString, merge, uuid, addToDictionary, Merge, Omit} from "../util"
 import {Overlay} from "../overlay/overlay"
 import {Connectors} from "./connectors"
-import {AnchorSpec, makeAnchorFromSpec} from "../factory/anchor-factory"
+import {AnchorSpec} from "../factory/anchor-factory"
+import { makeLightweightAnchorFromSpec} from "../factory/anchor-record-factory"
 import {ConnectorSpec} from "./abstract-connector"
 import {EndpointSpec} from "../endpoint/endpoint"
 import * as Constants from "../constants"
@@ -339,7 +340,7 @@ export class Connection<E = any> extends OverlayCapableComponent {
             // note that even if the param was anchor, we store `anchors`.
             _anchors = this.getCachedTypeItem(TYPE_ITEM_ANCHORS, typeMap.anchor)
             if (_anchors == null) {
-                _anchors = [ makeAnchorFromSpec(this.instance, t.anchor, this.sourceId), makeAnchorFromSpec(this.instance, t.anchor, this.targetId) ]
+                _anchors = [ makeLightweightAnchorFromSpec(t.anchor), makeLightweightAnchorFromSpec(t.anchor) ]
                 this.cacheTypeItem(TYPE_ITEM_ANCHORS, _anchors, typeMap.anchor)
             }
         }
@@ -347,8 +348,8 @@ export class Connection<E = any> extends OverlayCapableComponent {
             _anchors = this.getCachedTypeItem(TYPE_ITEM_ANCHORS, typeMap.anchors)
             if (_anchors == null) {
                 _anchors = [
-                    makeAnchorFromSpec(this.instance, t.anchors[0], this.sourceId),
-                    makeAnchorFromSpec(this.instance, t.anchors[1], this.targetId)
+                    makeLightweightAnchorFromSpec(t.anchors[0]),
+                    makeLightweightAnchorFromSpec(t.anchors[1])
                 ]
                 this.cacheTypeItem(TYPE_ITEM_ANCHORS, _anchors, typeMap.anchors)
             }
