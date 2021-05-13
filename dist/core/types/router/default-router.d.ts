@@ -7,7 +7,7 @@ import { AnchorComputeParams, AnchorSpec, Orientation } from "../factory/anchor-
 import { Anchor } from '../anchor/anchor';
 export declare class DefaultRouter<T extends {
     E: unknown;
-}> implements Router<T> {
+}> implements Router<T, Anchor> {
     instance: JsPlumbInstance;
     continuousAnchorLocations: Dictionary<[number, number, number, number]>;
     continuousAnchorOrientations: Dictionary<Orientation>;

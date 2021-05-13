@@ -5173,6 +5173,7 @@
       _defineProperty(_assertThisInitialized(_this), "deleteOnEmpty", void 0);
       _defineProperty(_assertThisInitialized(_this), "uuid", void 0);
       _defineProperty(_assertThisInitialized(_this), "scope", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_anchorId", void 0);
       _defineProperty(_assertThisInitialized(_this), "defaultLabelLocation", [0.5, 0.5]);
       _this.appendToDefaultType({
         edgeType: params.edgeType,
@@ -6593,6 +6594,7 @@
       key: "setAnchor",
       value: function setAnchor(endpoint, anchor) {
         anchorMap$1.set(endpoint.id, anchor);
+        endpoint._anchorId = anchor.id;
       }
     }, {
       key: "prepareAnchor",

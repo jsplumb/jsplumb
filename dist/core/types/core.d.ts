@@ -96,7 +96,7 @@ export declare abstract class JsPlumbInstance<T extends {
     allowNestedGroups: boolean;
     private _curIdStamp;
     readonly viewport: Viewport<T>;
-    readonly router: Router<T>;
+    readonly router: Router<T, any>;
     readonly groupManager: GroupManager<T["E"]>;
     private _connectionTypes;
     private _endpointTypes;

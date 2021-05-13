@@ -56,6 +56,7 @@ export declare class Endpoint<E = any> extends OverlayCapableComponent {
     deleteOnEmpty: boolean;
     uuid: string;
     scope: string;
+    _anchorId: string;
     defaultLabelLocation: [number, number];
     getDefaultOverlayKey(): string;
     constructor(instance: JsPlumbInstance, params: InternalEndpointOptions<E>);
