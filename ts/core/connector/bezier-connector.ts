@@ -67,10 +67,10 @@ export class BezierConnector extends AbstractBezierConnector {
     _computeBezier (paintInfo:PaintGeometry, p:ConnectorComputeParams, sp:AnchorPlacement, tp:AnchorPlacement, _w:number, _h:number):void {
 
         let _CP, _CP2,
-            _sx = sp[0] < tp[0] ? _w : 0,
-            _sy = sp[1] < tp[1] ? _h : 0,
-            _tx = sp[0] < tp[0] ? 0 : _w,
-            _ty = sp[1] < tp[1] ? 0 : _h
+            _sx = sp.curX < tp.curX ? _w : 0,
+            _sy = sp.curY < tp.curY ? _h : 0,
+            _tx = sp.curX < tp.curX ? 0 : _w,
+            _ty = sp.curY < tp.curY ? 0 : _h
 
         if (this.edited !== true) {
             _CP = this._findControlPoint([_sx, _sy], sp, tp, paintInfo.so, paintInfo.to)
