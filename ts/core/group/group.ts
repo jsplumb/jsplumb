@@ -3,7 +3,6 @@ import { Dictionary, PointXY, jsPlumbElement} from '../common'
 import { JsPlumbInstance } from "../core"
 import { Connection } from '../connector/connection-impl'
 import { AnchorSpec } from "../factory/anchor-factory"
-import { ContinuousAnchor} from "../anchor/continuous-anchor"
 import { DotEndpoint } from "../endpoint/dot-endpoint"
 import { EndpointSpec} from "../endpoint/endpoint"
 import { GroupManager } from "../group/group-manager"
@@ -96,7 +95,7 @@ export class UIGroup<E = any> extends UINode<E> {
     // this function, and getEndpoint below, are stubs for a future setup in which we can choose endpoint
     // and anchor based upon the connection and the index (source/target) of the endpoint to be proxied.
     getAnchor (conn:Connection, endpointIndex:number):AnchorSpec {
-        return this.anchor || ContinuousAnchor.type
+        return this.anchor || "Continuous"
     }
 
     getEndpoint (conn:Connection, endpointIndex:number):EndpointSpec {
