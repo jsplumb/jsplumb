@@ -2,7 +2,8 @@ import {AbstractConnector, ConnectorComputeParams, PaintGeometry} from "./abstra
 import {ArcSegment} from "./arc-segment"
 import { Connection } from '../connector/connection-impl'
 import { JsPlumbInstance } from "../core"
-import {PointXY} from "@jsplumb/core"
+import {AnchorPlacement} from "../router/router"
+import { PointXY} from '../common'
 
 export interface AbstractBezierOptions {
     showLoopback?:boolean
