@@ -57,17 +57,21 @@ import {
     ATTRIBUTE_SCOPE_PREFIX,
     SourceSelector,
     getAllWithFunction,
-    isAssignableFrom, InternalEndpointOptions, BehaviouralTypeDescriptor, merge
+    isAssignableFrom, InternalEndpointOptions,
+    BehaviouralTypeDescriptor, merge,
+    createFloatingAnchor
 } from "@jsplumb/core"
 
+
+
 function _makeFloatingEndpoint (paintStyle:PaintStyle,
-                                referenceAnchor:Anchor,
                                 endpoint:EndpointSpec | EndpointRepresentation<any>,
                                 referenceCanvas:Element,
                                 sourceElement:jsPlumbDOMElement,
                                 instance:BrowserJsPlumbInstance, scope?:string)
 {
-    let floatingAnchor = new FloatingAnchor(instance, { reference: referenceAnchor, referenceCanvas: referenceCanvas })
+    let floatingAnchor = createFloatingAnchor(instance.getSize(sourceElement))// { reference: referenceAnchor, referenceCanvas: referenceCanvas })
+
     const p:InternalEndpointOptions<any> = {
         paintStyle: paintStyle,
         preparedAnchor: floatingAnchor,
@@ -498,10 +502,8 @@ export class EndpointDragHandler implements DragHandler {
             const aae = this.instance._deriveEndpointAndAnchorSpec(this.ep.edgeType)
             endpointToFloat = aae.endpoints[1]
         }
-        const centerAnchor = makeAnchorFromSpec(this.instance, AnchorLocations.Center)
-        centerAnchor.isFloating = true
 
-        this.floatingEndpoint = _makeFloatingEndpoint(this.ep.getPaintStyle(), centerAnchor, endpointToFloat, canvasElement, this.placeholderInfo.element, this.instance, this.ep.scope)
+        this.floatingEndpoint = _makeFloatingEndpoint(this.ep.getPaintStyle(), endpointToFloat, canvasElement, this.placeholderInfo.element, this.instance, this.ep.scope)
         this.floatingAnchor = this.instance.router.getAnchor(this.floatingEndpoint) /*this.floatingEndpoint.anchor */as FloatingAnchor
 
         this.floatingEndpoint.deleteOnEmpty = true
@@ -705,7 +707,7 @@ export class EndpointDragHandler implements DragHandler {
             }
 
             if (newDropTarget !== this.currentDropTarget && this.currentDropTarget != null) {
-                idx = this.getFloatingAnchorIndex(this.jpc)
+                idx = this._getFloatingAnchorIndex()
 
                 this.instance.removeClass(this.currentDropTarget.el, CLASS_DRAG_HOVER)
 
@@ -720,7 +722,7 @@ export class EndpointDragHandler implements DragHandler {
             if (newDropTarget != null) {
                 this.instance.addClass(newDropTarget.el, CLASS_DRAG_HOVER)
 
-                idx = this.getFloatingAnchorIndex(this.jpc)
+                idx = this._getFloatingAnchorIndex()
 
                 if (newDropTarget.endpoint != null) {
 
@@ -740,7 +742,9 @@ export class EndpointDragHandler implements DragHandler {
                             newDropTarget.endpoint.endpoint.addClass(this.instance.endpointDropForbiddenClass)
                         }
 
-                        this.floatingAnchor.over(this.instance.router.getAnchor(newDropTarget.endpoint), newDropTarget.endpoint)
+            // TODO make the router do this?
+                        console.log("FLOATING ANCHOR HOVER TODO")
+                        //this.floatingAnchor.over(this.instance.router.getAnchor(newDropTarget.endpoint), newDropTarget.endpoint)
                     } else {
                         newDropTarget = null
                     }
@@ -763,7 +767,7 @@ export class EndpointDragHandler implements DragHandler {
     private _reattachOrDiscard(originalEvent: Event):boolean {
 
         let existingConnection = this.jpc.suspendedEndpoint != null
-        let idx = this.getFloatingAnchorIndex(this.jpc)
+        let idx = this._getFloatingAnchorIndex()
 
         // if no drop target,
         if (existingConnection && this._shouldReattach(originalEvent)) {
@@ -805,7 +809,7 @@ export class EndpointDragHandler implements DragHandler {
         if (this.jpc && this.jpc.endpoints != null) {
 
             let existingConnection = this.jpc.suspendedEndpoint != null
-            let idx = this.getFloatingAnchorIndex(this.jpc)
+            let idx = this._getFloatingAnchorIndex()
             let suspendedEndpoint = this.jpc.suspendedEndpoint
             let dropEndpoint
             let discarded = false
@@ -1135,8 +1139,8 @@ export class EndpointDragHandler implements DragHandler {
         addToDictionary(this.instance.endpointsByElement, info.id, ep)
     }
 
-    private getFloatingAnchorIndex(jpc:Connection):number {
-        return jpc.endpoints[0].isFloating() ? 0 : jpc.endpoints[1].isFloating() ? 1 : 1  // default to 1, because a drag of a new connection is index 1.
+    private _getFloatingAnchorIndex() {
+        return this.floatingIndex == null ? 1 : this.floatingIndex
     }
         
 }

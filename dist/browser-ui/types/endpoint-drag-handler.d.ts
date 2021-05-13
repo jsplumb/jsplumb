@@ -105,6 +105,6 @@ export declare class EndpointDragHandler implements DragHandler {
     private _discard;
     private _drop;
     private _registerFloatingConnection;
-    private getFloatingAnchorIndex;
+    private _getFloatingAnchorIndex;
 }
 export {};
