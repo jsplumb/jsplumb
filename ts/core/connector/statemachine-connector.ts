@@ -4,6 +4,7 @@ import {BezierSegment} from "./bezier-segment"
 import {ConnectorComputeParams, PaintGeometry} from "./abstract-connector"
 import {Connection} from "./connection-impl"
 import {AnchorPlacement} from "../router/router"
+import {PointXY} from "../common"
 
 function _segment (x1:number, y1:number, x2:number, y2:number):number {
     if (x1 <= x2 && y2 <= y1) {
@@ -32,7 +33,7 @@ function _segment (x1:number, y1:number, x2:number, y2:number):number {
 // 2 - proportional x in element (0 is left edge, 1 is right edge)
 // 3 - proportional y in element (0 is top edge, 1 is bottom edge)
 //
-function _findControlPoint (midx:number, midy:number, segment:number, sourceEdge:Array<number>, targetEdge:Array<number>, dx:number, dy:number, distance:number, proximityLimit:number):[ number, number ] {
+function _findControlPoint (midx:number, midy:number, segment:number, sourceEdge:AnchorPlacement, targetEdge:AnchorPlacement, dx:number, dy:number, distance:number, proximityLimit:number):[ number, number ] {
     // TODO (maybe)
     // - if anchor pos is 0.5, make the control point take into account the relative position of the elements.
     if (distance <= proximityLimit) {
@@ -40,44 +41,44 @@ function _findControlPoint (midx:number, midy:number, segment:number, sourceEdge
     }
 
     if (segment === 1) {
-        if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) {
-            return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ]
+        if (sourceEdge.curY <= 0 && targetEdge.curY >= 1) {
+            return [ midx + (sourceEdge.x < 0.5 ? -1 * dx : dx), midy ]
         }
-        else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) {
-            return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ]
+        else if (sourceEdge.curX >= 1 && targetEdge.curX <= 0) {
+            return [ midx, midy + (sourceEdge.y < 0.5 ? -1 * dy : dy) ]
         }
         else {
             return [ midx + (-1 * dx) , midy + (-1 * dy) ]
         }
     }
     else if (segment === 2) {
-        if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) {
-            return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ]
+        if (sourceEdge.curY >= 1 && targetEdge.curY <= 0) {
+            return [ midx + (sourceEdge.x < 0.5 ? -1 * dx : dx), midy ]
         }
-        else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) {
-            return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ]
+        else if (sourceEdge.curX >= 1 && targetEdge.curX <= 0) {
+            return [ midx, midy + (sourceEdge.y < 0.5 ? -1 * dy : dy) ]
         }
         else {
             return [ midx + dx, midy + (-1 * dy) ]
         }
     }
     else if (segment === 3) {
-        if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) {
-            return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ]
+        if (sourceEdge.curY >= 1 && targetEdge.curY <= 0) {
+            return [ midx + (sourceEdge.x < 0.5 ? -1 * dx : dx), midy ]
         }
-        else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) {
-            return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ]
+        else if (sourceEdge.curX <= 0 && targetEdge.curX >= 1) {
+            return [ midx, midy + (sourceEdge.y < 0.5 ? -1 * dy : dy) ]
         }
         else {
             return [ midx + (-1 * dx) , midy + (-1 * dy) ]
         }
     }
     else if (segment === 4) {
-        if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) {
-            return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ]
+        if (sourceEdge.curY <= 0 && targetEdge.curY >= 1) {
+            return [ midx + (sourceEdge.x < 0.5 ? -1 * dx : dx), midy ]
         }
-        else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) {
-            return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ]
+        else if (sourceEdge.curX <= 0 && targetEdge.curX >= 1) {
+            return [ midx, midy + (sourceEdge.y < 0.5 ? -1 * dy : dy) ]
         }
         else {
             return [ midx + dx , midy + (-1 * dy) ]
@@ -105,34 +106,34 @@ export class StateMachineConnector extends AbstractBezierConnector {
     }
 
     _computeBezier (paintInfo:PaintGeometry, params:ConnectorComputeParams, sp:AnchorPlacement, tp:AnchorPlacement, w:number, h:number):void {
-        let _sx = params.sourcePos[0] < params.targetPos[0] ? 0 : w,
-            _sy = params.sourcePos[1] < params.targetPos[1] ? 0 : h,
-            _tx = params.sourcePos[0] < params.targetPos[0] ? w : 0,
-            _ty = params.sourcePos[1] < params.targetPos[1] ? h : 0
+        let _sx = sp.curX < tp.curX ? 0 : w,
+            _sy = sp.curY < tp.curY ? 0 : h,
+            _tx = sp.curX < tp.curX ? w : 0,
+            _ty = sp.curY < tp.curY ? h : 0
 
         // now adjust for the margin
-        if (params.sourcePos[2] === 0) {
+        if (sp.ox === 0) {
             _sx -= this.margin
         }
-        if (params.sourcePos[2] === 1) {
+        if (sp.ox === 1) {
             _sx += this.margin
         }
-        if (params.sourcePos[3] === 0) {
+        if (sp.oy === 0) {
             _sy -= this.margin
         }
-        if (params.sourcePos[3] === 1) {
+        if (sp.oy === 1) {
             _sy += this.margin
         }
-        if (params.targetPos[2] === 0) {
+        if (tp.ox === 0) {
             _tx -= this.margin
         }
-        if (params.targetPos[2] === 1) {
+        if (tp.ox === 1) {
             _tx += this.margin
         }
-        if (params.targetPos[3] === 0) {
+        if (tp.oy === 0) {
             _ty -= this.margin
         }
-        if (params.targetPos[3] === 1) {
+        if (tp.oy === 1) {
             _ty += this.margin
         }
 
