@@ -21,7 +21,6 @@ import { Anchor } from '../anchor/anchor'
 import * as Constants from '../constants'
 import {FloatingAnchor} from "../anchor/floating-anchor"
 import {lineLength} from "../geom"
-import {EVENT_ANCHOR_CHANGED} from "../constants"
 
 type ContinuousAnchorPlacement = { x:number, y:number, xLoc:number, yLoc:number, c:ConnectionFacade  }
 
@@ -114,7 +113,7 @@ const anchorMap:Map<string, Anchor> = new Map()
  *
  * Dual licensed under the MIT and GPL2 licenses.
  */
-export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
+export class DefaultRouter<T extends {E:unknown}> implements Router<T, Anchor> {
 
     continuousAnchorLocations:Dictionary<[number, number, number, number]> = {}
     continuousAnchorOrientations:Dictionary<Orientation> = {}
@@ -261,6 +260,7 @@ export class DefaultRouter<T extends {E:unknown}> implements Router<T> {
 
     setAnchor(endpoint:Endpoint, anchor:Anchor):void {
         anchorMap.set(endpoint.id, anchor)
+        endpoint._anchorId = anchor.id
     }
 
     prepareAnchor(endpoint: Endpoint<any>, params: AnchorSpec | Array<AnchorSpec>): Anchor {

@@ -270,7 +270,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     private _curIdStamp :number = 1
     readonly viewport:Viewport<T> = new Viewport(this)
 
-    readonly router: Router<T>
+    readonly router: Router<T, any>
     readonly groupManager:GroupManager<T["E"]>
 
     private _connectionTypes:Map<string, ConnectionTypeDescriptor> = new Map()
