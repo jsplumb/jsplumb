@@ -23,7 +23,7 @@ import { OverlayCapableComponent } from './component/overlay-capable-component';
 import { PaintStyle } from './styles';
 import { AnchorSpec } from "./factory/anchor-factory";
 import { SourceSelector, TargetSelector } from "./source-selector";
-import { InternalEndpointOptions } from "@jsplumb/core/endpoint/endpoint-options";
+import { InternalEndpointOptions } from "./endpoint/endpoint-options";
 export declare type ElementSelectionSpecifier<E> = E | Array<E> | '*';
 export declare type SelectionList = '*' | Array<string>;
 export interface AbstractSelectOptions<E> {
