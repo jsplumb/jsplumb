@@ -2,11 +2,11 @@
 import { Dictionary, PointXY, jsPlumbElement} from '../common'
 import { JsPlumbInstance } from "../core"
 import { Connection } from '../connector/connection-impl'
-import { AnchorSpec } from "../factory/anchor-factory"
+import { AnchorSpec } from "../factory/anchor-record-factory"
 import { DotEndpoint } from "../endpoint/dot-endpoint"
 import { EndpointSpec} from "../endpoint/endpoint"
 import { GroupManager } from "../group/group-manager"
-import {removeWithFunction, uuid, log, getWithFunction, isAssignableFrom} from '../util'
+import {removeWithFunction, uuid, log, getWithFunction} from '../util'
 
 import * as Constants from "../constants"
 

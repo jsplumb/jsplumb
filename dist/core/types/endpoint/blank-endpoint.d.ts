@@ -1,5 +1,5 @@
 import { EndpointRepresentation } from "./endpoints";
-import { Orientation } from "../factory/anchor-factory";
+import { Orientation } from "../factory/anchor-record-factory";
 import { Endpoint } from "./endpoint";
 import { AnchorPlacement } from "../router/router";
 export declare type ComputedBlankEndpoint = [number, number, number, number];

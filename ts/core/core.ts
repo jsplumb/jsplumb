@@ -40,7 +40,7 @@ import {EndpointOptions} from "./endpoint/endpoint-options"
 import {AddGroupOptions, GroupManager} from "./group/group-manager"
 import {UIGroup} from "./group/group"
 
-import {DefaultRouter} from "./router/default-router"
+
 import {Router} from "./router/router"
 import {EndpointSelection} from "./selection/endpoint-selection"
 import {ConnectionSelection} from "./selection/connection-selection"
@@ -54,7 +54,7 @@ import { AbstractConnector } from './connector/abstract-connector'
 import { BezierConnector } from './connector/bezier-connector'
 import { OverlayCapableComponent } from './component/overlay-capable-component'
 import { PaintStyle} from './styles'
-import {AnchorComputeParams, AnchorSpec, AnchorLocations } from "./factory/anchor-factory"
+import {AnchorComputeParams, AnchorSpec, AnchorLocations } from "./factory/anchor-record-factory"
 import {SourceSelector, TargetSelector} from "./source-selector"
 import {
     ATTRIBUTE_MANAGED,

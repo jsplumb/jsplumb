@@ -1,7 +1,7 @@
 import { Connection } from '../connector/connection-impl';
 import { Endpoint } from '../endpoint/endpoint';
 import { PointXY } from '../common';
-import { AnchorComputeParams, AnchorSpec, Orientation } from "../factory/anchor-factory";
+import { AnchorComputeParams, AnchorSpec, Orientation } from "../factory/anchor-record-factory";
 export interface RedrawResult {
     c: Set<Connection>;
     e: Set<Endpoint>;

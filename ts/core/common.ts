@@ -1,7 +1,7 @@
 import {UIGroup} from "./group/group"
 import {Endpoint, EndpointStyle} from "./endpoint/endpoint"
 import {EndpointSpec} from "./endpoint/endpoint"
-import {AnchorSpec} from "./factory/anchor-factory"
+import {AnchorSpec} from "./factory/anchor-record-factory"
 import {ConnectorSpec} from "./connector/abstract-connector"
 import {OverlaySpec} from "./overlay/overlay"
 import {PaintStyle} from "./styles"

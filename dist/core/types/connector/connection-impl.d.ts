@@ -5,7 +5,7 @@ import { Endpoint } from "../endpoint/endpoint";
 import { PaintStyle } from "../styles";
 import { OverlayCapableComponent } from "../component/overlay-capable-component";
 import { Merge, Omit } from "../util";
-import { AnchorSpec } from "../factory/anchor-factory";
+import { AnchorSpec } from "../factory/anchor-record-factory";
 import { ConnectorSpec } from "./abstract-connector";
 import { EndpointSpec } from "../endpoint/endpoint";
 declare type OnlyPluralsConnectParams<E> = Omit<ConnectParams<E>, 'anchor' | 'endpointStyle' | 'endpoint' | 'endpointHoverStyle'>;

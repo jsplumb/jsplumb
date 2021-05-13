@@ -21,7 +21,7 @@ import { LabelOverlay } from './overlay/label-overlay';
 import { AbstractConnector } from './connector/abstract-connector';
 import { OverlayCapableComponent } from './component/overlay-capable-component';
 import { PaintStyle } from './styles';
-import { AnchorSpec } from "./factory/anchor-factory";
+import { AnchorSpec } from "./factory/anchor-record-factory";
 import { SourceSelector, TargetSelector } from "./source-selector";
 import { InternalEndpointOptions } from "./endpoint/endpoint-options";
 export declare type ElementSelectionSpecifier<E> = E | Array<E> | '*';

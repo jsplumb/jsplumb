@@ -3,7 +3,7 @@ import { JsPlumbInstance } from "../core";
 import { Segment } from "./abstract-segment";
 import { AnchorPlacement } from "../router/router";
 import { Connection } from '../connector/connection-impl';
-import { Orientation } from '../factory/anchor-factory';
+import { Orientation } from '../factory/anchor-record-factory';
 import { Endpoint } from '../endpoint/endpoint';
 import { ViewportElement } from "../viewport";
 export declare type UserDefinedConnectorId = string;

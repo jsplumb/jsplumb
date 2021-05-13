@@ -1,9 +1,9 @@
 import { EndpointSpec, EndpointStyle } from "./endpoint/endpoint";
-import { AnchorSpec } from "./factory/anchor-factory";
+import { AnchorSpec } from "./factory/anchor-record-factory";
 import { PaintStyle } from "./styles";
 import { OverlaySpec } from "./overlay/overlay";
 import { ConnectorSpec } from "./connector/abstract-connector";
-import { EndpointOptions } from "@jsplumb/core/endpoint/endpoint-options";
+import { EndpointOptions } from "./endpoint/endpoint-options";
 export interface ListSpec {
     endpoint?: EndpointSpec;
 }

@@ -1,4 +1,4 @@
-import {AnchorLocations, AnchorSpec, makeAnchorFromSpec} from "../factory/anchor-factory"
+import {AnchorLocations, AnchorSpec} from "../factory/anchor-record-factory"
 import {PaintStyle} from "../styles"
 import {OverlaySpec} from "../overlay/overlay"
 import {ConnectorSpec} from "../connector/abstract-connector"

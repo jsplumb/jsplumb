@@ -4,9 +4,9 @@ import { JsPlumbInstance } from "../core"
 import {EMPTY_BOUNDS, Segment} from "./abstract-segment"
 import {AnchorPlacement} from "../router/router"
 import { Connection} from '../connector/connection-impl'
-import { Orientation} from '../factory/anchor-factory'
+import { Orientation} from '../factory/anchor-record-factory'
 import { Endpoint} from '../endpoint/endpoint'
-import {pointXYFromArray, quadrant} from "../geom"
+import {quadrant} from "../geom"
 import { ViewportElement } from "../viewport"
 
 export type UserDefinedConnectorId = string

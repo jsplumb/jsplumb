@@ -2920,33 +2920,33 @@ function _findControlPoint(midx, midy, segment, sourceEdge, targetEdge, dx, dy, 
     return [midx, midy];
   }
   if (segment === 1) {
-    if (sourceEdge.y <= 0 && targetEdge.y >= 1) {
+    if (sourceEdge.curY <= 0 && targetEdge.curY >= 1) {
       return [midx + (sourceEdge.x < 0.5 ? -1 * dx : dx), midy];
-    } else if (sourceEdge.x >= 1 && targetEdge.x <= 0) {
+    } else if (sourceEdge.curX >= 1 && targetEdge.curX <= 0) {
       return [midx, midy + (sourceEdge.y < 0.5 ? -1 * dy : dy)];
     } else {
       return [midx + -1 * dx, midy + -1 * dy];
     }
   } else if (segment === 2) {
-    if (sourceEdge.y >= 1 && targetEdge.y <= 0) {
+    if (sourceEdge.curY >= 1 && targetEdge.curY <= 0) {
       return [midx + (sourceEdge.x < 0.5 ? -1 * dx : dx), midy];
-    } else if (sourceEdge.x >= 1 && targetEdge.x <= 0) {
+    } else if (sourceEdge.curX >= 1 && targetEdge.curX <= 0) {
       return [midx, midy + (sourceEdge.y < 0.5 ? -1 * dy : dy)];
     } else {
       return [midx + dx, midy + -1 * dy];
     }
   } else if (segment === 3) {
-    if (sourceEdge.y >= 1 && targetEdge.y <= 0) {
+    if (sourceEdge.curY >= 1 && targetEdge.curY <= 0) {
       return [midx + (sourceEdge.x < 0.5 ? -1 * dx : dx), midy];
-    } else if (sourceEdge.x <= 0 && targetEdge.x >= 1) {
+    } else if (sourceEdge.curX <= 0 && targetEdge.curX >= 1) {
       return [midx, midy + (sourceEdge.y < 0.5 ? -1 * dy : dy)];
     } else {
       return [midx + -1 * dx, midy + -1 * dy];
     }
   } else if (segment === 4) {
-    if (sourceEdge.y <= 0 && targetEdge.y >= 1) {
+    if (sourceEdge.curY <= 0 && targetEdge.curY >= 1) {
       return [midx + (sourceEdge.x < 0.5 ? -1 * dx : dx), midy];
-    } else if (sourceEdge.x <= 0 && targetEdge.x >= 1) {
+    } else if (sourceEdge.curX <= 0 && targetEdge.curX >= 1) {
       return [midx, midy + (sourceEdge.y < 0.5 ? -1 * dy : dy)];
     } else {
       return [midx + dx, midy + -1 * dy];
@@ -4205,6 +4205,77 @@ function (_Component) {
   return OverlayCapableComponent;
 }(Component);
 
+var X_AXIS_FACES = ["left", "right"];
+var Y_AXIS_FACES = ["top", "bottom"];
+var AnchorLocations;
+(function (AnchorLocations) {
+  AnchorLocations["Assign"] = "Assign";
+  AnchorLocations["AutoDefault"] = "AutoDefault";
+  AnchorLocations["Bottom"] = "Bottom";
+  AnchorLocations["BottomLeft"] = "BottomLeft";
+  AnchorLocations["BottomRight"] = "BottomRight";
+  AnchorLocations["Center"] = "Center";
+  AnchorLocations["Continuous"] = "Continuous";
+  AnchorLocations["ContinuousBottom"] = "ContinuousBottom";
+  AnchorLocations["ContinuousLeft"] = "ContinuousLeft";
+  AnchorLocations["ContinuousRight"] = "ContinuousRight";
+  AnchorLocations["ContinuousTop"] = "ContinuousTop";
+  AnchorLocations["ContinuousLeftRight"] = "ContinuousLeftRight";
+  AnchorLocations["ContinuousTopBottom"] = "ContinuousTopBottom";
+  AnchorLocations["Left"] = "Left";
+  AnchorLocations["Perimeter"] = "Perimeter";
+  AnchorLocations["Right"] = "Right";
+  AnchorLocations["Top"] = "Top";
+  AnchorLocations["TopLeft"] = "TopLeft";
+  AnchorLocations["TopRight"] = "TopRight";
+})(AnchorLocations || (AnchorLocations = {}));
+var LightweightFloatingAnchor =
+function () {
+  function LightweightFloatingAnchor(instance, element) {
+    _classCallCheck(this, LightweightFloatingAnchor);
+    this.instance = instance;
+    this.element = element;
+    _defineProperty(this, "isFloating", true);
+    _defineProperty(this, "isContinuous", void 0);
+    _defineProperty(this, "isDynamic", void 0);
+    _defineProperty(this, "locations", [{
+      x: 0,
+      y: 0,
+      ox: 0,
+      oy: 0,
+      offx: 0,
+      offy: 0,
+      iox: 0,
+      ioy: 0,
+      cls: ''
+    }]);
+    _defineProperty(this, "currentLocation", 0);
+    _defineProperty(this, "locked", false);
+    _defineProperty(this, "cssClass", '');
+    _defineProperty(this, "timestamp", null);
+    _defineProperty(this, "type", "Floating");
+    _defineProperty(this, "id", uuid());
+    _defineProperty(this, "orientation", [0, 0]);
+    _defineProperty(this, "size", void 0);
+    this.size = instance.getSize(element);
+  }
+  _createClass(LightweightFloatingAnchor, [{
+    key: "over",
+    value: function over(endpoint) {
+      this.orientation = this.instance.router.getEndpointOrientation(endpoint);
+      this.locations[0].ox = this.orientation[0];
+      this.locations[0].oy = this.orientation[1];
+    }
+  }, {
+    key: "out",
+    value: function out() {
+      this.orientation = null;
+      this.locations[0].ox = this.locations[0].iox;
+      this.locations[0].oy = this.locations[0].ioy;
+    }
+  }]);
+  return LightweightFloatingAnchor;
+}();
 var TOP = "top";
 var BOTTOM = "bottom";
 var LEFT = "left";
@@ -4349,33 +4420,8 @@ function _createAnchor(type, locations, params) {
     cssClass: params.cssClass || ""
   };
 }
-function createFloatingAnchor(size) {
-  return {
-    isFloating: true,
-    size: {
-      w: size.w,
-      h: size.h
-    },
-    locations: [{
-      x: 0.5,
-      y: 0.5,
-      ox: 0,
-      oy: 0,
-      offx: 0,
-      offy: 0,
-      cls: "",
-      iox: 0,
-      ioy: 0
-    }],
-    locked: false,
-    currentLocation: 0,
-    id: uuid(),
-    cssClass: "",
-    isDynamic: false,
-    type: "Floating",
-    isContinuous: false,
-    timestamp: null
-  };
+function createFloatingAnchor(instance, element) {
+  return new LightweightFloatingAnchor(instance, element);
 }
 function _createContinuousAnchor(type, faces, params) {
   return {
@@ -4884,508 +4930,6 @@ function (_OverlayCapableCompon) {
   }]);
   return Connection;
 }(OverlayCapableComponent);
-
-var Anchor =
-function () {
-  function Anchor(instance, params) {
-    _classCallCheck(this, Anchor);
-    this.instance = instance;
-    _defineProperty(this, "type", void 0);
-    _defineProperty(this, "isDynamic", false);
-    _defineProperty(this, "isContinuous", false);
-    _defineProperty(this, "isFloating", false);
-    _defineProperty(this, "cssClass", "");
-    _defineProperty(this, "elementId", void 0);
-    _defineProperty(this, "id", void 0);
-    _defineProperty(this, "locked", void 0);
-    _defineProperty(this, "offsets", void 0);
-    _defineProperty(this, "orientation", void 0);
-    _defineProperty(this, "x", void 0);
-    _defineProperty(this, "y", void 0);
-    _defineProperty(this, "timestamp", void 0);
-    _defineProperty(this, "lastReturnValue", void 0);
-    _defineProperty(this, "_unrotatedOrientation", void 0);
-    _defineProperty(this, "clone", void 0);
-    this.id = uuid();
-    params = params || {};
-    this.cssClass = params.cssClass || "";
-  }
-  _createClass(Anchor, [{
-    key: "setPosition",
-    value: function setPosition(x, y, ox, oy, overrideLock) {
-      if (!this.locked || overrideLock) {
-        this.x = x;
-        this.y = y;
-        this.orientation = [ox, oy];
-        this._unrotatedOrientation = [ox, oy];
-        this.lastReturnValue = null;
-      }
-    }
-  }, {
-    key: "setInitialOrientation",
-    value: function setInitialOrientation(ox, oy) {
-      this.orientation = [ox, oy];
-      this._unrotatedOrientation = [ox, oy];
-    }
-  }, {
-    key: "equals",
-    value: function equals(anchor) {
-      if (!anchor) {
-        return false;
-      }
-      var ao = this.instance.router.getAnchorOrientation(anchor),
-          o = this.instance.router.getAnchorOrientation(this);
-      return this.x === anchor.x && this.y === anchor.y && this.offsets[0] === anchor.offsets[0] && this.offsets[1] === anchor.offsets[1] && o[0] === ao[0] && o[1] === ao[1];
-    }
-  }, {
-    key: "getCssClass",
-    value: function getCssClass() {
-      return this.cssClass;
-    }
-  }]);
-  return Anchor;
-}();
-
-function _distance(anchor, cx, cy, xy, wh, rotation, targetRotation) {
-  var ax = xy.x + anchor.x * wh.w,
-      ay = xy.y + anchor.y * wh.h,
-      acx = xy.x + wh.w / 2,
-      acy = xy.y + wh.h / 2;
-  if (rotation != null && rotation.length > 0) {
-    var rotated = anchor.instance._applyRotations([ax, ay, 0, 0], rotation);
-    ax = rotated.x;
-    ay = rotated.y;
-  }
-  return Math.sqrt(Math.pow(cx - ax, 2) + Math.pow(cy - ay, 2)) + Math.sqrt(Math.pow(acx - ax, 2) + Math.pow(acy - ay, 2));
-}
-var DEFAULT_ANCHOR_SELECTOR = function DEFAULT_ANCHOR_SELECTOR(xy, wh, txy, twh, rotation, targetRotation, anchors) {
-  var cx = txy.x + twh.w / 2,
-      cy = txy.y + twh.h / 2;
-  var minIdx = -1,
-      minDist = Infinity;
-  for (var i = 0; i < anchors.length; i++) {
-    var d = _distance(anchors[i], cx, cy, xy, wh, rotation);
-    if (d < minDist) {
-      minIdx = i + 0;
-      minDist = d;
-    }
-  }
-  return anchors[minIdx];
-};
-function _convertAnchor(anchor, instance, elementId) {
-  return anchor instanceof Anchor ? anchor : makeAnchorFromSpec(instance, anchor, elementId);
-}
-var DynamicAnchor =
-function (_Anchor) {
-  _inherits(DynamicAnchor, _Anchor);
-  function DynamicAnchor(instance, options) {
-    var _this;
-    _classCallCheck(this, DynamicAnchor);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(DynamicAnchor).call(this, instance, options));
-    _this.instance = instance;
-    _defineProperty(_assertThisInitialized(_this), "anchors", void 0);
-    _defineProperty(_assertThisInitialized(_this), "_curAnchor", void 0);
-    _defineProperty(_assertThisInitialized(_this), "_lastAnchor", void 0);
-    _defineProperty(_assertThisInitialized(_this), "_anchorSelector", null);
-    _this.isDynamic = true;
-    _this.anchors = [];
-    _this.elementId = options.elementId;
-    for (var i = 0; i < options.anchors.length; i++) {
-      _this.anchors[i] = _convertAnchor(options.anchors[i], instance, _this.elementId);
-    }
-    _this._curAnchor = _this.anchors.length > 0 ? _this.anchors[0] : null;
-    _this._lastAnchor = _this._curAnchor;
-    _this._anchorSelector = options.selector || DEFAULT_ANCHOR_SELECTOR;
-    return _this;
-  }
-  _createClass(DynamicAnchor, [{
-    key: "getAnchors",
-    value: function getAnchors() {
-      return this.anchors;
-    }
-  }, {
-    key: "setAnchor",
-    value: function setAnchor(a) {
-      this._curAnchor = a;
-    }
-  }, {
-    key: "getCssClass",
-    value: function getCssClass() {
-      return this._curAnchor && this._curAnchor.getCssClass() || "";
-    }
-  }, {
-    key: "setAnchorCoordinates",
-    value: function setAnchorCoordinates(coords) {
-      var idx = findWithFunction(this.anchors, function (a) {
-        return a.x === coords.x && a.y === coords.y;
-      });
-      if (idx !== -1) {
-        this.setAnchor(this.anchors[idx]);
-        return true;
-      } else {
-        return false;
-      }
-    }
-  }]);
-  return DynamicAnchor;
-}(Anchor);
-
-var opposites = {
-  "top": "bottom",
-  "right": "left",
-  "left": "right",
-  "bottom": "top"
-};
-var clockwiseOptions = {
-  "top": "right",
-  "right": "bottom",
-  "left": "top",
-  "bottom": "left"
-};
-var antiClockwiseOptions = {
-  "top": "left",
-  "right": "top",
-  "left": "bottom",
-  "bottom": "right"
-};
-var ContinuousAnchor =
-function (_Anchor) {
-  _inherits(ContinuousAnchor, _Anchor);
-  function ContinuousAnchor(instance, anchorParams) {
-    var _this;
-    _classCallCheck(this, ContinuousAnchor);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(ContinuousAnchor).call(this, instance, anchorParams));
-    _this.instance = instance;
-    _defineProperty(_assertThisInitialized(_this), "type", ContinuousAnchor.type);
-    _defineProperty(_assertThisInitialized(_this), "isDynamic", true);
-    _defineProperty(_assertThisInitialized(_this), "isContinuous", true);
-    _defineProperty(_assertThisInitialized(_this), "clockwise", void 0);
-    _defineProperty(_assertThisInitialized(_this), "faces", void 0);
-    _defineProperty(_assertThisInitialized(_this), "secondBest", void 0);
-    _defineProperty(_assertThisInitialized(_this), "lastChoice", void 0);
-    _defineProperty(_assertThisInitialized(_this), "_currentFace", void 0);
-    _defineProperty(_assertThisInitialized(_this), "_lockedFace", void 0);
-    _defineProperty(_assertThisInitialized(_this), "_lockedAxis", void 0);
-    _defineProperty(_assertThisInitialized(_this), "availableFaces", {});
-    _this.faces = anchorParams.faces || ["top", "right", "bottom", "left"];
-    _this.clockwise = !(anchorParams.clockwise === false);
-    _this.secondBest = _this.clockwise ? clockwiseOptions : antiClockwiseOptions;
-    _this.lastChoice = _this.clockwise ? antiClockwiseOptions : clockwiseOptions;
-    _this._currentFace = null;
-    _this._lockedFace = null;
-    _this._lockedAxis = null;
-    for (var i = 0; i < _this.faces.length; i++) {
-      _this.availableFaces[_this.faces[i]] = true;
-    }
-    return _this;
-  }
-  _createClass(ContinuousAnchor, [{
-    key: "getDefaultFace",
-    value: function getDefaultFace() {
-      return this.faces.length === 0 ? "top" : this.faces[0];
-    }
-  }, {
-    key: "verifyEdge",
-    value: function verifyEdge(edge) {
-      if (this.availableFaces[edge]) {
-        return edge;
-      } else if (this.availableFaces[opposites[edge]]) {
-        return opposites[edge];
-      } else if (this.availableFaces[this.secondBest[edge]]) {
-        return this.secondBest[edge];
-      } else if (this.availableFaces[this.lastChoice[edge]]) {
-        return this.lastChoice[edge];
-      }
-      return edge;
-    }
-  }, {
-    key: "isEdgeSupported",
-    value: function isEdgeSupported(edge) {
-      return this._lockedAxis == null ? this._lockedFace == null ? this.availableFaces[edge] === true : this._lockedFace === edge : this._lockedAxis.indexOf(edge) !== -1;
-    }
-  }, {
-    key: "setCurrentFace",
-    value: function setCurrentFace(face, overrideLock) {
-      this._currentFace = face;
-      if (overrideLock && this._lockedFace != null) {
-        this._lockedFace = this._currentFace;
-      }
-    }
-  }, {
-    key: "getCurrentFace",
-    value: function getCurrentFace() {
-      return this._currentFace;
-    }
-  }, {
-    key: "getSupportedFaces",
-    value: function getSupportedFaces() {
-      var af = [];
-      for (var k in this.availableFaces) {
-        if (this.availableFaces[k]) {
-          af.push(k);
-        }
-      }
-      return af;
-    }
-  }, {
-    key: "lock",
-    value: function lock() {
-      this._lockedFace = this._currentFace;
-      this.locked = true;
-    }
-  }, {
-    key: "unlock",
-    value: function unlock() {
-      this._lockedFace = null;
-      this.locked = false;
-    }
-  }, {
-    key: "lockCurrentAxis",
-    value: function lockCurrentAxis() {
-      if (this._currentFace != null) {
-        this._lockedAxis = this._currentFace === "left" || this._currentFace === "right" ? X_AXIS_FACES : Y_AXIS_FACES;
-      }
-    }
-  }, {
-    key: "unlockCurrentAxis",
-    value: function unlockCurrentAxis() {
-      this._lockedAxis = null;
-    }
-  }, {
-    key: "getCssClass",
-    value: function getCssClass() {
-      return this.cssClass;
-    }
-  }]);
-  return ContinuousAnchor;
-}(Anchor);
-_defineProperty(ContinuousAnchor, "type", "Continuous");
-
-var X_AXIS_FACES = ["left", "right"];
-var Y_AXIS_FACES = ["top", "bottom"];
-var AnchorLocations;
-(function (AnchorLocations) {
-  AnchorLocations["Assign"] = "Assign";
-  AnchorLocations["AutoDefault"] = "AutoDefault";
-  AnchorLocations["Bottom"] = "Bottom";
-  AnchorLocations["BottomLeft"] = "BottomLeft";
-  AnchorLocations["BottomRight"] = "BottomRight";
-  AnchorLocations["Center"] = "Center";
-  AnchorLocations["Continuous"] = "Continuous";
-  AnchorLocations["ContinuousBottom"] = "ContinuousBottom";
-  AnchorLocations["ContinuousLeft"] = "ContinuousLeft";
-  AnchorLocations["ContinuousRight"] = "ContinuousRight";
-  AnchorLocations["ContinuousTop"] = "ContinuousTop";
-  AnchorLocations["ContinuousLeftRight"] = "ContinuousLeftRight";
-  AnchorLocations["ContinuousTopBottom"] = "ContinuousTopBottom";
-  AnchorLocations["Left"] = "Left";
-  AnchorLocations["Perimeter"] = "Perimeter";
-  AnchorLocations["Right"] = "Right";
-  AnchorLocations["Top"] = "Top";
-  AnchorLocations["TopLeft"] = "TopLeft";
-  AnchorLocations["TopRight"] = "TopRight";
-})(AnchorLocations || (AnchorLocations = {}));
-var anchorMap = {};
-var Anchors = {
-  get: function get(instance, name, args) {
-    var con = anchorMap[name];
-    if (!con) {
-      throw {
-        message: "jsPlumb: unknown anchor type '" + name + "'"
-      };
-    } else {
-      return con(instance, args || {});
-    }
-  }
-};
-function _makeAnchor(instance, x, y, ox, oy, offsetX, offsetY, elementId) {
-  var a = new Anchor(instance);
-  a.x = x;
-  a.y = y;
-  a.setInitialOrientation(ox, oy);
-  a.offsets = [offsetX, offsetY];
-  if (elementId != null) {
-    a.elementId = elementId;
-  }
-  return a;
-}
-function getNamedAnchor$1(instance, name, args, elementId) {
-  var a = Anchors.get(instance, name, args);
-  a.elementId = elementId;
-  return a;
-}
-function getAnchorWithValues(instance, x, y, orientation, offsets, elementId, cssClass) {
-  var a = new Anchor(instance);
-  a.x = x;
-  a.y = y;
-  a.setInitialOrientation(orientation[0], orientation[1]);
-  a.offsets = offsets;
-  a.elementId = elementId;
-  a.cssClass = cssClass || "";
-  return a;
-}
-function isPrimitiveAnchorSpec$1(sa) {
-  return sa.length < 7 && sa.every(isNumber) || sa.length === 7 && sa.slice(0, 5).every(isNumber) && isString(sa[6]);
-}
-function makeAnchorFromSpec(instance, spec, elementId) {
-  if (isString(spec)) {
-    return getNamedAnchor$1(instance, spec, null, elementId);
-  } else if (isArray(spec)) {
-    if (isPrimitiveAnchorSpec$1(spec)) {
-      return getAnchorWithValues(instance, spec[0], spec[1], [spec[2], spec[3]], [spec[4] || 0, spec[5] || 0], elementId, spec[6]);
-    } else {
-      return new DynamicAnchor(instance, {
-        anchors: spec,
-        elementId: elementId
-      });
-    }
-  } else {
-    var sa = spec;
-    return getNamedAnchor$1(instance, sa.type, sa.options, elementId);
-  }
-}
-function _curryAnchor(x, y, ox, oy, type, fnInit) {
-  anchorMap[type] = function (instance, params) {
-    var a = _makeAnchor(instance, x, y, ox, oy, 0, 0);
-    a.type = type;
-    if (fnInit) {
-      fnInit(a, params);
-    }
-    return a;
-  };
-}
-_curryAnchor(0.5, 0, 0, -1, AnchorLocations.Top);
-_curryAnchor(0.5, 1, 0, 1, AnchorLocations.Bottom);
-_curryAnchor(0, 0.5, -1, 0, AnchorLocations.Left);
-_curryAnchor(1, 0.5, 1, 0, AnchorLocations.Right);
-_curryAnchor(0.5, 0.5, 0, 0, AnchorLocations.Center);
-_curryAnchor(1, 0, 0, -1, AnchorLocations.TopRight);
-_curryAnchor(1, 1, 0, 1, AnchorLocations.BottomRight);
-_curryAnchor(0, 0, 0, -1, AnchorLocations.TopLeft);
-_curryAnchor(0, 1, 0, 1, AnchorLocations.BottomLeft);
-var DEFAULT_DYNAMIC_ANCHORS = [AnchorLocations.Top, AnchorLocations.Right, AnchorLocations.Bottom, AnchorLocations.Left];
-anchorMap[AnchorLocations.AutoDefault] = function (instance, params) {
-  var a = new DynamicAnchor(instance, {
-    anchors: DEFAULT_DYNAMIC_ANCHORS.map(function (da) {
-      return getNamedAnchor$1(instance, da, params);
-    })
-  });
-  a.type = AnchorLocations.AutoDefault;
-  return a;
-};
-function _circle(anchorCount) {
-  var r = 0.5,
-      step = Math.PI * 2 / anchorCount,
-      current = 0,
-      a = [];
-  for (var i = 0; i < anchorCount; i++) {
-    var x = r + r * Math.sin(current),
-        y = r + r * Math.cos(current);
-    a.push([x, y, 0, 0]);
-    current += step;
-  }
-  return a;
-}
-function _path(anchorCount, segments) {
-  var anchorsPerFace = anchorCount / segments.length,
-      a = [],
-      _computeFace = function _computeFace(x1, y1, x2, y2, fractionalLength, ox, oy) {
-    anchorsPerFace = anchorCount * fractionalLength;
-    var dx = (x2 - x1) / anchorsPerFace,
-        dy = (y2 - y1) / anchorsPerFace;
-    for (var i = 0; i < anchorsPerFace; i++) {
-      a.push([x1 + dx * i, y1 + dy * i, ox == null ? 0 : ox, oy == null ? 0 : oy]);
-    }
-  };
-  for (var i = 0; i < segments.length; i++) {
-    _computeFace.apply(null, segments[i]);
-  }
-  return a;
-}
-function _shape(anchorCount, faces) {
-  var s = [];
-  for (var i = 0; i < faces.length; i++) {
-    s.push([faces[i][0], faces[i][1], faces[i][2], faces[i][3], 1 / faces.length, faces[i][4], faces[i][5]]);
-  }
-  return _path(anchorCount, s);
-}
-function _rectangle(anchorCount) {
-  return _shape(anchorCount, [[0, 0, 1, 0, 0, -1], [1, 0, 1, 1, 1, 0], [1, 1, 0, 1, 0, 1], [0, 1, 0, 0, -1, 0]]);
-}
-function _rotate(points, amountInDegrees) {
-  var o = [],
-      theta = amountInDegrees / 180 * Math.PI;
-  for (var i = 0; i < points.length; i++) {
-    var _x = points[i][0] - 0.5,
-        _y = points[i][1] - 0.5;
-    o.push([0.5 + (_x * Math.cos(theta) - _y * Math.sin(theta)), 0.5 + (_x * Math.sin(theta) + _y * Math.cos(theta)), points[i][2], points[i][3]]);
-  }
-  return o;
-}
-var _shapes = {
-  "Circle": _circle,
-  "Ellipse": _circle,
-  "Diamond": function Diamond(anchorCount) {
-    return _shape(anchorCount, [[0.5, 0, 1, 0.5], [1, 0.5, 0.5, 1], [0.5, 1, 0, 0.5], [0, 0.5, 0.5, 0]]);
-  },
-  "Rectangle": _rectangle,
-  "Square": _rectangle,
-  "Triangle": function Triangle(anchorCount) {
-    return _shape(anchorCount, [[0.5, 0, 1, 1], [1, 1, 0, 1], [0, 1, 0.5, 0]]);
-  },
-  "Path": function Path(anchorCount, params) {
-    var points = params.points,
-        p = [],
-        tl = 0;
-    for (var i = 0; i < points.length - 1; i++) {
-      var l = Math.sqrt(Math.pow(points[i][2] - points[i][0], 2) + Math.pow(points[i][3] - points[i][1], 2));
-      tl += l;
-      p.push([points[i][0], points[i][1], points[i + 1][0], points[i + 1][1], l]);
-    }
-    for (var j = 0; j < p.length; j++) {
-      p[j][4] = p[j][4] / tl;
-    }
-    return _path(anchorCount, p);
-  }
-};
-anchorMap[AnchorLocations.Perimeter] = function (instance, params) {
-  var anchorCount = params.anchorCount || 60;
-  if (!params.shape) {
-    throw new Error("no shape supplied to Perimeter Anchor type");
-  }
-  if (!_shapes[params.shape]) {
-    throw new Error("Shape [" + params.shape + "] is unknown by Perimeter Anchor type");
-  }
-  var da = _shapes[params.shape](anchorCount, params);
-  if (params.rotation) {
-    da = _rotate(da, params.rotation);
-  }
-  return new DynamicAnchor(instance, {
-    anchors: da
-  });
-};
-function _curryContinuousAnchor(type, faces) {
-  anchorMap[type] = function (instance, params) {
-    var o = {};
-    extend(o, params || {});
-    if (faces) {
-      o.faces = faces;
-    }
-    var a = new ContinuousAnchor(instance, o);
-    a.type = type;
-    return a;
-  };
-}
-_curryContinuousAnchor(AnchorLocations.Continuous);
-_curryContinuousAnchor(AnchorLocations.ContinuousLeft, ["left"]);
-_curryContinuousAnchor(AnchorLocations.ContinuousTop, ["top"]);
-_curryContinuousAnchor(AnchorLocations.ContinuousBottom, ["bottom"]);
-_curryContinuousAnchor(AnchorLocations.ContinuousRight, ["right"]);
-_curryContinuousAnchor(AnchorLocations.ContinuousLeft, ["left"]);
-_curryContinuousAnchor(AnchorLocations.ContinuousTop, ["top"]);
-_curryContinuousAnchor(AnchorLocations.ContinuousBottom, ["bottom"]);
-_curryContinuousAnchor(AnchorLocations.ContinuousLeftRight, ["left", "right"]);
-_curryContinuousAnchor(AnchorLocations.ContinuousTopBottom, ["top", "bottom"]);
 
 var typeParameters = ["connectorStyle", "connectorHoverStyle", "connectorOverlays", "connector", "connectionType", "connectorClass", "connectorHoverClass"];
 var Endpoint =
@@ -7384,7 +6928,7 @@ function (_ConnectionDragSelect2) {
   return TargetSelector;
 }(ConnectionDragSelector);
 
-var anchorMap$1 = new Map();
+var anchorMap = new Map();
 var anchorLocations = new Map();
 var anchorLists = new Map();
 function _placeAnchorsOnLine(element, connections, horizontal, otherMultiplier, reverse) {
@@ -7562,7 +7106,7 @@ function _isFloating(a) {
 function isDynamic(a) {
   return a.locations.length > 1;
 }
-function _getAnchorOrientation(anchor, endpoint) {
+function _getAnchorOrientation(anchor) {
   var loc = anchorLocations.get(anchor.id);
   return loc ? [loc.ox, loc.oy] : [0, 0];
 }
@@ -7674,7 +7218,7 @@ function defaultAnchorCompute(instance, anchor, params) {
   anchor.timestamp = params.timestamp;
   return pos;
 }
-function _distance$1(instance, anchor, cx, cy, xy, wh, rotation, targetRotation) {
+function _distance(instance, anchor, cx, cy, xy, wh, rotation, targetRotation) {
   var ax = xy.x + anchor.x * wh.w,
       ay = xy.y + anchor.y * wh.h,
       acx = xy.x + wh.w / 2,
@@ -7692,7 +7236,7 @@ function _anchorSelector(instance, xy, wh, txy, twh, rotation, targetRotation, l
   var minIdx = -1,
       minDist = Infinity;
   for (var i = 0; i < locations.length; i++) {
-    var d = _distance$1(instance, locations[i], cx, cy, xy, wh, rotation);
+    var d = _distance(instance, locations[i], cx, cy, xy, wh, rotation);
     if (d < minDist) {
       minIdx = i + 0;
       minDist = d;
@@ -7711,7 +7255,7 @@ function () {
     });
     instance.bind(EVENT_INTERNAL_ENDPOINT_UNREGISTERED, function (ep) {
       _removeEndpointFromAnchorLists(ep);
-      anchorMap$1["delete"](ep.id);
+      anchorMap["delete"](ep.id);
     });
   }
   _createClass(LightweightRouter, [{
@@ -7770,7 +7314,7 @@ function () {
   }, {
     key: "getAnchor",
     value: function getAnchor(ep) {
-      return anchorMap$1.get(ep.id);
+      return anchorMap.get(ep.id);
     }
   }, {
     key: "getAnchorOrientation",
@@ -7781,7 +7325,7 @@ function () {
     key: "getEndpointLocation",
     value: function getEndpointLocation(endpoint, params) {
       params = params || {};
-      var anchor = anchorMap$1.get(endpoint.id);
+      var anchor = anchorMap.get(endpoint.id);
       var pos = anchorLocations.get(anchor.id);
       if (pos == null || params.timestamp != null && anchor.timestamp !== params.timestamp) {
         pos = this.computeAnchorLocation(anchor, params);
@@ -7826,7 +7370,7 @@ function () {
             a;
         forEach(ep, function (anEndpoint) {
           endpointsToPaint.add(anEndpoint);
-          a = anchorMap$1.get(anEndpoint.id);
+          a = anchorMap.get(anEndpoint.id);
           if (anEndpoint.connections.length === 0) {
             if (isContinuous(a)) {
               if (!anchorLists.has(elementId)) {
@@ -7847,8 +7391,8 @@ function () {
               var conn = anEndpoint.connections[i],
                   sourceId = conn.sourceId,
                   targetId = conn.targetId,
-                  sourceContinuous = isContinuous(anchorMap$1.get(conn.endpoints[0].id)),
-                  targetContinuous = isContinuous(anchorMap$1.get(conn.endpoints[0].id));
+                  sourceContinuous = isContinuous(anchorMap.get(conn.endpoints[0].id)),
+                  targetContinuous = isContinuous(anchorMap.get(conn.endpoints[0].id));
               if (sourceContinuous || targetContinuous) {
                 var oKey = sourceId + "_" + targetId,
                     o = orientationCache[oKey],
@@ -7878,7 +7422,7 @@ function () {
                   var sourceRotation = _this.instance._getRotations(sourceId);
                   var targetRotation = _this.instance._getRotations(targetId);
                   if (!o) {
-                    o = _this._calculateOrientation(sourceId, targetId, sd, td, anchorMap$1.get(conn.endpoints[0].id), anchorMap$1.get(conn.endpoints[1].id), sourceRotation, targetRotation);
+                    o = _this._calculateOrientation(sourceId, targetId, sd, td, anchorMap.get(conn.endpoints[0].id), anchorMap.get(conn.endpoints[1].id), sourceRotation, targetRotation);
                     orientationCache[oKey] = o;
                   }
                   if (sourceContinuous) {
@@ -7900,7 +7444,7 @@ function () {
                 }
               } else {
                 var otherEndpoint = anEndpoint.connections[i].endpoints[conn.sourceId === elementId ? 1 : 0],
-                    otherAnchor = anchorMap$1.get(otherEndpoint.id);
+                    otherAnchor = anchorMap.get(otherEndpoint.id);
                 if (isDynamic(otherAnchor)) {
                   _this.instance.paintEndpoint(otherEndpoint, {
                     elementWithPrecedence: elementId,
@@ -7943,7 +7487,7 @@ function () {
   }, {
     key: "reset",
     value: function reset() {
-      anchorMap$1.clear();
+      anchorMap.clear();
       anchorLocations.clear();
       anchorLists.clear();
     }
@@ -7951,15 +7495,15 @@ function () {
     key: "setAnchor",
     value: function setAnchor(endpoint, anchor) {
       if (anchor != null) {
-        anchorMap$1.set(endpoint.id, anchor);
+        anchorMap.set(endpoint.id, anchor);
         endpoint._anchorId = anchor.id;
       }
     }
   }, {
     key: "setConnectionAnchors",
     value: function setConnectionAnchors(conn, anchors) {
-      anchorMap$1.set(conn.endpoints[0].id, anchors[0]);
-      anchorMap$1.set(conn.endpoints[1].id, anchors[1]);
+      anchorMap.set(conn.endpoints[0].id, anchors[0]);
+      anchorMap.set(conn.endpoints[1].id, anchors[1]);
     }
   }, {
     key: "_calculateOrientation",
@@ -9912,62 +9456,6 @@ function isCustomOverlay(o) {
 }
 OverlayFactory.register("Custom", CustomOverlay);
 
-var FloatingAnchor =
-function (_Anchor) {
-  _inherits(FloatingAnchor, _Anchor);
-  function FloatingAnchor(instance, params) {
-    var _this;
-    _classCallCheck(this, FloatingAnchor);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(FloatingAnchor).call(this, instance, params));
-    _this.instance = instance;
-    _defineProperty(_assertThisInitialized(_this), "ref", void 0);
-    _defineProperty(_assertThisInitialized(_this), "refCanvas", void 0);
-    _defineProperty(_assertThisInitialized(_this), "size", void 0);
-    _defineProperty(_assertThisInitialized(_this), "xDir", void 0);
-    _defineProperty(_assertThisInitialized(_this), "yDir", void 0);
-    _defineProperty(_assertThisInitialized(_this), "_lastResult", void 0);
-    _this.ref = params.reference;
-    _this.refCanvas = params.referenceCanvas;
-    _this.size = instance.getSize(_this.refCanvas);
-    _this.xDir = 0;
-    _this.yDir = 0;
-    _this.orientation = null;
-    _this._lastResult = null;
-    _this.x = 0;
-    _this.y = 0;
-    _this.isFloating = true;
-    return _this;
-  }
-  _createClass(FloatingAnchor, [{
-    key: "compute",
-    value: function compute(params) {
-      var xy = params.xy;
-      return this._lastResult;
-    }
-  }, {
-    key: "getOrientation",
-    value: function getOrientation(_endpoint) {
-      if (this.orientation) {
-        return this.orientation;
-      } else {
-        var o = this.instance.router.getAnchorOrientation(this.ref, _endpoint);
-        return [Math.abs(o[0]) * this.xDir * -1, Math.abs(o[1]) * this.yDir * -1];
-      }
-    }
-  }, {
-    key: "over",
-    value: function over(anchor, endpoint) {
-      this.orientation = this.instance.router.getAnchorOrientation(anchor, endpoint);
-    }
-  }, {
-    key: "out",
-    value: function out() {
-      this.orientation = null;
-    }
-  }]);
-  return FloatingAnchor;
-}(Anchor);
-
 EndpointFactory.register(DotEndpoint.type, DotEndpoint);
 EndpointFactory.register(BlankEndpoint.type, BlankEndpoint);
 EndpointFactory.register(RectangleEndpoint.type, RectangleEndpoint);
@@ -9976,4 +9464,4 @@ Connectors.register(StraightConnector.type, StraightConnector);
 Connectors.register(FlowchartConnector.type, FlowchartConnector);
 Connectors.register(StateMachineConnector.type, StateMachineConnector);
 
-export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_GROUP_CONTENT, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SCOPE, ATTRIBUTE_SCOPE_PREFIX, ATTRIBUTE_TABINDEX, AbstractConnector, AbstractSegment, Anchor, AnchorLocations, Anchors, ArcSegment, ArrowOverlay, BLOCK, BOTTOM, BezierConnector, BezierSegment, BlankEndpoint, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTED, CLASS_CONNECTOR, CLASS_CONNECTOR_OUTLINE, CLASS_ENDPOINT, CLASS_ENDPOINT_ANCHOR_PREFIX, CLASS_ENDPOINT_CONNECTED, CLASS_ENDPOINT_DROP_ALLOWED, CLASS_ENDPOINT_DROP_FORBIDDEN, CLASS_ENDPOINT_FULL, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, ContinuousAnchor, CustomOverlay, DEFAULT, DiamondOverlay, DotEndpoint, DynamicAnchor, EMPTY_BOUNDS, ERROR_SOURCE_DOES_NOT_EXIST, ERROR_SOURCE_ENDPOINT_FULL, ERROR_TARGET_DOES_NOT_EXIST, ERROR_TARGET_ENDPOINT_FULL, EVENT_ANCHOR_CHANGED, EVENT_CLICK, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_DBL_TAP, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_TAP, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_DBL_TAP, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_ENDPOINT_TAP, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_COLLAPSE, EVENT_GROUP_EXPAND, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FloatingAnchor, FlowchartConnector, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_DROP, INTERCEPT_BEFORE_START_DETACH, IS, IS_DETACH_ALLOWED, JsPlumbInstance, LEFT, LabelOverlay, LightweightRouter, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PROPERTY_POSITION, PlainArrowOverlay, RIGHT, RectangleEndpoint, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_INDEX, STATIC, SourceSelector, StateMachineConnector, StraightConnector, StraightSegment, TARGET, TARGET_INDEX, TOP, TRUE, TWO_PI, TargetSelector, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _getDefaultFace, _isEdgeSupported, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, att, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, convertToFullOverlaySpec, createFloatingAnchor, dist, distanceFromCurve, each, encloses, extend, fastTrim, filterList, filterNull, findAllWithFunction, findWithFunction, forEach, fromArray, functionChain, getAllWithFunction, _getAnchorOrientation as getAnchorOrientation, getFromSetWithFunction, getWithFunction, getsert, gradient, gradientAtPoint, gradientAtPointAlongPathFrom, insertSorted, intersects, isArray, isArrowOverlay, isAssignableFrom, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFullOverlaySpec, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, lineIntersection, lineLength, locationAlongCurveFrom, log, logEnabled, makeAnchorFromSpec, makeLightweightAnchorFromSpec, map, merge, nearestPointOnCurve, normal, perpendicularLineTo, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, pointOnLine, pointSubtract, pointXYFromArray, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, sortHelper, suggest, theta, uuid, wrap };
+export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_GROUP_CONTENT, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SCOPE, ATTRIBUTE_SCOPE_PREFIX, ATTRIBUTE_TABINDEX, AbstractConnector, AbstractSegment, AnchorLocations, ArcSegment, ArrowOverlay, BLOCK, BOTTOM, BezierConnector, BezierSegment, BlankEndpoint, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTED, CLASS_CONNECTOR, CLASS_CONNECTOR_OUTLINE, CLASS_ENDPOINT, CLASS_ENDPOINT_ANCHOR_PREFIX, CLASS_ENDPOINT_CONNECTED, CLASS_ENDPOINT_DROP_ALLOWED, CLASS_ENDPOINT_DROP_FORBIDDEN, CLASS_ENDPOINT_FULL, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, CustomOverlay, DEFAULT, DiamondOverlay, DotEndpoint, EMPTY_BOUNDS, ERROR_SOURCE_DOES_NOT_EXIST, ERROR_SOURCE_ENDPOINT_FULL, ERROR_TARGET_DOES_NOT_EXIST, ERROR_TARGET_ENDPOINT_FULL, EVENT_ANCHOR_CHANGED, EVENT_CLICK, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_DBL_TAP, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_TAP, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_DBL_TAP, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_ENDPOINT_TAP, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_COLLAPSE, EVENT_GROUP_EXPAND, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FlowchartConnector, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_DROP, INTERCEPT_BEFORE_START_DETACH, IS, IS_DETACH_ALLOWED, JsPlumbInstance, LEFT, LabelOverlay, LightweightFloatingAnchor, LightweightRouter, NONE, OptimisticEventGenerator, Overlay, OverlayCapableComponent, OverlayFactory, PROPERTY_POSITION, PlainArrowOverlay, RIGHT, RectangleEndpoint, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_INDEX, STATIC, SourceSelector, StateMachineConnector, StraightConnector, StraightSegment, TARGET, TARGET_INDEX, TOP, TRUE, TWO_PI, TargetSelector, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _getDefaultFace, _isEdgeSupported, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, att, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, convertToFullOverlaySpec, createFloatingAnchor, dist, distanceFromCurve, each, encloses, extend, fastTrim, filterList, filterNull, findAllWithFunction, findWithFunction, forEach, fromArray, functionChain, getAllWithFunction, _getAnchorOrientation as getAnchorOrientation, getFromSetWithFunction, getWithFunction, getsert, gradient, gradientAtPoint, gradientAtPointAlongPathFrom, insertSorted, intersects, isArray, isArrowOverlay, isAssignableFrom, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFullOverlaySpec, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, lineIntersection, lineLength, locationAlongCurveFrom, log, logEnabled, makeLightweightAnchorFromSpec, map, merge, nearestPointOnCurve, normal, perpendicularLineTo, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, pointOnLine, pointSubtract, pointXYFromArray, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, sortHelper, suggest, theta, uuid, wrap };

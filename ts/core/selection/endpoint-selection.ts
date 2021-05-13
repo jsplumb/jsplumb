@@ -1,5 +1,5 @@
 import {SelectionBase} from './common'
-import {AnchorSpec} from '../factory/anchor-factory'
+import {AnchorSpec} from '../factory/anchor-record-factory'
 import { Endpoint} from '../endpoint/endpoint'
 
 export class EndpointSelection extends SelectionBase<Endpoint> {

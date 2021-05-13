@@ -2370,7 +2370,7 @@ function () {
 }();
 
 function _makeFloatingEndpoint(paintStyle, endpoint, referenceCanvas, sourceElement, instance, scope) {
-  var floatingAnchor = createFloatingAnchor(instance.getSize(sourceElement));
+  var floatingAnchor = createFloatingAnchor(instance, sourceElement);
   var p = {
     paintStyle: paintStyle,
     preparedAnchor: floatingAnchor,
@@ -2687,8 +2687,7 @@ function () {
         endpointToFloat = aae.endpoints[1];
       }
       this.floatingEndpoint = _makeFloatingEndpoint(this.ep.getPaintStyle(), endpointToFloat, canvasElement, this.placeholderInfo.element, this.instance, this.ep.scope);
-      this.floatingAnchor = this.instance.router.getAnchor(this.floatingEndpoint)
-      ;
+      this.floatingAnchor = this.instance.router.getAnchor(this.floatingEndpoint);
       this.floatingEndpoint.deleteOnEmpty = true;
       this.floatingElement = this.floatingEndpoint.endpoint.canvas;
       this.floatingId = this.instance.getId(this.floatingElement);
@@ -2880,6 +2879,7 @@ function () {
             this.currentDropTarget.endpoint.endpoint.removeClass(this.instance.endpointDropAllowedClass);
             this.currentDropTarget.endpoint.endpoint.removeClass(this.instance.endpointDropForbiddenClass);
           }
+          console.log("FLOATING ANCHOR OUT EVENT");
           this.floatingAnchor.out();
         }
         if (newDropTarget != null) {
@@ -2901,6 +2901,7 @@ function () {
                 newDropTarget.endpoint.endpoint.addClass(this.instance.endpointDropForbiddenClass);
               }
               console.log("FLOATING ANCHOR HOVER TODO");
+              this.floatingAnchor.over(newDropTarget.endpoint);
             } else {
               newDropTarget = null;
             }

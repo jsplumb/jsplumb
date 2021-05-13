@@ -7,7 +7,7 @@ import {
     Face,
     Orientation,
     X_AXIS_FACES, Y_AXIS_FACES
-} from "../factory/anchor-factory"
+} from "../factory/anchor-record-factory"
 import {
     AnchorRecord,
     LightweightAnchor,
@@ -325,7 +325,8 @@ function isDynamic(a:LightweightAnchor):boolean {
     return a.locations.length > 1
 }
 
-export function getAnchorOrientation(anchor:LightweightAnchor, endpoint?: Endpoint): Orientation {
+
+export function getAnchorOrientation(anchor:LightweightAnchor): Orientation {
     // if (anchor.isContinuous) {
     //     return this.continuousAnchorOrientations[endpoint.id] || [ 0, 0 ]
     // } else if (anchor.isDynamic) {

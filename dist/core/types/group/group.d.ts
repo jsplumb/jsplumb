@@ -1,7 +1,7 @@
 import { Dictionary, PointXY } from '../common';
 import { JsPlumbInstance } from "../core";
 import { Connection } from '../connector/connection-impl';
-import { AnchorSpec } from "../factory/anchor-factory";
+import { AnchorSpec } from "../factory/anchor-record-factory";
 import { EndpointSpec } from "../endpoint/endpoint";
 import { GroupManager } from "../group/group-manager";
 export interface GroupOptions {
