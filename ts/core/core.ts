@@ -72,7 +72,8 @@ import {
     ERROR_SOURCE_ENDPOINT_FULL, ERROR_TARGET_DOES_NOT_EXIST,
     ERROR_TARGET_ENDPOINT_FULL
 } from "./constants"
-import {InternalEndpointOptions} from "@jsplumb/core/endpoint/endpoint-options"
+import {InternalEndpointOptions} from "./endpoint/endpoint-options"
+import {LightweightRouter} from "./router/lightweight-router"
 
 function _scopeMatch(e1:Endpoint, e2:Endpoint):boolean {
     let s1 = e1.scope.split(/\s/), s2 = e2.scope.split(/\s/)
@@ -324,7 +325,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
         this.allowNestedGroups = this._initialDefaults.allowNestedGroups !== false
 
-        this.router = new DefaultRouter(this)
+        this.router = new LightweightRouter(this)
 
         this.groupManager = new GroupManager(this)
 
