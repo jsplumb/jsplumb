@@ -26,6 +26,7 @@ export * from "./component/overlay-capable-component"
 export * from "./geom"
 export * from "./bezier"
 
+export * from "./connector/abstract-bezier-connector"
 export * from "./connector/abstract-connector"
 export * from "./connector/abstract-segment"
 export * from "./connector/arc-segment"
