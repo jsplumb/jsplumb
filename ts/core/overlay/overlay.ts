@@ -97,10 +97,6 @@ export abstract class Overlay extends EventGenerator {
         return this.visible
     }
 
-    destroy(force?: boolean): void {
-        this.instance.destroyOverlay(this, force)
-    }
-
     abstract updateFrom(d:any):void
 
     private _postComponentEvent(eventName:string, originalEvent:Event) {
