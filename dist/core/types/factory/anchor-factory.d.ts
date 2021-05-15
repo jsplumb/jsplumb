@@ -56,7 +56,7 @@ export declare type FullAnchorSpec = {
 export declare type SingleAnchorSpec = AnchorId | FullAnchorSpec | AnchorPlacement | Array<AnchorPlacement>;
 export declare type AnchorSpec = SingleAnchorSpec | Array<SingleAnchorSpec>;
 export declare const Anchors: {
-    get: (instance: JsPlumbInstance<any>, name: string, args: any) => any;
+    get: (instance: JsPlumbInstance<any>, name: string, args: any) => Anchor;
 };
 export declare function makeAnchorFromSpec(instance: JsPlumbInstance, spec: AnchorSpec | Array<AnchorSpec>, elementId?: string): Anchor;
 export declare type ShapeFunction = (anchorCount: number, p?: any) => Array<any>;
