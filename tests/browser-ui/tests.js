@@ -48,10 +48,9 @@ var isHover = function(connection) {
 
 var consoleOutput = null
 function withConsole(fn) {
-    consoleOutput = ""
     var c = console.log
     console.log = function(msg) {
-        consoleOutput += msg.message
+        consoleOutput = msg.message
     }
     fn()
     console.log = c
@@ -2332,10 +2331,7 @@ var testSuite = function () {
         equal(canvas.style.display, "none");
         c1.setVisible(true);
         equal(true, c1.isVisible(), "Connection is visible after calling setVisible(true).");
-        //equal(canvas.style.display, "block");
-        equal(canvas.style.display, ""); // why is this not 'block' ? originally this test passed like this, then i did some stuff and it stopped working and
-        // i had to change it to 'block', which i liked. and then i did some more stuff and have had to change it back to an empty string.  i can see the
-        // value being set on the element so I'm not sure what gives.
+        equal(support.getConnectionCanvas(c1).style.display, "");
     });
 
 

@@ -294,6 +294,55 @@ var testSuite = function () {
         equal(c.endpoints[1].parameters["fooAttribute"], "the value of foo target", "attribute values extracted and set as parameters on target Endpoint");
     });
 
+    test("addSourceSelector, addTargetSelector, parameterExtractor defined", function() {
+
+        var sourceNode = makeSourceNode()
+        var zone = addZone(sourceNode, "zone1")
+        zone.setAttribute("foo", "the value of foo");
+
+        var targetNode = makeTargetNode()
+        var tzone = addZone(targetNode, "zone2")
+        tzone.setAttribute("foo", "the value of foo target");
+
+        let elDragged = false;
+        _jsPlumb.bind("drag:move", function() {
+            elDragged = true
+        })
+
+        _jsPlumb.addSourceSelector(".zone1", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart",
+            parameterExtractor:function(el, target, idx) {
+                return {
+                    parameters: {
+                        fooAttribute: target.getAttribute("foo")
+                    }
+                }
+            }
+        })
+
+        _jsPlumb.addTargetSelector(".zone2", {
+            parameterExtractor:function(el, target, idx) {
+                return {
+                    parameters: {
+                        fooAttribute: target.getAttribute("foo")
+                    }
+                }
+            }
+        })
+
+        var c = support.dragConnection(zone, tzone, true)
+
+        ok(elDragged === false, "element was not dragged")
+        equal(1, _jsPlumb.select().length, "one connection in the instance")
+
+//        equal(c.getData().fooAttribute, "the value of foo", "attribute values extracted properly");
+
+        equal(c.endpoints[0].parameters["fooAttribute"], "the value of foo", "attribute values extracted and set as parameters on source Endpoint");
+        equal(c.endpoints[1].parameters["fooAttribute"], "the value of foo target", "attribute values extracted and set as parameters on target Endpoint");
+    });
+
     test("addSourceSelector, exclude:true", function() {
         var sourceNode = makeSourceNode()
         var zone = addZone(sourceNode, "zone1") // this will be added as an 'exclude' source selector

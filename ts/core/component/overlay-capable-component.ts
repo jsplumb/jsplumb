@@ -161,7 +161,7 @@ export abstract class OverlayCapableComponent extends Component {
 
     removeAllOverlays():void {
         for (let i in this.overlays) {
-            this.overlays[i].destroy(true)
+            this.instance.destroyOverlay(this.overlays[i], true)
         }
 
         this.overlays = {}
@@ -174,7 +174,7 @@ export abstract class OverlayCapableComponent extends Component {
         if (o) {
             o.setVisible(false)
             if (!dontCleanup) {
-                o.destroy(true)
+                this.instance.destroyOverlay(o, true)
             }
             delete this.overlays[overlayId]
             if (this.overlayPositions) {
@@ -227,7 +227,7 @@ export abstract class OverlayCapableComponent extends Component {
 
     destroy(force?:boolean) {
         for (let i in this.overlays) {
-            this.overlays[i].destroy(force)
+            this.instance.destroyOverlay(this.overlays[i], true)
         }
         if (force) {
             this.overlays = {}

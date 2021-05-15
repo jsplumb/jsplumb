@@ -211,10 +211,9 @@ export class EndpointDragHandler implements DragHandler {
             let sourceCount = this.instance.select({source: sourceEl}).length
             if (sourceDef.maxConnections >= 0 && (sourceCount >= sourceDef.maxConnections)) {
                 consume(e)
-                // TODO this is incorrect - "self"
                 if (def.onMaxConnections) {
                     def.onMaxConnections({
-                        element: this.ep.element,
+                        element: sourceEl,
                         maxConnections: sourceDef.maxConnections
                     }, e)
                 }
@@ -237,6 +236,11 @@ export class EndpointDragHandler implements DragHandler {
                 tempEndpointParams.scope = def.scope
             }
 
+            // what we want to do here is have `addEndpoint` contact the parameter extractor, because then we could use the same one
+            // between drag and programmatic. but we don't want to overwrite `anchor` or `deleteOnEmpty`, and also we want to get
+            // the original anchor back from the params, which wouldn't, of course, have been finalised until after addEndpoint had
+            // contacted the parameter extractor.
+
             // perhaps extract some parameters from a parameter extractor
             const extractedParameters = def.parameterExtractor ? def.parameterExtractor(sourceEl, eventTarget as Element) : {}
             tempEndpointParams = merge(tempEndpointParams, extractedParameters)
@@ -244,7 +248,9 @@ export class EndpointDragHandler implements DragHandler {
             // keep a reference to the anchor we want to use if the connection is finalised, and then write a temp anchor
             // for the drag
             this._originalAnchor = tempEndpointParams.anchor || this.instance.defaults.anchor
+
             tempEndpointParams.anchor = [ elxy.x, elxy.y , 0, 0]
+            tempEndpointParams.deleteOnEmpty = true
 
             // add an endpoint to the element that is the connection source, using the anchor that will position it where
             // the mousedown event occurred.
@@ -253,10 +259,6 @@ export class EndpointDragHandler implements DragHandler {
             // an internal ID will be assigned here. but the toolkit edition would like this id to be `vertex.port`
 
             this.ep = this.instance.addEndpoint(sourceEl, tempEndpointParams)
-            // mark delete on empty
-            this.ep.deleteOnEmpty = true
-
-
 
             // optionally check for attributes to extract from the source element
             let payload = {}

@@ -3784,11 +3784,6 @@ function (_EventGenerator) {
       return this.visible;
     }
   }, {
-    key: "destroy",
-    value: function destroy(force) {
-      this.instance.destroyOverlay(this, force);
-    }
-  }, {
     key: "_postComponentEvent",
     value: function _postComponentEvent(eventName, originalEvent) {
       this.instance.fire(eventName, this.component, originalEvent);
@@ -4045,7 +4040,7 @@ function (_Component) {
     key: "removeAllOverlays",
     value: function removeAllOverlays() {
       for (var i in this.overlays) {
-        this.overlays[i].destroy(true);
+        this.instance.destroyOverlay(this.overlays[i], true);
       }
       this.overlays = {};
       this.overlayPositions = null;
@@ -4058,7 +4053,7 @@ function (_Component) {
       if (o) {
         o.setVisible(false);
         if (!dontCleanup) {
-          o.destroy(true);
+          this.instance.destroyOverlay(o, true);
         }
         delete this.overlays[overlayId];
         if (this.overlayPositions) {
@@ -4118,7 +4113,7 @@ function (_Component) {
     key: "destroy",
     value: function destroy(force) {
       for (var i in this.overlays) {
-        this.overlays[i].destroy(force);
+        this.instance.destroyOverlay(this.overlays[i], true);
       }
       if (force) {
         this.overlays = {};

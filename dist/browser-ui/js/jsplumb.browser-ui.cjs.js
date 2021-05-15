@@ -2496,7 +2496,7 @@ function () {
           consume(e);
           if (def.onMaxConnections) {
             def.onMaxConnections({
-              element: this.ep.element,
+              element: sourceEl,
               maxConnections: sourceDef.maxConnections
             }, e);
           }
@@ -2514,8 +2514,8 @@ function () {
         tempEndpointParams = core.merge(tempEndpointParams, extractedParameters);
         this._originalAnchor = tempEndpointParams.anchor || this.instance.defaults.anchor;
         tempEndpointParams.anchor = [elxy.x, elxy.y, 0, 0];
+        tempEndpointParams.deleteOnEmpty = true;
         this.ep = this.instance.addEndpoint(sourceEl, tempEndpointParams);
-        this.ep.deleteOnEmpty = true;
         var payload = {};
         if (def.extract) {
           for (var att in def.extract) {
