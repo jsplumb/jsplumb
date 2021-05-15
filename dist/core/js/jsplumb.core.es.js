@@ -1331,6 +1331,12 @@ function (_AbstractSegment) {
         y: this.y2
       });
       this.m2 = -1 / this.m;
+      this.extents = {
+        xmin: Math.min(this.x1, this.x2),
+        ymin: Math.min(this.y1, this.y2),
+        xmax: Math.max(this.x1, this.x2),
+        ymax: Math.max(this.y1, this.y2)
+      };
     }
   }, {
     key: "getLength",
@@ -1350,16 +1356,6 @@ function (_AbstractSegment) {
       this.x2 = coords.x2;
       this.y2 = coords.y2;
       this._recalc();
-    }
-  }, {
-    key: "getBounds",
-    value: function getBounds() {
-      return {
-        xmin: Math.min(this.x1, this.x2),
-        ymin: Math.min(this.y1, this.y2),
-        xmax: Math.max(this.x1, this.x2),
-        ymax: Math.max(this.y1, this.y2)
-      };
     }
   }, {
     key: "pointOnPath",
@@ -2675,7 +2671,6 @@ function (_AbstractSegment) {
     _defineProperty(_assertThisInitialized(_this), "cp1y", void 0);
     _defineProperty(_assertThisInitialized(_this), "cp2x", void 0);
     _defineProperty(_assertThisInitialized(_this), "cp2y", void 0);
-    _defineProperty(_assertThisInitialized(_this), "bounds", void 0);
     _defineProperty(_assertThisInitialized(_this), "x1", void 0);
     _defineProperty(_assertThisInitialized(_this), "x2", void 0);
     _defineProperty(_assertThisInitialized(_this), "y1", void 0);
@@ -2703,7 +2698,7 @@ function (_AbstractSegment) {
       x: _this.x2,
       y: _this.y2
     }];
-    _this.bounds = {
+    _this.extents = {
       xmin: Math.min(_this.x1, _this.x2, _this.cp1x, _this.cp2x),
       ymin: Math.min(_this.y1, _this.y2, _this.cp1y, _this.cp2y),
       xmax: Math.max(_this.x1, _this.x2, _this.cp1x, _this.cp2x),
@@ -2736,11 +2731,6 @@ function (_AbstractSegment) {
         this.length = computeBezierLength(this.curve);
       }
       return this.length;
-    }
-  }, {
-    key: "getBounds",
-    value: function getBounds() {
-      return this.bounds;
     }
   }, {
     key: "findClosestPointOnPath",
@@ -3743,11 +3733,6 @@ function (_EventGenerator) {
       return this.visible;
     }
   }, {
-    key: "destroy",
-    value: function destroy(force) {
-      this.instance.destroyOverlay(this, force);
-    }
-  }, {
     key: "_postComponentEvent",
     value: function _postComponentEvent(eventName, originalEvent) {
       this.instance.fire(eventName, this.component, originalEvent);
@@ -4004,7 +3989,7 @@ function (_Component) {
     key: "removeAllOverlays",
     value: function removeAllOverlays() {
       for (var i in this.overlays) {
-        this.overlays[i].destroy(true);
+        this.instance.destroyOverlay(this.overlays[i], true);
       }
       this.overlays = {};
       this.overlayPositions = null;
@@ -4017,7 +4002,7 @@ function (_Component) {
       if (o) {
         o.setVisible(false);
         if (!dontCleanup) {
-          o.destroy(true);
+          this.instance.destroyOverlay(o, true);
         }
         delete this.overlays[overlayId];
         if (this.overlayPositions) {
@@ -4077,7 +4062,7 @@ function (_Component) {
     key: "destroy",
     value: function destroy(force) {
       for (var i in this.overlays) {
-        this.overlays[i].destroy(force);
+        this.instance.destroyOverlay(this.overlays[i], true);
       }
       if (force) {
         this.overlays = {};

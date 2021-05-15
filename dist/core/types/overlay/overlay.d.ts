@@ -51,7 +51,6 @@ export declare abstract class Overlay extends EventGenerator {
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
     setVisible(v: boolean): void;
     isVisible(): boolean;
-    destroy(force?: boolean): void;
     abstract updateFrom(d: any): void;
     private _postComponentEvent;
     click(e: Event): void;

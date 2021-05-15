@@ -2499,7 +2499,7 @@
             consume(e);
             if (def.onMaxConnections) {
               def.onMaxConnections({
-                element: this.ep.element,
+                element: sourceEl,
                 maxConnections: sourceDef.maxConnections
               }, e);
             }
@@ -2517,8 +2517,8 @@
           tempEndpointParams = core.merge(tempEndpointParams, extractedParameters);
           this._originalAnchor = tempEndpointParams.anchor || this.instance.defaults.anchor;
           tempEndpointParams.anchor = [elxy.x, elxy.y, 0, 0];
+          tempEndpointParams.deleteOnEmpty = true;
           this.ep = this.instance.addEndpoint(sourceEl, tempEndpointParams);
-          this.ep.deleteOnEmpty = true;
           var payload = {};
           if (def.extract) {
             for (var att in def.extract) {
@@ -2547,7 +2547,6 @@
       value: function _mouseupHandler(e) {
         var el = e.currentTarget || e.srcElement;
         if (el._jsPlumbOrphanedEndpoints) {
-          console.log("cleanup orphaned endpoint");
           core.each(el._jsPlumbOrphanedEndpoints, this.instance._maybePruneEndpoint.bind(this.instance));
           el._jsPlumbOrphanedEndpoints.length = 0;
         }
