@@ -60,6 +60,15 @@ export type FullAnchorSpec = {type:AnchorId, options:AnchorOptions}
 export type SingleAnchorSpec = AnchorId | FullAnchorSpec | AnchorPlacement | Array<AnchorPlacement>
 export type AnchorSpec = SingleAnchorSpec | Array<SingleAnchorSpec>
 
+/**
+ * Constructor options for a Perimeter Anchor.
+ */
+export interface PerimeterAnchorOptions extends AnchorOptions {
+    shape:string
+    rotation?:number
+    anchorCount?:number
+}
+
 export interface AnchorRecord {
     x:number
     y:number
@@ -72,6 +81,8 @@ export interface AnchorRecord {
     cls:string
 }
 
+export interface ComputedPosition {curX:number,curY:number,ox:number,oy:number,x:number,y:number}
+
 export interface LightweightAnchor {
     locations:Array<AnchorRecord>
     currentLocation:number
@@ -83,6 +94,7 @@ export interface LightweightAnchor {
     isDynamic:boolean
     timestamp:string
     type:string
+    computedPosition?:ComputedPosition
 }
 
 export interface LightweightContinuousAnchor extends LightweightAnchor {
