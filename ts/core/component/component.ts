@@ -479,20 +479,17 @@ export abstract class Component extends EventGenerator {
         return this.hoverPaintStyle
     }
 
-    destroy(force?:boolean):void {
+    destroy():void {
 
         for (let i in this.overlays) {
             this.instance.destroyOverlay(this.overlays[i])
         }
 
-        if (force || this.typeId == null) {
+        this.overlays = {}
+        this.overlayPositions = {}
 
-                this.overlays = {}
-                this.overlayPositions = {}
-
-            this.unbind() // this is on EventGenerator
-            this.clone = null
-        }
+        this.unbind() // this is on EventGenerator
+        this.clone = null
     }
 
     isHover():boolean {
