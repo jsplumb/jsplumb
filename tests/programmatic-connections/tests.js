@@ -132,7 +132,7 @@ var testSuite = function () {
         ok(e16._anchor, 'endpoint 16 has an anchor');
         var e17 = _jsPlumb.addEndpoint(d17, {source: true});
         var c = _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17, cost: 567});
-        equal(c.getCost(), 567, "connection cost is 567");
+        equal(c.cost, 567, "connection cost is 567");
     });
 
     test(': _jsPlumb.connect (default cost)', function () {
@@ -141,7 +141,7 @@ var testSuite = function () {
         ok(e16._anchor, 'endpoint 16 has an anchor');
         var e17 = _jsPlumb.addEndpoint(d17, {source: true});
         var c = _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17});
-        equal(c.getCost(), 1, "default connection cost is 1");
+        equal(c.cost, 1, "default connection cost is 1");
     });
 
     test(': _jsPlumb.connect (set cost)', function () {
@@ -150,9 +150,9 @@ var testSuite = function () {
         ok(e16._anchor, 'endpoint 16 has an anchor');
         var e17 = _jsPlumb.addEndpoint(d17, {source: true});
         var c = _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17});
-        equal(c.getCost(), 1, "default connection cost is 1");
-        c.setCost(8989);
-        equal(c.getCost(), 8989, "connection cost is 8989");
+        equal(c.cost, 1, "default connection cost is 1");
+        c.cost = 8989;
+        equal(c.cost, 8989, "connection cost is 8989");
     });
 
     test(': _jsPlumb.connect two endpoints (connectionCost)', function () {
@@ -161,7 +161,7 @@ var testSuite = function () {
         ok(e16._anchor, 'endpoint 16 has an anchor');
         var e17 = _jsPlumb.addEndpoint(d17, {source: true});
         var c = _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17});
-        equal(c.getCost(), 567, "connection cost is 567");
+        equal(c.cost, 567, "connection cost is 567");
     });
 
     test(': _jsPlumb.connect two endpoints (change connectionCost)', function () {
@@ -169,10 +169,10 @@ var testSuite = function () {
             e16 = _jsPlumb.addEndpoint(d16, {source: true, connectionCost: 567, maxConnections: -1}),
             e17 = _jsPlumb.addEndpoint(d17, {source: true, maxConnections: -1});
         c = _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17});
-        equal(c.getCost(), 567, "connection cost is 567");
+        equal(c.cost, 567, "connection cost is 567");
         e16.connectionCost = 23;
         var c2 = _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17});
-        equal(c2.getCost(), 23, "connection cost is 23 after change on endpoint");
+        equal(c2.cost, 23, "connection cost is 23 after change on endpoint");
     });
 
     test(': _jsPlumb.connect (directed is undefined by default)', function () {
@@ -180,7 +180,7 @@ var testSuite = function () {
             e16 = _jsPlumb.addEndpoint(d16, {source: true}),
             e17 = _jsPlumb.addEndpoint(d17, {source: true}),
             c = _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17});
-        equal(c.isDirected(), undefined, "default connection is not directed");
+        equal(c.directed, undefined, "default connection is not directed");
     });
 
     test(': _jsPlumb.connect (directed true)', function () {
@@ -188,7 +188,7 @@ var testSuite = function () {
             e16 = _jsPlumb.addEndpoint(d16, {source: true}),
             e17 = _jsPlumb.addEndpoint(d17, {source: true}),
             c = _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17, directed: true});
-        equal(c.isDirected(), true, "connection is directed");
+        equal(c.directed, true, "connection is directed");
     });
 
     test(': _jsPlumb.connect two endpoints (connectionsDirected)', function () {
@@ -197,7 +197,7 @@ var testSuite = function () {
         ok(e16._anchor, 'endpoint 16 has an anchor');
         var e17 = _jsPlumb.addEndpoint(d17, {source: true, maxConnections: -1});
         var c = _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17});
-        equal(c.isDirected(), true, "connection is directed");
+        equal(c.directed, true, "connection is directed");
     });
 
     test(': _jsPlumb.connect two endpoints (change connectionsDirected)', function () {
@@ -205,10 +205,10 @@ var testSuite = function () {
             e16 = _jsPlumb.addEndpoint(d16, {source: true, connectionsDirected: true, maxConnections: -1}),
             e17 = _jsPlumb.addEndpoint(d17, {source: true, maxConnections: -1});
         c = _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17});
-        equal(c.isDirected(), true, "connection is directed");
+        equal(c.directed, true, "connection is directed");
         e16.connectionsDirected = false;
         var c2 = _jsPlumb.connect({sourceEndpoint: e16, targetEndpoint: e17});
-        equal(c2.isDirected(), false, "connection is not directed");
+        equal(c2.directed, false, "connection is not directed");
     });
 
     test(": _jsPlumb.connect (two Endpoints - that have been already added - by UUID)", function () {
@@ -256,31 +256,31 @@ var testSuite = function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         var conn = _jsPlumb.connect({ source: d16, target: d17, connector: "Straight" });
         assertConnectionByScopeCount(_jsPlumb.defaultScope, 1, _jsPlumb);
-        equal(conn.getConnector().type, "Straight", "Straight connector chosen for connection");
+        equal(conn.connector.type, "Straight", "Straight connector chosen for connection");
     });
 
     test(": _jsPlumb.connect (Connector test, bezier, no params)", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         var conn = _jsPlumb.connect({ source: d16, target: d17, connector: "Bezier" });
         assertConnectionByScopeCount(_jsPlumb.defaultScope, 1, _jsPlumb);
-        equal(conn.getConnector().type, "Bezier", "Bezier connector chosen for connection");
-        equal(conn.getConnector().getCurviness(), 150, "Bezier connector chose 150 curviness");
+        equal(conn.connector.type, "Bezier", "Bezier connector chosen for connection");
+        equal(conn.connector.getCurviness(), 150, "Bezier connector chose 150 curviness");
     });
 
     test(": _jsPlumb.connect (Connector test, bezier, curviness as int)", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         var conn = _jsPlumb.connect({ source: d16, target: d17, connector: { type:"Bezier", options:{ curviness: 200 }} });
         assertConnectionByScopeCount(_jsPlumb.defaultScope, 1, _jsPlumb);
-        equal(conn.getConnector().type, "Bezier", "Canvas Bezier connector chosen for connection");
-        equal(conn.getConnector().getCurviness(), 200, "Bezier connector chose 200 curviness");
+        equal(conn.connector.type, "Bezier", "Canvas Bezier connector chosen for connection");
+        equal(conn.connector.getCurviness(), 200, "Bezier connector chose 200 curviness");
     });
 
     test(": _jsPlumb.connect (Connector test, bezier, curviness as named option)", function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         var conn = _jsPlumb.connect({ source: d16, target: d17, connector: {type:"Bezier", options:{curviness: 300}} });
         assertConnectionByScopeCount(_jsPlumb.defaultScope, 1, _jsPlumb);
-        equal(conn.getConnector().type, "Bezier", "Bezier connector chosen for connection");
-        equal(conn.getConnector().getCurviness(), 300, "Bezier connector chose 300 curviness");
+        equal(conn.connector.type, "Bezier", "Bezier connector chosen for connection");
+        equal(conn.connector.getCurviness(), 300, "Bezier connector chose 300 curviness");
     });
 
     test(": _jsPlumb.connect (anchors registered correctly; source and target anchors given, as arrays)", function () {
@@ -293,7 +293,7 @@ var testSuite = function () {
             ta = _jsPlumb.router.getEndpointLocation(conn.endpoints[1]);
         
         assertConnectionByScopeCount(_jsPlumb.defaultScope, 1, _jsPlumb);
-        equal(conn.getConnector().type, "Straight", "Canvas Straight connector chosen for connection");
+        equal(conn.connector.type, "Straight", "Canvas Straight connector chosen for connection");
         equal(0.3, sa.x, "source anchor x");
         equal(0.3, sa.y, "source anchor y");
         equal(0.7, ta.x, "target anchor x");
@@ -306,7 +306,7 @@ var testSuite = function () {
             sa = _jsPlumb.router.getEndpointLocation(conn.endpoints[0]),
             ta = _jsPlumb.router.getEndpointLocation(conn.endpoints[1]);
         assertConnectionByScopeCount(_jsPlumb.defaultScope, 1, _jsPlumb);
-        equal(conn.getConnector().type, "Straight", "Straight connector chosen for connection");
+        equal(conn.connector.type, "Straight", "Straight connector chosen for connection");
         equal(0, sa.x, "source anchor x");
         equal(0.5, sa.y, "source anchor y");
         equal(1, ta.x, "target anchor x");
@@ -322,7 +322,7 @@ var testSuite = function () {
             sa = _jsPlumb.router.getEndpointLocation(conn.endpoints[0]),
             ta = _jsPlumb.router.getEndpointLocation(conn.endpoints[1]);
         assertConnectionByScopeCount(_jsPlumb.defaultScope, 1, _jsPlumb);
-        equal(conn.getConnector().type, "Straight", "Straight connector chosen for connection");
+        equal(conn.connector.type, "Straight", "Straight connector chosen for connection");
         equal(0.3, sa.x, "source anchor x");
         equal(0.3, sa.y, "source anchor y");
         equal(0.7, ta.x, "target anchor x");
@@ -343,8 +343,8 @@ var testSuite = function () {
             sa2 = _jsPlumb.router.getEndpointLocation(conn2.endpoints[0]),
             ta2 = _jsPlumb.router.getEndpointLocation(conn2.endpoints[1]);
         assertConnectionByScopeCount(_jsPlumb.defaultScope, 2, _jsPlumb);
-        equal(conn.getConnector().type, "Straight", "Straight connector chosen for connection");
-        equal(conn2.getConnector().type, "Straight", "Straight connector chosen for connection");
+        equal(conn.connector.type, "Straight", "Straight connector chosen for connection");
+        equal(conn2.connector.type, "Straight", "Straight connector chosen for connection");
         equal(0.3, sa.x, "source anchor x");
         equal(0.3, sa.y, "source anchor y");
         equal(0.7, ta.x, "target anchor x");
@@ -359,7 +359,7 @@ var testSuite = function () {
         var d16 = support.addDiv("d16"), d17 = support.addDiv("d17");
         var conn = _jsPlumb.connect({ source: d16, target: d17, connector: "Straight" });
         assertConnectionByScopeCount(_jsPlumb.defaultScope, 1, _jsPlumb);
-        equal(conn.getConnector().type, "Straight", "Straight connector chosen for connection");
+        equal(conn.connector.type, "Straight", "Straight connector chosen for connection");
     });
 
     test(": _jsPlumb.connect (Endpoint test)", function () {
@@ -417,7 +417,7 @@ var testSuite = function () {
         window.FOO = "BAR"
         var conn = _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" });
         assertConnectionByScopeCount(_jsPlumb.defaultScope, 1, _jsPlumb);
-        equal(e16.connections[0].getConnector().type, "Straight", "Straight connector chosen for connection");
+        equal(e16.connections[0].connector.type, "Straight", "Straight connector chosen for connection");
         window.FOO = null;
     });
 
@@ -427,7 +427,7 @@ var testSuite = function () {
         var e17 = _jsPlumb.addEndpoint(d17, {});
         var conn = _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" });
         assertConnectionByScopeCount(_jsPlumb.defaultScope, 1, _jsPlumb);
-        equal(e16.connections[0].getConnector().type, "Straight", "Straight connector chosen for connection");
+        equal(e16.connections[0].connector.type, "Straight", "Straight connector chosen for connection");
     });
 
     test(": _jsPlumb.connect (by Endpoints, anchors as string test)", function () {
@@ -439,7 +439,7 @@ var testSuite = function () {
         sa = _jsPlumb.router.getEndpointLocation(conn.endpoints[0]),
             ta = _jsPlumb.router.getEndpointLocation(conn.endpoints[1]);
         assertConnectionByScopeCount(_jsPlumb.defaultScope, 1, _jsPlumb);
-        equal(e16.connections[0].getConnector().type, "Straight", "Straight connector chosen for connection");
+        equal(e16.connections[0].connector.type, "Straight", "Straight connector chosen for connection");
         equal(sa.x, 0.5, "endpoint 16 is at top center");
         equal(sa.y, 0, "endpoint 16 is at top center");
         equal(ta.x, 0.5, "endpoint 17 is at bottom center");
@@ -455,7 +455,7 @@ var testSuite = function () {
             sa = _jsPlumb.router.getEndpointLocation(conn.endpoints[0]),
             ta = _jsPlumb.router.getEndpointLocation(conn.endpoints[1]);
         assertConnectionByScopeCount(_jsPlumb.defaultScope, 1, _jsPlumb);
-        equal(e16.connections[0].getConnector().type, "Straight", "Straight connector chosen for connection");
+        equal(e16.connections[0].connector.type, "Straight", "Straight connector chosen for connection");
         equal(sa.x, a16[0]);
         equal(sa.y, a16[1]);
         equal(ta.x, a17[0]);
@@ -477,7 +477,7 @@ var testSuite = function () {
             sa = conn.endpoints[0]._anchor,
             ta = conn.endpoints[1]._anchor;
         assertConnectionByScopeCount(_jsPlumb.defaultScope, 1, _jsPlumb);
-        equal(e16.connections[0].getConnector().type, "Straight", "Straight connector chosen for connection");
+        equal(e16.connections[0].connector.type, "Straight", "Straight connector chosen for connection");
         equal(sa.isDynamic, true, "Endpoint 16 has a dynamic anchor");
         equal(ta.isDynamic, true, "Endpoint 17 has a dynamic anchor");
     });
@@ -493,7 +493,7 @@ var testSuite = function () {
             sa = conn.endpoints[0]._anchor,
             ta = conn.endpoints[1]._anchor;
         assertConnectionByScopeCount(_jsPlumb.defaultScope, 1, _jsPlumb);
-        equal(e16.connections[0].getConnector().type, "Straight", "Straight connector chosen for connection");
+        equal(e16.connections[0].connector.type, "Straight", "Straight connector chosen for connection");
         equal(sa.isDynamic, true, "Endpoint 16 has a dynamic anchor");
         equal(ta.isDynamic, true, "Endpoint 17 has a dynamic anchor");
     });

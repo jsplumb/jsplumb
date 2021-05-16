@@ -81,10 +81,10 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
             c = _jsPlumb.connect({source: d1, target: d2});
 
-        equal(c.getConnector().type, "Bezier", "connector has bezier type before state add");
+        equal(c.connector.type, "Bezier", "connector has bezier type before state add");
 
         c.addType("basic");
-        equal(c.getConnector().type, "Flowchart", "connector has Flowchart type after state add");
+        equal(c.connector.type, "Flowchart", "connector has Flowchart type after state add");
         equal(c.getPaintStyle().strokeWidth, 4, "paintStyle strokeWidth is 4");
         equal(c.getPaintStyle().stroke, "yellow", "paintStyle stroke is yellow");
         equal(c.getHoverPaintStyle().stroke, "blue", "paintStyle stroke is yellow");
@@ -111,10 +111,10 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
             c = _jsPlumb.connect({source: d1, target: d2});
 
-        equal(c.getConnector().type, "Bezier", "connector has bezier type before state change");
+        equal(c.connector.type, "Bezier", "connector has bezier type before state change");
 
         c.setType("basic");
-        equal(c.getConnector().type, "Flowchart", "connector has bezier type after state change");
+        equal(c.connector.type, "Flowchart", "connector has bezier type after state change");
         equal(c.getPaintStyle().strokeWidth, 4, "paintStyle strokeWidth is 4");
         equal(c.getPaintStyle().stroke, "yellow", "paintStyle stroke is yellow");
         equal(c.getHoverPaintStyle().stroke, "blue", "hoverPaintStyle stroke is blue");
@@ -122,7 +122,7 @@ var testSuite = function () {
         ok(_jsPlumb.hasClass(support.getConnectionCanvas(c), "FOO"), "FOO class was set on canvas");
 
         c.setType("other");
-        equal(c.getConnector().type, "Bezier", "connector has bezier type after second state change");
+        equal(c.connector.type, "Bezier", "connector has bezier type after second state change");
         equal(c.getPaintStyle().strokeWidth, 14, "paintStyle strokeWidth is 14");
         equal(c.getPaintStyle().stroke, "red", "paintStyle stroke is red");
         equal(c.getHoverPaintStyle().stroke, "green", "hoverPaintStyle stroke is green");
@@ -167,7 +167,7 @@ var testSuite = function () {
             c = _jsPlumb.connect({source: d1, target: d2});
 
         c.setType("basic");
-        c.getConnector().testFlag = true;
+        c.connector.testFlag = true;
         equal(_length(c.getOverlays()), 1, "one overlay after setting `basic` type");
         // set a flag on the overlay; we will test later that re-adding the basic type will not cause a whole new overlay
         // to be created
@@ -179,7 +179,7 @@ var testSuite = function () {
 
         c.addType("basic");
         equal(_length(c.getOverlays()), 1, "one overlay after reinstating `basic` type");
-        ok(c.getConnector().testFlag, "connector is the one that was created on first application of basic type");
+        ok(c.connector.testFlag, "connector is the one that was created on first application of basic type");
         ok(_head(c.getOverlays()).testFlag, "overlay is the one that was created on first application of basic type");
     });
 
@@ -209,7 +209,7 @@ var testSuite = function () {
         c.setType("basic");
         sa = c.endpoints[0]._anchor
         ta = c.endpoints[1]._anchor
-        c.getConnector().testFlag = true;
+        c.connector.testFlag = true;
         sa.testFlag = "source";
         ta.testFlag = "target";
         _head(c.getOverlays()).testFlag = true;
@@ -217,7 +217,7 @@ var testSuite = function () {
         c.setType("other");
         sa = c.endpoints[0]._anchor
         ta = c.endpoints[1]._anchor
-        c.getConnector().testFlag = true;
+        c.connector.testFlag = true;
         equal(sa.testFlag, null, "test flag not set on source anchor");
         equal(ta.testFlag, null, "test flag not set on target anchor");
 
@@ -225,7 +225,7 @@ var testSuite = function () {
         sa = c.endpoints[0]._anchor
         ta = c.endpoints[1]._anchor
         equal(_length(c.getOverlays()), 1, "one overlay after reinstating `basic` type");
-        ok(c.getConnector().testFlag, "connector is the one that was created on first application of basic type");
+        ok(c.connector.testFlag, "connector is the one that was created on first application of basic type");
         equal(sa.testFlag, "source", "test flag still set on source anchor: anchor was reused");
         equal(ta.testFlag, "target", "test flag still set on target anchor: anchor was reused");
         ok(_head(c.getOverlays()).testFlag, "overlay is the one that was created on first application of basic type");
@@ -1154,7 +1154,7 @@ var testSuite = function () {
         equal(e1.getPaintStyle().fill, "blue", "endpoint has fill style specified in Endpoint type");
         equal(c.getPaintStyle().stroke, "green", "connection has stroke style specified in Endpoint type's `connectorStyle` property");
         equal(c.getHoverPaintStyle().strokeWidth, 534, "connection has hover style specified in Endpoint type");
-        equal(c.getConnector().type, "Flowchart", "connector is Flowchart");
+        equal(c.connector.type, "Flowchart", "connector is Flowchart");
         equal(_length(c.overlays), 1, "connector has one overlay");
         equal(_length(e1.overlays), 0, "endpoint has no overlays");
     });

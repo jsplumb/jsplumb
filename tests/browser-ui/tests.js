@@ -1982,7 +1982,7 @@ var testSuite = function () {
             container:"container"
         };
         var c = _jsPlumb.connect({source: d1, target: d2});
-        equal(c.getConnector().type, "Bezier", "connector is the default");
+        equal(c.connector.type, "Bezier", "connector is the default");
         c.setConnector({type:"Bezier", options:{ curviness: 789 }});
         equal(def.connector.options.curviness, 45, "curviness unchanged by setConnector call");
     });
@@ -2000,7 +2000,7 @@ var testSuite = function () {
                 { type:"Label", options:{ label:"foo" } }
             ]
         });
-        equal(c.getConnector().type, "Bezier", "connector is the default");
+        equal(c.connector.type, "Bezier", "connector is the default");
         equal(_length(c.getOverlays()), 1, "one overlay on the connector");
 
         c.setConnector({type:"StateMachine", options:{ curviness: 789 }});
@@ -2547,13 +2547,13 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
 
         var c = _jsPlumb.connect({source: d1, target: d2});
-        equal(c.getConnector().type, "Bezier", "Bezier connector has type set");
+        equal(c.connector.type, "Bezier", "Bezier connector has type set");
 
         var c2 = _jsPlumb.connect({source: d1, target: d2, connector: "Straight"});
-        equal(c2.getConnector().type, "Straight", "Straight connector has type set");
+        equal(c2.connector.type, "Straight", "Straight connector has type set");
 
         var c3 = _jsPlumb.connect({source: d1, target: d2, connector: "Flowchart"});
-        equal(c3.getConnector().type, "Flowchart", "Flowchart connector has type set");
+        equal(c3.connector.type, "Flowchart", "Flowchart connector has type set");
     });
 
     test(" Endpoints have 'type' member set", function () {
