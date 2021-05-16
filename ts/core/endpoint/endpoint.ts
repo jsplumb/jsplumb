@@ -468,7 +468,9 @@ export class Endpoint<E = any> extends Component {
 
     }
 
-    destroy(force?:boolean):void {
+    destroy():void {
+
+        super.destroy()
 
         let anchorClass = this.instance.endpointAnchorClassPrefix + (this.currentAnchorClass ? "-" + this.currentAnchorClass : "")
         this.instance.removeClass(this.element, anchorClass)
@@ -477,7 +479,7 @@ export class Endpoint<E = any> extends Component {
             this.instance.destroyEndpoint(this)
         }
 
-        super.destroy(force)
+
     }
 
     isFull():boolean {
