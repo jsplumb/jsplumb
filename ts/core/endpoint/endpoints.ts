@@ -5,6 +5,10 @@ import {Endpoint} from "./endpoint"
 import {AnchorPlacement} from "../router/router"
 import {Extents} from "../common"
 
+export interface EndpointRepresentationParams {
+    cssClass?:string
+}
+
 /**
  * Superclass for all types of Endpoint. This class is renderer
  * agnostic, as are any subclasses of it.
@@ -37,10 +41,14 @@ export abstract class EndpointRepresentation<C> {
      */
     abstract getParams():Record<string, any>
 
-    protected constructor(public endpoint:Endpoint) {
+    protected constructor(public endpoint:Endpoint, params?:EndpointRepresentationParams) {
+        params = params || {}
         this.instance = endpoint.instance
         if (endpoint.cssClass) {
             this.classes.push(endpoint.cssClass)
+        }
+        if (params.cssClass) {
+            this.classes.push(params.cssClass)
         }
     }
 
