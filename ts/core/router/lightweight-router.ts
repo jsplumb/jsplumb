@@ -3,7 +3,7 @@ import {Endpoint} from "../endpoint/endpoint"
 import {
     AnchorComputeParams,
     AnchorOrientationHint,
-    AnchorSpec,
+    AnchorSpec, ComputedPosition,
     Face,
     Orientation,
     X_AXIS_FACES, Y_AXIS_FACES
@@ -171,7 +171,7 @@ function _placeAnchors (instance:JsPlumbInstance, elementId:string, _anchorLists
 
             // takes a computed anchor position and adjusts it for parent offset and scroll, then stores it.
             let _setAnchorLocation = (endpoint:Endpoint, anchorPos:ContinuousAnchorPlacement) => {
-                anchorLocations.set(endpoint._anchor.id, {curX:anchorPos.x, curY:anchorPos.y, x:anchorPos.xLoc, y:anchorPos.yLoc, ox:orientation[0], oy:orientation[1] })
+                _setComputedPosition(endpoint._anchor, {curX:anchorPos.x, curY:anchorPos.y, x:anchorPos.xLoc, y:anchorPos.yLoc, ox:orientation[0], oy:orientation[1] })
             }
 
             for (let i = 0; i < anchors.length; i++) {
@@ -347,7 +347,15 @@ export function getAnchorOrientation(anchor:LightweightAnchor): Orientation {
 function floatingAnchorCompute(instance:JsPlumbInstance, anchor:LightweightFloatingAnchor, params:AnchorComputeParams):AnchorPlacement {
     let xy = params.xy
     const pos = {curX:xy.x + (anchor.size.w / 2), curY:xy.y + (anchor.size.h / 2), x:0, y:0, ox:0, oy:0 } // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
+    return _setComputedPosition(anchor, pos)
+}
+
+function _setComputedPosition(anchor:LightweightAnchor, pos:ComputedPosition, timestamp?:string):ComputedPosition {
     anchorLocations.set(anchor.id, pos)
+    anchor.computedPosition = pos
+    if (timestamp) {
+        anchor.timestamp = timestamp
+    }
     return pos
 }
 
@@ -409,11 +417,7 @@ function _singleAnchorCompute(instance:JsPlumbInstance, anchor:LightweightAnchor
 
     pos = computeSingleLocation(instance, currentLoc, xy, wh, params)
 
-    anchorLocations.set(anchor.id, pos)
-
-    anchor.timestamp = timestamp
-
-    return pos
+    return _setComputedPosition(anchor, pos, timestamp)
 }
 
 /**
@@ -448,11 +452,7 @@ function defaultAnchorCompute(instance:JsPlumbInstance, anchor:LightweightAnchor
         pos = computeSingleLocation(instance, newLoc, xy, wh, params)
     }
 
-    anchorLocations.set(anchor.id, pos)
-
-    anchor.timestamp = params.timestamp
-
-    return pos
+    return _setComputedPosition(anchor, pos, params.timestamp)
 }
 
 function _distance(instance:JsPlumbInstance, anchor:AnchorRecord, cx:number, cy:number, xy:PointXY, wh:Size, rotation:Rotations, targetRotation:Rotations):number {
@@ -560,7 +560,7 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
         let pos = anchorLocations.get(anchor.id)
         if (pos == null || (params.timestamp != null && anchor.timestamp !== params.timestamp)) {
             pos = this.computeAnchorLocation(anchor, params)
-            anchorLocations.set(anchor.id, pos)
+            _setComputedPosition(anchor, pos, params.timestamp)
         }
         return pos
     }
