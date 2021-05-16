@@ -5144,9 +5144,9 @@
       _this.connectorClass = params.connectorClass;
       _this.connectorHoverClass = params.connectorHoverClass;
       _this.deleteOnEmpty = params.deleteOnEmpty === true;
-      _this.isSource = params.source || false;
+      _this.isSource = params.source !== false;
       _this.isTemporarySource = params.isTemporarySource || false;
-      _this.isTarget = params.target || false;
+      _this.isTarget = params.target !== false;
       _this.connections = params.connections || [];
       _this.scope = params.scope || instance.defaultScope;
       _this.timestamp = null;

@@ -93,11 +93,11 @@ export interface EndpointOptions<E = any> {
      */
     connectionsDetachable?: boolean;
     /**
-     * Whether or not this Endpoint acts as a source for connections dragged with the mouse. Defaults to false.
+     * Whether or not this Endpoint acts as a source for connections dragged with the mouse. Defaults to true
      */
     source?: boolean;
     /**
-     * Whether or not this Endpoint acts as a target for connections dragged with the mouse. Defaults to false.
+     * Whether or not this Endpoint acts as a target for connections dragged with the mouse. Defaults to true.
      */
     target?: boolean;
     /**
