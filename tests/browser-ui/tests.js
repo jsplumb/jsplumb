@@ -1957,7 +1957,7 @@ var testSuite = function () {
             container:"container"
         };
         var c = _jsPlumb.connect({source: d1, target: d2});
-        equal(c.getConnector().type, "Bezier", "connector is the default");
+        equal(c.connector.type, "Bezier", "connector is the default");
         c.setConnector({type:"Bezier", options:{ curviness: 789 }});
         equal(def.connector.options.curviness, 45, "curviness unchanged by setConnector call");
     });
@@ -1975,7 +1975,7 @@ var testSuite = function () {
                 { type:"Label", options:{ label:"foo" } }
             ]
         });
-        equal(c.getConnector().type, "Bezier", "connector is the default");
+        equal(c.connector.type, "Bezier", "connector is the default");
         equal(_length(c.getOverlays()), 1, "one overlay on the connector");
 
         c.setConnector({type:"StateMachine", options:{ curviness: 789 }});
@@ -2521,13 +2521,13 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
 
         var c = _jsPlumb.connect({source: d1, target: d2});
-        equal(c.getConnector().type, "Bezier", "Bezier connector has type set");
+        equal(c.connector.type, "Bezier", "Bezier connector has type set");
 
         var c2 = _jsPlumb.connect({source: d1, target: d2, connector: "Straight"});
-        equal(c2.getConnector().type, "Straight", "Straight connector has type set");
+        equal(c2.connector.type, "Straight", "Straight connector has type set");
 
         var c3 = _jsPlumb.connect({source: d1, target: d2, connector: "Flowchart"});
-        equal(c3.getConnector().type, "Flowchart", "Flowchart connector has type set");
+        equal(c3.connector.type, "Flowchart", "Flowchart connector has type set");
     });
 
     test(" Endpoints have 'type' member set", function () {
@@ -3654,8 +3654,8 @@ var testSuite = function () {
     // selectEndpoints
     test(" selectEndpoints, basic tests", function () {
         var d1 = support.addDiv("d1"), _d2 = support.addDiv("d2"),
-            e1 = _jsPlumb.addEndpoint(d1),
-            e2 = _jsPlumb.addEndpoint(d1);
+            e1 = _jsPlumb.addEndpoint(d1, {source:false, target:false}),
+            e2 = _jsPlumb.addEndpoint(d1, {source:false, target:false});
 
         equal(_jsPlumb.selectEndpoints().length, 2, "there are two endpoints");
         equal(_jsPlumb.selectEndpoints({element: d1}).length, 2, "there are two endpoints on d1");
@@ -3700,9 +3700,9 @@ var testSuite = function () {
 
     test(" selectEndpoints, isSource tests", function () {
         var d1 = support.addDiv("d1"), _d2 = support.addDiv("d2"),
-            e1 = _jsPlumb.addEndpoint(d1, {source: true}),
-            e2 = _jsPlumb.addEndpoint(d1),
-            e3 = _jsPlumb.addEndpoint(d2, {source: true});
+            e1 = _jsPlumb.addEndpoint(d1, {target:false}),
+            e2 = _jsPlumb.addEndpoint(d1, {source:false, target:false}),
+            e3 = _jsPlumb.addEndpoint(d2, {target:false});
 
         equal(_jsPlumb.selectEndpoints({source: d1}).length, 1, "there is one source endpoint on d1");
         equal(_jsPlumb.selectEndpoints({target: d1}).length, 0, "there are zero target endpoints on d1");
@@ -3714,9 +3714,9 @@ var testSuite = function () {
 
     test(" selectEndpoints, isTarget tests", function () {
         var d1 = support.addDiv("d1"), _d2 = support.addDiv("d2"),
-            e1 = _jsPlumb.addEndpoint(d1, {target: true}),
-            e2 = _jsPlumb.addEndpoint(d1),
-            e3 = _jsPlumb.addEndpoint(d2, {target: true});
+            e1 = _jsPlumb.addEndpoint(d1, {source:false}),
+            e2 = _jsPlumb.addEndpoint(d1, {source:false, target:false}),
+            e3 = _jsPlumb.addEndpoint(d2, {source:false});
 
         equal(_jsPlumb.selectEndpoints({target: d1}).length, 1, "there is one target endpoint on d1");
         equal(_jsPlumb.selectEndpoints({source: d1}).length, 0, "there are zero source endpoints on d1");
@@ -3728,10 +3728,10 @@ var testSuite = function () {
 
     test(" selectEndpoints, isSource + target tests", function () {
         var d1 = support.addDiv("d1"), _d2 = support.addDiv("d2"),
-            e1 = _jsPlumb.addEndpoint(d1, {source: true, target: true}),
-            e2 = _jsPlumb.addEndpoint(d1),
-            e3 = _jsPlumb.addEndpoint(d1, {source: true}),
-            e4 = _jsPlumb.addEndpoint(d1, {target: true});
+            e1 = _jsPlumb.addEndpoint(d1),
+            e2 = _jsPlumb.addEndpoint(d1, {source:false, target:false}),
+            e3 = _jsPlumb.addEndpoint(d1, {target:false}),
+            e4 = _jsPlumb.addEndpoint(d1, {source:false});
 
         equal(_jsPlumb.selectEndpoints({source:d1}).length, 2, "there are two source endpoints on d1");
         equal(_jsPlumb.selectEndpoints({target: d1}).length, 2, "there are two target endpoints on d1");
