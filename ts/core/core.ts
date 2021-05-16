@@ -71,6 +71,7 @@ import {
     ERROR_SOURCE_ENDPOINT_FULL, ERROR_TARGET_DOES_NOT_EXIST,
     ERROR_TARGET_ENDPOINT_FULL
 } from "./constants"
+import {Connectors} from "./connector/connectors"
 
 function _scopeMatch(e1:Endpoint, e2:Endpoint):boolean {
     let s1 = e1.scope.split(/\s/), s2 = e2.scope.split(/\s/)
@@ -1223,7 +1224,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
             // delete the endpoint
             this.unregisterEndpoint(endpoint)
-            endpoint.destroy(true)
+            endpoint.destroy()
 
             // then delete the connections. each of these connections only has one endpoint at the moment
             forEach(connectionsToDelete,(connection) => {
@@ -2110,6 +2111,10 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         }
     }
 
+    makeConnector(connection:Connection<T["E"]>, name:string, args:any):AbstractConnector {
+        return Connectors.get(this, connection, name, args)
+    }
+
     /**
      * For some given element, find any other elements we want to draw whenever that element
      * is being drawn. for groups, for example, this means any child elements of the group. For an element that has child
@@ -2164,7 +2169,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     abstract setHover(component:Component, hover:boolean):void
 
     abstract paintConnector(connector:AbstractConnector, paintStyle:PaintStyle, extents?:Extents):void
-    abstract destroyConnection(connection:Connection, force?:boolean):void
+    abstract destroyConnector(connection:Connection, force?:boolean):void
     abstract setConnectorHover(connector:AbstractConnector, h:boolean, doNotCascade?:boolean):void
     abstract addConnectorClass(connector:AbstractConnector, clazz:string):void
     abstract removeConnectorClass(connector:AbstractConnector, clazz:string):void
