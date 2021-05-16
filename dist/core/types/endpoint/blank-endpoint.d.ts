@@ -1,9 +1,9 @@
-import { EndpointRepresentation } from "./endpoints";
+import { EndpointRepresentation, EndpointRepresentationParams } from "./endpoints";
 import { Orientation } from "../factory/anchor-factory";
 import { Endpoint } from "./endpoint";
 import { AnchorPlacement } from "../router/router";
 export declare type ComputedBlankEndpoint = [number, number, number, number];
-export interface BlankEndpointParams {
+export interface BlankEndpointParams extends EndpointRepresentationParams {
 }
 export declare class BlankEndpoint extends EndpointRepresentation<ComputedBlankEndpoint> {
     constructor(endpoint: Endpoint, params?: BlankEndpointParams);

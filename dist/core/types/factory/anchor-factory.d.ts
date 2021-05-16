@@ -60,3 +60,11 @@ export declare const Anchors: {
 };
 export declare function makeAnchorFromSpec(instance: JsPlumbInstance, spec: AnchorSpec | Array<AnchorSpec>, elementId?: string): Anchor;
 export declare type ShapeFunction = (anchorCount: number, p?: any) => Array<any>;
+/**
+ * Constructor options for a Perimeter Anchor.
+ */
+export interface PerimeterAnchorOptions extends AnchorOptions {
+    shape: string;
+    rotation?: number;
+    anchorCount?: number;
+}

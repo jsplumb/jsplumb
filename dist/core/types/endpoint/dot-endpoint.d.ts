@@ -1,9 +1,9 @@
-import { EndpointRepresentation } from "./endpoints";
+import { EndpointRepresentation, EndpointRepresentationParams } from "./endpoints";
 import { Orientation } from "../factory/anchor-factory";
 import { Endpoint } from "./endpoint";
 import { AnchorPlacement } from "../router/router";
 export declare type ComputedDotEndpoint = [number, number, number, number, number];
-export interface DotEndpointParams {
+export interface DotEndpointParams extends EndpointRepresentationParams {
     radius?: number;
 }
 export declare class DotEndpoint extends EndpointRepresentation<ComputedDotEndpoint> {

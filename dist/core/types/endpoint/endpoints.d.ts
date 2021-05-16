@@ -3,6 +3,9 @@ import { Orientation } from "../factory/anchor-factory";
 import { Endpoint } from "./endpoint";
 import { AnchorPlacement } from "../router/router";
 import { Extents } from "../common";
+export interface EndpointRepresentationParams {
+    cssClass?: string;
+}
 /**
  * Superclass for all types of Endpoint. This class is renderer
  * agnostic, as are any subclasses of it.
@@ -25,7 +28,7 @@ export declare abstract class EndpointRepresentation<C> {
      * constructor values for the given endpoint.
      */
     abstract getParams(): Record<string, any>;
-    protected constructor(endpoint: Endpoint);
+    protected constructor(endpoint: Endpoint, params?: EndpointRepresentationParams);
     addClass(c: string): void;
     removeClass(c: string): void;
     compute(anchorPoint: AnchorPlacement, orientation: Orientation, endpointStyle: any): void;

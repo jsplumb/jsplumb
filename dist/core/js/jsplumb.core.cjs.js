@@ -203,7 +203,7 @@ function () {
 
 var EndpointRepresentation =
 function () {
-  function EndpointRepresentation(endpoint) {
+  function EndpointRepresentation(endpoint, params) {
     _classCallCheck(this, EndpointRepresentation);
     this.endpoint = endpoint;
     _defineProperty(this, "typeId", void 0);
@@ -216,9 +216,13 @@ function () {
     _defineProperty(this, "classes", []);
     _defineProperty(this, "instance", void 0);
     _defineProperty(this, "type", void 0);
+    params = params || {};
     this.instance = endpoint.instance;
     if (endpoint.cssClass) {
       this.classes.push(endpoint.cssClass);
+    }
+    if (params.cssClass) {
+      this.classes.push(params.cssClass);
     }
   }
   _createClass(EndpointRepresentation, [{
@@ -259,7 +263,7 @@ function (_EndpointRepresentati) {
   function DotEndpoint(endpoint, params) {
     var _this;
     _classCallCheck(this, DotEndpoint);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(DotEndpoint).call(this, endpoint));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(DotEndpoint).call(this, endpoint, params));
     _defineProperty(_assertThisInitialized(_this), "radius", void 0);
     _defineProperty(_assertThisInitialized(_this), "defaultOffset", void 0);
     _defineProperty(_assertThisInitialized(_this), "defaultInnerRadius", void 0);
@@ -308,7 +312,7 @@ function (_EndpointRepresentati) {
   function BlankEndpoint(endpoint, params) {
     var _this;
     _classCallCheck(this, BlankEndpoint);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(BlankEndpoint).call(this, endpoint));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(BlankEndpoint).call(this, endpoint, params));
     _defineProperty(_assertThisInitialized(_this), "type", BlankEndpoint.type);
     return _this;
   }
@@ -337,7 +341,7 @@ function (_EndpointRepresentati) {
   function RectangleEndpoint(endpoint, params) {
     var _this;
     _classCallCheck(this, RectangleEndpoint);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(RectangleEndpoint).call(this, endpoint));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(RectangleEndpoint).call(this, endpoint, params));
     _defineProperty(_assertThisInitialized(_this), "width", void 0);
     _defineProperty(_assertThisInitialized(_this), "height", void 0);
     _defineProperty(_assertThisInitialized(_this), "type", RectangleEndpoint.type);
@@ -5376,7 +5380,7 @@ function (_Component) {
         endpoint = EndpointFactory.get(this, ep, endpointArgs);
       } else {
         var fep = ep;
-        endpointArgs = merge(fep.options, endpointArgs);
+        extend(endpointArgs, fep.options || {});
         endpoint = EndpointFactory.get(this, fep.type, endpointArgs);
       }
       endpoint.typeId = typeId;
@@ -9340,7 +9344,7 @@ _defineProperty(ArrowOverlay, "type", "Arrow");
 function isArrowOverlay(o) {
   return o.type === ArrowOverlay.type;
 }
-OverlayFactory.register("Arrow", ArrowOverlay);
+OverlayFactory.register(ArrowOverlay.type, ArrowOverlay);
 
 var PlainArrowOverlay =
 function (_ArrowOverlay) {
@@ -9381,7 +9385,7 @@ _defineProperty(DiamondOverlay, "type", "Diamond");
 function isDiamondOverlay(o) {
   return o.type === DiamondOverlay.type;
 }
-OverlayFactory.register("Diamond", DiamondOverlay);
+OverlayFactory.register(DiamondOverlay.type, DiamondOverlay);
 
 var CustomOverlay =
 function (_Overlay) {

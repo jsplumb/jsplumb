@@ -434,10 +434,10 @@ export declare abstract class JsPlumbInstance<T extends {
      */
     toggleVisible(el: T["E"], changeEndpoints?: boolean): void;
     private _operation;
-    registerConnectionType(id: string, type: TypeDescriptor): void;
-    registerConnectionTypes(types: Dictionary<TypeDescriptor>): void;
-    registerEndpointType(id: string, type: TypeDescriptor): void;
-    registerEndpointTypes(types: Dictionary<TypeDescriptor>): void;
+    registerConnectionType(id: string, type: ConnectionTypeDescriptor): void;
+    registerConnectionTypes(types: Dictionary<ConnectionTypeDescriptor>): void;
+    registerEndpointType(id: string, type: EndpointTypeDescriptor): void;
+    registerEndpointTypes(types: Dictionary<EndpointTypeDescriptor>): void;
     getType(id: string, typeDescriptor: string): TypeDescriptor;
     getConnectionType(id: string): ConnectionTypeDescriptor;
     getEndpointType(id: string): EndpointTypeDescriptor;
