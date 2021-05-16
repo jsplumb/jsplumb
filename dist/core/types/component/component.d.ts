@@ -80,7 +80,7 @@ export declare abstract class Component extends EventGenerator {
     getPaintStyle(): PaintStyle;
     setHoverPaintStyle(style: PaintStyle): void;
     getHoverPaintStyle(): PaintStyle;
-    destroy(force?: boolean): void;
+    destroy(): void;
     isHover(): boolean;
     mergeParameters(p: ComponentParameters): void;
     setVisible(v: boolean): void;

@@ -469,6 +469,7 @@ export declare abstract class JsPlumbInstance<T extends {
         timestamp?: string;
     }): void;
     refreshEndpoint(endpoint: Endpoint): void;
+    makeConnector(connection: Connection<T["E"]>, name: string, args: any): AbstractConnector;
     /**
      * For some given element, find any other elements we want to draw whenever that element
      * is being drawn. for groups, for example, this means any child elements of the group. For an element that has child
@@ -510,7 +511,7 @@ export declare abstract class JsPlumbInstance<T extends {
     abstract setOverlayHover(o: Overlay, hover: boolean): void;
     abstract setHover(component: Component, hover: boolean): void;
     abstract paintConnector(connector: AbstractConnector, paintStyle: PaintStyle, extents?: Extents): void;
-    abstract destroyConnection(connection: Connection, force?: boolean): void;
+    abstract destroyConnector(connection: Connection, force?: boolean): void;
     abstract setConnectorHover(connector: AbstractConnector, h: boolean, doNotCascade?: boolean): void;
     abstract addConnectorClass(connector: AbstractConnector, clazz: string): void;
     abstract removeConnectorClass(connector: AbstractConnector, clazz: string): void;

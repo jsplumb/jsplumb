@@ -66,13 +66,8 @@ export declare class Connection<E = any> extends Component {
     addClass(c: string, cascade?: boolean): void;
     removeClass(c: string, cascade?: boolean): void;
     setVisible(v: boolean): void;
-    destroy(force?: boolean): void;
+    destroy(): void;
     getUuids(): [string, string];
-    getCost(): number;
-    setCost(c: number): void;
-    isDirected(): boolean;
-    getConnector(): AbstractConnector;
-    makeConnector(name: string, args: any): AbstractConnector;
     prepareConnector(connectorSpec: ConnectorSpec, typeId?: string): AbstractConnector;
     setPreparedConnector(connector: AbstractConnector, doNotRepaint?: boolean, doNotChangeListenerComponent?: boolean, typeId?: string): void;
     setConnector(connectorSpec: ConnectorSpec, doNotRepaint?: boolean, doNotChangeListenerComponent?: boolean, typeId?: string): void;

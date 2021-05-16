@@ -209,7 +209,7 @@ export declare class Endpoint<E = any> extends Component {
     detachFrom(otherEndpoint: Endpoint): Endpoint;
     setVisible(v: boolean, doNotChangeConnections?: boolean, doNotNotifyOtherEndpoint?: boolean): void;
     applyType(t: any, typeMap: any): void;
-    destroy(force?: boolean): void;
+    destroy(): void;
     isFull(): boolean;
     isFloating(): boolean;
     /**
