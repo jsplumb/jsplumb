@@ -1,10 +1,10 @@
-import {AbstractConnector, ConnectorComputeParams, PaintGeometry} from "./abstract-connector"
+import {AbstractConnector, ConnectorComputeParams, ConnectorOptions, PaintGeometry} from "./abstract-connector"
 import {ArcSegment} from "./arc-segment"
 import { AnchorPlacement } from '../router/router'
 import { Connection } from '../connector/connection-impl'
 import { JsPlumbInstance } from "../core"
 
-export interface AbstractBezierOptions {
+export interface AbstractBezierOptions extends ConnectorOptions {
     showLoopback?:boolean
     curviness?:number
     margin?:number
