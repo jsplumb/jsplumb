@@ -292,7 +292,16 @@ const _shapes:Dictionary<ShapeFunction> = {
     }
 }
 
-anchorMap[AnchorLocations.Perimeter] = function(instance:JsPlumbInstance, params:any):Anchor {
+/**
+ * Constructor options for a Perimeter Anchor.
+ */
+export interface PerimeterAnchorOptions extends AnchorOptions {
+    shape:string
+    rotation?:number
+    anchorCount?:number
+}
+
+anchorMap[AnchorLocations.Perimeter] = function(instance:JsPlumbInstance, params:PerimeterAnchorOptions):Anchor {
     let anchorCount = params.anchorCount || 60
 
     if (!params.shape) {
