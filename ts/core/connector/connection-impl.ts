@@ -117,7 +117,7 @@ export class Connection<E = any> extends Component {
 
     uuids:[string, string]
 
-    cost:number
+    cost:number = 1
     directed:boolean
 
     endpoints:[Endpoint<E>, Endpoint<E>] = [null, null]
@@ -405,7 +405,9 @@ export class Connection<E = any> extends Component {
         this.instance.paintConnection(this)
     }
 
-    destroy(force?:boolean) {
+    destroy() {
+        super.destroy()
+
         this.endpoints = null
         this.endpointStyles = null
         this.source = null
@@ -413,35 +415,15 @@ export class Connection<E = any> extends Component {
 
         // TODO stop hover?
 
-        this.instance.destroyConnection(this)
+        this.instance.destroyConnector(this)
 
         this.connector = null
         this.deleted = true
-        super.destroy(force)
+
     }
 
     getUuids():[string, string] {
         return [ this.endpoints[0].getUuid(), this.endpoints[1].getUuid() ]
-    }
-
-    getCost():number {
-        return this.cost  == null ?  1 : this.cost
-    }
-
-    setCost(c:number) {
-        this.cost = c
-    }
-
-    isDirected():boolean {
-        return this.directed
-    }
-
-    getConnector():AbstractConnector {
-        return this.connector
-    }
-
-    makeConnector(name:string, args:any):AbstractConnector {
-        return Connectors.get(this.instance, this, name, args)
     }
 
     prepareConnector(connectorSpec:ConnectorSpec, typeId?:string):AbstractConnector {
@@ -453,11 +435,11 @@ export class Connection<E = any> extends Component {
             connector
 
         if (isString(connectorSpec)) {
-            connector = this.makeConnector(connectorSpec as string, connectorArgs)
+            connector = this.instance.makeConnector(this, connectorSpec as string, connectorArgs)
         }
         else {
             const co = connectorSpec as ConnectorWithOptions
-            connector = this.makeConnector(co.type, merge(co.options, connectorArgs))
+            connector = this.instance.makeConnector(this, co.type, merge(co.options, connectorArgs))
         }
         if (typeId != null) {
             connector.typeId = typeId
@@ -475,7 +457,7 @@ export class Connection<E = any> extends Component {
             if (this.connector != null) {
                 previous = this.connector
                 previousClasses = this.instance.getConnectorClass(this.connector)
-                this.instance.destroyConnection(this)
+                this.instance.destroyConnector(this)
             }
 
             this.connector = connector
