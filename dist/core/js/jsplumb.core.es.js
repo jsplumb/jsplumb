@@ -2980,28 +2980,28 @@ function (_AbstractBezierConnec) {
           _sy = sp.curY < tp.curY ? 0 : h,
           _tx = sp.curX < tp.curX ? w : 0,
           _ty = sp.curY < tp.curY ? h : 0;
-      if (sp.ox === 0) {
+      if (sp.x === 0) {
         _sx -= this.margin;
       }
-      if (sp.ox === 1) {
+      if (sp.x === 1) {
         _sx += this.margin;
       }
-      if (sp.oy === 0) {
+      if (sp.y === 0) {
         _sy -= this.margin;
       }
-      if (sp.oy === 1) {
+      if (sp.y === 1) {
         _sy += this.margin;
       }
-      if (tp.ox === 0) {
+      if (tp.x === 0) {
         _tx -= this.margin;
       }
-      if (tp.ox === 1) {
+      if (tp.x === 1) {
         _tx += this.margin;
       }
-      if (tp.oy === 0) {
+      if (tp.y === 0) {
         _ty -= this.margin;
       }
-      if (tp.oy === 1) {
+      if (tp.y === 1) {
         _ty += this.margin;
       }
       if (this.edited !== true) {
@@ -6955,7 +6955,7 @@ function _placeAnchors(instance, elementId, _anchorLists) {
       reverse = desc === RIGHT || desc === TOP,
           anchors = _placeAnchorsOnLine(cd, sc, isHorizontal, otherMultiplier, reverse);
       var _setAnchorLocation = function _setAnchorLocation(endpoint, anchorPos) {
-        anchorLocations.set(endpoint._anchor.id, {
+        _setComputedPosition(endpoint._anchor, {
           curX: anchorPos.x,
           curY: anchorPos.y,
           x: anchorPos.xLoc,
@@ -7040,7 +7040,14 @@ function floatingAnchorCompute(instance, anchor, params) {
     ox: 0,
     oy: 0
   };
+  return _setComputedPosition(anchor, pos);
+}
+function _setComputedPosition(anchor, pos, timestamp) {
   anchorLocations.set(anchor.id, pos);
+  anchor.computedPosition = pos;
+  if (timestamp) {
+    anchor.timestamp = timestamp;
+  }
   return pos;
 }
 function getCurrentLocation(anchor) {
@@ -7103,9 +7110,7 @@ function _singleAnchorCompute(instance, anchor, params) {
       _ = _getCurrentLocation2[0],
       currentLoc = _getCurrentLocation2[1];
   pos = computeSingleLocation(instance, currentLoc, xy, wh, params);
-  anchorLocations.set(anchor.id, pos);
-  anchor.timestamp = timestamp;
-  return pos;
+  return _setComputedPosition(anchor, pos, timestamp);
 }
 function defaultAnchorCompute(instance, anchor, params) {
   var pos;
@@ -7134,9 +7139,7 @@ function defaultAnchorCompute(instance, anchor, params) {
     }
     pos = computeSingleLocation(instance, newLoc, xy, wh, params);
   }
-  anchorLocations.set(anchor.id, pos);
-  anchor.timestamp = params.timestamp;
-  return pos;
+  return _setComputedPosition(anchor, pos, params.timestamp);
 }
 function _distance(instance, anchor, cx, cy, xy, wh, rotation, targetRotation) {
   var ax = xy.x + anchor.x * wh.w,
@@ -7244,7 +7247,7 @@ function () {
       var pos = anchorLocations.get(anchor.id);
       if (pos == null || params.timestamp != null && anchor.timestamp !== params.timestamp) {
         pos = this.computeAnchorLocation(anchor, params);
-        anchorLocations.set(anchor.id, pos);
+        _setComputedPosition(anchor, pos, params.timestamp);
       }
       return pos;
     }
@@ -9387,4 +9390,4 @@ Connectors.register(StraightConnector.type, StraightConnector);
 Connectors.register(FlowchartConnector.type, FlowchartConnector);
 Connectors.register(StateMachineConnector.type, StateMachineConnector);
 
-export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_GROUP_CONTENT, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SCOPE, ATTRIBUTE_SCOPE_PREFIX, ATTRIBUTE_TABINDEX, AbstractConnector, AbstractSegment, AnchorLocations, ArcSegment, ArrowOverlay, BLOCK, BOTTOM, BezierConnector, BezierSegment, BlankEndpoint, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTED, CLASS_CONNECTOR, CLASS_CONNECTOR_OUTLINE, CLASS_ENDPOINT, CLASS_ENDPOINT_ANCHOR_PREFIX, CLASS_ENDPOINT_CONNECTED, CLASS_ENDPOINT_DROP_ALLOWED, CLASS_ENDPOINT_DROP_FORBIDDEN, CLASS_ENDPOINT_FULL, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, CustomOverlay, DEFAULT, DiamondOverlay, DotEndpoint, EMPTY_BOUNDS, ERROR_SOURCE_DOES_NOT_EXIST, ERROR_SOURCE_ENDPOINT_FULL, ERROR_TARGET_DOES_NOT_EXIST, ERROR_TARGET_ENDPOINT_FULL, EVENT_ANCHOR_CHANGED, EVENT_CLICK, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_DBL_TAP, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_TAP, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_DBL_TAP, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_ENDPOINT_TAP, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_COLLAPSE, EVENT_GROUP_EXPAND, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FlowchartConnector, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_DROP, INTERCEPT_BEFORE_START_DETACH, IS, IS_DETACH_ALLOWED, JsPlumbInstance, LEFT, LabelOverlay, LightweightFloatingAnchor, LightweightRouter, NONE, OptimisticEventGenerator, Overlay, OverlayFactory, PROPERTY_POSITION, PlainArrowOverlay, RIGHT, RectangleEndpoint, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_INDEX, STATIC, SourceSelector, StateMachineConnector, StraightConnector, StraightSegment, TARGET, TARGET_INDEX, TOP, TRUE, TWO_PI, TargetSelector, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _getDefaultFace, _isEdgeSupported, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, att, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, convertToFullOverlaySpec, createFloatingAnchor, dist, distanceFromCurve, each, encloses, extend, fastTrim, filterList, filterNull, findAllWithFunction, findWithFunction, forEach, fromArray, functionChain, getAllWithFunction, _getAnchorOrientation as getAnchorOrientation, getFromSetWithFunction, getWithFunction, getsert, gradient, gradientAtPoint, gradientAtPointAlongPathFrom, insertSorted, intersects, isArray, isArrowOverlay, isAssignableFrom, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFullOverlaySpec, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, lineIntersection, lineLength, locationAlongCurveFrom, log, logEnabled, makeLightweightAnchorFromSpec, map, merge, nearestPointOnCurve, normal, perpendicularLineTo, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, pointOnLine, pointSubtract, pointXYFromArray, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, sortHelper, suggest, theta, uuid, wrap };
+export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_GROUP_CONTENT, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SCOPE, ATTRIBUTE_SCOPE_PREFIX, ATTRIBUTE_TABINDEX, AbstractBezierConnector, AbstractConnector, AbstractSegment, AnchorLocations, ArcSegment, ArrowOverlay, BLOCK, BOTTOM, BezierConnector, BezierSegment, BlankEndpoint, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTED, CLASS_CONNECTOR, CLASS_CONNECTOR_OUTLINE, CLASS_ENDPOINT, CLASS_ENDPOINT_ANCHOR_PREFIX, CLASS_ENDPOINT_CONNECTED, CLASS_ENDPOINT_DROP_ALLOWED, CLASS_ENDPOINT_DROP_FORBIDDEN, CLASS_ENDPOINT_FULL, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, CustomOverlay, DEFAULT, DiamondOverlay, DotEndpoint, EMPTY_BOUNDS, ERROR_SOURCE_DOES_NOT_EXIST, ERROR_SOURCE_ENDPOINT_FULL, ERROR_TARGET_DOES_NOT_EXIST, ERROR_TARGET_ENDPOINT_FULL, EVENT_ANCHOR_CHANGED, EVENT_CLICK, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_DBL_TAP, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_TAP, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_DBL_TAP, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_ENDPOINT_TAP, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_COLLAPSE, EVENT_GROUP_EXPAND, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FlowchartConnector, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_DROP, INTERCEPT_BEFORE_START_DETACH, IS, IS_DETACH_ALLOWED, JsPlumbInstance, LEFT, LabelOverlay, LightweightFloatingAnchor, LightweightRouter, NONE, OptimisticEventGenerator, Overlay, OverlayFactory, PROPERTY_POSITION, PlainArrowOverlay, RIGHT, RectangleEndpoint, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_INDEX, STATIC, SourceSelector, StateMachineConnector, StraightConnector, StraightSegment, TARGET, TARGET_INDEX, TOP, TRUE, TWO_PI, TargetSelector, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _getDefaultFace, _isEdgeSupported, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, att, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, convertToFullOverlaySpec, createFloatingAnchor, dist, distanceFromCurve, each, encloses, extend, fastTrim, filterList, filterNull, findAllWithFunction, findWithFunction, forEach, fromArray, functionChain, getAllWithFunction, _getAnchorOrientation as getAnchorOrientation, getFromSetWithFunction, getWithFunction, getsert, gradient, gradientAtPoint, gradientAtPointAlongPathFrom, insertSorted, intersects, isArray, isArrowOverlay, isAssignableFrom, isBoolean, isCustomOverlay, isDate, isDiamondOverlay, isEmpty, isFullOverlaySpec, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, lineIntersection, lineLength, locationAlongCurveFrom, log, logEnabled, makeLightweightAnchorFromSpec, map, merge, nearestPointOnCurve, normal, perpendicularLineTo, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, pointOnLine, pointSubtract, pointXYFromArray, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, sortHelper, suggest, theta, uuid, wrap };

@@ -1,9 +1,9 @@
-import { EndpointRepresentation } from "./endpoints";
+import { EndpointRepresentation, EndpointRepresentationParams } from "./endpoints";
 import { Orientation } from "../factory/anchor-record-factory";
 import { Endpoint } from "./endpoint";
 import { AnchorPlacement } from "../router/router";
 export declare type ComputedRectangleEndpoint = [number, number, number, number];
-export interface RectangleEndpointParams {
+export interface RectangleEndpointParams extends EndpointRepresentationParams {
     width?: number;
     height?: number;
 }

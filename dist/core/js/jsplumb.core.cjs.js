@@ -2984,28 +2984,28 @@ function (_AbstractBezierConnec) {
           _sy = sp.curY < tp.curY ? 0 : h,
           _tx = sp.curX < tp.curX ? w : 0,
           _ty = sp.curY < tp.curY ? h : 0;
-      if (sp.ox === 0) {
+      if (sp.x === 0) {
         _sx -= this.margin;
       }
-      if (sp.ox === 1) {
+      if (sp.x === 1) {
         _sx += this.margin;
       }
-      if (sp.oy === 0) {
+      if (sp.y === 0) {
         _sy -= this.margin;
       }
-      if (sp.oy === 1) {
+      if (sp.y === 1) {
         _sy += this.margin;
       }
-      if (tp.ox === 0) {
+      if (tp.x === 0) {
         _tx -= this.margin;
       }
-      if (tp.ox === 1) {
+      if (tp.x === 1) {
         _tx += this.margin;
       }
-      if (tp.oy === 0) {
+      if (tp.y === 0) {
         _ty -= this.margin;
       }
-      if (tp.oy === 1) {
+      if (tp.y === 1) {
         _ty += this.margin;
       }
       if (this.edited !== true) {
@@ -6958,7 +6958,7 @@ function _placeAnchors(instance, elementId, _anchorLists) {
       reverse = desc === RIGHT || desc === TOP,
           anchors = _placeAnchorsOnLine(cd, sc, isHorizontal, otherMultiplier, reverse);
       var _setAnchorLocation = function _setAnchorLocation(endpoint, anchorPos) {
-        anchorLocations.set(endpoint._anchor.id, {
+        _setComputedPosition(endpoint._anchor, {
           curX: anchorPos.x,
           curY: anchorPos.y,
           x: anchorPos.xLoc,
@@ -7043,7 +7043,14 @@ function floatingAnchorCompute(instance, anchor, params) {
     ox: 0,
     oy: 0
   };
+  return _setComputedPosition(anchor, pos);
+}
+function _setComputedPosition(anchor, pos, timestamp) {
   anchorLocations.set(anchor.id, pos);
+  anchor.computedPosition = pos;
+  if (timestamp) {
+    anchor.timestamp = timestamp;
+  }
   return pos;
 }
 function getCurrentLocation(anchor) {
@@ -7106,9 +7113,7 @@ function _singleAnchorCompute(instance, anchor, params) {
       _ = _getCurrentLocation2[0],
       currentLoc = _getCurrentLocation2[1];
   pos = computeSingleLocation(instance, currentLoc, xy, wh, params);
-  anchorLocations.set(anchor.id, pos);
-  anchor.timestamp = timestamp;
-  return pos;
+  return _setComputedPosition(anchor, pos, timestamp);
 }
 function defaultAnchorCompute(instance, anchor, params) {
   var pos;
@@ -7137,9 +7142,7 @@ function defaultAnchorCompute(instance, anchor, params) {
     }
     pos = computeSingleLocation(instance, newLoc, xy, wh, params);
   }
-  anchorLocations.set(anchor.id, pos);
-  anchor.timestamp = params.timestamp;
-  return pos;
+  return _setComputedPosition(anchor, pos, params.timestamp);
 }
 function _distance(instance, anchor, cx, cy, xy, wh, rotation, targetRotation) {
   var ax = xy.x + anchor.x * wh.w,
@@ -7247,7 +7250,7 @@ function () {
       var pos = anchorLocations.get(anchor.id);
       if (pos == null || params.timestamp != null && anchor.timestamp !== params.timestamp) {
         pos = this.computeAnchorLocation(anchor, params);
-        anchorLocations.set(anchor.id, pos);
+        _setComputedPosition(anchor, pos, params.timestamp);
       }
       return pos;
     }
@@ -9399,6 +9402,7 @@ exports.ATTRIBUTE_NOT_DRAGGABLE = ATTRIBUTE_NOT_DRAGGABLE;
 exports.ATTRIBUTE_SCOPE = ATTRIBUTE_SCOPE;
 exports.ATTRIBUTE_SCOPE_PREFIX = ATTRIBUTE_SCOPE_PREFIX;
 exports.ATTRIBUTE_TABINDEX = ATTRIBUTE_TABINDEX;
+exports.AbstractBezierConnector = AbstractBezierConnector;
 exports.AbstractConnector = AbstractConnector;
 exports.AbstractSegment = AbstractSegment;
 exports.ArcSegment = ArcSegment;

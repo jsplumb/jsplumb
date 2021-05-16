@@ -18,6 +18,7 @@ export * from "./connector/connectors";
 export * from "./connector/straight-segment";
 export * from './connector/flowchart-connector';
 export * from './connector/straight-connector';
+export * from './connector/abstract-bezier-connector';
 export * from './connector/bezier-connector';
 export * from './connector/statemachine-connector';
 export * from "./selection/connection-selection";
