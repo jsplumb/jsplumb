@@ -3,7 +3,7 @@ import {Orientation} from "../factory/anchor-factory"
 import {EMPTY_BOUNDS} from "../connector/abstract-segment"
 import {Endpoint} from "./endpoint"
 import {AnchorPlacement} from "../router/router"
-import {Extents} from "@jsplumb/core"
+import {Extents} from "../common"
 
 /**
  * Superclass for all types of Endpoint. This class is renderer
