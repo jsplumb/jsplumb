@@ -18,7 +18,7 @@ export abstract class SVGElementOverlay extends Overlay {
             let parent:SVGElement = null
 
             if (o.component instanceof Connection) {
-                let connector = (o.component as Connection).getConnector()
+                let connector = (o.component as Connection).connector
                 parent = connector != null ? (connector as any).canvas : null
             } else if (o.component instanceof Endpoint) {
                 let endpoint = (o.component as Endpoint).endpoint

@@ -786,4 +786,25 @@ var testSuite = function () {
         equal(count, 2, "click event was triggered on arrow overlay");
     });
 
+    test("connection:abort event, overlays cleaned up", function() {
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+
+        var e2 = _jsPlumb.addEndpoint(d2, {source:true, connectorOverlays:[
+                { type:"Label", options:{location:0.5, label:"FOO", cssClass:"anOverlay"} }
+            ]});
+        var evt = false, abortEvent = false;
+        _jsPlumb.bind('connection:detach', function (info) {
+            evt = true;
+        });
+        _jsPlumb.bind('connection:abort', function (info) {
+            abortEvent = true;
+        });
+
+        support.dragAndAbortConnection(e2);
+        ok(evt === false, "connection:detach event was not fired");
+        equal(e2.connections.length, 0, "no connections");
+        ok(abortEvent === true, "connection:abort event was fired");
+
+        equal(_jsPlumb.getContainer().querySelectorAll(".anOverlay").length, 0, "0 overlay elements remain")
+    });
 };

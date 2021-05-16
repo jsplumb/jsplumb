@@ -27,7 +27,6 @@ export class HTMLElementOverlay {
 
     static getElement (o:HTMLElementOverlayHolder, component?:Component, elementCreator?:(c:Component) => Element):Element{
         if (o.canvas == null) {
-
             if (elementCreator && component) {
                 o.canvas = elementCreator(component) as jsPlumbDOMElement
             } else {
@@ -57,8 +56,7 @@ export class HTMLElementOverlay {
     }
 
     static destroy(o:HTMLElementOverlayHolder) {
-        const el = HTMLElementOverlay.getElement(o as any)
-        el.parentNode.removeChild(el)
+        o.canvas && o.canvas.parentNode && o.canvas.parentNode.removeChild(o.canvas)
         delete o.canvas
         delete o.cachedDimensions
     }

@@ -3559,8 +3559,7 @@ function () {
   }, {
     key: "destroy",
     value: function destroy(o) {
-      var el = HTMLElementOverlay.getElement(o);
-      el.parentNode.removeChild(el);
+      o.canvas && o.canvas.parentNode && o.canvas.parentNode.removeChild(o.canvas);
       delete o.canvas;
       delete o.cachedDimensions;
     }
@@ -3602,7 +3601,7 @@ function (_Overlay) {
         });
         var parent = null;
         if (o.component instanceof core.Connection) {
-          var connector = o.component.getConnector();
+          var connector = o.component.connector;
           parent = connector != null ? connector.canvas : null;
         } else if (o.component instanceof core.Endpoint) {
           var endpoint = o.component.endpoint;
@@ -4773,8 +4772,8 @@ function (_JsPlumbInstance) {
       }
     }
   }, {
-    key: "destroyConnection",
-    value: function destroyConnection(connection) {
+    key: "destroyConnector",
+    value: function destroyConnector(connection) {
       if (connection.connector != null) {
         cleanup(connection.connector);
       }

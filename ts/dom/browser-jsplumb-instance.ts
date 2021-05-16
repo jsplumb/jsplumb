@@ -206,7 +206,7 @@ function getEndpointCanvas<C>(ep:EndpointRepresentation<C>):any {
     return (ep as any).canvas
 }
 
-function getLabelElement(o:LabelOverlay):jsPlumbDOMElement {
+function getLabelElement(o:LabelOverlay):jsPlumbDOMElement{
     return HTMLElementOverlay.getElement(o as any) as jsPlumbDOMElement
 }
 
@@ -1195,7 +1195,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
     }
 
-    destroyConnection(connection:Connection):void {
+    destroyConnector(connection:Connection):void {
         if (connection.connector != null) {
             cleanup(connection.connector as any)
         }

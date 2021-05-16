@@ -3926,16 +3926,14 @@
       }
     }, {
       key: "destroy",
-      value: function destroy(force) {
+      value: function destroy() {
         for (var i in this.overlays) {
           this.instance.destroyOverlay(this.overlays[i]);
         }
-        if (force || this.typeId == null) {
-          this.overlays = {};
-          this.overlayPositions = {};
-          this.unbind();
-          this.clone = null;
-        }
+        this.overlays = {};
+        this.overlayPositions = {};
+        this.unbind();
+        this.clone = null;
       }
     }, {
       key: "isHover",
@@ -4542,7 +4540,7 @@
       _defineProperty(_assertThisInitialized(_this), "detachable", true);
       _defineProperty(_assertThisInitialized(_this), "reattach", false);
       _defineProperty(_assertThisInitialized(_this), "uuids", void 0);
-      _defineProperty(_assertThisInitialized(_this), "cost", void 0);
+      _defineProperty(_assertThisInitialized(_this), "cost", 1);
       _defineProperty(_assertThisInitialized(_this), "directed", void 0);
       _defineProperty(_assertThisInitialized(_this), "endpoints", [null, null]);
       _defineProperty(_assertThisInitialized(_this), "endpointStyles", void 0);
@@ -4772,45 +4770,20 @@
       }
     }, {
       key: "destroy",
-      value: function destroy(force) {
+      value: function destroy() {
+        _get(_getPrototypeOf(Connection.prototype), "destroy", this).call(this);
         this.endpoints = null;
         this.endpointStyles = null;
         this.source = null;
         this.target = null;
-        this.instance.destroyConnection(this);
+        this.instance.destroyConnector(this);
         this.connector = null;
         this.deleted = true;
-        _get(_getPrototypeOf(Connection.prototype), "destroy", this).call(this, force);
       }
     }, {
       key: "getUuids",
       value: function getUuids() {
         return [this.endpoints[0].getUuid(), this.endpoints[1].getUuid()];
-      }
-    }, {
-      key: "getCost",
-      value: function getCost() {
-        return this.cost == null ? 1 : this.cost;
-      }
-    }, {
-      key: "setCost",
-      value: function setCost(c) {
-        this.cost = c;
-      }
-    }, {
-      key: "isDirected",
-      value: function isDirected() {
-        return this.directed;
-      }
-    }, {
-      key: "getConnector",
-      value: function getConnector() {
-        return this.connector;
-      }
-    }, {
-      key: "makeConnector",
-      value: function makeConnector(name, args) {
-        return Connectors.get(this.instance, this, name, args);
       }
     }, {
       key: "prepareConnector",
@@ -4822,10 +4795,10 @@
         },
             connector;
         if (isString(connectorSpec)) {
-          connector = this.makeConnector(connectorSpec, connectorArgs);
+          connector = this.instance.makeConnector(this, connectorSpec, connectorArgs);
         } else {
           var co = connectorSpec;
-          connector = this.makeConnector(co.type, merge(co.options, connectorArgs));
+          connector = this.instance.makeConnector(this, co.type, merge(co.options, connectorArgs));
         }
         if (typeId != null) {
           connector.typeId = typeId;
@@ -4841,7 +4814,7 @@
           if (this.connector != null) {
             previous = this.connector;
             previousClasses = this.instance.getConnectorClass(this.connector);
-            this.instance.destroyConnection(this);
+            this.instance.destroyConnector(this);
           }
           this.connector = connector;
           if (typeId) {
@@ -5142,13 +5115,13 @@
       }
     }, {
       key: "destroy",
-      value: function destroy(force) {
+      value: function destroy() {
+        _get(_getPrototypeOf(Endpoint.prototype), "destroy", this).call(this);
         var anchorClass = this.instance.endpointAnchorClassPrefix + (this.currentAnchorClass ? "-" + this.currentAnchorClass : "");
         this.instance.removeClass(this.element, anchorClass);
         if (this.endpoint != null) {
           this.instance.destroyEndpoint(this);
         }
-        _get(_getPrototypeOf(Endpoint.prototype), "destroy", this).call(this, force);
       }
     }, {
       key: "isFull",
@@ -8457,7 +8430,7 @@
             endpoint.detachFromConnection(connection, null, true);
           });
           this.unregisterEndpoint(endpoint);
-          endpoint.destroy(true);
+          endpoint.destroy();
           forEach(connectionsToDelete, function (connection) {
             _this5.deleteConnection(connection, {
               force: true,
@@ -9231,6 +9204,11 @@
         } else {
           this.removeEndpointClass(endpoint, this.endpointFullClass);
         }
+      }
+    }, {
+      key: "makeConnector",
+      value: function makeConnector(connection, name, args) {
+        return Connectors.get(this, connection, name, args);
       }
     }]);
     return JsPlumbInstance;

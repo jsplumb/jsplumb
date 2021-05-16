@@ -253,7 +253,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     setHover(component: Component, hover: boolean): void;
     paintConnector(connector: AbstractConnector, paintStyle: PaintStyle, extents?: Extents): void;
     setConnectorHover(connector: AbstractConnector, h: boolean, doNotCascade?: boolean): void;
-    destroyConnection(connection: Connection): void;
+    destroyConnector(connection: Connection): void;
     addConnectorClass(connector: AbstractConnector, clazz: string): void;
     removeConnectorClass(connector: AbstractConnector, clazz: string): void;
     getConnectorClass(connector: AbstractConnector): string;
