@@ -542,7 +542,7 @@ export class Endpoint<E = any> extends Component {
         }
         else {
             const fep = ep as FullEndpointSpec
-            endpointArgs = merge(fep.options, endpointArgs)
+            extend(endpointArgs, fep.options || {})
             endpoint = EndpointFactory.get(this, fep.type, endpointArgs)
         }
 
