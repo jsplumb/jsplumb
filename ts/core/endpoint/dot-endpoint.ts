@@ -1,5 +1,4 @@
 import {EndpointRepresentation, EndpointRepresentationParams} from "./endpoints"
-import {EndpointRepresentation} from "./endpoints"
 import {Orientation} from "../factory/anchor-record-factory"
 import {Endpoint} from "./endpoint"
 import {AnchorPlacement} from "../router/router"
