@@ -113,14 +113,14 @@ export interface EndpointOptions<E = any> {
     connectionsDetachable?: boolean
 
     /**
-     * Whether or not this Endpoint acts as a source for connections dragged with the mouse. Defaults to false.
+     * Whether or not this Endpoint acts as a source for connections dragged with the mouse. Defaults to true
      */
-    source?: boolean//= false
+    source?: boolean//= true
 
     /**
-     * Whether or not this Endpoint acts as a target for connections dragged with the mouse. Defaults to false.
+     * Whether or not this Endpoint acts as a target for connections dragged with the mouse. Defaults to true.
      */
-    target?: boolean
+    target?: boolean// = true
 
     /**
      * Optional 'type' for connections that have this endpoint as their source.
@@ -280,9 +280,9 @@ export class Endpoint<E = any> extends Component {
 
         this.deleteOnEmpty = params.deleteOnEmpty === true
 
-        this.isSource = params.source || false
+        this.isSource = params.source !== false
         this.isTemporarySource = params.isTemporarySource || false
-        this.isTarget = params.target || false
+        this.isTarget = params.target !== false
 
         this.connections = params.connections || []
 
