@@ -1,11 +1,11 @@
 import { PaintStyle } from '../styles'
 import { OverlaySpec } from '../overlay/overlay'
-import {OverlayCapableComponent } from "../component/overlay-capable-component"
+import {Component } from "../component/component"
 import { Dictionary } from '../common'
 import { JsPlumbInstance } from "../core"
 import {forEach} from "../util"
 
-export class SelectionBase<T extends OverlayCapableComponent>{
+export class SelectionBase<T extends Component>{
 
     constructor(protected instance:JsPlumbInstance, protected entries:Array<T>) { }
 
@@ -22,13 +22,13 @@ export class SelectionBase<T extends OverlayCapableComponent>{
         return this.entries[index]
     }
 
-    addClass(clazz:string, updateAttachedElements?:boolean):SelectionBase<T> {
-        this.each((c:T) => c.addClass(clazz, updateAttachedElements))
+    addClass(clazz:string, cascade?:boolean):SelectionBase<T> {
+        this.each((c:T) => c.addClass(clazz, cascade))
         return this
     }
 
-    removeClass(clazz:string, updateAttachedElements?:boolean):SelectionBase<T> {
-        this.each((c:T) => c.removeClass(clazz, updateAttachedElements))
+    removeClass(clazz:string, cascade?:boolean):SelectionBase<T> {
+        this.each((c:T) => c.removeClass(clazz, cascade))
         return this
     }
 

@@ -1,17 +1,17 @@
 import { PaintStyle } from '../styles';
 import { OverlaySpec } from '../overlay/overlay';
-import { OverlayCapableComponent } from "../component/overlay-capable-component";
+import { Component } from "../component/component";
 import { Dictionary } from '../common';
 import { JsPlumbInstance } from "../core";
-export declare class SelectionBase<T extends OverlayCapableComponent> {
+export declare class SelectionBase<T extends Component> {
     protected instance: JsPlumbInstance;
     protected entries: Array<T>;
     constructor(instance: JsPlumbInstance, entries: Array<T>);
     readonly length: number;
     each(handler: (arg0: T) => void): SelectionBase<T>;
     get(index: number): T;
-    addClass(clazz: string, updateAttachedElements?: boolean): SelectionBase<T>;
-    removeClass(clazz: string, updateAttachedElements?: boolean): SelectionBase<T>;
+    addClass(clazz: string, cascade?: boolean): SelectionBase<T>;
+    removeClass(clazz: string, cascade?: boolean): SelectionBase<T>;
     removeAllOverlays(): SelectionBase<T>;
     setLabel(label: string): SelectionBase<T>;
     clear(): this;

@@ -4,7 +4,7 @@ import {ConnectionTypeDescriptor, ConnectParams, Dictionary } from '../common'
 import {AbstractConnector, ConnectorWithOptions} from "./abstract-connector"
 import {Endpoint} from "../endpoint/endpoint"
 import {PaintStyle} from "../styles"
-import {OverlayCapableComponent} from "../component/overlay-capable-component"
+import {Component} from "../component/component"
 import {extend, IS, isString, merge, uuid, addToDictionary, Merge, Omit} from "../util"
 import {Overlay} from "../overlay/overlay"
 import {Connectors} from "./connectors"
@@ -90,7 +90,7 @@ export type ConnectionOptions<E = any>  =  Merge<OnlyPluralsConnectParams<E>,  {
     previousConnection?:Connection<E>
 }>
 
-export class Connection<E = any> extends OverlayCapableComponent {
+export class Connection<E = any> extends Component {
 
     connector:AbstractConnector
     defaultLabelLocation:number = 0.5
@@ -364,31 +364,33 @@ export class Connection<E = any> extends OverlayCapableComponent {
         this.instance.applyConnectorType(this.connector, t)
     }
 
-    addClass(c:string, informEndpoints?:boolean) {
+    addClass(c:string, cascade?:boolean) {
         super.addClass(c)
 
-        if (informEndpoints) {
+        if (cascade) {
             this.endpoints[0].addClass(c)
             this.endpoints[1].addClass(c)
             if (this.suspendedEndpoint) {
                 this.suspendedEndpoint.addClass(c)
             }
         }
+
         if (this.connector) {
             this.instance.addConnectorClass(this.connector, c)
         }
     }
 
-    removeClass(c:string, informEndpoints?:boolean) {
+    removeClass(c:string, cascade?:boolean) {
         super.removeClass(c)
 
-        if (informEndpoints) {
+        if (cascade) {
             this.endpoints[0].removeClass(c)
             this.endpoints[1].removeClass(c)
             if (this.suspendedEndpoint) {
                 this.suspendedEndpoint.removeClass(c)
             }
         }
+
         if (this.connector) {
             this.instance.removeConnectorClass(this.connector, c)
         }

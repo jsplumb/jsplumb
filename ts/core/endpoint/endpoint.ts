@@ -7,7 +7,7 @@ import { EndpointFactory } from "../factory/endpoint-factory"
 import { EndpointRepresentation } from './endpoints'
 import {extend, merge, isString, isAssignableFrom} from '../util'
 import {DeleteConnectionOptions, JsPlumbInstance} from '../core'
-import { OverlayCapableComponent } from '../component/overlay-capable-component'
+import {Component} from "../component/component"
 import {DEFAULT, EVENT_ANCHOR_CHANGED, EVENT_MAX_CONNECTIONS} from "../constants"
 import {InternalEndpointOptions} from "./endpoint-options"
 import { LightweightAnchor } from '../factory/anchor-record-factory'
@@ -22,7 +22,7 @@ export interface EndpointStyle extends PaintStyle, Record<string, any> {}
 
 const typeParameters = [ "connectorStyle", "connectorHoverStyle", "connectorOverlays", "connector", "connectionType", "connectorClass", "connectorHoverClass" ]
 
-export class Endpoint<E = any> extends OverlayCapableComponent {
+export class Endpoint<E = any> extends Component {
 
     getIdPrefix ():string { return  "_jsplumb_e"; }
 
@@ -405,15 +405,15 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         this.endpoint = ep
     }
 
-    addClass(clazz: string, dontUpdateOverlays?: boolean): void {
-        super.addClass(clazz, dontUpdateOverlays)
+    addClass(clazz: string, cascade?:boolean): void {
+        super.addClass(clazz, cascade)
         if (this.endpoint != null) {
             this.endpoint.addClass(clazz)
         }
     }
 
-    removeClass(clazz: string, dontUpdateOverlays?: boolean): void {
-        super.removeClass(clazz, dontUpdateOverlays)
+    removeClass(clazz: string, cascade?:boolean): void {
+        super.removeClass(clazz, cascade)
         if (this.endpoint != null) {
             this.endpoint.removeClass(clazz)
         }

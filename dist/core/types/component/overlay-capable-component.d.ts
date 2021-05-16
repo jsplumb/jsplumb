@@ -39,8 +39,7 @@ export declare abstract class OverlayCapableComponent extends Component {
     setVisible(v: boolean): void;
     setAbsoluteOverlayPosition(overlay: Overlay, xy: PointXY): void;
     getAbsoluteOverlayPosition(overlay: Overlay): PointXY;
-    private _clazzManip;
-    addClass(clazz: string, dontUpdateOverlays?: boolean): void;
-    removeClass(clazz: string, dontUpdateOverlays?: boolean): void;
+    addClass(clazz: string, cascade: boolean, dontUpdateOverlays: boolean): void;
+    removeClass(clazz: string, cascade: boolean, dontUpdateOverlays: boolean): void;
     applyType(t: any, typeMap: any): void;
 }

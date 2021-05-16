@@ -887,6 +887,7 @@ export class EndpointDragHandler implements DragHandler {
 
             this._cleanupDraggablePlaceholder()
 
+            // TODO if the connection has been deleted then we dont want to update overlays.
             this.jpc.removeClass(this.instance.draggingClass)
 
             delete this.jpc.suspendedEndpoint
