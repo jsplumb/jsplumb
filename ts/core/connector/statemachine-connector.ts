@@ -112,28 +112,28 @@ export class StateMachineConnector extends AbstractBezierConnector {
             _ty = sp.curY < tp.curY ? h : 0
 
         // now adjust for the margin
-        if (sp.ox === 0) {
+        if (sp.x === 0) {
             _sx -= this.margin
         }
-        if (sp.ox === 1) {
+        if (sp.x === 1) {
             _sx += this.margin
         }
-        if (sp.oy === 0) {
+        if (sp.y === 0) {
             _sy -= this.margin
         }
-        if (sp.oy === 1) {
+        if (sp.y === 1) {
             _sy += this.margin
         }
-        if (tp.ox === 0) {
+        if (tp.x === 0) {
             _tx -= this.margin
         }
-        if (tp.ox === 1) {
+        if (tp.x === 1) {
             _tx += this.margin
         }
-        if (tp.oy === 0) {
+        if (tp.y === 0) {
             _ty -= this.margin
         }
-        if (tp.oy === 1) {
+        if (tp.y === 1) {
             _ty += this.margin
         }
 
