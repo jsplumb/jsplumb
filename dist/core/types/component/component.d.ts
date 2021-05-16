@@ -1,9 +1,11 @@
 import { PaintStyle } from "../styles";
-import { Dictionary, TypeDescriptor, PointXY } from '../common';
+import { Dictionary, TypeDescriptor, PointXY, Extents } from '../common';
 import { JsPlumbInstance } from "../core";
 import { EventGenerator } from "../event-generator";
 import { Connection } from "../connector/connection-impl";
 import { Endpoint } from "../endpoint/endpoint";
+import { Overlay, OverlaySpec } from "../overlay/overlay";
+import { LabelOverlay } from "../overlay/label-overlay";
 export declare type ComponentParameters = Record<string, any>;
 export declare function _removeTypeCssHelper<E>(component: Component, typeIndex: number): void;
 export declare function _updateHoverStyle<E>(component: Component): void;
@@ -17,13 +19,21 @@ export interface ComponentOptions {
     cssClass?: string;
     data?: any;
     id?: string;
+    label?: string;
+    labelLocation?: number;
+    overlays?: Array<OverlaySpec>;
 }
+export declare type ClassAction = "add" | "remove";
 export declare abstract class Component extends EventGenerator {
     instance: JsPlumbInstance;
     abstract getTypeDescriptor(): string;
     abstract getDefaultOverlayKey(): string;
     abstract getIdPrefix(): string;
     abstract getXY(): PointXY;
+    defaultLabelLocation: number | [number, number];
+    overlays: Dictionary<Overlay>;
+    overlayPositions: Dictionary<PointXY>;
+    overlayPlacements: Dictionary<Extents>;
     clone: () => Component;
     deleted: boolean;
     segment: number;
@@ -66,7 +76,7 @@ export declare abstract class Component extends EventGenerator {
     removeType(typeId: string, params?: any): void;
     clearTypes(params?: any, doNotRepaint?: boolean): void;
     toggleType(typeId: string, params?: any): void;
-    applyType(t: TypeDescriptor, params?: any): void;
+    applyType(t: any, params?: any): void;
     setPaintStyle(style: PaintStyle): void;
     getPaintStyle(): PaintStyle;
     setHoverPaintStyle(style: PaintStyle): void;
@@ -76,11 +86,33 @@ export declare abstract class Component extends EventGenerator {
     mergeParameters(p: ComponentParameters): void;
     setVisible(v: boolean): void;
     isVisible(): boolean;
-    addClass(clazz: string, dontUpdateOverlays?: boolean): void;
-    removeClass(clazz: string, dontUpdateOverlays?: boolean): void;
+    setAbsoluteOverlayPosition(overlay: Overlay, xy: PointXY): void;
+    getAbsoluteOverlayPosition(overlay: Overlay): PointXY;
+    private _clazzManip;
+    addClass(clazz: string, cascade?: boolean): void;
+    removeClass(clazz: string, cascade?: boolean): void;
     getClass(): string;
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
     getData(): any;
     setData(d: any): void;
     mergeData(d: any): void;
+    addOverlay(overlay: OverlaySpec): Overlay;
+    /**
+     * Get the Overlay with the given ID. You can optionally provide a type parameter for this method in order to get
+     * a typed return value (such as `LabelOverlay`, `ArrowOverlay`, etc), since some overlays have methods that
+     * others do not.
+     * @param id ID of the overlay to retrieve.
+     */
+    getOverlay<T extends Overlay>(id: string): T;
+    getOverlays(): Dictionary<Overlay>;
+    hideOverlay(id: string): void;
+    hideOverlays(): void;
+    showOverlay(id: string): void;
+    showOverlays(): void;
+    removeAllOverlays(): void;
+    removeOverlay(overlayId: string, dontCleanup?: boolean): void;
+    removeOverlays(...overlays: string[]): void;
+    getLabel(): string;
+    getLabelOverlay(): LabelOverlay;
+    setLabel(l: string | Function | LabelOverlay): void;
 }
