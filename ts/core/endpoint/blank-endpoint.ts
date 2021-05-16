@@ -1,16 +1,16 @@
-import {EndpointRepresentation} from "./endpoints"
+import {EndpointRepresentation, EndpointRepresentationParams} from "./endpoints"
 import {Orientation} from "../factory/anchor-factory"
 import {Endpoint} from "./endpoint"
 import {AnchorPlacement} from "../router/router"
 
 export type ComputedBlankEndpoint = [ number, number, number, number  ]
 
-export interface BlankEndpointParams {}
+export interface BlankEndpointParams extends EndpointRepresentationParams {}
 
 export class BlankEndpoint extends EndpointRepresentation<ComputedBlankEndpoint> {
 
     constructor(endpoint:Endpoint, params?:BlankEndpointParams) {
-        super(endpoint)
+        super(endpoint, params)
     }
 
     getParams(): Record<string, any> {
