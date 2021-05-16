@@ -323,8 +323,8 @@ export class Endpoint<E = any> extends Component {
             let anchorClass = this.instance.endpointAnchorClassPrefix + (this.currentAnchorClass ? "-" + this.currentAnchorClass : "")
 
             if (oldAnchorClass !== anchorClass) {
-                this.removeClass(oldAnchorClass, false, true)
-                this.addClass(anchorClass, false, true)
+                this.removeClass(oldAnchorClass)
+                this.addClass(anchorClass)
                 this.instance.removeClass(this.element, oldAnchorClass)
                 this.instance.addClass(this.element, anchorClass)
             }
@@ -358,14 +358,14 @@ export class Endpoint<E = any> extends Component {
         this.connections.push(conn)
 
         if (wasEmpty) {
-            this.addClass(this.instance.endpointConnectedClass, false, true)
+            this.addClass(this.instance.endpointConnectedClass)
         }
         if (this.isFull()) {
             if (!wasFull) {
-                this.addClass(this.instance.endpointFullClass, false, true)
+                this.addClass(this.instance.endpointFullClass)
             }
         } else if (wasFull) {
-            this.removeClass(this.instance.endpointFullClass, false, true)
+            this.removeClass(this.instance.endpointFullClass)
         }
     }
 
@@ -560,15 +560,15 @@ export class Endpoint<E = any> extends Component {
         this.endpoint = ep
     }
 
-    addClass(clazz: string, cascade:boolean, dontUpdateOverlays: boolean): void {
-        super.addClass(clazz, cascade, dontUpdateOverlays)
+    addClass(clazz: string, cascade?:boolean): void {
+        super.addClass(clazz, cascade)
         if (this.endpoint != null) {
             this.endpoint.addClass(clazz)
         }
     }
 
-    removeClass(clazz: string, cascade:boolean, dontUpdateOverlays: boolean): void {
-        super.removeClass(clazz, cascade, dontUpdateOverlays)
+    removeClass(clazz: string, cascade?:boolean): void {
+        super.removeClass(clazz, cascade)
         if (this.endpoint != null) {
             this.endpoint.removeClass(clazz)
         }

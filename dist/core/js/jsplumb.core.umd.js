@@ -3303,384 +3303,6 @@
     return OptimisticEventGenerator;
   }(EventGenerator);
 
-  function _splitType(t) {
-    return t == null ? null : t.split(" ");
-  }
-  function _mapType(map, obj, typeId) {
-    for (var i in obj) {
-      map[i] = typeId;
-    }
-  }
-  var CONNECTOR = "connector";
-  var MERGE_STRATEGY_OVERRIDE = "override";
-  var CSS_CLASS = "cssClass";
-  var DEFAULT_TYPE_KEY = "__default";
-  var ANCHOR = "anchor";
-  var ANCHORS = "anchors";
-  function _applyTypes(component, params) {
-    if (component.getDefaultType) {
-      var td = component.getTypeDescriptor(),
-          map = {};
-      var defType = component.getDefaultType();
-      var o = extend({}, defType);
-      _mapType(map, defType, DEFAULT_TYPE_KEY);
-      for (var i = 0, j = component._types.length; i < j; i++) {
-        var tid = component._types[i];
-        if (tid !== DEFAULT_TYPE_KEY) {
-          var _t = component.instance.getType(tid, td);
-          if (_t != null) {
-            var overrides = new Set([CONNECTOR, ANCHOR, ANCHORS]);
-            if (_t.mergeStrategy === MERGE_STRATEGY_OVERRIDE) {
-              for (var k in _t) {
-                overrides.add(k);
-              }
-            }
-            o = merge(o, _t, [CSS_CLASS], setToArray(overrides));
-            _mapType(map, _t, tid);
-          }
-        }
-      }
-      if (params) {
-        o = populate(o, params, "_");
-      }
-      component.applyType(o, map);
-    }
-  }
-  function _removeTypeCssHelper(component, typeIndex) {
-    var typeId = component._types[typeIndex],
-        type = component.instance.getType(typeId, component.getTypeDescriptor());
-    if (type != null && type.cssClass) {
-      component.removeClass(type.cssClass);
-    }
-  }
-  function _updateHoverStyle(component) {
-    if (component.paintStyle && component.hoverPaintStyle) {
-      var mergedHoverStyle = {};
-      extend(mergedHoverStyle, component.paintStyle);
-      extend(mergedHoverStyle, component.hoverPaintStyle);
-      component.hoverPaintStyle = mergedHoverStyle;
-    }
-  }
-  var Component =
-  function (_EventGenerator) {
-    _inherits(Component, _EventGenerator);
-    function Component(instance, params) {
-      var _this;
-      _classCallCheck(this, Component);
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(Component).call(this));
-      _this.instance = instance;
-      _defineProperty(_assertThisInitialized(_this), "clone", void 0);
-      _defineProperty(_assertThisInitialized(_this), "deleted", void 0);
-      _defineProperty(_assertThisInitialized(_this), "segment", void 0);
-      _defineProperty(_assertThisInitialized(_this), "x", void 0);
-      _defineProperty(_assertThisInitialized(_this), "y", void 0);
-      _defineProperty(_assertThisInitialized(_this), "w", void 0);
-      _defineProperty(_assertThisInitialized(_this), "h", void 0);
-      _defineProperty(_assertThisInitialized(_this), "id", void 0);
-      _defineProperty(_assertThisInitialized(_this), "visible", true);
-      _defineProperty(_assertThisInitialized(_this), "typeId", void 0);
-      _defineProperty(_assertThisInitialized(_this), "params", {});
-      _defineProperty(_assertThisInitialized(_this), "paintStyle", void 0);
-      _defineProperty(_assertThisInitialized(_this), "hoverPaintStyle", void 0);
-      _defineProperty(_assertThisInitialized(_this), "paintStyleInUse", void 0);
-      _defineProperty(_assertThisInitialized(_this), "_hover", false);
-      _defineProperty(_assertThisInitialized(_this), "lastPaintedAt", void 0);
-      _defineProperty(_assertThisInitialized(_this), "data", void 0);
-      _defineProperty(_assertThisInitialized(_this), "_defaultType", void 0);
-      _defineProperty(_assertThisInitialized(_this), "events", void 0);
-      _defineProperty(_assertThisInitialized(_this), "parameters", void 0);
-      _defineProperty(_assertThisInitialized(_this), "_types", void 0);
-      _defineProperty(_assertThisInitialized(_this), "_typeCache", void 0);
-      _defineProperty(_assertThisInitialized(_this), "cssClass", void 0);
-      _defineProperty(_assertThisInitialized(_this), "hoverClass", void 0);
-      _defineProperty(_assertThisInitialized(_this), "beforeDetach", void 0);
-      _defineProperty(_assertThisInitialized(_this), "beforeDrop", void 0);
-      params = params || {};
-      _this.cssClass = params.cssClass || "";
-      _this.hoverClass = params.hoverClass || instance.defaults.hoverClass;
-      _this.beforeDetach = params.beforeDetach;
-      _this.beforeDrop = params.beforeDrop;
-      _this._types = [];
-      _this._typeCache = {};
-      _this.parameters = clone(params.parameters || {});
-      _this.id = _this.getIdPrefix() + new Date().getTime();
-      _this._defaultType = {
-        parameters: _this.parameters,
-        scope: params.scope || _this.instance.defaultScope
-      };
-      if (params.events) {
-        for (var evtName in params.events) {
-          _this.bind(evtName, params.events[evtName]);
-        }
-      }
-      _this.clone = function () {
-        var o = Object.create(_this.constructor.prototype);
-        _this.constructor.apply(o, [instance, params]);
-        return o;
-      };
-      return _this;
-    }
-    _createClass(Component, [{
-      key: "isDetachAllowed",
-      value: function isDetachAllowed(connection) {
-        var r = true;
-        if (this.beforeDetach) {
-          try {
-            r = this.beforeDetach(connection);
-          } catch (e) {
-            log("jsPlumb: beforeDetach callback failed", e);
-          }
-        }
-        return r;
-      }
-    }, {
-      key: "isDropAllowed",
-      value: function isDropAllowed(sourceId, targetId, scope, connection, dropEndpoint) {
-        var r = this.instance.checkCondition(INTERCEPT_BEFORE_DROP, {
-          sourceId: sourceId,
-          targetId: targetId,
-          scope: scope,
-          connection: connection,
-          dropEndpoint: dropEndpoint
-        });
-        if (this.beforeDrop) {
-          try {
-            r = this.beforeDrop({
-              sourceId: sourceId,
-              targetId: targetId,
-              scope: scope,
-              connection: connection,
-              dropEndpoint: dropEndpoint
-            });
-          } catch (e) {
-            log("jsPlumb: beforeDrop callback failed", e);
-          }
-        }
-        return r;
-      }
-    }, {
-      key: "getDefaultType",
-      value: function getDefaultType() {
-        return this._defaultType;
-      }
-    }, {
-      key: "appendToDefaultType",
-      value: function appendToDefaultType(obj) {
-        for (var i in obj) {
-          this._defaultType[i] = obj[i];
-        }
-      }
-    }, {
-      key: "getId",
-      value: function getId() {
-        return this.id;
-      }
-    }, {
-      key: "cacheTypeItem",
-      value: function cacheTypeItem(key, item, typeId) {
-        this._typeCache[typeId] = this._typeCache[typeId] || {};
-        this._typeCache[typeId][key] = item;
-      }
-    }, {
-      key: "getCachedTypeItem",
-      value: function getCachedTypeItem(key, typeId) {
-        return this._typeCache[typeId] ? this._typeCache[typeId][key] : null;
-      }
-    }, {
-      key: "setType",
-      value: function setType(typeId, params) {
-        this.clearTypes();
-        this._types = _splitType(typeId) || [];
-        _applyTypes(this, params);
-      }
-    }, {
-      key: "getType",
-      value: function getType() {
-        return this._types;
-      }
-    }, {
-      key: "reapplyTypes",
-      value: function reapplyTypes(params) {
-        _applyTypes(this, params);
-      }
-    }, {
-      key: "hasType",
-      value: function hasType(typeId) {
-        return this._types.indexOf(typeId) !== -1;
-      }
-    }, {
-      key: "addType",
-      value: function addType(typeId, params) {
-        var t = _splitType(typeId),
-            _somethingAdded = false;
-        if (t != null) {
-          for (var i = 0, j = t.length; i < j; i++) {
-            if (!this.hasType(t[i])) {
-              this._types.push(t[i]);
-              _somethingAdded = true;
-            }
-          }
-          if (_somethingAdded) {
-            _applyTypes(this, params);
-          }
-        }
-      }
-    }, {
-      key: "removeType",
-      value: function removeType(typeId, params) {
-        var _this2 = this;
-        var t = _splitType(typeId),
-            _cont = false,
-            _one = function _one(tt) {
-          var idx = _this2._types.indexOf(tt);
-          if (idx !== -1) {
-            _removeTypeCssHelper(_this2, idx);
-            _this2._types.splice(idx, 1);
-            return true;
-          }
-          return false;
-        };
-        if (t != null) {
-          for (var i = 0, j = t.length; i < j; i++) {
-            _cont = _one(t[i]) || _cont;
-          }
-          if (_cont) {
-            _applyTypes(this, params);
-          }
-        }
-      }
-    }, {
-      key: "clearTypes",
-      value: function clearTypes(params, doNotRepaint) {
-        var i = this._types.length;
-        for (var j = 0; j < i; j++) {
-          _removeTypeCssHelper(this, 0);
-          this._types.splice(0, 1);
-        }
-        _applyTypes(this, params);
-      }
-    }, {
-      key: "toggleType",
-      value: function toggleType(typeId, params) {
-        var t = _splitType(typeId);
-        if (t != null) {
-          for (var i = 0, j = t.length; i < j; i++) {
-            var idx = this._types.indexOf(t[i]);
-            if (idx !== -1) {
-              _removeTypeCssHelper(this, idx);
-              this._types.splice(idx, 1);
-            } else {
-              this._types.push(t[i]);
-            }
-          }
-          _applyTypes(this, params);
-        }
-      }
-    }, {
-      key: "applyType",
-      value: function applyType(t, params) {
-        this.setPaintStyle(t.paintStyle);
-        this.setHoverPaintStyle(t.hoverPaintStyle);
-        this.mergeParameters(t.parameters);
-        this.paintStyleInUse = this.getPaintStyle();
-      }
-    }, {
-      key: "setPaintStyle",
-      value: function setPaintStyle(style) {
-        this.paintStyle = style;
-        this.paintStyleInUse = this.paintStyle;
-        _updateHoverStyle(this);
-      }
-    }, {
-      key: "getPaintStyle",
-      value: function getPaintStyle() {
-        return this.paintStyle;
-      }
-    }, {
-      key: "setHoverPaintStyle",
-      value: function setHoverPaintStyle(style) {
-        this.hoverPaintStyle = style;
-        _updateHoverStyle(this);
-      }
-    }, {
-      key: "getHoverPaintStyle",
-      value: function getHoverPaintStyle() {
-        return this.hoverPaintStyle;
-      }
-    }, {
-      key: "destroy",
-      value: function destroy(force) {
-        if (force || this.typeId == null) {
-          this.unbind();
-          this.clone = null;
-        }
-      }
-    }, {
-      key: "isHover",
-      value: function isHover() {
-        return this._hover;
-      }
-    }, {
-      key: "mergeParameters",
-      value: function mergeParameters(p) {
-        if (p != null) {
-          extend(this.parameters, p);
-        }
-      }
-    }, {
-      key: "setVisible",
-      value: function setVisible(v) {
-        this.visible = v;
-      }
-    }, {
-      key: "isVisible",
-      value: function isVisible() {
-        return this.visible;
-      }
-    }, {
-      key: "addClass",
-      value: function addClass(clazz, dontUpdateOverlays) {
-        var parts = (this.cssClass || "").split(" ");
-        parts.push(clazz);
-        this.cssClass = parts.join(" ");
-      }
-    }, {
-      key: "removeClass",
-      value: function removeClass(clazz, dontUpdateOverlays) {
-        var parts = (this.cssClass || "").split(" ");
-        this.cssClass = parts.filter(function (p) {
-          return p !== clazz;
-        }).join(" ");
-      }
-    }, {
-      key: "getClass",
-      value: function getClass() {
-        return this.cssClass;
-      }
-    }, {
-      key: "shouldFireEvent",
-      value: function shouldFireEvent(event, value, originalEvent) {
-        return true;
-      }
-    }, {
-      key: "getData",
-      value: function getData() {
-        return this.data;
-      }
-    }, {
-      key: "setData",
-      value: function setData(d) {
-        this.data = d || {};
-      }
-    }, {
-      key: "mergeData",
-      value: function mergeData(d) {
-        this.data = extend(this.data, d);
-      }
-    }]);
-    return Component;
-  }(EventGenerator);
-
   function isFullOverlaySpec(o) {
     return o.type != null && o.options != null;
   }
@@ -3863,11 +3485,69 @@
   }
   OverlayFactory.register("Label", LabelOverlay);
 
+  function _splitType(t) {
+    return t == null ? null : t.split(" ");
+  }
+  function _mapType(map, obj, typeId) {
+    for (var i in obj) {
+      map[i] = typeId;
+    }
+  }
+  var CONNECTOR = "connector";
+  var MERGE_STRATEGY_OVERRIDE = "override";
+  var CSS_CLASS = "cssClass";
+  var DEFAULT_TYPE_KEY = "__default";
+  var ANCHOR = "anchor";
+  var ANCHORS = "anchors";
   var _internalLabelOverlayId = "__label";
   var TYPE_ITEM_OVERLAY = "overlay";
   var LOCATION_ATTRIBUTE = "labelLocation";
   var ACTION_ADD = "add";
   var ACTION_REMOVE = "remove";
+  function _applyTypes(component, params) {
+    if (component.getDefaultType) {
+      var td = component.getTypeDescriptor(),
+          map = {};
+      var defType = component.getDefaultType();
+      var o = extend({}, defType);
+      _mapType(map, defType, DEFAULT_TYPE_KEY);
+      for (var i = 0, j = component._types.length; i < j; i++) {
+        var tid = component._types[i];
+        if (tid !== DEFAULT_TYPE_KEY) {
+          var _t = component.instance.getType(tid, td);
+          if (_t != null) {
+            var overrides = new Set([CONNECTOR, ANCHOR, ANCHORS]);
+            if (_t.mergeStrategy === MERGE_STRATEGY_OVERRIDE) {
+              for (var k in _t) {
+                overrides.add(k);
+              }
+            }
+            o = merge(o, _t, [CSS_CLASS], setToArray(overrides));
+            _mapType(map, _t, tid);
+          }
+        }
+      }
+      if (params) {
+        o = populate(o, params, "_");
+      }
+      component.applyType(o, map);
+    }
+  }
+  function _removeTypeCssHelper(component, typeIndex) {
+    var typeId = component._types[typeIndex],
+        type = component.instance.getType(typeId, component.getTypeDescriptor());
+    if (type != null && type.cssClass) {
+      component.removeClass(type.cssClass);
+    }
+  }
+  function _updateHoverStyle(component) {
+    if (component.paintStyle && component.hoverPaintStyle) {
+      var mergedHoverStyle = {};
+      extend(mergedHoverStyle, component.paintStyle);
+      extend(mergedHoverStyle, component.hoverPaintStyle);
+      component.hoverPaintStyle = mergedHoverStyle;
+    }
+  }
   function _makeLabelOverlay(component, params) {
     var _params = {
       cssClass: params.cssClass,
@@ -3893,19 +3573,67 @@
     component.overlays[_newOverlay.id] = _newOverlay;
     return _newOverlay;
   }
-  var OverlayCapableComponent =
-  function (_Component) {
-    _inherits(OverlayCapableComponent, _Component);
-    function OverlayCapableComponent(instance, params) {
+  var Component =
+  function (_EventGenerator) {
+    _inherits(Component, _EventGenerator);
+    function Component(instance, params) {
       var _this;
-      _classCallCheck(this, OverlayCapableComponent);
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(OverlayCapableComponent).call(this, instance, params));
+      _classCallCheck(this, Component);
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Component).call(this));
       _this.instance = instance;
       _defineProperty(_assertThisInitialized(_this), "defaultLabelLocation", 0.5);
       _defineProperty(_assertThisInitialized(_this), "overlays", {});
       _defineProperty(_assertThisInitialized(_this), "overlayPositions", {});
       _defineProperty(_assertThisInitialized(_this), "overlayPlacements", {});
+      _defineProperty(_assertThisInitialized(_this), "clone", void 0);
+      _defineProperty(_assertThisInitialized(_this), "deleted", void 0);
+      _defineProperty(_assertThisInitialized(_this), "segment", void 0);
+      _defineProperty(_assertThisInitialized(_this), "x", void 0);
+      _defineProperty(_assertThisInitialized(_this), "y", void 0);
+      _defineProperty(_assertThisInitialized(_this), "w", void 0);
+      _defineProperty(_assertThisInitialized(_this), "h", void 0);
+      _defineProperty(_assertThisInitialized(_this), "id", void 0);
+      _defineProperty(_assertThisInitialized(_this), "visible", true);
+      _defineProperty(_assertThisInitialized(_this), "typeId", void 0);
+      _defineProperty(_assertThisInitialized(_this), "params", {});
+      _defineProperty(_assertThisInitialized(_this), "paintStyle", void 0);
+      _defineProperty(_assertThisInitialized(_this), "hoverPaintStyle", void 0);
+      _defineProperty(_assertThisInitialized(_this), "paintStyleInUse", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_hover", false);
+      _defineProperty(_assertThisInitialized(_this), "lastPaintedAt", void 0);
+      _defineProperty(_assertThisInitialized(_this), "data", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_defaultType", void 0);
+      _defineProperty(_assertThisInitialized(_this), "events", void 0);
+      _defineProperty(_assertThisInitialized(_this), "parameters", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_types", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_typeCache", void 0);
+      _defineProperty(_assertThisInitialized(_this), "cssClass", void 0);
+      _defineProperty(_assertThisInitialized(_this), "hoverClass", void 0);
+      _defineProperty(_assertThisInitialized(_this), "beforeDetach", void 0);
+      _defineProperty(_assertThisInitialized(_this), "beforeDrop", void 0);
       params = params || {};
+      _this.cssClass = params.cssClass || "";
+      _this.hoverClass = params.hoverClass || instance.defaults.hoverClass;
+      _this.beforeDetach = params.beforeDetach;
+      _this.beforeDrop = params.beforeDrop;
+      _this._types = [];
+      _this._typeCache = {};
+      _this.parameters = clone(params.parameters || {});
+      _this.id = _this.getIdPrefix() + new Date().getTime();
+      _this._defaultType = {
+        parameters: _this.parameters,
+        scope: params.scope || _this.instance.defaultScope
+      };
+      if (params.events) {
+        for (var evtName in params.events) {
+          _this.bind(evtName, params.events[evtName]);
+        }
+      }
+      _this.clone = function () {
+        var o = Object.create(_this.constructor.prototype);
+        _this.constructor.apply(o, [instance, params]);
+        return o;
+      };
       _this.overlays = {};
       _this.overlayPositions = {};
       var o = params.overlays || [],
@@ -3934,7 +3662,325 @@
       }
       return _this;
     }
-    _createClass(OverlayCapableComponent, [{
+    _createClass(Component, [{
+      key: "isDetachAllowed",
+      value: function isDetachAllowed(connection) {
+        var r = true;
+        if (this.beforeDetach) {
+          try {
+            r = this.beforeDetach(connection);
+          } catch (e) {
+            log("jsPlumb: beforeDetach callback failed", e);
+          }
+        }
+        return r;
+      }
+    }, {
+      key: "isDropAllowed",
+      value: function isDropAllowed(sourceId, targetId, scope, connection, dropEndpoint) {
+        var r = this.instance.checkCondition(INTERCEPT_BEFORE_DROP, {
+          sourceId: sourceId,
+          targetId: targetId,
+          scope: scope,
+          connection: connection,
+          dropEndpoint: dropEndpoint
+        });
+        if (this.beforeDrop) {
+          try {
+            r = this.beforeDrop({
+              sourceId: sourceId,
+              targetId: targetId,
+              scope: scope,
+              connection: connection,
+              dropEndpoint: dropEndpoint
+            });
+          } catch (e) {
+            log("jsPlumb: beforeDrop callback failed", e);
+          }
+        }
+        return r;
+      }
+    }, {
+      key: "getDefaultType",
+      value: function getDefaultType() {
+        return this._defaultType;
+      }
+    }, {
+      key: "appendToDefaultType",
+      value: function appendToDefaultType(obj) {
+        for (var i in obj) {
+          this._defaultType[i] = obj[i];
+        }
+      }
+    }, {
+      key: "getId",
+      value: function getId() {
+        return this.id;
+      }
+    }, {
+      key: "cacheTypeItem",
+      value: function cacheTypeItem(key, item, typeId) {
+        this._typeCache[typeId] = this._typeCache[typeId] || {};
+        this._typeCache[typeId][key] = item;
+      }
+    }, {
+      key: "getCachedTypeItem",
+      value: function getCachedTypeItem(key, typeId) {
+        return this._typeCache[typeId] ? this._typeCache[typeId][key] : null;
+      }
+    }, {
+      key: "setType",
+      value: function setType(typeId, params) {
+        this.clearTypes();
+        this._types = _splitType(typeId) || [];
+        _applyTypes(this, params);
+      }
+    }, {
+      key: "getType",
+      value: function getType() {
+        return this._types;
+      }
+    }, {
+      key: "reapplyTypes",
+      value: function reapplyTypes(params) {
+        _applyTypes(this, params);
+      }
+    }, {
+      key: "hasType",
+      value: function hasType(typeId) {
+        return this._types.indexOf(typeId) !== -1;
+      }
+    }, {
+      key: "addType",
+      value: function addType(typeId, params) {
+        var t = _splitType(typeId),
+            _somethingAdded = false;
+        if (t != null) {
+          for (var i = 0, j = t.length; i < j; i++) {
+            if (!this.hasType(t[i])) {
+              this._types.push(t[i]);
+              _somethingAdded = true;
+            }
+          }
+          if (_somethingAdded) {
+            _applyTypes(this, params);
+          }
+        }
+      }
+    }, {
+      key: "removeType",
+      value: function removeType(typeId, params) {
+        var _this2 = this;
+        var t = _splitType(typeId),
+            _cont = false,
+            _one = function _one(tt) {
+          var idx = _this2._types.indexOf(tt);
+          if (idx !== -1) {
+            _removeTypeCssHelper(_this2, idx);
+            _this2._types.splice(idx, 1);
+            return true;
+          }
+          return false;
+        };
+        if (t != null) {
+          for (var i = 0, j = t.length; i < j; i++) {
+            _cont = _one(t[i]) || _cont;
+          }
+          if (_cont) {
+            _applyTypes(this, params);
+          }
+        }
+      }
+    }, {
+      key: "clearTypes",
+      value: function clearTypes(params, doNotRepaint) {
+        var i = this._types.length;
+        for (var j = 0; j < i; j++) {
+          _removeTypeCssHelper(this, 0);
+          this._types.splice(0, 1);
+        }
+        _applyTypes(this, params);
+      }
+    }, {
+      key: "toggleType",
+      value: function toggleType(typeId, params) {
+        var t = _splitType(typeId);
+        if (t != null) {
+          for (var i = 0, j = t.length; i < j; i++) {
+            var idx = this._types.indexOf(t[i]);
+            if (idx !== -1) {
+              _removeTypeCssHelper(this, idx);
+              this._types.splice(idx, 1);
+            } else {
+              this._types.push(t[i]);
+            }
+          }
+          _applyTypes(this, params);
+        }
+      }
+    }, {
+      key: "applyType",
+      value: function applyType(t, params) {
+        this.setPaintStyle(t.paintStyle);
+        this.setHoverPaintStyle(t.hoverPaintStyle);
+        this.mergeParameters(t.parameters);
+        this.paintStyleInUse = this.getPaintStyle();
+        if (t.overlays) {
+          var keep = {},
+              i;
+          for (i in t.overlays) {
+            var existing = this.overlays[t.overlays[i].options.id];
+            if (existing) {
+              existing.updateFrom(t.overlays[i].options);
+              keep[t.overlays[i].options.id] = true;
+              this.instance.reattachOverlay(existing, this);
+            } else {
+              var c = this.getCachedTypeItem("overlay", t.overlays[i].options.id);
+              if (c != null) {
+                this.instance.reattachOverlay(c, this);
+                c.setVisible(true);
+                c.updateFrom(t.overlays[i].options);
+                this.overlays[c.id] = c;
+              } else {
+                c = this.addOverlay(t.overlays[i]);
+              }
+              keep[c.id] = true;
+            }
+          }
+          for (i in this.overlays) {
+            if (keep[this.overlays[i].id] == null) {
+              this.removeOverlay(this.overlays[i].id, true);
+            }
+          }
+        }
+      }
+    }, {
+      key: "setPaintStyle",
+      value: function setPaintStyle(style) {
+        this.paintStyle = style;
+        this.paintStyleInUse = this.paintStyle;
+        _updateHoverStyle(this);
+      }
+    }, {
+      key: "getPaintStyle",
+      value: function getPaintStyle() {
+        return this.paintStyle;
+      }
+    }, {
+      key: "setHoverPaintStyle",
+      value: function setHoverPaintStyle(style) {
+        this.hoverPaintStyle = style;
+        _updateHoverStyle(this);
+      }
+    }, {
+      key: "getHoverPaintStyle",
+      value: function getHoverPaintStyle() {
+        return this.hoverPaintStyle;
+      }
+    }, {
+      key: "destroy",
+      value: function destroy(force) {
+        for (var i in this.overlays) {
+          this.instance.destroyOverlay(this.overlays[i]);
+        }
+        if (force || this.typeId == null) {
+          this.overlays = {};
+          this.overlayPositions = {};
+          this.unbind();
+          this.clone = null;
+        }
+      }
+    }, {
+      key: "isHover",
+      value: function isHover() {
+        return this._hover;
+      }
+    }, {
+      key: "mergeParameters",
+      value: function mergeParameters(p) {
+        if (p != null) {
+          extend(this.parameters, p);
+        }
+      }
+    }, {
+      key: "setVisible",
+      value: function setVisible(v) {
+        this.visible = v;
+        if (v) {
+          this.showOverlays();
+        } else {
+          this.hideOverlays();
+        }
+      }
+    }, {
+      key: "isVisible",
+      value: function isVisible() {
+        return this.visible;
+      }
+    }, {
+      key: "setAbsoluteOverlayPosition",
+      value: function setAbsoluteOverlayPosition(overlay, xy) {
+        this.overlayPositions[overlay.id] = xy;
+      }
+    }, {
+      key: "getAbsoluteOverlayPosition",
+      value: function getAbsoluteOverlayPosition(overlay) {
+        return this.overlayPositions ? this.overlayPositions[overlay.id] : null;
+      }
+    }, {
+      key: "_clazzManip",
+      value: function _clazzManip(action, clazz) {
+        for (var i in this.overlays) {
+          if (action === ACTION_ADD) {
+            this.instance.addOverlayClass(this.overlays[i], clazz);
+          } else if (action === ACTION_REMOVE) {
+            this.instance.removeOverlayClass(this.overlays[i], clazz);
+          }
+        }
+      }
+    }, {
+      key: "addClass",
+      value: function addClass(clazz, cascade) {
+        var parts = (this.cssClass || "").split(" ");
+        parts.push(clazz);
+        this.cssClass = parts.join(" ");
+        this._clazzManip(ACTION_ADD, clazz);
+      }
+    }, {
+      key: "removeClass",
+      value: function removeClass(clazz, cascade) {
+        var parts = (this.cssClass || "").split(" ");
+        this.cssClass = parts.filter(function (p) {
+          return p !== clazz;
+        }).join(" ");
+        this._clazzManip(ACTION_REMOVE, clazz);
+      }
+    }, {
+      key: "getClass",
+      value: function getClass() {
+        return this.cssClass;
+      }
+    }, {
+      key: "shouldFireEvent",
+      value: function shouldFireEvent(event, value, originalEvent) {
+        return true;
+      }
+    }, {
+      key: "getData",
+      value: function getData() {
+        return this.data;
+      }
+    }, {
+      key: "setData",
+      value: function setData(d) {
+        this.data = d || {};
+      }
+    }, {
+      key: "mergeData",
+      value: function mergeData(d) {
+        this.data = extend(this.data, d);
+      }
+    }, {
       key: "addOverlay",
       value: function addOverlay(overlay) {
         var o = _processOverlay(this, overlay);
@@ -3995,7 +4041,7 @@
       key: "removeAllOverlays",
       value: function removeAllOverlays() {
         for (var i in this.overlays) {
-          this.instance.destroyOverlay(this.overlays[i], true);
+          this.instance.destroyOverlay(this.overlays[i]);
         }
         this.overlays = {};
         this.overlayPositions = null;
@@ -4008,7 +4054,7 @@
         if (o) {
           o.setVisible(false);
           if (!dontCleanup) {
-            this.instance.destroyOverlay(o, true);
+            this.instance.destroyOverlay(o);
           }
           delete this.overlays[overlayId];
           if (this.overlayPositions) {
@@ -4064,99 +4110,9 @@
           }
         }
       }
-    }, {
-      key: "destroy",
-      value: function destroy(force) {
-        for (var i in this.overlays) {
-          this.instance.destroyOverlay(this.overlays[i], true);
-        }
-        if (force) {
-          this.overlays = {};
-          this.overlayPositions = {};
-        }
-        _get(_getPrototypeOf(OverlayCapableComponent.prototype), "destroy", this).call(this, force);
-      }
-    }, {
-      key: "setVisible",
-      value: function setVisible(v) {
-        _get(_getPrototypeOf(OverlayCapableComponent.prototype), "setVisible", this).call(this, v);
-        if (v) {
-          this.showOverlays();
-        } else {
-          this.hideOverlays();
-        }
-      }
-    }, {
-      key: "setAbsoluteOverlayPosition",
-      value: function setAbsoluteOverlayPosition(overlay, xy) {
-        this.overlayPositions[overlay.id] = xy;
-      }
-    }, {
-      key: "getAbsoluteOverlayPosition",
-      value: function getAbsoluteOverlayPosition(overlay) {
-        return this.overlayPositions ? this.overlayPositions[overlay.id] : null;
-      }
-    }, {
-      key: "_clazzManip",
-      value: function _clazzManip(action, clazz, dontUpdateOverlays) {
-        if (!dontUpdateOverlays) {
-          for (var i in this.overlays) {
-            if (action === ACTION_ADD) {
-              this.instance.addOverlayClass(this.overlays[i], clazz);
-            } else if (action === ACTION_REMOVE) {
-              this.instance.removeOverlayClass(this.overlays[i], clazz);
-            }
-          }
-        }
-      }
-    }, {
-      key: "addClass",
-      value: function addClass(clazz, dontUpdateOverlays) {
-        _get(_getPrototypeOf(OverlayCapableComponent.prototype), "addClass", this).call(this, clazz);
-        this._clazzManip(ACTION_ADD, clazz, dontUpdateOverlays);
-      }
-    }, {
-      key: "removeClass",
-      value: function removeClass(clazz, dontUpdateOverlays) {
-        _get(_getPrototypeOf(OverlayCapableComponent.prototype), "removeClass", this).call(this, clazz);
-        this._clazzManip(ACTION_REMOVE, clazz, dontUpdateOverlays);
-      }
-    }, {
-      key: "applyType",
-      value: function applyType(t, typeMap) {
-        _get(_getPrototypeOf(OverlayCapableComponent.prototype), "applyType", this).call(this, t, typeMap);
-        if (t.overlays) {
-          var keep = {},
-              i;
-          for (i in t.overlays) {
-            var existing = this.overlays[t.overlays[i].options.id];
-            if (existing) {
-              existing.updateFrom(t.overlays[i].options);
-              keep[t.overlays[i].options.id] = true;
-              this.instance.reattachOverlay(existing, this);
-            } else {
-              var c = this.getCachedTypeItem("overlay", t.overlays[i].options.id);
-              if (c != null) {
-                this.instance.reattachOverlay(c, this);
-                c.setVisible(true);
-                c.updateFrom(t.overlays[i].options);
-                this.overlays[c.id] = c;
-              } else {
-                c = this.addOverlay(t.overlays[i]);
-              }
-              keep[c.id] = true;
-            }
-          }
-          for (i in this.overlays) {
-            if (keep[this.overlays[i].id] == null) {
-              this.removeOverlay(this.overlays[i].id, true);
-            }
-          }
-        }
-      }
     }]);
-    return OverlayCapableComponent;
-  }(Component);
+    return Component;
+  }(EventGenerator);
 
   var Anchor =
   function (_EventGenerator) {
@@ -4736,8 +4692,8 @@
     return e;
   }
   var Connection =
-  function (_OverlayCapableCompon) {
-    _inherits(Connection, _OverlayCapableCompon);
+  function (_Component) {
+    _inherits(Connection, _Component);
     _createClass(Connection, [{
       key: "getIdPrefix",
       value: function getIdPrefix() {
@@ -4967,9 +4923,9 @@
       }
     }, {
       key: "addClass",
-      value: function addClass(c, informEndpoints) {
+      value: function addClass(c, cascade) {
         _get(_getPrototypeOf(Connection.prototype), "addClass", this).call(this, c);
-        if (informEndpoints) {
+        if (cascade) {
           this.endpoints[0].addClass(c);
           this.endpoints[1].addClass(c);
           if (this.suspendedEndpoint) {
@@ -4982,9 +4938,9 @@
       }
     }, {
       key: "removeClass",
-      value: function removeClass(c, informEndpoints) {
+      value: function removeClass(c, cascade) {
         _get(_getPrototypeOf(Connection.prototype), "removeClass", this).call(this, c);
-        if (informEndpoints) {
+        if (cascade) {
           this.endpoints[0].removeClass(c);
           this.endpoints[1].removeClass(c);
           if (this.suspendedEndpoint) {
@@ -5118,12 +5074,12 @@
       }
     }]);
     return Connection;
-  }(OverlayCapableComponent);
+  }(Component);
 
   var typeParameters = ["connectorStyle", "connectorHoverStyle", "connectorOverlays", "connector", "connectionType", "connectorClass", "connectorHoverClass"];
   var Endpoint =
-  function (_OverlayCapableCompon) {
-    _inherits(Endpoint, _OverlayCapableCompon);
+  function (_Component) {
+    _inherits(Endpoint, _Component);
     _createClass(Endpoint, [{
       key: "getIdPrefix",
       value: function getIdPrefix() {
@@ -5471,23 +5427,23 @@
       }
     }, {
       key: "addClass",
-      value: function addClass(clazz, dontUpdateOverlays) {
-        _get(_getPrototypeOf(Endpoint.prototype), "addClass", this).call(this, clazz, dontUpdateOverlays);
+      value: function addClass(clazz, cascade) {
+        _get(_getPrototypeOf(Endpoint.prototype), "addClass", this).call(this, clazz, cascade);
         if (this.endpoint != null) {
           this.endpoint.addClass(clazz);
         }
       }
     }, {
       key: "removeClass",
-      value: function removeClass(clazz, dontUpdateOverlays) {
-        _get(_getPrototypeOf(Endpoint.prototype), "removeClass", this).call(this, clazz, dontUpdateOverlays);
+      value: function removeClass(clazz, cascade) {
+        _get(_getPrototypeOf(Endpoint.prototype), "removeClass", this).call(this, clazz, cascade);
         if (this.endpoint != null) {
           this.endpoint.removeClass(clazz);
         }
       }
     }]);
     return Endpoint;
-  }(OverlayCapableComponent);
+  }(Component);
 
   var UINode = function UINode(instance, el) {
     _classCallCheck(this, UINode);
@@ -6990,17 +6946,17 @@
       }
     }, {
       key: "addClass",
-      value: function addClass(clazz, updateAttachedElements) {
+      value: function addClass(clazz, cascade) {
         this.each(function (c) {
-          return c.addClass(clazz, updateAttachedElements);
+          return c.addClass(clazz, cascade);
         });
         return this;
       }
     }, {
       key: "removeClass",
-      value: function removeClass(clazz, updateAttachedElements) {
+      value: function removeClass(clazz, cascade) {
         this.each(function (c) {
-          return c.removeClass(clazz, updateAttachedElements);
+          return c.removeClass(clazz, cascade);
         });
         return this;
       }
@@ -9665,7 +9621,6 @@
   exports.NONE = NONE;
   exports.OptimisticEventGenerator = OptimisticEventGenerator;
   exports.Overlay = Overlay;
-  exports.OverlayCapableComponent = OverlayCapableComponent;
   exports.OverlayFactory = OverlayFactory;
   exports.PROPERTY_POSITION = PROPERTY_POSITION;
   exports.PlainArrowOverlay = PlainArrowOverlay;

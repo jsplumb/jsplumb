@@ -3,7 +3,7 @@ import { ConnectionTypeDescriptor, ConnectParams } from '../common';
 import { AbstractConnector } from "./abstract-connector";
 import { Endpoint } from "../endpoint/endpoint";
 import { PaintStyle } from "../styles";
-import { OverlayCapableComponent } from "../component/overlay-capable-component";
+import { Component } from "../component/component";
 import { Merge, Omit } from "../util";
 import { AnchorSpec } from "../factory/anchor-factory";
 import { ConnectorSpec } from "./abstract-connector";
@@ -16,7 +16,7 @@ export declare type ConnectionOptions<E = any> = Merge<OnlyPluralsConnectParams<
     targetEndpoint?: Endpoint;
     previousConnection?: Connection<E>;
 }>;
-export declare class Connection<E = any> extends OverlayCapableComponent {
+export declare class Connection<E = any> extends Component {
     instance: JsPlumbInstance;
     id: string;
     connector: AbstractConnector;
@@ -63,8 +63,8 @@ export declare class Connection<E = any> extends OverlayCapableComponent {
     isReattach(): boolean;
     setReattach(reattach: boolean): void;
     applyType(t: ConnectionTypeDescriptor, typeMap: any): void;
-    addClass(c: string, informEndpoints?: boolean): void;
-    removeClass(c: string, informEndpoints?: boolean): void;
+    addClass(c: string, cascade?: boolean): void;
+    removeClass(c: string, cascade?: boolean): void;
     setVisible(v: boolean): void;
     destroy(force?: boolean): void;
     getUuids(): [string, string];

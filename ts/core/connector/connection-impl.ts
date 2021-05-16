@@ -365,31 +365,33 @@ export class Connection<E = any> extends Component {
         this.instance.applyConnectorType(this.connector, t)
     }
 
-    addClass(c:string, cascade:boolean, dontUpdateOverlays:boolean) {
-        super.addClass(c, cascade, dontUpdateOverlays)
+    addClass(c:string, cascade?:boolean) {
+        super.addClass(c)
 
         if (cascade) {
-            this.endpoints[0].addClass(c, false, true)
-            this.endpoints[1].addClass(c, false, true)
+            this.endpoints[0].addClass(c)
+            this.endpoints[1].addClass(c)
             if (this.suspendedEndpoint) {
-                this.suspendedEndpoint.addClass(c, false, true)
+                this.suspendedEndpoint.addClass(c)
             }
         }
+
         if (this.connector) {
             this.instance.addConnectorClass(this.connector, c)
         }
     }
 
-    removeClass(c:string, cascade:boolean, dontUpdateOverlays:boolean) {
-        super.removeClass(c, cascade, dontUpdateOverlays)
+    removeClass(c:string, cascade?:boolean) {
+        super.removeClass(c)
 
         if (cascade) {
-            this.endpoints[0].removeClass(c, false, true)
-            this.endpoints[1].removeClass(c, false, true)
+            this.endpoints[0].removeClass(c)
+            this.endpoints[1].removeClass(c)
             if (this.suspendedEndpoint) {
-                this.suspendedEndpoint.removeClass(c, false, true)
+                this.suspendedEndpoint.removeClass(c)
             }
         }
+
         if (this.connector) {
             this.instance.removeConnectorClass(this.connector, c)
         }
@@ -482,7 +484,7 @@ export class Connection<E = any> extends Component {
             }
 
             // put classes from prior connector onto the canvas
-            this.addClass(previousClasses, false, true)
+            this.addClass(previousClasses)
 
             if (previous != null) {
                 let o:Dictionary<Overlay> = this.getOverlays()

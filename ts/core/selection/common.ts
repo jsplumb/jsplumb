@@ -22,13 +22,13 @@ export class SelectionBase<T extends Component>{
         return this.entries[index]
     }
 
-    addClass(clazz:string, updateAttachedElements?:boolean):SelectionBase<T> {
-        this.each((c:T) => c.addClass(clazz, updateAttachedElements, false))
+    addClass(clazz:string, cascade?:boolean):SelectionBase<T> {
+        this.each((c:T) => c.addClass(clazz, cascade))
         return this
     }
 
-    removeClass(clazz:string, updateAttachedElements?:boolean):SelectionBase<T> {
-        this.each((c:T) => c.removeClass(clazz, updateAttachedElements, false))
+    removeClass(clazz:string, cascade?:boolean):SelectionBase<T> {
+        this.each((c:T) => c.removeClass(clazz, cascade))
         return this
     }
 

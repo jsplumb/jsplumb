@@ -6,7 +6,7 @@ import { ConnectorSpec } from "../connector/abstract-connector";
 import { Connection } from "../connector/connection-impl";
 import { EndpointRepresentation } from './endpoints';
 import { DeleteConnectionOptions, JsPlumbInstance } from '../core';
-import { OverlayCapableComponent } from '../component/overlay-capable-component';
+import { Component } from "../component/component";
 export declare type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndpointId;
 export declare type UserDefinedEndpointId = string;
 export declare type EndpointParams = any;
@@ -142,7 +142,7 @@ export interface EndpointOptions<E = any> {
      */
     deleteOnEmpty?: boolean;
 }
-export declare class Endpoint<E = any> extends OverlayCapableComponent {
+export declare class Endpoint<E = any> extends Component {
     instance: JsPlumbInstance;
     getIdPrefix(): string;
     getTypeDescriptor(): string;
@@ -224,6 +224,6 @@ export declare class Endpoint<E = any> extends OverlayCapableComponent {
     private prepareEndpoint;
     setEndpoint<C>(ep: EndpointSpec | EndpointRepresentation<C>): void;
     private setPreparedEndpoint;
-    addClass(clazz: string, dontUpdateOverlays?: boolean): void;
-    removeClass(clazz: string, dontUpdateOverlays?: boolean): void;
+    addClass(clazz: string, cascade?: boolean): void;
+    removeClass(clazz: string, cascade?: boolean): void;
 }

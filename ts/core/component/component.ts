@@ -79,7 +79,7 @@ export function _removeTypeCssHelper<E>(component:Component, typeIndex:number) {
         type = component.instance.getType(typeId, component.getTypeDescriptor())
 
      if (type != null && type.cssClass) {
-        component.removeClass(type.cssClass, false, true)
+        component.removeClass(type.cssClass)
     }
 }
 
@@ -526,29 +526,28 @@ export abstract class Component extends EventGenerator {
         return this.overlayPositions ? this.overlayPositions[overlay.id] : null
     }
 
-    private _clazzManip(action:ClassAction, clazz:string, dontUpdateOverlays?:boolean) {
-        if (!dontUpdateOverlays) {
-            for (let i in this.overlays) {
-                if (action === ACTION_ADD) {
-                    this.instance.addOverlayClass(this.overlays[i], clazz)
-                } else if (action === ACTION_REMOVE) {
-                    this.instance.removeOverlayClass(this.overlays[i], clazz)
-                }
+    private _clazzManip(action:ClassAction, clazz:string) {
+
+        for (let i in this.overlays) {
+            if (action === ACTION_ADD) {
+                this.instance.addOverlayClass(this.overlays[i], clazz)
+            } else if (action === ACTION_REMOVE) {
+                this.instance.removeOverlayClass(this.overlays[i], clazz)
             }
         }
     }
 
-    addClass(clazz:string, cascade:boolean, dontUpdateOverlays:boolean):void {
+    addClass(clazz:string, cascade?:boolean):void {
         let parts = (this.cssClass || "").split(" ")
         parts.push(clazz)
         this.cssClass = parts.join(" ")
-        this._clazzManip(ACTION_ADD, clazz, dontUpdateOverlays)
+        this._clazzManip(ACTION_ADD, clazz)
     }
 
-    removeClass(clazz:string, cascade:boolean, dontUpdateOverlays:boolean):void {
+    removeClass(clazz:string, cascade?:boolean):void {
         let parts = (this.cssClass || "").split(" ")
         this.cssClass = parts.filter((p) => p !== clazz).join(" ")
-        this._clazzManip(ACTION_REMOVE, clazz, dontUpdateOverlays)
+        this._clazzManip(ACTION_REMOVE, clazz)
     }
 
     getClass() : string {

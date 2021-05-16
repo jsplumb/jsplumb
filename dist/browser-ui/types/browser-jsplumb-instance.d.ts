@@ -1,4 +1,4 @@
-import { JsPlumbDefaults, Dictionary, Size, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, OverlayCapableComponent, Segment, LabelOverlay, Connection, Component, DeleteConnectionOptions, PointXY, BehaviouralTypeDescriptor, SourceSelector, Extents } from '@jsplumb/core';
+import { JsPlumbDefaults, Dictionary, Size, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, Segment, LabelOverlay, Connection, Component, DeleteConnectionOptions, PointXY, BehaviouralTypeDescriptor, SourceSelector, Extents } from '@jsplumb/core';
 import { DragManager } from "./drag-manager";
 import { jsPlumbDOMElement } from './element-facade';
 import { EventManager } from "./event-manager";
@@ -245,7 +245,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     removeOverlayClass(o: Overlay, clazz: string): void;
     paintOverlay(o: Overlay, params: any, extents: any): void;
     setOverlayVisible(o: Overlay, visible: boolean): void;
-    reattachOverlay(o: Overlay, c: OverlayCapableComponent): void;
+    reattachOverlay(o: Overlay, c: Component): void;
     setOverlayHover(o: Overlay, hover: boolean): void;
     destroyOverlay(o: Overlay): void;
     drawOverlay(o: Overlay, component: any, paintStyle: PaintStyle, absolutePosition?: PointXY): any;
