@@ -21,4 +21,4 @@ export function isDiamondOverlay(o:Overlay):o is DiamondOverlay {
     return o.type === DiamondOverlay.type
 }
 
-OverlayFactory.register("Diamond", DiamondOverlay)
+OverlayFactory.register(DiamondOverlay.type, DiamondOverlay)

@@ -1701,7 +1701,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         }
     }
 
-    registerConnectionType(id:string, type:TypeDescriptor):void {
+    registerConnectionType(id:string, type:ConnectionTypeDescriptor):void {
         this._connectionTypes.set(id, extend({}, type))
         if (type.overlays) {
             let to:Dictionary<FullOverlaySpec> = {}
@@ -1715,13 +1715,13 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         }
     }
 
-    registerConnectionTypes(types:Dictionary<TypeDescriptor>) {
+    registerConnectionTypes(types:Dictionary<ConnectionTypeDescriptor>) {
         for (let i in types) {
             this.registerConnectionType(i, types[i])
         }
     }
 
-    registerEndpointType(id:string, type:TypeDescriptor) {
+    registerEndpointType(id:string, type:EndpointTypeDescriptor) {
         this._endpointTypes.set(id, extend({}, type))
         if (type.overlays) {
             let to:Dictionary<FullOverlaySpec> = {}
@@ -1735,7 +1735,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         }
     }
 
-    registerEndpointTypes(types:Dictionary<TypeDescriptor>) {
+    registerEndpointTypes(types:Dictionary<EndpointTypeDescriptor>) {
         for (let i in types) {
             this.registerEndpointType(i, types[i])
         }

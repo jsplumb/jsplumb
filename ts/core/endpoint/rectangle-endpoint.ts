@@ -1,3 +1,4 @@
+import {EndpointRepresentation, EndpointRepresentationParams} from "./endpoints"
 import {EndpointRepresentation} from "./endpoints"
 import {Orientation} from "../factory/anchor-record-factory"
 import {Endpoint} from "./endpoint"
@@ -5,7 +6,7 @@ import {AnchorPlacement} from "../router/router"
 
 export type ComputedRectangleEndpoint = [ number, number, number, number ]
 
-export interface RectangleEndpointParams {
+export interface RectangleEndpointParams extends EndpointRepresentationParams {
     width?:number
     height?:number
 }
@@ -17,7 +18,7 @@ export class RectangleEndpoint extends EndpointRepresentation<ComputedRectangleE
 
     constructor(endpoint:Endpoint, params?:RectangleEndpointParams) {
 
-        super(endpoint)
+        super(endpoint, params)
 
         params = params || {}
         this.width = params.width || 10

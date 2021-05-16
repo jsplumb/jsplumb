@@ -291,7 +291,7 @@ var testSuite = function () {
         ] }),
             sa = _jsPlumb.router.getEndpointLocation(conn.endpoints[0]),
             ta = _jsPlumb.router.getEndpointLocation(conn.endpoints[1]);
-        
+
         assertConnectionByScopeCount(_jsPlumb.defaultScope, 1, _jsPlumb);
         equal(conn.connector.type, "Straight", "Canvas Straight connector chosen for connection");
         equal(0.3, sa.x, "source anchor x");

@@ -109,4 +109,4 @@ export function isArrowOverlay(o:Overlay):o is ArrowOverlay {
     return o.type === ArrowOverlay.type
 }
 
-OverlayFactory.register("Arrow", ArrowOverlay)
+OverlayFactory.register(ArrowOverlay.type, ArrowOverlay)

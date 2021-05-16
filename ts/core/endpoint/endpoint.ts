@@ -126,9 +126,9 @@ export class Endpoint<E = any> extends Component {
 
         this.deleteOnEmpty = params.deleteOnEmpty === true
 
-        this.isSource = params.source || false
+        this.isSource = params.source !== false
         this.isTemporarySource = params.isTemporarySource || false
-        this.isTarget = params.target || false
+        this.isTarget = params.target !== false
 
         this.connections = params.connections || []
 
@@ -387,7 +387,7 @@ export class Endpoint<E = any> extends Component {
         }
         else {
             const fep = ep as FullEndpointSpec
-            endpointArgs = merge(fep.options, endpointArgs)
+            extend(endpointArgs, fep.options || {})
             endpoint = EndpointFactory.get(this, fep.type, endpointArgs)
         }
 
