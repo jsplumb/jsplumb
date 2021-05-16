@@ -8,7 +8,7 @@ import { EndpointFactory } from "../factory/endpoint-factory"
 import { EndpointRepresentation } from './endpoints'
 import {extend, merge, isString, isAssignableFrom} from '../util'
 import {DeleteConnectionOptions, JsPlumbInstance} from '../core'
-import { OverlayCapableComponent } from '../component/overlay-capable-component'
+import {Component} from "../component/component"
 import {DEFAULT, EVENT_ANCHOR_CHANGED, EVENT_MAX_CONNECTIONS} from "../constants"
 
 export type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndpointId
@@ -177,7 +177,7 @@ export interface EndpointOptions<E = any> {
 
 const typeParameters = [ "connectorStyle", "connectorHoverStyle", "connectorOverlays", "connector", "connectionType", "connectorClass", "connectorHoverClass" ]
 
-export class Endpoint<E = any> extends OverlayCapableComponent {
+export class Endpoint<E = any> extends Component {
 
     getIdPrefix ():string { return  "_jsplumb_e"; }
 
@@ -323,8 +323,8 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
             let anchorClass = this.instance.endpointAnchorClassPrefix + (this.currentAnchorClass ? "-" + this.currentAnchorClass : "")
 
             if (oldAnchorClass !== anchorClass) {
-                this.removeClass(oldAnchorClass)
-                this.addClass(anchorClass)
+                this.removeClass(oldAnchorClass, false, true)
+                this.addClass(anchorClass, false, true)
                 this.instance.removeClass(this.element, oldAnchorClass)
                 this.instance.addClass(this.element, anchorClass)
             }
@@ -358,14 +358,14 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         this.connections.push(conn)
 
         if (wasEmpty) {
-            this.addClass(this.instance.endpointConnectedClass)
+            this.addClass(this.instance.endpointConnectedClass, false, true)
         }
         if (this.isFull()) {
             if (!wasFull) {
-                this.addClass(this.instance.endpointFullClass)
+                this.addClass(this.instance.endpointFullClass, false, true)
             }
         } else if (wasFull) {
-            this.removeClass(this.instance.endpointFullClass)
+            this.removeClass(this.instance.endpointFullClass, false, true)
         }
     }
 
@@ -560,15 +560,15 @@ export class Endpoint<E = any> extends OverlayCapableComponent {
         this.endpoint = ep
     }
 
-    addClass(clazz: string, dontUpdateOverlays?: boolean): void {
-        super.addClass(clazz, dontUpdateOverlays)
+    addClass(clazz: string, cascade:boolean, dontUpdateOverlays: boolean): void {
+        super.addClass(clazz, cascade, dontUpdateOverlays)
         if (this.endpoint != null) {
             this.endpoint.addClass(clazz)
         }
     }
 
-    removeClass(clazz: string, dontUpdateOverlays?: boolean): void {
-        super.removeClass(clazz, dontUpdateOverlays)
+    removeClass(clazz: string, cascade:boolean, dontUpdateOverlays: boolean): void {
+        super.removeClass(clazz, cascade, dontUpdateOverlays)
         if (this.endpoint != null) {
             this.endpoint.removeClass(clazz)
         }

@@ -52,7 +52,6 @@ import { Overlay } from './overlay/overlay'
 import { LabelOverlay } from './overlay/label-overlay'
 import { AbstractConnector } from './connector/abstract-connector'
 import { BezierConnector } from './connector/bezier-connector'
-import { OverlayCapableComponent } from './component/overlay-capable-component'
 import { PaintStyle} from './styles'
 import {AnchorComputeParams, AnchorSpec, AnchorLocations } from "./factory/anchor-factory"
 import {SourceSelector, TargetSelector} from "./source-selector"
@@ -70,8 +69,7 @@ import {
     CLASS_OVERLAY,
     ERROR_SOURCE_DOES_NOT_EXIST,
     ERROR_SOURCE_ENDPOINT_FULL, ERROR_TARGET_DOES_NOT_EXIST,
-    ERROR_TARGET_ENDPOINT_FULL,
-    SELECTOR_MANAGED_ELEMENT
+    ERROR_TARGET_ENDPOINT_FULL
 } from "./constants"
 
 function _scopeMatch(e1:Endpoint, e2:Endpoint):boolean {
@@ -2156,10 +2154,10 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     abstract addOverlayClass(o:Overlay, clazz:string):void
     abstract removeOverlayClass(o:Overlay, clazz:string):void
     abstract setOverlayVisible(o: Overlay, visible:boolean):void
-    abstract destroyOverlay(o: Overlay, force?:boolean):void
+    abstract destroyOverlay(o: Overlay):void
     abstract updateLabel(o:LabelOverlay):void
     abstract drawOverlay(overlay:Overlay, component:any, paintStyle:PaintStyle, absolutePosition?:PointXY):any
-    abstract reattachOverlay(o:Overlay, c:OverlayCapableComponent):void
+    abstract reattachOverlay(o:Overlay, c:Component):void
 
     abstract setOverlayHover(o:Overlay, hover:boolean):void
 

@@ -21,7 +21,6 @@ export * from "./group/group"
 export * from "./group/group-manager"
 
 export * from "./component/component"
-export * from "./component/overlay-capable-component"
 
 export * from "./geom"
 export * from "./bezier"

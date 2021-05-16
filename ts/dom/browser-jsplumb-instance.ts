@@ -48,7 +48,6 @@ import {
     PROPERTY_POSITION,
     UNDEFINED,
     PaintStyle,
-    OverlayCapableComponent,
     Segment,
     BezierSegment,
     ArcSegment,
@@ -1032,7 +1031,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
     }
 
-    reattachOverlay(o: Overlay, c: OverlayCapableComponent): void {
+    reattachOverlay(o: Overlay, c: Component): void {
         if (isLabelOverlay(o)) {
             o.instance._appendElement(getLabelElement(o), this.getContainer())
         } else if (isCustomOverlay(o)) {
