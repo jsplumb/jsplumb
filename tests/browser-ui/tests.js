@@ -3430,9 +3430,9 @@ var testSuite = function () {
 
     test(" selectEndpoints, isSource tests", function () {
         var d1 = support.addDiv("d1"), _d2 = support.addDiv("d2"),
-            e1 = _jsPlumb.addEndpoint(d1, {target:false}),
-            e2 = _jsPlumb.addEndpoint(d1, {source:false, target:false}),
-            e3 = _jsPlumb.addEndpoint(d2, {target:false});
+            e1 = _jsPlumb.addEndpoint(d1, {source:true}),
+            e2 = _jsPlumb.addEndpoint(d1),
+            e3 = _jsPlumb.addEndpoint(d2, {source:true});
 
         equal(_jsPlumb.selectEndpoints({source: d1}).length, 1, "there is one source endpoint on d1");
         equal(_jsPlumb.selectEndpoints({target: d1}).length, 0, "there are zero target endpoints on d1");
@@ -3444,9 +3444,9 @@ var testSuite = function () {
 
     test(" selectEndpoints, isTarget tests", function () {
         var d1 = support.addDiv("d1"), _d2 = support.addDiv("d2"),
-            e1 = _jsPlumb.addEndpoint(d1, {source:false}),
-            e2 = _jsPlumb.addEndpoint(d1, {source:false, target:false}),
-            e3 = _jsPlumb.addEndpoint(d2, {source:false});
+            e1 = _jsPlumb.addEndpoint(d1, {target:true}),
+            e2 = _jsPlumb.addEndpoint(d1),
+            e3 = _jsPlumb.addEndpoint(d2, {target:true});
 
         equal(_jsPlumb.selectEndpoints({target: d1}).length, 1, "there is one target endpoint on d1");
         equal(_jsPlumb.selectEndpoints({source: d1}).length, 0, "there are zero source endpoints on d1");
@@ -3458,10 +3458,10 @@ var testSuite = function () {
 
     test(" selectEndpoints, isSource + target tests", function () {
         var d1 = support.addDiv("d1"), _d2 = support.addDiv("d2"),
-            e1 = _jsPlumb.addEndpoint(d1),
-            e2 = _jsPlumb.addEndpoint(d1, {source:false, target:false}),
-            e3 = _jsPlumb.addEndpoint(d1, {target:false}),
-            e4 = _jsPlumb.addEndpoint(d1, {source:false});
+            e1 = _jsPlumb.addEndpoint(d1, {source:true, target:true}),
+            e2 = _jsPlumb.addEndpoint(d1),
+            e3 = _jsPlumb.addEndpoint(d1, {source:true}),
+            e4 = _jsPlumb.addEndpoint(d1, {target:true});
 
         equal(_jsPlumb.selectEndpoints({source:d1}).length, 2, "there are two source endpoints on d1");
         equal(_jsPlumb.selectEndpoints({target: d1}).length, 2, "there are two target endpoints on d1");
