@@ -1,8 +1,9 @@
 import {extend, isArray, isNumber, isString, uuid, map} from "../util"
 import {PointXY, Rotations, Size} from "../common"
 import {AnchorPlacement} from "../router/router"
-import {Connection, Endpoint, JsPlumbInstance} from "@jsplumb/core"
-import {jsPlumbDOMElement} from "@jsplumb/dom"
+import { Connection } from "../connector/connection-impl"
+import { Endpoint } from "../endpoint/endpoint"
+import { JsPlumbInstance } from "../core"
 
 export type AnchorOrientationHint = -1 | 0 | 1
 export type Orientation = [  number, number ]
@@ -127,7 +128,7 @@ export class LightweightFloatingAnchor implements LightweightAnchor {
 
     size:Size
 
-    constructor(public instance:JsPlumbInstance, public element:jsPlumbDOMElement) {
+    constructor(public instance:JsPlumbInstance, public element:any) {
         this.size = instance.getSize(element)
     }
 
@@ -224,7 +225,7 @@ function _createAnchor(type:string, locations:Array<AnchorRecord>, params:Record
     }
 }
 
-export function createFloatingAnchor(instance:JsPlumbInstance, element:jsPlumbDOMElement):LightweightFloatingAnchor {
+export function createFloatingAnchor(instance:JsPlumbInstance, element:any):LightweightFloatingAnchor {
     return new LightweightFloatingAnchor(instance, element)
 }
 
