@@ -1,7 +1,15 @@
 import {EndpointRepresentation} from "../endpoint/endpoints"
 import {Constructable, Dictionary} from "../common"
 import {Endpoint} from "../endpoint/endpoint"
+import {Orientation} from "../factory/anchor-record-factory"
+import { AnchorPlacement } from "../router/router"
+import {log} from "../util"
+
 const endpointMap:Dictionary<Constructable<EndpointRepresentation<any>>> = {}
+const endpointComputers:Dictionary<EndpointComputeFunction<any>> = {}
+const handlers:Dictionary<EndpointHandler<any, any>> = {}
+
+export type EndpointComputeFunction<T> = (endpoint:EndpointRepresentation<T>, anchorPoint:AnchorPlacement, orientation:Orientation, endpointStyle:any) => T
 
 export const EndpointFactory = {
     get:(ep:Endpoint, name:string, params:any):EndpointRepresentation<any> => {
@@ -14,11 +22,30 @@ export const EndpointFactory = {
         }
     },
 
-    register:(name:string, ep:Constructable<EndpointRepresentation<any>>) => {
-        endpointMap[name] = ep
+    clone:<C>(epr:EndpointRepresentation<C>):EndpointRepresentation<C> => {
+        const handler = handlers[epr.type]
+        return EndpointFactory.get(epr.endpoint, epr.type, handler.getParams(epr))
     },
 
-    clone:<C>(epr:EndpointRepresentation<C>):EndpointRepresentation<C> => {
-        return EndpointFactory.get(epr.endpoint, epr.type, epr.getParams())
+    compute:<T>(endpoint:EndpointRepresentation<T>, anchorPoint:AnchorPlacement, orientation:Orientation, endpointStyle:any):T => {
+      const c = endpointComputers[endpoint.type]
+      if (c != null) {
+          return c(endpoint, anchorPoint, orientation, endpointStyle)
+      } else {
+          log("jsPlumb: cannot find endpoint calculator for endpoint of type ", endpoint.type)
+      }
+    },
+
+    registerHandler:<E,T>(eph:EndpointHandler<E, T>) => {
+        handlers[eph.type] = eph
+        endpointMap[eph.type] = eph.cls
+        endpointComputers[eph.type] = eph.compute
     }
+}
+
+export interface EndpointHandler<E, T> {
+    type:string
+    compute:EndpointComputeFunction<T>
+    getParams(endpoint:E):Record<string, any>
+    cls:Constructable<EndpointRepresentation<T>>
 }

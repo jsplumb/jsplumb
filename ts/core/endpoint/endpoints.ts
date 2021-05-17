@@ -4,6 +4,7 @@ import {EMPTY_BOUNDS} from "../connector/abstract-segment"
 import {Endpoint} from "./endpoint"
 import {AnchorPlacement} from "../router/router"
 import {Extents} from "../common"
+import {EndpointFactory} from "../factory/endpoint-factory"
 
 export interface EndpointRepresentationParams {
     cssClass?:string
@@ -31,15 +32,6 @@ export abstract class EndpointRepresentation<C> {
     instance:JsPlumbInstance
 
     abstract type:string
-    // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
-    // it would be much more lightweight as we'd not need to create a class for each one.
-    abstract _compute(anchorPoint:AnchorPlacement, orientation:Orientation, endpointStyle:any):C
-
-    /**
-     * Subclasses must implement this for the clone functionality: they return an object containing the type specific
-     * constructor values for the given endpoint.
-     */
-    abstract getParams():Record<string, any>
 
     protected constructor(public endpoint:Endpoint, params?:EndpointRepresentationParams) {
         params = params || {}
@@ -63,9 +55,7 @@ export abstract class EndpointRepresentation<C> {
     }
 
     compute(anchorPoint:AnchorPlacement, orientation:Orientation, endpointStyle:any) {
-        // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
-        // it would be much more lightweight as we'd not need to create a class for each one.
-        this.computedValue = this._compute(anchorPoint, orientation, endpointStyle)
+        this.computedValue = EndpointFactory.compute(this, anchorPoint, orientation, endpointStyle)
         this.bounds.xmin = this.x
         this.bounds.ymin = this.y
         this.bounds.xmax = this.x + this.w
@@ -75,6 +65,7 @@ export abstract class EndpointRepresentation<C> {
     setVisible(v:boolean){
         this.instance.setEndpointVisible(this.endpoint, v)
     }
+
 }
 
 

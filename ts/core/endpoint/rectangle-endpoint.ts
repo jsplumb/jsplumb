@@ -2,6 +2,7 @@ import {EndpointRepresentation, EndpointRepresentationParams} from "./endpoints"
 import {Orientation} from "../factory/anchor-record-factory"
 import {Endpoint} from "./endpoint"
 import {AnchorPlacement} from "../router/router"
+import {EndpointHandler} from "../factory/endpoint-factory"
 
 export type ComputedRectangleEndpoint = [ number, number, number, number ]
 
@@ -24,31 +25,43 @@ export class RectangleEndpoint extends EndpointRepresentation<ComputedRectangleE
         this.height = params.height || 10
     }
 
-    getParams(): Record<string, any> {
+    static type = "Rectangle"
+    type = RectangleEndpoint.type
+
+    static _getParams(ep:RectangleEndpoint):Record<string, any> {
         return {
-            width: this.width,
-            height:this.height
+            width: ep.width,
+            height:ep.height
         }
     }
+}
 
-    // TODO this compute method could be provided in the same way that the renderers do it - via a simple object containing functions..i think.
-    // it would be much more lightweight as we'd not need to create a class for each one.
-    _compute(anchorPoint:AnchorPlacement, orientation:Orientation, endpointStyle:any):ComputedRectangleEndpoint {
-        let width = endpointStyle.width || this.width,
-            height = endpointStyle.height || this.height,
+export const RectangleEndpointHandler:EndpointHandler<RectangleEndpoint, ComputedRectangleEndpoint> = {
+
+    type:RectangleEndpoint.type,
+
+    cls:RectangleEndpoint,
+
+    compute:(ep:RectangleEndpoint, anchorPoint:AnchorPlacement, orientation:Orientation, endpointStyle:any):ComputedRectangleEndpoint => {
+        let width = endpointStyle.width || ep.width,
+            height = endpointStyle.height || ep.height,
             x = anchorPoint.curX - (width / 2),
             y = anchorPoint.curY - (height / 2)
 
-        this.x = x
-        this.y = y
-        this.w = width
-        this.h = height
+        ep.x = x
+        ep.y = y
+        ep.w = width
+        ep.h = height
 
         return [ x, y, width, height]
-    }
+    },
 
-    static type = "Rectangle"
-    type = RectangleEndpoint.type
+    getParams:(ep:RectangleEndpoint):Record<string, any> => {
+        return {
+            width: ep.width,
+            height:ep.height
+        }
+    }
 }
 
 

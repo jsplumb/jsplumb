@@ -1,7 +1,6 @@
 import { EndpointRepresentation, EndpointRepresentationParams } from "./endpoints";
-import { Orientation } from "../factory/anchor-record-factory";
 import { Endpoint } from "./endpoint";
-import { AnchorPlacement } from "../router/router";
+import { EndpointHandler } from "../factory/endpoint-factory";
 export declare type ComputedDotEndpoint = [number, number, number, number, number];
 export interface DotEndpointParams extends EndpointRepresentationParams {
     radius?: number;
@@ -11,8 +10,7 @@ export declare class DotEndpoint extends EndpointRepresentation<ComputedDotEndpo
     defaultOffset: number;
     defaultInnerRadius: number;
     constructor(endpoint: Endpoint, params?: DotEndpointParams);
-    getParams(): Record<string, any>;
-    _compute(anchorPoint: AnchorPlacement, orientation: Orientation, endpointStyle: any): ComputedDotEndpoint;
     static type: string;
     type: string;
 }
+export declare const DotEndpointHandler: EndpointHandler<DotEndpoint, ComputedDotEndpoint>;
