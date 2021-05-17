@@ -1,6 +1,6 @@
-import {DotEndpoint} from "./endpoint/dot-endpoint"
-import {BlankEndpoint} from "./endpoint/blank-endpoint"
-import {RectangleEndpoint} from "./endpoint/rectangle-endpoint"
+import {DotEndpointHandler} from "./endpoint/dot-endpoint"
+import {BlankEndpointHandler} from "./endpoint/blank-endpoint"
+import {RectangleEndpointHandler} from "./endpoint/rectangle-endpoint"
 
 import {StraightConnector} from "./connector/straight-connector"
 import {FlowchartConnector} from "./connector/flowchart-connector"
@@ -68,9 +68,9 @@ export * from './router/lightweight-router'
 export * from "./styles"
 export * from "./util"
 
-EndpointFactory.register(DotEndpoint.type, DotEndpoint)
-EndpointFactory.register(BlankEndpoint.type, BlankEndpoint)
-EndpointFactory.register(RectangleEndpoint.type, RectangleEndpoint)
+EndpointFactory.registerHandler(DotEndpointHandler)
+EndpointFactory.registerHandler(RectangleEndpointHandler)
+EndpointFactory.registerHandler(BlankEndpointHandler)
 
 Connectors.register(BezierConnector.type, BezierConnector)
 Connectors.register(StraightConnector.type, StraightConnector)
