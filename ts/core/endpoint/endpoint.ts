@@ -126,9 +126,9 @@ export class Endpoint<E = any> extends Component {
 
         this.deleteOnEmpty = params.deleteOnEmpty === true
 
-        this.isSource = params.source !== false
+        this.isSource = params.source || false
         this.isTemporarySource = params.isTemporarySource || false
-        this.isTarget = params.target !== false
+        this.isTarget = params.target || false
 
         this.connections = params.connections || []
 
