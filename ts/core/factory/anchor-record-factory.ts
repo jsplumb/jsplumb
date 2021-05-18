@@ -1,5 +1,5 @@
 import {extend, isArray, isNumber, isString, uuid, map} from "../util"
-import {PointXY, Rotations, Size} from "../common"
+import {Dictionary, PointXY, Rotations, Size} from "../common"
 import {AnchorPlacement} from "../router/router"
 import { Connection } from "../connector/connection-impl"
 import { Endpoint } from "../endpoint/endpoint"
@@ -155,6 +155,71 @@ export class LightweightFloatingAnchor implements LightweightAnchor {
     }
 }
 
+const opposites:Dictionary<Face> = {"top": "bottom", "right": "left", "left": "right", "bottom": "top"}
+const clockwiseOptions:Dictionary<Face> = {"top": "right", "right": "bottom", "left": "top", "bottom": "left"}
+const antiClockwiseOptions:Dictionary<Face> = {"top": "left", "right": "top", "left": "bottom", "bottom": "right"}
+
+// function getCurrentFace(a:LightweightContinuousAnchor):Face {
+//     return a.currentFace
+// }
+
+/**
+ *
+ * @param a
+ * @private
+ */
+export function getDefaultFace(a:LightweightContinuousAnchor):Face {
+    return a.faces.length === 0 ? "top" : a.faces[0]
+}
+
+function _isFaceAvailable(a:LightweightContinuousAnchor, face:Face):boolean {
+    return a.faces.indexOf(face) !== -1
+}
+
+function _secondBest(a:LightweightContinuousAnchor, edge:Face):Face {
+    return (a.clockwise ? clockwiseOptions : antiClockwiseOptions)[edge]
+}
+
+function _lastChoice(a:LightweightContinuousAnchor, edge:Face):Face {
+    return (a.clockwise ? antiClockwiseOptions : clockwiseOptions)[edge]
+}
+
+/**
+ *
+ * @param a
+ * @param edge
+ * @private
+ */
+export function isEdgeSupported (a:LightweightContinuousAnchor, edge:Face):boolean {
+    return  a.lockedAxis == null ?
+        (a.lockedFace == null ? _isFaceAvailable(a, edge) === true : a.lockedFace === edge)
+        : a.lockedAxis.indexOf(edge) !== -1
+}
+
+// if the given edge is supported, returns it. otherwise looks for a substitute that _is_
+// supported. if none supported we also return the request edge.
+function verifyFace (a:LightweightContinuousAnchor, edge:Face):Face {
+    //const availableFaces:Array<Face> = _getAvailableFaces(a)
+    if (_isFaceAvailable(a, edge)) {
+        return edge
+    }
+    else if (_isFaceAvailable(a, opposites[edge])) {
+        return opposites[edge]
+    }
+    else {
+        const secondBest = _secondBest(a, edge)
+        if (_isFaceAvailable(a, secondBest)) {
+            return secondBest
+        } else {
+            const lastChoice = _lastChoice(a, edge)
+            if (_isFaceAvailable(a, lastChoice)) {
+                return lastChoice
+            }
+        }
+    }
+    return edge // we have to give them something.
+}
+
 export const TOP = "top"
 export const BOTTOM = "bottom"
 export const LEFT = "left"
@@ -229,8 +294,10 @@ export function createFloatingAnchor(instance:JsPlumbInstance, element:any):Ligh
     return new LightweightFloatingAnchor(instance, element)
 }
 
+const PROPERTY_CURRENT_FACE = "currentFace"
+
 function _createContinuousAnchor(type:string, faces:Array<Face>, params:Record<string, any>):LightweightContinuousAnchor {
-    return {
+    const ca:any = {
         type:type,
         locations:[],
         currentLocation:0,
@@ -239,14 +306,24 @@ function _createContinuousAnchor(type:string, faces:Array<Face>, params:Record<s
         cssClass:params.cssClass || "",
         isFloating:false,
         isContinuous:true,
-        isDynamic:false,
         timestamp:null,
         faces:params.faces || faces,
         lockedFace:null,
-        currentFace:null,
         lockedAxis:null,
-        clockwise:!(params.clockwise === false)
+        clockwise:!(params.clockwise === false),
+        __currentFace:null
     }
+
+    Object.defineProperty(ca, PROPERTY_CURRENT_FACE, {
+        get() {
+            return this.__currentFace
+        },
+        set(f:Face) {
+            this.__currentFace = verifyFace(this, f)
+        }
+    })
+
+    return ca as LightweightContinuousAnchor
 }
 
 function isPrimitiveAnchorSpec(sa:Array<any>):boolean {
