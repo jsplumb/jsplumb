@@ -2848,17 +2848,17 @@ var testSuite = function () {
 
         equal(a.faces.length, 2, "2 faces declared on continuous anchor")
 
-        equal(jsPlumb._getDefaultFace(a), "bottom", "default is bottom");
-        ok(jsPlumb._isEdgeSupported(a, "bottom"), "bottom edge supported");
-        ok(jsPlumb._isEdgeSupported(a, "left"), "left edge supported");
-        ok(!jsPlumb._isEdgeSupported(a, "right"), "right edge not supported");
-        ok(!jsPlumb._isEdgeSupported(a, "top"), "top edge not supported");
+        equal(jsPlumb.getDefaultFace(a), "bottom", "default is bottom");
+        ok(jsPlumb.isEdgeSupported(a, "bottom"), "bottom edge supported");
+        ok(jsPlumb.isEdgeSupported(a, "left"), "left edge supported");
+        ok(!jsPlumb.isEdgeSupported(a, "right"), "right edge not supported");
+        ok(!jsPlumb.isEdgeSupported(a, "top"), "top edge not supported");
 
-        ok(!jsPlumb._isEdgeSupported(a, "unknown"), "unknown edge not supported");
+        ok(!jsPlumb.isEdgeSupported(a, "unknown"), "unknown edge not supported");
 
         // TODO: support locking to a specific face.
         //ep.anchor.lock();
-    });
+    });``
 
     test(" Continuous anchor current face is set", function () {
         var d3 = support.addDiv("d3", null, "", 50, 50, 200, 200),
@@ -2883,6 +2883,34 @@ var testSuite = function () {
         _jsPlumb.revalidate(d3);
         equal(a3.currentFace, "top", "ep3's anchor is 'top' after d3 moved below d4");
         equal(a4.currentFace, "bottom", "ep4's anchor is 'bottom' after d3 moved below d4");
+    });
+
+    test(" Continuous anchor cannot set current face to an unsupported face", function () {
+        var d3 = support.addDiv("d3", null, "", 50, 50, 200, 200),
+            ep3 = _jsPlumb.addEndpoint(d3, {
+                anchor: "ContinuousRight"
+            }),
+            a3 = ep3._anchor,
+            d4 = support.addDiv("d4", null, "", 50, 450, 200, 200),
+            ep4 = _jsPlumb.addEndpoint(d4, {
+                anchor: "ContinuousLeft"
+            }),
+            a4 = ep4._anchor
+
+        _jsPlumb.connect({source:ep3, target:ep4});
+
+        // we should have picked 'bottom' face for ep3 and 'top' for ep4, based on the orientation of their elements.
+        equal(a3.currentFace, "right", "ep3's anchor is 'bottom'");
+        equal(a4.currentFace, "left", "ep4's anchor is 'top'");
+
+        a3.currentFace = "top"
+        equal(a3.currentFace, "right", "current face could not be changed to `top` as it is not supported")
+
+        // // move d3, redraw, and check the anchors have changed appropriately.
+        // d3.style.top = "1050px";
+        // _jsPlumb.revalidate(d3);
+        // equal(a3.currentFace, "top", "ep3's anchor is 'top' after d3 moved below d4");
+        // equal(a4.currentFace, "bottom", "ep4's anchor is 'bottom' after d3 moved below d4");
     });
 
     test(" Continuous anchor lock current face", function () {
