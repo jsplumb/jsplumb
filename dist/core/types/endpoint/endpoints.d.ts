@@ -22,10 +22,6 @@ export declare abstract class EndpointRepresentation<C> {
     classes: Array<string>;
     instance: JsPlumbInstance;
     abstract type: string;
-    /**
-     * Subclasses must implement this for the clone functionality: they return an object containing the type specific
-     * constructor values for the given endpoint.
-     */
     protected constructor(endpoint: Endpoint, params?: EndpointRepresentationParams);
     addClass(c: string): void;
     removeClass(c: string): void;

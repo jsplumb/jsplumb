@@ -4252,6 +4252,57 @@
     }]);
     return LightweightFloatingAnchor;
   }();
+  var opposites = {
+    "top": "bottom",
+    "right": "left",
+    "left": "right",
+    "bottom": "top"
+  };
+  var clockwiseOptions = {
+    "top": "right",
+    "right": "bottom",
+    "left": "top",
+    "bottom": "left"
+  };
+  var antiClockwiseOptions = {
+    "top": "left",
+    "right": "top",
+    "left": "bottom",
+    "bottom": "right"
+  };
+  function getDefaultFace(a) {
+    return a.faces.length === 0 ? "top" : a.faces[0];
+  }
+  function _isFaceAvailable(a, face) {
+    return a.faces.indexOf(face) !== -1;
+  }
+  function _secondBest(a, edge) {
+    return (a.clockwise ? clockwiseOptions : antiClockwiseOptions)[edge];
+  }
+  function _lastChoice(a, edge) {
+    return (a.clockwise ? antiClockwiseOptions : clockwiseOptions)[edge];
+  }
+  function isEdgeSupported(a, edge) {
+    return a.lockedAxis == null ? a.lockedFace == null ? _isFaceAvailable(a, edge) === true : a.lockedFace === edge : a.lockedAxis.indexOf(edge) !== -1;
+  }
+  function verifyFace(a, edge) {
+    if (_isFaceAvailable(a, edge)) {
+      return edge;
+    } else if (_isFaceAvailable(a, opposites[edge])) {
+      return opposites[edge];
+    } else {
+      var secondBest = _secondBest(a, edge);
+      if (_isFaceAvailable(a, secondBest)) {
+        return secondBest;
+      } else {
+        var lastChoice = _lastChoice(a, edge);
+        if (_isFaceAvailable(a, lastChoice)) {
+          return lastChoice;
+        }
+      }
+    }
+    return edge;
+  }
   var TOP = "top";
   var BOTTOM = "bottom";
   var LEFT = "left";
@@ -4399,8 +4450,9 @@
   function createFloatingAnchor(instance, element) {
     return new LightweightFloatingAnchor(instance, element);
   }
+  var PROPERTY_CURRENT_FACE = "currentFace";
   function _createContinuousAnchor(type, faces, params) {
-    return {
+    var ca = {
       type: type,
       locations: [],
       currentLocation: 0,
@@ -4409,14 +4461,22 @@
       cssClass: params.cssClass || "",
       isFloating: false,
       isContinuous: true,
-      isDynamic: false,
       timestamp: null,
       faces: params.faces || faces,
       lockedFace: null,
-      currentFace: null,
       lockedAxis: null,
-      clockwise: !(params.clockwise === false)
+      clockwise: !(params.clockwise === false),
+      __currentFace: null
     };
+    Object.defineProperty(ca, PROPERTY_CURRENT_FACE, {
+      get: function get() {
+        return this.__currentFace;
+      },
+      set: function set(f) {
+        this.__currentFace = verifyFace(this, f);
+      }
+    });
+    return ca;
   }
   function isPrimitiveAnchorSpec(sa) {
     return sa.length < 7 && sa.every(isNumber) || sa.length === 7 && sa.slice(0, 5).every(isNumber) && isString(sa[6]);
@@ -6927,18 +6987,6 @@
     "bottom": _rightAndBottomSort,
     "left": _leftAndTopSort
   };
-  function _getCurrentFace(a) {
-    return a.currentFace;
-  }
-  function _getDefaultFace(a) {
-    return a.faces.length === 0 ? "top" : a.faces[0];
-  }
-  function _isFaceAvailable(a, face) {
-    return a.faces.indexOf(face) !== -1;
-  }
-  function _isEdgeSupported(a, edge) {
-    return a.lockedAxis == null ? a.lockedFace == null ? _isFaceAvailable(a, edge) === true : a.lockedFace === edge : a.lockedAxis.indexOf(edge) !== -1;
-  }
   function isContinuous(a) {
     return a.isContinuous === true;
   }
@@ -7331,7 +7379,7 @@
                 }
                 _this3._updateAnchorList(_this3.anchorLists.get(elementId), -Math.PI / 2, 0, {
                   endpoints: [anEndpoint, anEndpoint]
-                }, false, elementId, 0, false, _getDefaultFace(a), connectionsToPaint, endpointsToPaint);
+                }, false, elementId, 0, false, getDefaultFace(a), connectionsToPaint, endpointsToPaint);
                 anchorsToUpdate.add(elementId);
               }
             } else {
@@ -7532,15 +7580,15 @@
             targetEdge = candidates[0].target;
         for (var i = 0; i < candidates.length; i++) {
           if (isContinuous(sourceAnchor) && sourceAnchor.locked) {
-            sourceEdge = _getCurrentFace(sourceAnchor);
-          } else if (!sourceAnchor.isContinuous || _isEdgeSupported(sourceAnchor, candidates[i].source)) {
+            sourceEdge = sourceAnchor.currentFace;
+          } else if (!sourceAnchor.isContinuous || isEdgeSupported(sourceAnchor, candidates[i].source)) {
             sourceEdge = candidates[i].source;
           } else {
             sourceEdge = null;
           }
           if (targetAnchor.isContinuous && targetAnchor.locked) {
-            targetEdge = _getCurrentFace(targetAnchor);
-          } else if (!targetAnchor.isContinuous || _isEdgeSupported(targetAnchor, candidates[i].target)) {
+            targetEdge = targetAnchor.currentFace;
+          } else if (!targetAnchor.isContinuous || isEdgeSupported(targetAnchor, candidates[i].target)) {
             targetEdge = candidates[i].target;
           } else {
             targetEdge = null;
@@ -9576,8 +9624,6 @@
   exports.WILDCARD = WILDCARD;
   exports.X_AXIS_FACES = X_AXIS_FACES;
   exports.Y_AXIS_FACES = Y_AXIS_FACES;
-  exports._getDefaultFace = _getDefaultFace;
-  exports._isEdgeSupported = _isEdgeSupported;
   exports._mergeOverrides = _mergeOverrides;
   exports._removeTypeCssHelper = _removeTypeCssHelper;
   exports._updateHoverStyle = _updateHoverStyle;
@@ -9607,6 +9653,7 @@
   exports.fromArray = fromArray;
   exports.functionChain = functionChain;
   exports.getAllWithFunction = getAllWithFunction;
+  exports.getDefaultFace = getDefaultFace;
   exports.getFromSetWithFunction = getFromSetWithFunction;
   exports.getWithFunction = getWithFunction;
   exports.getsert = getsert;
@@ -9624,6 +9671,7 @@
   exports.isDate = isDate;
   exports.isDiamondOverlay = isDiamondOverlay;
   exports.isDynamic = isDynamic;
+  exports.isEdgeSupported = isEdgeSupported;
   exports.isEmpty = isEmpty;
   exports.isFloating = _isFloating;
   exports.isFullOverlaySpec = isFullOverlaySpec;

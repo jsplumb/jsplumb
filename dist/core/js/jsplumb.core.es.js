@@ -4247,6 +4247,57 @@ function () {
   }]);
   return LightweightFloatingAnchor;
 }();
+var opposites = {
+  "top": "bottom",
+  "right": "left",
+  "left": "right",
+  "bottom": "top"
+};
+var clockwiseOptions = {
+  "top": "right",
+  "right": "bottom",
+  "left": "top",
+  "bottom": "left"
+};
+var antiClockwiseOptions = {
+  "top": "left",
+  "right": "top",
+  "left": "bottom",
+  "bottom": "right"
+};
+function getDefaultFace(a) {
+  return a.faces.length === 0 ? "top" : a.faces[0];
+}
+function _isFaceAvailable(a, face) {
+  return a.faces.indexOf(face) !== -1;
+}
+function _secondBest(a, edge) {
+  return (a.clockwise ? clockwiseOptions : antiClockwiseOptions)[edge];
+}
+function _lastChoice(a, edge) {
+  return (a.clockwise ? antiClockwiseOptions : clockwiseOptions)[edge];
+}
+function isEdgeSupported(a, edge) {
+  return a.lockedAxis == null ? a.lockedFace == null ? _isFaceAvailable(a, edge) === true : a.lockedFace === edge : a.lockedAxis.indexOf(edge) !== -1;
+}
+function verifyFace(a, edge) {
+  if (_isFaceAvailable(a, edge)) {
+    return edge;
+  } else if (_isFaceAvailable(a, opposites[edge])) {
+    return opposites[edge];
+  } else {
+    var secondBest = _secondBest(a, edge);
+    if (_isFaceAvailable(a, secondBest)) {
+      return secondBest;
+    } else {
+      var lastChoice = _lastChoice(a, edge);
+      if (_isFaceAvailable(a, lastChoice)) {
+        return lastChoice;
+      }
+    }
+  }
+  return edge;
+}
 var TOP = "top";
 var BOTTOM = "bottom";
 var LEFT = "left";
@@ -4394,8 +4445,9 @@ function _createAnchor(type, locations, params) {
 function createFloatingAnchor(instance, element) {
   return new LightweightFloatingAnchor(instance, element);
 }
+var PROPERTY_CURRENT_FACE = "currentFace";
 function _createContinuousAnchor(type, faces, params) {
-  return {
+  var ca = {
     type: type,
     locations: [],
     currentLocation: 0,
@@ -4404,14 +4456,22 @@ function _createContinuousAnchor(type, faces, params) {
     cssClass: params.cssClass || "",
     isFloating: false,
     isContinuous: true,
-    isDynamic: false,
     timestamp: null,
     faces: params.faces || faces,
     lockedFace: null,
-    currentFace: null,
     lockedAxis: null,
-    clockwise: !(params.clockwise === false)
+    clockwise: !(params.clockwise === false),
+    __currentFace: null
   };
+  Object.defineProperty(ca, PROPERTY_CURRENT_FACE, {
+    get: function get() {
+      return this.__currentFace;
+    },
+    set: function set(f) {
+      this.__currentFace = verifyFace(this, f);
+    }
+  });
+  return ca;
 }
 function isPrimitiveAnchorSpec(sa) {
   return sa.length < 7 && sa.every(isNumber) || sa.length === 7 && sa.slice(0, 5).every(isNumber) && isString(sa[6]);
@@ -6922,18 +6982,6 @@ var edgeSortFunctions = {
   "bottom": _rightAndBottomSort,
   "left": _leftAndTopSort
 };
-function _getCurrentFace(a) {
-  return a.currentFace;
-}
-function _getDefaultFace(a) {
-  return a.faces.length === 0 ? "top" : a.faces[0];
-}
-function _isFaceAvailable(a, face) {
-  return a.faces.indexOf(face) !== -1;
-}
-function _isEdgeSupported(a, edge) {
-  return a.lockedAxis == null ? a.lockedFace == null ? _isFaceAvailable(a, edge) === true : a.lockedFace === edge : a.lockedAxis.indexOf(edge) !== -1;
-}
 function isContinuous(a) {
   return a.isContinuous === true;
 }
@@ -7326,7 +7374,7 @@ function () {
               }
               _this3._updateAnchorList(_this3.anchorLists.get(elementId), -Math.PI / 2, 0, {
                 endpoints: [anEndpoint, anEndpoint]
-              }, false, elementId, 0, false, _getDefaultFace(a), connectionsToPaint, endpointsToPaint);
+              }, false, elementId, 0, false, getDefaultFace(a), connectionsToPaint, endpointsToPaint);
               anchorsToUpdate.add(elementId);
             }
           } else {
@@ -7527,15 +7575,15 @@ function () {
           targetEdge = candidates[0].target;
       for (var i = 0; i < candidates.length; i++) {
         if (isContinuous(sourceAnchor) && sourceAnchor.locked) {
-          sourceEdge = _getCurrentFace(sourceAnchor);
-        } else if (!sourceAnchor.isContinuous || _isEdgeSupported(sourceAnchor, candidates[i].source)) {
+          sourceEdge = sourceAnchor.currentFace;
+        } else if (!sourceAnchor.isContinuous || isEdgeSupported(sourceAnchor, candidates[i].source)) {
           sourceEdge = candidates[i].source;
         } else {
           sourceEdge = null;
         }
         if (targetAnchor.isContinuous && targetAnchor.locked) {
-          targetEdge = _getCurrentFace(targetAnchor);
-        } else if (!targetAnchor.isContinuous || _isEdgeSupported(targetAnchor, candidates[i].target)) {
+          targetEdge = targetAnchor.currentFace;
+        } else if (!targetAnchor.isContinuous || isEdgeSupported(targetAnchor, candidates[i].target)) {
           targetEdge = candidates[i].target;
         } else {
           targetEdge = null;
@@ -9415,4 +9463,4 @@ Connectors.register(StraightConnector.type, StraightConnector);
 Connectors.register(FlowchartConnector.type, FlowchartConnector);
 Connectors.register(StateMachineConnector.type, StateMachineConnector);
 
-export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_GROUP_CONTENT, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SCOPE, ATTRIBUTE_SCOPE_PREFIX, ATTRIBUTE_TABINDEX, AbstractBezierConnector, AbstractConnector, AbstractSegment, AnchorLocations, ArcSegment, ArrowOverlay, BLOCK, BOTTOM, BezierConnector, BezierSegment, BlankEndpoint, BlankEndpointHandler, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTED, CLASS_CONNECTOR, CLASS_CONNECTOR_OUTLINE, CLASS_ENDPOINT, CLASS_ENDPOINT_ANCHOR_PREFIX, CLASS_ENDPOINT_CONNECTED, CLASS_ENDPOINT_DROP_ALLOWED, CLASS_ENDPOINT_DROP_FORBIDDEN, CLASS_ENDPOINT_FULL, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, CustomOverlay, DEFAULT, DiamondOverlay, DotEndpoint, DotEndpointHandler, EMPTY_BOUNDS, ERROR_SOURCE_DOES_NOT_EXIST, ERROR_SOURCE_ENDPOINT_FULL, ERROR_TARGET_DOES_NOT_EXIST, ERROR_TARGET_ENDPOINT_FULL, EVENT_ANCHOR_CHANGED, EVENT_CLICK, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_DBL_TAP, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_TAP, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_DBL_TAP, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_ENDPOINT_TAP, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_COLLAPSE, EVENT_GROUP_EXPAND, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FlowchartConnector, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_DROP, INTERCEPT_BEFORE_START_DETACH, IS, IS_DETACH_ALLOWED, JsPlumbInstance, LEFT, LabelOverlay, LightweightFloatingAnchor, LightweightRouter, NONE, OptimisticEventGenerator, Overlay, OverlayFactory, PROPERTY_POSITION, PlainArrowOverlay, RIGHT, RectangleEndpoint, RectangleEndpointHandler, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_INDEX, STATIC, SourceSelector, StateMachineConnector, StraightConnector, StraightSegment, TARGET, TARGET_INDEX, TOP, TRUE, TWO_PI, TargetSelector, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _getDefaultFace, _isEdgeSupported, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, att, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, convertToFullOverlaySpec, createFloatingAnchor, dist, distanceFromCurve, each, encloses, extend, fastTrim, filterList, filterNull, findAllWithFunction, findWithFunction, forEach, fromArray, functionChain, getAllWithFunction, getFromSetWithFunction, getWithFunction, getsert, gradient, gradientAtPoint, gradientAtPointAlongPathFrom, insertSorted, intersects, isArray, isArrowOverlay, isAssignableFrom, isBoolean, isContinuous, isCustomOverlay, isDate, isDiamondOverlay, isDynamic, isEmpty, _isFloating as isFloating, isFullOverlaySpec, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, lineIntersection, lineLength, locationAlongCurveFrom, log, logEnabled, makeLightweightAnchorFromSpec, map, merge, nearestPointOnCurve, normal, perpendicularLineTo, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, pointOnLine, pointSubtract, pointXYFromArray, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, sortHelper, suggest, theta, uuid, wrap };
+export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_GROUP_CONTENT, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SCOPE, ATTRIBUTE_SCOPE_PREFIX, ATTRIBUTE_TABINDEX, AbstractBezierConnector, AbstractConnector, AbstractSegment, AnchorLocations, ArcSegment, ArrowOverlay, BLOCK, BOTTOM, BezierConnector, BezierSegment, BlankEndpoint, BlankEndpointHandler, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTED, CLASS_CONNECTOR, CLASS_CONNECTOR_OUTLINE, CLASS_ENDPOINT, CLASS_ENDPOINT_ANCHOR_PREFIX, CLASS_ENDPOINT_CONNECTED, CLASS_ENDPOINT_DROP_ALLOWED, CLASS_ENDPOINT_DROP_FORBIDDEN, CLASS_ENDPOINT_FULL, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, CustomOverlay, DEFAULT, DiamondOverlay, DotEndpoint, DotEndpointHandler, EMPTY_BOUNDS, ERROR_SOURCE_DOES_NOT_EXIST, ERROR_SOURCE_ENDPOINT_FULL, ERROR_TARGET_DOES_NOT_EXIST, ERROR_TARGET_ENDPOINT_FULL, EVENT_ANCHOR_CHANGED, EVENT_CLICK, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_DBL_TAP, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_TAP, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_DBL_TAP, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_ENDPOINT_TAP, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_COLLAPSE, EVENT_GROUP_EXPAND, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FlowchartConnector, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_DROP, INTERCEPT_BEFORE_START_DETACH, IS, IS_DETACH_ALLOWED, JsPlumbInstance, LEFT, LabelOverlay, LightweightFloatingAnchor, LightweightRouter, NONE, OptimisticEventGenerator, Overlay, OverlayFactory, PROPERTY_POSITION, PlainArrowOverlay, RIGHT, RectangleEndpoint, RectangleEndpointHandler, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_INDEX, STATIC, SourceSelector, StateMachineConnector, StraightConnector, StraightSegment, TARGET, TARGET_INDEX, TOP, TRUE, TWO_PI, TargetSelector, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, att, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, convertToFullOverlaySpec, createFloatingAnchor, dist, distanceFromCurve, each, encloses, extend, fastTrim, filterList, filterNull, findAllWithFunction, findWithFunction, forEach, fromArray, functionChain, getAllWithFunction, getDefaultFace, getFromSetWithFunction, getWithFunction, getsert, gradient, gradientAtPoint, gradientAtPointAlongPathFrom, insertSorted, intersects, isArray, isArrowOverlay, isAssignableFrom, isBoolean, isContinuous, isCustomOverlay, isDate, isDiamondOverlay, isDynamic, isEdgeSupported, isEmpty, _isFloating as isFloating, isFullOverlaySpec, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, lineIntersection, lineLength, locationAlongCurveFrom, log, logEnabled, makeLightweightAnchorFromSpec, map, merge, nearestPointOnCurve, normal, perpendicularLineTo, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, pointOnLine, pointSubtract, pointXYFromArray, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, sortHelper, suggest, theta, uuid, wrap };

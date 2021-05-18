@@ -4,7 +4,7 @@ import {
     AnchorComputeParams,
     AnchorOrientationHint,
     AnchorSpec, ComputedPosition,
-    Face,
+    Face, getDefaultFace, isEdgeSupported,
     Orientation,
     X_AXIS_FACES, Y_AXIS_FACES
 } from "../factory/anchor-record-factory"
@@ -99,76 +99,6 @@ const edgeSortFunctions:Dictionary<SortFunction<AnchorListEntry>> = {
 }
 
 
-const opposites:Dictionary<Face> = {"top": "bottom", "right": "left", "left": "right", "bottom": "top"}
-const clockwiseOptions:Dictionary<Face> = {"top": "right", "right": "bottom", "left": "top", "bottom": "left"}
-const antiClockwiseOptions:Dictionary<Face> = {"top": "left", "right": "top", "left": "bottom", "bottom": "right"}
-
-function _getCurrentFace(a:LightweightContinuousAnchor):Face {
-    return a.currentFace
-}
-
-/**
- *
- * @param a
- * @private
- */
-export function _getDefaultFace(a:LightweightContinuousAnchor):Face {
-    return a.faces.length === 0 ? "top" : a.faces[0]
-}
-
-function _isFaceAvailable(a:LightweightContinuousAnchor, face:Face):boolean {
-    return a.faces.indexOf(face) !== -1
-}
-
-function _secondBest(a:LightweightContinuousAnchor, edge:Face):Face {
-    return (a.clockwise ? clockwiseOptions : antiClockwiseOptions)[edge]
-}
-
-function _lastChoice(a:LightweightContinuousAnchor, edge:Face):Face {
-    return (a.clockwise ? antiClockwiseOptions : clockwiseOptions)[edge]
-}
-
-// if the given edge is supported, returns it. otherwise looks for a substitute that _is_
-// supported. if none supported we also return the request edge.
-function verifyEdge (a:LightweightContinuousAnchor, edge:Face):Face {
-    //const availableFaces:Array<Face> = _getAvailableFaces(a)
-    if (_isFaceAvailable(a, edge)) {
-        return edge
-    }
-    else if (_isFaceAvailable(a, opposites[edge])) {
-        return opposites[edge]
-    }
-    else {
-        const secondBest = _secondBest(a, edge)
-        if (_isFaceAvailable(a, secondBest)) {
-            return secondBest
-        } else {
-            const lastChoice = _lastChoice(a, edge)
-            if (_isFaceAvailable(a, lastChoice)) {
-                return lastChoice
-            }
-        }
-    }
-    // else if (_isFaceAvailable(a, _secondBest(a,edge))) {
-    //     return this.secondBest[edge]
-    // }
-    // else if (availableFaces[this.lastChoice[edge]]) {
-    //     return this.lastChoice[edge]
-    // }
-    return edge // we have to give them something.
-}
-
-/**
- *
- * @param a
- * @param edge
- * @private
- */
-export function _isEdgeSupported (a:LightweightContinuousAnchor, edge:Face):boolean {
-    return  a.lockedAxis == null ?
-        (a.lockedFace == null ? _isFaceAvailable(a, edge) === true : a.lockedFace === edge)
-        : a.lockedAxis.indexOf(edge) !== -1
-}
 
 
 // function getSupportedFaces (a:LightweightContinuousAnchor):Array<Face> {
@@ -588,7 +518,7 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
                             elementId,
                             0,
                             false,
-                            _getDefaultFace(a),
+                            getDefaultFace(a),
                             connectionsToPaint,
                             endpointsToPaint)
                         anchorsToUpdate.add(elementId)
@@ -820,9 +750,9 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
         for (let i = 0; i < candidates.length; i++) {
 
             if (isContinuous(sourceAnchor) && sourceAnchor.locked) {
-                sourceEdge = _getCurrentFace(sourceAnchor)
+                sourceEdge = sourceAnchor.currentFace
             }
-            else if (!sourceAnchor.isContinuous || _isEdgeSupported(sourceAnchor, candidates[i].source)) {
+            else if (!sourceAnchor.isContinuous || isEdgeSupported(sourceAnchor, candidates[i].source)) {
                 sourceEdge = candidates[i].source
             }
             else {
@@ -830,9 +760,9 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
             }
 
             if (targetAnchor.isContinuous && targetAnchor.locked) {
-                targetEdge = _getCurrentFace(targetAnchor)
+                targetEdge = targetAnchor.currentFace
             }
-            else if (!targetAnchor.isContinuous || _isEdgeSupported(targetAnchor, candidates[i].target)) {
+            else if (!targetAnchor.isContinuous || isEdgeSupported(targetAnchor, candidates[i].target)) {
                 targetEdge = candidates[i].target
             }
             else {
