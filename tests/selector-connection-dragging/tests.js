@@ -71,11 +71,13 @@ var testSuite = function () {
 
     })
 
-    test("addSourceSelector, move source of dragged connection", function() {
+    test("addSourceSelector, move source of dragged connection, default redrop policy", function() {
         var sourceNode = makeSourceNode()
         var zone = addZone(sourceNode, "zone1")
         var sourceNode2 = makeSourceNode()
         var zone2 = addZone(sourceNode2, "zone1")
+        var sourceNode3 = makeSourceNode()
+        var zone3 = addZone(sourceNode3, "zone1")
 
         var d2 = support.addDiv("d2")
         d2.className = "node"
@@ -99,9 +101,88 @@ var testSuite = function () {
         equal(1, _jsPlumb.select().length, "one connection in the instance")
         equal(sourceNode, c.source, "connection's source is first source node")
 
-        // relocate the dragged connection so that its source is the second source node.
-        support.relocateSource(c, zone2)
+        // relocate the dragged connection so that its source is the 3rd source node. note that here we have to drop the
+        // connection on the part of the element that is setup as a source selector, which is a departure from v2/v4. the test below
+        // shows how you can setup the source selector so you can drop back anywhere on the element instead.
+        support.relocateSource(c, zone3)
         equal(1, _jsPlumb.select().length, "one connection in the instance")
+        equal(_jsPlumb.select().get(0).endpoints[0].element, sourceNode3, "source node is now node 3")
+    })
+
+    test("addSourceSelector, move source of dragged connection, redrop policy strict", function() {
+        var sourceNode = makeSourceNode()
+        var zone = addZone(sourceNode, "zone1")
+        var sourceNode2 = makeSourceNode()
+        var zone2 = addZone(sourceNode2, "zone1")
+        var sourceNode3 = makeSourceNode()
+        var zone3 = addZone(sourceNode3, "zone1")
+
+        var d2 = support.addDiv("d2")
+        d2.className = "node"
+        _jsPlumb.manage(d2)
+        _jsPlumb.addTargetSelector("#d2")
+
+        let elDragged = false;
+        _jsPlumb.bind("drag:move", function() {
+            elDragged = true
+        })
+
+        _jsPlumb.addSourceSelector(".zone1", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart",
+            redrop:"strict"
+        })
+
+        // drag a connection from the drag zone on the first source node to the target node
+        var c = support.dragConnection(zone, d2, true)
+        // and check it exists
+        equal(1, _jsPlumb.select().length, "one connection in the instance")
+        equal(sourceNode, c.source, "connection's source is first source node")
+
+        // relocate the dragged connection so that its source is the 3rd source node. note that here we have to drop the
+        // connection on the part of the element that is setup as a source selector, which is a departure from v2/v4. the test below
+        // shows how you can setup the source selector so you can drop back anywhere on the element instead.
+        support.relocateSource(c, zone3)
+        equal(1, _jsPlumb.select().length, "one connection in the instance")
+        equal(_jsPlumb.select().get(0).endpoints[0].element, sourceNode3, "source node is now node 3")
+    })
+
+    test("addSourceSelector, move source of dragged connection, drop source on managed element instead of target", function() {
+        var sourceNode = makeSourceNode()
+        var zone = addZone(sourceNode, "zone1")
+        var sourceNode2 = makeSourceNode()
+        var zone2 = addZone(sourceNode2, "zone1")
+        var sourceNode3 = makeSourceNode()
+        var zone3 = addZone(sourceNode3, "zone1")
+
+        var d2 = support.addDiv("d2")
+        d2.className = "node"
+        _jsPlumb.manage(d2)
+        _jsPlumb.addTargetSelector("#d2")
+
+        let elDragged = false;
+        _jsPlumb.bind("drag:move", function() {
+            elDragged = true
+        })
+
+        _jsPlumb.addSourceSelector(".zone1", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart",
+            redrop:"any"
+        })
+
+        // drag a connection from the drag zone on the first source node to the target node
+        var c = support.dragConnection(zone, d2, true)
+        // and check it exists
+        equal(1, _jsPlumb.select().length, "one connection in the instance")
+        equal(sourceNode, c.source, "connection's source is first source node")
+
+        // relocate the dragged connection so that its source is the second source node.
+        support.relocateSource(c, sourceNode3)
+        equal(1, _jsPlumb.select().length, "one connection in the instance")
+        equal(_jsPlumb.select().get(0).endpoints[0].element, sourceNode3, "source node is now node 3")
 
     })
 
