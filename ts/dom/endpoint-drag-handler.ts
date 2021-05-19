@@ -55,7 +55,7 @@ import {
     getAllWithFunction,
     isAssignableFrom, InternalEndpointOptions,
     BehaviouralTypeDescriptor, merge,
-    createFloatingAnchor, LightweightFloatingAnchor
+    createFloatingAnchor, LightweightFloatingAnchor, REDROP_POLICY_ANY
 } from "@jsplumb/core"
 
 
@@ -541,7 +541,9 @@ export class EndpointDragHandler implements DragHandler {
             })
 
             if (sourceDef != null) {
-                const targetZones = this.instance.getContainer().querySelectorAll(sourceDef.selector)
+                // get a list of dom elements that are targets. note the check on `redrop` here: if `strict` then we can only drop on the parts of
+                // source elements defined via the `selector`. If `any` then we can drop anywhere on the elements.
+                const targetZones = this.instance.getContainer().querySelectorAll(sourceDef.redrop === REDROP_POLICY_ANY ? SELECTOR_MANAGED_ELEMENT : sourceDef.selector)
                 forEach(targetZones, (el:Element) => {
                     let d: any = {r: null, el}
                     d.targetEl = findParent(el as unknown as jsPlumbDOMElement, SELECTOR_MANAGED_ELEMENT, this.instance.getContainer(), true)
