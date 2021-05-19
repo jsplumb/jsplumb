@@ -3227,6 +3227,7 @@
   var ERROR_TARGET_ENDPOINT_FULL = "Cannot establish connection: target endpoint is full";
   var ERROR_SOURCE_DOES_NOT_EXIST = "Cannot establish connection: source does not exist";
   var ERROR_TARGET_DOES_NOT_EXIST = "Cannot establish connection: target does not exist";
+  var KEY_CONNECTION_OVERLAYS = "connectionOverlays";
 
   function pointSubtract(p1, p2) {
     return {
@@ -4540,10 +4541,8 @@
       conn.endpoints[index] = existing;
       existing.addConnection(conn);
     } else {
-      var ep = endpoint
-      || conn.endpointsSpec[index] || conn.instance.defaults.endpoints[index] || conn.instance.defaults.endpoint;
-      var es = conn.endpointStyles[index]
-      || conn.instance.defaults.endpointStyles[index] || conn.instance.defaults.endpointStyle;
+      var ep = endpoint || conn.endpointSpec || conn.endpointsSpec[index] || conn.instance.defaults.endpoints[index] || conn.instance.defaults.endpoint;
+      var es = conn.endpointStyles[index] || conn.endpointStyle || conn.instance.defaults.endpointStyles[index] || conn.instance.defaults.endpointStyle;
       if (es.fill == null && conn.paintStyle != null) {
         es.fill = conn.paintStyle.stroke;
       }
@@ -4553,8 +4552,7 @@
       if (es.outlineWidth == null && conn.paintStyle != null) {
         es.outlineWidth = conn.paintStyle.outlineWidth;
       }
-      var ehs = conn.endpointHoverStyles[index]
-      || conn.instance.defaults.endpointHoverStyles[index] || conn.instance.defaults.endpointHoverStyle;
+      var ehs = conn.endpointHoverStyles[index] || conn.endpointHoverStyle || conn.endpointHoverStyle || conn.instance.defaults.endpointHoverStyles[index] || conn.instance.defaults.endpointHoverStyle;
       if (conn.hoverPaintStyle != null) {
         if (ehs == null) {
           ehs = {};
@@ -4595,7 +4593,7 @@
     }, {
       key: "getDefaultOverlayKey",
       value: function getDefaultOverlayKey() {
-        return "connectionOverlays";
+        return KEY_CONNECTION_OVERLAYS;
       }
     }, {
       key: "getXY",
@@ -4627,7 +4625,10 @@
       _defineProperty(_assertThisInitialized(_this), "directed", void 0);
       _defineProperty(_assertThisInitialized(_this), "endpoints", [null, null]);
       _defineProperty(_assertThisInitialized(_this), "endpointStyles", void 0);
+      _defineProperty(_assertThisInitialized(_this), "endpointSpec", void 0);
       _defineProperty(_assertThisInitialized(_this), "endpointsSpec", void 0);
+      _defineProperty(_assertThisInitialized(_this), "endpointStyle", {});
+      _defineProperty(_assertThisInitialized(_this), "endpointHoverStyle", {});
       _defineProperty(_assertThisInitialized(_this), "endpointHoverStyles", void 0);
       _defineProperty(_assertThisInitialized(_this), "suspendedEndpoint", void 0);
       _defineProperty(_assertThisInitialized(_this), "suspendedIndex", void 0);
@@ -4655,8 +4656,8 @@
         _this.targetId = instance.getId(_this.target);
       }
       _this.scope = params.scope;
-      var sourceAnchor = params.anchors ? params.anchors[0] : null;
-      var targetAnchor = params.anchors ? params.anchors[1] : null;
+      var sourceAnchor = params.anchors ? params.anchors[0] : params.anchor;
+      var targetAnchor = params.anchors ? params.anchors[1] : params.anchor;
       instance.manage(_this.source);
       instance.manage(_this.target);
       _this.visible = true;
@@ -4670,20 +4671,17 @@
       if (params.type) {
         params.endpoints = params.endpoints || _this.instance._deriveEndpointAndAnchorSpec(params.type).endpoints;
       }
+      _this.endpointSpec = params.endpoint;
       _this.endpointsSpec = params.endpoints || [null, null];
+      _this.endpointStyle = params.endpointStyle;
+      _this.endpointHoverStyle = params.endpointHoverStyle;
       _this.endpointStyles = params.endpointStyles || [null, null];
       _this.endpointHoverStyles = params.endpointHoverStyles || [null, null];
       _this.paintStyle = params.paintStyle;
       _this.hoverPaintStyle = params.hoverPaintStyle;
       _this.uuids = params.uuids;
-      var eS = _this.makeEndpoint(true, _this.source, _this.sourceId, sourceAnchor, params.sourceEndpoint),
-          eT = _this.makeEndpoint(false, _this.target, _this.targetId, targetAnchor, params.targetEndpoint);
-      if (eS) {
-        addToDictionary(instance.endpointsByElement, _this.sourceId, eS);
-      }
-      if (eT) {
-        addToDictionary(instance.endpointsByElement, _this.targetId, eT);
-      }
+      _this.makeEndpoint(true, _this.source, _this.sourceId, sourceAnchor, params.sourceEndpoint);
+      _this.makeEndpoint(false, _this.target, _this.targetId, targetAnchor, params.targetEndpoint);
       if (!_this.scope) {
         _this.scope = _this.endpoints[0].scope;
       }
@@ -8348,15 +8346,21 @@
       }
     }, {
       key: "_internal_newEndpoint",
-      value: function _internal_newEndpoint(params, id) {
+      value: function _internal_newEndpoint(params) {
         var _p = extend({}, params);
-        _p.elementId = id || this.getId(_p.element);
+        _p.elementId = this.getId(_p.element);
         _p.id = "ep_" + this._idstamp();
         var ep = new Endpoint(this, _p);
         var managedElement = this.manage(_p.element);
         addManagedEndpoint(managedElement, ep);
         if (params.uuid) {
           this.endpointsByUUID.set(params.uuid, ep);
+        }
+        addToDictionary(this.endpointsByElement, ep.elementId, ep);
+        if (!this._suspendDrawing) {
+          this.paintEndpoint(ep, {
+            timestamp: this._suspendedAt
+          });
         }
         return ep;
       }
@@ -8529,20 +8533,10 @@
         referenceParams = referenceParams || {};
         var p = extend({}, referenceParams);
         extend(p, params || {});
-        p.endpoint = p.endpoint || this.defaults.endpoint;
-        p.paintStyle = p.paintStyle || this.defaults.endpointStyle;
         var _p = extend({
           element: el
         }, p);
-        this.manage(el, null, !this._suspendDrawing);
-        var id = this.getId(_p.element);
-        var e = this._internal_newEndpoint(_p, id);
-        addToDictionary(this.endpointsByElement, id, e);
-        if (!this._suspendDrawing) {
-          this.paintEndpoint(e, {
-            timestamp: this._suspendedAt
-          });
-        }
+        var e = this._internal_newEndpoint(_p);
         return e;
       }
     }, {
@@ -8611,49 +8605,12 @@
         }
       }
     }, {
-      key: "_pluralizeConnectionParameters",
-      value: function _pluralizeConnectionParameters(p) {
-        if (p.anchor) {
-          p.anchors = [p.anchor, p.anchor];
-          delete p.anchor;
-        }
-        if (p.endpoint) {
-          p.endpoints = [p.endpoint, p.endpoint];
-          delete p.endpoint;
-        }
-        if (p.endpointStyle) {
-          p.endpointStyles = [p.endpointStyle, p.endpointStyle];
-          delete p.endpointStyle;
-        }
-        if (p.endpointHoverStyle) {
-          p.endpointHoverStyles = [p.endpointHoverStyle, p.endpointHoverStyle];
-          delete p.endpointHoverStyle;
-        }
-      }
-    }, {
-      key: "_populateFromParameterExtractor",
-      value: function _populateFromParameterExtractor(el, index, _p, values) {
-        var params = this.defaults.parameterExtractor ? this.defaults.parameterExtractor(el, index) : null;
-        if (params) {
-          forEach(values, function (value) {
-            if (params[value.endpointOption]) {
-              if (_p[value.pluralKey] != null) {
-                _p[value.pluralKey][index] = params[value.endpointOption];
-              } else {
-                _p[value.pluralKey] = [params[value.endpointOption], params[value.endpointOption]];
-              }
-            }
-          });
-        }
-      }
-    }, {
       key: "_prepareConnectionParams",
       value: function _prepareConnectionParams(params, referenceParams) {
         var temp = extend({}, params);
         if (referenceParams) {
           extend(temp, referenceParams);
         }
-        this._pluralizeConnectionParameters(temp);
         var _p = temp;
         if (_p.source) {
           if (_p.source.endpoint) {
@@ -8688,20 +8645,6 @@
         } else {
           if (_p.source == null) {
             throw ERROR_SOURCE_DOES_NOT_EXIST;
-          } else {
-            this._populateFromParameterExtractor(_p.source, 0, _p, [{
-              endpointOption: "anchor",
-              pluralKey: "anchors"
-            }, {
-              endpointOption: "endpoint",
-              pluralKey: "endpoints"
-            }, {
-              endpointOption: "paintStyle",
-              pluralKey: "endpointStyles"
-            }, {
-              endpointOption: "hoverPaintStyle",
-              pluralKey: "endpointHoverStyles"
-            }]);
           }
         }
         if (_p.targetEndpoint != null) {
@@ -8711,20 +8654,6 @@
         } else {
           if (_p.target == null) {
             throw ERROR_TARGET_DOES_NOT_EXIST;
-          } else {
-            this._populateFromParameterExtractor(_p.target, 1, _p, [{
-              endpointOption: "anchor",
-              pluralKey: "anchors"
-            }, {
-              endpointOption: "endpoint",
-              pluralKey: "endpoints"
-            }, {
-              endpointOption: "paintStyle",
-              pluralKey: "endpointStyles"
-            }, {
-              endpointOption: "hoverPaintStyle",
-              pluralKey: "endpointHoverStyles"
-            }]);
           }
         }
         if (_p.sourceEndpoint && _p.targetEndpoint) {
@@ -9014,7 +8943,8 @@
             proxyEp = connection.proxies[index].ep;
           } else {
             connection.proxies[index].ep.detachFromConnection(connection, index);
-            proxyEp = this.addEndpoint(proxyEl, {
+            proxyEp = this._internal_newEndpoint({
+              element: proxyEl,
               endpoint: endpointGenerator(connection, index),
               anchor: anchorGenerator(connection, index),
               parameters: {
@@ -9023,7 +8953,8 @@
             });
           }
         } else {
-          proxyEp = this.addEndpoint(proxyEl, {
+          proxyEp = this._internal_newEndpoint({
+            element: proxyEl,
             endpoint: endpointGenerator(connection, index),
             anchor: anchorGenerator(connection, index),
             parameters: {
@@ -9585,6 +9516,7 @@
   exports.IS = IS;
   exports.IS_DETACH_ALLOWED = IS_DETACH_ALLOWED;
   exports.JsPlumbInstance = JsPlumbInstance;
+  exports.KEY_CONNECTION_OVERLAYS = KEY_CONNECTION_OVERLAYS;
   exports.LEFT = LEFT;
   exports.LabelOverlay = LabelOverlay;
   exports.LightweightFloatingAnchor = LightweightFloatingAnchor;

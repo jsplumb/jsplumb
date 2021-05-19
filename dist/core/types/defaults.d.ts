@@ -3,7 +3,6 @@ import { AnchorSpec } from "./factory/anchor-record-factory";
 import { PaintStyle } from "./styles";
 import { OverlaySpec } from "./overlay/overlay";
 import { ConnectorSpec } from "./connector/abstract-connector";
-import { EndpointOptions } from "./endpoint/endpoint-options";
 export interface ListSpec {
     endpoint?: EndpointSpec;
 }
@@ -29,5 +28,4 @@ export interface JsPlumbDefaults<E> {
     maxConnections?: number;
     hoverClass?: string;
     allowNestedGroups?: boolean;
-    parameterExtractor?: (element: E, index: number) => EndpointOptions;
 }

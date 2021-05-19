@@ -246,7 +246,7 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param id Optional ID for the Endpoint.
      * @private
      */
-    _internal_newEndpoint(params: InternalEndpointOptions<T["E"]>, id?: string): Endpoint;
+    _internal_newEndpoint(params: InternalEndpointOptions<T["E"]>): Endpoint;
     /**
      * For internal use. For the given inputs, derive an appropriate anchor and endpoint definition.
      * @param type
@@ -347,22 +347,6 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param referenceParams Optional extra parameters. This can be useful when you're creating multiple connections that have some things in common.
      */
     connect(params: ConnectParams<T["E"]>, referenceParams?: ConnectParams<T["E"]>): Connection;
-    /**
-     * Converts some singular values - which are allowed for the user's convenience - into
-     * their plural equivalents, which are expected by the ConnectionOptions interface
-     * @param p
-     * @private
-     */
-    private _pluralizeConnectionParameters;
-    /**
-     * Extracts EndpointOptions from the given element, and if found, injects them in the appropriate place in the given ConnectParams
-     * @param el
-     * @param index
-     * @param _p
-     * @param values
-     * @private
-     */
-    private _populateFromParameterExtractor;
     /**
      * @param params
      * @param referenceParams

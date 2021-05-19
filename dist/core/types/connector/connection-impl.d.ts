@@ -4,12 +4,11 @@ import { AbstractConnector } from "./abstract-connector";
 import { Endpoint } from "../endpoint/endpoint";
 import { PaintStyle } from "../styles";
 import { Component } from "../component/component";
-import { Merge, Omit } from "../util";
+import { Merge } from "../util";
 import { AnchorSpec } from "../factory/anchor-record-factory";
 import { ConnectorSpec } from "./abstract-connector";
 import { EndpointSpec } from "../endpoint/endpoint";
-declare type OnlyPluralsConnectParams<E> = Omit<ConnectParams<E>, 'anchor' | 'endpointStyle' | 'endpoint' | 'endpointHoverStyle'>;
-export declare type ConnectionOptions<E = any> = Merge<OnlyPluralsConnectParams<E>, {
+export declare type ConnectionOptions<E = any> = Merge<ConnectParams<E>, {
     source?: E;
     target?: E;
     sourceEndpoint?: Endpoint;
@@ -40,7 +39,10 @@ export declare class Connection<E = any> extends Component {
     directed: boolean;
     endpoints: [Endpoint<E>, Endpoint<E>];
     endpointStyles: [PaintStyle, PaintStyle];
+    readonly endpointSpec: EndpointSpec;
     readonly endpointsSpec: [EndpointSpec, EndpointSpec];
+    endpointStyle: PaintStyle;
+    endpointHoverStyle: PaintStyle;
     readonly endpointHoverStyles: [PaintStyle, PaintStyle];
     suspendedEndpoint: Endpoint<E>;
     suspendedIndex: number;
@@ -78,4 +80,3 @@ export declare class Connection<E = any> extends Component {
      */
     replaceEndpoint(idx: number, endpointDef: EndpointSpec): void;
 }
-export {};

@@ -3221,6 +3221,7 @@ var ERROR_SOURCE_ENDPOINT_FULL = "Cannot establish connection: source endpoint i
 var ERROR_TARGET_ENDPOINT_FULL = "Cannot establish connection: target endpoint is full";
 var ERROR_SOURCE_DOES_NOT_EXIST = "Cannot establish connection: source does not exist";
 var ERROR_TARGET_DOES_NOT_EXIST = "Cannot establish connection: target does not exist";
+var KEY_CONNECTION_OVERLAYS = "connectionOverlays";
 
 function pointSubtract(p1, p2) {
   return {
@@ -4535,10 +4536,8 @@ function prepareEndpoint(conn, existing, index, anchor, element, elementId, endp
     conn.endpoints[index] = existing;
     existing.addConnection(conn);
   } else {
-    var ep = endpoint
-    || conn.endpointsSpec[index] || conn.instance.defaults.endpoints[index] || conn.instance.defaults.endpoint;
-    var es = conn.endpointStyles[index]
-    || conn.instance.defaults.endpointStyles[index] || conn.instance.defaults.endpointStyle;
+    var ep = endpoint || conn.endpointSpec || conn.endpointsSpec[index] || conn.instance.defaults.endpoints[index] || conn.instance.defaults.endpoint;
+    var es = conn.endpointStyles[index] || conn.endpointStyle || conn.instance.defaults.endpointStyles[index] || conn.instance.defaults.endpointStyle;
     if (es.fill == null && conn.paintStyle != null) {
       es.fill = conn.paintStyle.stroke;
     }
@@ -4548,8 +4547,7 @@ function prepareEndpoint(conn, existing, index, anchor, element, elementId, endp
     if (es.outlineWidth == null && conn.paintStyle != null) {
       es.outlineWidth = conn.paintStyle.outlineWidth;
     }
-    var ehs = conn.endpointHoverStyles[index]
-    || conn.instance.defaults.endpointHoverStyles[index] || conn.instance.defaults.endpointHoverStyle;
+    var ehs = conn.endpointHoverStyles[index] || conn.endpointHoverStyle || conn.endpointHoverStyle || conn.instance.defaults.endpointHoverStyles[index] || conn.instance.defaults.endpointHoverStyle;
     if (conn.hoverPaintStyle != null) {
       if (ehs == null) {
         ehs = {};
@@ -4590,7 +4588,7 @@ function (_Component) {
   }, {
     key: "getDefaultOverlayKey",
     value: function getDefaultOverlayKey() {
-      return "connectionOverlays";
+      return KEY_CONNECTION_OVERLAYS;
     }
   }, {
     key: "getXY",
@@ -4622,7 +4620,10 @@ function (_Component) {
     _defineProperty(_assertThisInitialized(_this), "directed", void 0);
     _defineProperty(_assertThisInitialized(_this), "endpoints", [null, null]);
     _defineProperty(_assertThisInitialized(_this), "endpointStyles", void 0);
+    _defineProperty(_assertThisInitialized(_this), "endpointSpec", void 0);
     _defineProperty(_assertThisInitialized(_this), "endpointsSpec", void 0);
+    _defineProperty(_assertThisInitialized(_this), "endpointStyle", {});
+    _defineProperty(_assertThisInitialized(_this), "endpointHoverStyle", {});
     _defineProperty(_assertThisInitialized(_this), "endpointHoverStyles", void 0);
     _defineProperty(_assertThisInitialized(_this), "suspendedEndpoint", void 0);
     _defineProperty(_assertThisInitialized(_this), "suspendedIndex", void 0);
@@ -4650,8 +4651,8 @@ function (_Component) {
       _this.targetId = instance.getId(_this.target);
     }
     _this.scope = params.scope;
-    var sourceAnchor = params.anchors ? params.anchors[0] : null;
-    var targetAnchor = params.anchors ? params.anchors[1] : null;
+    var sourceAnchor = params.anchors ? params.anchors[0] : params.anchor;
+    var targetAnchor = params.anchors ? params.anchors[1] : params.anchor;
     instance.manage(_this.source);
     instance.manage(_this.target);
     _this.visible = true;
@@ -4665,20 +4666,17 @@ function (_Component) {
     if (params.type) {
       params.endpoints = params.endpoints || _this.instance._deriveEndpointAndAnchorSpec(params.type).endpoints;
     }
+    _this.endpointSpec = params.endpoint;
     _this.endpointsSpec = params.endpoints || [null, null];
+    _this.endpointStyle = params.endpointStyle;
+    _this.endpointHoverStyle = params.endpointHoverStyle;
     _this.endpointStyles = params.endpointStyles || [null, null];
     _this.endpointHoverStyles = params.endpointHoverStyles || [null, null];
     _this.paintStyle = params.paintStyle;
     _this.hoverPaintStyle = params.hoverPaintStyle;
     _this.uuids = params.uuids;
-    var eS = _this.makeEndpoint(true, _this.source, _this.sourceId, sourceAnchor, params.sourceEndpoint),
-        eT = _this.makeEndpoint(false, _this.target, _this.targetId, targetAnchor, params.targetEndpoint);
-    if (eS) {
-      addToDictionary(instance.endpointsByElement, _this.sourceId, eS);
-    }
-    if (eT) {
-      addToDictionary(instance.endpointsByElement, _this.targetId, eT);
-    }
+    _this.makeEndpoint(true, _this.source, _this.sourceId, sourceAnchor, params.sourceEndpoint);
+    _this.makeEndpoint(false, _this.target, _this.targetId, targetAnchor, params.targetEndpoint);
     if (!_this.scope) {
       _this.scope = _this.endpoints[0].scope;
     }
@@ -8343,15 +8341,21 @@ function (_EventGenerator) {
     }
   }, {
     key: "_internal_newEndpoint",
-    value: function _internal_newEndpoint(params, id) {
+    value: function _internal_newEndpoint(params) {
       var _p = extend({}, params);
-      _p.elementId = id || this.getId(_p.element);
+      _p.elementId = this.getId(_p.element);
       _p.id = "ep_" + this._idstamp();
       var ep = new Endpoint(this, _p);
       var managedElement = this.manage(_p.element);
       addManagedEndpoint(managedElement, ep);
       if (params.uuid) {
         this.endpointsByUUID.set(params.uuid, ep);
+      }
+      addToDictionary(this.endpointsByElement, ep.elementId, ep);
+      if (!this._suspendDrawing) {
+        this.paintEndpoint(ep, {
+          timestamp: this._suspendedAt
+        });
       }
       return ep;
     }
@@ -8524,20 +8528,10 @@ function (_EventGenerator) {
       referenceParams = referenceParams || {};
       var p = extend({}, referenceParams);
       extend(p, params || {});
-      p.endpoint = p.endpoint || this.defaults.endpoint;
-      p.paintStyle = p.paintStyle || this.defaults.endpointStyle;
       var _p = extend({
         element: el
       }, p);
-      this.manage(el, null, !this._suspendDrawing);
-      var id = this.getId(_p.element);
-      var e = this._internal_newEndpoint(_p, id);
-      addToDictionary(this.endpointsByElement, id, e);
-      if (!this._suspendDrawing) {
-        this.paintEndpoint(e, {
-          timestamp: this._suspendedAt
-        });
-      }
+      var e = this._internal_newEndpoint(_p);
       return e;
     }
   }, {
@@ -8606,49 +8600,12 @@ function (_EventGenerator) {
       }
     }
   }, {
-    key: "_pluralizeConnectionParameters",
-    value: function _pluralizeConnectionParameters(p) {
-      if (p.anchor) {
-        p.anchors = [p.anchor, p.anchor];
-        delete p.anchor;
-      }
-      if (p.endpoint) {
-        p.endpoints = [p.endpoint, p.endpoint];
-        delete p.endpoint;
-      }
-      if (p.endpointStyle) {
-        p.endpointStyles = [p.endpointStyle, p.endpointStyle];
-        delete p.endpointStyle;
-      }
-      if (p.endpointHoverStyle) {
-        p.endpointHoverStyles = [p.endpointHoverStyle, p.endpointHoverStyle];
-        delete p.endpointHoverStyle;
-      }
-    }
-  }, {
-    key: "_populateFromParameterExtractor",
-    value: function _populateFromParameterExtractor(el, index, _p, values) {
-      var params = this.defaults.parameterExtractor ? this.defaults.parameterExtractor(el, index) : null;
-      if (params) {
-        forEach(values, function (value) {
-          if (params[value.endpointOption]) {
-            if (_p[value.pluralKey] != null) {
-              _p[value.pluralKey][index] = params[value.endpointOption];
-            } else {
-              _p[value.pluralKey] = [params[value.endpointOption], params[value.endpointOption]];
-            }
-          }
-        });
-      }
-    }
-  }, {
     key: "_prepareConnectionParams",
     value: function _prepareConnectionParams(params, referenceParams) {
       var temp = extend({}, params);
       if (referenceParams) {
         extend(temp, referenceParams);
       }
-      this._pluralizeConnectionParameters(temp);
       var _p = temp;
       if (_p.source) {
         if (_p.source.endpoint) {
@@ -8683,20 +8640,6 @@ function (_EventGenerator) {
       } else {
         if (_p.source == null) {
           throw ERROR_SOURCE_DOES_NOT_EXIST;
-        } else {
-          this._populateFromParameterExtractor(_p.source, 0, _p, [{
-            endpointOption: "anchor",
-            pluralKey: "anchors"
-          }, {
-            endpointOption: "endpoint",
-            pluralKey: "endpoints"
-          }, {
-            endpointOption: "paintStyle",
-            pluralKey: "endpointStyles"
-          }, {
-            endpointOption: "hoverPaintStyle",
-            pluralKey: "endpointHoverStyles"
-          }]);
         }
       }
       if (_p.targetEndpoint != null) {
@@ -8706,20 +8649,6 @@ function (_EventGenerator) {
       } else {
         if (_p.target == null) {
           throw ERROR_TARGET_DOES_NOT_EXIST;
-        } else {
-          this._populateFromParameterExtractor(_p.target, 1, _p, [{
-            endpointOption: "anchor",
-            pluralKey: "anchors"
-          }, {
-            endpointOption: "endpoint",
-            pluralKey: "endpoints"
-          }, {
-            endpointOption: "paintStyle",
-            pluralKey: "endpointStyles"
-          }, {
-            endpointOption: "hoverPaintStyle",
-            pluralKey: "endpointHoverStyles"
-          }]);
         }
       }
       if (_p.sourceEndpoint && _p.targetEndpoint) {
@@ -9009,7 +8938,8 @@ function (_EventGenerator) {
           proxyEp = connection.proxies[index].ep;
         } else {
           connection.proxies[index].ep.detachFromConnection(connection, index);
-          proxyEp = this.addEndpoint(proxyEl, {
+          proxyEp = this._internal_newEndpoint({
+            element: proxyEl,
             endpoint: endpointGenerator(connection, index),
             anchor: anchorGenerator(connection, index),
             parameters: {
@@ -9018,7 +8948,8 @@ function (_EventGenerator) {
           });
         }
       } else {
-        proxyEp = this.addEndpoint(proxyEl, {
+        proxyEp = this._internal_newEndpoint({
+          element: proxyEl,
           endpoint: endpointGenerator(connection, index),
           anchor: anchorGenerator(connection, index),
           parameters: {
@@ -9463,4 +9394,4 @@ Connectors.register(StraightConnector.type, StraightConnector);
 Connectors.register(FlowchartConnector.type, FlowchartConnector);
 Connectors.register(StateMachineConnector.type, StateMachineConnector);
 
-export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_GROUP_CONTENT, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SCOPE, ATTRIBUTE_SCOPE_PREFIX, ATTRIBUTE_TABINDEX, AbstractBezierConnector, AbstractConnector, AbstractSegment, AnchorLocations, ArcSegment, ArrowOverlay, BLOCK, BOTTOM, BezierConnector, BezierSegment, BlankEndpoint, BlankEndpointHandler, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTED, CLASS_CONNECTOR, CLASS_CONNECTOR_OUTLINE, CLASS_ENDPOINT, CLASS_ENDPOINT_ANCHOR_PREFIX, CLASS_ENDPOINT_CONNECTED, CLASS_ENDPOINT_DROP_ALLOWED, CLASS_ENDPOINT_DROP_FORBIDDEN, CLASS_ENDPOINT_FULL, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, CustomOverlay, DEFAULT, DiamondOverlay, DotEndpoint, DotEndpointHandler, EMPTY_BOUNDS, ERROR_SOURCE_DOES_NOT_EXIST, ERROR_SOURCE_ENDPOINT_FULL, ERROR_TARGET_DOES_NOT_EXIST, ERROR_TARGET_ENDPOINT_FULL, EVENT_ANCHOR_CHANGED, EVENT_CLICK, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_DBL_TAP, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_TAP, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_DBL_TAP, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_ENDPOINT_TAP, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_COLLAPSE, EVENT_GROUP_EXPAND, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FlowchartConnector, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_DROP, INTERCEPT_BEFORE_START_DETACH, IS, IS_DETACH_ALLOWED, JsPlumbInstance, LEFT, LabelOverlay, LightweightFloatingAnchor, LightweightRouter, NONE, OptimisticEventGenerator, Overlay, OverlayFactory, PROPERTY_POSITION, PlainArrowOverlay, RIGHT, RectangleEndpoint, RectangleEndpointHandler, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_INDEX, STATIC, SourceSelector, StateMachineConnector, StraightConnector, StraightSegment, TARGET, TARGET_INDEX, TOP, TRUE, TWO_PI, TargetSelector, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, att, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, convertToFullOverlaySpec, createFloatingAnchor, dist, distanceFromCurve, each, encloses, extend, fastTrim, filterList, filterNull, findAllWithFunction, findWithFunction, forEach, fromArray, functionChain, getAllWithFunction, getDefaultFace, getFromSetWithFunction, getWithFunction, getsert, gradient, gradientAtPoint, gradientAtPointAlongPathFrom, insertSorted, intersects, isArray, isArrowOverlay, isAssignableFrom, isBoolean, isContinuous, isCustomOverlay, isDate, isDiamondOverlay, isDynamic, isEdgeSupported, isEmpty, _isFloating as isFloating, isFullOverlaySpec, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, lineIntersection, lineLength, locationAlongCurveFrom, log, logEnabled, makeLightweightAnchorFromSpec, map, merge, nearestPointOnCurve, normal, perpendicularLineTo, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, pointOnLine, pointSubtract, pointXYFromArray, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, sortHelper, suggest, theta, uuid, wrap };
+export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_GROUP_CONTENT, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SCOPE, ATTRIBUTE_SCOPE_PREFIX, ATTRIBUTE_TABINDEX, AbstractBezierConnector, AbstractConnector, AbstractSegment, AnchorLocations, ArcSegment, ArrowOverlay, BLOCK, BOTTOM, BezierConnector, BezierSegment, BlankEndpoint, BlankEndpointHandler, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTED, CLASS_CONNECTOR, CLASS_CONNECTOR_OUTLINE, CLASS_ENDPOINT, CLASS_ENDPOINT_ANCHOR_PREFIX, CLASS_ENDPOINT_CONNECTED, CLASS_ENDPOINT_DROP_ALLOWED, CLASS_ENDPOINT_DROP_FORBIDDEN, CLASS_ENDPOINT_FULL, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, CustomOverlay, DEFAULT, DiamondOverlay, DotEndpoint, DotEndpointHandler, EMPTY_BOUNDS, ERROR_SOURCE_DOES_NOT_EXIST, ERROR_SOURCE_ENDPOINT_FULL, ERROR_TARGET_DOES_NOT_EXIST, ERROR_TARGET_ENDPOINT_FULL, EVENT_ANCHOR_CHANGED, EVENT_CLICK, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_DBL_TAP, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_TAP, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_DBL_TAP, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_ENDPOINT_TAP, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_COLLAPSE, EVENT_GROUP_EXPAND, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, EventGenerator, FALSE, FIXED, FlowchartConnector, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_DROP, INTERCEPT_BEFORE_START_DETACH, IS, IS_DETACH_ALLOWED, JsPlumbInstance, KEY_CONNECTION_OVERLAYS, LEFT, LabelOverlay, LightweightFloatingAnchor, LightweightRouter, NONE, OptimisticEventGenerator, Overlay, OverlayFactory, PROPERTY_POSITION, PlainArrowOverlay, RIGHT, RectangleEndpoint, RectangleEndpointHandler, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_INDEX, STATIC, SourceSelector, StateMachineConnector, StraightConnector, StraightSegment, TARGET, TARGET_INDEX, TOP, TRUE, TWO_PI, TargetSelector, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _mergeOverrides, _removeTypeCssHelper, _updateHoverStyle, addToDictionary, addToList, addWithFunction, att, boundingBoxIntersection, boxIntersection, classList, clone, cls, computeBezierLength, convertToFullOverlaySpec, createFloatingAnchor, dist, distanceFromCurve, each, encloses, extend, fastTrim, filterList, filterNull, findAllWithFunction, findWithFunction, forEach, fromArray, functionChain, getAllWithFunction, getDefaultFace, getFromSetWithFunction, getWithFunction, getsert, gradient, gradientAtPoint, gradientAtPointAlongPathFrom, insertSorted, intersects, isArray, isArrowOverlay, isAssignableFrom, isBoolean, isContinuous, isCustomOverlay, isDate, isDiamondOverlay, isDynamic, isEdgeSupported, isEmpty, _isFloating as isFloating, isFullOverlaySpec, isFunction, isLabelOverlay, isNamedFunction, isNull, isNumber, isObject, isPlainArrowOverlay, isPoint, isString, lineIntersection, lineLength, locationAlongCurveFrom, log, logEnabled, makeLightweightAnchorFromSpec, map, merge, nearestPointOnCurve, normal, perpendicularLineTo, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve, pointOnLine, pointSubtract, pointXYFromArray, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, sortHelper, suggest, theta, uuid, wrap };

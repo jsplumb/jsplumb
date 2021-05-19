@@ -2504,18 +2504,21 @@
             return false;
           }
           var elxy = getPositionOnElement(e, sourceEl, this.instance.currentZoom);
-          var tempEndpointParams = {};
+          var tempEndpointParams = {
+            element: sourceEl
+          };
           core.extend(tempEndpointParams, def);
           tempEndpointParams.isTemporarySource = true;
           if (def.scope) {
             tempEndpointParams.scope = def.scope;
           }
           var extractedParameters = def.parameterExtractor ? def.parameterExtractor(sourceEl, eventTarget) : {};
+          console.log(extractedParameters);
           tempEndpointParams = core.merge(tempEndpointParams, extractedParameters);
           this._originalAnchor = tempEndpointParams.anchor || this.instance.defaults.anchor;
           tempEndpointParams.anchor = [elxy.x, elxy.y, 0, 0];
           tempEndpointParams.deleteOnEmpty = true;
-          this.ep = this.instance.addEndpoint(sourceEl, tempEndpointParams);
+          this.ep = this.instance._internal_newEndpoint(tempEndpointParams);
           var payload = {};
           if (def.extract) {
             for (var att in def.extract) {
@@ -3059,7 +3062,8 @@
           }
           var extractedParameters = targetDefinition.def.parameterExtractor ? targetDefinition.def.parameterExtractor(this.currentDropTarget.el, eventTarget) : {};
           pp = core.merge(pp, extractedParameters);
-          dropEndpoint = this.instance.addEndpoint(this.currentDropTarget.targetEl, pp);
+          pp.element = this.currentDropTarget.targetEl;
+          dropEndpoint = this.instance._internal_newEndpoint(pp);
           dropEndpoint._mtNew = true;
           dropEndpoint.deleteOnEmpty = true;
           if (targetDefinition.def.parameters) {

@@ -105,3 +105,4 @@ export declare const ERROR_SOURCE_ENDPOINT_FULL = "Cannot establish connection: 
 export declare const ERROR_TARGET_ENDPOINT_FULL = "Cannot establish connection: target endpoint is full";
 export declare const ERROR_SOURCE_DOES_NOT_EXIST = "Cannot establish connection: source does not exist";
 export declare const ERROR_TARGET_DOES_NOT_EXIST = "Cannot establish connection: target does not exist";
+export declare const KEY_CONNECTION_OVERLAYS = "connectionOverlays";
