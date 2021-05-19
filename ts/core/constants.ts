@@ -133,4 +133,6 @@ export const ERROR_TARGET_ENDPOINT_FULL = "Cannot establish connection: target e
 export const ERROR_SOURCE_DOES_NOT_EXIST = "Cannot establish connection: source does not exist"
 export const ERROR_TARGET_DOES_NOT_EXIST = "Cannot establish connection: target does not exist"
 
+export const KEY_CONNECTION_OVERLAYS = "connectionOverlays"
+
 
