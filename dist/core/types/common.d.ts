@@ -6,6 +6,7 @@ import { ConnectorSpec } from "./connector/abstract-connector";
 import { OverlaySpec } from "./overlay/overlay";
 import { PaintStyle } from "./styles";
 import { Connection } from "./connector/connection-impl";
+import { RedropPolicy } from "@jsplumb/core/source-selector";
 export declare type UUID = string;
 export interface jsPlumbElement<E> {
     _jsPlumbGroup: UIGroup<E>;
@@ -219,6 +220,7 @@ export interface ConnectionTypeDescriptor extends TypeDescriptor {
 }
 export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescriptor {
     parameterExtractor?: (el: T, eventTarget: T) => Dictionary<string>;
+    redrop?: RedropPolicy;
     extract?: Dictionary<string>;
     uniqueEndpoint?: boolean;
     /**
@@ -248,10 +250,8 @@ export interface SourceOrTargetDefinition {
     uniqueEndpoint?: boolean;
 }
 export interface SourceDefinition extends SourceOrTargetDefinition {
-    def: BehaviouralTypeDescriptor;
 }
 export interface TargetDefinition extends SourceOrTargetDefinition {
-    def: BehaviouralTypeDescriptor;
 }
 export interface Size {
     w: number;

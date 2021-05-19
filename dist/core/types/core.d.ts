@@ -91,7 +91,7 @@ export declare abstract class JsPlumbInstance<T extends {
     endpointsByElement: Dictionary<Array<Endpoint>>;
     private readonly endpointsByUUID;
     sourceSelectors: Array<SourceSelector>;
-    targetSelectors: Array<SourceSelector>;
+    targetSelectors: Array<TargetSelector>;
     allowNestedGroups: boolean;
     private _curIdStamp;
     readonly viewport: Viewport<T>;

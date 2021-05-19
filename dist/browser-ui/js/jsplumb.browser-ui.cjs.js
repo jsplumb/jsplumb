@@ -2453,21 +2453,14 @@ function () {
         if (child != null) {
           parent = findParent(child.parentNode, core.SELECTOR_MANAGED_ELEMENT, container, false);
         }
-        return {
-          target: child || parent,
-          parent: parent
-        };
+        return child || parent;
       } else {
-        return {
-          target: parent,
-          parent: parent
-        };
+        return parent;
       }
     }
   }, {
     key: "_mousedownHandler",
     value: function _mousedownHandler(e) {
-      var parentEl;
       var sourceEl;
       var sourceDef;
       if (e.which === 3 || e.button === 2) {
@@ -2476,12 +2469,10 @@ function () {
       var eventTarget = e.target || e.srcElement;
       sourceDef = this._getSourceDefinition(e);
       if (sourceDef != null) {
-        var dragElements = this._resolveDragParent(sourceDef.def, eventTarget);
-        sourceEl = dragElements.target;
+        sourceEl = this._resolveDragParent(sourceDef.def, eventTarget);
         if (sourceEl == null) {
           return;
         }
-        parentEl = dragElements.parent;
       }
       if (sourceDef) {
         var sourceElement = e.currentTarget,
@@ -2513,7 +2504,6 @@ function () {
           tempEndpointParams.scope = def.scope;
         }
         var extractedParameters = def.parameterExtractor ? def.parameterExtractor(sourceEl, eventTarget) : {};
-        console.log(extractedParameters);
         tempEndpointParams = core.merge(tempEndpointParams, extractedParameters);
         this._originalAnchor = tempEndpointParams.anchor || this.instance.defaults.anchor;
         tempEndpointParams.anchor = [elxy.x, elxy.y, 0, 0];
@@ -2732,7 +2722,7 @@ function () {
           return sSel.isEnabled() && (sSel.def.def.scope == null || sSel.def.def.scope === _this.ep.scope);
         });
         if (sourceDef != null) {
-          var targetZones = this.instance.getContainer().querySelectorAll(sourceDef.selector);
+          var targetZones = this.instance.getContainer().querySelectorAll(sourceDef.redrop === core.REDROP_POLICY_ANY ? core.SELECTOR_MANAGED_ELEMENT : sourceDef.selector);
           core.forEach(targetZones, function (el) {
             var d = {
               r: null,

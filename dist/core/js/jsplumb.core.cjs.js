@@ -6909,6 +6909,8 @@ function () {
   }]);
   return ConnectionDragSelector;
 }();
+var REDROP_POLICY_STRICT = "strict";
+var REDROP_POLICY_ANY = "any";
 var SourceSelector =
 function (_ConnectionDragSelect) {
   _inherits(SourceSelector, _ConnectionDragSelect);
@@ -6917,6 +6919,8 @@ function (_ConnectionDragSelect) {
     _classCallCheck(this, SourceSelector);
     _this = _possibleConstructorReturn(this, _getPrototypeOf(SourceSelector).call(this, selector, def, exclude));
     _this.def = def;
+    _defineProperty(_assertThisInitialized(_this), "redrop", void 0);
+    _this.redrop = def.def.redrop || REDROP_POLICY_STRICT;
     return _this;
   }
   return SourceSelector;
@@ -8534,8 +8538,7 @@ function (_EventGenerator) {
       var _p = extend({
         element: el
       }, p);
-      var e = this._internal_newEndpoint(_p);
-      return e;
+      return this._internal_newEndpoint(_p);
     }
   }, {
     key: "addEndpoints",
@@ -9525,6 +9528,8 @@ exports.Overlay = Overlay;
 exports.OverlayFactory = OverlayFactory;
 exports.PROPERTY_POSITION = PROPERTY_POSITION;
 exports.PlainArrowOverlay = PlainArrowOverlay;
+exports.REDROP_POLICY_ANY = REDROP_POLICY_ANY;
+exports.REDROP_POLICY_STRICT = REDROP_POLICY_STRICT;
 exports.RIGHT = RIGHT;
 exports.RectangleEndpoint = RectangleEndpoint;
 exports.RectangleEndpointHandler = RectangleEndpointHandler;
