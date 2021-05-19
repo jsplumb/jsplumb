@@ -951,9 +951,9 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      * @param id Optional ID for the Endpoint.
      * @private
      */
-    _internal_newEndpoint(params:InternalEndpointOptions<T["E"]>, id?:string):Endpoint {
+    _internal_newEndpoint(params:InternalEndpointOptions<T["E"]>):Endpoint {
         let _p:InternalEndpointOptions<T["E"]> = extend<InternalEndpointOptions<T["E"]>>({}, params)
-        _p.elementId = id || this.getId(_p.element)
+        _p.elementId = this.getId(_p.element)
         _p.id = "ep_" + this._idstamp()
 
         let ep = new Endpoint(this, _p)
@@ -963,6 +963,14 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
         if (params.uuid) {
             this.endpointsByUUID.set(params.uuid, ep)
+        }
+
+        addToDictionary(this.endpointsByElement, ep.elementId, ep)
+
+        if (!this._suspendDrawing) {
+            this.paintEndpoint(ep, {
+                timestamp: this._suspendedAt
+            })
         }
 
         return ep
@@ -1191,28 +1199,14 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      * @param referenceParams
      */
     addEndpoint(el:T["E"], params?:EndpointOptions<T["E"]>, referenceParams?:EndpointOptions<T["E"]>):Endpoint{
+
         referenceParams = referenceParams || {} as EndpointOptions<T["E"]>
         let p:EndpointOptions<T["E"]> = extend({}, referenceParams)
         extend<EndpointOptions<T["E"]>>(p, params || {})
-        p.endpoint = p.endpoint || this.defaults.endpoint
-        p.paintStyle = p.paintStyle || this.defaults.endpointStyle
+
         let _p:InternalEndpointOptions<T["E"]> = extend<InternalEndpointOptions<T["E"]>>({element:el}, p)
-        //let id = this.getId(_p.element)
-        // this.manage(el, id, !this._suspendDrawing)
-        this.manage(el, null, !this._suspendDrawing)
-        let id = this.getId(_p.element)
-        let e = this._internal_newEndpoint(_p, id)
 
-        addToDictionary(this.endpointsByElement, id, e)
-
-        if (!this._suspendDrawing) {
-
-            this.paintEndpoint(e, {
-                timestamp: this._suspendedAt
-            })
-        }
-
-        return e
+        return this._internal_newEndpoint(_p)
     }
 
     /**
@@ -1311,57 +1305,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         }
     }
 
-    /**
-     * Converts some singular values - which are allowed for the user's convenience - into
-     * their plural equivalents, which are expected by the ConnectionOptions interface
-     * @param p
-     * @private
-     */
-    private _pluralizeConnectionParameters(p:ConnectParams<T["E"]>) {
-        if (p.anchor) {
-            p.anchors = [p.anchor, p.anchor]
-            delete p.anchor
-        }
-
-        if (p.endpoint) {
-            p.endpoints = [p.endpoint, p.endpoint]
-            delete p.endpoint
-        }
-
-        if (p.endpointStyle) {
-            p.endpointStyles = [p.endpointStyle, p.endpointStyle]
-            delete p.endpointStyle
-        }
-
-        if (p.endpointHoverStyle) {
-            p.endpointHoverStyles = [p.endpointHoverStyle, p.endpointHoverStyle]
-            delete p.endpointHoverStyle
-        }
-    }
-
-    /**
-     * Extracts EndpointOptions from the given element, and if found, injects them in the appropriate place in the given ConnectParams
-     * @param el
-     * @param index
-     * @param _p
-     * @param values
-     * @private
-     */
-    private _populateFromParameterExtractor(el:T["E"], index:number, _p:any, values:Array<{endpointOption:string, pluralKey:string}>) {
-
-        const params = this.defaults.parameterExtractor ? this.defaults.parameterExtractor(el, index) : null
-        if (params) {
-            forEach(values, value => {
-                if (params[value.endpointOption]) {
-                    if (_p[value.pluralKey] != null) {
-                        _p[value.pluralKey][index] = params[value.endpointOption]
-                    } else {
-                        _p[value.pluralKey] = [ params[value.endpointOption], params[value.endpointOption] ]
-                    }
-                }
-            })
-        }
-    }
 
     /**
      * @param params
@@ -1374,8 +1317,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         if (referenceParams) {
             extend(temp, referenceParams)
         }
-
-        this._pluralizeConnectionParameters(temp)
 
         let _p:ConnectionOptions<T["E"]> = temp as ConnectionOptions<T["E"]>
 
@@ -1419,13 +1360,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         } else {
             if (_p.source == null) {
                 throw ERROR_SOURCE_DOES_NOT_EXIST
-            } else {
-                this._populateFromParameterExtractor(_p.source, 0, _p, [
-                    { endpointOption:"anchor", pluralKey:"anchors"},
-                    { endpointOption:"endpoint", pluralKey:"endpoints"},
-                    { endpointOption:"paintStyle", pluralKey:"endpointStyles" },
-                    { endpointOption:"hoverPaintStyle", pluralKey:"endpointHoverStyles" },
-                ])
             }
         }
 
@@ -1436,13 +1370,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         } else {
             if(_p.target == null) {
                 throw ERROR_TARGET_DOES_NOT_EXIST
-            } else {
-                this._populateFromParameterExtractor(_p.target, 1, _p, [
-                    { endpointOption:"anchor", pluralKey:"anchors"},
-                    { endpointOption:"endpoint", pluralKey:"endpoints"},
-                    { endpointOption:"paintStyle", pluralKey:"endpointStyles" },
-                    { endpointOption:"hoverPaintStyle", pluralKey:"endpointHoverStyles" },
-                ])
             }
         }
 
@@ -1794,7 +1721,8 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             } else {
                 // otherwise detach that previous endpoint; it will delete itself
                 connection.proxies[index].ep.detachFromConnection(connection, index)
-                proxyEp = this.addEndpoint(proxyEl, {
+                proxyEp = this._internal_newEndpoint({
+                    element:proxyEl,
                     endpoint:endpointGenerator(connection, index),
                     anchor:anchorGenerator(connection, index),
                     parameters:{
@@ -1803,7 +1731,8 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
                 })
             }
         } else {
-            proxyEp = this.addEndpoint(proxyEl, {
+            proxyEp = this._internal_newEndpoint({
+                element:proxyEl,
                 endpoint:endpointGenerator(connection, index),
                 anchor:anchorGenerator(connection, index),
                 parameters:{
