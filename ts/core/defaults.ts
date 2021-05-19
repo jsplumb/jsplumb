@@ -40,6 +40,5 @@ export interface JsPlumbDefaults<E> {
 
     allowNestedGroups?:boolean
 
-    parameterExtractor?:(element:E, index:number) => EndpointOptions
 }
 
