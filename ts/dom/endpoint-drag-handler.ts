@@ -43,7 +43,6 @@ import {
     EndpointSpec,
     intersects,
     PointXY,
-    AnchorLocations,
     Size,
     TargetSelector,
     getWithFunction,
@@ -65,7 +64,8 @@ function _makeFloatingEndpoint (paintStyle:PaintStyle,
                                 endpoint:EndpointSpec | EndpointRepresentation<any>,
                                 referenceCanvas:Element,
                                 sourceElement:jsPlumbDOMElement,
-                                instance:BrowserJsPlumbInstance, scope?:string)
+                                instance:BrowserJsPlumbInstance,
+                                scope?:string)
 {
     let floatingAnchor = createFloatingAnchor(instance, sourceElement)// { reference: referenceAnchor, referenceCanvas: referenceCanvas })
 
@@ -154,7 +154,7 @@ export class EndpointDragHandler implements DragHandler {
 
     }
 
-    private _resolveDragParent(def:BehaviouralTypeDescriptor, eventTarget:jsPlumbDOMElement):{target:jsPlumbDOMElement, parent:jsPlumbDOMElement} {
+    private _resolveDragParent(def:BehaviouralTypeDescriptor, eventTarget:jsPlumbDOMElement):jsPlumbDOMElement {
         let container = this.instance.getContainer()
 
         let parent = findParent(eventTarget, SELECTOR_MANAGED_ELEMENT, container, true);
@@ -164,15 +164,14 @@ export class EndpointDragHandler implements DragHandler {
             if (child != null) {
                 parent = findParent(child.parentNode, SELECTOR_MANAGED_ELEMENT, container, false);
             }
-            return { target:child || parent, parent }
+            return child || parent
         } else {
-            return { target:parent, parent }
+            return parent
         }
     }
 
     private _mousedownHandler (e:MouseEvent) {
 
-        let parentEl:jsPlumbDOMElement
         let sourceEl:jsPlumbDOMElement
         let sourceDef:SourceDefinition
 
@@ -187,18 +186,15 @@ export class EndpointDragHandler implements DragHandler {
         // first test for a source definition registered on the instance whose selector matches the target of this event
         if (sourceDef != null) {
             // then get the associated element, using the definition's own `parentSelector`, if provided, or the default.
-            const dragElements = this._resolveDragParent(sourceDef.def, eventTarget)
-            sourceEl = dragElements.target
+            sourceEl = this._resolveDragParent(sourceDef.def, eventTarget)
             if (sourceEl == null) {
                 return
             }
-            parentEl = dragElements.parent
         }
 
         if (sourceDef) {
 
             let sourceElement = e.currentTarget as jsPlumbDOMElement, def
-            //let def
 
             consume(e)
 
@@ -228,7 +224,7 @@ export class EndpointDragHandler implements DragHandler {
             // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
             // the params passed in, because after a connection is established we're going to reset the endpoint
             // to have the anchor we were given.
-            let tempEndpointParams:any = {}
+            let tempEndpointParams:any = {element:sourceEl}
             extend(tempEndpointParams, def)
             tempEndpointParams.isTemporarySource = true
 
@@ -258,7 +254,7 @@ export class EndpointDragHandler implements DragHandler {
             // ideally we would have `managed` the sourceEl before this call, since if the element is not yet managed then
             // an internal ID will be assigned here. but the toolkit edition would like this id to be `vertex.port`
 
-            this.ep = this.instance.addEndpoint(sourceEl, tempEndpointParams)
+            this.ep = this.instance._internal_newEndpoint(tempEndpointParams)
 
             // optionally check for attributes to extract from the source element
             let payload = {}
@@ -559,7 +555,7 @@ export class EndpointDragHandler implements DragHandler {
 
                     d.def = sourceDef
                     this.endpointDropTargets.push(d)
-                    this.instance.addClass(d.targetEl, CLASS_DRAG_ACTIVE) // TODO get from defaults.
+                    this.instance.addClass(d.targetEl, CLASS_DRAG_ACTIVE)
                 })
             }
 
@@ -597,7 +593,7 @@ export class EndpointDragHandler implements DragHandler {
                         d.rank = targetDef.def.def.rank
                     }
                     this.endpointDropTargets.push(d)
-                    this.instance.addClass(d.targetEl, CLASS_DRAG_ACTIVE) // TODO get from defaults.
+                    this.instance.addClass(d.targetEl, CLASS_DRAG_ACTIVE)
                 })
             })
         }
@@ -961,22 +957,16 @@ export class EndpointDragHandler implements DragHandler {
                 })
             }
 
-            // if(targetDefinition.def.parameters != null) {
-            //     pp.parameters = targetDefinition.def.parameters
-            // }
-
             if(targetDefinition.def.portId != null) {
                 pp.portId = targetDefinition.def.portId
             }
 
             const extractedParameters = targetDefinition.def.parameterExtractor ? targetDefinition.def.parameterExtractor(this.currentDropTarget.el, eventTarget) : {}
-            // if (targetDefinition.def.parameterExtractor) {
-            //     dropEndpoint.mergeParameters()
-            // }
-
             pp = merge(pp, extractedParameters)
 
-            dropEndpoint = this.instance.addEndpoint(this.currentDropTarget.targetEl, pp) as Endpoint
+            pp.element = this.currentDropTarget.targetEl
+            dropEndpoint = this.instance._internal_newEndpoint(pp);
+
             (<any>dropEndpoint)._mtNew = true
             dropEndpoint.deleteOnEmpty = true
 
@@ -1076,9 +1066,6 @@ export class EndpointDragHandler implements DragHandler {
 
         this.jpc.endpoints[idx] = dropEndpoint
         dropEndpoint.addConnection(this.jpc)
-
-        // copy our parameters in to the connection:
-        //this.jpc.mergeParameters(dropEndpoint.parameters)  // TODO compile and test if this breaks anything. toolkit doesnt need it.
 
         if (this.jpc.suspendedEndpoint) {
             let suspendedElementId = this.jpc.suspendedEndpoint.elementId
