@@ -264,7 +264,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     private readonly endpointsByUUID:Map<string, Endpoint> = new Map()
 
     sourceSelectors:Array<SourceSelector> = []
-    targetSelectors:Array<SourceSelector> = []
+    targetSelectors:Array<TargetSelector> = []
 
     public allowNestedGroups:boolean
 
