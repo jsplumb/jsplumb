@@ -496,18 +496,20 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
 
             timestamp = timestamp || uuid()
 
-            let orientationCache = {}, a:LightweightAnchor
+            let orientationCache = {}, a:LightweightAnchor, anEndpoint:Endpoint
 
-            forEach(ep, (anEndpoint) => {
+            for (let i = 0; i < ep.length; i++) {
+
+                anEndpoint = ep[i]
 
                 endpointsToPaint.add(anEndpoint)
-                a = anEndpoint._anchor//anchorMap.get(anEndpoint.id)
+                a = anEndpoint._anchor
 
                 if (anEndpoint.connections.length === 0) {
 
                     if (isContinuous(a)) {
                         if (!this.anchorLists.has(elementId)) {
-                            this.anchorLists.set(elementId, { top: [], right: [], bottom: [], left: [] })
+                            this.anchorLists.set(elementId, {top: [], right: [], bottom: [], left: []})
                         }
                         this._updateAnchorList(
                             this.anchorLists.get(elementId),
@@ -538,10 +540,10 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
                                 oIdx = conn.sourceId === elementId ? 1 : 0
 
                             if (sourceContinuous && !this.anchorLists.has(sourceId)) {
-                                this.anchorLists.set(sourceId, { top: [], right: [], bottom: [], left: [] })
+                                this.anchorLists.set(sourceId, {top: [], right: [], bottom: [], left: []})
                             }
                             if (targetContinuous && !this.anchorLists.has(targetId)) {
-                                this.anchorLists.set(targetId, { top: [], right: [], bottom: [], left: [] })
+                                this.anchorLists.set(targetId, {top: [], right: [], bottom: [], left: []})
                             }
 
                             let td = this.instance.viewport.getPosition(targetId),
@@ -552,10 +554,9 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
                                 // to put the connector on.  ideally, when drawing, the face should be calculated
                                 // by determining which face is closest to the point at which the mouse button
                                 // was released.  for now, we're putting it on the top face.
-                                this._updateAnchorList( this.anchorLists.get(sourceId), -Math.PI / 2, 0, conn, false, targetId, 0, false, "top", connectionsToPaint, endpointsToPaint)
-                                this._updateAnchorList( this.anchorLists.get(targetId), -Math.PI / 2, 0, conn, false, sourceId, 1, false, "top", connectionsToPaint, endpointsToPaint)
-                            }
-                            else {
+                                this._updateAnchorList(this.anchorLists.get(sourceId), -Math.PI / 2, 0, conn, false, targetId, 0, false, "top", connectionsToPaint, endpointsToPaint)
+                                this._updateAnchorList(this.anchorLists.get(targetId), -Math.PI / 2, 0, conn, false, sourceId, 1, false, "top", connectionsToPaint, endpointsToPaint)
+                            } else {
                                 const sourceRotation = this.instance._getRotations(sourceId)
                                 const targetRotation = this.instance._getRotations(targetId)
 
@@ -590,15 +591,17 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
                             if ((sourceContinuous && oIdx === 0) || (targetContinuous && oIdx === 1)) {
                                 endpointsToPaint.add(conn.endpoints[oIdx])
                             }
-                        }
-                        else {
+                        } else {
                             let otherEndpoint = anEndpoint.connections[i].endpoints[conn.sourceId === elementId ? 1 : 0],
                                 //otherAnchor = anchorMap.get(otherEndpoint.id)
                                 otherAnchor = otherEndpoint._anchor
 
                             if (isDynamic(otherAnchor)) {
 
-                                this.instance.paintEndpoint(otherEndpoint, { elementWithPrecedence: elementId, timestamp: timestamp })
+                                this.instance.paintEndpoint(otherEndpoint, {
+                                    elementWithPrecedence: elementId,
+                                    timestamp: timestamp
+                                })
 
                                 connectionsToPaint.add(anEndpoint.connections[i])
 
@@ -614,7 +617,8 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
                         }
                     }
                 }
-            })
+                //})
+            }
 
             // now place all the continuous anchors we need to
             anchorsToUpdate.forEach((anchor) => {
