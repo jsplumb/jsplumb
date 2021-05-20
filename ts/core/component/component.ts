@@ -1,7 +1,7 @@
 import {PaintStyle} from "../styles"
 import {Dictionary, TypeDescriptor, PointXY, Extents} from '../common'
 import { JsPlumbInstance } from "../core"
-import {clone, extend, isFunction, isString, log, merge, populate, setToArray, uuid} from "../util"
+import {clone, extend, isFunction, isString, log, Merge, merge, populate, setToArray, uuid} from "../util"
 import {EventGenerator} from "../event-generator"
 import {Connection} from "../connector/connection-impl"
 import {Endpoint} from "../endpoint/endpoint"
@@ -95,10 +95,20 @@ export function  _updateHoverStyle<E> (component:Component) {
     }
 }
 
+export type BeforeDetachInterceptor = (c:Connection) => boolean
+
+export type BeforeDropInterceptor = (params:{
+    sourceId: string,
+    targetId: string,
+    scope: string,
+    connection: Connection,
+    dropEndpoint: Endpoint
+}) => boolean
+
 export interface ComponentOptions {
     parameters?:Record<string, any>
-    beforeDetach?:Function
-    beforeDrop?:Function
+    beforeDetach?:BeforeDetachInterceptor
+    beforeDrop?:BeforeDropInterceptor
     hoverClass?:string
     events?:Dictionary<(value:any, event:any) => any>
     scope?:string
@@ -184,9 +194,9 @@ export abstract class Component extends EventGenerator {
 
     lastPaintedAt:string
 
-    data:any
+    data:Record<string, any>
 
-    _defaultType:any
+    _defaultType:Merge<TypeDescriptor, { overlays:Dictionary<OverlaySpec>}>
 
     events:any
 
@@ -197,10 +207,10 @@ export abstract class Component extends EventGenerator {
 
     cssClass:string
     hoverClass:string
-    beforeDetach:Function
-    beforeDrop:Function
+    beforeDetach:BeforeDetachInterceptor
+    beforeDrop:BeforeDropInterceptor
 
-    constructor(public instance:JsPlumbInstance, params?:ComponentOptions) {
+    protected constructor(public instance:JsPlumbInstance, params?:ComponentOptions) {
 
         super()
 
@@ -221,7 +231,8 @@ export abstract class Component extends EventGenerator {
 
         this._defaultType = {
             parameters: this.parameters,
-            scope: params.scope || this.instance.defaultScope
+            scope: params.scope || this.instance.defaultScope,
+            overlays:{}
         }
 
         if (params.events) {
@@ -239,11 +250,11 @@ export abstract class Component extends EventGenerator {
         this.overlays = {}
         this.overlayPositions = {}
 
-        let o = params.overlays || [], oo = {}
+        let o = params.overlays || [], oo:Dictionary<OverlaySpec> = {}
         let defaultOverlayKey = this.getDefaultOverlayKey()
         if (defaultOverlayKey) {
 
-            const defaultOverlays = this.instance.defaults[defaultOverlayKey]
+            const defaultOverlays = this.instance.defaults[defaultOverlayKey] as Array<OverlaySpec>
             if (defaultOverlays) {
                 o.push(...defaultOverlays)
             }
@@ -283,27 +294,32 @@ export abstract class Component extends EventGenerator {
         return r
     }
 
-    isDropAllowed(sourceId:string, targetId:string, scope:string, connection:Connection, dropEndpoint:Endpoint):any {
-        let r = this.instance.checkCondition(INTERCEPT_BEFORE_DROP, {
+    isDropAllowed(sourceId:string, targetId:string, scope:string, connection:Connection, dropEndpoint:Endpoint):boolean {
+        // let r = this.instance.checkCondition(INTERCEPT_BEFORE_DROP, {
+        //     sourceId: sourceId,
+        //     targetId: targetId,
+        //     scope: scope,
+        //     connection: connection,
+        //     dropEndpoint: dropEndpoint
+        // })
+        let r:boolean
+        let payload = {
             sourceId: sourceId,
             targetId: targetId,
             scope: scope,
             connection: connection,
             dropEndpoint: dropEndpoint
-        })
+        }
+
         if (this.beforeDrop) {
             try {
-                r = this.beforeDrop({
-                    sourceId: sourceId,
-                    targetId: targetId,
-                    scope: scope,
-                    connection: connection,
-                    dropEndpoint: dropEndpoint
-                })
+                r = this.beforeDrop(payload)
             }
             catch (e) {
                 log("jsPlumb: beforeDrop callback failed", e)
             }
+        } else {
+            r = this.instance.checkCondition(INTERCEPT_BEFORE_DROP, payload)
         }
         return r
     }
@@ -312,7 +328,7 @@ export abstract class Component extends EventGenerator {
         return this._defaultType
     }
 
-    appendToDefaultType (obj:any) {
+    appendToDefaultType (obj:Record<string, any>) {
         for (let i in obj) {
             this._defaultType[i] = obj[i]
         }
@@ -416,8 +432,6 @@ export abstract class Component extends EventGenerator {
         this.setHoverPaintStyle(t.hoverPaintStyle)
         this.mergeParameters(t.parameters)
         this.paintStyleInUse = this.getPaintStyle()
-
-        // overlays?  not overlayMap?
         if (t.overlays) {
             // loop through the ones in the type. if already present on the component,
             // dont remove or re-add.
@@ -461,7 +475,6 @@ export abstract class Component extends EventGenerator {
     }
 
     setPaintStyle(style:PaintStyle):void {
-
         this.paintStyle = style
         this.paintStyleInUse = this.paintStyle
         _updateHoverStyle(this)
