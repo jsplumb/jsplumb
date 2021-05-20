@@ -3693,7 +3693,8 @@
       _this.id = params.id || _this.getIdPrefix() + new Date().getTime();
       _this._defaultType = {
         parameters: _this.parameters,
-        scope: params.scope || _this.instance.defaultScope
+        scope: params.scope || _this.instance.defaultScope,
+        overlays: {}
       };
       if (params.events) {
         for (var evtName in params.events) {
@@ -3749,25 +3750,22 @@
     }, {
       key: "isDropAllowed",
       value: function isDropAllowed(sourceId, targetId, scope, connection, dropEndpoint) {
-        var r = this.instance.checkCondition(INTERCEPT_BEFORE_DROP, {
+        var r;
+        var payload = {
           sourceId: sourceId,
           targetId: targetId,
           scope: scope,
           connection: connection,
           dropEndpoint: dropEndpoint
-        });
+        };
         if (this.beforeDrop) {
           try {
-            r = this.beforeDrop({
-              sourceId: sourceId,
-              targetId: targetId,
-              scope: scope,
-              connection: connection,
-              dropEndpoint: dropEndpoint
-            });
+            r = this.beforeDrop(payload);
           } catch (e) {
             log("jsPlumb: beforeDrop callback failed", e);
           }
+        } else {
+          r = this.instance.checkCondition(INTERCEPT_BEFORE_DROP, payload);
         }
         return r;
       }
@@ -3906,16 +3904,16 @@
               keep[t.overlays[i].options.id] = true;
               this.instance.reattachOverlay(existing, this);
             } else {
-              var c = this.getCachedTypeItem("overlay", t.overlays[i].options.id);
-              if (c != null) {
-                this.instance.reattachOverlay(c, this);
-                c.setVisible(true);
-                c.updateFrom(t.overlays[i].options);
-                this.overlays[c.id] = c;
+              var _c = this.getCachedTypeItem("overlay", t.overlays[i].options.id);
+              if (_c != null) {
+                this.instance.reattachOverlay(_c, this);
+                _c.setVisible(true);
+                _c.updateFrom(t.overlays[i].options);
+                this.overlays[_c.id] = _c;
               } else {
-                c = this.addOverlay(t.overlays[i]);
+                _c = this.addOverlay(t.overlays[i]);
               }
-              keep[c.id] = true;
+              keep[_c.id] = true;
             }
           }
           for (i in this.overlays) {
@@ -4160,10 +4158,10 @@
       value: function setLabel(l) {
         var lo = this.getLabelOverlay();
         if (!lo) {
-          var params = isString(l) || isFunction(l) ? {
+          var _params2 = isString(l) || isFunction(l) ? {
             label: l
           } : l;
-          lo = _makeLabelOverlay(this, params);
+          lo = _makeLabelOverlay(this, _params2);
           this.overlays[_internalLabelOverlayId] = lo;
         } else {
           if (isString(l) || isFunction(l)) {
@@ -4700,6 +4698,7 @@
         _detachable = false;
       }
       _this.endpointsSpec = params.endpoints || [null, null];
+      _this.endpointSpec = params.endpoint || null;
       var _reattach = params.reattach || _this.endpoints[0].reattachConnections || _this.endpoints[1].reattachConnections || _this.instance.defaults.reattachConnections;
       _this.appendToDefaultType({
         detachable: _detachable,
@@ -4729,7 +4728,7 @@
       _this.setConnector(_this.endpoints[0].connector || _this.endpoints[1].connector || params.connector || _this.instance.defaults.connector, true);
       var data = params.data == null || !IS.anObject(params.data) ? {} : params.data;
       _this.setData(data);
-      var _types = ["default", _this.endpoints[0].edgeType, _this.endpoints[1].edgeType, params.type].join(" ");
+      var _types = [DEFAULT, _this.endpoints[0].edgeType, _this.endpoints[1].edgeType, params.type].join(" ");
       if (/[^\s]/.test(_types)) {
         _this.addType(_types, params.data);
       }
@@ -4744,7 +4743,7 @@
     }, {
       key: "getTypeDescriptor",
       value: function getTypeDescriptor() {
-        return "connection";
+        return Connection.type;
       }
     }, {
       key: "isDetachable",
@@ -4939,6 +4938,7 @@
     }]);
     return Connection;
   }(Component);
+  _defineProperty(Connection, "type", "connection");
 
   var typeParameters = ["connectorStyle", "connectorHoverStyle", "connectorOverlays", "connector", "connectionType", "connectorClass", "connectorHoverClass"];
   var Endpoint =
@@ -7365,28 +7365,30 @@
           var ep = this.instance.endpointsByElement[elementId] || [];
           timestamp = timestamp || uuid();
           var orientationCache = {},
-              a;
-          forEach(ep, function (anEndpoint) {
+              a,
+              anEndpoint;
+          for (var i = 0; i < ep.length; i++) {
+            anEndpoint = ep[i];
             endpointsToPaint.add(anEndpoint);
             a = anEndpoint._anchor;
             if (anEndpoint.connections.length === 0) {
               if (isContinuous(a)) {
-                if (!_this3.anchorLists.has(elementId)) {
-                  _this3.anchorLists.set(elementId, {
+                if (!this.anchorLists.has(elementId)) {
+                  this.anchorLists.set(elementId, {
                     top: [],
                     right: [],
                     bottom: [],
                     left: []
                   });
                 }
-                _this3._updateAnchorList(_this3.anchorLists.get(elementId), -Math.PI / 2, 0, {
+                this._updateAnchorList(this.anchorLists.get(elementId), -Math.PI / 2, 0, {
                   endpoints: [anEndpoint, anEndpoint]
                 }, false, elementId, 0, false, getDefaultFace(a), connectionsToPaint, endpointsToPaint);
                 anchorsToUpdate.add(elementId);
               }
             } else {
-              for (var i = 0; i < anEndpoint.connections.length; i++) {
-                var conn = anEndpoint.connections[i],
+              for (var _i2 = 0; _i2 < anEndpoint.connections.length; _i2++) {
+                var conn = anEndpoint.connections[_i2],
                     sourceId = conn.sourceId,
                     targetId = conn.targetId,
                     sourceContinuous = isContinuous(conn.endpoints[0]._anchor),
@@ -7395,40 +7397,40 @@
                   var oKey = sourceId + "_" + targetId,
                       o = orientationCache[oKey],
                       oIdx = conn.sourceId === elementId ? 1 : 0;
-                  if (sourceContinuous && !_this3.anchorLists.has(sourceId)) {
-                    _this3.anchorLists.set(sourceId, {
+                  if (sourceContinuous && !this.anchorLists.has(sourceId)) {
+                    this.anchorLists.set(sourceId, {
                       top: [],
                       right: [],
                       bottom: [],
                       left: []
                     });
                   }
-                  if (targetContinuous && !_this3.anchorLists.has(targetId)) {
-                    _this3.anchorLists.set(targetId, {
+                  if (targetContinuous && !this.anchorLists.has(targetId)) {
+                    this.anchorLists.set(targetId, {
                       top: [],
                       right: [],
                       bottom: [],
                       left: []
                     });
                   }
-                  var td = _this3.instance.viewport.getPosition(targetId),
-                      sd = _this3.instance.viewport.getPosition(sourceId);
+                  var td = this.instance.viewport.getPosition(targetId),
+                      sd = this.instance.viewport.getPosition(sourceId);
                   if (targetId === sourceId && (sourceContinuous || targetContinuous)) {
-                    _this3._updateAnchorList(_this3.anchorLists.get(sourceId), -Math.PI / 2, 0, conn, false, targetId, 0, false, "top", connectionsToPaint, endpointsToPaint);
-                    _this3._updateAnchorList(_this3.anchorLists.get(targetId), -Math.PI / 2, 0, conn, false, sourceId, 1, false, "top", connectionsToPaint, endpointsToPaint);
+                    this._updateAnchorList(this.anchorLists.get(sourceId), -Math.PI / 2, 0, conn, false, targetId, 0, false, "top", connectionsToPaint, endpointsToPaint);
+                    this._updateAnchorList(this.anchorLists.get(targetId), -Math.PI / 2, 0, conn, false, sourceId, 1, false, "top", connectionsToPaint, endpointsToPaint);
                   } else {
-                    var sourceRotation = _this3.instance._getRotations(sourceId);
-                    var targetRotation = _this3.instance._getRotations(targetId);
+                    var sourceRotation = this.instance._getRotations(sourceId);
+                    var targetRotation = this.instance._getRotations(targetId);
                     if (!o) {
-                      o = _this3._calculateOrientation(sourceId, targetId, sd, td,
+                      o = this._calculateOrientation(sourceId, targetId, sd, td,
                       conn.endpoints[0]._anchor, conn.endpoints[1]._anchor, sourceRotation, targetRotation);
                       orientationCache[oKey] = o;
                     }
                     if (sourceContinuous) {
-                      _this3._updateAnchorList(_this3.anchorLists.get(sourceId), o.theta, 0, conn, false, targetId, 0, false, o.a[0], connectionsToPaint, endpointsToPaint);
+                      this._updateAnchorList(this.anchorLists.get(sourceId), o.theta, 0, conn, false, targetId, 0, false, o.a[0], connectionsToPaint, endpointsToPaint);
                     }
                     if (targetContinuous) {
-                      _this3._updateAnchorList(_this3.anchorLists.get(targetId), o.theta2, -1, conn, true, sourceId, 1, true, o.a[1], connectionsToPaint, endpointsToPaint);
+                      this._updateAnchorList(this.anchorLists.get(targetId), o.theta2, -1, conn, true, sourceId, 1, true, o.a[1], connectionsToPaint, endpointsToPaint);
                     }
                   }
                   if (sourceContinuous) {
@@ -7442,26 +7444,26 @@
                     endpointsToPaint.add(conn.endpoints[oIdx]);
                   }
                 } else {
-                  var otherEndpoint = anEndpoint.connections[i].endpoints[conn.sourceId === elementId ? 1 : 0],
+                  var otherEndpoint = anEndpoint.connections[_i2].endpoints[conn.sourceId === elementId ? 1 : 0],
                   otherAnchor = otherEndpoint._anchor;
                   if (isDynamic(otherAnchor)) {
-                    _this3.instance.paintEndpoint(otherEndpoint, {
+                    this.instance.paintEndpoint(otherEndpoint, {
                       elementWithPrecedence: elementId,
                       timestamp: timestamp
                     });
-                    connectionsToPaint.add(anEndpoint.connections[i]);
+                    connectionsToPaint.add(anEndpoint.connections[_i2]);
                     for (var k = 0; k < otherEndpoint.connections.length; k++) {
-                      if (otherEndpoint.connections[k] !== anEndpoint.connections[i]) {
+                      if (otherEndpoint.connections[k] !== anEndpoint.connections[_i2]) {
                         connectionsToPaint.add(otherEndpoint.connections[k]);
                       }
                     }
                   } else {
-                    connectionsToPaint.add(anEndpoint.connections[i]);
+                    connectionsToPaint.add(anEndpoint.connections[_i2]);
                   }
                 }
               }
             }
-          });
+          }
           anchorsToUpdate.forEach(function (anchor) {
             _this3._placeAnchors(anchor, _this3.anchorLists.get(anchor));
           });
@@ -8352,10 +8354,10 @@
       key: "_internal_newEndpoint",
       value: function _internal_newEndpoint(params) {
         var _p = extend({}, params);
+        var managedElement = this.manage(_p.element);
         _p.elementId = this.getId(_p.element);
         _p.id = "ep_" + this._idstamp();
         var ep = new Endpoint(this, _p);
-        var managedElement = this.manage(_p.element);
         addManagedEndpoint(managedElement, ep);
         if (params.uuid) {
           this.endpointsByUUID.set(params.uuid, ep);

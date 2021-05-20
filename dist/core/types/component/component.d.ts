@@ -1,6 +1,7 @@
 import { PaintStyle } from "../styles";
 import { Dictionary, TypeDescriptor, PointXY, Extents } from '../common';
 import { JsPlumbInstance } from "../core";
+import { Merge } from "../util";
 import { EventGenerator } from "../event-generator";
 import { Connection } from "../connector/connection-impl";
 import { Endpoint } from "../endpoint/endpoint";
@@ -9,10 +10,18 @@ import { LabelOverlay } from "../overlay/label-overlay";
 export declare type ComponentParameters = Record<string, any>;
 export declare function _removeTypeCssHelper<E>(component: Component, typeIndex: number): void;
 export declare function _updateHoverStyle<E>(component: Component): void;
+export declare type BeforeDetachInterceptor = (c: Connection) => boolean;
+export declare type BeforeDropInterceptor = (params: {
+    sourceId: string;
+    targetId: string;
+    scope: string;
+    connection: Connection;
+    dropEndpoint: Endpoint;
+}) => boolean;
 export interface ComponentOptions {
     parameters?: Record<string, any>;
-    beforeDetach?: Function;
-    beforeDrop?: Function;
+    beforeDetach?: BeforeDetachInterceptor;
+    beforeDrop?: BeforeDropInterceptor;
     hoverClass?: string;
     events?: Dictionary<(value: any, event: any) => any>;
     scope?: string;
@@ -50,21 +59,23 @@ export declare abstract class Component extends EventGenerator {
     paintStyleInUse: PaintStyle;
     _hover: boolean;
     lastPaintedAt: string;
-    data: any;
-    _defaultType: any;
+    data: Record<string, any>;
+    _defaultType: Merge<TypeDescriptor, {
+        overlays: Dictionary<OverlaySpec>;
+    }>;
     events: any;
     parameters: ComponentParameters;
     _types: string[];
     _typeCache: {};
     cssClass: string;
     hoverClass: string;
-    beforeDetach: Function;
-    beforeDrop: Function;
-    constructor(instance: JsPlumbInstance, params?: ComponentOptions);
+    beforeDetach: BeforeDetachInterceptor;
+    beforeDrop: BeforeDropInterceptor;
+    protected constructor(instance: JsPlumbInstance, params?: ComponentOptions);
     isDetachAllowed(connection: Connection): boolean;
-    isDropAllowed(sourceId: string, targetId: string, scope: string, connection: Connection, dropEndpoint: Endpoint): any;
+    isDropAllowed(sourceId: string, targetId: string, scope: string, connection: Connection, dropEndpoint: Endpoint): boolean;
     getDefaultType(): TypeDescriptor;
-    appendToDefaultType(obj: any): void;
+    appendToDefaultType(obj: Record<string, any>): void;
     getId(): string;
     cacheTypeItem(key: string, item: any, typeId: string): void;
     getCachedTypeItem(key: string, typeId: string): any;
@@ -93,7 +104,7 @@ export declare abstract class Component extends EventGenerator {
     removeClass(clazz: string, cascade?: boolean): void;
     getClass(): string;
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
-    getData(): any;
+    getData(): Record<string, any>;
     setData(d: any): void;
     mergeData(d: any): void;
     addOverlay(overlay: OverlaySpec): Overlay;

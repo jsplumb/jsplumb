@@ -14,6 +14,7 @@ export declare type ConnectionOptions<E = any> = Merge<ConnectParams<E>, {
     sourceEndpoint?: Endpoint;
     targetEndpoint?: Endpoint;
     previousConnection?: Connection<E>;
+    geometry?: any;
 }>;
 export declare class Connection<E = any> extends Component {
     instance: JsPlumbInstance;
@@ -58,6 +59,7 @@ export declare class Connection<E = any> extends Component {
     pending: boolean;
     constructor(instance: JsPlumbInstance, params: ConnectionOptions<E>);
     makeEndpoint(isSource: boolean, el: any, elId: string, anchor?: AnchorSpec, ep?: Endpoint): Endpoint;
+    static type: string;
     getTypeDescriptor(): string;
     isDetachable(ep?: Endpoint): boolean;
     setDetachable(detachable: boolean): void;
