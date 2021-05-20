@@ -953,12 +953,10 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      */
     _internal_newEndpoint(params:InternalEndpointOptions<T["E"]>):Endpoint {
         let _p:InternalEndpointOptions<T["E"]> = extend<InternalEndpointOptions<T["E"]>>({}, params)
+        const managedElement = this.manage(_p.element)
         _p.elementId = this.getId(_p.element)
         _p.id = "ep_" + this._idstamp()
-
         let ep = new Endpoint(this, _p)
-        const managedElement = this.manage(_p.element)
-
         addManagedEndpoint(managedElement, ep)
 
         if (params.uuid) {
