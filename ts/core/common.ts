@@ -6,7 +6,7 @@ import {ConnectorSpec} from "./connector/abstract-connector"
 import {OverlaySpec} from "./overlay/overlay"
 import {PaintStyle} from "./styles"
 import {Connection} from "./connector/connection-impl"
-import {RedropPolicy} from "@jsplumb/core/source-selector"
+import {RedropPolicy} from "./source-selector"
 
 export type UUID = string
 
