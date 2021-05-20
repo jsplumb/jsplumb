@@ -11,6 +11,7 @@ import {makeLightweightAnchorFromSpec, AnchorSpec} from "../factory/anchor-recor
 import {ConnectorSpec} from "./abstract-connector"
 import {EndpointSpec} from "../endpoint/endpoint"
 import * as Constants from "../constants"
+import {DEFAULT} from "../constants"
 
 const TYPE_ITEM_ANCHORS = "anchors"
 const TYPE_ITEM_CONNECTOR = "connector"
@@ -85,6 +86,8 @@ export type ConnectionOptions<E = any>  =  Merge<ConnectParams<E>,  {
     targetEndpoint?:Endpoint
 
     previousConnection?:Connection<E>
+
+    geometry?:any
 }>
 
 export class Connection<E = any> extends Component {
@@ -222,7 +225,7 @@ export class Connection<E = any> extends Component {
         }
 
         this.endpointsSpec = params.endpoints || [null, null]
-        //this.endpointSpec = params.endpoint || null
+        this.endpointSpec = params.endpoint || null
 
         let _reattach = params.reattach || this.endpoints[0].reattachConnections || this.endpoints[1].reattachConnections || this.instance.defaults.reattachConnections
 
@@ -266,7 +269,7 @@ export class Connection<E = any> extends Component {
         this.setData(data)
 
         // the very last thing we do is apply types, if there are any.
-        let _types = [ "default", this.endpoints[0].edgeType, this.endpoints[1].edgeType,  params.type ].join(" ")
+        let _types = [ DEFAULT, this.endpoints[0].edgeType, this.endpoints[1].edgeType,  params.type ].join(" ")
         if (/[^\s]/.test(_types)) {
             this.addType(_types, params.data)
         }
@@ -277,8 +280,9 @@ export class Connection<E = any> extends Component {
         return prepareEndpoint<E>(this, ep, isSource ? 0 : 1, anchor, el, elId)
     }
 
+    static type = "connection"
     getTypeDescriptor ():string {
-        return "connection"
+        return Connection.type
     }
 
     isDetachable (ep?:Endpoint):boolean {
