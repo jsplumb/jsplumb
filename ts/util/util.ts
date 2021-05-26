@@ -791,4 +791,11 @@ export function pointSubtract(p1:PointXY, p2:PointXY):PointXY {
 export interface Rotation {r:number, c:PointXY}
 export type Rotations = Array<Rotation>
 
+export interface Extents {
+    xmin:number
+    ymin:number
+    xmax:number
+    ymax:number
+}
+
 

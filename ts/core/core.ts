@@ -18,7 +18,7 @@ import {
     Rotations,
     PointXY,
     Size,
-    Dictionary,
+    Dictionary, Extents,
     EventGenerator
 } from "@jsplumb/util"
 
@@ -32,7 +32,7 @@ import {
     TypeDescriptor,
     ConnectionMovedParams,
     ConnectionDetachedParams,
-    ConnectionEstablishedParams, ConnectionTypeDescriptor, EndpointTypeDescriptor, Extents, ManageElementParams
+    ConnectionEstablishedParams, ConnectionTypeDescriptor, EndpointTypeDescriptor, ManageElementParams
 } from './common'
 
 import * as Constants from "./constants"

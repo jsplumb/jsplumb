@@ -1,5 +1,5 @@
-import { PointXY } from "@jsplumb/util";
-import { Extents, TypeDescriptor } from '../common';
+import { PointXY, Extents } from "@jsplumb/util";
+import { TypeDescriptor } from '../common';
 import { JsPlumbInstance } from "../core";
 import { Segment } from "./abstract-segment";
 import { AnchorPlacement } from "../router/router";

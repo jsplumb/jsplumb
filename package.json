@@ -34,7 +34,7 @@
     "connectivity"
   ],
   "packages": [
-    "core", "util", "bezier", "geom", "browser-ui"
+    "util", "geom", "bezier", "core", "browser-ui"
   ],
   "packageNames": {
     "@jsplumb/core":"jsPlumb",

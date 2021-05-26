@@ -1,4 +1,5 @@
-import { AbstractConnector, Extents, PaintStyle } from "@jsplumb/core";
+import { AbstractConnector, PaintStyle } from "@jsplumb/core";
+import { Extents } from "@jsplumb/util";
 /**
  * Renderer for a connector that uses an `svg` element in the DOM.
  */

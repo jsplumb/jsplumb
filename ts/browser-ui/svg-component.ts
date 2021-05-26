@@ -1,7 +1,7 @@
-
+import {PaintStyle} from "@jsplumb/core"
+import {Extents} from "@jsplumb/util"
 
 import { _attr, _pos, _size  } from './svg-util'
-import {Extents, PaintStyle} from "@jsplumb/core"
 
 export class SvgComponent {
 

@@ -259,9 +259,3 @@ export interface UpdateOffsetOptions {
     recalc?: boolean;
     elId?: string;
 }
-export interface Extents {
-    xmin: number;
-    ymin: number;
-    xmax: number;
-    ymax: number;
-}

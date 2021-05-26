@@ -282,3 +282,9 @@ export interface Rotation {
     c: PointXY;
 }
 export declare type Rotations = Array<Rotation>;
+export interface Extents {
+    xmin: number;
+    ymin: number;
+    xmax: number;
+    ymax: number;
+}

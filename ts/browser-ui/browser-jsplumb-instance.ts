@@ -60,7 +60,7 @@ import {
     EVENT_TAP,
     EVENT_DBL_TAP,
     EVENT_ELEMENT_TAP,
-    EVENT_ELEMENT_DBL_TAP, Extents
+    EVENT_ELEMENT_DBL_TAP
 } from '@jsplumb/core'
 
 import {
@@ -75,7 +75,8 @@ import {
     PointXY,
     Dictionary,
     Size,
-    BoundingBox
+    BoundingBox,
+    Extents
 } from "@jsplumb/util"
 
 import { _attr,

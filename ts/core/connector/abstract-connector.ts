@@ -1,8 +1,8 @@
 
-import {isArray, log, PointXY} from "@jsplumb/util"
+import {isArray, log, PointXY, Extents} from "@jsplumb/util"
 import {quadrant} from "@jsplumb/geom"
 
-import {Extents, TypeDescriptor} from '../common'
+import {TypeDescriptor} from '../common'
 import { JsPlumbInstance } from "../core"
 import {EMPTY_BOUNDS, Segment} from "./abstract-segment"
 import {AnchorPlacement} from "../router/router"

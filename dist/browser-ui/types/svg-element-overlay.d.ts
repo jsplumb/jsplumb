@@ -1,4 +1,5 @@
-import { Component, Extents, Overlay, PaintStyle } from "@jsplumb/core";
+import { Component, Overlay, PaintStyle } from "@jsplumb/core";
+import { Extents } from "@jsplumb/util";
 export interface SvgOverlayPaintParams extends Extents, PaintStyle {
     component: Component;
     d?: any;

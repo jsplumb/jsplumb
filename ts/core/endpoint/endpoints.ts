@@ -3,8 +3,8 @@ import {Orientation} from "../factory/anchor-record-factory"
 import {EMPTY_BOUNDS} from "../connector/abstract-segment"
 import {Endpoint} from "./endpoint"
 import {AnchorPlacement} from "../router/router"
-import {Extents} from "../common"
 import {EndpointFactory} from "../factory/endpoint-factory"
+import { Extents } from '@jsplumb/util'
 
 export interface EndpointRepresentationParams {
     cssClass?:string
