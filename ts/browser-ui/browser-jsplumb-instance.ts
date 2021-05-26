@@ -112,7 +112,7 @@ import {JsPlumbList, JsPlumbListManager, JsPlumbListOptions} from "./lists"
 
 import {HTMLElementOverlay} from "./html-element-overlay"
 import {SVGElementOverlay} from "./svg-element-overlay"
-import {SvgElementConnector} from "./svg-element-connector"
+import {paintSvgConnector} from "./svg-element-connector"
 import {SvgEndpoint} from "./svg-element-endpoint"
 
 export interface UIComponent {
@@ -1169,7 +1169,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     // ------------------------------- connectors ---------------------------------------------------------
 
     paintConnector(connector:AbstractConnector, paintStyle:PaintStyle, extents?:Extents):void {
-        SvgElementConnector.paint(connector, paintStyle, extents)
+        paintSvgConnector(this, connector, paintStyle, extents)
     }
 
     setConnectorHover(connector:AbstractConnector, h:boolean, doNotCascade?:boolean):void {
