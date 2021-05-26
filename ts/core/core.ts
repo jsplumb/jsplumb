@@ -1984,7 +1984,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     }
 
     makeConnector(connection:Connection<T["E"]>, name:string, args:any):AbstractConnector {
-        return Connectors.get(this, connection, name, args)
+        return Connectors.get(connection, name, args)
     }
 
     /**
@@ -2024,6 +2024,15 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     abstract on (el:Document | T["E"] | ArrayLike<T["E"]>, event:string, callbackOrSelector:Function | string, callback?:Function):void
     abstract off (el:Document | T["E"] | ArrayLike<T["E"]>, event:string, callback:Function):void
     abstract trigger(el:Document | T["E"], event:string, originalEvent?:Event, payload?:any, detail?:number):void
+
+    getPathData (connector:AbstractConnector):any {
+        let p = ""
+        for (let i = 0; i < connector.segments.length; i++) {
+            p += this.getPath(connector.segments[i], i === 0)
+            p += " "
+        }
+        return p
+    }
 
     abstract getPath(segment:Segment, isFirstSegment:boolean):string
 
