@@ -1,5 +1,6 @@
 {
   "private": true,
+  "version": "5.0.0-RC1",
   "workspaces": [
     "ts/*"
   ],
@@ -17,7 +18,7 @@
     "copy-css": "node ./scripts/copy-css.js",
     "copy-package-json": "echo \"\n--- Copying package jsons into distribution directories...\n\"; node ./scripts/copy-package-json.js",
     "copy-defs": "echo \"\n--- Copying typescript definitions into distribution directories...\n\"; node ./scripts/copy-typescript-defs.js",
-    "create-distribution": "npm run package;echo \\\"\\n--- Running npm pack...\\n\\\";  cd dist/browser-ui; npm pack; cd ../core; npm pack; cd ../util; npm pack; cd ../bezier'npm pack;cd ../geom;npm pack",
+    "create-distribution": "echo \"\n-- Building packages...\n\";node ./scripts/create-packages.js",
     "rollup": "echo \"\n--- Running Rollup...\n\"; rollup -c",
     "rollup-dev": "rollup -c -w",
     "link": "node scripts/link.js"
