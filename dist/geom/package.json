@@ -1,26 +1,25 @@
 {
-  "name": "@jsplumb/browser-ui",
+  "name": "@jsplumb/geom",
   "version": "5.0.0-RC1",
-  "description": "jsPlumb renderer for browsers that connects DOM/SVG elements to each other with individual SVG elements",
-  "main": "js/jsplumb.browser-ui.cjs.js",
-  "module": "js/jsplumb.browser-ui.es.js",
+  "description": "Various geometry functions used to compute connector paths, overlay placements, anchor placements.",
+  "main": "js/jsplumb.geom.cjs.js",
+  "module": "js/jsplumb.geom.es.js",
   "directories": {
     "doc": "doc",
     "test": "tests"
   },
   "files": [
     "**/*.d.ts",
-    "js/jsplumb.browser-ui.umd.js",
-    "js/jsplumb.browser-ui.cjs.js",
-    "js/jsplumb.browser-ui.es.js",
-    "css/jsplumbtoolkit.css"
+    "js/jsplumb.geom.umd.js",
+    "js/jsplumb.geom.cjs.js",
+    "js/jsplumb.geom.es.js"
   ],
   "types": "types/index.d.ts",
   "scripts": {},
   "repository": {
     "type": "git",
     "url": "git://github.com/jsplumb/jsplumb.git",
-    "directory": "ts/dom"
+    "directory": "ts/geom"
   },
   "keywords": [
     "javascript",
@@ -31,6 +30,7 @@
   "author": "jsPlumb (hello@jsplumbtoolkit.com)",
   "license": "(MIT OR GPL-2.0)",
   "dependencies": {
-    "@jsplumb/core": "5.0.0-RC1"
-  }
+    "@jsplumb/util": "5.0.0-RC1"
+  },
+  "devDependencies": {}
 }
