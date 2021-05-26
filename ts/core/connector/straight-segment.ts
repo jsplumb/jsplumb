@@ -1,9 +1,10 @@
-import {AbstractSegment, PointNearPath} from "./abstract-segment"
+import {AbstractSegment, PointNearPath, SegmentParams} from "./abstract-segment"
 import {PointXY} from '@jsplumb/util'
-import { JsPlumbInstance } from "../core"
 import {gradient, lineLength, pointOnLine} from "@jsplumb/geom"
 
 export type StraightSegmentCoordinates = { x1:number, y1:number, x2:number, y2:number}
+
+export interface StraightSegmentParams extends SegmentParams {}
 
 export class StraightSegment extends AbstractSegment {
 
@@ -15,7 +16,7 @@ export class StraightSegment extends AbstractSegment {
     y1:number
     y2:number
 
-    constructor(private instance:JsPlumbInstance, params:any) {
+    constructor(params:StraightSegmentParams) {
         super(params)
         this._setCoordinates({x1: params.x1, y1: params.y1, x2: params.x2, y2: params.y2})
     }

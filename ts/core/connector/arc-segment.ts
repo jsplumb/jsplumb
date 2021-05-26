@@ -1,6 +1,5 @@
-import {AbstractSegment} from "./abstract-segment"
+import {AbstractSegment, SegmentParams} from "./abstract-segment"
 import { PointXY } from '@jsplumb/util'
-import { JsPlumbInstance } from "../core"
 import {normal, theta, TWO_PI} from "@jsplumb/geom"
 
 const VERY_SMALL_VALUE = 0.0000000001
@@ -14,6 +13,15 @@ function gentleRound (n:number):number {
         return r
     }
     return n
+}
+
+export interface ArcSegmentParams extends SegmentParams {
+    cx:number
+    cy:number
+    r:number
+    ac:boolean
+    startAngle?:number
+    endAngle?:number
 }
 
 export class ArcSegment extends AbstractSegment {
@@ -34,7 +42,7 @@ export class ArcSegment extends AbstractSegment {
     circumference:number
     frac:number
 
-    constructor(private instance:JsPlumbInstance, params:any) {
+    constructor(params:ArcSegmentParams) {
 
         super(params)
 
