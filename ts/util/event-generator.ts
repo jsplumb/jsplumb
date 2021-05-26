@@ -1,4 +1,5 @@
-import {Dictionary, addToDictionary, log, remove, uuid} from "@jsplumb/util"
+import {Dictionary, addToDictionary, log, remove, uuid} from "./util"
+
 
 /**
  * Base class for classes that wish to support binding and firing of events. You need to implement the `shouldFireEvent` method
@@ -73,7 +74,7 @@ export abstract class EventGenerator {
      * Unbind the given event listener, or all listeners. If you call this method with no arguments then all event
      * listeners are unbound.
      * @param eventOrListener Either an event name, or an event handler function
-     * @param listener If `eventOrListener` is defined, this it eh event handler to unbind.
+     * @param listener If `eventOrListener` is defined, this is the event handler to unbind.
      */
     unbind (eventOrListener?: string | Function, listener?: Function): EventGenerator {
 

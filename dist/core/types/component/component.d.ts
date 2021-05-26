@@ -1,8 +1,7 @@
 import { PaintStyle } from "../styles";
 import { TypeDescriptor, Extents } from '../common';
 import { JsPlumbInstance } from "../core";
-import { Merge, PointXY, Dictionary } from "@jsplumb/util";
-import { EventGenerator } from "../event-generator";
+import { EventGenerator, Merge, PointXY, Dictionary } from "@jsplumb/util";
 import { Connection } from "../connector/connection-impl";
 import { Endpoint } from "../endpoint/endpoint";
 import { Overlay, OverlaySpec } from "../overlay/overlay";

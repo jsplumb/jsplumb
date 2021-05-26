@@ -1,5 +1,4 @@
-import { EventGenerator } from "./event-generator";
-import { Size, PointXY } from '@jsplumb/util';
+import { EventGenerator, Size, PointXY } from '@jsplumb/util';
 import { JsPlumbInstance } from "./core";
 export interface ViewportPosition extends PointXY {
 }

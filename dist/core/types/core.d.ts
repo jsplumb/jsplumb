@@ -2,11 +2,10 @@ import { JsPlumbDefaults } from "./defaults";
 import { Connection, ConnectionOptions } from "./connector/connection-impl";
 import { Endpoint, EndpointSpec } from "./endpoint/endpoint";
 import { AnchorPlacement, RedrawResult } from "./router/router";
-import { RotatedPointXY, Rotations, PointXY, Size, Dictionary } from "@jsplumb/util";
+import { RotatedPointXY, Rotations, PointXY, Size, Dictionary, EventGenerator } from "@jsplumb/util";
 import { UpdateOffsetOptions, jsPlumbElement, ConnectParams, // <--
 SourceDefinition, BehaviouralTypeDescriptor, // <--
 TypeDescriptor, ConnectionMovedParams, ConnectionTypeDescriptor, EndpointTypeDescriptor, Extents } from './common';
-import { EventGenerator } from "./event-generator";
 import { EndpointOptions } from "./endpoint/endpoint-options";
 import { AddGroupOptions, GroupManager } from "./group/group-manager";
 import { UIGroup } from "./group/group";

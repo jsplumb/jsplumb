@@ -1,8 +1,7 @@
 import {PaintStyle} from "../styles"
 import {TypeDescriptor, Extents} from '../common'
 import { JsPlumbInstance } from "../core"
-import {clone, extend, isFunction, isString, log, Merge, merge, populate, setToArray, uuid, PointXY, Dictionary} from "@jsplumb/util"
-import {EventGenerator} from "../event-generator"
+import {EventGenerator,clone, extend, isFunction, isString, log, Merge, merge, populate, setToArray, uuid, PointXY, Dictionary} from "@jsplumb/util"
 import {Connection} from "../connector/connection-impl"
 import {Endpoint} from "../endpoint/endpoint"
 import { INTERCEPT_BEFORE_DROP } from '../constants'

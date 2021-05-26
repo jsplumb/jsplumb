@@ -18,7 +18,8 @@ import {
     Rotations,
     PointXY,
     Size,
-    Dictionary
+    Dictionary,
+    EventGenerator
 } from "@jsplumb/util"
 
 import {
@@ -34,7 +35,6 @@ import {
     ConnectionEstablishedParams, ConnectionTypeDescriptor, EndpointTypeDescriptor, Extents, ManageElementParams
 } from './common'
 
-import { EventGenerator } from "./event-generator"
 import * as Constants from "./constants"
 import {EndpointOptions} from "./endpoint/endpoint-options"
 import {AddGroupOptions, GroupManager} from "./group/group-manager"

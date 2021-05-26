@@ -1,5 +1,4 @@
-import {EventGenerator} from "./event-generator"
-import {findWithFunction, getsert, forEach, insertSorted, Size, PointXY} from '@jsplumb/util'
+import {EventGenerator,findWithFunction, getsert, forEach, insertSorted, Size, PointXY} from '@jsplumb/util'
 import {JsPlumbInstance} from "./core"
 
 export interface ViewportPosition extends PointXY {
