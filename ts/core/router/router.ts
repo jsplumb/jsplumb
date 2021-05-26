@@ -1,6 +1,6 @@
 import {Connection} from '../connector/connection-impl'
 import { Endpoint } from '../endpoint/endpoint'
-import { PointXY } from '../common'
+import { PointXY } from '@jsplumb/util'
 import {
     AnchorComputeParams,
     AnchorSpec, Face,

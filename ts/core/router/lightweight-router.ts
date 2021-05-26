@@ -15,7 +15,7 @@ import {
     LightweightFloatingAnchor, makeLightweightAnchorFromSpec,
     TOP, BOTTOM, LEFT, RIGHT
 } from "../factory/anchor-record-factory"
-import {ConnectionDetachedParams, Dictionary, PointXY, Rotations, Size, SortFunction} from "../common"
+import {ConnectionDetachedParams} from "../common"
 import {AnchorPlacement, RedrawResult, Router} from "./router"
 import {Connection} from "../connector/connection-impl"
 import {JsPlumbInstance} from "../core"
@@ -28,8 +28,9 @@ import {
     RotatedPointXY,
     rotatePoint,
     sortHelper,
-    uuid
-} from "../util"
+    uuid,
+    Dictionary, PointXY, SortFunction, Rotations, Size
+} from "@jsplumb/util"
 import {ViewportElement} from "../viewport"
 import {lineLength} from "../geom"
 

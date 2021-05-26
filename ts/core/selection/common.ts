@@ -1,9 +1,8 @@
 import { PaintStyle } from '../styles'
 import { OverlaySpec } from '../overlay/overlay'
 import {Component } from "../component/component"
-import { Dictionary } from '../common'
 import { JsPlumbInstance } from "../core"
-import {forEach} from "../util"
+import { Dictionary, forEach} from "@jsplumb/util"
 
 export class SelectionBase<T extends Component>{
 

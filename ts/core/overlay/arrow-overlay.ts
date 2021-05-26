@@ -1,7 +1,6 @@
 import {ArrowOverlayOptions, Overlay} from "./overlay"
 import {JsPlumbInstance} from "../core"
-import { PointXY, Size } from '../common'
-import { isArray } from '../util'
+import { PointXY, Size , isArray } from '@jsplumb/util'
 import {Component} from '../component/component'
 import { OverlayFactory } from '../factory/overlay-factory'
 import {AbstractConnector} from "../connector/abstract-connector"

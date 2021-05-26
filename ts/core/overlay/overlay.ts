@@ -1,10 +1,8 @@
 
 import {JsPlumbInstance} from "../core"
-import {Dictionary} from '../common'
-
 import {PaintStyle} from "../styles"
 import {Component} from "../component/component"
-import {isString, uuid} from "../util"
+import {Dictionary, isString, uuid} from "@jsplumb/util"
 import {EventGenerator} from "../event-generator"
 import {Connection} from '../connector/connection-impl'
 import * as Constants from "../constants"

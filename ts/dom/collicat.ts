@@ -1,4 +1,4 @@
-import {Dictionary, extend, IS, uuid, PointXY, Size} from '@jsplumb/core'
+import {Dictionary, extend, IS, uuid, PointXY, Size} from '@jsplumb/util'
 import {addClass, consume, matchesSelector, removeClass, offsetRelativeToRoot} from "./browser-util"
 import {EventManager, pageLocation} from "./event-manager"
 import { jsPlumbDOMElement} from './element-facade'

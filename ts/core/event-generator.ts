@@ -1,5 +1,4 @@
-import {addToDictionary, log, remove, uuid} from "./util"
-import {Dictionary} from "./common"
+import {Dictionary, addToDictionary, log, remove, uuid} from "@jsplumb/util"
 
 /**
  * Base class for classes that wish to support binding and firing of events. You need to implement the `shouldFireEvent` method

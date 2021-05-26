@@ -1,8 +1,7 @@
 import {
     ConnectionDetachedParams,
-    ConnectionEstablishedParams,
-    Dictionary, jsPlumbElement,
-    PointXY,
+    ConnectionEstablishedParams, jsPlumbElement,
+
     ConnectionMovedParams
 } from '../common'
 
@@ -10,7 +9,7 @@ import { JsPlumbInstance } from "../core"
 
 import {UIGroup, GroupOptions, UINode} from "./group"
 import * as Constants from "../constants"
-import {IS, removeWithFunction, suggest, forEach } from "../util"
+import {PointXY,IS, removeWithFunction, Dictionary, suggest, forEach } from "@jsplumb/util"
 import {Connection} from "../connector/connection-impl"
 import {ConnectionSelection} from "../selection/connection-selection"
 import {SELECTOR_MANAGED_ELEMENT} from "../constants"

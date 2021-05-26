@@ -5,7 +5,7 @@ import {
 import {StraightSegment} from "./straight-segment"
 import {ArcSegment} from "./arc-segment"
 
-import { Dictionary } from '../common'
+import { Dictionary } from '@jsplumb/util'
 import { JsPlumbInstance } from "../core"
 import { Connection } from '../connector/connection-impl'
 

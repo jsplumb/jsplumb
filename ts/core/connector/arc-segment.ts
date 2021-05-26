@@ -1,5 +1,5 @@
 import {AbstractSegment} from "./abstract-segment"
-import { PointXY } from '../common'
+import { PointXY } from '@jsplumb/util'
 import { JsPlumbInstance } from "../core"
 import {normal, theta, TWO_PI} from "../geom"
 

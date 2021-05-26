@@ -13,22 +13,22 @@ import {
     removeWithFunction, rotatePoint,
     uuid,
     extend,
-    filterList, addToDictionary, forEach, RotatedPointXY
-} from "./util"
+    filterList, addToDictionary, forEach, RotatedPointXY,
+    Rotation,
+    Rotations,
+    PointXY,
+    Size,
+    Dictionary
+} from "@jsplumb/util"
 
 import {
-    Dictionary,
     UpdateOffsetOptions,
-    Size,
     jsPlumbElement,
     ConnectParams,  // <--
     SourceDefinition,
     TargetDefinition,
     BehaviouralTypeDescriptor,  // <--
     TypeDescriptor,
-    Rotation,
-    Rotations,
-    PointXY,
     ConnectionMovedParams,
     ConnectionDetachedParams,
     ConnectionEstablishedParams, ConnectionTypeDescriptor, EndpointTypeDescriptor, Extents, ManageElementParams

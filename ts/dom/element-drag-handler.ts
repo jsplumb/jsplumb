@@ -12,22 +12,26 @@ import { jsPlumbDOMElement} from './element-facade'
 
 import {DragEventParams,Drag,DragStopEventParams} from "./collicat"
 import {
-    BoundingBox,
-    Dictionary,
-    isString,
+
     JsPlumbInstance,
     RedrawResult,
     UIGroup,
-    forEach,
-    getFromSetWithFunction,
     intersects,
-    PointXY,
-    Size,
     SELECTOR_MANAGED_ELEMENT,
     ATTRIBUTE_NOT_DRAGGABLE,
     FALSE,
     CLASS_OVERLAY, cls
 } from "@jsplumb/core"
+
+import {
+    BoundingBox,
+    Dictionary,
+    isString,
+    forEach,
+    getFromSetWithFunction,
+    PointXY,
+    Size
+} from "@jsplumb/util"
 
 type IntersectingGroup = {
     group:UIGroup<Element>

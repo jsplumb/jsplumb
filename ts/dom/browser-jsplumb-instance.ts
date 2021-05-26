@@ -1,14 +1,7 @@
 import {
     JsPlumbDefaults,
-    Dictionary,
-    Size,
-    BoundingBox,
     TypeDescriptor,
     JsPlumbInstance,
-    IS,
-    isFunction,
-    isString,
-    uuid,
     AbstractConnector,
     Endpoint,
     Overlay,
@@ -62,17 +55,28 @@ import {
     CustomOverlay,
     isCustomOverlay,
     DeleteConnectionOptions,
-    forEach,
-    fromArray,
-    isArray,
-    PointXY,
     BehaviouralTypeDescriptor,
     SourceSelector,
     EVENT_TAP,
     EVENT_DBL_TAP,
     EVENT_ELEMENT_TAP,
-    EVENT_ELEMENT_DBL_TAP, Extents, log
+    EVENT_ELEMENT_DBL_TAP, Extents
 } from '@jsplumb/core'
+
+import {
+    forEach,
+    fromArray,
+    isArray,
+    log,
+    IS,
+    isFunction,
+    isString,
+    uuid,
+    PointXY,
+    Dictionary,
+    Size,
+    BoundingBox
+} from "@jsplumb/util"
 
 import { _attr,
     _node,

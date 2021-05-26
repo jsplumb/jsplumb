@@ -1,5 +1,4 @@
-import {extend, isArray, isNumber, isString, uuid, map} from "../util"
-import {Dictionary, PointXY, Rotations, Size} from "../common"
+import {Dictionary, PointXY, Rotations, Size, extend, isArray, isNumber, isString, uuid, map} from "@jsplumb/util"
 import {AnchorPlacement} from "../router/router"
 import { Connection } from "../connector/connection-impl"
 import { Endpoint } from "../endpoint/endpoint"

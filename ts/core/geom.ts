@@ -26,7 +26,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import {LineXY, PointXY, RectangleXY} from "./common"
+import {LineXY, PointXY, RectangleXY} from "@jsplumb/util"
 
 export type Quadrant = 1 | 2 | 3 | 4
 

@@ -66,7 +66,7 @@ export * from "./factory/anchor-record-factory"
 export * from './router/lightweight-router'
 
 export * from "./styles"
-export * from "./util"
+//export * from "./util"
 
 EndpointFactory.registerHandler(DotEndpointHandler)
 EndpointFactory.registerHandler(RectangleEndpointHandler)

@@ -1,6 +1,5 @@
 import { jsPlumbDOMElement} from './element-facade'
-import {Dictionary, fastTrim, forEach, isArray, isString, log, PointXY, Size} from "@jsplumb/core"
-
+import {Dictionary, fastTrim, forEach, isArray, isString, log, PointXY, Size} from "@jsplumb/util"
 
 // These are utility functions for use inside a Browser.
 

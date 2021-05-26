@@ -1,11 +1,11 @@
 
 import { JsPlumbInstance } from "../core"
-import {ConnectionTypeDescriptor, ConnectParams, Dictionary } from '../common'
+import {ConnectionTypeDescriptor, ConnectParams } from '../common'
 import {AbstractConnector, ConnectorWithOptions} from "./abstract-connector"
 import {Endpoint} from "../endpoint/endpoint"
 import {PaintStyle} from "../styles"
 import {Component} from "../component/component"
-import {extend, IS, isString, merge, uuid, Merge} from "../util"
+import {extend, IS, isString, merge, uuid, Merge, Dictionary} from "@jsplumb/util"
 import {Overlay} from "../overlay/overlay"
 import {makeLightweightAnchorFromSpec, AnchorSpec} from "../factory/anchor-record-factory"
 import {ConnectorSpec} from "./abstract-connector"

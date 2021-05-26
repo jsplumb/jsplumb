@@ -1,4 +1,3 @@
-import {Dictionary, PointXY, SortFunction} from './common'
 
 export function filterList (list:Array<any> | string, value:any, missingIsFalse?:boolean):boolean {
     if (list === "*") {
@@ -760,3 +759,36 @@ export function insertSorted<T>(value:T, array:Array<T>, comparator:(v1:T, v2:T)
 
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
 export type Merge<M, N> = Omit<M, Extract<keyof M, keyof N>> & N;
+
+export interface Dictionary<T> {
+    [Key: string]: T
+}
+
+export type SortFunction<T> = (a:T,b:T) => number
+
+export type Constructable<T> = { new(...args: any[]): T }
+
+export interface PointXY { x:number, y:number, theta?:number }
+export type BoundingBox = { x:number, y:number, w:number, h:number, center?:PointXY }
+export type RectangleXY = BoundingBox
+export type LineXY = [ PointXY, PointXY ]
+
+export interface Size { w:number, h:number }
+
+
+/**
+ * Subtracts p2 from p1, returning a new point.
+ * @param p1
+ * @param p2
+ */
+export function pointSubtract(p1:PointXY, p2:PointXY):PointXY {
+    return {
+        x:p1.x - p2.x,
+        y:p1.y - p2.y
+    }
+}
+
+export interface Rotation {r:number, c:PointXY}
+export type Rotations = Array<Rotation>
+
+

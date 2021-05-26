@@ -1,5 +1,5 @@
-import {isArray, log} from "../util"
-import {Extents, PointXY, TypeDescriptor} from '../common'
+import {isArray, log, PointXY} from "@jsplumb/util"
+import {Extents, TypeDescriptor} from '../common'
 import { JsPlumbInstance } from "../core"
 import {EMPTY_BOUNDS, Segment} from "./abstract-segment"
 import {AnchorPlacement} from "../router/router"

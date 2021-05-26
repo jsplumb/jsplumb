@@ -5,7 +5,7 @@ import {ConnectorSpec} from "../connector/abstract-connector"
 import {Connection} from "../connector/connection-impl"
 import { EndpointFactory } from "../factory/endpoint-factory"
 import { EndpointRepresentation } from './endpoints'
-import {extend, merge, isString, isAssignableFrom} from '../util'
+import {extend, merge, isString, isAssignableFrom} from '@jsplumb/util'
 import {DeleteConnectionOptions, JsPlumbInstance} from '../core'
 import {Component} from "../component/component"
 import {DEFAULT, EVENT_ANCHOR_CHANGED, EVENT_MAX_CONNECTIONS} from "../constants"

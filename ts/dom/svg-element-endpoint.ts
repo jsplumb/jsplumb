@@ -8,11 +8,12 @@ import {
     ATTRIBUTE_SCOPE_PREFIX,
     BLOCK,
     EndpointRepresentation,
-    extend,
     NONE,
     PaintStyle,
     TRUE
 } from "@jsplumb/core"
+
+import { extend } from "@jsplumb/util"
 
 /**
  * Superclass for endpoint renderers that use an `svg` element wrapped in a `div` in the DOM.

@@ -1,7 +1,7 @@
 import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
 import { jsPlumbDOMElement} from './element-facade'
 
-import {extend, wrap, Dictionary, forEach, PointXY, getWithFunction, BoundingBox, Size} from '@jsplumb/core'
+import {extend, wrap, Dictionary, forEach, PointXY, getWithFunction, BoundingBox, Size} from '@jsplumb/util'
 
 import {
     BeforeStartEventParams,

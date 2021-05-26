@@ -16,22 +16,18 @@ import {Drag, DragStartEventParams,
     DragStopEventParams, DragEventParams} from "./collicat"
 
 import {
-    addToDictionary,
     INTERCEPT_BEFORE_DETACH,
-    BoundingBox,
+
     CHECK_CONDITION,
     CHECK_DROP_ALLOWED,
     classList,
     cls,
     Connection,
-    Dictionary,
-    each,
+
     Endpoint,
     EndpointRepresentation,
     EVENT_MAX_CONNECTIONS,
-    extend,
-    functionChain,
-    IS,
+
     IS_DETACH_ALLOWED,
     PaintStyle,
     SOURCE,
@@ -39,25 +35,36 @@ import {
     SourceOrTargetDefinition,
     TARGET,
     AnchorSpec,
-    forEach,
+
     EndpointSpec,
     intersects,
-    PointXY,
-    Size,
     TargetSelector,
-    getWithFunction,
     INTERCEPT_BEFORE_DRAG,
     INTERCEPT_BEFORE_START_DETACH,
     SELECTOR_MANAGED_ELEMENT,
     CLASS_ENDPOINT,
     ATTRIBUTE_SCOPE_PREFIX,
-    SourceSelector,
-    getAllWithFunction,
-    isAssignableFrom, InternalEndpointOptions,
-    BehaviouralTypeDescriptor, merge,
+    SourceSelector, InternalEndpointOptions,
+    BehaviouralTypeDescriptor,
     createFloatingAnchor, LightweightFloatingAnchor, REDROP_POLICY_ANY
 } from "@jsplumb/core"
 
+import {
+    getAllWithFunction,
+    merge,
+    isAssignableFrom,
+    getWithFunction,
+    forEach,
+    PointXY,
+    Size,
+    extend,
+    functionChain,
+    IS,
+    Dictionary,
+    each,
+    addToDictionary,
+    BoundingBox
+} from "@jsplumb/util"
 
 
 function _makeFloatingEndpoint (paintStyle:PaintStyle,

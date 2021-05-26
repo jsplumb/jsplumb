@@ -1,5 +1,5 @@
 import {AbstractSegment, PointNearPath} from "./abstract-segment"
-import {Extents, PointXY} from '../common'
+import {PointXY} from '@jsplumb/util'
 import { JsPlumbInstance } from "../core"
 import {gradient, lineLength, pointOnLine} from "../geom"
 

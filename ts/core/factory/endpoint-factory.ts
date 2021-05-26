@@ -1,9 +1,8 @@
 import {EndpointRepresentation} from "../endpoint/endpoints"
-import {Constructable, Dictionary} from "../common"
 import {Endpoint} from "../endpoint/endpoint"
 import {Orientation} from "../factory/anchor-record-factory"
 import { AnchorPlacement } from "../router/router"
-import {log} from "../util"
+import {Constructable, Dictionary, log} from "@jsplumb/util"
 
 const endpointMap:Dictionary<Constructable<EndpointRepresentation<any>>> = {}
 const endpointComputers:Dictionary<EndpointComputeFunction<any>> = {}

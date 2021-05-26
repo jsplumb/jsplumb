@@ -5,8 +5,6 @@ import {
     Endpoint,
     Connection,
     AnchorSpec,
-    extend,
-    Dictionary,
     EVENT_CONNECTION,
     EVENT_MANAGE_ELEMENT,
     EVENT_UNMANAGE_ELEMENT,
@@ -18,6 +16,8 @@ import {
     UnmanageElementParams,
     ConnectionEstablishedParams, AnchorLocations
 } from '@jsplumb/core'
+
+import { extend, Dictionary } from "@jsplumb/util"
 
 export interface ListManagerOptions { }
 

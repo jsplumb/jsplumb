@@ -1,5 +1,5 @@
 import {AbstractConnector} from "./abstract-connector"
-import {Constructable, Dictionary} from "../common"
+import {Constructable, Dictionary} from "@jsplumb/util"
 import { JsPlumbInstance } from ".."
 import {Connection} from "./connection-impl"
 

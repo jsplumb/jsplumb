@@ -1,5 +1,5 @@
 import {Overlay} from '../overlay/overlay'
-import { Constructable, Dictionary } from '../common'
+import { Constructable, Dictionary } from '@jsplumb/util'
 import { JsPlumbInstance } from "../core"
 import {Component} from '../component/component'
 const overlayMap:Dictionary<Constructable<Overlay>> = {}
