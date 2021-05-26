@@ -19,10 +19,38 @@ function ON_WARN(warning, rollupWarn) {
 }
 
 const EXTERNALS = {
-    "@jsplumb/core":'jsPlumb'
+    "@jsplumb/core":'jsPlumb',
+    "@jsplumb/util":'jsPlumbUtil'
 }
 
 export default [
+    {
+        input: './ts/util/index.ts',
+        output: [
+            {
+                name: 'jsPlumbUtil',
+                file: 'dist/util/js/jsplumb.util.cjs.js',
+                format: 'cjs'
+            },
+            {
+                name: 'jsPlumbUtil',
+                file: 'dist/util/js/jsplumb.util.es.js',
+                format: 'es'
+            },
+            {
+                name: 'jsPlumbUtil',
+                file: 'dist/util/js/jsplumb.util.umd.js',
+                format: 'umd'
+            }
+        ],
+        plugins: [
+            resolve({ extensions }),
+            commonjs(),
+            babel({ extensions, include: ['ts/util/**/*'] }),
+            cleanup({ extensions:['ts', 'js']})
+        ],
+        onwarn:ON_WARN
+    },
     {
         input: './ts/core/index.ts',
         output: [
@@ -39,7 +67,10 @@ export default [
             {
                 name: 'jsPlumb',
                 file: 'dist/core/js/jsplumb.core.umd.js',
-                format: 'umd'
+                format: 'umd',
+                globals:{
+                    "@jsplumb/util":'jsPlumbUtil'
+                }
             }
         ],
         plugins: [
