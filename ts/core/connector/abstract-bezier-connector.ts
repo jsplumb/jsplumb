@@ -1,9 +1,9 @@
+import {PointXY, log} from "@jsplumb/util"
+
 import {AbstractConnector, ConnectorComputeParams, ConnectorOptions, PaintGeometry} from "./abstract-connector"
 import {ArcSegment} from "./arc-segment"
 import { Connection } from '../connector/connection-impl'
-import { JsPlumbInstance } from "../core"
 import {AnchorPlacement} from "../router/router"
-import {PointXY, log} from "@jsplumb/util"
 
 export interface AbstractBezierOptions extends ConnectorOptions {
     showLoopback?:boolean
@@ -35,9 +35,9 @@ export abstract class AbstractBezierConnector extends AbstractConnector {
         return [0,0]
     }
 
-    constructor(instance:JsPlumbInstance, public connection:Connection, params:any) {
+    constructor(public connection:Connection, params:any) {
 
-        super(instance, connection, params)
+        super(connection, params)
 
         params = params || {}
         this.showLoopback = params.showLoopback !== false
