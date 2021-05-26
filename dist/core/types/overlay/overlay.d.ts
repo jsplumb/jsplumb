@@ -1,7 +1,7 @@
 import { JsPlumbInstance } from "../core";
-import { Dictionary } from '../common';
 import { PaintStyle } from "../styles";
 import { Component } from "../component/component";
+import { Dictionary } from "@jsplumb/util";
 import { EventGenerator } from "../event-generator";
 export interface OverlayOptions extends Record<string, any> {
     id?: string;

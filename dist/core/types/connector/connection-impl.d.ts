@@ -4,7 +4,7 @@ import { AbstractConnector } from "./abstract-connector";
 import { Endpoint } from "../endpoint/endpoint";
 import { PaintStyle } from "../styles";
 import { Component } from "../component/component";
-import { Merge } from "../util";
+import { Merge } from "@jsplumb/util";
 import { AnchorSpec } from "../factory/anchor-record-factory";
 import { ConnectorSpec } from "./abstract-connector";
 import { EndpointSpec } from "../endpoint/endpoint";

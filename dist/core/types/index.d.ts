@@ -42,4 +42,3 @@ export * from './router/router';
 export * from "./factory/anchor-record-factory";
 export * from './router/lightweight-router';
 export * from "./styles";
-export * from "./util";

@@ -62,7 +62,7 @@
  *
  *
  */
-import { BoundingBox, LineXY, PointXY } from "./common";
+import { BoundingBox, LineXY, PointXY } from "@jsplumb/util";
 export declare type Curve = Array<PointXY>;
 export declare type PointOnPath = {
     point: PointXY;

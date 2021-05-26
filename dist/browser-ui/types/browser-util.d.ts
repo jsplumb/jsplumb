@@ -1,5 +1,5 @@
 import { jsPlumbDOMElement } from './element-facade';
-import { Dictionary, PointXY, Size } from "@jsplumb/core";
+import { Dictionary, PointXY, Size } from "@jsplumb/util";
 export declare function matchesSelector(el: jsPlumbDOMElement, selector: string, ctx?: HTMLElement): boolean;
 export declare function consume(e: Event, doNotPreventDefault?: boolean): void;
 export declare function findParent(el: jsPlumbDOMElement, selector: string, container: HTMLElement, matchOnElementAlso: boolean): jsPlumbDOMElement;

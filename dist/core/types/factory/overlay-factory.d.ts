@@ -1,5 +1,5 @@
 import { Overlay } from '../overlay/overlay';
-import { Constructable } from '../common';
+import { Constructable } from '@jsplumb/util';
 import { JsPlumbInstance } from "../core";
 import { Component } from '../component/component';
 export declare const OverlayFactory: {

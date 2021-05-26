@@ -1,7 +1,7 @@
 import { PaintStyle } from "../styles";
-import { Dictionary, TypeDescriptor, PointXY, Extents } from '../common';
+import { TypeDescriptor, Extents } from '../common';
 import { JsPlumbInstance } from "../core";
-import { Merge } from "../util";
+import { Merge, PointXY, Dictionary } from "@jsplumb/util";
 import { EventGenerator } from "../event-generator";
 import { Connection } from "../connector/connection-impl";
 import { Endpoint } from "../endpoint/endpoint";

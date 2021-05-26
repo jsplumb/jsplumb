@@ -1,8 +1,8 @@
 import { PaintStyle } from '../styles';
 import { OverlaySpec } from '../overlay/overlay';
 import { Component } from "../component/component";
-import { Dictionary } from '../common';
 import { JsPlumbInstance } from "../core";
+import { Dictionary } from "@jsplumb/util";
 export declare class SelectionBase<T extends Component> {
     protected instance: JsPlumbInstance;
     protected entries: Array<T>;

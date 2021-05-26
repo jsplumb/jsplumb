@@ -2,7 +2,8 @@ import { DragHandler } from "./drag-manager";
 import { BrowserJsPlumbInstance } from "./browser-jsplumb-instance";
 import { jsPlumbDOMElement } from './element-facade';
 import { Drag, DragStartEventParams, DragStopEventParams, DragEventParams } from "./collicat";
-import { BoundingBox, Connection, Dictionary, Endpoint, EndpointRepresentation, SourceOrTargetDefinition, LightweightFloatingAnchor } from "@jsplumb/core";
+import { Connection, Endpoint, EndpointRepresentation, SourceOrTargetDefinition, LightweightFloatingAnchor } from "@jsplumb/core";
+import { Dictionary, BoundingBox } from "@jsplumb/util";
 declare type EndpointDropTarget = {
     el: jsPlumbDOMElement;
     endpoint: Endpoint;

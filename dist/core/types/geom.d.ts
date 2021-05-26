@@ -25,7 +25,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-import { LineXY, PointXY, RectangleXY } from "./common";
+import { LineXY, PointXY, RectangleXY } from "@jsplumb/util";
 export declare type Quadrant = 1 | 2 | 3 | 4;
 export declare const TWO_PI: number;
 export declare function pointXYFromArray(a: Array<number>): PointXY;

@@ -1,5 +1,5 @@
 import { AbstractSegment, PointNearPath } from "./abstract-segment";
-import { PointXY } from '../common';
+import { PointXY } from '@jsplumb/util';
 import { JsPlumbInstance } from "../core";
 export declare type StraightSegmentCoordinates = {
     x1: number;

@@ -1,5 +1,5 @@
 import { AbstractConnector } from "./abstract-connector";
-import { Constructable } from "../common";
+import { Constructable } from "@jsplumb/util";
 import { JsPlumbInstance } from "..";
 import { Connection } from "./connection-impl";
 export declare const Connectors: {

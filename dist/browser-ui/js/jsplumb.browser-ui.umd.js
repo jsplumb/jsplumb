@@ -1,8 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@jsplumb/core')) :
-  typeof define === 'function' && define.amd ? define(['exports', '@jsplumb/core'], factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.jsPlumbBrowserUI = {}, global.jsPlumb));
-}(this, (function (exports, core) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@jsplumb/core'), require('@jsplumb/util')) :
+  typeof define === 'function' && define.amd ? define(['exports', '@jsplumb/core', '@jsplumb/util'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.jsPlumbBrowserUI = {}, global.jsPlumb, global.jsPlumbUtil));
+}(this, (function (exports, core, util) { 'use strict';
 
   function _typeof(obj) {
     if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -208,7 +208,7 @@
     return e.srcElement || e.target;
   }
   function _setClassName(el, cn, classList) {
-    cn = core.fastTrim(cn);
+    cn = util.fastTrim(cn);
     if (typeof el.className.baseVal !== "undefined") {
       el.className.baseVal = cn;
     } else {
@@ -227,15 +227,15 @@
         }
       }
     } catch (e) {
-      core.log("JSPLUMB: cannot set class list", e);
+      util.log("JSPLUMB: cannot set class list", e);
     }
   }
   function _getClassName(el) {
     return el.className != null ? typeof el.className.baseVal === "undefined" ? el.className : el.className.baseVal : "";
   }
   function _classManip(el, classesToAdd, classesToRemove) {
-    var cta = classesToAdd == null ? [] : core.isArray(classesToAdd) ? classesToAdd : classesToAdd.split(/\s+/);
-    var ctr = classesToRemove == null ? [] : core.isArray(classesToRemove) ? classesToRemove : classesToRemove.split(/\s+/);
+    var cta = classesToAdd == null ? [] : util.isArray(classesToAdd) ? classesToAdd : classesToAdd.split(/\s+/);
+    var ctr = classesToRemove == null ? [] : util.isArray(classesToRemove) ? classesToRemove : classesToRemove.split(/\s+/);
     var className = _getClassName(el),
         curClasses = className.split(/\s+/);
     var _oneSet = function _oneSet(add, classes) {
@@ -257,10 +257,10 @@
     _setClassName(el, curClasses.join(" "), curClasses);
   }
   function isNodeList(el) {
-    return !core.isString(el) && !Array.isArray(el) && el.length != null && el.documentElement == null && el.nodeType == null;
+    return !util.isString(el) && !Array.isArray(el) && el.length != null && el.documentElement == null && el.nodeType == null;
   }
   function isArrayLike(el) {
-    return !core.isString(el) && (Array.isArray(el) || isNodeList(el));
+    return !util.isString(el) && (Array.isArray(el) || isNodeList(el));
   }
   function getClass(el) {
     return _getClassName(el);
@@ -269,8 +269,8 @@
     var _one = function _one(el, clazz) {
       if (el != null && clazz != null && clazz.length > 0) {
         if (el.classList) {
-          var parts = core.fastTrim(clazz).split(/\s+/);
-          core.forEach(parts, function (part) {
+          var parts = util.fastTrim(clazz).split(/\s+/);
+          util.forEach(parts, function (part) {
             el.classList.add(part);
           });
         } else {
@@ -279,7 +279,7 @@
       }
     };
     if (isNodeList(el)) {
-      core.forEach(el, function (el) {
+      util.forEach(el, function (el) {
         return _one(el, clazz);
       });
     } else {
@@ -297,7 +297,7 @@
     var _one = function _one(el, clazz) {
       if (el != null && clazz != null && clazz.length > 0) {
         if (el.classList) {
-          var parts = core.fastTrim(clazz).split(/\s+/);
+          var parts = util.fastTrim(clazz).split(/\s+/);
           parts.forEach(function (part) {
             el.classList.remove(part);
           });
@@ -307,7 +307,7 @@
       }
     };
     if (isNodeList(el)) {
-      core.forEach(el, function (el) {
+      util.forEach(el, function (el) {
         return _one(el, clazz);
       });
     } else {
@@ -330,7 +330,7 @@
       }
     };
     if (isNodeList(el)) {
-      core.forEach(el, function (el) {
+      util.forEach(el, function (el) {
         return _one(el, clazz);
       });
     } else {
@@ -418,7 +418,7 @@
       var sep = style[DASHSTYLE].indexOf(",") === -1 ? " " : ",",
           parts = style[DASHSTYLE].split(sep),
           styleToUse = "";
-      core.forEach(parts, function (p) {
+      util.forEach(parts, function (p) {
         styleToUse += Math.floor(p * style.strokeWidth) + sep;
       });
       node.setAttribute(STROKE_DASHARRAY, styleToUse);
@@ -450,7 +450,7 @@
   function _touch(target, pageX, pageY, screenX, screenY, clientX, clientY) {
     return new Touch({
       target: target,
-      identifier: core.uuid(),
+      identifier: util.uuid(),
       pageX: pageX,
       pageY: pageY,
       screenX: screenX,
@@ -760,7 +760,7 @@
             obj.__taTapHandler[evt].push([fn, children]);
             fn.__taUnstore = function () {
               if (obj.__taTapHandler != null) {
-                core.removeWithFunction(obj.__taTapHandler.downSelectors, function (ds) {
+                util.removeWithFunction(obj.__taTapHandler.downSelectors, function (ds) {
                   return ds === children;
                 });
                 _d(obj.__taTapHandler[evt], fn);
@@ -941,7 +941,7 @@
   }
   function _assignId(obj) {
     if (typeof obj === "function") {
-      obj._katavorioId = core.uuid();
+      obj._katavorioId = util.uuid();
       return obj._katavorioId;
     } else {
       return obj;
@@ -1010,7 +1010,7 @@
   var _devNull = function _devNull() {};
   var _each$1 = function _each(obj, fn) {
     if (obj == null) return;
-    obj = !core.IS.aString(obj) && obj.tagName == null && obj.length != null ? obj : [obj];
+    obj = !util.IS.aString(obj) && obj.tagName == null && obj.length != null ? obj : [obj];
     for (var i = 0; i < obj.length; i++) {
       fn.apply(obj[i], [obj[i]]);
     }
@@ -1026,7 +1026,7 @@
       this.el = el;
       this.k = k;
       _defineProperty(this, "_class", void 0);
-      _defineProperty(this, "uuid", core.uuid());
+      _defineProperty(this, "uuid", util.uuid());
       _defineProperty(this, "enabled", true);
       _defineProperty(this, "scopes", []);
     }
@@ -1610,7 +1610,7 @@
           this._filters[key] = [function (e) {
             var t = e.srcElement || e.target;
             var m;
-            if (core.IS.aString(f)) {
+            if (util.IS.aString(f)) {
               m = matchesSelector(t, f, _this2.el);
             } else if (typeof f === "function") {
               m = f(e, _this2.el);
@@ -1669,7 +1669,7 @@
       this.eventManager = new EventManager();
       this.zoom = options.zoom || 1;
       var _c = options.css || {};
-      core.extend(this.css, _c);
+      util.extend(this.css, _c);
     }
     _createClass(Collicat, [{
       key: "getZoom",
@@ -1799,16 +1799,16 @@
       key: "addHandler",
       value: function addHandler(handler, dragOptions) {
         var _this2 = this;
-        var o = core.extend({
+        var o = util.extend({
           selector: handler.selector
         }, dragOptions || {});
-        o.start = core.wrap(o.start, function (p) {
+        o.start = util.wrap(o.start, function (p) {
           return handler.onStart(p);
         });
-        o.drag = core.wrap(o.drag, function (p) {
+        o.drag = util.wrap(o.drag, function (p) {
           return handler.onDrag(p);
         });
-        o.stop = core.wrap(o.stop, function (p) {
+        o.stop = util.wrap(o.stop, function (p) {
           return handler.onStop(p);
         });
         o.beforeStart = (handler.onBeforeStart || function (p) {}).bind(handler);
@@ -1864,7 +1864,7 @@
         if (this.drag == null) {
           o.trackScroll = this._trackScroll;
           this.drag = this.collicat.draggable(this.instance.getContainer(), o);
-          core.forEach(this._filtersToAdd, function (filterToAdd) {
+          util.forEach(this._filtersToAdd, function (filterToAdd) {
             return _this2.drag.addFilter(filterToAdd[0], filterToAdd[1]);
           });
           this.drag.on(EVENT_REVERT, function (el) {
@@ -1899,7 +1899,7 @@
       key: "setFilters",
       value: function setFilters(filters) {
         var _this3 = this;
-        core.forEach(filters, function (f) {
+        util.forEach(filters, function (f) {
           _this3.drag.addFilter(f[0], f[1]);
         });
       }
@@ -1907,7 +1907,7 @@
       key: "reset",
       value: function reset() {
         var out = [];
-        core.forEach(this.handlers, function (p) {
+        util.forEach(this.handlers, function (p) {
           p.handler.reset();
         });
         if (this.drag != null) {
@@ -1923,11 +1923,11 @@
     }, {
       key: "setOption",
       value: function setOption(handler, options) {
-        var handlerAndOptions = core.getWithFunction(this.handlers, function (p) {
+        var handlerAndOptions = util.getWithFunction(this.handlers, function (p) {
           return p.handler === handler;
         });
         if (handlerAndOptions != null) {
-          core.extend(handlerAndOptions.options, options || {});
+          util.extend(handlerAndOptions.options, options || {});
         }
       }
     }]);
@@ -1935,7 +1935,7 @@
   }();
 
   function decodeDragGroupSpec(instance, spec) {
-    if (core.isString(spec)) {
+    if (util.isString(spec)) {
       return {
         id: spec,
         active: true
@@ -1948,7 +1948,7 @@
     }
   }
   function isActiveDragGroupMember(dragGroup, el) {
-    var details = core.getFromSetWithFunction(dragGroup.members, function (m) {
+    var details = util.getFromSetWithFunction(dragGroup.members, function (m) {
       return m.el === el;
     });
     if (details !== null) {
@@ -2039,7 +2039,7 @@
       key: "_cleanup",
       value: function _cleanup() {
         var _this2 = this;
-        core.forEach(this._groupLocations, function (groupLoc) {
+        util.forEach(this._groupLocations, function (groupLoc) {
           _this2.instance.removeClass(groupLoc.el, CLASS_DRAG_ACTIVE);
           _this2.instance.removeClass(groupLoc.el, CLASS_DRAG_HOVER);
         });
@@ -2079,7 +2079,7 @@
         }
         var _one = function _one(el, bounds, e) {
           var ancestorsOfIntersectingGroups = new Set();
-          core.forEach(_this3._groupLocations, function (groupLoc) {
+          util.forEach(_this3._groupLocations, function (groupLoc) {
             if (!ancestorsOfIntersectingGroups.has(groupLoc.group.id) && core.intersects(bounds, groupLoc.r)) {
               if (groupLoc.group !== _this3._currentDragParentGroup) {
                 _this3.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
@@ -2089,7 +2089,7 @@
                 intersectingElement: params.drag.getDragElement(true),
                 d: 0
               });
-              core.forEach(_this3.instance.groupManager.getAncestors(groupLoc.group), function (g) {
+              util.forEach(_this3.instance.groupManager.getAncestors(groupLoc.group), function (g) {
                 return ancestorsOfIntersectingGroups.add(g.id);
               });
             } else {
@@ -2164,7 +2164,7 @@
           this.instance.hoverSuspended = true;
           this._dragSelectionOffsets.clear();
           this._dragSizes.clear();
-          core.forEach(this._dragSelection, function (jel) {
+          util.forEach(this._dragSelection, function (jel) {
             var id = _this4.instance.getId(jel);
             var off = _this4.instance.getOffset(jel);
             _this4._dragSelectionOffsets.set(id, [{
@@ -2179,7 +2179,7 @@
               var membersAreDroppable = isNotInAGroup || _el._jsPlumbParentGroup.dropOverride !== true;
               var isGhostOrNotConstrained = !isNotInAGroup && (_el._jsPlumbParentGroup.ghost || _el._jsPlumbParentGroup.constrain !== true);
               if (isNotInAGroup || membersAreDroppable && isGhostOrNotConstrained) {
-                core.forEach(_this4.instance.groupManager.getGroups(), function (group) {
+                util.forEach(_this4.instance.groupManager.getGroups(), function (group) {
                   var elementGroup = _el._jsPlumbGroup;
                   if (group.droppable !== false && group.enabled !== false && _el._jsPlumbGroup !== group && !_this4.instance.groupManager.isDescendant(group, elementGroup)) {
                     var groupEl = group.el,
@@ -2264,7 +2264,7 @@
       key: "clearDragSelection",
       value: function clearDragSelection() {
         var _this5 = this;
-        core.forEach(this._dragSelection, function (el) {
+        util.forEach(this._dragSelection, function (el) {
           return _this5.instance.removeClass(el, CLASS_DRAG_SELECTED);
         });
         this._dragSelection.length = 0;
@@ -2315,7 +2315,7 @@
           els[_key - 1] = arguments[_key];
         }
         this.removeFromDragGroup.apply(this, els);
-        core.forEach(els, function (el) {
+        util.forEach(els, function (el) {
           var elId = _this7.instance.getId(el);
           dragGroup.members.add({
             elId: elId,
@@ -2332,7 +2332,7 @@
         for (var _len2 = arguments.length, els = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
           els[_key2] = arguments[_key2];
         }
-        core.forEach(els, function (el) {
+        util.forEach(els, function (el) {
           var id = _this8.instance.getId(el);
           var dragGroup = _this8._dragGroupByElementIdMap[id];
           if (dragGroup != null) {
@@ -2357,10 +2357,10 @@
         var elementIds = els.map(function (el) {
           return _this9.instance.getId(el);
         });
-        core.forEach(elementIds, function (id) {
+        util.forEach(elementIds, function (id) {
           var dragGroup = _this9._dragGroupByElementIdMap[id];
           if (dragGroup != null) {
-            var member = core.getFromSetWithFunction(dragGroup.members, function (m) {
+            var member = util.getFromSetWithFunction(dragGroup.members, function (m) {
               return m.elId === id;
             });
             if (member != null) {
@@ -2382,7 +2382,7 @@
       scope: scope
     };
     if (endpoint != null) {
-      if (core.isAssignableFrom(endpoint, core.EndpointRepresentation)) {
+      if (util.isAssignableFrom(endpoint, core.EndpointRepresentation)) {
         p.existingEndpoint = endpoint;
       } else {
         p.endpoint = endpoint;
@@ -2498,13 +2498,13 @@
           var tempEndpointParams = {
             element: sourceEl
           };
-          core.extend(tempEndpointParams, def);
+          util.extend(tempEndpointParams, def);
           tempEndpointParams.isTemporarySource = true;
           if (def.scope) {
             tempEndpointParams.scope = def.scope;
           }
           var extractedParameters = def.parameterExtractor ? def.parameterExtractor(sourceEl, eventTarget) : {};
-          tempEndpointParams = core.merge(tempEndpointParams, extractedParameters);
+          tempEndpointParams = util.merge(tempEndpointParams, extractedParameters);
           this._originalAnchor = tempEndpointParams.anchor || this.instance.defaults.anchor;
           tempEndpointParams.anchor = [elxy.x, elxy.y, 0, 0];
           tempEndpointParams.deleteOnEmpty = true;
@@ -2537,7 +2537,7 @@
       value: function _mouseupHandler(e) {
         var el = e.currentTarget || e.srcElement;
         if (el._jsPlumbOrphanedEndpoints) {
-          core.each(el._jsPlumbOrphanedEndpoints, this.instance._maybePruneEndpoint.bind(this.instance));
+          util.each(el._jsPlumbOrphanedEndpoints, this.instance._maybePruneEndpoint.bind(this.instance));
           el._jsPlumbOrphanedEndpoints.length = 0;
         }
         this._activeDefinition = null;
@@ -2668,7 +2668,7 @@
           _continue = false;
         }
         else if (_typeof(beforeDrag) === "object") {
-            core.extend(beforeDrag, this.payload || {});
+            util.extend(beforeDrag, this.payload || {});
           } else {
             beforeDrag = this.payload || {};
           }
@@ -2695,7 +2695,7 @@
         var isSourceDrag = this.jpc && this.jpc.endpoints[0] === this.ep;
         var boundingRect;
         var matchingEndpoints = this.instance.getContainer().querySelectorAll([".", core.CLASS_ENDPOINT, "[", core.ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]"].join(""));
-        core.forEach(matchingEndpoints, function (candidate) {
+        util.forEach(matchingEndpoints, function (candidate) {
           if ((_this.jpc != null || candidate !== canvasElement) && candidate !== _this.floatingElement) {
             if (isSourceDrag && candidate.jtk.endpoint.isSource || !isSourceDrag && candidate.jtk.endpoint.isTarget) {
               var o = _this.instance.getOffset(candidate),
@@ -2718,12 +2718,12 @@
           }
         });
         if (isSourceDrag) {
-          var sourceDef = core.getWithFunction(this.instance.sourceSelectors, function (sSel) {
+          var sourceDef = util.getWithFunction(this.instance.sourceSelectors, function (sSel) {
             return sSel.isEnabled() && (sSel.def.def.scope == null || sSel.def.def.scope === _this.ep.scope);
           });
           if (sourceDef != null) {
             var targetZones = this.instance.getContainer().querySelectorAll(sourceDef.redrop === core.REDROP_POLICY_ANY ? core.SELECTOR_MANAGED_ELEMENT : sourceDef.selector);
-            core.forEach(targetZones, function (el) {
+            util.forEach(targetZones, function (el) {
               var d = {
                 r: null,
                 el: el
@@ -2746,12 +2746,12 @@
             });
           }
         } else {
-          var targetDefs = core.getAllWithFunction(this.instance.targetSelectors, function (tSel) {
+          var targetDefs = util.getAllWithFunction(this.instance.targetSelectors, function (tSel) {
             return tSel.isEnabled();
           });
           targetDefs.forEach(function (targetDef) {
             var targetZones = _this.instance.getContainer().querySelectorAll(targetDef.selector);
-            core.forEach(targetZones, function (el) {
+            util.forEach(targetZones, function (el) {
               var d = {
                 r: null,
                 el: el
@@ -2942,7 +2942,7 @@
         this.instance.currentlyDragging = false;
         var classesToRemove = core.classList(CLASS_DRAG_HOVER, CLASS_DRAG_ACTIVE);
         var matchingSelectors = this.instance.getContainer().querySelectorAll(SELECTOR_DRAG_ACTIVE_OR_HOVER);
-        core.forEach(matchingSelectors, function (el) {
+        util.forEach(matchingSelectors, function (el) {
           _this2.instance.removeClass(el, classesToRemove);
         });
         if (this.jpc && this.jpc.endpoints != null) {
@@ -3039,11 +3039,11 @@
             return null;
           }
           var eps = this.instance._deriveEndpointAndAnchorSpec(jpc.getType().join(" "), true);
-          var pp = eps.endpoints ? core.extend(p, {
+          var pp = eps.endpoints ? util.extend(p, {
             endpoint: targetDefinition.def.endpoint || eps.endpoints[1]
           }) : p;
           if (eps.anchors) {
-            pp = core.extend(pp, {
+            pp = util.extend(pp, {
               anchor: targetDefinition.def.anchor || eps.anchors[1]
             });
           }
@@ -3051,7 +3051,7 @@
             pp.portId = targetDefinition.def.portId;
           }
           var extractedParameters = targetDefinition.def.parameterExtractor ? targetDefinition.def.parameterExtractor(this.currentDropTarget.el, eventTarget) : {};
-          pp = core.merge(pp, extractedParameters);
+          pp = util.merge(pp, extractedParameters);
           pp.element = this.currentDropTarget.targetEl;
           dropEndpoint = this.instance._internal_newEndpoint(pp);
           dropEndpoint._mtNew = true;
@@ -3094,7 +3094,7 @@
     }, {
       key: "_shouldReattach",
       value: function _shouldReattach(originalEvent) {
-        return this.jpc.isReattach() || this.jpc._forceReattach || !core.functionChain(true, false, [[this.jpc.endpoints[0], core.IS_DETACH_ALLOWED, [this.jpc]], [this.jpc.endpoints[1], core.IS_DETACH_ALLOWED, [this.jpc]], [this.jpc, core.IS_DETACH_ALLOWED, [this.jpc]], [this.instance, core.CHECK_CONDITION, [core.INTERCEPT_BEFORE_DETACH, this.jpc]]]);
+        return this.jpc.isReattach() || this.jpc._forceReattach || !util.functionChain(true, false, [[this.jpc.endpoints[0], core.IS_DETACH_ALLOWED, [this.jpc]], [this.jpc.endpoints[1], core.IS_DETACH_ALLOWED, [this.jpc]], [this.jpc, core.IS_DETACH_ALLOWED, [this.jpc]], [this.instance, core.CHECK_CONDITION, [core.INTERCEPT_BEFORE_DETACH, this.jpc]]]);
       }
     }, {
       key: "_discard",
@@ -3152,7 +3152,7 @@
           this.jpc.endpoints[0] = this.jpc.endpoints[0].finalEndpoint;
           this.jpc.endpoints[0].addConnection(this.jpc);
         }
-        if (core.IS.anObject(optionalData)) {
+        if (util.IS.anObject(optionalData)) {
           this.jpc.mergeData(optionalData);
         }
         if (this._originalAnchor) {
@@ -3167,7 +3167,7 @@
       key: "_registerFloatingConnection",
       value: function _registerFloatingConnection(info, conn, ep) {
         this.floatingConnections[info.id] = conn;
-        core.addToDictionary(this.instance.endpointsByElement, info.id, ep);
+        util.addToDictionary(this.instance.endpointsByElement, info.id, ep);
       }
     }, {
       key: "_getFloatingAnchorIndex",
@@ -3354,9 +3354,9 @@
     _createClass(JsPlumbListManager, [{
       key: "addList",
       value: function addList(el, options) {
-        var dp = core.extend({}, DEFAULT_LIST_OPTIONS);
-        core.extend(dp, this.options);
-        options = core.extend(dp, options || {});
+        var dp = util.extend({}, DEFAULT_LIST_OPTIONS);
+        util.extend(dp, this.options);
+        options = util.extend(dp, options || {});
         var id = [this.instance._instanceIndex, this.count++].join("_");
         this.lists[id] = new JsPlumbList(this.instance, el, options, id);
         return this.lists[id];
@@ -3727,7 +3727,7 @@
           if (paintStyle.outlineStroke) {
             var outlineWidth = paintStyle.outlineWidth || 1,
                 outlineStrokeWidth = paintStyle.strokeWidth + 2 * outlineWidth;
-            outlineStyle = core.extend({}, paintStyle);
+            outlineStyle = util.extend({}, paintStyle);
             outlineStyle.stroke = paintStyle.outlineStroke;
             outlineStyle.strokeWidth = outlineStrokeWidth;
             if (connector.bgPath == null) {
@@ -3825,7 +3825,7 @@
       value: function paint(ep, handlers, paintStyle) {
         this.getEndpointElement(ep);
         SvgComponent.paint(ep, true, paintStyle);
-        var s = core.extend({}, paintStyle);
+        var s = util.extend({}, paintStyle);
         if (s.outlineStroke) {
           s.stroke = s.outlineStroke;
         }
@@ -4182,7 +4182,7 @@
           }
         };
         if (isNodeList(el)) {
-          core.forEach(el, function (el) {
+          util.forEach(el, function (el) {
             return _one(el);
           });
         } else {
@@ -4195,7 +4195,7 @@
       value: function off(el, event, callback) {
         var _this3 = this;
         if (isNodeList(el)) {
-          core.forEach(el, function (_el) {
+          util.forEach(el, function (_el) {
             return _this3.eventManager.off(_el, event, callback);
           });
         } else {
@@ -4264,14 +4264,14 @@
       value: function getSelector(ctx, spec) {
         var sel = null;
         if (arguments.length === 1) {
-          if (!core.isString(ctx)) {
+          if (!util.isString(ctx)) {
             var nodeList = document.createDocumentFragment();
             nodeList.appendChild(ctx);
-            return core.fromArray(nodeList.childNodes);
+            return util.fromArray(nodeList.childNodes);
           }
-          sel = core.fromArray(document.querySelectorAll(ctx));
+          sel = util.fromArray(document.querySelectorAll(ctx));
         } else {
-          sel = core.fromArray(ctx.querySelectorAll(spec));
+          sel = util.fromArray(ctx.querySelectorAll(spec));
         }
         return sel;
       }
@@ -4370,14 +4370,14 @@
         if (this.dragManager != null) {
           dragFilters = this.dragManager.reset();
         }
-        this.setAttribute(newContainer, core.ATTRIBUTE_CONTAINER, core.uuid().replace("-", ""));
+        this.setAttribute(newContainer, core.ATTRIBUTE_CONTAINER, util.uuid().replace("-", ""));
         var currentContainer = this.getContainer();
         if (currentContainer != null) {
           currentContainer.removeAttribute(core.ATTRIBUTE_CONTAINER);
-          var children = core.fromArray(currentContainer.childNodes).filter(function (cn) {
+          var children = util.fromArray(currentContainer.childNodes).filter(function (cn) {
             return cn != null && (_this4.hasClass(cn, core.CLASS_CONNECTOR) || _this4.hasClass(cn, core.CLASS_ENDPOINT) || _this4.hasClass(cn, core.CLASS_OVERLAY) || cn.getAttribute && cn.getAttribute(core.ATTRIBUTE_MANAGED) != null);
           });
-          core.forEach(children, function (el) {
+          util.forEach(children, function (el) {
             newContainer.appendChild(el);
           });
         }
@@ -4401,7 +4401,7 @@
         _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "reset", this).call(this);
         var container = this.getContainer();
         var els = container.querySelectorAll([core.SELECTOR_MANAGED_ELEMENT, core.SELECTOR_ENDPOINT, core.SELECTOR_CONNECTOR, core.SELECTOR_OVERLAY].join(","));
-        core.forEach(els, function (el) {
+        util.forEach(els, function (el) {
           return el.parentNode && el.parentNode.removeChild(el);
         });
       }
@@ -4428,7 +4428,7 @@
         for (var _len = arguments.length, el = new Array(_len), _key = 0; _key < _len; _key++) {
           el[_key] = arguments[_key];
         }
-        core.forEach(el, function (_el) {
+        util.forEach(el, function (_el) {
           return _this5.elementDragHandler.addToDragSelection(_el);
         });
       }
@@ -4444,7 +4444,7 @@
         for (var _len2 = arguments.length, el = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
           el[_key2] = arguments[_key2];
         }
-        core.forEach(el, function (_el) {
+        util.forEach(el, function (_el) {
           return _this6.elementDragHandler.removeFromDragSelection(_el);
         });
       }
@@ -4455,7 +4455,7 @@
         for (var _len3 = arguments.length, el = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
           el[_key3] = arguments[_key3];
         }
-        core.forEach(el, function (_el) {
+        util.forEach(el, function (_el) {
           return _this7.elementDragHandler.toggleDragSelection(_el);
         });
       }
@@ -4662,7 +4662,7 @@
                 y: absolutePosition.y
               };
             } else if (component instanceof core.EndpointRepresentation) {
-              var locToUse = core.isArray(o.location) ? o.location : [o.location, o.location];
+              var locToUse = util.isArray(o.location) ? o.location : [o.location, o.location];
               cxy = {
                 x: locToUse[0] * component.w,
                 y: locToUse[1] * component.h
@@ -4670,7 +4670,7 @@
             } else {
               var loc = o.location,
                   absolute = false;
-              if (core.IS.aString(o.location) || o.location < 0 || o.location > 1) {
+              if (util.IS.aString(o.location) || o.location < 0 || o.location > 1) {
                 loc = parseInt("" + o.location, 10);
                 absolute = true;
               }
@@ -4708,7 +4708,7 @@
     }, {
       key: "updateLabel",
       value: function updateLabel(o) {
-        if (core.isFunction(o.label)) {
+        if (util.isFunction(o.label)) {
           var lt = o.label(this);
           if (lt != null) {
             getLabelElement(o).innerText = lt;
@@ -4839,7 +4839,7 @@
         if (renderer != null) {
           SvgEndpoint.paint(ep.endpoint, renderer, paintStyle);
         } else {
-          core.log("jsPlumb: no endpoint renderer found for type [" + ep.endpoint.type + "]");
+          util.log("jsPlumb: no endpoint renderer found for type [" + ep.endpoint.type + "]");
         }
       }
     }, {

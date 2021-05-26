@@ -2,7 +2,8 @@ import { DragHandler } from "./drag-manager";
 import { BrowserJsPlumbInstance, DragGroupSpec } from "./browser-jsplumb-instance";
 import { jsPlumbDOMElement } from './element-facade';
 import { DragEventParams, Drag, DragStopEventParams } from "./collicat";
-import { RedrawResult, PointXY } from "@jsplumb/core";
+import { RedrawResult } from "@jsplumb/core";
+import { PointXY } from "@jsplumb/util";
 /**
  * Base payload for drag events. Contains the element being dragged, the corresponding mouse event, the current position, and the position when drag started.
  */

@@ -2,7 +2,7 @@ import { AbstractConnector, ConnectorComputeParams, ConnectorOptions, PaintGeome
 import { Connection } from '../connector/connection-impl';
 import { JsPlumbInstance } from "../core";
 import { AnchorPlacement } from "../router/router";
-import { PointXY } from '../common';
+import { PointXY } from "@jsplumb/util";
 export interface AbstractBezierOptions extends ConnectorOptions {
     showLoopback?: boolean;
     curviness?: number;

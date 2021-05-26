@@ -7,6 +7,7 @@ import { OverlaySpec } from "./overlay/overlay";
 import { PaintStyle } from "./styles";
 import { Connection } from "./connector/connection-impl";
 import { RedropPolicy } from "./source-selector";
+import { Dictionary } from "@jsplumb/util";
 export declare type UUID = string;
 export interface jsPlumbElement<E> {
     _jsPlumbGroup: UIGroup<E>;
@@ -253,47 +254,11 @@ export interface SourceDefinition extends SourceOrTargetDefinition {
 }
 export interface TargetDefinition extends SourceOrTargetDefinition {
 }
-export interface Size {
-    w: number;
-    h: number;
-}
-export interface PointXY {
-    x: number;
-    y: number;
-    theta?: number;
-}
-export declare type BoundingBox = {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-    center?: PointXY;
-};
-export declare type RectangleXY = BoundingBox;
-export declare type LineXY = [PointXY, PointXY];
-/**
- * Subtracts p2 from p1, returning a new point.
- * @param p1
- * @param p2
- */
-export declare function pointSubtract(p1: PointXY, p2: PointXY): PointXY;
 export interface UpdateOffsetOptions {
     timestamp?: string;
     recalc?: boolean;
     elId?: string;
 }
-export interface Dictionary<T> {
-    [Key: string]: T;
-}
-export declare type SortFunction<T> = (a: T, b: T) => number;
-export declare type Constructable<T> = {
-    new (...args: any[]): T;
-};
-export interface Rotation {
-    r: number;
-    c: PointXY;
-}
-export declare type Rotations = Array<Rotation>;
 export interface Extents {
     xmin: number;
     ymin: number;

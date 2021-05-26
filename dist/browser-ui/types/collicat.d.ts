@@ -1,4 +1,4 @@
-import { Dictionary, PointXY, Size } from '@jsplumb/core';
+import { Dictionary, PointXY, Size } from '@jsplumb/util';
 import { EventManager } from "./event-manager";
 import { jsPlumbDOMElement } from './element-facade';
 export interface DragStartEventParams {

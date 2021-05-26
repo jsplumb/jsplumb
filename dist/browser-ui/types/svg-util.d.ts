@@ -1,4 +1,4 @@
-import { Dictionary } from "@jsplumb/core";
+import { Dictionary } from "@jsplumb/util";
 export declare const STROKE_DASHARRAY = "stroke-dasharray";
 export declare const DASHSTYLE = "dashstyle";
 export declare const FILL = "fill";

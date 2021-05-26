@@ -1,9 +1,9 @@
-import { Dictionary, PointXY } from '../common';
 import { JsPlumbInstance } from "../core";
 import { Connection } from '../connector/connection-impl';
 import { AnchorSpec } from "../factory/anchor-record-factory";
 import { EndpointSpec } from "../endpoint/endpoint";
 import { GroupManager } from "../group/group-manager";
+import { Dictionary, PointXY } from '@jsplumb/util';
 export interface GroupOptions {
     id?: string;
     droppable?: boolean;

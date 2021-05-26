@@ -1,8 +1,8 @@
 import { EndpointRepresentation } from "../endpoint/endpoints";
-import { Constructable } from "../common";
 import { Endpoint } from "../endpoint/endpoint";
 import { Orientation } from "../factory/anchor-record-factory";
 import { AnchorPlacement } from "../router/router";
+import { Constructable } from "@jsplumb/util";
 export declare type EndpointComputeFunction<T> = (endpoint: EndpointRepresentation<T>, anchorPoint: AnchorPlacement, orientation: Orientation, endpointStyle: any) => T;
 export declare const EndpointFactory: {
     get: (ep: Endpoint<any>, name: string, params: any) => EndpointRepresentation<any>;

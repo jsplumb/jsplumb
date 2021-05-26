@@ -2,6 +2,8 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
+var util = require('@jsplumb/util');
+
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
@@ -239,489 +241,6 @@ function () {
   return AbstractSegment;
 }();
 
-function filterList(list, value, missingIsFalse) {
-  if (list === "*") {
-    return true;
-  }
-  return list.length > 0 ? list.indexOf(value) !== -1 : !missingIsFalse;
-}
-function extend(o1, o2, keys) {
-  var i;
-  o1 = o1 || {};
-  o2 = o2 || {};
-  var _o1 = o1,
-      _o2 = o2;
-  if (keys) {
-    for (i = 0; i < keys.length; i++) {
-      _o1[keys[i]] = _o2[keys[i]];
-    }
-  } else {
-    for (i in _o2) {
-      _o1[i] = _o2[i];
-    }
-  }
-  return o1;
-}
-function isArray(a) {
-  return Array.isArray(a);
-}
-function isNumber(n) {
-  return Object.prototype.toString.call(n) === "[object Number]";
-}
-function isString(s) {
-  return typeof s === "string";
-}
-function isBoolean(s) {
-  return typeof s === "boolean";
-}
-function isNull(s) {
-  return s == null;
-}
-function isObject(o) {
-  return o == null ? false : Object.prototype.toString.call(o) === "[object Object]";
-}
-function isDate(o) {
-  return Object.prototype.toString.call(o) === "[object Date]";
-}
-function isFunction(o) {
-  return Object.prototype.toString.call(o) === "[object Function]";
-}
-function isNamedFunction(o) {
-  return isFunction(o) && o.name != null && o.name.length > 0;
-}
-function isEmpty(o) {
-  for (var i in o) {
-    if (o.hasOwnProperty(i)) {
-      return false;
-    }
-  }
-  return true;
-}
-var IS = {
-  anObject: function anObject(o) {
-    return o == null ? false : Object.prototype.toString.call(o) === "[object Object]";
-  },
-  aString: function aString(o) {
-    return isString(o);
-  }
-};
-function clone(a) {
-  if (isString(a)) {
-    return "" + a;
-  } else if (isBoolean(a)) {
-    return !!a;
-  } else if (isDate(a)) {
-    return new Date(a.getTime());
-  } else if (isFunction(a)) {
-    return a;
-  } else if (isArray(a)) {
-    var b = [];
-    for (var i = 0; i < a.length; i++) {
-      b.push(clone(a[i]));
-    }
-    return b;
-  } else if (IS.anObject(a)) {
-    var c = {};
-    for (var j in a) {
-      c[j] = clone(a[j]);
-    }
-    return c;
-  } else {
-    return a;
-  }
-}
-function filterNull(obj) {
-  var o = {};
-  for (var k in obj) {
-    if (obj[k] != null) {
-      o[k] = obj[k];
-    }
-  }
-  return o;
-}
-function merge(a, b, collations, overwrites) {
-  var cMap = {},
-      ar,
-      i,
-      oMap = {};
-  collations = collations || [];
-  overwrites = overwrites || [];
-  for (i = 0; i < collations.length; i++) {
-    cMap[collations[i]] = true;
-  }
-  for (i = 0; i < overwrites.length; i++) {
-    oMap[overwrites[i]] = true;
-  }
-  var c = clone(a);
-  for (i in b) {
-    if (c[i] == null || oMap[i]) {
-      c[i] = b[i];
-    } else if (cMap[i]) {
-      ar = [];
-      ar.push.apply(ar, isArray(c[i]) ? c[i] : [c[i]]);
-      ar.push(b[i]);
-      c[i] = ar;
-    } else if (isString(b[i]) || isBoolean(b[i]) || isFunction(b[i]) || isNumber(b[i])) {
-      c[i] = b[i];
-    } else {
-      if (isArray(b[i])) {
-        ar = [];
-        if (isArray(c[i])) {
-          ar.push.apply(ar, c[i]);
-        }
-        ar.push.apply(ar, b[i]);
-        c[i] = ar;
-      } else if (IS.anObject(b[i])) {
-        if (!IS.anObject(c[i])) {
-          c[i] = {};
-        }
-        for (var j in b[i]) {
-          c[i][j] = b[i][j];
-        }
-      }
-    }
-  }
-  return c;
-}
-function replace(inObj, path, value) {
-  if (inObj == null) {
-    return;
-  }
-  var q = inObj,
-      t = q;
-  path.replace(/([^\.])+/g, function (term, lc, pos, str) {
-    var array = term.match(/([^\[0-9]+){1}(\[)([0-9+])/),
-        last = pos + term.length >= str.length,
-        _getArray = function _getArray() {
-      return t[array[1]] || function () {
-        t[array[1]] = [];
-        return t[array[1]];
-      }();
-    };
-    if (last) {
-      if (array) {
-        _getArray()[array[3]] = value;
-      } else {
-        t[term] = value;
-      }
-    } else {
-      if (array) {
-        var a = _getArray();
-        t = a[array[3]] || function () {
-          a[array[3]] = {};
-          return a[array[3]];
-        }();
-      } else {
-        t = t[term] || function () {
-          t[term] = {};
-          return t[term];
-        }();
-      }
-    }
-    return "";
-  });
-  return inObj;
-}
-function functionChain(successValue, failValue, fns) {
-  for (var i = 0; i < fns.length; i++) {
-    var o = fns[i][0][fns[i][1]].apply(fns[i][0], fns[i][2]);
-    if (o === failValue) {
-      return o;
-    }
-  }
-  return successValue;
-}
-function populate(model, values, functionPrefix, doNotExpandFunctions) {
-  var getValue = function getValue(fromString) {
-    var matches = fromString.match(/(\${.*?})/g);
-    if (matches != null) {
-      for (var i = 0; i < matches.length; i++) {
-        var val = values[matches[i].substring(2, matches[i].length - 1)] || "";
-        if (val != null) {
-          fromString = fromString.replace(matches[i], val);
-        }
-      }
-    }
-    return fromString;
-  };
-  var _one = function _one(d) {
-    if (d != null) {
-      if (isString(d)) {
-        return getValue(d);
-      } else if (isFunction(d) && !doNotExpandFunctions && (functionPrefix == null || (d.name || "").indexOf(functionPrefix) === 0)) {
-        return d(values);
-      } else if (isArray(d)) {
-        var r = [];
-        for (var i = 0; i < d.length; i++) {
-          r.push(_one(d[i]));
-        }
-        return r;
-      } else if (IS.anObject(d)) {
-        var s = {};
-        for (var j in d) {
-          s[j] = _one(d[j]);
-        }
-        return s;
-      } else {
-        return d;
-      }
-    }
-  };
-  return _one(model);
-}
-function forEach(a, f) {
-  if (a) {
-    for (var i = 0; i < a.length; i++) {
-      f(a[i]);
-    }
-  } else {
-    return null;
-  }
-}
-function findWithFunction(a, f) {
-  if (a) {
-    for (var i = 0; i < a.length; i++) {
-      if (f(a[i])) {
-        return i;
-      }
-    }
-  }
-  return -1;
-}
-function findAllWithFunction(a, f) {
-  var o = [];
-  if (a) {
-    for (var i = 0; i < a.length; i++) {
-      if (f(a[i])) {
-        o.push(i);
-      }
-    }
-  }
-  return o;
-}
-function getWithFunction(a, f) {
-  var idx = findWithFunction(a, f);
-  return idx === -1 ? null : a[idx];
-}
-function getAllWithFunction(a, f) {
-  var indexes = findAllWithFunction(a, f);
-  return indexes.map(function (i) {
-    return a[i];
-  });
-}
-function getFromSetWithFunction(s, f) {
-  var out = null;
-  s.forEach(function (t) {
-    if (f(t)) {
-      out = t;
-    }
-  });
-  return out;
-}
-function setToArray(s) {
-  var a = [];
-  s.forEach(function (t) {
-    a.push(t);
-  });
-  return a;
-}
-function removeWithFunction(a, f) {
-  var idx = findWithFunction(a, f);
-  if (idx > -1) {
-    a.splice(idx, 1);
-  }
-  return idx !== -1;
-}
-function fromArray(a) {
-  if (Array.fromArray != null) {
-    return Array.from(a);
-  } else {
-    var arr = [];
-    Array.prototype.push.apply(arr, a);
-    return arr;
-  }
-}
-function remove(l, v) {
-  var idx = l.indexOf(v);
-  if (idx > -1) {
-    l.splice(idx, 1);
-  }
-  return idx !== -1;
-}
-function addWithFunction(list, item, hashFunction) {
-  if (findWithFunction(list, hashFunction) === -1) {
-    list.push(item);
-  }
-}
-function addToDictionary(map, key, value, insertAtStart) {
-  var l = map[key];
-  if (l == null) {
-    l = [];
-    map[key] = l;
-  }
-  l[insertAtStart ? "unshift" : "push"](value);
-  return l;
-}
-function addToList(map, key, value, insertAtStart) {
-  var l = map.get(key);
-  if (l == null) {
-    l = [];
-    map.set(key, l);
-  }
-  l[insertAtStart ? "unshift" : "push"](value);
-  return l;
-}
-function suggest(list, item, insertAtHead) {
-  if (list.indexOf(item) === -1) {
-    if (insertAtHead) {
-      list.unshift(item);
-    } else {
-      list.push(item);
-    }
-    return true;
-  }
-  return false;
-}
-var lut = [];
-for (var i = 0; i < 256; i++) {
-  lut[i] = (i < 16 ? '0' : '') + i.toString(16);
-}
-function uuid() {
-  var d0 = Math.random() * 0xffffffff | 0;
-  var d1 = Math.random() * 0xffffffff | 0;
-  var d2 = Math.random() * 0xffffffff | 0;
-  var d3 = Math.random() * 0xffffffff | 0;
-  return lut[d0 & 0xff] + lut[d0 >> 8 & 0xff] + lut[d0 >> 16 & 0xff] + lut[d0 >> 24 & 0xff] + '-' + lut[d1 & 0xff] + lut[d1 >> 8 & 0xff] + '-' + lut[d1 >> 16 & 0x0f | 0x40] + lut[d1 >> 24 & 0xff] + '-' + lut[d2 & 0x3f | 0x80] + lut[d2 >> 8 & 0xff] + '-' + lut[d2 >> 16 & 0xff] + lut[d2 >> 24 & 0xff] + lut[d3 & 0xff] + lut[d3 >> 8 & 0xff] + lut[d3 >> 16 & 0xff] + lut[d3 >> 24 & 0xff];
-}
-function rotatePoint(point, center, rotation) {
-  var radial = {
-    x: point.x - center.x,
-    y: point.y - center.y
-  },
-      cr = Math.cos(rotation / 360 * Math.PI * 2),
-      sr = Math.sin(rotation / 360 * Math.PI * 2);
-  return {
-    x: radial.x * cr - radial.y * sr + center.x,
-    y: radial.y * cr + radial.x * sr + center.y,
-    cr: cr,
-    sr: sr
-  };
-}
-function rotateAnchorOrientation(orientation, rotation) {
-  var r = rotatePoint({
-    x: orientation[0],
-    y: orientation[1]
-  }, {
-    x: 0,
-    y: 0
-  }, rotation);
-  return [Math.round(r.x), Math.round(r.y)];
-}
-function fastTrim(s) {
-  if (s == null) {
-    return null;
-  }
-  var str = s.replace(/^\s\s*/, ''),
-      ws = /\s/,
-      i = str.length;
-  while (ws.test(str.charAt(--i))) {}
-  return str.slice(0, i + 1);
-}
-function each(obj, fn) {
-  obj = obj.length == null || typeof obj === "string" ? [obj] : obj;
-  for (var _i = 0; _i < obj.length; _i++) {
-    fn(obj[_i]);
-  }
-}
-function map(obj, fn) {
-  var o = [];
-  for (var _i2 = 0; _i2 < obj.length; _i2++) {
-    o.push(fn(obj[_i2]));
-  }
-  return o;
-}
-var logEnabled = true;
-function log() {
-  for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-    args[_key] = arguments[_key];
-  }
-  if ( typeof console !== "undefined") {
-    try {
-      var msg = arguments[arguments.length - 1];
-      console.log(msg);
-    } catch (e) {}
-  }
-}
-function wrap(wrappedFunction, newFunction, returnOnThisValue) {
-  return function () {
-    var r = null;
-    try {
-      if (newFunction != null) {
-        r = newFunction.apply(this, arguments);
-      }
-    } catch (e) {
-      log("jsPlumb function failed : " + e);
-    }
-    if (wrappedFunction != null && (returnOnThisValue == null || r !== returnOnThisValue)) {
-      try {
-        r = wrappedFunction.apply(this, arguments);
-      } catch (e) {
-        log("wrapped function failed : " + e);
-      }
-    }
-    return r;
-  };
-}
-function sortHelper(_array, _fn) {
-  return _array.sort(_fn);
-}
-function _mergeOverrides(def, values) {
-  var m = extend({}, def);
-  for (var _i3 in values) {
-    if (values[_i3]) {
-      m[_i3] = values[_i3];
-    }
-  }
-  return m;
-}
-function getsert(map, key, valueGenerator) {
-  if (!map.has(key)) {
-    map.set(key, valueGenerator());
-  }
-  return map.get(key);
-}
-function isAssignableFrom(object, cls) {
-  var proto = object.__proto__;
-  while (proto != null) {
-    if (proto instanceof cls) {
-      return true;
-    } else {
-      proto = proto.__proto__;
-    }
-  }
-  return false;
-}
-function insertSorted(value, array, comparator, sortDescending) {
-  if (array.length === 0) {
-    array.push(value);
-  } else {
-    var flip = sortDescending ? -1 : 1;
-    var min = 0;
-    var max = array.length;
-    var index = Math.floor((min + max) / 2);
-    while (max > min) {
-      var c = comparator(value, array[index]) * flip;
-      if (c < 0) {
-        max = index;
-      } else {
-        min = index + 1;
-      }
-      index = Math.floor((min + max) / 2);
-    }
-    array.splice(index, 0, value);
-  }
-}
-
 var endpointMap = {};
 var endpointComputers = {};
 var handlers = {};
@@ -745,7 +264,7 @@ var EndpointFactory = {
     if (c != null) {
       return c(endpoint, anchorPoint, orientation, endpointStyle);
     } else {
-      log("jsPlumb: cannot find endpoint calculator for endpoint of type ", endpoint.type);
+      util.log("jsPlumb: cannot find endpoint calculator for endpoint of type ", endpoint.type);
     }
   },
   registerHandler: function registerHandler(eph) {
@@ -1054,11 +573,11 @@ function () {
     _defineProperty(this, "hoverClass", void 0);
     _defineProperty(this, "geometry", void 0);
     this.stub = params.stub || this.getDefaultStubs();
-    this.sourceStub = isArray(this.stub) ? this.stub[0] : this.stub;
-    this.targetStub = isArray(this.stub) ? this.stub[1] : this.stub;
+    this.sourceStub = util.isArray(this.stub) ? this.stub[0] : this.stub;
+    this.targetStub = util.isArray(this.stub) ? this.stub[1] : this.stub;
     this.gap = params.gap || 0;
-    this.sourceGap = isArray(this.gap) ? this.gap[0] : this.gap;
-    this.targetGap = isArray(this.gap) ? this.gap[1] : this.gap;
+    this.sourceGap = util.isArray(this.gap) ? this.gap[0] : this.gap;
+    this.targetGap = util.isArray(this.gap) ? this.gap[1] : this.gap;
     this.maxStub = Math.max(this.sourceStub, this.targetStub);
     this.cssClass = params.cssClass || "";
     this.hoverClass = params.hoverClass || "";
@@ -1335,9 +854,9 @@ function () {
   }, {
     key: "dumpSegmentsToConsole",
     value: function dumpSegmentsToConsole() {
-      log("SEGMENTS:");
+      util.log("SEGMENTS:");
       for (var i = 0; i < this.segments.length; i++) {
-        log(this.segments[i].type, "" + this.segments[i].getLength(), "" + this.segmentProportions[i]);
+        util.log(this.segments[i].type, "" + this.segments[i].getLength(), "" + this.segmentProportions[i]);
       }
     }
   }, {
@@ -2214,22 +1733,22 @@ function (_AbstractConnector) {
     value: function importGeometry(geometry) {
       if (geometry != null) {
         if (geometry.controlPoints == null || geometry.controlPoints.length != 2) {
-          log("jsPlumb Bezier: cannot import geometry; controlPoints missing or does not have length 2");
+          util.log("jsPlumb Bezier: cannot import geometry; controlPoints missing or does not have length 2");
           this.setGeometry(null, true);
           return false;
         }
         if (geometry.controlPoints[0].length != 2 || geometry.controlPoints[1].length != 2) {
-          log("jsPlumb Bezier: cannot import geometry; controlPoints malformed");
+          util.log("jsPlumb Bezier: cannot import geometry; controlPoints malformed");
           this.setGeometry(null, true);
           return false;
         }
         if (geometry.source == null || geometry.source.length != 4) {
-          log("jsPlumb Bezier: cannot import geometry; source missing or malformed");
+          util.log("jsPlumb Bezier: cannot import geometry; source missing or malformed");
           this.setGeometry(null, true);
           return false;
         }
         if (geometry.target == null || geometry.target.length != 4) {
-          log("jsPlumb Bezier: cannot import geometry; target missing or malformed");
+          util.log("jsPlumb Bezier: cannot import geometry; target missing or malformed");
           this.setGeometry(null, true);
           return false;
         }
@@ -3227,13 +2746,6 @@ var ERROR_SOURCE_DOES_NOT_EXIST = "Cannot establish connection: source does not 
 var ERROR_TARGET_DOES_NOT_EXIST = "Cannot establish connection: target does not exist";
 var KEY_CONNECTION_OVERLAYS = "connectionOverlays";
 
-function pointSubtract(p1, p2) {
-  return {
-    x: p1.x - p2.x,
-    y: p1.y - p2.y
-  };
-}
-
 var EventGenerator =
 function () {
   function EventGenerator() {
@@ -3264,7 +2776,7 @@ function () {
                 try {
                   ret = this._listeners[event][i].apply(this, [value, originalEvent]);
                 } catch (e) {
-                  log("jsPlumb: fire failed for event " + event + " : " + (e.message || e));
+                  util.log("jsPlumb: fire failed for event " + event + " : " + (e.message || e));
                 }
               }
               i++;
@@ -3301,11 +2813,11 @@ function () {
           var evt;
           for (var i in eventOrListener.__jsPlumb) {
             evt = eventOrListener.__jsPlumb[i];
-            remove(this._listeners[evt] || [], eventOrListener);
+            util.remove(this._listeners[evt] || [], eventOrListener);
           }
         }
       } else if (arguments.length === 2) {
-        remove(this._listeners[eventOrListener] || [], listener);
+        util.remove(this._listeners[eventOrListener] || [], listener);
       }
       return this;
     }
@@ -3329,9 +2841,9 @@ function () {
     value: function bind(event, listener, insertAtStart) {
       var _this = this;
       var _one = function _one(evt) {
-        addToDictionary(_this._listeners, evt, listener, insertAtStart);
+        util.addToDictionary(_this._listeners, evt, listener, insertAtStart);
         listener.__jsPlumb = listener.__jsPlumb || {};
-        listener.__jsPlumb[uuid()] = evt;
+        listener.__jsPlumb[util.uuid()] = evt;
       };
       if (typeof event === "string") {
         _one(event);
@@ -3349,7 +2861,7 @@ function () {
       try {
         fn();
       } catch (e) {
-        log("Cannot execute silent function " + e);
+        util.log("Cannot execute silent function " + e);
       }
       this.setSuspendEvents(false);
     }
@@ -3377,7 +2889,7 @@ function isFullOverlaySpec(o) {
 }
 function convertToFullOverlaySpec(spec) {
   var o = null;
-  if (isString(spec)) {
+  if (util.isString(spec)) {
     o = {
       type: spec,
       options: {}
@@ -3385,7 +2897,7 @@ function convertToFullOverlaySpec(spec) {
   } else {
     o = spec;
   }
-  o.options.id = o.options.id || uuid();
+  o.options.id = o.options.id || util.uuid();
   return o;
 }
 var Overlay =
@@ -3404,7 +2916,7 @@ function (_EventGenerator) {
     _defineProperty(_assertThisInitialized(_this), "location", void 0);
     _defineProperty(_assertThisInitialized(_this), "events", void 0);
     p = p || {};
-    _this.id = p.id || uuid();
+    _this.id = p.id || util.uuid();
     _this.cssClass = p.cssClass || "";
     _this.location = p.location || 0.5;
     _this.events = p.events || {};
@@ -3517,7 +3029,7 @@ function (_Overlay) {
   _createClass(LabelOverlay, [{
     key: "getLabel",
     value: function getLabel() {
-      if (isFunction(this.label)) {
+      if (util.isFunction(this.label)) {
         return this.label(this);
       } else {
         return this.labelText;
@@ -3578,7 +3090,7 @@ function _applyTypes(component, params) {
     var td = component.getTypeDescriptor(),
         map = {};
     var defType = component.getDefaultType();
-    var o = extend({}, defType);
+    var o = util.extend({}, defType);
     _mapType(map, defType, DEFAULT_TYPE_KEY);
     for (var i = 0, j = component._types.length; i < j; i++) {
       var tid = component._types[i];
@@ -3591,13 +3103,13 @@ function _applyTypes(component, params) {
               overrides.add(k);
             }
           }
-          o = merge(o, _t, [CSS_CLASS], setToArray(overrides));
+          o = util.merge(o, _t, [CSS_CLASS], util.setToArray(overrides));
           _mapType(map, _t, tid);
         }
       }
     }
     if (params) {
-      o = populate(o, params, "_");
+      o = util.populate(o, params, "_");
     }
     component.applyType(o, map);
   }
@@ -3612,8 +3124,8 @@ function _removeTypeCssHelper(component, typeIndex) {
 function _updateHoverStyle(component) {
   if (component.paintStyle && component.hoverPaintStyle) {
     var mergedHoverStyle = {};
-    extend(mergedHoverStyle, component.paintStyle);
-    extend(mergedHoverStyle, component.hoverPaintStyle);
+    util.extend(mergedHoverStyle, component.paintStyle);
+    util.extend(mergedHoverStyle, component.hoverPaintStyle);
     component.hoverPaintStyle = mergedHoverStyle;
   }
 }
@@ -3623,21 +3135,21 @@ function _makeLabelOverlay(component, params) {
     id: _internalLabelOverlayId,
     component: component
   },
-      mergedParams = extend(_params, params);
+      mergedParams = util.extend(_params, params);
   return new LabelOverlay(component.instance, component, mergedParams);
 }
 function _processOverlay(component, o) {
   var _newOverlay = null;
-  if (isString(o)) {
+  if (util.isString(o)) {
     _newOverlay = OverlayFactory.get(component.instance, o, component, {});
   } else if (o.type != null && o.options != null) {
     var oa = o;
-    var p = extend({}, oa.options);
+    var p = util.extend({}, oa.options);
     _newOverlay = OverlayFactory.get(component.instance, oa.type, component, p);
   } else {
     _newOverlay = o;
   }
-  _newOverlay.id = _newOverlay.id || uuid();
+  _newOverlay.id = _newOverlay.id || util.uuid();
   component.cacheTypeItem(TYPE_ITEM_OVERLAY, _newOverlay, _newOverlay.id);
   component.overlays[_newOverlay.id] = _newOverlay;
   return _newOverlay;
@@ -3687,7 +3199,7 @@ function (_EventGenerator) {
     _this.beforeDrop = params.beforeDrop;
     _this._types = [];
     _this._typeCache = {};
-    _this.parameters = clone(params.parameters || {});
+    _this.parameters = util.clone(params.parameters || {});
     _this.id = params.id || _this.getIdPrefix() + new Date().getTime();
     _this._defaultType = {
       parameters: _this.parameters,
@@ -3740,7 +3252,7 @@ function (_EventGenerator) {
         try {
           r = this.beforeDetach(connection);
         } catch (e) {
-          log("jsPlumb: beforeDetach callback failed", e);
+          util.log("jsPlumb: beforeDetach callback failed", e);
         }
       }
       return r;
@@ -3760,7 +3272,7 @@ function (_EventGenerator) {
         try {
           r = this.beforeDrop(payload);
         } catch (e) {
-          log("jsPlumb: beforeDrop callback failed", e);
+          util.log("jsPlumb: beforeDrop callback failed", e);
         }
       } else {
         r = this.instance.checkCondition(INTERCEPT_BEFORE_DROP, payload);
@@ -3964,7 +3476,7 @@ function (_EventGenerator) {
     key: "mergeParameters",
     value: function mergeParameters(p) {
       if (p != null) {
-        extend(this.parameters, p);
+        util.extend(this.parameters, p);
       }
     }
   }, {
@@ -4043,13 +3555,13 @@ function (_EventGenerator) {
   }, {
     key: "mergeData",
     value: function mergeData(d) {
-      this.data = extend(this.data, d);
+      this.data = util.extend(this.data, d);
     }
   }, {
     key: "addOverlay",
     value: function addOverlay(overlay) {
       var o = _processOverlay(this, overlay);
-      if (this.getData && o.type === LabelOverlay.type && !isString(overlay)) {
+      if (this.getData && o.type === LabelOverlay.type && !util.isString(overlay)) {
         var d = this.getData(),
             p = overlay.options;
         if (d) {
@@ -4156,13 +3668,13 @@ function (_EventGenerator) {
     value: function setLabel(l) {
       var lo = this.getLabelOverlay();
       if (!lo) {
-        var _params2 = isString(l) || isFunction(l) ? {
+        var _params2 = util.isString(l) || util.isFunction(l) ? {
           label: l
         } : l;
         lo = _makeLabelOverlay(this, _params2);
         this.overlays[_internalLabelOverlayId] = lo;
       } else {
-        if (isString(l) || isFunction(l)) {
+        if (util.isString(l) || util.isFunction(l)) {
           lo.setLabel(l);
         } else {
           var ll = l;
@@ -4227,7 +3739,7 @@ function () {
     _defineProperty(this, "cssClass", '');
     _defineProperty(this, "timestamp", null);
     _defineProperty(this, "type", "Floating");
-    _defineProperty(this, "id", uuid());
+    _defineProperty(this, "id", util.uuid());
     _defineProperty(this, "orientation", [0, 0]);
     _defineProperty(this, "size", void 0);
     this.size = instance.getSize(element);
@@ -4415,8 +3927,8 @@ function getNamedAnchor(name, params) {
   params = params || {};
   var a = namedValues[name];
   if (a != null) {
-    return _createAnchor(name, map(a, function (_a) {
-      return extend({
+    return _createAnchor(name, util.map(a, function (_a) {
+      return util.extend({
         iox: _a.ox,
         ioy: _a.oy
       }, _a);
@@ -4436,7 +3948,7 @@ function _createAnchor(type, locations, params) {
     locations: locations,
     currentLocation: 0,
     locked: false,
-    id: uuid(),
+    id: util.uuid(),
     isFloating: false,
     isContinuous: false,
     isDynamic: locations.length > 1,
@@ -4454,7 +3966,7 @@ function _createContinuousAnchor(type, faces, params) {
     locations: [],
     currentLocation: 0,
     locked: false,
-    id: uuid(),
+    id: util.uuid(),
     cssClass: params.cssClass || "",
     isFloating: false,
     isContinuous: true,
@@ -4476,12 +3988,12 @@ function _createContinuousAnchor(type, faces, params) {
   return ca;
 }
 function isPrimitiveAnchorSpec(sa) {
-  return sa.length < 7 && sa.every(isNumber) || sa.length === 7 && sa.slice(0, 5).every(isNumber) && isString(sa[6]);
+  return sa.length < 7 && sa.every(util.isNumber) || sa.length === 7 && sa.slice(0, 5).every(util.isNumber) && util.isString(sa[6]);
 }
 function makeLightweightAnchorFromSpec(spec) {
-  if (isString(spec)) {
+  if (util.isString(spec)) {
     return getNamedAnchor(spec, null);
-  } else if (isArray(spec)) {
+  } else if (util.isArray(spec)) {
     if (isPrimitiveAnchorSpec(spec)) {
       return _createAnchor(null, [{
         x: spec[0],
@@ -4497,10 +4009,10 @@ function makeLightweightAnchorFromSpec(spec) {
         cssClass: spec[6] || ""
       });
     } else {
-      var locations = map(spec, function (aSpec) {
-        if (isString(aSpec)) {
+      var locations = util.map(spec, function (aSpec) {
+        if (util.isString(aSpec)) {
           var a = namedValues[aSpec];
-          return a != null ? extend({
+          return a != null ? util.extend({
             iox: 0,
             ioy: 0,
             cls: ""
@@ -4705,7 +4217,7 @@ function (_Component) {
       hoverPaintStyle: _this.endpoints[0].connectorHoverStyle || _this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _this.instance.defaults.hoverPaintStyle
     });
     if (!_this.instance._suspendDrawing) {
-      var initialTimestamp = _this.instance._suspendedAt || uuid();
+      var initialTimestamp = _this.instance._suspendedAt || util.uuid();
       _this.instance.paintEndpoint(_this.endpoints[0], {
         timestamp: initialTimestamp
       });
@@ -4718,13 +4230,13 @@ function (_Component) {
     if (params.directed == null) {
       _this.directed = _this.endpoints[0].connectionsDirected;
     }
-    var _p = extend({}, _this.endpoints[1].parameters);
-    extend(_p, _this.endpoints[0].parameters);
-    extend(_p, _this.parameters);
+    var _p = util.extend({}, _this.endpoints[1].parameters);
+    util.extend(_p, _this.endpoints[0].parameters);
+    util.extend(_p, _this.parameters);
     _this.parameters = _p;
     _this.paintStyleInUse = _this.getPaintStyle() || {};
     _this.setConnector(_this.endpoints[0].connector || _this.endpoints[1].connector || params.connector || _this.instance.defaults.connector, true);
-    var data = params.data == null || !IS.anObject(params.data) ? {} : params.data;
+    var data = params.data == null || !util.IS.anObject(params.data) ? {} : params.data;
     _this.setData(data);
     var _types = [DEFAULT, _this.endpoints[0].edgeType, _this.endpoints[1].edgeType, params.type].join(" ");
     if (/[^\s]/.test(_types)) {
@@ -4872,11 +4384,11 @@ function (_Component) {
         "pointer-events": this.params["pointer-events"]
       },
           connector;
-      if (isString(connectorSpec)) {
+      if (util.isString(connectorSpec)) {
         connector = this.instance.makeConnector(this, connectorSpec, connectorArgs);
       } else {
         var co = connectorSpec;
-        connector = this.instance.makeConnector(this, co.type, merge(co.options, connectorArgs));
+        connector = this.instance.makeConnector(this, co.type, util.merge(co.options, connectorArgs));
       }
       if (typeId != null) {
         connector.typeId = typeId;
@@ -5189,7 +4701,7 @@ function (_Component) {
       if (t.scope) {
         this.scope = t.scope;
       }
-      extend(t, typeParameters);
+      util.extend(t, typeParameters);
       this.instance.applyEndpointType(this, t);
     }
   }, {
@@ -5249,14 +4761,14 @@ function (_Component) {
         endpoint: this
       };
       var endpoint;
-      if (isAssignableFrom(ep, EndpointRepresentation)) {
+      if (util.isAssignableFrom(ep, EndpointRepresentation)) {
         var epr = ep;
         endpoint = EndpointFactory.clone(epr);
-      } else if (isString(ep)) {
+      } else if (util.isString(ep)) {
         endpoint = EndpointFactory.get(this, ep, endpointArgs);
       } else {
         var fep = ep;
-        extend(endpointArgs, fep.options || {});
+        util.extend(endpointArgs, fep.options || {});
         endpoint = EndpointFactory.get(this, fep.type, endpointArgs);
       }
       endpoint.typeId = typeId;
@@ -5343,7 +4855,7 @@ function (_UINode) {
     _this.prune = _this.orphan !== true && options.prune === true;
     _this.constrain = _this.ghost || options.constrain === true;
     _this.proxied = options.proxied !== false;
-    _this.id = options.id || uuid();
+    _this.id = options.id || util.uuid();
     _this.dropOverride = options.dropOverride === true;
     _this.anchor = options.anchor;
     _this.endpoint = options.endpoint;
@@ -5397,7 +4909,7 @@ function (_UINode) {
   }, {
     key: "resolveNode",
     value: function resolveNode(el) {
-      return el == null ? null : getWithFunction(this.children, function (u) {
+      return el == null ? null : util.getWithFunction(this.children, function (u) {
         return u.el === el;
       });
     }
@@ -5414,14 +4926,14 @@ function (_UINode) {
     value: function _doRemove(child, manipulateDOM, doNotFireEvent, doNotUpdateConnections, targetGroup) {
       var __el = child.el;
       delete __el._jsPlumbParentGroup;
-      removeWithFunction(this.children, function (e) {
+      util.removeWithFunction(this.children, function (e) {
         return e === child;
       });
       if (manipulateDOM) {
         try {
           this.getContentArea().removeChild(__el);
         } catch (e) {
-          log("Could not remove element from Group " + e);
+          util.log("Could not remove element from Group " + e);
         }
       }
       if (!doNotFireEvent) {
@@ -5568,21 +5080,21 @@ function () {
       if (sourceGroup != null && targetGroup != null && sourceGroup === targetGroup) {
         _this._connectionSourceMap[p.connection.id] = sourceGroup;
         _this._connectionTargetMap[p.connection.id] = sourceGroup;
-        suggest(sourceGroup.connections.internal, p.connection);
+        util.suggest(sourceGroup.connections.internal, p.connection);
       } else {
         if (sourceGroup != null) {
           if (p.target._jsPlumbGroup === sourceGroup) {
-            suggest(sourceGroup.connections.internal, p.connection);
+            util.suggest(sourceGroup.connections.internal, p.connection);
           } else {
-            suggest(sourceGroup.connections.source, p.connection);
+            util.suggest(sourceGroup.connections.source, p.connection);
           }
           _this._connectionSourceMap[p.connection.id] = sourceGroup;
         }
         if (targetGroup != null) {
           if (p.source._jsPlumbGroup === targetGroup) {
-            suggest(targetGroup.connections.internal, p.connection);
+            util.suggest(targetGroup.connections.internal, p.connection);
           } else {
-            suggest(targetGroup.connections.target, p.connection);
+            util.suggest(targetGroup.connections.target, p.connection);
           }
           _this._connectionTargetMap[p.connection.id] = targetGroup;
         }
@@ -5628,9 +5140,9 @@ function () {
         f = function f(c) {
           return c.id === conn.id;
         };
-        removeWithFunction(group.connections.source, f);
-        removeWithFunction(group.connections.target, f);
-        removeWithFunction(group.connections.internal, f);
+        util.removeWithFunction(group.connections.source, f);
+        util.removeWithFunction(group.connections.target, f);
+        util.removeWithFunction(group.connections.internal, f);
         delete this._connectionSourceMap[conn.id];
       }
       group = this._connectionTargetMap[conn.id];
@@ -5638,9 +5150,9 @@ function () {
         f = function f(c) {
           return c.id === conn.id;
         };
-        removeWithFunction(group.connections.source, f);
-        removeWithFunction(group.connections.target, f);
-        removeWithFunction(group.connections.internal, f);
+        util.removeWithFunction(group.connections.source, f);
+        util.removeWithFunction(group.connections.target, f);
+        util.removeWithFunction(group.connections.internal, f);
         delete this._connectionTargetMap[conn.id];
       }
     }
@@ -5672,7 +5184,7 @@ function () {
     key: "getGroup",
     value: function getGroup(groupId) {
       var group = groupId;
-      if (IS.aString(groupId)) {
+      if (util.IS.aString(groupId)) {
         group = this.groupMap[groupId];
         if (group == null) {
           throw new Error("No such group [" + groupId + "]");
@@ -5717,20 +5229,20 @@ function () {
       var actualGroup = this.getGroup(group);
       this.expandGroup(actualGroup, true);
       var newPositions = {};
-      forEach(actualGroup.children, function (uiNode) {
+      util.forEach(actualGroup.children, function (uiNode) {
         var entry = _this2.instance.getManagedElements()[_this2.instance.getId(uiNode.el)];
         if (entry) {
           delete entry.group;
         }
       });
       if (deleteMembers) {
-        forEach(actualGroup.getGroups(), function (cg) {
+        util.forEach(actualGroup.getGroups(), function (cg) {
           return _this2.removeGroup(cg, deleteMembers, manipulateView);
         });
         actualGroup.removeAll(manipulateView, doNotFireEvent);
       } else {
         if (actualGroup.group) {
-          forEach(actualGroup.children, function (c) {
+          util.forEach(actualGroup.children, function (c) {
             return actualGroup.group.add(c.el);
           });
         }
@@ -5802,7 +5314,7 @@ function () {
         return cn.el;
       });
       var childMembers = [];
-      forEach(members, function (member) {
+      util.forEach(members, function (member) {
         Array.prototype.push.apply(childMembers, _this3.instance.getSelector(member, SELECTOR_MANAGED_ELEMENT));
       });
       Array.prototype.push.apply(members, childMembers);
@@ -5919,7 +5431,7 @@ function () {
           };
           _collapseSet(actualGroup.connections.source, 0);
           _collapseSet(actualGroup.connections.target, 1);
-          forEach(actualGroup.getGroups(), function (cg) {
+          util.forEach(actualGroup.getGroups(), function (cg) {
             _this4.cascadeCollapse(actualGroup, cg, collapsedConnectionIds);
           });
         }
@@ -5952,7 +5464,7 @@ function () {
         _collapseSet(targetGroup.connections.source, 0);
         _collapseSet(targetGroup.connections.target, 1);
       }
-      forEach(targetGroup.getGroups(), function (cg) {
+      util.forEach(targetGroup.getGroups(), function (cg) {
         _this5.cascadeCollapse(collapsedGroup, cg, collapsedIds);
       });
     }
@@ -5990,15 +5502,15 @@ function () {
               };
               _collapseSet(group.connections.source, 0);
               _collapseSet(group.connections.target, 1);
-              forEach(group.connections.internal, function (c) {
+              util.forEach(group.connections.internal, function (c) {
                 return c.setVisible(false);
               });
-              forEach(group.getGroups(), _expandNestedGroup);
+              util.forEach(group.getGroups(), _expandNestedGroup);
             } else {
               _this6.expandGroup(group, doNotFireEvent);
             }
           };
-          forEach(actualGroup.getGroups(), _expandNestedGroup);
+          util.forEach(actualGroup.getGroups(), _expandNestedGroup);
         }
         this.instance.revalidate(groupEl);
         this.repaintGroup(actualGroup);
@@ -6036,7 +5548,7 @@ function () {
       this.instance.fire(EVENT_GROUP_EXPAND, {
         group: targetGroup
       });
-      forEach(targetGroup.getGroups(), function (cg) {
+      util.forEach(targetGroup.getGroups(), function (cg) {
         _this7.cascadeExpand(expandedGroup, cg);
       });
     }
@@ -6132,7 +5644,7 @@ function () {
         for (var _len = arguments.length, el = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
           el[_key - 2] = arguments[_key];
         }
-        forEach(el, _one);
+        util.forEach(el, _one);
       }
     }
   }, {
@@ -6170,7 +5682,7 @@ function () {
         for (var _len2 = arguments.length, el = new Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
           el[_key2 - 2] = arguments[_key2];
         }
-        forEach(el, _one);
+        util.forEach(el, _one);
       }
     }
   }, {
@@ -6199,7 +5711,7 @@ function () {
       var _one = function _one(g) {
         var childGroups = g.getGroups();
         d.push.apply(d, _toConsumableArray(childGroups));
-        forEach(childGroups, _one);
+        util.forEach(childGroups, _one);
       };
       _one(group);
       return d;
@@ -6233,7 +5745,7 @@ function () {
   _createClass(SelectionBase, [{
     key: "each",
     value: function each(handler) {
-      forEach(this.entries, function (e) {
+      util.forEach(this.entries, function (e) {
         return handler(e);
       });
       return this;
@@ -6617,10 +6129,10 @@ var reverseEntryComparator = function reverseEntryComparator(value, arrayEntry) 
   return entryComparator(value, arrayEntry) * -1;
 };
 function _updateElementIndex(id, value, array, sortDescending) {
-  insertSorted([id, value], array, entryComparator, sortDescending);
+  util.insertSorted([id, value], array, entryComparator, sortDescending);
 }
 function _clearElementIndex(id, array) {
-  var idx = findWithFunction(array, function (entry) {
+  var idx = util.findWithFunction(array, function (entry) {
     return entry[0] === id;
   });
   if (idx > -1) {
@@ -6736,14 +6248,14 @@ function (_EventGenerator) {
     key: "updateElements",
     value: function updateElements(entries) {
       var _this4 = this;
-      forEach(entries, function (e) {
+      util.forEach(entries, function (e) {
         return _this4.updateElement(e.id, e.x, e.y, e.width, e.height, e.rotation);
       });
     }
   }, {
     key: "updateElement",
     value: function updateElement(id, x, y, width, height, rotation, doNotRecalculateBounds) {
-      var e = getsert(this._elementMap, id, EMPTY_POSITION);
+      var e = util.getsert(this._elementMap, id, EMPTY_POSITION);
       e.dirty = x == null && e.x == null || y == null && e.y == null || width == null && e.w == null || height == null && e.h == null;
       if (x != null) {
         e.x = x;
@@ -6807,7 +6319,7 @@ function (_EventGenerator) {
   }, {
     key: "rotateElement",
     value: function rotateElement(id, rotation) {
-      var e = getsert(this._elementMap, id, EMPTY_POSITION);
+      var e = util.getsert(this._elementMap, id, EMPTY_POSITION);
       e.r = rotation || 0;
       this._finaliseUpdate(id, e);
       return e;
@@ -6956,7 +6468,7 @@ function _placeAnchorsOnLine(element, connections, horizontal, otherMultiplier, 
         y = element.y + dy,
         yp = dy / element.h;
     if (element.r !== 0 && element.r != null) {
-      var rotated = rotatePoint({
+      var rotated = util.rotatePoint({
         x: x,
         y: y
       }, element.c, element.r);
@@ -7096,8 +6608,8 @@ function () {
           cr: 0,
           sr: 0
         };
-        forEach(rotation, function (r) {
-          current = rotatePoint(current, r.c, r.r);
+        util.forEach(rotation, function (r) {
+          current = util.rotatePoint(current, r.c, r.r);
           var _o = [Math.round(o[0] * current.cr - o[1] * current.sr), Math.round(o[1] * current.cr + o[0] * current.sr)];
           o = _o.slice();
         });
@@ -7114,7 +6626,7 @@ function () {
       } else {
         loc.ox = loc.iox;
         loc.oy = loc.ioy;
-        pos = extend({
+        pos = util.extend({
           ox: loc.iox,
           oy: loc.ioy
         }, candidate);
@@ -7176,7 +6688,7 @@ function () {
       var cd = this.instance.viewport.getPosition(elementId),
           placeSomeAnchors = function placeSomeAnchors(desc, element, unsortedConnections, isHorizontal, otherMultiplier, orientation) {
         if (unsortedConnections.length > 0) {
-          var sc = sortHelper(unsortedConnections, edgeSortFunctions[desc]),
+          var sc = util.sortHelper(unsortedConnections, edgeSortFunctions[desc]),
           reverse = desc === RIGHT || desc === TOP,
               anchors = _placeAnchorsOnLine(cd, sc, isHorizontal, otherMultiplier, reverse);
           for (var i = 0; i < anchors.length; i++) {
@@ -7217,7 +6729,7 @@ function () {
           listToRemoveFrom = endpoint._continuousAnchorEdge ? lists[endpoint._continuousAnchorEdge] : null,
           candidate;
       if (listToRemoveFrom) {
-        var rIdx = findWithFunction(listToRemoveFrom, function (e) {
+        var rIdx = util.findWithFunction(listToRemoveFrom, function (e) {
           return e.epId === endpointId;
         });
         if (rIdx !== -1) {
@@ -7252,10 +6764,10 @@ function () {
           var f = function f(e) {
             return e.epId === eId;
           };
-          removeWithFunction(list.top, f);
-          removeWithFunction(list.left, f);
-          removeWithFunction(list.bottom, f);
-          removeWithFunction(list.right, f);
+          util.removeWithFunction(list.top, f);
+          util.removeWithFunction(list.left, f);
+          util.removeWithFunction(list.bottom, f);
+          util.removeWithFunction(list.right, f);
           total += list.top.length;
           total += list.left.length;
           total += list.bottom.length;
@@ -7361,7 +6873,7 @@ function () {
           anchorsToUpdate = new Set();
       if (!this.instance._suspendDrawing) {
         var ep = this.instance.endpointsByElement[elementId] || [];
-        timestamp = timestamp || uuid();
+        timestamp = timestamp || util.uuid();
         var orientationCache = {},
             a,
             anEndpoint;
@@ -7638,7 +7150,7 @@ function () {
   }, {
     key: "selectAnchorLocation",
     value: function selectAnchorLocation(a, coords) {
-      var idx = findWithFunction(a.locations, function (loc) {
+      var idx = util.findWithFunction(a.locations, function (loc) {
         return loc.x === coords.x && loc.y === coords.y;
       });
       if (idx !== -1) {
@@ -7689,7 +7201,7 @@ function _scopeMatch(e1, e2) {
 function prepareList(instance, input, doNotGetIds) {
   var r = [];
   var _resolveId = function _resolveId(i) {
-    if (isString(i)) {
+    if (util.isString(i)) {
       return i;
     } else {
       return instance.getId(i);
@@ -7723,7 +7235,7 @@ function addManagedEndpoint(managedElement, ep) {
 }
 function removeManagedEndpoint(managedElement, endpoint) {
   if (managedElement != null) {
-    removeWithFunction(managedElement.endpoints, function (ep) {
+    util.removeWithFunction(managedElement.endpoints, function (ep) {
       return ep === endpoint;
     });
   }
@@ -7747,7 +7259,7 @@ function addManagedConnection(connection, sourceEl, targetEl) {
 function removeManagedConnection(connection, sourceEl, targetEl) {
   if (sourceEl != null) {
     var sourceCount = sourceEl.connections.length;
-    removeWithFunction(sourceEl.connections, function (_c) {
+    util.removeWithFunction(sourceEl.connections, function (_c) {
       return connection.id === _c.id;
     });
     if (sourceCount > 0 && sourceEl.connections.length === 0) {
@@ -7757,7 +7269,7 @@ function removeManagedConnection(connection, sourceEl, targetEl) {
   if (targetEl != null) {
     var targetCount = targetEl.connections.length;
     if (sourceEl == null || connection.sourceId !== connection.targetId) {
-      removeWithFunction(targetEl.connections, function (_c) {
+      util.removeWithFunction(targetEl.connections, function (_c) {
         return connection.id === _c.id;
       });
     }
@@ -7846,9 +7358,9 @@ function (_EventGenerator) {
       allowNestedGroups: true
     };
     if (defaults) {
-      extend(_this.defaults, defaults);
+      util.extend(_this.defaults, defaults);
     }
-    extend(_this._initialDefaults, _this.defaults);
+    util.extend(_this._initialDefaults, _this.defaults);
     _this.DEFAULT_SCOPE = _this.defaults.scope;
     _this.allowNestedGroups = _this._initialDefaults.allowNestedGroups !== false;
     _this.router = new LightweightRouter(_assertThisInitialized(_this));
@@ -7888,7 +7400,7 @@ function (_EventGenerator) {
             r = r && l[i].apply(l[i], values);
           }
         } catch (e) {
-          log("cannot check condition [" + conditionName + "]" + e);
+          util.log("cannot check condition [" + conditionName + "]" + e);
         }
       }
       return r;
@@ -7940,7 +7452,7 @@ function (_EventGenerator) {
         var _c2 = this.connections[j],
             sourceId = _c2.proxies && _c2.proxies[0] ? _c2.proxies[0].originalEp.elementId : _c2.sourceId,
             targetId = _c2.proxies && _c2.proxies[1] ? _c2.proxies[1].originalEp.elementId : _c2.targetId;
-        if (filterList(scopes, _c2.scope) && filterList(sources, sourceId) && filterList(targets, targetId)) {
+        if (util.filterList(scopes, _c2.scope) && util.filterList(sources, sourceId) && util.filterList(targets, targetId)) {
           _addOne(_c2.scope, _c2);
         }
       }
@@ -7965,15 +7477,15 @@ function (_EventGenerator) {
           scopes = prepareList(this, params.scope, true);
       var ep = [];
       for (var _el2 in this.endpointsByElement) {
-        var either = filterList(elements, _el2, true),
-            source = filterList(sources, _el2, true),
+        var either = util.filterList(elements, _el2, true),
+            source = util.filterList(sources, _el2, true),
             sourceMatchExact = sources !== "*",
-            target = filterList(targets, _el2, true),
+            target = util.filterList(targets, _el2, true),
             targetMatchExact = targets !== "*";
         if (either || source || target) {
           inner: for (var i = 0, ii = this.endpointsByElement[_el2].length; i < ii; i++) {
             var _ep = this.endpointsByElement[_el2][i];
-            if (filterList(scopes, _ep.scope, true)) {
+            if (util.filterList(scopes, _ep.scope, true)) {
               var noMatchSource = sourceMatchExact && sources.length > 0 && !_ep.isSource,
                   noMatchTarget = targetMatchExact && targets.length > 0 && !_ep.isTarget;
               if (noMatchSource || noMatchTarget) {
@@ -8122,7 +7634,7 @@ function (_EventGenerator) {
     value: function deleteConnection(connection, params) {
       if (connection != null && connection.deleted !== true) {
         params = params || {};
-        if (params.force || functionChain(true, false, [[connection.endpoints[0], IS_DETACH_ALLOWED, [connection]], [connection.endpoints[1], IS_DETACH_ALLOWED, [connection]], [connection, IS_DETACH_ALLOWED, [connection]], [this, CHECK_CONDITION, [INTERCEPT_BEFORE_DETACH, connection]]])) {
+        if (params.force || util.functionChain(true, false, [[connection.endpoints[0], IS_DETACH_ALLOWED, [connection]], [connection.endpoints[1], IS_DETACH_ALLOWED, [connection]], [connection, IS_DETACH_ALLOWED, [connection]], [this, CHECK_CONDITION, [INTERCEPT_BEFORE_DETACH, connection]]])) {
           removeManagedConnection(connection, this._managedElements[connection.sourceId], this._managedElements[connection.targetId]);
           this.fireDetachEvent(connection, !connection.pending && params.fireEvent !== false, params.originalEvent);
           var sourceEndpoint = connection.endpoints[0];
@@ -8133,7 +7645,7 @@ function (_EventGenerator) {
           if (targetEndpoint !== params.endpointToIgnore) {
             targetEndpoint.detachFromConnection(connection, null, true);
           }
-          removeWithFunction(this.connections, function (_c) {
+          util.removeWithFunction(this.connections, function (_c) {
             return connection.id === _c.id;
           });
           connection.destroy();
@@ -8201,7 +7713,7 @@ function (_EventGenerator) {
   }, {
     key: "manageAll",
     value: function manageAll(elements, recalc) {
-      var nl = isString(elements) ? this.getSelector(this.getContainer(), elements) : elements;
+      var nl = util.isString(elements) ? this.getSelector(this.getContainer(), elements) : elements;
       for (var i = 0; i < nl.length; i++) {
         this.manage(nl[i], null, recalc);
       }
@@ -8210,7 +7722,7 @@ function (_EventGenerator) {
     key: "manage",
     value: function manage(element, internalId, _recalc) {
       if (this.getAttribute(element, ATTRIBUTE_MANAGED) == null) {
-        internalId = internalId || this.getAttribute(element, "id") || uuid();
+        internalId = internalId || this.getAttribute(element, "id") || util.uuid();
         this.setAttribute(element, ATTRIBUTE_MANAGED, internalId);
       }
       var elId = this.getId(element);
@@ -8335,23 +7847,23 @@ function (_EventGenerator) {
         cr: 0,
         sr: 0
       };
-      forEach(rotations, function (rotation) {
-        current = rotatePoint(current, rotation.c, rotation.r);
+      util.forEach(rotations, function (rotation) {
+        current = util.rotatePoint(current, rotation.c, rotation.r);
       });
       return current;
     }
   }, {
     key: "_applyRotationsXY",
     value: function _applyRotationsXY(point, rotations) {
-      forEach(rotations, function (rotation) {
-        point = rotatePoint(point, rotation.c, rotation.r);
+      util.forEach(rotations, function (rotation) {
+        point = util.rotatePoint(point, rotation.c, rotation.r);
       });
       return point;
     }
   }, {
     key: "_internal_newEndpoint",
     value: function _internal_newEndpoint(params) {
-      var _p = extend({}, params);
+      var _p = util.extend({}, params);
       var managedElement = this.manage(_p.element);
       _p.elementId = this.getId(_p.element);
       _p.id = "ep_" + this._idstamp();
@@ -8360,7 +7872,7 @@ function (_EventGenerator) {
       if (params.uuid) {
         this.endpointsByUUID.set(params.uuid, ep);
       }
-      addToDictionary(this.endpointsByElement, ep.elementId, ep);
+      util.addToDictionary(this.endpointsByElement, ep.elementId, ep);
       if (!this._suspendDrawing) {
         this.paintEndpoint(ep, {
           timestamp: this._suspendedAt
@@ -8412,7 +7924,7 @@ function (_EventGenerator) {
   }, {
     key: "repaintEverything",
     value: function repaintEverything() {
-      var timestamp = uuid(),
+      var timestamp = util.uuid(),
           elId;
       for (elId in this._managedElements) {
         this.viewport.refreshElement(elId, true);
@@ -8450,7 +7962,7 @@ function (_EventGenerator) {
         if (el != null) {
           var repaintEls = this._getAssociatedElements(el);
           if (timestamp == null) {
-            timestamp = uuid();
+            timestamp = util.uuid();
           }
           if (!offsetsWereJustCalculated) {
             for (var i = 0; i < repaintEls.length; i++) {
@@ -8514,12 +8026,12 @@ function (_EventGenerator) {
       if (endpoint) {
         var proxy = endpoint.proxiedBy;
         var connectionsToDelete = endpoint.connections.slice();
-        forEach(connectionsToDelete, function (connection) {
+        util.forEach(connectionsToDelete, function (connection) {
           endpoint.detachFromConnection(connection, null, true);
         });
         this.unregisterEndpoint(endpoint);
         endpoint.destroy();
-        forEach(connectionsToDelete, function (connection) {
+        util.forEach(connectionsToDelete, function (connection) {
           _this5.deleteConnection(connection, {
             force: true,
             endpointToIgnore: endpoint
@@ -8535,9 +8047,9 @@ function (_EventGenerator) {
     key: "addEndpoint",
     value: function addEndpoint(el, params, referenceParams) {
       referenceParams = referenceParams || {};
-      var p = extend({}, referenceParams);
-      extend(p, params || {});
-      var _p = extend({
+      var p = util.extend({}, referenceParams);
+      util.extend(p, params || {});
+      var _p = util.extend({
         element: el
       }, p);
       return this._internal_newEndpoint(_p);
@@ -8603,16 +8115,16 @@ function (_EventGenerator) {
         this._finaliseConnection(jpc, _p);
         return jpc;
       } catch (errorMessage) {
-        log(errorMessage);
+        util.log(errorMessage);
         return;
       }
     }
   }, {
     key: "_prepareConnectionParams",
     value: function _prepareConnectionParams(params, referenceParams) {
-      var temp = extend({}, params);
+      var temp = util.extend({}, params);
       if (referenceParams) {
-        extend(temp, referenceParams);
+        util.extend(temp, referenceParams);
       }
       var _p = temp;
       if (_p.source) {
@@ -8725,15 +8237,15 @@ function (_EventGenerator) {
   }, {
     key: "_createSourceDefinition",
     value: function _createSourceDefinition(params, referenceParams) {
-      var p = extend({}, referenceParams);
-      extend(p, params);
+      var p = util.extend({}, referenceParams);
+      util.extend(p, params);
       p.edgeType = p.edgeType || DEFAULT;
       var aae = this._deriveEndpointAndAnchorSpec(p.edgeType);
       p.endpoint = p.endpoint || aae.endpoints[0];
       p.anchor = p.anchor || aae.anchors[0];
       var maxConnections = p.maxConnections || -1;
       var _def = {
-        def: extend({}, p),
+        def: util.extend({}, p),
         uniqueEndpoint: p.uniqueEndpoint,
         maxConnections: maxConnections,
         enabled: true,
@@ -8753,14 +8265,14 @@ function (_EventGenerator) {
   }, {
     key: "removeSourceSelector",
     value: function removeSourceSelector(selector) {
-      removeWithFunction(this.sourceSelectors, function (s) {
+      util.removeWithFunction(this.sourceSelectors, function (s) {
         return s === selector;
       });
     }
   }, {
     key: "removeTargetSelector",
     value: function removeTargetSelector(selector) {
-      removeWithFunction(this.targetSelectors, function (s) {
+      util.removeWithFunction(this.targetSelectors, function (s) {
         return s === selector;
       });
     }
@@ -8776,12 +8288,12 @@ function (_EventGenerator) {
   }, {
     key: "_createTargetDefinition",
     value: function _createTargetDefinition(params, referenceParams) {
-      var p = extend({}, referenceParams);
-      extend(p, params);
+      var p = util.extend({}, referenceParams);
+      util.extend(p, params);
       p.edgeType = p.edgeType || DEFAULT;
       var maxConnections = p.maxConnections || -1;
       var _def = {
-        def: extend({}, p),
+        def: util.extend({}, p),
         uniqueEndpoint: p.uniqueEndpoint,
         maxConnections: maxConnections,
         enabled: true,
@@ -8859,7 +8371,7 @@ function (_EventGenerator) {
   }, {
     key: "registerConnectionType",
     value: function registerConnectionType(id, type) {
-      this._connectionTypes.set(id, extend({}, type));
+      this._connectionTypes.set(id, util.extend({}, type));
       if (type.overlays) {
         var to = {};
         for (var i = 0; i < type.overlays.length; i++) {
@@ -8879,7 +8391,7 @@ function (_EventGenerator) {
   }, {
     key: "registerEndpointType",
     value: function registerEndpointType(id, type) {
-      this._endpointTypes.set(id, extend({}, type));
+      this._endpointTypes.set(id, util.extend({}, type));
       if (type.overlays) {
         var to = {};
         for (var i = 0; i < type.overlays.length; i++) {
@@ -8925,7 +8437,7 @@ function (_EventGenerator) {
   }, {
     key: "restoreDefaults",
     value: function restoreDefaults() {
-      this.defaults = extend({}, this._initialDefaults);
+      this.defaults = util.extend({}, this._initialDefaults);
       return this;
     }
   }, {
@@ -8997,7 +8509,7 @@ function (_EventGenerator) {
         connection.proxies[index].originalEp.setVisible(true);
       }
       connection.proxies[index] = null;
-      if (findWithFunction(connection.proxies, function (p) {
+      if (util.findWithFunction(connection.proxies, function (p) {
         return p != null;
       }) === -1) {
         connection.proxies.length = 0;
@@ -9076,7 +8588,7 @@ function (_EventGenerator) {
         el[_key2 - 1] = arguments[_key2];
       }
       (_this$groupManager2 = this.groupManager).removeFromGroup.apply(_this$groupManager2, [group, false].concat(el));
-      forEach(el, function (_el) {
+      util.forEach(el, function (_el) {
         _this8._appendElement(_el, _this8.getContainer());
         _this8.updateOffset({
           recalc: true,
@@ -9255,7 +8767,7 @@ function (_Overlay) {
     _this.paintStyle = p.paintStyle || {
       "strokeWidth": 1
     };
-    _this.location = p.location == null ? _this.location : isArray(p.location) ? p.location[0] : p.location;
+    _this.location = p.location == null ? _this.location : util.isArray(p.location) ? p.location[0] : p.location;
     return _this;
   }
   _createClass(ArrowOverlay, [{
@@ -9516,7 +9028,6 @@ exports.INTERCEPT_BEFORE_DETACH = INTERCEPT_BEFORE_DETACH;
 exports.INTERCEPT_BEFORE_DRAG = INTERCEPT_BEFORE_DRAG;
 exports.INTERCEPT_BEFORE_DROP = INTERCEPT_BEFORE_DROP;
 exports.INTERCEPT_BEFORE_START_DETACH = INTERCEPT_BEFORE_START_DETACH;
-exports.IS = IS;
 exports.IS_DETACH_ALLOWED = IS_DETACH_ALLOWED;
 exports.JsPlumbInstance = JsPlumbInstance;
 exports.KEY_CONNECTION_OVERLAYS = KEY_CONNECTION_OVERLAYS;
@@ -9561,74 +9072,39 @@ exports.Viewport = Viewport;
 exports.WILDCARD = WILDCARD;
 exports.X_AXIS_FACES = X_AXIS_FACES;
 exports.Y_AXIS_FACES = Y_AXIS_FACES;
-exports._mergeOverrides = _mergeOverrides;
 exports._removeTypeCssHelper = _removeTypeCssHelper;
 exports._updateHoverStyle = _updateHoverStyle;
-exports.addToDictionary = addToDictionary;
-exports.addToList = addToList;
-exports.addWithFunction = addWithFunction;
 exports.att = att;
 exports.boundingBoxIntersection = boundingBoxIntersection;
 exports.boxIntersection = boxIntersection;
 exports.classList = classList;
-exports.clone = clone;
 exports.cls = cls;
 exports.computeBezierLength = computeBezierLength;
 exports.convertToFullOverlaySpec = convertToFullOverlaySpec;
 exports.createFloatingAnchor = createFloatingAnchor;
 exports.dist = dist;
 exports.distanceFromCurve = distanceFromCurve;
-exports.each = each;
 exports.encloses = encloses;
-exports.extend = extend;
-exports.fastTrim = fastTrim;
-exports.filterList = filterList;
-exports.filterNull = filterNull;
-exports.findAllWithFunction = findAllWithFunction;
-exports.findWithFunction = findWithFunction;
-exports.forEach = forEach;
-exports.fromArray = fromArray;
-exports.functionChain = functionChain;
-exports.getAllWithFunction = getAllWithFunction;
 exports.getDefaultFace = getDefaultFace;
-exports.getFromSetWithFunction = getFromSetWithFunction;
-exports.getWithFunction = getWithFunction;
-exports.getsert = getsert;
 exports.gradient = gradient;
 exports.gradientAtPoint = gradientAtPoint;
 exports.gradientAtPointAlongPathFrom = gradientAtPointAlongPathFrom;
-exports.insertSorted = insertSorted;
 exports.intersects = intersects;
-exports.isArray = isArray;
 exports.isArrowOverlay = isArrowOverlay;
-exports.isAssignableFrom = isAssignableFrom;
-exports.isBoolean = isBoolean;
 exports.isContinuous = isContinuous;
 exports.isCustomOverlay = isCustomOverlay;
-exports.isDate = isDate;
 exports.isDiamondOverlay = isDiamondOverlay;
 exports.isDynamic = isDynamic;
 exports.isEdgeSupported = isEdgeSupported;
-exports.isEmpty = isEmpty;
 exports.isFloating = _isFloating;
 exports.isFullOverlaySpec = isFullOverlaySpec;
-exports.isFunction = isFunction;
 exports.isLabelOverlay = isLabelOverlay;
-exports.isNamedFunction = isNamedFunction;
-exports.isNull = isNull;
-exports.isNumber = isNumber;
-exports.isObject = isObject;
 exports.isPlainArrowOverlay = isPlainArrowOverlay;
 exports.isPoint = isPoint;
-exports.isString = isString;
 exports.lineIntersection = lineIntersection;
 exports.lineLength = lineLength;
 exports.locationAlongCurveFrom = locationAlongCurveFrom;
-exports.log = log;
-exports.logEnabled = logEnabled;
 exports.makeLightweightAnchorFromSpec = makeLightweightAnchorFromSpec;
-exports.map = map;
-exports.merge = merge;
 exports.nearestPointOnCurve = nearestPointOnCurve;
 exports.normal = normal;
 exports.perpendicularLineTo = perpendicularLineTo;
@@ -9637,18 +9113,6 @@ exports.pointAlongCurveFrom = pointAlongCurveFrom;
 exports.pointAlongPath = pointAlongPath;
 exports.pointOnCurve = pointOnCurve;
 exports.pointOnLine = pointOnLine;
-exports.pointSubtract = pointSubtract;
 exports.pointXYFromArray = pointXYFromArray;
-exports.populate = populate;
 exports.quadrant = quadrant;
-exports.remove = remove;
-exports.removeWithFunction = removeWithFunction;
-exports.replace = replace;
-exports.rotateAnchorOrientation = rotateAnchorOrientation;
-exports.rotatePoint = rotatePoint;
-exports.setToArray = setToArray;
-exports.sortHelper = sortHelper;
-exports.suggest = suggest;
 exports.theta = theta;
-exports.uuid = uuid;
-exports.wrap = wrap;

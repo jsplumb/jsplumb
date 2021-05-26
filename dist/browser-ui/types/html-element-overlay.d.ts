@@ -1,5 +1,6 @@
 import { jsPlumbDOMElement } from './element-facade';
-import { Component, JsPlumbInstance, Overlay, Size } from "@jsplumb/core";
+import { Component, JsPlumbInstance, Overlay } from "@jsplumb/core";
+import { Size } from "@jsplumb/util";
 interface HTMLElementOverlayHolder extends Overlay {
     canvas: jsPlumbDOMElement;
     cachedDimensions: Size;

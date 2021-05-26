@@ -1,5 +1,5 @@
 import { AbstractSegment } from "./abstract-segment";
-import { PointXY } from '../common';
+import { PointXY } from '@jsplumb/util';
 import { JsPlumbInstance } from "../core";
 export declare class ArcSegment extends AbstractSegment {
     private instance;
