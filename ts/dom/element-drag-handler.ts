@@ -12,16 +12,16 @@ import { jsPlumbDOMElement} from './element-facade'
 
 import {DragEventParams,Drag,DragStopEventParams} from "./collicat"
 import {
-
     JsPlumbInstance,
     RedrawResult,
     UIGroup,
-    intersects,
     SELECTOR_MANAGED_ELEMENT,
     ATTRIBUTE_NOT_DRAGGABLE,
     FALSE,
     CLASS_OVERLAY, cls
 } from "@jsplumb/core"
+
+import { intersects } from "@jsplumb/geom"
 
 import {
     BoundingBox,

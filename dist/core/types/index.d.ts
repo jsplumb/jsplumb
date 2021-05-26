@@ -6,8 +6,6 @@ export * from './viewport';
 export * from "./group/group";
 export * from "./group/group-manager";
 export * from "./component/component";
-export * from "./geom";
-export * from "./bezier";
 export * from "./connector/abstract-connector";
 export * from "./connector/abstract-segment";
 export * from "./connector/arc-segment";

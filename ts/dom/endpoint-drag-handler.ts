@@ -17,17 +17,14 @@ import {Drag, DragStartEventParams,
 
 import {
     INTERCEPT_BEFORE_DETACH,
-
     CHECK_CONDITION,
     CHECK_DROP_ALLOWED,
     classList,
     cls,
     Connection,
-
     Endpoint,
     EndpointRepresentation,
     EVENT_MAX_CONNECTIONS,
-
     IS_DETACH_ALLOWED,
     PaintStyle,
     SOURCE,
@@ -35,9 +32,7 @@ import {
     SourceOrTargetDefinition,
     TARGET,
     AnchorSpec,
-
     EndpointSpec,
-    intersects,
     TargetSelector,
     INTERCEPT_BEFORE_DRAG,
     INTERCEPT_BEFORE_START_DETACH,
@@ -48,6 +43,8 @@ import {
     BehaviouralTypeDescriptor,
     createFloatingAnchor, LightweightFloatingAnchor, REDROP_POLICY_ANY
 } from "@jsplumb/core"
+
+import { intersects } from "@jsplumb/geom"
 
 import {
     getAllWithFunction,

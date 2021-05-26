@@ -1,0 +1,36 @@
+{
+  "name": "@jsplumb/geom",
+  "version": "5.0.0-RC1",
+  "description": "Various geometry functions used to compute connector paths, overlay placements, anchor placements.",
+  "main": "js/jsplumb.geom.cjs.js",
+  "module": "js/jsplumb.geom.es.js",
+  "directories": {
+    "doc": "doc",
+    "test": "tests"
+  },
+  "files": [
+    "**/*.d.ts",
+    "js/jsplumb.geom.umd.js",
+    "js/jsplumb.geom.cjs.js",
+    "js/jsplumb.geom.es.js"
+  ],
+  "types": "types/index.d.ts",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jsplumb/jsplumb.git",
+    "directory": "ts/geom"
+  },
+  "keywords": [
+    "javascript",
+    "svg",
+    "visual",
+    "connectivity"
+  ],
+  "author": "jsPlumb (hello@jsplumbtoolkit.com)",
+  "license": "(MIT OR GPL-2.0)",
+  "dependencies": {
+    "@jsplumb/util": "5.0.0-RC1"
+  },
+  "devDependencies": {}
+}

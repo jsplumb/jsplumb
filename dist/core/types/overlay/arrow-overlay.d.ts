@@ -1,6 +1,6 @@
+import { PointXY, Size } from '@jsplumb/util';
 import { ArrowOverlayOptions, Overlay } from "./overlay";
 import { JsPlumbInstance } from "../core";
-import { PointXY, Size } from '@jsplumb/util';
 import { Component } from '../component/component';
 import { PaintStyle } from '../styles';
 export declare class ArrowOverlay extends Overlay {

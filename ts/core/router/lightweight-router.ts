@@ -20,6 +20,7 @@ import {AnchorPlacement, RedrawResult, Router} from "./router"
 import {Connection} from "../connector/connection-impl"
 import {JsPlumbInstance} from "../core"
 import * as Constants from "../constants"
+
 import {
     extend,
     findWithFunction,
@@ -31,8 +32,10 @@ import {
     uuid,
     Dictionary, PointXY, SortFunction, Rotations, Size
 } from "@jsplumb/util"
+import {lineLength} from "@jsplumb/geom"
+
 import {ViewportElement} from "../viewport"
-import {lineLength} from "../geom"
+
 
 // -------------------- internal data structures --------------------------------------
 

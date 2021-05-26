@@ -1,8 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@jsplumb/core'), require('@jsplumb/util')) :
-  typeof define === 'function' && define.amd ? define(['exports', '@jsplumb/core', '@jsplumb/util'], factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.jsPlumbBrowserUI = {}, global.jsPlumb, global.jsPlumbUtil));
-}(this, (function (exports, core, util) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@jsplumb/core'), require('@jsplumb/util'), require('@jsplumb/geom')) :
+  typeof define === 'function' && define.amd ? define(['exports', '@jsplumb/core', '@jsplumb/util', '@jsplumb/geom'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.jsPlumbBrowserUI = {}, global.jsPlumb, global.jsPlumbUtil, global.jsPlumbGeom));
+}(this, (function (exports, core, util, geom) { 'use strict';
 
   function _typeof(obj) {
     if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -2080,7 +2080,7 @@
         var _one = function _one(el, bounds, e) {
           var ancestorsOfIntersectingGroups = new Set();
           util.forEach(_this3._groupLocations, function (groupLoc) {
-            if (!ancestorsOfIntersectingGroups.has(groupLoc.group.id) && core.intersects(bounds, groupLoc.r)) {
+            if (!ancestorsOfIntersectingGroups.has(groupLoc.group.id) && geom.intersects(bounds, groupLoc.r)) {
               if (groupLoc.group !== _this3._currentDragParentGroup) {
                 _this3.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
               }
@@ -2863,7 +2863,7 @@
               idx,
               _cont;
           for (var i = 0; i < this.endpointDropTargets.length; i++) {
-            if (core.intersects(boundingRect, this.endpointDropTargets[i].r)) {
+            if (geom.intersects(boundingRect, this.endpointDropTargets[i].r)) {
               newDropTarget = this.endpointDropTargets[i];
               break;
             }

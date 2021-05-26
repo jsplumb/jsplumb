@@ -9,7 +9,7 @@ import {
     nearestPointOnCurve,
     pointAlongCurveFrom,
     pointOnCurve
-} from "../bezier"
+} from "@jsplumb/bezier"
 
 export class BezierSegment extends AbstractSegment {
 

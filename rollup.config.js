@@ -20,7 +20,9 @@ function ON_WARN(warning, rollupWarn) {
 
 const EXTERNALS = {
     "@jsplumb/core":'jsPlumb',
-    "@jsplumb/util":'jsPlumbUtil'
+    "@jsplumb/util":'jsPlumbUtil',
+    "@jsplumb/bezier":'jsPlumbBezier',
+    "@jsplumb/geom":'jsPlumbGeom'
 }
 
 export default [
@@ -52,6 +54,60 @@ export default [
         onwarn:ON_WARN
     },
     {
+        input: './ts/bezier/index.ts',
+        output: [
+            {
+                name: 'jsPlumbBezier',
+                file: 'dist/bezier/js/jsplumb.bezier.cjs.js',
+                format: 'cjs'
+            },
+            {
+                name: 'jsPlumbBezier',
+                file: 'dist/bezier/js/jsplumb.bezier.es.js',
+                format: 'es'
+            },
+            {
+                name: 'jsPlumbBezier',
+                file: 'dist/bezier/js/jsplumb.bezier.umd.js',
+                format: 'umd'
+            }
+        ],
+        plugins: [
+            resolve({ extensions }),
+            commonjs(),
+            babel({ extensions, include: ['ts/bezier/**/*'] }),
+            cleanup({ extensions:['ts', 'js']})
+        ],
+        onwarn:ON_WARN
+    },
+    {
+        input: './ts/geom/index.ts',
+        output: [
+            {
+                name: 'jsPlumbGeom',
+                file: 'dist/geom/js/jsplumb.geom.cjs.js',
+                format: 'cjs'
+            },
+            {
+                name: 'jsPlumbGeom',
+                file: 'dist/geom/js/jsplumb.geom.es.js',
+                format: 'es'
+            },
+            {
+                name: 'jsPlumbGeom',
+                file: 'dist/geom/js/jsplumb.geom.umd.js',
+                format: 'umd'
+            }
+        ],
+        plugins: [
+            resolve({ extensions }),
+            commonjs(),
+            babel({ extensions, include: ['ts/geom/**/*'] }),
+            cleanup({ extensions:['ts', 'js']})
+        ],
+        onwarn:ON_WARN
+    },
+    {
         input: './ts/core/index.ts',
         output: [
             {
@@ -69,7 +125,9 @@ export default [
                 file: 'dist/core/js/jsplumb.core.umd.js',
                 format: 'umd',
                 globals:{
-                    "@jsplumb/util":'jsPlumbUtil'
+                    "@jsplumb/util":'jsPlumbUtil',
+                    "@jsplumb/bezier":'jsPlumbBezier',
+                    "@jsplumb/geom":'jsPlumbGeom'
                 }
             }
         ],

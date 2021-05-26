@@ -1,7 +1,7 @@
 import { AbstractSegment, PointNearPath } from "./abstract-segment";
 import { PointXY } from '@jsplumb/util';
 import { JsPlumbInstance } from "../core";
-import { Curve } from "../bezier";
+import { Curve } from "@jsplumb/bezier";
 export declare class BezierSegment extends AbstractSegment {
     curve: Curve;
     cp1x: number;

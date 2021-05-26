@@ -1,9 +1,20 @@
 # jsPlumb
 
-<strong>This is version 4.x alpha. It is a rewrite of the original jsPlumb in Typescript, and is currently a work in progress. Use this version in production at your own risk.</strong>
+<strong>This is version 5.x alpha. It is a rewrite of the original jsPlumb in Typescript, and is currently a work in progress. Use this version in production at your own risk.</strong>
 
-It would be very helpful if existing users of jsPlumb could test this alpha version. There are a number of breaking backwards
-changes to be mindful of, though:
+### Packages
+
+One major change between 5.x and 2.x is that jsPlumb is now broken up into a number of smaller packages. This repository contains the code for all of these packages, but they are published on npm separately:
+
+- `@jsplumb/util` This is the equivalent to what was always the `jsPlumbUtil` member on the window (and in fact, if you use the umd build, still is). This package has no external dependencies.
+
+- `@jsplumb/core` Core functionality for jsPlumb - manages connections/endpoints and their drawing, but has no knowledge of the DOM. Depends on `@jsplumb/util`.
+
+- `@jsplumb/browser-ui` This package is the equivalent of `jsPlumb` in 2.x - it provides a concrete instance of jsPlumb that renders connections as SVG elements in the DOM. Depends on `@jsplumb/core`.
+
+---
+
+It would be very helpful if existing users of jsPlumb could test this alpha version. There are a number of breaking backwards changes to be mindful of, though:
 
 
 ### Breaking changes

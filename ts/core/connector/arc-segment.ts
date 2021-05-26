@@ -1,7 +1,7 @@
 import {AbstractSegment} from "./abstract-segment"
 import { PointXY } from '@jsplumb/util'
 import { JsPlumbInstance } from "../core"
-import {normal, theta, TWO_PI} from "../geom"
+import {normal, theta, TWO_PI} from "@jsplumb/geom"
 
 const VERY_SMALL_VALUE = 0.0000000001
 

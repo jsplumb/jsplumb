@@ -1,11 +1,14 @@
+import { PointXY, Size , isArray } from '@jsplumb/util'
+import {perpendicularLineTo, pointOnLine} from "@jsplumb/geom"
+
 import {ArrowOverlayOptions, Overlay} from "./overlay"
 import {JsPlumbInstance} from "../core"
-import { PointXY, Size , isArray } from '@jsplumb/util'
+
 import {Component} from '../component/component'
 import { OverlayFactory } from '../factory/overlay-factory'
 import {AbstractConnector} from "../connector/abstract-connector"
 import { PaintStyle } from '../styles'
-import {perpendicularLineTo, pointOnLine} from "../geom"
+
 
 const DEFAULT_WIDTH = 20
 const DEFAULT_LENGTH = 20

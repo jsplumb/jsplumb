@@ -48,3 +48,11 @@ g.mkdirs("./dist/util/types");
 
 _one("./_build_es6/ts/util",null, "./dist/util/types");
 
+g.mkdirs("./dist/bezier/types");
+
+_one("./_build_es6/ts/bezier",null, "./dist/bezier/types");
+
+g.mkdirs("./dist/geom/types");
+
+_one("./_build_es6/ts/geom",null, "./dist/geom/types");
+

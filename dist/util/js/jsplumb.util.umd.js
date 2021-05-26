@@ -493,7 +493,231 @@
       };
     }
 
+    function _classCallCheck(instance, Constructor) {
+      if (!(instance instanceof Constructor)) {
+        throw new TypeError("Cannot call a class as a function");
+      }
+    }
+
+    function _defineProperties(target, props) {
+      for (var i = 0; i < props.length; i++) {
+        var descriptor = props[i];
+        descriptor.enumerable = descriptor.enumerable || false;
+        descriptor.configurable = true;
+        if ("value" in descriptor) descriptor.writable = true;
+        Object.defineProperty(target, descriptor.key, descriptor);
+      }
+    }
+
+    function _createClass(Constructor, protoProps, staticProps) {
+      if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+      if (staticProps) _defineProperties(Constructor, staticProps);
+      return Constructor;
+    }
+
+    function _defineProperty(obj, key, value) {
+      if (key in obj) {
+        Object.defineProperty(obj, key, {
+          value: value,
+          enumerable: true,
+          configurable: true,
+          writable: true
+        });
+      } else {
+        obj[key] = value;
+      }
+
+      return obj;
+    }
+
+    function _inherits(subClass, superClass) {
+      if (typeof superClass !== "function" && superClass !== null) {
+        throw new TypeError("Super expression must either be null or a function");
+      }
+
+      subClass.prototype = Object.create(superClass && superClass.prototype, {
+        constructor: {
+          value: subClass,
+          writable: true,
+          configurable: true
+        }
+      });
+      if (superClass) _setPrototypeOf(subClass, superClass);
+    }
+
+    function _getPrototypeOf(o) {
+      _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+        return o.__proto__ || Object.getPrototypeOf(o);
+      };
+      return _getPrototypeOf(o);
+    }
+
+    function _setPrototypeOf(o, p) {
+      _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+        o.__proto__ = p;
+        return o;
+      };
+
+      return _setPrototypeOf(o, p);
+    }
+
+    function _assertThisInitialized(self) {
+      if (self === void 0) {
+        throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+      }
+
+      return self;
+    }
+
+    function _possibleConstructorReturn(self, call) {
+      if (call && (typeof call === "object" || typeof call === "function")) {
+        return call;
+      }
+
+      return _assertThisInitialized(self);
+    }
+
+    var EventGenerator =
+    function () {
+      function EventGenerator() {
+        _classCallCheck(this, EventGenerator);
+        _defineProperty(this, "_listeners", {});
+        _defineProperty(this, "eventsSuspended", false);
+        _defineProperty(this, "tick", false);
+        _defineProperty(this, "eventsToDieOn", {
+          "ready": true
+        });
+        _defineProperty(this, "queue", []);
+      }
+      _createClass(EventGenerator, [{
+        key: "fire",
+        value: function fire(event, value, originalEvent) {
+          var ret = null;
+          if (!this.tick) {
+            this.tick = true;
+            if (!this.eventsSuspended && this._listeners[event]) {
+              var l = this._listeners[event].length,
+                  i = 0,
+                  _gone = false;
+              if (!this.shouldFireEvent || this.shouldFireEvent(event, value, originalEvent)) {
+                while (!_gone && i < l && ret !== false) {
+                  if (this.eventsToDieOn[event]) {
+                    this._listeners[event][i].apply(this, [value, originalEvent]);
+                  } else {
+                    try {
+                      ret = this._listeners[event][i].apply(this, [value, originalEvent]);
+                    } catch (e) {
+                      log("jsPlumb: fire failed for event " + event + " : " + (e.message || e));
+                    }
+                  }
+                  i++;
+                  if (this._listeners == null || this._listeners[event] == null) {
+                    _gone = true;
+                  }
+                }
+              }
+            }
+            this.tick = false;
+            this._drain();
+          } else {
+            this.queue.unshift(arguments);
+          }
+          return ret;
+        }
+      }, {
+        key: "_drain",
+        value: function _drain() {
+          var n = this.queue.pop();
+          if (n) {
+            this.fire.apply(this, n);
+          }
+        }
+      }, {
+        key: "unbind",
+        value: function unbind(eventOrListener, listener) {
+          if (arguments.length === 0) {
+            this._listeners = {};
+          } else if (arguments.length === 1) {
+            if (typeof eventOrListener === "string") {
+              delete this._listeners[eventOrListener];
+            } else if (eventOrListener.__jsPlumb) {
+              var evt;
+              for (var i in eventOrListener.__jsPlumb) {
+                evt = eventOrListener.__jsPlumb[i];
+                remove(this._listeners[evt] || [], eventOrListener);
+              }
+            }
+          } else if (arguments.length === 2) {
+            remove(this._listeners[eventOrListener] || [], listener);
+          }
+          return this;
+        }
+      }, {
+        key: "getListener",
+        value: function getListener(forEvent) {
+          return this._listeners[forEvent] || [];
+        }
+      }, {
+        key: "isSuspendEvents",
+        value: function isSuspendEvents() {
+          return this.eventsSuspended;
+        }
+      }, {
+        key: "setSuspendEvents",
+        value: function setSuspendEvents(val) {
+          this.eventsSuspended = val;
+        }
+      }, {
+        key: "bind",
+        value: function bind(event, listener, insertAtStart) {
+          var _this = this;
+          var _one = function _one(evt) {
+            addToDictionary(_this._listeners, evt, listener, insertAtStart);
+            listener.__jsPlumb = listener.__jsPlumb || {};
+            listener.__jsPlumb[uuid()] = evt;
+          };
+          if (typeof event === "string") {
+            _one(event);
+          } else if (event.length != null) {
+            for (var i = 0; i < event.length; i++) {
+              _one(event[i]);
+            }
+          }
+          return this;
+        }
+      }, {
+        key: "silently",
+        value: function silently(fn) {
+          this.setSuspendEvents(true);
+          try {
+            fn();
+          } catch (e) {
+            log("Cannot execute silent function " + e);
+          }
+          this.setSuspendEvents(false);
+        }
+      }]);
+      return EventGenerator;
+    }();
+    var OptimisticEventGenerator =
+    function (_EventGenerator) {
+      _inherits(OptimisticEventGenerator, _EventGenerator);
+      function OptimisticEventGenerator() {
+        _classCallCheck(this, OptimisticEventGenerator);
+        return _possibleConstructorReturn(this, _getPrototypeOf(OptimisticEventGenerator).apply(this, arguments));
+      }
+      _createClass(OptimisticEventGenerator, [{
+        key: "shouldFireEvent",
+        value: function shouldFireEvent(event, value, originalEvent) {
+          return true;
+        }
+      }]);
+      return OptimisticEventGenerator;
+    }(EventGenerator);
+
+    exports.EventGenerator = EventGenerator;
     exports.IS = IS;
+    exports.OptimisticEventGenerator = OptimisticEventGenerator;
     exports._mergeOverrides = _mergeOverrides;
     exports.addToDictionary = addToDictionary;
     exports.addToList = addToList;
