@@ -1,9 +1,7 @@
 
-import {isArray, log, PointXY, Extents} from "@jsplumb/util"
+import {isArray, log, PointXY, Extents, Constructable} from "@jsplumb/util"
 import {quadrant} from "@jsplumb/geom"
 
-import {TypeDescriptor} from '../common'
-import { JsPlumbInstance } from "../core"
 import {EMPTY_BOUNDS, Segment} from "./abstract-segment"
 import {AnchorPlacement} from "../router/router"
 import { Connection} from '../connector/connection-impl'
@@ -93,7 +91,7 @@ export abstract class AbstractConnector implements Connector {
     gap:number
     sourceGap:number
     targetGap:number
-    private segments:Array<Segment> = []
+    segments:Array<Segment> = []
     totalLength:number = 0
     segmentProportions:Array<[number,number]> = []
     segmentProportionalLengths:Array<number> = []
@@ -112,7 +110,7 @@ export abstract class AbstractConnector implements Connector {
 
     geometry:Geometry
 
-    constructor(public instance:JsPlumbInstance, public connection:Connection, params:ConnectorOptions) {
+    constructor(public connection:Connection, params:ConnectorOptions) {
         this.stub = params.stub || this.getDefaultStubs()
         this.sourceStub = isArray(this.stub) ? this.stub[0] : this.stub
         this.targetStub = isArray(this.stub) ? this.stub[1] : this.stub
@@ -159,15 +157,6 @@ export abstract class AbstractConnector implements Connector {
 
     resetBounds():void {
         this.bounds = EMPTY_BOUNDS()
-    }
-
-    getPathData ():any {
-        let p = ""
-        for (let i = 0; i < this.segments.length; i++) {
-            p += this.instance.getPath(this.segments[i], i === 0)
-            p += " "
-        }
-        return p
     }
 
     /**
@@ -295,12 +284,12 @@ export abstract class AbstractConnector implements Connector {
         return { segment: this.segments[idx], proportion: inSegmentProportion, index: idx }
     }
 
-    _addSegment (clazz:any, params:any) {
+    _addSegment (clazz:Constructable<Segment>, params:any) {
         if (params.x1 === params.x2 && params.y1 === params.y2) {
             return
         }
 
-        let s = (new clazz(this.instance, params)) as Segment
+        let s = (new clazz(params))
         this.segments.push(s)
         this.totalLength += s.getLength()
         this.updateBounds(s)
@@ -425,10 +414,6 @@ export abstract class AbstractConnector implements Connector {
         this.h = this.paintInfo.points[3]
         this.segment = this.paintInfo.segment
         this._updateSegmentProportions()
-    }
-
-    applyType(t:TypeDescriptor) {
-        this.instance.applyConnectorType(this, t)
     }
 
     //
