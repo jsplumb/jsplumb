@@ -7,6 +7,6 @@ p.forEach(pkg => {
     g.copy(`ts/${pkg}/package.json`, target)
     const pp = JSON.parse(g.readString(target))
     pp.version = v
-    g.write(target, JSON.stringify(pp, 2))
+    g.write(target, JSON.stringify(pp, 2, 2))
 })
 
