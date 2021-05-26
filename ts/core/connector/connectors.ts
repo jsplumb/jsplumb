@@ -6,13 +6,13 @@ import {Connection} from "./connection-impl"
 const connectorMap:Dictionary<Constructable<AbstractConnector>> = {}
 
 export const Connectors = {
-    get:(instance:JsPlumbInstance, connection:Connection, name:string, params:any):AbstractConnector => {
+    get:(connection:Connection, name:string, params:any):AbstractConnector => {
 
         let c:Constructable<AbstractConnector> = connectorMap[name]
         if (!c) {
             throw {message:"jsPlumb: unknown connector type '" + name + "'"}
         } else {
-            return new c(instance, connection, params) as AbstractConnector
+            return new c(connection, params) as AbstractConnector
         }
     },
 

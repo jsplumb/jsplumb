@@ -1,6 +1,5 @@
 import {AbstractBezierConnector, AbstractBezierOptions} from "./abstract-bezier-connector"
 import {PaintGeometry, ConnectorComputeParams} from "./abstract-connector"
-import { JsPlumbInstance } from "../core"
 import {BezierSegment} from "./bezier-segment"
 import {Connection} from "./connection-impl"
 import {AnchorPlacement} from "../router/router"
@@ -18,8 +17,8 @@ export class BezierConnector extends AbstractBezierConnector {
     majorAnchor:number
     minorAnchor:number
 
-    constructor(instance:JsPlumbInstance, public connection:Connection, params:BezierOptions) {
-        super(instance, connection, params)
+    constructor(public connection:Connection, params:BezierOptions) {
+        super(connection, params)
         params = params || {}
         this.majorAnchor = params.curviness || 150
         this.minorAnchor = 10

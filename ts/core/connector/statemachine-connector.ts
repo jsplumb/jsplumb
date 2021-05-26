@@ -1,10 +1,8 @@
 import {AbstractBezierConnector, AbstractBezierOptions} from "./abstract-bezier-connector"
-import { JsPlumbInstance } from "../core"
 import {BezierSegment} from "./bezier-segment"
 import {ConnectorComputeParams, PaintGeometry} from "./abstract-connector"
 import {Connection} from "./connection-impl"
 import {AnchorPlacement} from "../router/router"
-import {PointXY} from "@jsplumb/util"
 
 function _segment (x1:number, y1:number, x2:number, y2:number):number {
     if (x1 <= x2 && y2 <= y1) {
@@ -96,8 +94,8 @@ export class StateMachineConnector extends AbstractBezierConnector {
     _controlPoint:[ number, number ]
     proximityLimit:number
 
-    constructor(instance:JsPlumbInstance, public connection:Connection, params:StateMachineOptions) {
-        super(instance, connection, params)
+    constructor(public connection:Connection, params:StateMachineOptions) {
+        super(connection, params)
 
         this.curviness = params.curviness || 10
         this.margin = params.margin || 5

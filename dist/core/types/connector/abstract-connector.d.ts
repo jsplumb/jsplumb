@@ -1,6 +1,4 @@
-import { PointXY, Extents } from "@jsplumb/util";
-import { TypeDescriptor } from '../common';
-import { JsPlumbInstance } from "../core";
+import { PointXY, Extents, Constructable } from "@jsplumb/util";
 import { Segment } from "./abstract-segment";
 import { AnchorPlacement } from "../router/router";
 import { Connection } from '../connector/connection-impl';
@@ -80,7 +78,6 @@ export interface Geometry {
     target: any;
 }
 export declare abstract class AbstractConnector implements Connector {
-    instance: JsPlumbInstance;
     connection: Connection;
     abstract type: string;
     edited: boolean;
@@ -92,7 +89,7 @@ export declare abstract class AbstractConnector implements Connector {
     gap: number;
     sourceGap: number;
     targetGap: number;
-    private segments;
+    segments: Array<Segment>;
     totalLength: number;
     segmentProportions: Array<[number, number]>;
     segmentProportionalLengths: Array<number>;
@@ -108,7 +105,7 @@ export declare abstract class AbstractConnector implements Connector {
     hoverClass: string;
     abstract getDefaultStubs(): [number, number];
     geometry: Geometry;
-    constructor(instance: JsPlumbInstance, connection: Connection, params: ConnectorOptions);
+    constructor(connection: Connection, params: ConnectorOptions);
     getTypeDescriptor(): string;
     getIdPrefix(): string;
     protected setGeometry(g: any, internal: boolean): void;
@@ -123,7 +120,6 @@ export declare abstract class AbstractConnector implements Connector {
     resetGeometry(): void;
     abstract _compute(geometry: PaintGeometry, params: ConnectorComputeParams): void;
     resetBounds(): void;
-    getPathData(): any;
     /**
      * Function: findSegmentForPoint
      * Returns the segment that is closest to the given [x,y],
@@ -155,7 +151,7 @@ export declare abstract class AbstractConnector implements Connector {
         proportion: number;
         index: number;
     };
-    _addSegment(clazz: any, params: any): void;
+    _addSegment(clazz: Constructable<Segment>, params: any): void;
     _clearSegments(): void;
     getLength(): number;
     private _prepareCompute;
@@ -166,7 +162,6 @@ export declare abstract class AbstractConnector implements Connector {
     gradientAtPoint(location: number, absolute?: boolean): number;
     pointAlongPathFrom(location: number, distance: number, absolute?: boolean): PointXY;
     compute(params: ConnectorComputeParams): void;
-    applyType(t: TypeDescriptor): void;
     setAnchorOrientation(idx: number, orientation: number[]): void;
 }
 export {};

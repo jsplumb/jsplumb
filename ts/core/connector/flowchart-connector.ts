@@ -60,8 +60,8 @@ export class FlowchartConnector extends AbstractConnector {
         return [30, 30]
     }
 
-    constructor(public instance:JsPlumbInstance, public connection:Connection, params:FlowchartConnectorOptions) {
-        super(instance, connection, params)
+    constructor(public connection:Connection, params:FlowchartConnectorOptions) {
+        super(connection, params)
 
         this.midpoint = params.midpoint == null ? 0.5 : params.midpoint
         this.cornerRadius = params.cornerRadius != null ? params.cornerRadius : 0
