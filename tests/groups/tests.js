@@ -48,7 +48,7 @@ var testSuite = function () {
             makeContainer()
             _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
             support = jsPlumbTestSupport.getInstance(_jsPlumb);
-            defaults = jsPlumb.extend({}, _jsPlumb.defaults);
+            defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
 
         }
     });
@@ -58,7 +58,7 @@ var testSuite = function () {
     });
 
     var _addGroup = function(j, name, container, members, params) {
-        var g = j.addGroup(jsPlumb.extend({
+        var g = j.addGroup(jsPlumbUtil.extend({
             el:container,
             id:name,
             anchor:"Continuous",

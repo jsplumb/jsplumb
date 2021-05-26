@@ -401,7 +401,7 @@ var testSuite = function () {
             anchors: ["Bottom", [ 0.75, 0, 0, -1 ]],
             overlays: [
                 { type:"Label", options:{label: "CONNECTION 1", location: 0.3, id:"l"}},
-                { type:"Arrow", options:jsPlumb.extend(arrowSpec, loc)}
+                { type:"Arrow", options:jsPlumbUtil.extend(arrowSpec, loc)}
             ]
         });
         equal(2, support.length(connection1.overlays));
@@ -425,7 +425,7 @@ var testSuite = function () {
             anchors: ["Bottom", [ 0.75, 0, 0, -1 ]],
             overlays: [
                 { type:"Label", options:{label: "CONNECTION 1", location: 0.3, cssClass: "PPPP", id:"l"}},
-                { type:"Arrow", options:jsPlumb.extend(arrowSpec, loc) }
+                { type:"Arrow", options:jsPlumbUtil.extend(arrowSpec, loc) }
             ]
         });
         equal(2, support.length(connection1.overlays));

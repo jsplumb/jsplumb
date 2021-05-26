@@ -19,12 +19,12 @@ var removeContainer = function() {
 var reinit = function(defaults) {
     removeContainer()
     makeContainer()
-    var d = jsPlumb.extend({container:container}, defaults || {});
+    var d = jsPlumbUtil.extend({container:container}, defaults || {});
     support.cleanup()
 
     _jsPlumb = jsPlumbBrowserUI.newInstance((d));
     support = jsPlumbTestSupport.getInstance(_jsPlumb);
-    defaults = jsPlumb.extend({}, _jsPlumb.defaults);
+    defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
 }
 
 /**
@@ -67,7 +67,7 @@ var testSuite = function () {
             makeContainer()
             _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
             support = jsPlumbTestSupport.getInstance(_jsPlumb);
-            defaults = jsPlumb.extend({}, _jsPlumb.defaults);
+            defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
 
 
         }

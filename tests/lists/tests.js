@@ -76,11 +76,11 @@ var testSuite = function () {
             container.parentNode && container.parentNode.removeChild(container)
         },
         setup: function () {
-            container = document.createElement("j" + jsPlumb.uuid().replace(/-/g, ""))
+            container = document.createElement("j" + jsPlumbUtil.uuid().replace(/-/g, ""))
             document.body.appendChild(container)
             _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
             support = jsPlumbTestSupport.getInstance(_jsPlumb);
-            defaults = jsPlumb.extend({}, _jsPlumb.defaults);
+            defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
         }
     });
 

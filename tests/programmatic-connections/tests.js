@@ -57,7 +57,7 @@ var testSuite = function () {
             makeContainer()
             _jsPlumb = jsPlumbBrowserUI.newInstance({container:container});
             support = jsPlumbTestSupport.getInstance(_jsPlumb);
-            defaults = jsPlumb.extend({}, _jsPlumb.defaults);
+            defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
         }
     });
 
@@ -629,10 +629,10 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
         var connectCallback = null, detachCallback = null;
         _jsPlumb.bind("connection", function (params) {
-            connectCallback = jsPlumb.extend({}, params);
+            connectCallback = jsPlumbUtil.extend({}, params);
         });
         _jsPlumb.bind("connection:detach", function (params) {
-            detachCallback = jsPlumb.extend({}, params);
+            detachCallback = jsPlumbUtil.extend({}, params);
         });
         _jsPlumb.connect({source: d1, target: d2});                // auto connect with default endpoint and anchor set
         ok(connectCallback != null, "connect callback was made");
@@ -980,7 +980,7 @@ var testSuite = function () {
             anchors: ["Bottom", [ 0.75, 0, 0, -1 ]],
             overlays: [
                 { type:"Label", options:{label: "CONNECTION 1", location: 0.3, id:"l"}},
-                { type:"Arrow", options:jsPlumb.extend(arrowSpec, loc)}
+                { type:"Arrow", options:jsPlumbUtil.extend(arrowSpec, loc)}
             ]
         });
         equal(2, _length(connection1.overlays));
@@ -1004,7 +1004,7 @@ var testSuite = function () {
             anchors: ["Bottom", [ 0.75, 0, 0, -1 ]],
             overlays: [
                 { type:"Label", options:{label: "CONNECTION 1", location: 0.3, cssClass: "PPPP", id:"l"}},
-                { type:"Arrow", options:jsPlumb.extend(arrowSpec, loc)}
+                { type:"Arrow", options:jsPlumbUtil.extend(arrowSpec, loc)}
             ]
         });
         equal(2, _length(connection1.overlays));
