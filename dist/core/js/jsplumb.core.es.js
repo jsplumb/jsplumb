@@ -455,9 +455,8 @@ var RectangleEndpointHandler = {
 
 var AbstractConnector =
 function () {
-  function AbstractConnector(instance, connection, params) {
+  function AbstractConnector(connection, params) {
     _classCallCheck(this, AbstractConnector);
-    this.instance = instance;
     this.connection = connection;
     _defineProperty(this, "type", void 0);
     _defineProperty(this, "edited", false);
@@ -531,16 +530,6 @@ function () {
     key: "resetBounds",
     value: function resetBounds() {
       this.bounds = EMPTY_BOUNDS();
-    }
-  }, {
-    key: "getPathData",
-    value: function getPathData() {
-      var p = "";
-      for (var i = 0; i < this.segments.length; i++) {
-        p += this.instance.getPath(this.segments[i], i === 0);
-        p += " ";
-      }
-      return p;
     }
   }, {
     key: "findSegmentForPoint",
@@ -661,7 +650,7 @@ function () {
       if (params.x1 === params.x2 && params.y1 === params.y2) {
         return;
       }
-      var s = new clazz(this.instance, params);
+      var s = new clazz(params);
       this.segments.push(s);
       this.totalLength += s.getLength();
       this.updateBounds(s);
@@ -809,11 +798,6 @@ function () {
       this._updateSegmentProportions();
     }
   }, {
-    key: "applyType",
-    value: function applyType(t) {
-      this.instance.applyConnectorType(this, t);
-    }
-  }, {
     key: "setAnchorOrientation",
     value: function setAnchorOrientation(idx, orientation) {}
   }]);
@@ -823,11 +807,10 @@ function () {
 var StraightSegment =
 function (_AbstractSegment) {
   _inherits(StraightSegment, _AbstractSegment);
-  function StraightSegment(instance, params) {
+  function StraightSegment(params) {
     var _this;
     _classCallCheck(this, StraightSegment);
     _this = _possibleConstructorReturn(this, _getPrototypeOf(StraightSegment).call(this, params));
-    _this.instance = instance;
     _defineProperty(_assertThisInitialized(_this), "length", void 0);
     _defineProperty(_assertThisInitialized(_this), "m", void 0);
     _defineProperty(_assertThisInitialized(_this), "m2", void 0);
@@ -1129,11 +1112,10 @@ function gentleRound(n) {
 var ArcSegment =
 function (_AbstractSegment) {
   _inherits(ArcSegment, _AbstractSegment);
-  function ArcSegment(instance, params) {
+  function ArcSegment(params) {
     var _this;
     _classCallCheck(this, ArcSegment);
     _this = _possibleConstructorReturn(this, _getPrototypeOf(ArcSegment).call(this, params));
-    _this.instance = instance;
     _defineProperty(_assertThisInitialized(_this), "type", ArcSegment.segmentType);
     _defineProperty(_assertThisInitialized(_this), "cx", void 0);
     _defineProperty(_assertThisInitialized(_this), "cy", void 0);
@@ -1294,11 +1276,10 @@ function (_AbstractConnector) {
       return [30, 30];
     }
   }]);
-  function FlowchartConnector(instance, connection, params) {
+  function FlowchartConnector(connection, params) {
     var _this;
     _classCallCheck(this, FlowchartConnector);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(FlowchartConnector).call(this, instance, connection, params));
-    _this.instance = instance;
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(FlowchartConnector).call(this, connection, params));
     _this.connection = connection;
     _defineProperty(_assertThisInitialized(_this), "type", FlowchartConnector.type);
     _defineProperty(_assertThisInitialized(_this), "internalSegments", []);
@@ -1556,10 +1537,10 @@ function (_AbstractConnector) {
       return [0, 0];
     }
   }]);
-  function AbstractBezierConnector(instance, connection, params) {
+  function AbstractBezierConnector(connection, params) {
     var _this;
     _classCallCheck(this, AbstractBezierConnector);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(AbstractBezierConnector).call(this, instance, connection, params));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(AbstractBezierConnector).call(this, connection, params));
     _this.connection = connection;
     _defineProperty(_assertThisInitialized(_this), "showLoopback", void 0);
     _defineProperty(_assertThisInitialized(_this), "curviness", void 0);
@@ -1677,7 +1658,7 @@ function (_AbstractConnector) {
 var BezierSegment =
 function (_AbstractSegment) {
   _inherits(BezierSegment, _AbstractSegment);
-  function BezierSegment(instance, params) {
+  function BezierSegment(params) {
     var _this;
     _classCallCheck(this, BezierSegment);
     _this = _possibleConstructorReturn(this, _getPrototypeOf(BezierSegment).call(this, params));
@@ -1787,10 +1768,10 @@ _defineProperty(BezierSegment, "segmentType", "Bezier");
 var BezierConnector =
 function (_AbstractBezierConnec) {
   _inherits(BezierConnector, _AbstractBezierConnec);
-  function BezierConnector(instance, connection, params) {
+  function BezierConnector(connection, params) {
     var _this;
     _classCallCheck(this, BezierConnector);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(BezierConnector).call(this, instance, connection, params));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(BezierConnector).call(this, connection, params));
     _this.connection = connection;
     _defineProperty(_assertThisInitialized(_this), "type", BezierConnector.type);
     _defineProperty(_assertThisInitialized(_this), "majorAnchor", void 0);
@@ -1923,10 +1904,10 @@ function _findControlPoint(midx, midy, segment, sourceEdge, targetEdge, dx, dy, 
 var StateMachineConnector =
 function (_AbstractBezierConnec) {
   _inherits(StateMachineConnector, _AbstractBezierConnec);
-  function StateMachineConnector(instance, connection, params) {
+  function StateMachineConnector(connection, params) {
     var _this;
     _classCallCheck(this, StateMachineConnector);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(StateMachineConnector).call(this, instance, connection, params));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(StateMachineConnector).call(this, connection, params));
     _this.connection = connection;
     _defineProperty(_assertThisInitialized(_this), "type", StateMachineConnector.type);
     _defineProperty(_assertThisInitialized(_this), "_controlPoint", void 0);
@@ -2005,14 +1986,14 @@ _defineProperty(StateMachineConnector, "type", "StateMachine");
 
 var connectorMap = {};
 var Connectors = {
-  get: function get(instance, connection, name, params) {
+  get: function get(connection, name, params) {
     var c = connectorMap[name];
     if (!c) {
       throw {
         message: "jsPlumb: unknown connector type '" + name + "'"
       };
     } else {
-      return new c(instance, connection, params);
+      return new c(connection, params);
     }
   },
   register: function register(name, conn) {
@@ -7999,7 +7980,17 @@ function (_EventGenerator) {
   }, {
     key: "makeConnector",
     value: function makeConnector(connection, name, args) {
-      return Connectors.get(this, connection, name, args);
+      return Connectors.get(connection, name, args);
+    }
+  }, {
+    key: "getPathData",
+    value: function getPathData(connector) {
+      var p = "";
+      for (var i = 0; i < connector.segments.length; i++) {
+        p += this.getPath(connector.segments[i], i === 0);
+        p += " ";
+      }
+      return p;
     }
   }]);
   return JsPlumbInstance;

@@ -1,8 +1,14 @@
-import { AbstractSegment } from "./abstract-segment";
+import { AbstractSegment, SegmentParams } from "./abstract-segment";
 import { PointXY } from '@jsplumb/util';
-import { JsPlumbInstance } from "../core";
+export interface ArcSegmentParams extends SegmentParams {
+    cx: number;
+    cy: number;
+    r: number;
+    ac: boolean;
+    startAngle?: number;
+    endAngle?: number;
+}
 export declare class ArcSegment extends AbstractSegment {
-    private instance;
     static segmentType: string;
     type: string;
     cx: number;
@@ -15,7 +21,7 @@ export declare class ArcSegment extends AbstractSegment {
     length: number;
     circumference: number;
     frac: number;
-    constructor(instance: JsPlumbInstance, params: any);
+    constructor(params: ArcSegmentParams);
     private _calcAngle;
     private _calcAngleForLocation;
     getLength(): number;

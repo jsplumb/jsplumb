@@ -3696,85 +3696,72 @@
     return SvgComponent;
   }();
 
-  var SvgElementConnector =
-  function () {
-    function SvgElementConnector() {
-      _classCallCheck(this, SvgElementConnector);
+  function paintSvgConnector(instance, connector, paintStyle, extents) {
+    getConnectorElement(instance, connector);
+    SvgComponent.paint(connector, false, paintStyle, extents);
+    var segments = connector.getSegments();
+    var p = "",
+        offset = [0, 0];
+    if (extents.xmin < 0) {
+      offset[0] = -extents.xmin;
     }
-    _createClass(SvgElementConnector, null, [{
-      key: "paint",
-      value: function paint(connector, paintStyle, extents) {
-        this.getConnectorElement(connector);
-        SvgComponent.paint(connector, false, paintStyle, extents);
-        var segments = connector.getSegments();
-        var p = "",
-            offset = [0, 0];
-        if (extents.xmin < 0) {
-          offset[0] = -extents.xmin;
-        }
-        if (extents.ymin < 0) {
-          offset[1] = -extents.ymin;
-        }
-        if (segments.length > 0) {
-          p = connector.getPathData();
-          var a = {
-            d: p,
-            transform: "translate(" + offset[0] + "," + offset[1] + ")",
-            "pointer-events": "visibleStroke"
-          },
-              outlineStyle = null,
-              d = [connector.x, connector.y, connector.w, connector.h];
-          if (paintStyle.outlineStroke) {
-            var outlineWidth = paintStyle.outlineWidth || 1,
-                outlineStrokeWidth = paintStyle.strokeWidth + 2 * outlineWidth;
-            outlineStyle = util.extend({}, paintStyle);
-            outlineStyle.stroke = paintStyle.outlineStroke;
-            outlineStyle.strokeWidth = outlineStrokeWidth;
-            if (connector.bgPath == null) {
-              connector.bgPath = _node(ELEMENT_PATH, a);
-              connector.instance.addClass(connector.bgPath, connector.instance.connectorOutlineClass);
-              _appendAtIndex(connector.canvas, connector.bgPath, 0);
-            } else {
-              _attr(connector.bgPath, a);
-            }
-            _applyStyles(connector.canvas, connector.bgPath, outlineStyle);
-          }
-          if (connector.path == null) {
-            connector.path = _node(ELEMENT_PATH, a);
-            _appendAtIndex(connector.canvas, connector.path, paintStyle.outlineStroke ? 1 : 0);
-          } else {
-            _attr(connector.path, a);
-          }
-          _applyStyles(connector.canvas, connector.path, paintStyle);
-        }
-      }
-    }, {
-      key: "getConnectorElement",
-      value: function getConnectorElement(c) {
-        if (c.canvas != null) {
-          return c.canvas;
+    if (extents.ymin < 0) {
+      offset[1] = -extents.ymin;
+    }
+    if (segments.length > 0) {
+      p = instance.getPathData(connector);
+      var a = {
+        d: p,
+        transform: "translate(" + offset[0] + "," + offset[1] + ")",
+        "pointer-events": "visibleStroke"
+      },
+          outlineStyle = null;
+      if (paintStyle.outlineStroke) {
+        var outlineWidth = paintStyle.outlineWidth || 1,
+            outlineStrokeWidth = paintStyle.strokeWidth + 2 * outlineWidth;
+        outlineStyle = util.extend({}, paintStyle);
+        outlineStyle.stroke = paintStyle.outlineStroke;
+        outlineStyle.strokeWidth = outlineStrokeWidth;
+        if (connector.bgPath == null) {
+          connector.bgPath = _node(ELEMENT_PATH, a);
+          instance.addClass(connector.bgPath, instance.connectorOutlineClass);
+          _appendAtIndex(connector.canvas, connector.bgPath, 0);
         } else {
-          var svg = _node(ELEMENT_SVG, {
-            "style": "",
-            "width": "0",
-            "height": "0",
-            "pointer-events": core.NONE,
-            "position": core.ABSOLUTE
-          });
-          c.canvas = svg;
-          c.instance._appendElement(c.canvas, c.instance.getContainer());
-          if (c.cssClass != null) {
-            c.instance.addClass(svg, c.cssClass);
-          }
-          c.instance.addClass(svg, c.instance.connectorClass);
-          svg.jtk = svg.jtk || {};
-          svg.jtk.connector = c;
-          return svg;
+          _attr(connector.bgPath, a);
         }
+        _applyStyles(connector.canvas, connector.bgPath, outlineStyle);
       }
-    }]);
-    return SvgElementConnector;
-  }();
+      if (connector.path == null) {
+        connector.path = _node(ELEMENT_PATH, a);
+        _appendAtIndex(connector.canvas, connector.path, paintStyle.outlineStroke ? 1 : 0);
+      } else {
+        _attr(connector.path, a);
+      }
+      _applyStyles(connector.canvas, connector.path, paintStyle);
+    }
+  }
+  function getConnectorElement(instance, c) {
+    if (c.canvas != null) {
+      return c.canvas;
+    } else {
+      var svg = _node(ELEMENT_SVG, {
+        "style": "",
+        "width": "0",
+        "height": "0",
+        "pointer-events": core.NONE,
+        "position": core.ABSOLUTE
+      });
+      c.canvas = svg;
+      instance._appendElement(c.canvas, instance.getContainer());
+      if (c.cssClass != null) {
+        instance.addClass(svg, c.cssClass);
+      }
+      instance.addClass(svg, instance.connectorClass);
+      svg.jtk = svg.jtk || {};
+      svg.jtk.connector = c;
+      return svg;
+    }
+  }
 
   var SvgEndpoint =
   function () {
@@ -4739,7 +4726,7 @@
     }, {
       key: "paintConnector",
       value: function paintConnector(connector, paintStyle, extents) {
-        SvgElementConnector.paint(connector, paintStyle, extents);
+        paintSvgConnector(this, connector, paintStyle, extents);
       }
     }, {
       key: "setConnectorHover",

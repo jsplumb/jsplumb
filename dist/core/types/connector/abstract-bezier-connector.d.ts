@@ -1,6 +1,5 @@
 import { AbstractConnector, ConnectorComputeParams, ConnectorOptions, PaintGeometry } from "./abstract-connector";
 import { Connection } from '../connector/connection-impl';
-import { JsPlumbInstance } from "../core";
 import { AnchorPlacement } from "../router/router";
 import { PointXY } from "@jsplumb/util";
 export interface AbstractBezierOptions extends ConnectorOptions {
@@ -27,7 +26,7 @@ export declare abstract class AbstractBezierConnector extends AbstractConnector 
         target: AnchorPlacement;
     };
     getDefaultStubs(): [number, number];
-    constructor(instance: JsPlumbInstance, connection: Connection, params: any);
+    constructor(connection: Connection, params: any);
     _compute(paintInfo: PaintGeometry, p: ConnectorComputeParams): void;
     exportGeometry(): any;
     importGeometry(geometry: any): boolean;

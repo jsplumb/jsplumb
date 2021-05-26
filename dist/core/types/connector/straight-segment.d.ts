@@ -1,14 +1,14 @@
-import { AbstractSegment, PointNearPath } from "./abstract-segment";
+import { AbstractSegment, PointNearPath, SegmentParams } from "./abstract-segment";
 import { PointXY } from '@jsplumb/util';
-import { JsPlumbInstance } from "../core";
 export declare type StraightSegmentCoordinates = {
     x1: number;
     y1: number;
     x2: number;
     y2: number;
 };
+export interface StraightSegmentParams extends SegmentParams {
+}
 export declare class StraightSegment extends AbstractSegment {
-    private instance;
     length: number;
     m: number;
     m2: number;
@@ -16,7 +16,7 @@ export declare class StraightSegment extends AbstractSegment {
     x2: number;
     y1: number;
     y2: number;
-    constructor(instance: JsPlumbInstance, params: any);
+    constructor(params: StraightSegmentParams);
     private _recalc;
     static segmentType: string;
     type: string;

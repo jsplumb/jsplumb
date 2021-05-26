@@ -1,5 +1,4 @@
 import { AbstractConnector, ConnectorOptions, ConnectorComputeParams, PaintGeometry } from "./abstract-connector";
-import { JsPlumbInstance } from "../core";
 import { Connection } from '../connector/connection-impl';
 export interface FlowchartConnectorOptions extends ConnectorOptions {
     alwaysRespectStubs?: boolean;
@@ -8,7 +7,6 @@ export interface FlowchartConnectorOptions extends ConnectorOptions {
     loopbackRadius?: number;
 }
 export declare class FlowchartConnector extends AbstractConnector {
-    instance: JsPlumbInstance;
     connection: Connection;
     static type: string;
     type: string;
@@ -22,7 +20,7 @@ export declare class FlowchartConnector extends AbstractConnector {
     loopbackRadius: number;
     isLoopbackCurrently: boolean;
     getDefaultStubs(): [number, number];
-    constructor(instance: JsPlumbInstance, connection: Connection, params: FlowchartConnectorOptions);
+    constructor(connection: Connection, params: FlowchartConnectorOptions);
     private addASegment;
     private writeSegments;
     _compute(paintInfo: PaintGeometry, params: ConnectorComputeParams): void;

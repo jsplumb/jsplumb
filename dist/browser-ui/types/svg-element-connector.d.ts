@@ -1,9 +1,5 @@
 import { AbstractConnector, PaintStyle } from "@jsplumb/core";
 import { Extents } from "@jsplumb/util";
-/**
- * Renderer for a connector that uses an `svg` element in the DOM.
- */
-export declare class SvgElementConnector {
-    static paint(connector: AbstractConnector, paintStyle: PaintStyle, extents?: Extents): void;
-    static getConnectorElement(c: AbstractConnector): SVGElement;
-}
+import { BrowserJsPlumbInstance } from "@jsplumb/browser-ui/browser-jsplumb-instance";
+export declare function paintSvgConnector(instance: BrowserJsPlumbInstance, connector: AbstractConnector, paintStyle: PaintStyle, extents?: Extents): void;
+export declare function getConnectorElement(instance: BrowserJsPlumbInstance, c: AbstractConnector): SVGElement;

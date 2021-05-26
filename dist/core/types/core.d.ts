@@ -479,6 +479,7 @@ export declare abstract class JsPlumbInstance<T extends {
     abstract on(el: Document | T["E"] | ArrayLike<T["E"]>, event: string, callbackOrSelector: Function | string, callback?: Function): void;
     abstract off(el: Document | T["E"] | ArrayLike<T["E"]>, event: string, callback: Function): void;
     abstract trigger(el: Document | T["E"], event: string, originalEvent?: Event, payload?: any, detail?: number): void;
+    getPathData(connector: AbstractConnector): any;
     abstract getPath(segment: Segment, isFirstSegment: boolean): string;
     abstract paintOverlay(o: Overlay, params: any, extents: any): void;
     abstract addOverlayClass(o: Overlay, clazz: string): void;

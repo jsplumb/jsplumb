@@ -1,7 +1,12 @@
-import { AbstractSegment, PointNearPath } from "./abstract-segment";
+import { AbstractSegment, PointNearPath, SegmentParams } from "./abstract-segment";
 import { PointXY } from '@jsplumb/util';
-import { JsPlumbInstance } from "../core";
 import { Curve } from "@jsplumb/bezier";
+export interface BezierSegmentParams extends SegmentParams {
+    cp1x: number;
+    cp2x: number;
+    cp1y: number;
+    cp2y: number;
+}
 export declare class BezierSegment extends AbstractSegment {
     curve: Curve;
     cp1x: number;
@@ -13,7 +18,7 @@ export declare class BezierSegment extends AbstractSegment {
     y1: number;
     y2: number;
     length: number;
-    constructor(instance: JsPlumbInstance, params: any);
+    constructor(params: BezierSegmentParams);
     static segmentType: string;
     type: string;
     private static _translateLocation;
