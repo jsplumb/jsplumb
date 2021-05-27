@@ -41,7 +41,6 @@ import {
     PROPERTY_POSITION,
     UNDEFINED,
     PaintStyle,
-    Segment,
     BezierSegment,
     ArcSegment,
     isArrowOverlay,
@@ -114,6 +113,7 @@ import {HTMLElementOverlay} from "./html-element-overlay"
 import {SVGElementOverlay} from "./svg-element-overlay"
 import {paintSvgConnector} from "./svg-element-connector"
 import {SvgEndpoint} from "./svg-element-endpoint"
+import {Segment} from "@jsplumb/common"
 
 export interface UIComponent {
     canvas: HTMLElement

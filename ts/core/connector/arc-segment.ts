@@ -1,4 +1,4 @@
-import {AbstractSegment, SegmentParams} from "./abstract-segment"
+import {AbstractSegment, SegmentParams} from "@jsplumb/common"
 import { PointXY } from '@jsplumb/util'
 import {normal, theta, TWO_PI} from "@jsplumb/geom"
 

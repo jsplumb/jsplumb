@@ -1,4 +1,4 @@
-import { AbstractSegment, PointNearPath, SegmentParams } from "./abstract-segment";
+import { AbstractSegment, PointNearPath, SegmentParams } from "@jsplumb/common";
 import { PointXY } from '@jsplumb/util';
 import { Curve } from "@jsplumb/bezier";
 export interface BezierSegmentParams extends SegmentParams {

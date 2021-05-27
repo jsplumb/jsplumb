@@ -1,8 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@jsplumb/util'), require('@jsplumb/geom'), require('@jsplumb/bezier'), require('@jsplumb/common')) :
-  typeof define === 'function' && define.amd ? define(['exports', '@jsplumb/util', '@jsplumb/geom', '@jsplumb/bezier', '@jsplumb/common'], factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.jsPlumb = {}, global.jsPlumbUtil, global.jsPlumbGeom, global.jsPlumbBezier, global.jsPlumbCommon));
-}(this, (function (exports, util, geom, bezier, common) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@jsplumb/util'), require('@jsplumb/common'), require('@jsplumb/geom'), require('@jsplumb/bezier')) :
+  typeof define === 'function' && define.amd ? define(['exports', '@jsplumb/util', '@jsplumb/common', '@jsplumb/geom', '@jsplumb/bezier'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.jsPlumb = {}, global.jsPlumbUtil, global.jsPlumbCommon, global.jsPlumbGeom, global.jsPlumbBezier));
+}(this, (function (exports, util, common, geom, bezier) { 'use strict';
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -176,71 +176,6 @@
     throw new TypeError("Invalid attempt to destructure non-iterable instance");
   }
 
-  function noSuchPoint() {
-    return {
-      d: Infinity,
-      x: null,
-      y: null,
-      l: null,
-      x1: null,
-      y1: null,
-      x2: null,
-      y2: null
-    };
-  }
-  function EMPTY_BOUNDS() {
-    return {
-      xmin: Infinity,
-      xmax: -Infinity,
-      ymin: Infinity,
-      ymax: -Infinity
-    };
-  }
-  var AbstractSegment =
-  function () {
-    function AbstractSegment(params) {
-      _classCallCheck(this, AbstractSegment);
-      this.params = params;
-      _defineProperty(this, "x1", void 0);
-      _defineProperty(this, "x2", void 0);
-      _defineProperty(this, "y1", void 0);
-      _defineProperty(this, "y2", void 0);
-      _defineProperty(this, "extents", EMPTY_BOUNDS());
-      _defineProperty(this, "type", void 0);
-      this.x1 = params.x1;
-      this.y1 = params.y1;
-      this.x2 = params.x2;
-      this.y2 = params.y2;
-    }
-    _createClass(AbstractSegment, [{
-      key: "findClosestPointOnPath",
-      value: function findClosestPointOnPath(x, y) {
-        return noSuchPoint();
-      }
-    }, {
-      key: "lineIntersection",
-      value: function lineIntersection(x1, y1, x2, y2) {
-        return [];
-      }
-    }, {
-      key: "boxIntersection",
-      value: function boxIntersection(x, y, w, h) {
-        var a = [];
-        a.push.apply(a, this.lineIntersection(x, y, x + w, y));
-        a.push.apply(a, this.lineIntersection(x + w, y, x + w, y + h));
-        a.push.apply(a, this.lineIntersection(x + w, y + h, x, y + h));
-        a.push.apply(a, this.lineIntersection(x, y + h, x, y));
-        return a;
-      }
-    }, {
-      key: "boundingBoxIntersection",
-      value: function boundingBoxIntersection(box) {
-        return this.boxIntersection(box.x, box.y, box.w, box.h);
-      }
-    }]);
-    return AbstractSegment;
-  }();
-
   var endpointMap = {};
   var endpointComputers = {};
   var handlers = {};
@@ -285,7 +220,7 @@
       _defineProperty(this, "w", void 0);
       _defineProperty(this, "h", void 0);
       _defineProperty(this, "computedValue", void 0);
-      _defineProperty(this, "bounds", EMPTY_BOUNDS());
+      _defineProperty(this, "bounds", common.EMPTY_BOUNDS());
       _defineProperty(this, "classes", []);
       _defineProperty(this, "instance", void 0);
       _defineProperty(this, "type", void 0);
@@ -481,7 +416,7 @@
       _defineProperty(this, "w", void 0);
       _defineProperty(this, "h", void 0);
       _defineProperty(this, "segment", void 0);
-      _defineProperty(this, "bounds", EMPTY_BOUNDS());
+      _defineProperty(this, "bounds", common.EMPTY_BOUNDS());
       _defineProperty(this, "cssClass", void 0);
       _defineProperty(this, "hoverClass", void 0);
       _defineProperty(this, "geometry", void 0);
@@ -531,7 +466,7 @@
     }, {
       key: "resetBounds",
       value: function resetBounds() {
-        this.bounds = EMPTY_BOUNDS();
+        this.bounds = common.EMPTY_BOUNDS();
       }
     }, {
       key: "findSegmentForPoint",
@@ -1047,7 +982,7 @@
       }
     }]);
     return StraightSegment;
-  }(AbstractSegment);
+  }(common.AbstractSegment);
   _defineProperty(StraightSegment, "segmentType", "Straight");
 
   var StraightConnector =
@@ -1252,7 +1187,7 @@
       }
     }]);
     return ArcSegment;
-  }(AbstractSegment);
+  }(common.AbstractSegment);
   _defineProperty(ArcSegment, "segmentType", "Arc");
 
   function sgn(n) {
@@ -1764,7 +1699,7 @@
       }
     }]);
     return BezierSegment;
-  }(AbstractSegment);
+  }(common.AbstractSegment);
   _defineProperty(BezierSegment, "segmentType", "Bezier");
 
   var BezierConnector =
@@ -8161,7 +8096,6 @@
   exports.ATTRIBUTE_TABINDEX = ATTRIBUTE_TABINDEX;
   exports.AbstractBezierConnector = AbstractBezierConnector;
   exports.AbstractConnector = AbstractConnector;
-  exports.AbstractSegment = AbstractSegment;
   exports.ArcSegment = ArcSegment;
   exports.ArrowOverlay = ArrowOverlay;
   exports.BLOCK = BLOCK;
@@ -8198,7 +8132,6 @@
   exports.DiamondOverlay = DiamondOverlay;
   exports.DotEndpoint = DotEndpoint;
   exports.DotEndpointHandler = DotEndpointHandler;
-  exports.EMPTY_BOUNDS = EMPTY_BOUNDS;
   exports.ERROR_SOURCE_DOES_NOT_EXIST = ERROR_SOURCE_DOES_NOT_EXIST;
   exports.ERROR_SOURCE_ENDPOINT_FULL = ERROR_SOURCE_ENDPOINT_FULL;
   exports.ERROR_TARGET_DOES_NOT_EXIST = ERROR_TARGET_DOES_NOT_EXIST;

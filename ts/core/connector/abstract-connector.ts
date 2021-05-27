@@ -2,13 +2,12 @@
 import {isArray, log, PointXY, Extents, Constructable} from "@jsplumb/util"
 import {quadrant} from "@jsplumb/geom"
 
-import {EMPTY_BOUNDS, Segment} from "./abstract-segment"
 import { Connection} from '../connector/connection-impl'
 import { Orientation} from '../factory/anchor-record-factory'
 import { Endpoint} from '../endpoint/endpoint'
 
 import { ViewportElement } from "../viewport"
-import {AnchorPlacement, ConnectorOptions, PaintAxis} from "@jsplumb/common"
+import {AnchorPlacement, ConnectorOptions, EMPTY_BOUNDS, PaintAxis, Segment} from "@jsplumb/common"
 
 
 

@@ -26,7 +26,7 @@ export * from "./component/component"
 //export * from "./bezier"
 
 export * from "./connector/abstract-connector"
-export * from "./connector/abstract-segment"
+//export * from "./connector/abstract-segment"
 export * from "./connector/arc-segment"
 export * from "./connector/bezier-segment"
 export * from "./connector/connection-impl"

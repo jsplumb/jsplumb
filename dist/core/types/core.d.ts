@@ -14,14 +14,13 @@ import { EndpointSelection } from "./selection/endpoint-selection";
 import { ConnectionSelection } from "./selection/connection-selection";
 import { Viewport, ViewportElement } from "./viewport";
 import { Component } from './component/component';
-import { Segment } from './connector/abstract-segment';
 import { Overlay } from './overlay/overlay';
 import { LabelOverlay } from './overlay/label-overlay';
 import { AbstractConnector } from './connector/abstract-connector';
 import { PaintStyle } from './styles';
 import { SourceSelector, TargetSelector } from "./source-selector";
 import { InternalEndpointOptions } from "./endpoint/endpoint-options";
-import { AnchorPlacement, AnchorSpec, EndpointSpec } from "@jsplumb/common";
+import { AnchorPlacement, AnchorSpec, EndpointSpec, Segment } from "@jsplumb/common";
 export interface jsPlumbElement<E> {
     _jsPlumbGroup: UIGroup<E>;
     _jsPlumbParentGroup: UIGroup<E>;

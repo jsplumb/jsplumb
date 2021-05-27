@@ -1,10 +1,9 @@
 import { PointXY, Extents, Constructable } from "@jsplumb/util";
-import { Segment } from "./abstract-segment";
 import { Connection } from '../connector/connection-impl';
 import { Orientation } from '../factory/anchor-record-factory';
 import { Endpoint } from '../endpoint/endpoint';
 import { ViewportElement } from "../viewport";
-import { AnchorPlacement, ConnectorOptions, PaintAxis } from "@jsplumb/common";
+import { AnchorPlacement, ConnectorOptions, PaintAxis, Segment } from "@jsplumb/common";
 declare type SegmentForPoint = {
     d: number;
     s: Segment;

@@ -46,7 +46,6 @@ import {ConnectionSelection} from "./selection/connection-selection"
 import {Viewport, ViewportElement} from "./viewport"
 
 import { Component } from './component/component'
-import { Segment } from './connector/abstract-segment'
 import { Overlay } from './overlay/overlay'
 import { LabelOverlay } from './overlay/label-overlay'
 import { AbstractConnector } from './connector/abstract-connector'
@@ -73,7 +72,7 @@ import {
 import {InternalEndpointOptions} from "./endpoint/endpoint-options"
 import {LightweightRouter} from "./router/lightweight-router"
 import {Connectors} from "./connector/connectors"
-import {AnchorLocations, AnchorPlacement, AnchorSpec, EndpointSpec} from "@jsplumb/common"
+import {AnchorLocations, AnchorPlacement, AnchorSpec, EndpointSpec, Segment} from "@jsplumb/common"
 
 export interface jsPlumbElement<E> {
     _jsPlumbGroup: UIGroup<E>

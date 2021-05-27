@@ -1,10 +1,11 @@
-import { JsPlumbDefaults, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, Segment, LabelOverlay, Connection, Component, DeleteConnectionOptions, BehaviouralTypeDescriptor, SourceSelector } from '@jsplumb/core';
+import { JsPlumbDefaults, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, LabelOverlay, Connection, Component, DeleteConnectionOptions, BehaviouralTypeDescriptor, SourceSelector } from '@jsplumb/core';
 import { PointXY, Dictionary, Size, Extents } from "@jsplumb/util";
 import { DragManager } from "./drag-manager";
 import { jsPlumbDOMElement } from './element-facade';
 import { EventManager } from "./event-manager";
 import { DragStartEventParams, DragEventParams, DragStopEventParams, ContainmentType } from './collicat';
 import { JsPlumbList, JsPlumbListManager, JsPlumbListOptions } from "./lists";
+import { Segment } from "@jsplumb/common";
 export interface UIComponent {
     canvas: HTMLElement;
     svg: SVGElement;
