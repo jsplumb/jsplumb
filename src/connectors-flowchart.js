@@ -22,7 +22,7 @@
         params.stub = params.stub == null ? 30 : params.stub;
         var segments,
             _super = _jp.Connectors.AbstractConnector.apply(this, arguments),
-            midpoint = params.midpoint == null ? 0.5 : params.midpoint,
+            midpoint = params.midpoint == null || isNaN(params.midpoint) ? 0.5 : params.midpoint,
             alwaysRespectStubs = params.alwaysRespectStubs === true,
             lastx = null, lasty = null, lastOrientation,
             cornerRadius = params.cornerRadius != null ? params.cornerRadius : 0,
@@ -125,6 +125,8 @@
                     });
                 }
             };
+
+        this.midpoint = midpoint;
 
         this._compute = function (paintInfo, params) {
 
