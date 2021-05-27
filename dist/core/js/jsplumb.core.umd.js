@@ -1035,443 +1035,6 @@
   }(AbstractConnector);
   _defineProperty(StraightConnector, "type", "Straight");
 
-  var VERY_SMALL_VALUE = 0.0000000001;
-  function gentleRound(n) {
-    var f = Math.floor(n),
-        r = Math.ceil(n);
-    if (n - f < VERY_SMALL_VALUE) {
-      return f;
-    } else if (r - n < VERY_SMALL_VALUE) {
-      return r;
-    }
-    return n;
-  }
-  var ArcSegment =
-  function (_AbstractSegment) {
-    _inherits(ArcSegment, _AbstractSegment);
-    function ArcSegment(params) {
-      var _this;
-      _classCallCheck(this, ArcSegment);
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(ArcSegment).call(this, params));
-      _defineProperty(_assertThisInitialized(_this), "type", ArcSegment.segmentType);
-      _defineProperty(_assertThisInitialized(_this), "cx", void 0);
-      _defineProperty(_assertThisInitialized(_this), "cy", void 0);
-      _defineProperty(_assertThisInitialized(_this), "radius", void 0);
-      _defineProperty(_assertThisInitialized(_this), "anticlockwise", void 0);
-      _defineProperty(_assertThisInitialized(_this), "startAngle", void 0);
-      _defineProperty(_assertThisInitialized(_this), "endAngle", void 0);
-      _defineProperty(_assertThisInitialized(_this), "sweep", void 0);
-      _defineProperty(_assertThisInitialized(_this), "length", void 0);
-      _defineProperty(_assertThisInitialized(_this), "circumference", void 0);
-      _defineProperty(_assertThisInitialized(_this), "frac", void 0);
-      _this.cx = params.cx;
-      _this.cy = params.cy;
-      _this.radius = params.r;
-      _this.anticlockwise = params.ac;
-      if (params.startAngle && params.endAngle) {
-        _this.startAngle = params.startAngle;
-        _this.endAngle = params.endAngle;
-        _this.x1 = _this.cx + _this.radius * Math.cos(_this.startAngle);
-        _this.y1 = _this.cy + _this.radius * Math.sin(_this.startAngle);
-        _this.x2 = _this.cx + _this.radius * Math.cos(_this.endAngle);
-        _this.y2 = _this.cy + _this.radius * Math.sin(_this.endAngle);
-      } else {
-        _this.startAngle = _this._calcAngle(_this.x1, _this.y1);
-        _this.endAngle = _this._calcAngle(_this.x2, _this.y2);
-      }
-      if (_this.endAngle < 0) {
-        _this.endAngle += geom.TWO_PI;
-      }
-      if (_this.startAngle < 0) {
-        _this.startAngle += geom.TWO_PI;
-      }
-      var ea = _this.endAngle < _this.startAngle ? _this.endAngle + geom.TWO_PI : _this.endAngle;
-      _this.sweep = Math.abs(ea - _this.startAngle);
-      if (_this.anticlockwise) {
-        _this.sweep = geom.TWO_PI - _this.sweep;
-      }
-      _this.circumference = 2 * Math.PI * _this.radius;
-      _this.frac = _this.sweep / geom.TWO_PI;
-      _this.length = _this.circumference * _this.frac;
-      _this.extents = {
-        xmin: _this.cx - _this.radius,
-        xmax: _this.cx + _this.radius,
-        ymin: _this.cy - _this.radius,
-        ymax: _this.cy + _this.radius
-      };
-      return _this;
-    }
-    _createClass(ArcSegment, [{
-      key: "_calcAngle",
-      value: function _calcAngle(_x, _y) {
-        return geom.theta({
-          x: this.cx,
-          y: this.cy
-        }, {
-          x: _x,
-          y: _y
-        });
-      }
-    }, {
-      key: "_calcAngleForLocation",
-      value: function _calcAngleForLocation(segment, location) {
-        if (segment.anticlockwise) {
-          var sa = segment.startAngle < segment.endAngle ? segment.startAngle + geom.TWO_PI : segment.startAngle,
-              s = Math.abs(sa - segment.endAngle);
-          return sa - s * location;
-        } else {
-          var ea = segment.endAngle < segment.startAngle ? segment.endAngle + geom.TWO_PI : segment.endAngle,
-              ss = Math.abs(ea - segment.startAngle);
-          return segment.startAngle + ss * location;
-        }
-      }
-    }, {
-      key: "getPath",
-      value: function getPath(isFirstSegment) {
-        var laf = this.sweep > Math.PI ? 1 : 0,
-            sf = this.anticlockwise ? 0 : 1;
-        return (isFirstSegment ? "M" + this.x1 + " " + this.y1 + " " : "") + "A " + this.radius + " " + this.radius + " 0 " + laf + "," + sf + " " + this.x2 + " " + this.y2;
-      }
-    }, {
-      key: "getLength",
-      value: function getLength() {
-        return this.length;
-      }
-    }, {
-      key: "pointOnPath",
-      value: function pointOnPath(location, absolute) {
-        if (location === 0) {
-          return {
-            x: this.x1,
-            y: this.y1,
-            theta: this.startAngle
-          };
-        } else if (location === 1) {
-          return {
-            x: this.x2,
-            y: this.y2,
-            theta: this.endAngle
-          };
-        }
-        if (absolute) {
-          location = location / length;
-        }
-        var angle = this._calcAngleForLocation(this, location),
-            _x = this.cx + this.radius * Math.cos(angle),
-            _y = this.cy + this.radius * Math.sin(angle);
-        return {
-          x: gentleRound(_x),
-          y: gentleRound(_y),
-          theta: angle
-        };
-      }
-    }, {
-      key: "gradientAtPoint",
-      value: function gradientAtPoint(location, absolute) {
-        var p = this.pointOnPath(location, absolute);
-        var m = geom.normal({
-          x: this.cx,
-          y: this.cy
-        }, p);
-        if (!this.anticlockwise && (m === Infinity || m === -Infinity)) {
-          m *= -1;
-        }
-        return m;
-      }
-    }, {
-      key: "pointAlongPathFrom",
-      value: function pointAlongPathFrom(location, distance, absolute) {
-        var p = this.pointOnPath(location, absolute),
-            arcSpan = distance / this.circumference * 2 * Math.PI,
-            dir = this.anticlockwise ? -1 : 1,
-            startAngle = p.theta + dir * arcSpan,
-            startX = this.cx + this.radius * Math.cos(startAngle),
-            startY = this.cy + this.radius * Math.sin(startAngle);
-        return {
-          x: startX,
-          y: startY
-        };
-      }
-    }]);
-    return ArcSegment;
-  }(common.AbstractSegment);
-  _defineProperty(ArcSegment, "segmentType", "Arc");
-
-  function sgn(n) {
-    return n < 0 ? -1 : n === 0 ? 0 : 1;
-  }
-  function segmentDirections(segment) {
-    return [sgn(segment[2] - segment[0]), sgn(segment[3] - segment[1])];
-  }
-  function segLength(s) {
-    return Math.sqrt(Math.pow(s[0] - s[2], 2) + Math.pow(s[1] - s[3], 2));
-  }
-  function _cloneArray(a) {
-    var _a = [];
-    _a.push.apply(_a, a);
-    return _a;
-  }
-  var FlowchartConnector =
-  function (_AbstractConnector) {
-    _inherits(FlowchartConnector, _AbstractConnector);
-    _createClass(FlowchartConnector, [{
-      key: "getDefaultStubs",
-      value: function getDefaultStubs() {
-        return [30, 30];
-      }
-    }]);
-    function FlowchartConnector(connection, params) {
-      var _this;
-      _classCallCheck(this, FlowchartConnector);
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(FlowchartConnector).call(this, connection, params));
-      _this.connection = connection;
-      _defineProperty(_assertThisInitialized(_this), "type", FlowchartConnector.type);
-      _defineProperty(_assertThisInitialized(_this), "internalSegments", []);
-      _defineProperty(_assertThisInitialized(_this), "midpoint", void 0);
-      _defineProperty(_assertThisInitialized(_this), "alwaysRespectStubs", void 0);
-      _defineProperty(_assertThisInitialized(_this), "cornerRadius", void 0);
-      _defineProperty(_assertThisInitialized(_this), "lastx", void 0);
-      _defineProperty(_assertThisInitialized(_this), "lasty", void 0);
-      _defineProperty(_assertThisInitialized(_this), "lastOrientation", void 0);
-      _defineProperty(_assertThisInitialized(_this), "loopbackRadius", void 0);
-      _defineProperty(_assertThisInitialized(_this), "isLoopbackCurrently", void 0);
-      _this.midpoint = params.midpoint == null ? 0.5 : params.midpoint;
-      _this.cornerRadius = params.cornerRadius != null ? params.cornerRadius : 0;
-      _this.alwaysRespectStubs = params.alwaysRespectStubs === true;
-      _this.lastx = null;
-      _this.lasty = null;
-      _this.lastOrientation = null;
-      _this.loopbackRadius = params.loopbackRadius || 25;
-      _this.isLoopbackCurrently = false;
-      return _this;
-    }
-    _createClass(FlowchartConnector, [{
-      key: "addASegment",
-      value: function addASegment(x, y, paintInfo) {
-        if (this.lastx === x && this.lasty === y) {
-          return;
-        }
-        var lx = this.lastx == null ? paintInfo.sx : this.lastx,
-            ly = this.lasty == null ? paintInfo.sy : this.lasty,
-            o = lx === x ? "v" : "h";
-        this.lastx = x;
-        this.lasty = y;
-        this.internalSegments.push([lx, ly, x, y, o]);
-      }
-    }, {
-      key: "writeSegments",
-      value: function writeSegments(paintInfo) {
-        var current = null,
-            next,
-            currentDirection,
-            nextDirection;
-        for (var i = 0; i < this.internalSegments.length - 1; i++) {
-          current = current || _cloneArray(this.internalSegments[i]);
-          next = _cloneArray(this.internalSegments[i + 1]);
-          currentDirection = segmentDirections(current);
-          nextDirection = segmentDirections(next);
-          if (this.cornerRadius > 0 && current[4] !== next[4]) {
-            var minSegLength = Math.min(segLength(current), segLength(next));
-            var radiusToUse = Math.min(this.cornerRadius, minSegLength / 2);
-            current[2] -= currentDirection[0] * radiusToUse;
-            current[3] -= currentDirection[1] * radiusToUse;
-            next[0] += nextDirection[0] * radiusToUse;
-            next[1] += nextDirection[1] * radiusToUse;
-            var ac = currentDirection[1] === nextDirection[0] && nextDirection[0] === 1 || currentDirection[1] === nextDirection[0] && nextDirection[0] === 0 && currentDirection[0] !== nextDirection[1] || currentDirection[1] === nextDirection[0] && nextDirection[0] === -1,
-                sgny = next[1] > current[3] ? 1 : -1,
-                sgnx = next[0] > current[2] ? 1 : -1,
-                sgnEqual = sgny === sgnx,
-                cx = sgnEqual && ac || !sgnEqual && !ac ? next[0] : current[2],
-                cy = sgnEqual && ac || !sgnEqual && !ac ? current[3] : next[1];
-            this._addSegment(StraightSegment, {
-              x1: current[0],
-              y1: current[1],
-              x2: current[2],
-              y2: current[3]
-            });
-            this._addSegment(ArcSegment, {
-              r: radiusToUse,
-              x1: current[2],
-              y1: current[3],
-              x2: next[0],
-              y2: next[1],
-              cx: cx,
-              cy: cy,
-              ac: ac
-            });
-          } else {
-            this._addSegment(StraightSegment, {
-              x1: current[0],
-              y1: current[1],
-              x2: current[2],
-              y2: current[3]
-            });
-          }
-          current = next;
-        }
-        if (next != null) {
-          this._addSegment(StraightSegment, {
-            x1: next[0],
-            y1: next[1],
-            x2: next[2],
-            y2: next[3]
-          });
-        }
-      }
-    }, {
-      key: "_compute",
-      value: function _compute(paintInfo, params) {
-        var _this2 = this;
-        this.internalSegments.length = 0;
-        this.lastx = null;
-        this.lasty = null;
-        this.lastOrientation = null;
-        var commonStubCalculator = function commonStubCalculator(axis) {
-          return [paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY];
-        },
-            stubCalculators = {
-          perpendicular: commonStubCalculator,
-          orthogonal: commonStubCalculator,
-          opposite: function opposite(axis) {
-            var pi = paintInfo,
-                idx = axis === "x" ? 0 : 1,
-                areInProximity = {
-              "x": function x() {
-                return pi.so[idx] === 1 && (pi.startStubX > pi.endStubX && pi.tx > pi.startStubX || pi.sx > pi.endStubX && pi.tx > pi.sx) || pi.so[idx] === -1 && (pi.startStubX < pi.endStubX && pi.tx < pi.startStubX || pi.sx < pi.endStubX && pi.tx < pi.sx);
-              },
-              "y": function y() {
-                return pi.so[idx] === 1 && (pi.startStubY > pi.endStubY && pi.ty > pi.startStubY || pi.sy > pi.endStubY && pi.ty > pi.sy) || pi.so[idx] === -1 && (pi.startStubY < pi.endStubY && pi.ty < pi.startStubY || pi.sy < pi.endStubY && pi.ty < pi.sy);
-              }
-            };
-            if (!_this2.alwaysRespectStubs && areInProximity[axis]()) {
-              return {
-                "x": [(paintInfo.sx + paintInfo.tx) / 2, paintInfo.startStubY, (paintInfo.sx + paintInfo.tx) / 2, paintInfo.endStubY],
-                "y": [paintInfo.startStubX, (paintInfo.sy + paintInfo.ty) / 2, paintInfo.endStubX, (paintInfo.sy + paintInfo.ty) / 2]
-              }[axis];
-            } else {
-              return [paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY];
-            }
-          }
-        };
-        var stubs = stubCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis),
-            idx = paintInfo.sourceAxis === "x" ? 0 : 1,
-            oidx = paintInfo.sourceAxis === "x" ? 1 : 0,
-            ss = stubs[idx],
-            oss = stubs[oidx],
-            es = stubs[idx + 2],
-            oes = stubs[oidx + 2];
-        this.addASegment(stubs[0], stubs[1], paintInfo);
-        var midx = paintInfo.startStubX + (paintInfo.endStubX - paintInfo.startStubX) * this.midpoint,
-            midy = paintInfo.startStubY + (paintInfo.endStubY - paintInfo.startStubY) * this.midpoint;
-        var orientations = {
-          x: [0, 1],
-          y: [1, 0]
-        },
-            lineCalculators = {
-          perpendicular: function perpendicular(axis, ss, oss, es, oes) {
-            var pi = paintInfo,
-                sis = {
-              x: [[[1, 2, 3, 4], null, [2, 1, 4, 3]], null, [[4, 3, 2, 1], null, [3, 4, 1, 2]]],
-              y: [[[3, 2, 1, 4], null, [2, 3, 4, 1]], null, [[4, 1, 2, 3], null, [1, 4, 3, 2]]]
-            },
-                stubs = {
-              x: [[pi.startStubX, pi.endStubX], null, [pi.endStubX, pi.startStubX]],
-              y: [[pi.startStubY, pi.endStubY], null, [pi.endStubY, pi.startStubY]]
-            },
-                midLines = {
-              x: [[midx, pi.startStubY], [midx, pi.endStubY]],
-              y: [[pi.startStubX, midy], [pi.endStubX, midy]]
-            },
-                linesToEnd = {
-              x: [[pi.endStubX, pi.startStubY]],
-              y: [[pi.startStubX, pi.endStubY]]
-            },
-                startToEnd = {
-              x: [[pi.startStubX, pi.endStubY], [pi.endStubX, pi.endStubY]],
-              y: [[pi.endStubX, pi.startStubY], [pi.endStubX, pi.endStubY]]
-            },
-                startToMidToEnd = {
-              x: [[pi.startStubX, midy], [pi.endStubX, midy], [pi.endStubX, pi.endStubY]],
-              y: [[midx, pi.startStubY], [midx, pi.endStubY], [pi.endStubX, pi.endStubY]]
-            },
-                otherStubs = {
-              x: [pi.startStubY, pi.endStubY],
-              y: [pi.startStubX, pi.endStubX]
-            },
-                soIdx = orientations[axis][0],
-                toIdx = orientations[axis][1],
-                _so = pi.so[soIdx] + 1,
-                _to = pi.to[toIdx] + 1,
-                otherFlipped = pi.to[toIdx] === -1 && otherStubs[axis][1] < otherStubs[axis][0] || pi.to[toIdx] === 1 && otherStubs[axis][1] > otherStubs[axis][0],
-                stub1 = stubs[axis][_so][0],
-                stub2 = stubs[axis][_so][1],
-                segmentIndexes = sis[axis][_so][_to];
-            if (pi.segment === segmentIndexes[3] || pi.segment === segmentIndexes[2] && otherFlipped) {
-              return midLines[axis];
-            } else if (pi.segment === segmentIndexes[2] && stub2 < stub1) {
-              return linesToEnd[axis];
-            } else if (pi.segment === segmentIndexes[2] && stub2 >= stub1 || pi.segment === segmentIndexes[1] && !otherFlipped) {
-              return startToMidToEnd[axis];
-            } else if (pi.segment === segmentIndexes[0] || pi.segment === segmentIndexes[1] && otherFlipped) {
-              return startToEnd[axis];
-            }
-          },
-          orthogonal: function orthogonal(axis, startStub, otherStartStub, endStub, otherEndStub) {
-            var pi = paintInfo,
-                extent = {
-              "x": pi.so[0] === -1 ? Math.min(startStub, endStub) : Math.max(startStub, endStub),
-              "y": pi.so[1] === -1 ? Math.min(startStub, endStub) : Math.max(startStub, endStub)
-            }[axis];
-            return {
-              "x": [[extent, otherStartStub], [extent, otherEndStub], [endStub, otherEndStub]],
-              "y": [[otherStartStub, extent], [otherEndStub, extent], [otherEndStub, endStub]]
-            }[axis];
-          },
-          opposite: function opposite(axis, ss, oss, es, oes) {
-            var pi = paintInfo,
-                otherAxis = {
-              "x": "y",
-              "y": "x"
-            }[axis],
-                dim = {
-              "x": "h",
-              "y": "w"
-            }[axis],
-                comparator = pi["is" + axis.toUpperCase() + "GreaterThanStubTimes2"];
-            if (params.sourceEndpoint.elementId === params.targetEndpoint.elementId) {
-              var _val = oss + (1 - params.sourceEndpoint._anchor[otherAxis]) * params.sourceInfo[dim] + _this2.maxStub;
-              return {
-                "x": [[ss, _val], [es, _val]],
-                "y": [[_val, ss], [_val, es]]
-              }[axis];
-            } else if (!comparator || pi.so[idx] === 1 && ss > es || pi.so[idx] === -1 && ss < es) {
-              return {
-                "x": [[ss, midy], [es, midy]],
-                "y": [[midx, ss], [midx, es]]
-              }[axis];
-            } else if (pi.so[idx] === 1 && ss < es || pi.so[idx] === -1 && ss > es) {
-              return {
-                "x": [[midx, pi.sy], [midx, pi.ty]],
-                "y": [[pi.sx, midy], [pi.tx, midy]]
-              }[axis];
-            }
-          }
-        };
-        var p = lineCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis, ss, oss, es, oes);
-        if (p) {
-          for (var i = 0; i < p.length; i++) {
-            this.addASegment(p[i][0], p[i][1], paintInfo);
-          }
-        }
-        this.addASegment(stubs[2], stubs[3], paintInfo);
-        this.addASegment(paintInfo.tx, paintInfo.ty, paintInfo);
-        this.writeSegments(paintInfo);
-      }
-    }]);
-    return FlowchartConnector;
-  }(AbstractConnector);
-  _defineProperty(FlowchartConnector, "type", "Flowchart");
-
   var connectorMap = {};
   var Connectors = {
     get: function get(connection, name, params) {
@@ -7462,6 +7025,168 @@
     return JsPlumbInstance;
   }(util.EventGenerator);
 
+  var VERY_SMALL_VALUE = 0.0000000001;
+  function gentleRound(n) {
+    var f = Math.floor(n),
+        r = Math.ceil(n);
+    if (n - f < VERY_SMALL_VALUE) {
+      return f;
+    } else if (r - n < VERY_SMALL_VALUE) {
+      return r;
+    }
+    return n;
+  }
+  var ArcSegment =
+  function (_AbstractSegment) {
+    _inherits(ArcSegment, _AbstractSegment);
+    function ArcSegment(params) {
+      var _this;
+      _classCallCheck(this, ArcSegment);
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(ArcSegment).call(this, params));
+      _defineProperty(_assertThisInitialized(_this), "type", ArcSegment.segmentType);
+      _defineProperty(_assertThisInitialized(_this), "cx", void 0);
+      _defineProperty(_assertThisInitialized(_this), "cy", void 0);
+      _defineProperty(_assertThisInitialized(_this), "radius", void 0);
+      _defineProperty(_assertThisInitialized(_this), "anticlockwise", void 0);
+      _defineProperty(_assertThisInitialized(_this), "startAngle", void 0);
+      _defineProperty(_assertThisInitialized(_this), "endAngle", void 0);
+      _defineProperty(_assertThisInitialized(_this), "sweep", void 0);
+      _defineProperty(_assertThisInitialized(_this), "length", void 0);
+      _defineProperty(_assertThisInitialized(_this), "circumference", void 0);
+      _defineProperty(_assertThisInitialized(_this), "frac", void 0);
+      _this.cx = params.cx;
+      _this.cy = params.cy;
+      _this.radius = params.r;
+      _this.anticlockwise = params.ac;
+      if (params.startAngle && params.endAngle) {
+        _this.startAngle = params.startAngle;
+        _this.endAngle = params.endAngle;
+        _this.x1 = _this.cx + _this.radius * Math.cos(_this.startAngle);
+        _this.y1 = _this.cy + _this.radius * Math.sin(_this.startAngle);
+        _this.x2 = _this.cx + _this.radius * Math.cos(_this.endAngle);
+        _this.y2 = _this.cy + _this.radius * Math.sin(_this.endAngle);
+      } else {
+        _this.startAngle = _this._calcAngle(_this.x1, _this.y1);
+        _this.endAngle = _this._calcAngle(_this.x2, _this.y2);
+      }
+      if (_this.endAngle < 0) {
+        _this.endAngle += geom.TWO_PI;
+      }
+      if (_this.startAngle < 0) {
+        _this.startAngle += geom.TWO_PI;
+      }
+      var ea = _this.endAngle < _this.startAngle ? _this.endAngle + geom.TWO_PI : _this.endAngle;
+      _this.sweep = Math.abs(ea - _this.startAngle);
+      if (_this.anticlockwise) {
+        _this.sweep = geom.TWO_PI - _this.sweep;
+      }
+      _this.circumference = 2 * Math.PI * _this.radius;
+      _this.frac = _this.sweep / geom.TWO_PI;
+      _this.length = _this.circumference * _this.frac;
+      _this.extents = {
+        xmin: _this.cx - _this.radius,
+        xmax: _this.cx + _this.radius,
+        ymin: _this.cy - _this.radius,
+        ymax: _this.cy + _this.radius
+      };
+      return _this;
+    }
+    _createClass(ArcSegment, [{
+      key: "_calcAngle",
+      value: function _calcAngle(_x, _y) {
+        return geom.theta({
+          x: this.cx,
+          y: this.cy
+        }, {
+          x: _x,
+          y: _y
+        });
+      }
+    }, {
+      key: "_calcAngleForLocation",
+      value: function _calcAngleForLocation(segment, location) {
+        if (segment.anticlockwise) {
+          var sa = segment.startAngle < segment.endAngle ? segment.startAngle + geom.TWO_PI : segment.startAngle,
+              s = Math.abs(sa - segment.endAngle);
+          return sa - s * location;
+        } else {
+          var ea = segment.endAngle < segment.startAngle ? segment.endAngle + geom.TWO_PI : segment.endAngle,
+              ss = Math.abs(ea - segment.startAngle);
+          return segment.startAngle + ss * location;
+        }
+      }
+    }, {
+      key: "getPath",
+      value: function getPath(isFirstSegment) {
+        var laf = this.sweep > Math.PI ? 1 : 0,
+            sf = this.anticlockwise ? 0 : 1;
+        return (isFirstSegment ? "M" + this.x1 + " " + this.y1 + " " : "") + "A " + this.radius + " " + this.radius + " 0 " + laf + "," + sf + " " + this.x2 + " " + this.y2;
+      }
+    }, {
+      key: "getLength",
+      value: function getLength() {
+        return this.length;
+      }
+    }, {
+      key: "pointOnPath",
+      value: function pointOnPath(location, absolute) {
+        if (location === 0) {
+          return {
+            x: this.x1,
+            y: this.y1,
+            theta: this.startAngle
+          };
+        } else if (location === 1) {
+          return {
+            x: this.x2,
+            y: this.y2,
+            theta: this.endAngle
+          };
+        }
+        if (absolute) {
+          location = location / length;
+        }
+        var angle = this._calcAngleForLocation(this, location),
+            _x = this.cx + this.radius * Math.cos(angle),
+            _y = this.cy + this.radius * Math.sin(angle);
+        return {
+          x: gentleRound(_x),
+          y: gentleRound(_y),
+          theta: angle
+        };
+      }
+    }, {
+      key: "gradientAtPoint",
+      value: function gradientAtPoint(location, absolute) {
+        var p = this.pointOnPath(location, absolute);
+        var m = geom.normal({
+          x: this.cx,
+          y: this.cy
+        }, p);
+        if (!this.anticlockwise && (m === Infinity || m === -Infinity)) {
+          m *= -1;
+        }
+        return m;
+      }
+    }, {
+      key: "pointAlongPathFrom",
+      value: function pointAlongPathFrom(location, distance, absolute) {
+        var p = this.pointOnPath(location, absolute),
+            arcSpan = distance / this.circumference * 2 * Math.PI,
+            dir = this.anticlockwise ? -1 : 1,
+            startAngle = p.theta + dir * arcSpan,
+            startX = this.cx + this.radius * Math.cos(startAngle),
+            startY = this.cy + this.radius * Math.sin(startAngle);
+        return {
+          x: startX,
+          y: startY
+        };
+      }
+    }]);
+    return ArcSegment;
+  }(common.AbstractSegment);
+  _defineProperty(ArcSegment, "segmentType", "Arc");
+
   var DEFAULT_WIDTH = 20;
   var DEFAULT_LENGTH = 20;
   var ArrowOverlay =
@@ -7632,7 +7357,6 @@
   EndpointFactory.registerHandler(RectangleEndpointHandler);
   EndpointFactory.registerHandler(BlankEndpointHandler);
   Connectors.register(StraightConnector.type, StraightConnector);
-  Connectors.register(FlowchartConnector.type, FlowchartConnector);
 
   exports.ABSOLUTE = ABSOLUTE;
   exports.ATTRIBUTE_CONTAINER = ATTRIBUTE_CONTAINER;
@@ -7736,7 +7460,6 @@
   exports.EndpointSelection = EndpointSelection;
   exports.FALSE = FALSE;
   exports.FIXED = FIXED;
-  exports.FlowchartConnector = FlowchartConnector;
   exports.GroupManager = GroupManager;
   exports.INTERCEPT_BEFORE_DETACH = INTERCEPT_BEFORE_DETACH;
   exports.INTERCEPT_BEFORE_DRAG = INTERCEPT_BEFORE_DRAG;

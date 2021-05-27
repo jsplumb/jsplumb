@@ -11,7 +11,6 @@ export * from "./connector/arc-segment";
 export * from "./connector/connection-impl";
 export * from "./connector/connectors";
 export * from "./connector/straight-segment";
-export * from './connector/flowchart-connector';
 export * from './connector/straight-connector';
 export * from "./selection/connection-selection";
 export * from './endpoint/endpoint';

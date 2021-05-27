@@ -1,12 +1,9 @@
 import {
-    AbstractConnector, ConnectorComputeParams, PaintGeometry
-} from "./abstract-connector"
+    Connection, AbstractConnector, ConnectorComputeParams, PaintGeometry, StraightSegment, ArcSegment
+} from "@jsplumb/core"
 
-import {StraightSegment} from "./straight-segment"
-import {ArcSegment} from "./arc-segment"
 
 import { Dictionary } from '@jsplumb/util'
-import { Connection } from '../connector/connection-impl'
 import {ConnectorOptions} from "@jsplumb/common"
 
 export interface FlowchartConnectorOptions extends ConnectorOptions {

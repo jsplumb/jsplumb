@@ -1,25 +1,25 @@
 {
-  "name": "@jsplumb/connector-bezier",
+  "name": "@jsplumb/connector-flowchart",
   "version": "5.0.0-RC1",
-  "description": "The Bezier and StateMachine connectors",
-  "main": "js/jsplumb.connector-bezier.cjs.js",
-  "module": "js/jsplumb.connector-bezier.es.js",
+  "description": "The Flowchart connector",
+  "main": "js/jsplumb.connector-flowchart.cjs.js",
+  "module": "js/jsplumb.connector-flowchart.es.js",
   "directories": {
     "doc": "doc",
     "test": "tests"
   },
   "files": [
     "**/*.d.ts",
-    "js/jsplumb.connector-bezier.umd.js",
-    "js/jsplumb.connector-bezier.cjs.js",
-    "js/jsplumb.connector-bezier.es.js"
+    "js/jsplumb.connector-flowchart.umd.js",
+    "js/jsplumb.connector-flowchart.cjs.js",
+    "js/jsplumb.connector-flowchart.es.js"
   ],
   "types": "types/index.d.ts",
   "scripts": {},
   "repository": {
     "type": "git",
     "url": "git://github.com/jsplumb/jsplumb.git",
-    "directory": "ts/connector-bezier"
+    "directory": "ts/connector-flowchart"
   },
   "keywords": [
     "javascript",
