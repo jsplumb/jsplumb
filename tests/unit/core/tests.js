@@ -3634,6 +3634,17 @@ var testSuite = function (_jsPlumb) {
         equal(c3.getConnector().type, "Flowchart", "Flowchart connector has type set");
     });
 
+    test(" Flowchart Connector has midpoint member set, and it ignores invalid numbers", function () {
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+
+        var c1 = _jsPlumb.connect({source: d1, target: d2, connector: "Flowchart"});
+        equal(c1.connector.midpoint, 0.5, "default midpoint is 0.5")
+        var c2 = _jsPlumb.connect({source: d1, target: d2, connector: ["Flowchart", { midpoint:0.2 }]});
+        equal(c2.connector.midpoint, 0.2, "midpoint is set to 0.2")
+        var c3 = _jsPlumb.connect({source: d1, target: d2, connector: ["Flowchart", { midpoint:"not a number" }]});
+        equal(c3.connector.midpoint, 0.5, "midpoint is set to 0.5, as the provided value could not be parsed")
+    });
+
     test(" Endpoints have 'type' member set", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
 
