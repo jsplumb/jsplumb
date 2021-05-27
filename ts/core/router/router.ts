@@ -3,23 +3,15 @@ import { Endpoint } from '../endpoint/endpoint'
 import { PointXY } from '@jsplumb/util'
 import {
     AnchorComputeParams,
-    AnchorSpec, Face,
+    Face,
     LightweightContinuousAnchor,
     Orientation
 } from "../factory/anchor-record-factory"
+import {AnchorPlacement, AnchorSpec} from "@jsplumb/common"
 
 export interface RedrawResult {
     c:Set<Connection>
     e:Set<Endpoint>
-}
-
-export type AnchorPlacement = {
-    curX:number,
-    curY:number,
-    x:number,
-    y:number,
-    ox:number,
-    oy:number
 }
 
 export interface Router<T extends {E:unknown}, A> {

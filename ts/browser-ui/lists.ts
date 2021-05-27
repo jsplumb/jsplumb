@@ -1,10 +1,8 @@
 import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
 import { jsPlumbDOMElement} from './element-facade'
 import {
-    EndpointSpec,
     Endpoint,
     Connection,
-    AnchorSpec,
     EVENT_CONNECTION,
     EVENT_MANAGE_ELEMENT,
     EVENT_UNMANAGE_ELEMENT,
@@ -14,10 +12,11 @@ import {
     BeforeDropParams,
     ManageElementParams,
     UnmanageElementParams,
-    ConnectionEstablishedParams, AnchorLocations
+    ConnectionEstablishedParams
 } from '@jsplumb/core'
 
 import { extend, Dictionary } from "@jsplumb/util"
+import {AnchorLocations, AnchorSpec, EndpointSpec} from "@jsplumb/common"
 
 export interface ListManagerOptions { }
 

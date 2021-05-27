@@ -1,11 +1,10 @@
 import {
     ConnectionDetachedParams,
-    ConnectionEstablishedParams, jsPlumbElement,
-
+    ConnectionEstablishedParams,
     ConnectionMovedParams
 } from '../common'
 
-import { JsPlumbInstance } from "../core"
+import { JsPlumbInstance, jsPlumbElement } from "../core"
 
 import {UIGroup, GroupOptions, UINode} from "./group"
 import * as Constants from "../constants"

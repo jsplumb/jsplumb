@@ -1,21 +1,12 @@
-import { AnchorSpec } from "../factory/anchor-record-factory";
 import { PaintStyle } from "../styles";
 import { OverlaySpec } from "../overlay/overlay";
-import { ConnectorSpec } from "../connector/abstract-connector";
 import { Connection } from "../connector/connection-impl";
 import { EndpointRepresentation } from './endpoints';
 import { DeleteConnectionOptions, JsPlumbInstance } from '../core';
 import { Component } from "../component/component";
 import { InternalEndpointOptions } from "./endpoint-options";
 import { LightweightAnchor } from '../factory/anchor-record-factory';
-export declare type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndpointId;
-export declare type UserDefinedEndpointId = string;
-export declare type EndpointParams = any;
-export declare type FullEndpointSpec = {
-    type: EndpointId;
-    options: EndpointParams;
-};
-export declare type EndpointSpec = EndpointId | FullEndpointSpec;
+import { AnchorSpec, ConnectorSpec, EndpointSpec } from "@jsplumb/common";
 export interface EndpointStyle extends PaintStyle, Record<string, any> {
 }
 export declare class Endpoint<E = any> extends Component {

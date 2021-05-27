@@ -1,7 +1,7 @@
-import { AbstractConnector, ConnectorComputeParams, ConnectorOptions, PaintGeometry } from "./abstract-connector";
-import { Connection } from '../connector/connection-impl';
-import { AnchorPlacement } from "../router/router";
 import { PointXY } from "@jsplumb/util";
+import { AbstractConnector, ConnectorComputeParams, PaintGeometry } from "./abstract-connector";
+import { Connection } from '../connector/connection-impl';
+import { AnchorPlacement, ConnectorOptions } from "@jsplumb/common";
 export interface AbstractBezierOptions extends ConnectorOptions {
     showLoopback?: boolean;
     curviness?: number;

@@ -1,23 +1,12 @@
-import {UIGroup} from "./group/group"
 import {Endpoint, EndpointStyle} from "./endpoint/endpoint"
-import {EndpointSpec} from "./endpoint/endpoint"
-import {AnchorSpec} from "./factory/anchor-record-factory"
-import {ConnectorSpec} from "./connector/abstract-connector"
 import {OverlaySpec} from "./overlay/overlay"
 import {PaintStyle} from "./styles"
 import {Connection} from "./connector/connection-impl"
 import {RedropPolicy} from "./source-selector"
 import { Dictionary } from "@jsplumb/util"
+import {AnchorSpec, ConnectorSpec, EndpointSpec} from "@jsplumb/common"
 
 export type UUID = string
-
-export interface jsPlumbElement<E> {
-    _jsPlumbGroup: UIGroup<E>
-    _jsPlumbParentGroup:UIGroup<E>
-    _jsPlumbProxies:Array<[Connection, number]>
-    _isJsPlumbGroup:boolean
-    parentNode:jsPlumbElement<E>
-}
 
 /**
  * Options for the `connect` call on a JsPlumbInstance

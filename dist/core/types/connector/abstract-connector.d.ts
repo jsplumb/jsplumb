@@ -1,18 +1,10 @@
 import { PointXY, Extents, Constructable } from "@jsplumb/util";
 import { Segment } from "./abstract-segment";
-import { AnchorPlacement } from "../router/router";
 import { Connection } from '../connector/connection-impl';
 import { Orientation } from '../factory/anchor-record-factory';
 import { Endpoint } from '../endpoint/endpoint';
 import { ViewportElement } from "../viewport";
-export declare type UserDefinedConnectorId = string;
-export declare type ConnectorId = "Bezier" | "StateMachine" | "Flowchart" | "Straight" | UserDefinedConnectorId;
-export declare type ConnectorWithOptions = {
-    type: ConnectorId;
-    options: ConnectorOptions;
-};
-export declare type ConnectorSpec = ConnectorId | ConnectorWithOptions;
-export declare type PaintAxis = "y" | "x";
+import { AnchorPlacement, ConnectorOptions, PaintAxis } from "@jsplumb/common";
 declare type SegmentForPoint = {
     d: number;
     s: Segment;
@@ -64,12 +56,6 @@ export interface PaintGeometry {
     points: [number, number, number, number, number, number, number, number];
     stubs: [number, number];
     anchorOrientation?: string;
-}
-export interface ConnectorOptions {
-    stub?: number | number[];
-    gap?: number;
-    cssClass?: string;
-    hoverClass?: string;
 }
 export interface Connector {
 }

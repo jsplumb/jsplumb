@@ -1,8 +1,8 @@
 import { PointXY, Rotations, Size } from "@jsplumb/util";
-import { AnchorPlacement } from "../router/router";
 import { Connection } from "../connector/connection-impl";
 import { Endpoint } from "../endpoint/endpoint";
 import { JsPlumbInstance } from "../core";
+import { AnchorSpec } from "@jsplumb/common";
 export declare type AnchorOrientationHint = -1 | 0 | 1;
 export declare type Orientation = [number, number];
 export declare type Face = "top" | "right" | "bottom" | "left";
@@ -26,34 +26,6 @@ export declare type AnchorComputeParams = {
     rotation?: Rotations;
     tRotation?: Rotations;
 };
-export declare enum AnchorLocations {
-    Assign = "Assign",
-    AutoDefault = "AutoDefault",
-    Bottom = "Bottom",
-    BottomLeft = "BottomLeft",
-    BottomRight = "BottomRight",
-    Center = "Center",
-    Continuous = "Continuous",
-    ContinuousBottom = "ContinuousBottom",
-    ContinuousLeft = "ContinuousLeft",
-    ContinuousRight = "ContinuousRight",
-    ContinuousTop = "ContinuousTop",
-    ContinuousLeftRight = "ContinuousLeftRight",
-    ContinuousTopBottom = "ContinuousTopBottom",
-    Left = "Left",
-    Perimeter = "Perimeter",
-    Right = "Right",
-    Top = "Top",
-    TopLeft = "TopLeft",
-    TopRight = "TopRight"
-}
-export declare type AnchorId = keyof typeof AnchorLocations;
-export declare type FullAnchorSpec = {
-    type: AnchorId;
-    options: AnchorOptions;
-};
-export declare type SingleAnchorSpec = AnchorId | FullAnchorSpec | AnchorPlacement | Array<AnchorPlacement>;
-export declare type AnchorSpec = SingleAnchorSpec | Array<SingleAnchorSpec>;
 /**
  * Constructor options for a Perimeter Anchor.
  */

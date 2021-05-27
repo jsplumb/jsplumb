@@ -1,8 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@jsplumb/core'), require('@jsplumb/util'), require('@jsplumb/geom')) :
-  typeof define === 'function' && define.amd ? define(['exports', '@jsplumb/core', '@jsplumb/util', '@jsplumb/geom'], factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.jsPlumbBrowserUI = {}, global.jsPlumb, global.jsPlumbUtil, global.jsPlumbGeom));
-}(this, (function (exports, core, util, geom) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@jsplumb/core'), require('@jsplumb/util'), require('@jsplumb/geom'), require('@jsplumb/common')) :
+  typeof define === 'function' && define.amd ? define(['exports', '@jsplumb/core', '@jsplumb/util', '@jsplumb/geom', '@jsplumb/common'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.jsPlumbBrowserUI = {}, global.jsPlumb, global.jsPlumbUtil, global.jsPlumbGeom, global.jsPlumbCommon));
+}(this, (function (exports, core, util, geom, common) { 'use strict';
 
   function _typeof(obj) {
     if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -3302,8 +3302,8 @@
     SupportedEdge[SupportedEdge["bottom"] = 1] = "bottom";
   })(SupportedEdge || (SupportedEdge = {}));
   var DEFAULT_ANCHOR_LOCATIONS = new Map();
-  DEFAULT_ANCHOR_LOCATIONS.set(SupportedEdge.top, [core.AnchorLocations.TopRight, core.AnchorLocations.TopLeft]);
-  DEFAULT_ANCHOR_LOCATIONS.set(SupportedEdge.bottom, [core.AnchorLocations.BottomRight, core.AnchorLocations.BottomLeft]);
+  DEFAULT_ANCHOR_LOCATIONS.set(SupportedEdge.top, [common.AnchorLocations.TopRight, common.AnchorLocations.TopLeft]);
+  DEFAULT_ANCHOR_LOCATIONS.set(SupportedEdge.bottom, [common.AnchorLocations.BottomRight, common.AnchorLocations.BottomLeft]);
   var DEFAULT_LIST_OPTIONS = {
     deriveAnchor: function deriveAnchor(edge, index, ep, conn) {
       return DEFAULT_ANCHOR_LOCATIONS.get(edge)[index];

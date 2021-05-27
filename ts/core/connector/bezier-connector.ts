@@ -2,7 +2,7 @@ import {AbstractBezierConnector, AbstractBezierOptions} from "./abstract-bezier-
 import {PaintGeometry, ConnectorComputeParams} from "./abstract-connector"
 import {BezierSegment} from "./bezier-segment"
 import {Connection} from "./connection-impl"
-import {AnchorPlacement} from "../router/router"
+import {AnchorPlacement} from "@jsplumb/common"
 
 /**
  * Options for the Bezier connector.

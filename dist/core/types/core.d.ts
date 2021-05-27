@@ -1,9 +1,9 @@
 import { JsPlumbDefaults } from "./defaults";
 import { Connection, ConnectionOptions } from "./connector/connection-impl";
-import { Endpoint, EndpointSpec } from "./endpoint/endpoint";
-import { AnchorPlacement, RedrawResult } from "./router/router";
+import { Endpoint } from "./endpoint/endpoint";
+import { RedrawResult } from "./router/router";
 import { RotatedPointXY, Rotations, PointXY, Size, Dictionary, Extents, EventGenerator } from "@jsplumb/util";
-import { UpdateOffsetOptions, jsPlumbElement, ConnectParams, // <--
+import { UpdateOffsetOptions, ConnectParams, // <--
 SourceDefinition, BehaviouralTypeDescriptor, // <--
 TypeDescriptor, ConnectionMovedParams, ConnectionTypeDescriptor, EndpointTypeDescriptor } from './common';
 import { EndpointOptions } from "./endpoint/endpoint-options";
@@ -19,9 +19,16 @@ import { Overlay } from './overlay/overlay';
 import { LabelOverlay } from './overlay/label-overlay';
 import { AbstractConnector } from './connector/abstract-connector';
 import { PaintStyle } from './styles';
-import { AnchorSpec } from "./factory/anchor-record-factory";
 import { SourceSelector, TargetSelector } from "./source-selector";
 import { InternalEndpointOptions } from "./endpoint/endpoint-options";
+import { AnchorPlacement, AnchorSpec, EndpointSpec } from "@jsplumb/common";
+export interface jsPlumbElement<E> {
+    _jsPlumbGroup: UIGroup<E>;
+    _jsPlumbParentGroup: UIGroup<E>;
+    _jsPlumbProxies: Array<[Connection, number]>;
+    _isJsPlumbGroup: boolean;
+    parentNode: jsPlumbElement<E>;
+}
 export declare type ElementSelectionSpecifier<E> = E | Array<E> | '*';
 export declare type SelectionList = '*' | Array<string>;
 export interface AbstractSelectOptions<E> {

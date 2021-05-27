@@ -1,10 +1,11 @@
 import { Endpoint } from "../endpoint/endpoint";
-import { AnchorComputeParams, AnchorSpec, Face, Orientation } from "../factory/anchor-record-factory";
+import { AnchorComputeParams, Face, Orientation } from "../factory/anchor-record-factory";
 import { LightweightAnchor, LightweightContinuousAnchor, LightweightFloatingAnchor } from "../factory/anchor-record-factory";
-import { AnchorPlacement, RedrawResult, Router } from "./router";
+import { RedrawResult, Router } from "./router";
 import { Connection } from "../connector/connection-impl";
 import { JsPlumbInstance } from "../core";
 import { PointXY } from "@jsplumb/util";
+import { AnchorPlacement, AnchorSpec } from "@jsplumb/common";
 interface ConnectionFacade {
     endpoints: [Endpoint, Endpoint];
 }

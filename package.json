@@ -34,11 +34,12 @@
     "connectivity"
   ],
   "packages": [
-    "util", "geom", "bezier", "core", "browser-ui"
+    "util", "common", "geom", "bezier", "core", "browser-ui"
   ],
   "packageNames": {
     "@jsplumb/core":"jsPlumb",
     "@jsplumb/util":"jsPlumbUtil",
+    "@jsplumb/common":"jsPlumbCommon",
     "@jsplumb/bezier":"jsPlumbBezier",
     "@jsplumb/geom":"jsPlumbGeom",
     "@jsplumb/browser-ui":"jsPlumbBrowserUI"

@@ -5,9 +5,7 @@ import { Endpoint } from "../endpoint/endpoint";
 import { PaintStyle } from "../styles";
 import { Component } from "../component/component";
 import { Merge } from "@jsplumb/util";
-import { AnchorSpec } from "../factory/anchor-record-factory";
-import { ConnectorSpec } from "./abstract-connector";
-import { EndpointSpec } from "../endpoint/endpoint";
+import { AnchorSpec, ConnectorSpec, EndpointSpec } from "@jsplumb/common";
 export declare type ConnectionOptions<E = any> = Merge<ConnectParams<E>, {
     source?: E;
     target?: E;

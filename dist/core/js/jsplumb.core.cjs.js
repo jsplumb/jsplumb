@@ -5,6 +5,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 var util = require('@jsplumb/util');
 var geom = require('@jsplumb/geom');
 var bezier = require('@jsplumb/bezier');
+var common = require('@jsplumb/common');
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -2942,27 +2943,6 @@ function (_EventGenerator) {
 
 var X_AXIS_FACES = ["left", "right"];
 var Y_AXIS_FACES = ["top", "bottom"];
-(function (AnchorLocations) {
-  AnchorLocations["Assign"] = "Assign";
-  AnchorLocations["AutoDefault"] = "AutoDefault";
-  AnchorLocations["Bottom"] = "Bottom";
-  AnchorLocations["BottomLeft"] = "BottomLeft";
-  AnchorLocations["BottomRight"] = "BottomRight";
-  AnchorLocations["Center"] = "Center";
-  AnchorLocations["Continuous"] = "Continuous";
-  AnchorLocations["ContinuousBottom"] = "ContinuousBottom";
-  AnchorLocations["ContinuousLeft"] = "ContinuousLeft";
-  AnchorLocations["ContinuousRight"] = "ContinuousRight";
-  AnchorLocations["ContinuousTop"] = "ContinuousTop";
-  AnchorLocations["ContinuousLeftRight"] = "ContinuousLeftRight";
-  AnchorLocations["ContinuousTopBottom"] = "ContinuousTopBottom";
-  AnchorLocations["Left"] = "Left";
-  AnchorLocations["Perimeter"] = "Perimeter";
-  AnchorLocations["Right"] = "Right";
-  AnchorLocations["Top"] = "Top";
-  AnchorLocations["TopLeft"] = "TopLeft";
-  AnchorLocations["TopRight"] = "TopRight";
-})(exports.AnchorLocations || (exports.AnchorLocations = {}));
 var LightweightFloatingAnchor =
 function () {
   function LightweightFloatingAnchor(instance, element) {
@@ -3814,7 +3794,7 @@ function (_Component) {
     if (params.preparedAnchor != null) {
       _this.setPreparedAnchor(params.preparedAnchor);
     } else {
-      var anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : instance.defaults.anchor || exports.AnchorLocations.Top;
+      var anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : instance.defaults.anchor || common.AnchorLocations.Top;
       _this.setAnchor(anchorParamsToUse);
     }
     var type = [DEFAULT, params.type || ""].join(" ");
@@ -6580,7 +6560,7 @@ function (_EventGenerator) {
     _defineProperty(_assertThisInitialized(_this), "DEFAULT_SCOPE", void 0);
     _defineProperty(_assertThisInitialized(_this), "_zoom", 1);
     _this.defaults = {
-      anchor: exports.AnchorLocations.Bottom,
+      anchor: common.AnchorLocations.Bottom,
       anchors: [null, null],
       connectionsDetachable: true,
       connectionOverlays: [],

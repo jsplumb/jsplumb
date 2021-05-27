@@ -3,7 +3,7 @@ import {Endpoint} from "../endpoint/endpoint"
 import {
     AnchorComputeParams,
     AnchorOrientationHint,
-    AnchorSpec, ComputedPosition,
+    ComputedPosition,
     Face, getDefaultFace, isEdgeSupported,
     Orientation,
     X_AXIS_FACES, Y_AXIS_FACES
@@ -16,7 +16,7 @@ import {
     TOP, BOTTOM, LEFT, RIGHT
 } from "../factory/anchor-record-factory"
 import {ConnectionDetachedParams} from "../common"
-import {AnchorPlacement, RedrawResult, Router} from "./router"
+import {RedrawResult, Router} from "./router"
 import {Connection} from "../connector/connection-impl"
 import {JsPlumbInstance} from "../core"
 import * as Constants from "../constants"
@@ -35,6 +35,7 @@ import {
 import {lineLength} from "@jsplumb/geom"
 
 import {ViewportElement} from "../viewport"
+import {AnchorPlacement, AnchorSpec} from "@jsplumb/common"
 
 
 // -------------------- internal data structures --------------------------------------

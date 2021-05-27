@@ -5,6 +5,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 var core = require('@jsplumb/core');
 var util = require('@jsplumb/util');
 var geom = require('@jsplumb/geom');
+var common = require('@jsplumb/common');
 
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -3304,8 +3305,8 @@ var SupportedEdge;
   SupportedEdge[SupportedEdge["bottom"] = 1] = "bottom";
 })(SupportedEdge || (SupportedEdge = {}));
 var DEFAULT_ANCHOR_LOCATIONS = new Map();
-DEFAULT_ANCHOR_LOCATIONS.set(SupportedEdge.top, [core.AnchorLocations.TopRight, core.AnchorLocations.TopLeft]);
-DEFAULT_ANCHOR_LOCATIONS.set(SupportedEdge.bottom, [core.AnchorLocations.BottomRight, core.AnchorLocations.BottomLeft]);
+DEFAULT_ANCHOR_LOCATIONS.set(SupportedEdge.top, [common.AnchorLocations.TopRight, common.AnchorLocations.TopLeft]);
+DEFAULT_ANCHOR_LOCATIONS.set(SupportedEdge.bottom, [common.AnchorLocations.BottomRight, common.AnchorLocations.BottomLeft]);
 var DEFAULT_LIST_OPTIONS = {
   deriveAnchor: function deriveAnchor(edge, index, ep, conn) {
     return DEFAULT_ANCHOR_LOCATIONS.get(edge)[index];

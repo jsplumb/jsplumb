@@ -1,8 +1,8 @@
 import { JsPlumbInstance } from "../core";
 import { Orientation } from "../factory/anchor-record-factory";
 import { Endpoint } from "./endpoint";
-import { AnchorPlacement } from "../router/router";
 import { Extents } from '@jsplumb/util';
+import { AnchorPlacement } from "@jsplumb/common";
 export interface EndpointRepresentationParams {
     cssClass?: string;
 }

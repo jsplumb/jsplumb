@@ -1,8 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@jsplumb/util'), require('@jsplumb/geom'), require('@jsplumb/bezier')) :
-  typeof define === 'function' && define.amd ? define(['exports', '@jsplumb/util', '@jsplumb/geom', '@jsplumb/bezier'], factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.jsPlumb = {}, global.jsPlumbUtil, global.jsPlumbGeom, global.jsPlumbBezier));
-}(this, (function (exports, util, geom, bezier) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@jsplumb/util'), require('@jsplumb/geom'), require('@jsplumb/bezier'), require('@jsplumb/common')) :
+  typeof define === 'function' && define.amd ? define(['exports', '@jsplumb/util', '@jsplumb/geom', '@jsplumb/bezier', '@jsplumb/common'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.jsPlumb = {}, global.jsPlumbUtil, global.jsPlumbGeom, global.jsPlumbBezier, global.jsPlumbCommon));
+}(this, (function (exports, util, geom, bezier, common) { 'use strict';
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -2940,27 +2940,6 @@
 
   var X_AXIS_FACES = ["left", "right"];
   var Y_AXIS_FACES = ["top", "bottom"];
-  (function (AnchorLocations) {
-    AnchorLocations["Assign"] = "Assign";
-    AnchorLocations["AutoDefault"] = "AutoDefault";
-    AnchorLocations["Bottom"] = "Bottom";
-    AnchorLocations["BottomLeft"] = "BottomLeft";
-    AnchorLocations["BottomRight"] = "BottomRight";
-    AnchorLocations["Center"] = "Center";
-    AnchorLocations["Continuous"] = "Continuous";
-    AnchorLocations["ContinuousBottom"] = "ContinuousBottom";
-    AnchorLocations["ContinuousLeft"] = "ContinuousLeft";
-    AnchorLocations["ContinuousRight"] = "ContinuousRight";
-    AnchorLocations["ContinuousTop"] = "ContinuousTop";
-    AnchorLocations["ContinuousLeftRight"] = "ContinuousLeftRight";
-    AnchorLocations["ContinuousTopBottom"] = "ContinuousTopBottom";
-    AnchorLocations["Left"] = "Left";
-    AnchorLocations["Perimeter"] = "Perimeter";
-    AnchorLocations["Right"] = "Right";
-    AnchorLocations["Top"] = "Top";
-    AnchorLocations["TopLeft"] = "TopLeft";
-    AnchorLocations["TopRight"] = "TopRight";
-  })(exports.AnchorLocations || (exports.AnchorLocations = {}));
   var LightweightFloatingAnchor =
   function () {
     function LightweightFloatingAnchor(instance, element) {
@@ -3812,7 +3791,7 @@
       if (params.preparedAnchor != null) {
         _this.setPreparedAnchor(params.preparedAnchor);
       } else {
-        var anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : instance.defaults.anchor || exports.AnchorLocations.Top;
+        var anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : instance.defaults.anchor || common.AnchorLocations.Top;
         _this.setAnchor(anchorParamsToUse);
       }
       var type = [DEFAULT, params.type || ""].join(" ");
@@ -6578,7 +6557,7 @@
       _defineProperty(_assertThisInitialized(_this), "DEFAULT_SCOPE", void 0);
       _defineProperty(_assertThisInitialized(_this), "_zoom", 1);
       _this.defaults = {
-        anchor: exports.AnchorLocations.Bottom,
+        anchor: common.AnchorLocations.Bottom,
         anchors: [null, null],
         connectionsDetachable: true,
         connectionOverlays: [],

@@ -1,6 +1,6 @@
 import { SelectionBase } from './common';
-import { AnchorSpec } from '../factory/anchor-record-factory';
 import { Endpoint } from '../endpoint/endpoint';
+import { AnchorSpec } from "@jsplumb/common";
 export declare class EndpointSelection extends SelectionBase<Endpoint> {
     setEnabled(e: boolean): EndpointSelection;
     setAnchor(a: AnchorSpec): EndpointSelection;

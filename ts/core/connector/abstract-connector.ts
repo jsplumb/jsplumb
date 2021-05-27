@@ -3,18 +3,14 @@ import {isArray, log, PointXY, Extents, Constructable} from "@jsplumb/util"
 import {quadrant} from "@jsplumb/geom"
 
 import {EMPTY_BOUNDS, Segment} from "./abstract-segment"
-import {AnchorPlacement} from "../router/router"
 import { Connection} from '../connector/connection-impl'
 import { Orientation} from '../factory/anchor-record-factory'
 import { Endpoint} from '../endpoint/endpoint'
 
 import { ViewportElement } from "../viewport"
+import {AnchorPlacement, ConnectorOptions, PaintAxis} from "@jsplumb/common"
 
-export type UserDefinedConnectorId = string
-export type ConnectorId = "Bezier" | "StateMachine" | "Flowchart" | "Straight" | UserDefinedConnectorId
-export type ConnectorWithOptions = { type:ConnectorId, options:ConnectorOptions}
-export type ConnectorSpec = ConnectorId | ConnectorWithOptions
-export type PaintAxis = "y" | "x"
+
 
 type SegmentForPoint = { d: number, s: Segment, x: number, y: number, l: number, x1:number, y1:number, x2:number, y2:number, index:number, connectorLocation: number }
 
@@ -59,12 +55,7 @@ export interface PaintGeometry {
     anchorOrientation?:string
 }
 
-export interface ConnectorOptions {
-    stub?:number|number[]
-    gap?:number
-    cssClass?:string
-    hoverClass?:string
-}
+
 
 export interface Connector {
 

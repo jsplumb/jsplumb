@@ -1,7 +1,6 @@
-import {AnchorLocations, AnchorSpec} from "../factory/anchor-record-factory"
+
 import {PaintStyle} from "../styles"
 import {OverlaySpec} from "../overlay/overlay"
-import {ConnectorSpec} from "../connector/abstract-connector"
 import {Connection} from "../connector/connection-impl"
 import { EndpointFactory } from "../factory/endpoint-factory"
 import { EndpointRepresentation } from './endpoints'
@@ -11,12 +10,7 @@ import {Component} from "../component/component"
 import {DEFAULT, EVENT_ANCHOR_CHANGED, EVENT_MAX_CONNECTIONS} from "../constants"
 import {InternalEndpointOptions} from "./endpoint-options"
 import { LightweightAnchor } from '../factory/anchor-record-factory'
-
-export type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndpointId
-export type UserDefinedEndpointId = string
-export type EndpointParams = any
-export type FullEndpointSpec = {type:EndpointId, options:EndpointParams}
-export type EndpointSpec = EndpointId | FullEndpointSpec
+import {AnchorLocations, AnchorSpec, ConnectorSpec, EndpointSpec, FullEndpointSpec} from "@jsplumb/common"
 
 export interface EndpointStyle extends PaintStyle, Record<string, any> {}
 

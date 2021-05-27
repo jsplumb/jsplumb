@@ -31,8 +31,6 @@ import {
     SourceDefinition,
     SourceOrTargetDefinition,
     TARGET,
-    AnchorSpec,
-    EndpointSpec,
     TargetSelector,
     INTERCEPT_BEFORE_DRAG,
     INTERCEPT_BEFORE_START_DETACH,
@@ -62,6 +60,7 @@ import {
     addToDictionary,
     BoundingBox
 } from "@jsplumb/util"
+import {AnchorSpec, EndpointSpec} from "@jsplumb/common"
 
 
 function _makeFloatingEndpoint (paintStyle:PaintStyle,

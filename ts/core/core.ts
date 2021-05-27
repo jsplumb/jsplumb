@@ -1,10 +1,10 @@
 import {JsPlumbDefaults} from "./defaults"
 
 import {Connection, ConnectionOptions} from "./connector/connection-impl"
-import {Endpoint, EndpointSpec} from "./endpoint/endpoint"
+import {Endpoint} from "./endpoint/endpoint"
 import { DotEndpoint } from './endpoint/dot-endpoint'
 import {convertToFullOverlaySpec, FullOverlaySpec} from "./overlay/overlay"
-import {AnchorPlacement, RedrawResult} from "./router/router"
+import {RedrawResult} from "./router/router"
 import {
     findWithFunction,
     functionChain,
@@ -24,7 +24,6 @@ import {
 
 import {
     UpdateOffsetOptions,
-    jsPlumbElement,
     ConnectParams,  // <--
     SourceDefinition,
     TargetDefinition,
@@ -53,7 +52,7 @@ import { LabelOverlay } from './overlay/label-overlay'
 import { AbstractConnector } from './connector/abstract-connector'
 import { BezierConnector } from './connector/bezier-connector'
 import { PaintStyle} from './styles'
-import {AnchorComputeParams, AnchorSpec, AnchorLocations } from "./factory/anchor-record-factory"
+import {AnchorComputeParams} from "./factory/anchor-record-factory"
 import {SourceSelector, TargetSelector} from "./source-selector"
 import {
     ATTRIBUTE_MANAGED,
@@ -74,6 +73,15 @@ import {
 import {InternalEndpointOptions} from "./endpoint/endpoint-options"
 import {LightweightRouter} from "./router/lightweight-router"
 import {Connectors} from "./connector/connectors"
+import {AnchorLocations, AnchorPlacement, AnchorSpec, EndpointSpec} from "@jsplumb/common"
+
+export interface jsPlumbElement<E> {
+    _jsPlumbGroup: UIGroup<E>
+    _jsPlumbParentGroup:UIGroup<E>
+    _jsPlumbProxies:Array<[Connection, number]>
+    _isJsPlumbGroup:boolean
+    parentNode:jsPlumbElement<E>
+}
 
 function _scopeMatch(e1:Endpoint, e2:Endpoint):boolean {
     let s1 = e1.scope.split(/\s/), s2 = e2.scope.split(/\s/)
