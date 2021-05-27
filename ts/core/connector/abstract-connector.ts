@@ -359,10 +359,6 @@ export abstract class AbstractConnector implements Connector {
         return result
     }
 
-    getSegments ():Array<Segment> {
-        return this.segments
-    }
-
     updateBounds (segment:Segment):void {
         let segBounds = segment.extents
         this.bounds.xmin = Math.min(this.bounds.xmin, segBounds.xmin)

@@ -3698,7 +3698,6 @@ function () {
 function paintSvgConnector(instance, connector, paintStyle, extents) {
   getConnectorElement(instance, connector);
   SvgComponent.paint(connector, false, paintStyle, extents);
-  var segments = connector.getSegments();
   var p = "",
       offset = [0, 0];
   if (extents.xmin < 0) {
@@ -3707,7 +3706,7 @@ function paintSvgConnector(instance, connector, paintStyle, extents) {
   if (extents.ymin < 0) {
     offset[1] = -extents.ymin;
   }
-  if (segments.length > 0) {
+  if (connector.segments.length > 0) {
     p = instance.getPathData(connector);
     var a = {
       d: p,
@@ -4502,25 +4501,6 @@ function (_JsPlumbInstance) {
         c: new Set(),
         e: new Set()
       };
-    }
-  }, {
-    key: "getPath",
-    value: function getPath(segment, isFirstSegment) {
-      return {
-        "Straight": function Straight(isFirstSegment) {
-          return (isFirstSegment ? "M " + segment.x1 + " " + segment.y1 + " " : "") + "L " + segment.x2 + " " + segment.y2;
-        },
-        "Bezier": function Bezier(isFirstSegment) {
-          var b = segment;
-          return (isFirstSegment ? "M " + b.x2 + " " + b.y2 + " " : "") + "C " + b.cp2x + " " + b.cp2y + " " + b.cp1x + " " + b.cp1y + " " + b.x1 + " " + b.y1;
-        },
-        "Arc": function Arc(isFirstSegment) {
-          var a = segment;
-          var laf = a.sweep > Math.PI ? 1 : 0,
-              sf = a.anticlockwise ? 0 : 1;
-          return (isFirstSegment ? "M" + a.x1 + " " + a.y1 + " " : "") + "A " + a.radius + " " + a.radius + " 0 " + laf + "," + sf + " " + a.x2 + " " + a.y2;
-        }
-      }[segment.type](isFirstSegment);
     }
   }, {
     key: "addOverlayClass",

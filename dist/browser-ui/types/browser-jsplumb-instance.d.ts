@@ -5,7 +5,6 @@ import { jsPlumbDOMElement } from './element-facade';
 import { EventManager } from "./event-manager";
 import { DragStartEventParams, DragEventParams, DragStopEventParams, ContainmentType } from './collicat';
 import { JsPlumbList, JsPlumbListManager, JsPlumbListOptions } from "./lists";
-import { Segment } from "@jsplumb/common";
 export interface UIComponent {
     canvas: HTMLElement;
     svg: SVGElement;
@@ -242,7 +241,6 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
         attr: (node: SVGElement, attributes: Dictionary<string | number>) => void;
         pos: (d: [number, number]) => string;
     };
-    getPath(segment: Segment, isFirstSegment: boolean): string;
     addOverlayClass(o: Overlay, clazz: string): void;
     removeOverlayClass(o: Overlay, clazz: string): void;
     paintOverlay(o: Overlay, params: any, extents: any): void;

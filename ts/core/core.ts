@@ -49,7 +49,6 @@ import { Component } from './component/component'
 import { Overlay } from './overlay/overlay'
 import { LabelOverlay } from './overlay/label-overlay'
 import { AbstractConnector } from './connector/abstract-connector'
-import { BezierConnector } from './connector/bezier-connector'
 import { PaintStyle} from './styles'
 import {AnchorComputeParams} from "./factory/anchor-record-factory"
 import {SourceSelector, TargetSelector} from "./source-selector"
@@ -72,7 +71,8 @@ import {
 import {InternalEndpointOptions} from "./endpoint/endpoint-options"
 import {LightweightRouter} from "./router/lightweight-router"
 import {Connectors} from "./connector/connectors"
-import {AnchorLocations, AnchorPlacement, AnchorSpec, EndpointSpec, Segment} from "@jsplumb/common"
+import {AnchorLocations, AnchorPlacement, AnchorSpec, EndpointSpec} from "@jsplumb/common"
+import {StraightConnector} from "./connector/straight-connector"
 
 export interface jsPlumbElement<E> {
     _jsPlumbGroup: UIGroup<E>
@@ -302,7 +302,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             anchors: [ null, null ],
             connectionsDetachable: true,
             connectionOverlays: [ ],
-            connector: BezierConnector.type,
+            connector: StraightConnector.type,
             container: null,
             endpoint: DotEndpoint.type,
             endpointOverlays: [ ],
@@ -2035,13 +2035,14 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     getPathData (connector:AbstractConnector):any {
         let p = ""
         for (let i = 0; i < connector.segments.length; i++) {
-            p += this.getPath(connector.segments[i], i === 0)
+            //p += this.getPath(connector.segments[i], i === 0)
+            p += connector.segments[i].getPath(i === 0)
             p += " "
         }
         return p
     }
 
-    abstract getPath(segment:Segment, isFirstSegment:boolean):string
+    //abstract getPath(segment:Segment, isFirstSegment:boolean):string
 
     abstract paintOverlay(o: Overlay, params:any, extents:any):void
     abstract addOverlayClass(o:Overlay, clazz:string):void

@@ -34,7 +34,7 @@
     "connectivity"
   ],
   "packages": [
-    "util", "common", "geom", "bezier", "core", "browser-ui"
+    "util", "common", "geom", "bezier", "core", "connector-bezier", "browser-ui"
   ],
   "packageNames": {
     "@jsplumb/core":"jsPlumb",
@@ -42,7 +42,8 @@
     "@jsplumb/common":"jsPlumbCommon",
     "@jsplumb/bezier":"jsPlumbBezier",
     "@jsplumb/geom":"jsPlumbGeom",
-    "@jsplumb/browser-ui":"jsPlumbBrowserUI"
+    "@jsplumb/browser-ui":"jsPlumbBrowserUI",
+    "@jsplumb/connector-bezier":"jsPlumbConnectorBezier"
   },
   "author": "jsPlumb (hello@jsplumbtoolkit.com)",
   "license": "(MIT OR GPL-2.0)",

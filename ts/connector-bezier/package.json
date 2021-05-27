@@ -31,7 +31,8 @@
   "license": "(MIT OR GPL-2.0)",
   "dependencies": {
     "@jsplumb/util": "5.0.0-RC1",
-    "@jsplumb/common": "5.0.0-RC1"
+    "@jsplumb/common": "5.0.0-RC1",
+    "@jsplumb/core": "5.0.0-RC1"
   },
   "devDependencies": {}
 }

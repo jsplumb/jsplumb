@@ -32,7 +32,6 @@
   "dependencies": {
     "@jsplumb/util": "5.0.0-RC1",
     "@jsplumb/common": "5.0.0-RC1",
-    "@jsplumb/bezier": "5.0.0-RC1",
     "@jsplumb/geom": "5.0.0-RC1"
   },
   "devDependencies": {}

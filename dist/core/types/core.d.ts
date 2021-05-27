@@ -20,7 +20,7 @@ import { AbstractConnector } from './connector/abstract-connector';
 import { PaintStyle } from './styles';
 import { SourceSelector, TargetSelector } from "./source-selector";
 import { InternalEndpointOptions } from "./endpoint/endpoint-options";
-import { AnchorPlacement, AnchorSpec, EndpointSpec, Segment } from "@jsplumb/common";
+import { AnchorPlacement, AnchorSpec, EndpointSpec } from "@jsplumb/common";
 export interface jsPlumbElement<E> {
     _jsPlumbGroup: UIGroup<E>;
     _jsPlumbParentGroup: UIGroup<E>;
@@ -486,7 +486,6 @@ export declare abstract class JsPlumbInstance<T extends {
     abstract off(el: Document | T["E"] | ArrayLike<T["E"]>, event: string, callback: Function): void;
     abstract trigger(el: Document | T["E"], event: string, originalEvent?: Event, payload?: any, detail?: number): void;
     getPathData(connector: AbstractConnector): any;
-    abstract getPath(segment: Segment, isFirstSegment: boolean): string;
     abstract paintOverlay(o: Overlay, params: any, extents: any): void;
     abstract addOverlayClass(o: Overlay, clazz: string): void;
     abstract removeOverlayClass(o: Overlay, clazz: string): void;

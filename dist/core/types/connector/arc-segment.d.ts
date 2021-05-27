@@ -24,6 +24,7 @@ export declare class ArcSegment extends AbstractSegment {
     constructor(params: ArcSegmentParams);
     private _calcAngle;
     private _calcAngleForLocation;
+    getPath(isFirstSegment: boolean): string;
     getLength(): number;
     /**
      * returns the point on the segment's path that is 'location' along the length of the path, where 'location' is a decimal from

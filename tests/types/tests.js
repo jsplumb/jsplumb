@@ -81,7 +81,7 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
             c = _jsPlumb.connect({source: d1, target: d2});
 
-        equal(c.connector.type, "Bezier", "connector has bezier type before state add");
+        equal(c.connector.type, "Straight", "connector has Straight type before state add");
 
         c.addType("basic");
         equal(c.connector.type, "Flowchart", "connector has Flowchart type after state add");
@@ -111,7 +111,7 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
             c = _jsPlumb.connect({source: d1, target: d2});
 
-        equal(c.connector.type, "Bezier", "connector has bezier type before state change");
+        equal(c.connector.type, "Straight", "connector has Straight type before state change");
 
         c.setType("basic");
         equal(c.connector.type, "Flowchart", "connector has bezier type after state change");

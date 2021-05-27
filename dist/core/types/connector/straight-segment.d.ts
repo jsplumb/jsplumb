@@ -17,6 +17,7 @@ export declare class StraightSegment extends AbstractSegment {
     y1: number;
     y2: number;
     constructor(params: StraightSegmentParams);
+    getPath(isFirstSegment: boolean): string;
     private _recalc;
     static segmentType: string;
     type: string;

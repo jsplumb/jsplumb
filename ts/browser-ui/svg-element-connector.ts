@@ -13,8 +13,6 @@ export function paintSvgConnector(instance:BrowserJsPlumbInstance, connector:Abs
 
     SvgComponent.paint(connector, false, paintStyle, extents)
 
-    let segments = connector.getSegments()
-
     let p = "", offset = [0, 0]
     if (extents.xmin < 0) {
         offset[0] = -extents.xmin
@@ -23,7 +21,7 @@ export function paintSvgConnector(instance:BrowserJsPlumbInstance, connector:Abs
         offset[1] = -extents.ymin
     }
 
-    if (segments.length > 0) {
+    if (connector.segments.length > 0) {
 
         p = instance.getPathData(connector)
 

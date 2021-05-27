@@ -110,6 +110,13 @@ export class ArcSegment extends AbstractSegment {
         }
     }
 
+    getPath(isFirstSegment: boolean): string {
+        let laf = this.sweep > Math.PI ? 1 : 0,
+            sf = this.anticlockwise ? 0 : 1
+
+        return (isFirstSegment ? "M" + this.x1 + " " + this.y1 + " " : "") + "A " + this.radius + " " + this.radius + " 0 " + laf + "," + sf + " " + this.x2 + " " + this.y2
+    }
+
     getLength ():number {
         return this.length
     }

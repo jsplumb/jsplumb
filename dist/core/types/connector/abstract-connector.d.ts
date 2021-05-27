@@ -140,7 +140,6 @@ export declare abstract class AbstractConnector implements Connector {
     _clearSegments(): void;
     getLength(): number;
     private _prepareCompute;
-    getSegments(): Array<Segment>;
     updateBounds(segment: Segment): void;
     private dumpSegmentsToConsole;
     pointOnPath(location: number, absolute?: boolean): PointXY;

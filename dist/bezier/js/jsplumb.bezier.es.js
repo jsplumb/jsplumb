@@ -1,3 +1,5 @@
+import { AbstractSegment } from '@jsplumb/common';
+
 var Vectors = {
   subtract: function subtract(v1, v2) {
     return {
@@ -508,4 +510,203 @@ function _cubicRoots(a, b, c, d) {
   return t;
 }
 
-export { boundingBoxIntersection, boxIntersection, computeBezierLength, dist, distanceFromCurve, gradientAtPoint, gradientAtPointAlongPathFrom, isPoint, lineIntersection, locationAlongCurveFrom, nearestPointOnCurve, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve };
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+
+function _defineProperties(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ("value" in descriptor) descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
+
+function _createClass(Constructor, protoProps, staticProps) {
+  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+  if (staticProps) _defineProperties(Constructor, staticProps);
+  return Constructor;
+}
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+function _inherits(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function");
+  }
+
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass) _setPrototypeOf(subClass, superClass);
+}
+
+function _getPrototypeOf(o) {
+  _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+    return o.__proto__ || Object.getPrototypeOf(o);
+  };
+  return _getPrototypeOf(o);
+}
+
+function _setPrototypeOf(o, p) {
+  _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+    o.__proto__ = p;
+    return o;
+  };
+
+  return _setPrototypeOf(o, p);
+}
+
+function _assertThisInitialized(self) {
+  if (self === void 0) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+
+  return self;
+}
+
+function _possibleConstructorReturn(self, call) {
+  if (call && (typeof call === "object" || typeof call === "function")) {
+    return call;
+  }
+
+  return _assertThisInitialized(self);
+}
+
+var BezierSegment =
+function (_AbstractSegment) {
+  _inherits(BezierSegment, _AbstractSegment);
+  function BezierSegment(params) {
+    var _this;
+    _classCallCheck(this, BezierSegment);
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(BezierSegment).call(this, params));
+    _defineProperty(_assertThisInitialized(_this), "curve", void 0);
+    _defineProperty(_assertThisInitialized(_this), "cp1x", void 0);
+    _defineProperty(_assertThisInitialized(_this), "cp1y", void 0);
+    _defineProperty(_assertThisInitialized(_this), "cp2x", void 0);
+    _defineProperty(_assertThisInitialized(_this), "cp2y", void 0);
+    _defineProperty(_assertThisInitialized(_this), "x1", void 0);
+    _defineProperty(_assertThisInitialized(_this), "x2", void 0);
+    _defineProperty(_assertThisInitialized(_this), "y1", void 0);
+    _defineProperty(_assertThisInitialized(_this), "y2", void 0);
+    _defineProperty(_assertThisInitialized(_this), "length", 0);
+    _defineProperty(_assertThisInitialized(_this), "type", BezierSegment.segmentType);
+    _this.cp1x = params.cp1x;
+    _this.cp1y = params.cp1y;
+    _this.cp2x = params.cp2x;
+    _this.cp2y = params.cp2y;
+    _this.x1 = params.x1;
+    _this.x2 = params.x2;
+    _this.y1 = params.y1;
+    _this.y2 = params.y2;
+    _this.curve = [{
+      x: _this.x1,
+      y: _this.y1
+    }, {
+      x: _this.cp1x,
+      y: _this.cp1y
+    }, {
+      x: _this.cp2x,
+      y: _this.cp2y
+    }, {
+      x: _this.x2,
+      y: _this.y2
+    }];
+    _this.extents = {
+      xmin: Math.min(_this.x1, _this.x2, _this.cp1x, _this.cp2x),
+      ymin: Math.min(_this.y1, _this.y2, _this.cp1y, _this.cp2y),
+      xmax: Math.max(_this.x1, _this.x2, _this.cp1x, _this.cp2x),
+      ymax: Math.max(_this.y1, _this.y2, _this.cp1y, _this.cp2y)
+    };
+    return _this;
+  }
+  _createClass(BezierSegment, [{
+    key: "getPath",
+    value: function getPath(isFirstSegment) {
+      return (isFirstSegment ? "M " + this.x2 + " " + this.y2 + " " : "") + "C " + this.cp2x + " " + this.cp2y + " " + this.cp1x + " " + this.cp1y + " " + this.x1 + " " + this.y1;
+    }
+  }, {
+    key: "pointOnPath",
+    value: function pointOnPath(location, absolute) {
+      location = BezierSegment._translateLocation(this.curve, location, absolute);
+      return pointOnCurve(this.curve, location);
+    }
+  }, {
+    key: "gradientAtPoint",
+    value: function gradientAtPoint$1(location, absolute) {
+      location = BezierSegment._translateLocation(this.curve, location, absolute);
+      return gradientAtPoint(this.curve, location);
+    }
+  }, {
+    key: "pointAlongPathFrom",
+    value: function pointAlongPathFrom(location, distance, absolute) {
+      location = BezierSegment._translateLocation(this.curve, location, absolute);
+      return pointAlongCurveFrom(this.curve, location, distance);
+    }
+  }, {
+    key: "getLength",
+    value: function getLength() {
+      if (this.length == null || this.length === 0) {
+        this.length = computeBezierLength(this.curve);
+      }
+      return this.length;
+    }
+  }, {
+    key: "findClosestPointOnPath",
+    value: function findClosestPointOnPath(x, y) {
+      var p = nearestPointOnCurve({
+        x: x,
+        y: y
+      }, this.curve);
+      return {
+        d: Math.sqrt(Math.pow(p.point.x - x, 2) + Math.pow(p.point.y - y, 2)),
+        x: p.point.x,
+        y: p.point.y,
+        l: 1 - p.location,
+        s: this,
+        x1: null,
+        y1: null,
+        x2: null,
+        y2: null
+      };
+    }
+  }, {
+    key: "lineIntersection",
+    value: function lineIntersection$1(x1, y1, x2, y2) {
+      return lineIntersection(x1, y1, x2, y2, this.curve);
+    }
+  }], [{
+    key: "_translateLocation",
+    value: function _translateLocation(_curve, location, absolute) {
+      if (absolute) {
+        location = locationAlongCurveFrom(_curve, location > 0 ? 0 : 1, location);
+      }
+      return location;
+    }
+  }]);
+  return BezierSegment;
+}(AbstractSegment);
+_defineProperty(BezierSegment, "segmentType", "Bezier");
+
+export { BezierSegment, boundingBoxIntersection, boxIntersection, computeBezierLength, dist, distanceFromCurve, gradientAtPoint, gradientAtPointAlongPathFrom, isPoint, lineIntersection, locationAlongCurveFrom, nearestPointOnCurve, perpendicularToPathAt, pointAlongCurveFrom, pointAlongPath, pointOnCurve };

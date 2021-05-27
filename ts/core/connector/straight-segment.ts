@@ -22,6 +22,10 @@ export class StraightSegment extends AbstractSegment {
         this._setCoordinates({x1: params.x1, y1: params.y1, x2: params.x2, y2: params.y2})
     }
 
+    getPath(isFirstSegment: boolean): string {
+        return (isFirstSegment ? "M " + this.x1 + " " + this.y1 + " " : "") + "L " + this.x2 + " " + this.y2
+    }
+
     private _recalc ():void {
         this.length = Math.sqrt(Math.pow(this.x2 - this.x1, 2) + Math.pow(this.y2 - this.y1, 2))
         this.m = gradient({x: this.x1, y: this.y1}, {x: this.x2, y: this.y2})

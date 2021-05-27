@@ -10,7 +10,7 @@ import {
     nearestPointOnCurve,
     pointAlongCurveFrom,
     pointOnCurve
-} from "@jsplumb/bezier"
+} from "./bezier"
 
 export interface BezierSegmentParams extends SegmentParams {
     cp1x:number
@@ -72,6 +72,11 @@ export class BezierSegment extends AbstractSegment {
             location = locationAlongCurveFrom(_curve, location > 0 ? 0 : 1, location)
         }
         return location
+    }
+
+    getPath(isFirstSegment: boolean): string {
+        return (isFirstSegment ? "M " + this.x2 + " " + this.y2 + " " : "") +
+            "C " + this.cp2x + " " + this.cp2y + " " + this.cp1x + " " + this.cp1y + " " + this.x1 + " " + this.y1
     }
 
     /**

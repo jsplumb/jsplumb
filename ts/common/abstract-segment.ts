@@ -52,6 +52,8 @@ export interface Segment {
     gradientAtPoint (location:number, absolute?:boolean):number
     pointAlongPathFrom (location:number, distance:number, absolute?:boolean):PointXY
     findClosestPointOnPath (x:number, y:number):PointNearPath
+
+    getPath(isFirstSegment:boolean):string
 }
 
 export abstract class AbstractSegment implements Segment {
@@ -68,6 +70,7 @@ export abstract class AbstractSegment implements Segment {
     abstract pointOnPath (location:number, absolute?:boolean):PointXY
     abstract gradientAtPoint (location:number, absolute?:boolean):number
     abstract pointAlongPathFrom (location:number, distance:number, absolute?:boolean):PointXY
+    abstract getPath(isFirstSegment:boolean):string
 
     constructor(protected params:SegmentParams) {
 
