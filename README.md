@@ -32,15 +32,27 @@ We package the following files:
 ### For 4.x onwards:
 
 ```
-npm install @jsplumb/community
+npm install @jsplumb/browser-ui
 ```
 
+`@jsplumb/browser-ui` will pull in `@jsplumb/core` as a dependency.
+
+To use jsPlumb 4.x as a direct import without a build system, you will need to import both `browser-ui` and `core`:
+
+```
+<script src="node_modules/@jsplumb/core/js/jsplumb.core.umd.js"></script>
+<script src="node_modules/@jsplumb/browser-ui/js/jsplumb.browser-ui.umd.js"></script>
+```
+
+
+
+## Version numbering
 
 **NOTE** jsPlumb does not follow strict semantic versioning.  It is not at all recommended that you use wildcards when specifying a dependency on jsPlumb.  The given command will install jsPlumb version using a caret for wildcard, eg `^2.9.0` - you might want to take off the caret.
 
 jsPlumb does not follow strict semantic versioning largely because of the stipulation that breaking changes must result in the major version being bumped. A major version implies something fundamental has occurred. The bump from 1.7.10 to 2.0.0 in jsPlumb was caused by the removal of the VML renderer, meaning IE6 and IE8 were no longer supported. You may say, a-ha! A breaking change! And you would be right; that was a breaking change. But a new major version might also occur when a new capability is added that doesn't affect existing functionality. And not every breaking change constitutes a fundamental change in the library itself. This note about semver was added to jsPlumb, for example, due to a discussion about how the `stop` event behaviour in the underlying drag library - Katavorio - had changed. Semver would say that the major version should have been bumped. But the change was not something fundamental. No capabilities had been added or removed...just some variables had been shuffled around.
 
-Maybe you agree with this viewpoint. Maybe you don't.
+Maybe you agree with this viewpoint. Maybe you don't. At least one person on Twitter does not.
 
 
 We recommend including the `jsplumbtoolkit-defaults.css` file to begin with, as it provides some sane default values.
