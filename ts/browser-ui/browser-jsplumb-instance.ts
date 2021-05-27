@@ -41,8 +41,6 @@ import {
     PROPERTY_POSITION,
     UNDEFINED,
     PaintStyle,
-    BezierSegment,
-    ArcSegment,
     isArrowOverlay,
     isPlainArrowOverlay,
     LabelOverlay,
@@ -113,7 +111,6 @@ import {HTMLElementOverlay} from "./html-element-overlay"
 import {SVGElementOverlay} from "./svg-element-overlay"
 import {paintSvgConnector} from "./svg-element-connector"
 import {SvgEndpoint} from "./svg-element-endpoint"
-import {Segment} from "@jsplumb/common"
 
 export interface UIComponent {
     canvas: HTMLElement
@@ -936,26 +933,6 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         node: (name:string, attributes?:ElementAttributes) => _node(name, attributes),
         attr:(node:SVGElement, attributes:ElementAttributes) => _attr (node, attributes),
         pos:(d:[number, number]):string => _pos(d)
-    }
-
-    getPath(segment:Segment, isFirstSegment:boolean):string {
-        return ({
-            "Straight": (isFirstSegment: boolean) => {
-                return (isFirstSegment ? "M " + segment.x1 + " " + segment.y1 + " " : "") + "L " + segment.x2 + " " + segment.y2
-            },
-            "Bezier": (isFirstSegment: boolean) => {
-                let b = segment as BezierSegment
-                return (isFirstSegment ? "M " + b.x2 + " " + b.y2 + " " : "") +
-                    "C " + b.cp2x + " " + b.cp2y + " " + b.cp1x + " " + b.cp1y + " " + b.x1 + " " + b.y1
-            },
-            "Arc": (isFirstSegment: boolean) => {
-                let a = segment as ArcSegment
-                let laf = a.sweep > Math.PI ? 1 : 0,
-                    sf = a.anticlockwise ? 0 : 1
-
-                return (isFirstSegment ? "M" + a.x1 + " " + a.y1 + " " : "") + "A " + a.radius + " " + a.radius + " 0 " + laf + "," + sf + " " + a.x2 + " " + a.y2
-            }
-        })[segment.type](isFirstSegment)
     }
 
     addOverlayClass(o: Overlay, clazz: string): void {
