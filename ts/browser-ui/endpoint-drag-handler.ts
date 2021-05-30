@@ -39,7 +39,7 @@ import {
     ATTRIBUTE_SCOPE_PREFIX,
     SourceSelector, InternalEndpointOptions,
     BehaviouralTypeDescriptor,
-    createFloatingAnchor, LightweightFloatingAnchor, REDROP_POLICY_ANY
+    createFloatingAnchor, LightweightFloatingAnchor, REDROP_POLICY_ANY, ATTRIBUTE_JTK_ENABLED, FALSE
 } from "@jsplumb/core"
 
 import { intersects } from "@jsplumb/geom"
@@ -190,7 +190,7 @@ export class EndpointDragHandler implements DragHandler {
         if (sourceDef != null) {
             // then get the associated element, using the definition's own `parentSelector`, if provided, or the default.
             sourceEl = this._resolveDragParent(sourceDef.def, eventTarget)
-            if (sourceEl == null) {
+            if (sourceEl == null || sourceEl.getAttribute(ATTRIBUTE_JTK_ENABLED) === FALSE) {
                 return
             }
         }
@@ -199,103 +199,106 @@ export class EndpointDragHandler implements DragHandler {
 
             let sourceElement = e.currentTarget as jsPlumbDOMElement, def
 
-            consume(e)
+            if(eventTarget.getAttribute(ATTRIBUTE_JTK_ENABLED) !== FALSE) {
 
-            this._activeDefinition = sourceDef
-
-            // at this point we have a mousedown event on an element that is configured as a drag source.
-
-            def = sourceDef.def
-            // if maxConnections reached
-            let sourceCount = this.instance.select({source: sourceEl}).length
-            if (sourceDef.maxConnections >= 0 && (sourceCount >= sourceDef.maxConnections)) {
                 consume(e)
-                if (def.onMaxConnections) {
-                    def.onMaxConnections({
-                        element: sourceEl,
-                        maxConnections: sourceDef.maxConnections
-                    }, e)
+
+                this._activeDefinition = sourceDef
+
+                // at this point we have a mousedown event on an element that is configured as a drag source.
+
+                def = sourceDef.def
+                // if maxConnections reached
+                let sourceCount = this.instance.select({source: sourceEl}).length
+                if (sourceDef.maxConnections >= 0 && (sourceCount >= sourceDef.maxConnections)) {
+                    consume(e)
+                    if (def.onMaxConnections) {
+                        def.onMaxConnections({
+                            element: sourceEl,
+                            maxConnections: sourceDef.maxConnections
+                        }, e)
+                    }
+                    e.stopImmediatePropagation && e.stopImmediatePropagation()
+                    return false
                 }
-                e.stopImmediatePropagation && e.stopImmediatePropagation()
-                return false
-            }
 
-            // find the position on the element at which the mouse was pressed; this is where the endpoint
-            // will be located.
-            let elxy = getPositionOnElement(e, sourceEl, this.instance.currentZoom)
+                // find the position on the element at which the mouse was pressed; this is where the endpoint
+                // will be located.
+                let elxy = getPositionOnElement(e, sourceEl, this.instance.currentZoom)
 
-            // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
-            // the params passed in, because after a connection is established we're going to reset the endpoint
-            // to have the anchor we were given.
-            let tempEndpointParams:any = {element:sourceEl}
-            extend(tempEndpointParams, def)
-            tempEndpointParams.isTemporarySource = true
+                // we need to override the anchor in here, and force 'isSource', but we don't want to mess with
+                // the params passed in, because after a connection is established we're going to reset the endpoint
+                // to have the anchor we were given.
+                let tempEndpointParams: any = {element: sourceEl}
+                extend(tempEndpointParams, def)
+                tempEndpointParams.isTemporarySource = true
 
-            if (def.scope) {
-                tempEndpointParams.scope = def.scope
-            }
+                if (def.scope) {
+                    tempEndpointParams.scope = def.scope
+                }
 
-            // what we want to do here is have `addEndpoint` contact the parameter extractor, because then we could use the same one
-            // between drag and programmatic. but we don't want to overwrite `anchor` or `deleteOnEmpty`, and also we want to get
-            // the original anchor back from the params, which wouldn't, of course, have been finalised until after addEndpoint had
-            // contacted the parameter extractor.
+                // what we want to do here is have `addEndpoint` contact the parameter extractor, because then we could use the same one
+                // between drag and programmatic. but we don't want to overwrite `anchor` or `deleteOnEmpty`, and also we want to get
+                // the original anchor back from the params, which wouldn't, of course, have been finalised until after addEndpoint had
+                // contacted the parameter extractor.
 
-            // perhaps extract some parameters from a parameter extractor
-            const extractedParameters = def.parameterExtractor ? def.parameterExtractor(sourceEl, eventTarget as Element) : {}
-            tempEndpointParams = merge(tempEndpointParams, extractedParameters)
+                // perhaps extract some parameters from a parameter extractor
+                const extractedParameters = def.parameterExtractor ? def.parameterExtractor(sourceEl, eventTarget as Element) : {}
+                tempEndpointParams = merge(tempEndpointParams, extractedParameters)
 
-            // keep a reference to the anchor we want to use if the connection is finalised, and then write a temp anchor
-            // for the drag
-            this._originalAnchor = tempEndpointParams.anchor || this.instance.defaults.anchor
+                // keep a reference to the anchor we want to use if the connection is finalised, and then write a temp anchor
+                // for the drag
+                this._originalAnchor = tempEndpointParams.anchor || this.instance.defaults.anchor
 
-            tempEndpointParams.anchor = [ elxy.x, elxy.y , 0, 0]
-            tempEndpointParams.deleteOnEmpty = true
+                tempEndpointParams.anchor = [elxy.x, elxy.y, 0, 0]
+                tempEndpointParams.deleteOnEmpty = true
 
-            // add an endpoint to the element that is the connection source, using the anchor that will position it where
-            // the mousedown event occurred.
+                // add an endpoint to the element that is the connection source, using the anchor that will position it where
+                // the mousedown event occurred.
 
-            // ideally we would have `managed` the sourceEl before this call, since if the element is not yet managed then
-            // an internal ID will be assigned here. but the toolkit edition would like this id to be `vertex.port`
+                // ideally we would have `managed` the sourceEl before this call, since if the element is not yet managed then
+                // an internal ID will be assigned here. but the toolkit edition would like this id to be `vertex.port`
 
-            this.ep = this.instance._internal_newEndpoint(tempEndpointParams)
+                this.ep = this.instance._internal_newEndpoint(tempEndpointParams)
 
-            // optionally check for attributes to extract from the source element
-            let payload = {}
-            if (def.extract) {
-                for (let att in def.extract) {
-                    //let v = sourceEl.getAttribute(att)
-                    let v = eventTarget.getAttribute(att)
-                    if (v) {
-                        payload[def.extract[att]] = v
+                // optionally check for attributes to extract from the source element
+                let payload = {}
+                if (def.extract) {
+                    for (let att in def.extract) {
+                        //let v = sourceEl.getAttribute(att)
+                        let v = eventTarget.getAttribute(att)
+                        if (v) {
+                            payload[def.extract[att]] = v
+                        }
+                    }
+
+                    this.ep.mergeParameters(payload)
+                }
+
+                // if unique endpoint and it's already been created, push it onto the endpoint we create. at the end
+                // of a successful connection we'll switch to that endpoint.
+                // TODO this is the same code as the programmatic endpoints create on line 1050 ish
+                if (def.uniqueEndpoint) {
+                    if (!sourceDef.endpoint) {
+                        sourceDef.endpoint = this.ep
+                        this.ep.deleteOnEmpty = false
+                    } else {
+                        this.ep.finalEndpoint = sourceDef.endpoint
                     }
                 }
 
-                this.ep.mergeParameters(payload)
+                // add to the list of endpoints that are a candidate for deletion if no activity has occurred on them.
+                // a mouseup listener on the canvas cleans anything up from this list if it has no connections.
+                // the list is then cleared.
+                sourceElement._jsPlumbOrphanedEndpoints = sourceElement._jsPlumbOrphanedEndpoints || []
+                sourceElement._jsPlumbOrphanedEndpoints.push(this.ep)
+
+                // and then trigger its mousedown event, which will kick off a drag, which will start dragging
+                // a new connection from this endpoint. The entry point is the `onStart` method in this class.
+                this.instance.trigger((this.ep.endpoint as any).canvas, EVENT_MOUSEDOWN, e, payload)
             }
-
-            // if unique endpoint and it's already been created, push it onto the endpoint we create. at the end
-            // of a successful connection we'll switch to that endpoint.
-            // TODO this is the same code as the programmatic endpoints create on line 1050 ish
-            if (def.uniqueEndpoint) {
-                if (!sourceDef.endpoint) {
-                    sourceDef.endpoint = this.ep
-                    this.ep.deleteOnEmpty = false
-                }
-                else {
-                    this.ep.finalEndpoint = sourceDef.endpoint
-                }
-            }
-
-            // add to the list of endpoints that are a candidate for deletion if no activity has occurred on them.
-            // a mouseup listener on the canvas cleans anything up from this list if it has no connections.
-            // the list is then cleared.
-            sourceElement._jsPlumbOrphanedEndpoints = sourceElement._jsPlumbOrphanedEndpoints || []
-            sourceElement._jsPlumbOrphanedEndpoints.push(this.ep)
-
-            // and then trigger its mousedown event, which will kick off a drag, which will start dragging
-            // a new connection from this endpoint. The entry point is the `onStart` method in this class.
-            this.instance.trigger((this.ep.endpoint as any).canvas, EVENT_MOUSEDOWN, e, payload)
         }
+
     }
 
     //
@@ -548,19 +551,22 @@ export class EndpointDragHandler implements DragHandler {
                 // source elements defined via the `selector`. If `any` then we can drop anywhere on the elements.
                 const targetZones = this.instance.getContainer().querySelectorAll(sourceDef.redrop === REDROP_POLICY_ANY ? SELECTOR_MANAGED_ELEMENT : sourceDef.selector)
                 forEach(targetZones, (el:Element) => {
-                    let d: any = {r: null, el}
-                    d.targetEl = findParent(el as unknown as jsPlumbDOMElement, SELECTOR_MANAGED_ELEMENT, this.instance.getContainer(), true)
 
-                    const o = this.instance.getOffset(d.el), s = this.instance.getSize(d.el)
-                    d.r= {x: o.x, y: o.y, w: s.w, h: s.h}
+                    if (el.getAttribute(ATTRIBUTE_JTK_ENABLED) !== "false") {
+                        let d: any = {r: null, el}
+                        d.targetEl = findParent(el as unknown as jsPlumbDOMElement, SELECTOR_MANAGED_ELEMENT, this.instance.getContainer(), true)
 
-                    if (sourceDef.def.def.rank != null) {
-                        d.rank = sourceDef.def.def.rank
+                        const o = this.instance.getOffset(d.el), s = this.instance.getSize(d.el)
+                        d.r = {x: o.x, y: o.y, w: s.w, h: s.h}
+
+                        if (sourceDef.def.def.rank != null) {
+                            d.rank = sourceDef.def.def.rank
+                        }
+
+                        d.def = sourceDef
+                        this.endpointDropTargets.push(d)
+                        this.instance.addClass(d.targetEl, CLASS_DRAG_ACTIVE)
                     }
-
-                    d.def = sourceDef
-                    this.endpointDropTargets.push(d)
-                    this.instance.addClass(d.targetEl, CLASS_DRAG_ACTIVE)
                 })
             }
 
@@ -573,32 +579,36 @@ export class EndpointDragHandler implements DragHandler {
             targetDefs.forEach((targetDef:TargetSelector) => {
                 const targetZones = this.instance.getContainer().querySelectorAll(targetDef.selector)
                 forEach(targetZones, (el:Element) => {
-                    let d: any = {r: null, el}
 
-                    if (targetDef.def.def.parentSelector != null) {
-                        d.targetEl = findParent(el as unknown as jsPlumbDOMElement, targetDef.def.def.parentSelector, this.instance.getContainer(), true)
-                    }
-                    if (d.targetEl == null) {
-                        d.targetEl = findParent(el as unknown as jsPlumbDOMElement, SELECTOR_MANAGED_ELEMENT, this.instance.getContainer(), true)
-                    }
+                    if (el.getAttribute(ATTRIBUTE_JTK_ENABLED) !== "false") {
 
-                    // if loopback disallowed on source or target definition and this target is the current element, skip it
-                    if (targetDef.def.def.allowLoopback === false || (this._activeDefinition && this._activeDefinition.def.allowLoopback === false)) {
-                        if (d.targetEl === this.ep.element) {
-                            return
+                        let d: any = {r: null, el}
+
+                        if (targetDef.def.def.parentSelector != null) {
+                            d.targetEl = findParent(el as unknown as jsPlumbDOMElement, targetDef.def.def.parentSelector, this.instance.getContainer(), true)
                         }
+                        if (d.targetEl == null) {
+                            d.targetEl = findParent(el as unknown as jsPlumbDOMElement, SELECTOR_MANAGED_ELEMENT, this.instance.getContainer(), true)
+                        }
+
+                        // if loopback disallowed on source or target definition and this target is the current element, skip it
+                        if (targetDef.def.def.allowLoopback === false || (this._activeDefinition && this._activeDefinition.def.allowLoopback === false)) {
+                            if (d.targetEl === this.ep.element) {
+                                return
+                            }
+                        }
+
+                        const o = this.instance.getOffset(el), s = this.instance.getSize(el)
+                        d.r = {x: o.x, y: o.y, w: s.w, h: s.h}
+
+                        d.def = targetDef.def
+
+                        if (targetDef.def.def.rank != null) {
+                            d.rank = targetDef.def.def.rank
+                        }
+                        this.endpointDropTargets.push(d)
+                        this.instance.addClass(d.targetEl, CLASS_DRAG_ACTIVE)
                     }
-
-                    const o = this.instance.getOffset(el), s = this.instance.getSize(el)
-                    d.r= {x: o.x, y: o.y, w: s.w, h: s.h}
-
-                    d.def = targetDef.def
-
-                    if (targetDef.def.def.rank != null) {
-                        d.rank = targetDef.def.def.rank
-                    }
-                    this.endpointDropTargets.push(d)
-                    this.instance.addClass(d.targetEl, CLASS_DRAG_ACTIVE)
                 })
             })
         }
