@@ -36,6 +36,7 @@ export const ATTRIBUTE_MANAGED = "data-jtk-managed"
 export const ATTRIBUTE_NOT_DRAGGABLE = "data-jtk-not-draggable"
 export const ATTRIBUTE_TABINDEX = "tabindex"
 export const ATTRIBUTE_SCOPE = "data-jtk-scope"
+export const ATTRIBUTE_JTK_ENABLED = "data-jtk-enabled"
 export const ATTRIBUTE_SCOPE_PREFIX = ATTRIBUTE_SCOPE + "-"
 
 export const CHECK_CONDITION = "checkCondition"
