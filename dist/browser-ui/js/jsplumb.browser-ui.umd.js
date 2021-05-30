@@ -4977,6 +4977,7 @@
   exports.EVENT_OVER = EVENT_OVER;
   exports.EVENT_START = EVENT_START;
   exports.EVENT_STOP = EVENT_STOP;
+  exports.ElementDragHandler = ElementDragHandler;
   exports.EventManager = EventManager;
   exports.addClass = addClass;
   exports.consume = consume;
