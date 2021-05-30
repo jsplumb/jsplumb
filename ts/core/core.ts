@@ -2035,14 +2035,11 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     getPathData (connector:AbstractConnector):any {
         let p = ""
         for (let i = 0; i < connector.segments.length; i++) {
-            //p += this.getPath(connector.segments[i], i === 0)
             p += connector.segments[i].getPath(i === 0)
             p += " "
         }
         return p
     }
-
-    //abstract getPath(segment:Segment, isFirstSegment:boolean):string
 
     abstract paintOverlay(o: Overlay, params:any, extents:any):void
     abstract addOverlayClass(o:Overlay, clazz:string):void
