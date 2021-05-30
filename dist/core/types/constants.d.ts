@@ -22,6 +22,7 @@ export declare const ATTRIBUTE_MANAGED = "data-jtk-managed";
 export declare const ATTRIBUTE_NOT_DRAGGABLE = "data-jtk-not-draggable";
 export declare const ATTRIBUTE_TABINDEX = "tabindex";
 export declare const ATTRIBUTE_SCOPE = "data-jtk-scope";
+export declare const ATTRIBUTE_JTK_ENABLED = "data-jtk-enabled";
 export declare const ATTRIBUTE_SCOPE_PREFIX: string;
 export declare const CHECK_CONDITION = "checkCondition";
 export declare const CHECK_DROP_ALLOWED = "checkDropAllowed";

@@ -2470,66 +2470,68 @@
         sourceDef = this._getSourceDefinition(e);
         if (sourceDef != null) {
           sourceEl = this._resolveDragParent(sourceDef.def, eventTarget);
-          if (sourceEl == null) {
+          if (sourceEl == null || sourceEl.getAttribute(core.ATTRIBUTE_JTK_ENABLED) === core.FALSE) {
             return;
           }
         }
         if (sourceDef) {
           var sourceElement = e.currentTarget,
               def;
-          consume(e);
-          this._activeDefinition = sourceDef;
-          def = sourceDef.def;
-          var sourceCount = this.instance.select({
-            source: sourceEl
-          }).length;
-          if (sourceDef.maxConnections >= 0 && sourceCount >= sourceDef.maxConnections) {
+          if (eventTarget.getAttribute(core.ATTRIBUTE_JTK_ENABLED) !== core.FALSE) {
             consume(e);
-            if (def.onMaxConnections) {
-              def.onMaxConnections({
-                element: sourceEl,
-                maxConnections: sourceDef.maxConnections
-              }, e);
+            this._activeDefinition = sourceDef;
+            def = sourceDef.def;
+            var sourceCount = this.instance.select({
+              source: sourceEl
+            }).length;
+            if (sourceDef.maxConnections >= 0 && sourceCount >= sourceDef.maxConnections) {
+              consume(e);
+              if (def.onMaxConnections) {
+                def.onMaxConnections({
+                  element: sourceEl,
+                  maxConnections: sourceDef.maxConnections
+                }, e);
+              }
+              e.stopImmediatePropagation && e.stopImmediatePropagation();
+              return false;
             }
-            e.stopImmediatePropagation && e.stopImmediatePropagation();
-            return false;
-          }
-          var elxy = getPositionOnElement(e, sourceEl, this.instance.currentZoom);
-          var tempEndpointParams = {
-            element: sourceEl
-          };
-          util.extend(tempEndpointParams, def);
-          tempEndpointParams.isTemporarySource = true;
-          if (def.scope) {
-            tempEndpointParams.scope = def.scope;
-          }
-          var extractedParameters = def.parameterExtractor ? def.parameterExtractor(sourceEl, eventTarget) : {};
-          tempEndpointParams = util.merge(tempEndpointParams, extractedParameters);
-          this._originalAnchor = tempEndpointParams.anchor || this.instance.defaults.anchor;
-          tempEndpointParams.anchor = [elxy.x, elxy.y, 0, 0];
-          tempEndpointParams.deleteOnEmpty = true;
-          this.ep = this.instance._internal_newEndpoint(tempEndpointParams);
-          var payload = {};
-          if (def.extract) {
-            for (var att in def.extract) {
-              var v = eventTarget.getAttribute(att);
-              if (v) {
-                payload[def.extract[att]] = v;
+            var elxy = getPositionOnElement(e, sourceEl, this.instance.currentZoom);
+            var tempEndpointParams = {
+              element: sourceEl
+            };
+            util.extend(tempEndpointParams, def);
+            tempEndpointParams.isTemporarySource = true;
+            if (def.scope) {
+              tempEndpointParams.scope = def.scope;
+            }
+            var extractedParameters = def.parameterExtractor ? def.parameterExtractor(sourceEl, eventTarget) : {};
+            tempEndpointParams = util.merge(tempEndpointParams, extractedParameters);
+            this._originalAnchor = tempEndpointParams.anchor || this.instance.defaults.anchor;
+            tempEndpointParams.anchor = [elxy.x, elxy.y, 0, 0];
+            tempEndpointParams.deleteOnEmpty = true;
+            this.ep = this.instance._internal_newEndpoint(tempEndpointParams);
+            var payload = {};
+            if (def.extract) {
+              for (var att in def.extract) {
+                var v = eventTarget.getAttribute(att);
+                if (v) {
+                  payload[def.extract[att]] = v;
+                }
+              }
+              this.ep.mergeParameters(payload);
+            }
+            if (def.uniqueEndpoint) {
+              if (!sourceDef.endpoint) {
+                sourceDef.endpoint = this.ep;
+                this.ep.deleteOnEmpty = false;
+              } else {
+                this.ep.finalEndpoint = sourceDef.endpoint;
               }
             }
-            this.ep.mergeParameters(payload);
+            sourceElement._jsPlumbOrphanedEndpoints = sourceElement._jsPlumbOrphanedEndpoints || [];
+            sourceElement._jsPlumbOrphanedEndpoints.push(this.ep);
+            this.instance.trigger(this.ep.endpoint.canvas, EVENT_MOUSEDOWN, e, payload);
           }
-          if (def.uniqueEndpoint) {
-            if (!sourceDef.endpoint) {
-              sourceDef.endpoint = this.ep;
-              this.ep.deleteOnEmpty = false;
-            } else {
-              this.ep.finalEndpoint = sourceDef.endpoint;
-            }
-          }
-          sourceElement._jsPlumbOrphanedEndpoints = sourceElement._jsPlumbOrphanedEndpoints || [];
-          sourceElement._jsPlumbOrphanedEndpoints.push(this.ep);
-          this.instance.trigger(this.ep.endpoint.canvas, EVENT_MOUSEDOWN, e, payload);
         }
       }
     }, {
@@ -2724,25 +2726,27 @@
           if (sourceDef != null) {
             var targetZones = this.instance.getContainer().querySelectorAll(sourceDef.redrop === core.REDROP_POLICY_ANY ? core.SELECTOR_MANAGED_ELEMENT : sourceDef.selector);
             util.forEach(targetZones, function (el) {
-              var d = {
-                r: null,
-                el: el
-              };
-              d.targetEl = findParent(el, core.SELECTOR_MANAGED_ELEMENT, _this.instance.getContainer(), true);
-              var o = _this.instance.getOffset(d.el),
-                  s = _this.instance.getSize(d.el);
-              d.r = {
-                x: o.x,
-                y: o.y,
-                w: s.w,
-                h: s.h
-              };
-              if (sourceDef.def.def.rank != null) {
-                d.rank = sourceDef.def.def.rank;
+              if (el.getAttribute(core.ATTRIBUTE_JTK_ENABLED) !== "false") {
+                var d = {
+                  r: null,
+                  el: el
+                };
+                d.targetEl = findParent(el, core.SELECTOR_MANAGED_ELEMENT, _this.instance.getContainer(), true);
+                var o = _this.instance.getOffset(d.el),
+                    s = _this.instance.getSize(d.el);
+                d.r = {
+                  x: o.x,
+                  y: o.y,
+                  w: s.w,
+                  h: s.h
+                };
+                if (sourceDef.def.def.rank != null) {
+                  d.rank = sourceDef.def.def.rank;
+                }
+                d.def = sourceDef;
+                _this.endpointDropTargets.push(d);
+                _this.instance.addClass(d.targetEl, CLASS_DRAG_ACTIVE);
               }
-              d.def = sourceDef;
-              _this.endpointDropTargets.push(d);
-              _this.instance.addClass(d.targetEl, CLASS_DRAG_ACTIVE);
             });
           }
         } else {
@@ -2752,35 +2756,37 @@
           targetDefs.forEach(function (targetDef) {
             var targetZones = _this.instance.getContainer().querySelectorAll(targetDef.selector);
             util.forEach(targetZones, function (el) {
-              var d = {
-                r: null,
-                el: el
-              };
-              if (targetDef.def.def.parentSelector != null) {
-                d.targetEl = findParent(el, targetDef.def.def.parentSelector, _this.instance.getContainer(), true);
-              }
-              if (d.targetEl == null) {
-                d.targetEl = findParent(el, core.SELECTOR_MANAGED_ELEMENT, _this.instance.getContainer(), true);
-              }
-              if (targetDef.def.def.allowLoopback === false || _this._activeDefinition && _this._activeDefinition.def.allowLoopback === false) {
-                if (d.targetEl === _this.ep.element) {
-                  return;
+              if (el.getAttribute(core.ATTRIBUTE_JTK_ENABLED) !== "false") {
+                var d = {
+                  r: null,
+                  el: el
+                };
+                if (targetDef.def.def.parentSelector != null) {
+                  d.targetEl = findParent(el, targetDef.def.def.parentSelector, _this.instance.getContainer(), true);
                 }
+                if (d.targetEl == null) {
+                  d.targetEl = findParent(el, core.SELECTOR_MANAGED_ELEMENT, _this.instance.getContainer(), true);
+                }
+                if (targetDef.def.def.allowLoopback === false || _this._activeDefinition && _this._activeDefinition.def.allowLoopback === false) {
+                  if (d.targetEl === _this.ep.element) {
+                    return;
+                  }
+                }
+                var o = _this.instance.getOffset(el),
+                    s = _this.instance.getSize(el);
+                d.r = {
+                  x: o.x,
+                  y: o.y,
+                  w: s.w,
+                  h: s.h
+                };
+                d.def = targetDef.def;
+                if (targetDef.def.def.rank != null) {
+                  d.rank = targetDef.def.def.rank;
+                }
+                _this.endpointDropTargets.push(d);
+                _this.instance.addClass(d.targetEl, CLASS_DRAG_ACTIVE);
               }
-              var o = _this.instance.getOffset(el),
-                  s = _this.instance.getSize(el);
-              d.r = {
-                x: o.x,
-                y: o.y,
-                w: s.w,
-                h: s.h
-              };
-              d.def = targetDef.def;
-              if (targetDef.def.def.rank != null) {
-                d.rank = targetDef.def.def.rank;
-              }
-              _this.endpointDropTargets.push(d);
-              _this.instance.addClass(d.targetEl, CLASS_DRAG_ACTIVE);
             });
           });
         }
@@ -3296,14 +3302,13 @@
     return GroupDragHandler;
   }(ElementDragHandler);
 
-  var SupportedEdge;
   (function (SupportedEdge) {
     SupportedEdge[SupportedEdge["top"] = 0] = "top";
     SupportedEdge[SupportedEdge["bottom"] = 1] = "bottom";
-  })(SupportedEdge || (SupportedEdge = {}));
+  })(exports.SupportedEdge || (exports.SupportedEdge = {}));
   var DEFAULT_ANCHOR_LOCATIONS = new Map();
-  DEFAULT_ANCHOR_LOCATIONS.set(SupportedEdge.top, [common.AnchorLocations.TopRight, common.AnchorLocations.TopLeft]);
-  DEFAULT_ANCHOR_LOCATIONS.set(SupportedEdge.bottom, [common.AnchorLocations.BottomRight, common.AnchorLocations.BottomLeft]);
+  DEFAULT_ANCHOR_LOCATIONS.set(exports.SupportedEdge.top, [common.AnchorLocations.TopRight, common.AnchorLocations.TopLeft]);
+  DEFAULT_ANCHOR_LOCATIONS.set(exports.SupportedEdge.bottom, [common.AnchorLocations.BottomRight, common.AnchorLocations.BottomLeft]);
   var DEFAULT_LIST_OPTIONS = {
     deriveAnchor: function deriveAnchor(edge, index, ep, conn) {
       return DEFAULT_ANCHOR_LOCATIONS.get(edge)[index];
@@ -3428,9 +3433,9 @@
       key: "newConnection",
       value: function newConnection(c, el, index) {
         if (el.offsetTop < this.el.scrollTop) {
-          this._proxyConnection(el, c, index, SupportedEdge.top);
+          this._proxyConnection(el, c, index, exports.SupportedEdge.top);
         } else if (el.offsetTop + el.offsetHeight > this.el.scrollTop + this.domElement.offsetHeight) {
-          this._proxyConnection(el, c, index, SupportedEdge.bottom);
+          this._proxyConnection(el, c, index, exports.SupportedEdge.bottom);
         }
       }
     }, {
@@ -3444,12 +3449,12 @@
             _this2.instance.select({
               source: children[i]
             }).each(function (c) {
-              _this2._proxyConnection(children[i], c, 0, SupportedEdge.top);
+              _this2._proxyConnection(children[i], c, 0, exports.SupportedEdge.top);
             });
             _this2.instance.select({
               target: children[i]
             }).each(function (c) {
-              _this2._proxyConnection(children[i], c, 1, SupportedEdge.top);
+              _this2._proxyConnection(children[i], c, 1, exports.SupportedEdge.top);
             });
           }
           else if (children[i].offsetTop + children[i].offsetHeight > _this2.el.scrollTop + _this2.domElement.offsetHeight) {
@@ -3457,12 +3462,12 @@
               _this2.instance.select({
                 source: children[i]
               }).each(function (c) {
-                _this2._proxyConnection(children[i], c, 0, SupportedEdge.bottom);
+                _this2._proxyConnection(children[i], c, 0, exports.SupportedEdge.bottom);
               });
               _this2.instance.select({
                 target: children[i]
               }).each(function (c) {
-                _this2._proxyConnection(children[i], c, 1, SupportedEdge.bottom);
+                _this2._proxyConnection(children[i], c, 1, exports.SupportedEdge.bottom);
               });
             } else if (children[i]._jsPlumbProxies) {
               for (var j = 0; j < children[i]._jsPlumbProxies.length; j++) {
@@ -4961,6 +4966,7 @@
     _do();
   }
 
+  exports.ATTR_SCROLLABLE_LIST = ATTR_SCROLLABLE_LIST;
   exports.BrowserJsPlumbInstance = BrowserJsPlumbInstance;
   exports.Collicat = Collicat;
   exports.Drag = Drag;
@@ -4975,10 +4981,14 @@
   exports.EVENT_DROP = EVENT_DROP;
   exports.EVENT_OUT = EVENT_OUT;
   exports.EVENT_OVER = EVENT_OVER;
+  exports.EVENT_SCROLL = EVENT_SCROLL;
   exports.EVENT_START = EVENT_START;
   exports.EVENT_STOP = EVENT_STOP;
   exports.ElementDragHandler = ElementDragHandler;
   exports.EventManager = EventManager;
+  exports.JsPlumbList = JsPlumbList;
+  exports.JsPlumbListManager = JsPlumbListManager;
+  exports.SELECTOR_SCROLLABLE_LIST = SELECTOR_SCROLLABLE_LIST;
   exports.addClass = addClass;
   exports.consume = consume;
   exports.createElement = createElement;
