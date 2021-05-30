@@ -60,7 +60,7 @@ export class FlowchartConnector extends AbstractConnector {
     constructor(public connection:Connection, params:FlowchartConnectorOptions) {
         super(connection, params)
 
-        this.midpoint = params.midpoint == null ? 0.5 : params.midpoint
+        this.midpoint = params.midpoint == null || isNaN(params.midpoint) ? 0.5 : params.midpoint
         this.cornerRadius = params.cornerRadius != null ? params.cornerRadius : 0
         this.alwaysRespectStubs = params.alwaysRespectStubs === true
 
