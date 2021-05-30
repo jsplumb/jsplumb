@@ -1,5 +1,5 @@
 
-export interface ConnectorOptions {
+export interface ConnectorOptions extends Record<string, any> {
     stub?:number|number[]
     gap?:number
     cssClass?:string
