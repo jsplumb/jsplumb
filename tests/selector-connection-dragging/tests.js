@@ -496,6 +496,53 @@ var testSuite = function () {
 
     })
 
+    test("addSourceSelector, then disable element via data-jtk-enabled='false'", function() {
+        var sourceNode = makeSourceNode()
+        var zone = addZone(sourceNode, "zone1")
+
+        var d2 = support.addDiv("d2")
+        d2.className = "node"
+        _jsPlumb.manage(d2)
+        _jsPlumb.addTargetSelector("#d2")
+
+        let elDragged = false;
+        _jsPlumb.bind("drag:move", function() {
+            elDragged = true
+        })
+
+        _jsPlumb.addSourceSelector(".zone1", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart"
+        })
+
+        support.dragConnection(zone, d2, true)
+
+        ok(elDragged === false, "element was not dragged")
+
+        equal(1, _jsPlumb.select().length, "one connection in the instance after initial drag")
+
+        _jsPlumb.select().deleteAll()
+        equal(0, _jsPlumb.select().length, "zero connections in the instance after connections cleared")
+
+        zone.setAttribute("data-jtk-enabled", false)
+        support.dragConnection(zone, d2, true)
+        equal(0, _jsPlumb.select().length, "zero connections in the instance after attempted drag from disabled element")
+
+        zone.setAttribute("data-jtk-enabled", true)
+        support.dragConnection(zone, d2, true)
+        equal(1, _jsPlumb.select().length, "one connection in the instance after element was re-enabled and a connection was dragged")
+
+        zone.setAttribute("data-jtk-enabled", false)
+        support.dragConnection(zone, d2, true)
+        equal(1, _jsPlumb.select().length, "one connection in the instance after element was disabled and a connection failed to drag")
+
+        zone.removeAttribute("data-jtk-enabled")
+        support.dragConnection(zone, d2, true)
+        equal(2, _jsPlumb.select().length, "two connections in the instance after enabled attribute removed from element, meaning default true, and a connection was dragged")
+
+    })
+
     test("addSourceSelector, then remove it", function() {
         var sourceNode = makeSourceNode()
         var zone = addZone(sourceNode, "zone1")
@@ -766,6 +813,52 @@ var testSuite = function () {
         equal(2, _jsPlumb.select().length, "two connections in the instance after drag to .zone2")
 
 
+    })
+
+    test("addTargetSelector, then disable it via data-jtk-enabled attribute", function() {
+        var targetNode = makeTargetNode()
+        var zone = addZone(targetNode, "zone1")
+
+        var d2 = support.addDiv("d2")
+        d2.className = "node"
+        _jsPlumb.manage(d2)
+        _jsPlumb.addSourceSelector("#d2")
+
+        let elDragged = false;
+        _jsPlumb.bind("drag:move", function() {
+            elDragged = true
+        })
+
+        _jsPlumb.addTargetSelector(".zone1", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart"
+        })
+
+        support.dragConnection(d2, zone, true)
+
+        ok(elDragged === false, "element was not dragged")
+
+        equal(1, _jsPlumb.select().length, "one connection in the instance when drag first occurs")
+
+        _jsPlumb.select().deleteAll()
+        equal(0, _jsPlumb.select().length, "zero connections in the instance after connections cleared")
+
+        zone.setAttribute("data-jtk-enabled", false)
+        support.dragConnection(d2, zone, true)
+        equal(0, _jsPlumb.select().length, "zero connections in the instance after drag fails due to disabled target")
+
+        zone.setAttribute("data-jtk-enabled", true)
+        support.dragConnection(d2, zone, true)
+        equal(1, _jsPlumb.select().length, "one connection in the instance after drag succeeds due to enabled target")
+
+        zone.setAttribute("data-jtk-enabled", false)
+        support.dragConnection(d2, zone, true)
+        equal(1, _jsPlumb.select().length, "one connection in the instance after drag fails due to disabled target")
+
+        zone.removeAttribute("data-jtk-enabled")
+        support.dragConnection(d2, zone, true)
+        equal(2, _jsPlumb.select().length, "two connections in the instance after enabled attribute remove from target, so defaults to true")
     })
 
     test("source and target selectors are NOT cleared on `reset` but they are on `destroy`", function() {
