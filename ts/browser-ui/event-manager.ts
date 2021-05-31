@@ -1,15 +1,14 @@
 
 import {
     ATTRIBUTE_TABINDEX,
-    EVENT_CLICK, EVENT_CONTEXTMENU, EVENT_DBL_TAP,
-    EVENT_FOCUS,
-    EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEOUT, EVENT_MOUSEOVER,
-    EVENT_MOUSEUP, EVENT_TAP
 } from "@jsplumb/core"
 
 import { PointXY, removeWithFunction, uuid } from "@jsplumb/util"
 
 import { jsPlumbDOMElement} from './element-facade'
+
+import { EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEOUT, EVENT_MOUSEOVER,
+    EVENT_MOUSEUP, EVENT_TAP, EVENT_DBL_TAP, EVENT_CONTEXTMENU, EVENT_FOCUS } from './constants'
 
 /**
  * Creates a Touch object.

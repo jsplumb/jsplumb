@@ -1088,14 +1088,11 @@
   var ABSOLUTE = "absolute";
   var FIXED = "fixed";
   var STATIC = "static";
-  var ATTRIBUTE_CONTAINER = "data-jtk-container";
   var ATTRIBUTE_GROUP = "data-jtk-group";
-  var ATTRIBUTE_GROUP_CONTENT = "data-jtk-group-content";
   var ATTRIBUTE_MANAGED = "data-jtk-managed";
   var ATTRIBUTE_NOT_DRAGGABLE = "data-jtk-not-draggable";
   var ATTRIBUTE_TABINDEX = "tabindex";
   var ATTRIBUTE_SCOPE = "data-jtk-scope";
-  var ATTRIBUTE_JTK_ENABLED = "data-jtk-enabled";
   var ATTRIBUTE_SCOPE_PREFIX = ATTRIBUTE_SCOPE + "-";
   var CHECK_CONDITION = "checkCondition";
   var CHECK_DROP_ALLOWED = "checkDropAllowed";
@@ -1111,70 +1108,32 @@
   var CLASS_GROUP_COLLAPSED = "jtk-group-collapsed";
   var CLASS_GROUP_EXPANDED = "jtk-group-expanded";
   var CLASS_OVERLAY = "jtk-overlay";
-  var CMD_ORPHAN_ALL = "orphanAll";
-  var CMD_HIDE = "hide";
-  var CMD_REMOVE_ALL = "removeAll";
-  var CMD_SHOW = "show";
-  var EVENT_CLICK = "click";
   var EVENT_ANCHOR_CHANGED = "anchor:changed";
   var EVENT_CONNECTION = "connection";
   var EVENT_CONNECTION_DETACHED = "connection:detach";
   var EVENT_CONNECTION_MOVED = "connection:move";
-  var EVENT_CONNECTION_MOUSEOUT = "connectionMouseOut";
-  var EVENT_CONNECTION_MOUSEOVER = "connectionMouseOver";
   var EVENT_CONTAINER_CHANGE = "container:change";
-  var EVENT_CONTEXTMENU = "contextmenu";
-  var EVENT_DBL_CLICK = "dblclick";
-  var EVENT_DBL_TAP = "dbltap";
-  var EVENT_ELEMENT_CLICK = "elementClick";
-  var EVENT_ELEMENT_DBL_CLICK = "elementDblClick";
-  var EVENT_ELEMENT_TAP = "elementTap";
-  var EVENT_ELEMENT_DBL_TAP = "elementDblTap";
-  var EVENT_ELEMENT_MOUSE_OUT = "elementMouseout";
-  var EVENT_ELEMENT_MOUSE_OVER = "elementMouseover";
-  var EVENT_ENDPOINT_CLICK = "endpointClick";
-  var EVENT_ENDPOINT_DBL_CLICK = "endpointDblClick";
-  var EVENT_ENDPOINT_TAP = "endpointTap";
-  var EVENT_ENDPOINT_DBL_TAP = "endpointDblTap";
-  var EVENT_ENDPOINT_MOUSEOUT = "endpointMouseOut";
-  var EVENT_ENDPOINT_MOUSEOVER = "endpointMouseOver";
   var EVENT_ENDPOINT_REPLACED = "endpoint:replaced";
-  var EVENT_INTERNAL_ENDPOINT_UNREGISTERED = "internal.endpointUnregistered";
-  var EVENT_FOCUS = "focus";
-  var EVENT_INTERNAL_CONNECTION_DETACHED = "internal.connection:detach";
-  var EVENT_MANAGE_ELEMENT = "manageElement";
-  var EVENT_MOUSEDOWN = "mousedown";
-  var EVENT_MOUSEENTER = "mouseenter";
-  var EVENT_MOUSEEXIT = "mouseexit";
-  var EVENT_MOUSEMOVE = "mousemove";
-  var EVENT_MOUSEOUT = "mouseout";
-  var EVENT_MOUSEOVER = "mouseover";
-  var EVENT_MOUSEUP = "mouseup";
-  var EVENT_GROUP_ADDED = "group:add";
+  var EVENT_INTERNAL_ENDPOINT_UNREGISTERED = "internal.endpoint:unregistered";
+  var EVENT_INTERNAL_CONNECTION_DETACHED = "internal.connection:detached";
+  var EVENT_MANAGE_ELEMENT = "element:manage";
+  var EVENT_GROUP_ADDED = "group:added";
   var EVENT_GROUP_COLLAPSE = "group:collapse";
   var EVENT_GROUP_EXPAND = "group:expand";
-  var EVENT_GROUP_MEMBER_ADDED = "group:addMember";
-  var EVENT_GROUP_MEMBER_REMOVED = "group:removeMember";
-  var EVENT_GROUP_REMOVED = "group:remove";
+  var EVENT_GROUP_MEMBER_ADDED = "group:member:added";
+  var EVENT_GROUP_MEMBER_REMOVED = "group:member:removed";
+  var EVENT_GROUP_REMOVED = "group:removed";
   var EVENT_MAX_CONNECTIONS = "maxConnections";
-  var EVENT_NESTED_GROUP_ADDED = "nestedGroupAdded";
-  var EVENT_NESTED_GROUP_REMOVED = "nestedGroupRemoved";
-  var EVENT_TAP = "tap";
-  var EVENT_UNMANAGE_ELEMENT = "unmanageElement";
-  var EVENT_UPDATE = "update";
+  var EVENT_NESTED_GROUP_ADDED = "group:nested:added";
+  var EVENT_NESTED_GROUP_REMOVED = "group:nested:removed";
+  var EVENT_UNMANAGE_ELEMENT = "element:unmanage";
   var EVENT_ZOOM = "zoom";
   var IS_DETACH_ALLOWED = "isDetachAllowed";
   var INTERCEPT_BEFORE_DRAG = "beforeDrag";
   var INTERCEPT_BEFORE_DROP = "beforeDrop";
   var INTERCEPT_BEFORE_DETACH = "beforeDetach";
   var INTERCEPT_BEFORE_START_DETACH = "beforeStartDetach";
-  var PROPERTY_POSITION = "position";
-  var SELECTOR_CONNECTOR = cls(CLASS_CONNECTOR);
-  var SELECTOR_ENDPOINT = cls(CLASS_ENDPOINT);
-  var SELECTOR_GROUP = att(ATTRIBUTE_GROUP);
-  var SELECTOR_GROUP_CONTAINER = att(ATTRIBUTE_GROUP_CONTENT);
   var SELECTOR_MANAGED_ELEMENT = att(ATTRIBUTE_MANAGED);
-  var SELECTOR_OVERLAY = cls(CLASS_OVERLAY);
   var ERROR_SOURCE_ENDPOINT_FULL = "Cannot establish connection: source endpoint is full";
   var ERROR_TARGET_ENDPOINT_FULL = "Cannot establish connection: target endpoint is full";
   var ERROR_SOURCE_DOES_NOT_EXIST = "Cannot establish connection: source does not exist";
@@ -1237,51 +1196,6 @@
       key: "isVisible",
       value: function isVisible() {
         return this.visible;
-      }
-    }, {
-      key: "_postComponentEvent",
-      value: function _postComponentEvent(eventName, originalEvent) {
-        this.instance.fire(eventName, this.component, originalEvent);
-      }
-    }, {
-      key: "click",
-      value: function click(e) {
-        this.fire(EVENT_CLICK, {
-          e: e,
-          overlay: this
-        });
-        var eventName = this.component instanceof Connection ? EVENT_CLICK : EVENT_ENDPOINT_CLICK;
-        this._postComponentEvent(eventName, e);
-      }
-    }, {
-      key: "dblclick",
-      value: function dblclick(e) {
-        this.fire(EVENT_DBL_CLICK, {
-          e: e,
-          overlay: this
-        });
-        var eventName = this.component instanceof Connection ? EVENT_DBL_CLICK : EVENT_ENDPOINT_DBL_CLICK;
-        this._postComponentEvent(eventName, e);
-      }
-    }, {
-      key: "tap",
-      value: function tap(e) {
-        this.fire(EVENT_TAP, {
-          e: e,
-          overlay: this
-        });
-        var eventName = this.component instanceof Connection ? EVENT_TAP : EVENT_ENDPOINT_TAP;
-        this._postComponentEvent(eventName, e);
-      }
-    }, {
-      key: "dbltap",
-      value: function dbltap(e) {
-        this.fire(EVENT_DBL_TAP, {
-          e: e,
-          overlay: this
-        });
-        var eventName = this.component instanceof Connection ? EVENT_DBL_TAP : EVENT_ENDPOINT_DBL_TAP;
-        this._postComponentEvent(eventName, e);
       }
     }]);
     return Overlay;
@@ -2984,8 +2898,6 @@
       key: "destroy",
       value: function destroy() {
         _get(_getPrototypeOf(Endpoint.prototype), "destroy", this).call(this);
-        var anchorClass = this.instance.endpointAnchorClassPrefix + (this.currentAnchorClass ? "-" + this.currentAnchorClass : "");
-        this.instance.removeClass(this.element, anchorClass);
         if (this.endpoint != null) {
           this.instance.destroyEndpoint(this);
         }
@@ -3145,12 +3057,6 @@
         return this.dropOverride && (this.revert || this.prune || this.orphan);
       }
     }, {
-      key: "getContentArea",
-      value: function getContentArea() {
-        var da = this.instance.getSelector(this.el, SELECTOR_GROUP_CONTAINER);
-        return da && da.length > 0 ? da[0] : this.el;
-      }
-    }, {
       key: "getAnchor",
       value: function getAnchor(conn, endpointIndex) {
         return this.anchor || "Continuous";
@@ -3168,7 +3074,7 @@
     }, {
       key: "add",
       value: function add(_el, doNotFireEvent) {
-        var dragArea = this.getContentArea();
+        var dragArea = this.instance.getGroupContentArea(this);
         var __el = _el;
         if (__el._jsPlumbParentGroup != null) {
           if (__el._jsPlumbParentGroup === this) {
@@ -3207,7 +3113,7 @@
         });
         if (manipulateDOM) {
           try {
-            this.getContentArea().removeChild(__el);
+            this.instance.getGroupContentArea(this).removeChild(__el);
           } catch (e) {
             util.log("Could not remove element from Group " + e);
           }
@@ -3262,10 +3168,10 @@
           var entry = this.instance.getManagedElements()[groupElId];
           entry.group = this.elId;
           var elpos = this.instance.getOffsetRelativeToRoot(group.el);
-          var cpos = this.collapsed ? this.instance.getOffsetRelativeToRoot(this.el) : this.instance.getOffsetRelativeToRoot(this.getContentArea());
+          var cpos = this.collapsed ? this.instance.getOffsetRelativeToRoot(this.el) : this.instance.getOffsetRelativeToRoot(this.instance.getGroupContentArea(this));
           group.el._jsPlumbParentGroup = this;
           this.children.push(group);
-          this.instance._appendElement(group.el, this.getContentArea());
+          this.instance._appendElement(group.el, this.instance.getGroupContentArea(this));
           group.group = this;
           var newPosition = {
             x: elpos.x - cpos.x,
@@ -3286,7 +3192,7 @@
       value: function removeGroup(group) {
         if (group.group === this) {
           var jel = group.el;
-          var d = this.getContentArea();
+          var d = this.instance.getGroupContentArea(this);
           if (d === jel.parentNode) {
             d.removeChild(group.el);
           }
@@ -3562,21 +3468,13 @@
           if (group.group) {
             pos.x += groupPos.x;
             pos.y += groupPos.y;
-            group.group.getContentArea().appendChild(el);
+            this.instance.getGroupContentArea(group.group).appendChild(el);
           } else {
             this.instance._appendElement(el, this.instance.getContainer());
           }
           this.instance.setPosition(el, pos);
           delete jel._jsPlumbParentGroup;
           return [id, pos];
-        }
-      }
-    }, {
-      key: "_setGroupVisible",
-      value: function _setGroupVisible(group, state) {
-        var m = group.el.querySelectorAll(SELECTOR_MANAGED_ELEMENT);
-        for (var i = 0; i < m.length; i++) {
-          this.instance[state ? CMD_SHOW : CMD_HIDE](m[i], true);
         }
       }
     }, {
@@ -3691,7 +3589,7 @@
         }
         var groupEl = actualGroup.el;
         if (actualGroup.collapseParent == null) {
-          this._setGroupVisible(actualGroup, false);
+          this.instance.setGroupVisible(actualGroup, false);
           actualGroup.collapsed = true;
           if (actualGroup.proxied) {
             this.instance.removeClass(groupEl, CLASS_GROUP_EXPANDED);
@@ -3749,13 +3647,12 @@
       value: function expandGroup(group, doNotFireEvent) {
         var _this6 = this;
         var actualGroup = this.getGroup(group);
-        if (actualGroup == null
-        ) {
-            return;
-          }
+        if (actualGroup == null) {
+          return;
+        }
         var groupEl = actualGroup.el;
         if (actualGroup.collapseParent == null) {
-          this._setGroupVisible(actualGroup, true);
+          this.instance.setGroupVisible(actualGroup, true);
           actualGroup.collapsed = false;
           if (actualGroup.proxied) {
             this.instance.addClass(groupEl, CLASS_GROUP_EXPANDED);
@@ -3864,7 +3761,7 @@
             if (currentGroup !== actualGroup) {
               var entry = _this8.instance.manage(el);
               var elpos = _this8.instance.getOffset(el);
-              var cpos = actualGroup.collapsed ? _this8.instance.getOffsetRelativeToRoot(groupEl) : _this8.instance.getOffset(actualGroup.getContentArea());
+              var cpos = actualGroup.collapsed ? _this8.instance.getOffsetRelativeToRoot(groupEl) : _this8.instance.getOffset(_this8.instance.getGroupContentArea(actualGroup));
               entry.group = actualGroup.elId;
               if (currentGroup != null) {
                 currentGroup.remove(el, false, doNotFireEvent, false, actualGroup);
@@ -7360,10 +7257,7 @@
   Connectors.register(StraightConnector.type, StraightConnector);
 
   exports.ABSOLUTE = ABSOLUTE;
-  exports.ATTRIBUTE_CONTAINER = ATTRIBUTE_CONTAINER;
   exports.ATTRIBUTE_GROUP = ATTRIBUTE_GROUP;
-  exports.ATTRIBUTE_GROUP_CONTENT = ATTRIBUTE_GROUP_CONTENT;
-  exports.ATTRIBUTE_JTK_ENABLED = ATTRIBUTE_JTK_ENABLED;
   exports.ATTRIBUTE_MANAGED = ATTRIBUTE_MANAGED;
   exports.ATTRIBUTE_NOT_DRAGGABLE = ATTRIBUTE_NOT_DRAGGABLE;
   exports.ATTRIBUTE_SCOPE = ATTRIBUTE_SCOPE;
@@ -7390,10 +7284,6 @@
   exports.CLASS_GROUP_COLLAPSED = CLASS_GROUP_COLLAPSED;
   exports.CLASS_GROUP_EXPANDED = CLASS_GROUP_EXPANDED;
   exports.CLASS_OVERLAY = CLASS_OVERLAY;
-  exports.CMD_HIDE = CMD_HIDE;
-  exports.CMD_ORPHAN_ALL = CMD_ORPHAN_ALL;
-  exports.CMD_REMOVE_ALL = CMD_REMOVE_ALL;
-  exports.CMD_SHOW = CMD_SHOW;
   exports.Component = Component;
   exports.Connection = Connection;
   exports.ConnectionDragSelector = ConnectionDragSelector;
@@ -7409,30 +7299,11 @@
   exports.ERROR_TARGET_DOES_NOT_EXIST = ERROR_TARGET_DOES_NOT_EXIST;
   exports.ERROR_TARGET_ENDPOINT_FULL = ERROR_TARGET_ENDPOINT_FULL;
   exports.EVENT_ANCHOR_CHANGED = EVENT_ANCHOR_CHANGED;
-  exports.EVENT_CLICK = EVENT_CLICK;
   exports.EVENT_CONNECTION = EVENT_CONNECTION;
   exports.EVENT_CONNECTION_DETACHED = EVENT_CONNECTION_DETACHED;
-  exports.EVENT_CONNECTION_MOUSEOUT = EVENT_CONNECTION_MOUSEOUT;
-  exports.EVENT_CONNECTION_MOUSEOVER = EVENT_CONNECTION_MOUSEOVER;
   exports.EVENT_CONNECTION_MOVED = EVENT_CONNECTION_MOVED;
   exports.EVENT_CONTAINER_CHANGE = EVENT_CONTAINER_CHANGE;
-  exports.EVENT_CONTEXTMENU = EVENT_CONTEXTMENU;
-  exports.EVENT_DBL_CLICK = EVENT_DBL_CLICK;
-  exports.EVENT_DBL_TAP = EVENT_DBL_TAP;
-  exports.EVENT_ELEMENT_CLICK = EVENT_ELEMENT_CLICK;
-  exports.EVENT_ELEMENT_DBL_CLICK = EVENT_ELEMENT_DBL_CLICK;
-  exports.EVENT_ELEMENT_DBL_TAP = EVENT_ELEMENT_DBL_TAP;
-  exports.EVENT_ELEMENT_MOUSE_OUT = EVENT_ELEMENT_MOUSE_OUT;
-  exports.EVENT_ELEMENT_MOUSE_OVER = EVENT_ELEMENT_MOUSE_OVER;
-  exports.EVENT_ELEMENT_TAP = EVENT_ELEMENT_TAP;
-  exports.EVENT_ENDPOINT_CLICK = EVENT_ENDPOINT_CLICK;
-  exports.EVENT_ENDPOINT_DBL_CLICK = EVENT_ENDPOINT_DBL_CLICK;
-  exports.EVENT_ENDPOINT_DBL_TAP = EVENT_ENDPOINT_DBL_TAP;
-  exports.EVENT_ENDPOINT_MOUSEOUT = EVENT_ENDPOINT_MOUSEOUT;
-  exports.EVENT_ENDPOINT_MOUSEOVER = EVENT_ENDPOINT_MOUSEOVER;
   exports.EVENT_ENDPOINT_REPLACED = EVENT_ENDPOINT_REPLACED;
-  exports.EVENT_ENDPOINT_TAP = EVENT_ENDPOINT_TAP;
-  exports.EVENT_FOCUS = EVENT_FOCUS;
   exports.EVENT_GROUP_ADDED = EVENT_GROUP_ADDED;
   exports.EVENT_GROUP_COLLAPSE = EVENT_GROUP_COLLAPSE;
   exports.EVENT_GROUP_EXPAND = EVENT_GROUP_EXPAND;
@@ -7443,18 +7314,9 @@
   exports.EVENT_INTERNAL_ENDPOINT_UNREGISTERED = EVENT_INTERNAL_ENDPOINT_UNREGISTERED;
   exports.EVENT_MANAGE_ELEMENT = EVENT_MANAGE_ELEMENT;
   exports.EVENT_MAX_CONNECTIONS = EVENT_MAX_CONNECTIONS;
-  exports.EVENT_MOUSEDOWN = EVENT_MOUSEDOWN;
-  exports.EVENT_MOUSEENTER = EVENT_MOUSEENTER;
-  exports.EVENT_MOUSEEXIT = EVENT_MOUSEEXIT;
-  exports.EVENT_MOUSEMOVE = EVENT_MOUSEMOVE;
-  exports.EVENT_MOUSEOUT = EVENT_MOUSEOUT;
-  exports.EVENT_MOUSEOVER = EVENT_MOUSEOVER;
-  exports.EVENT_MOUSEUP = EVENT_MOUSEUP;
   exports.EVENT_NESTED_GROUP_ADDED = EVENT_NESTED_GROUP_ADDED;
   exports.EVENT_NESTED_GROUP_REMOVED = EVENT_NESTED_GROUP_REMOVED;
-  exports.EVENT_TAP = EVENT_TAP;
   exports.EVENT_UNMANAGE_ELEMENT = EVENT_UNMANAGE_ELEMENT;
-  exports.EVENT_UPDATE = EVENT_UPDATE;
   exports.EVENT_ZOOM = EVENT_ZOOM;
   exports.Endpoint = Endpoint;
   exports.EndpointFactory = EndpointFactory;
@@ -7477,19 +7339,13 @@
   exports.NONE = NONE;
   exports.Overlay = Overlay;
   exports.OverlayFactory = OverlayFactory;
-  exports.PROPERTY_POSITION = PROPERTY_POSITION;
   exports.PlainArrowOverlay = PlainArrowOverlay;
   exports.REDROP_POLICY_ANY = REDROP_POLICY_ANY;
   exports.REDROP_POLICY_STRICT = REDROP_POLICY_STRICT;
   exports.RIGHT = RIGHT;
   exports.RectangleEndpoint = RectangleEndpoint;
   exports.RectangleEndpointHandler = RectangleEndpointHandler;
-  exports.SELECTOR_CONNECTOR = SELECTOR_CONNECTOR;
-  exports.SELECTOR_ENDPOINT = SELECTOR_ENDPOINT;
-  exports.SELECTOR_GROUP = SELECTOR_GROUP;
-  exports.SELECTOR_GROUP_CONTAINER = SELECTOR_GROUP_CONTAINER;
   exports.SELECTOR_MANAGED_ELEMENT = SELECTOR_MANAGED_ELEMENT;
-  exports.SELECTOR_OVERLAY = SELECTOR_OVERLAY;
   exports.SOURCE = SOURCE;
   exports.SOURCE_INDEX = SOURCE_INDEX;
   exports.STATIC = STATIC;

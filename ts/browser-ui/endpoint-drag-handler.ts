@@ -7,7 +7,7 @@ import {
     EVENT_CONNECTION_ABORT,
     EVENT_CONNECTION_DRAG
 } from "./drag-manager"
-import {BrowserJsPlumbInstance, ELEMENT_DIV, getPositionOnElement} from "./browser-jsplumb-instance"
+import {BrowserJsPlumbInstance, getPositionOnElement} from "./browser-jsplumb-instance"
 import { jsPlumbDOMElement} from './element-facade'
 
 import {consume, createElement, findParent} from "./browser-util"
@@ -39,7 +39,7 @@ import {
     ATTRIBUTE_SCOPE_PREFIX,
     SourceSelector, InternalEndpointOptions,
     BehaviouralTypeDescriptor,
-    createFloatingAnchor, LightweightFloatingAnchor, REDROP_POLICY_ANY, ATTRIBUTE_JTK_ENABLED, FALSE
+    createFloatingAnchor, LightweightFloatingAnchor, REDROP_POLICY_ANY, FALSE
 } from "@jsplumb/core"
 
 import { intersects } from "@jsplumb/geom"
@@ -61,7 +61,7 @@ import {
     BoundingBox
 } from "@jsplumb/util"
 import {AnchorSpec, EndpointSpec} from "@jsplumb/common"
-
+import {ATTRIBUTE_JTK_ENABLED, ELEMENT_DIV} from "./constants"
 
 function _makeFloatingEndpoint (paintStyle:PaintStyle,
                                 endpoint:EndpointSpec | EndpointRepresentation<any>,

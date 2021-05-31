@@ -4,8 +4,9 @@ import {EVENT_REVERT, GhostProxyingDragHandler} from "./drag-manager"
 import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
 import { jsPlumbDOMElement} from './element-facade'
 import {DragEventParams, Drag, DragStopEventParams} from "./collicat"
-import {SELECTOR_GROUP, SELECTOR_MANAGED_ELEMENT, UIGroup} from "@jsplumb/core"
+import {SELECTOR_MANAGED_ELEMENT, UIGroup} from "@jsplumb/core"
 import { PointXY } from "@jsplumb/util"
+import {SELECTOR_GROUP} from "./constants"
 
 
 export class GroupDragHandler extends ElementDragHandler implements GhostProxyingDragHandler {
@@ -71,8 +72,8 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
             this._pruneOrOrphan(params)
         } else {
             if (originalGroup.ghost) {
-                const o1 = this.instance.getOffset(currentGroup.getContentArea())
-                const o2 = this.instance.getOffset(originalGroup.getContentArea())
+                const o1 = this.instance.getOffset(this.instance.getGroupContentArea(currentGroup))
+                const o2 = this.instance.getOffset(this.instance.getGroupContentArea(originalGroup))
                 const o = { x:o2.x + params.pos.x - o1.x, y:o2.y + params.pos.y - o1.y}
                 originalElement.style.left = o.x + "px"
                 originalElement.style.top = o.y + "px"

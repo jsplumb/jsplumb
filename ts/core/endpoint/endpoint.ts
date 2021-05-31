@@ -312,8 +312,9 @@ export class Endpoint<E = any> extends Component {
 
         super.destroy()
 
-        let anchorClass = this.instance.endpointAnchorClassPrefix + (this.currentAnchorClass ? "-" + this.currentAnchorClass : "")
-        this.instance.removeClass(this.element, anchorClass)
+        // let anchorClass = this.instance.endpointAnchorClassPrefix + (this.currentAnchorClass ? "-" + this.currentAnchorClass : "")
+        // this.instance.removeClass(this.element, anchorClass)
+
         if(this.endpoint != null) {
             this.instance.destroyEndpoint(this)
         }

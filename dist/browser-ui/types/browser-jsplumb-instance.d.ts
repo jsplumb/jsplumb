@@ -1,4 +1,4 @@
-import { JsPlumbDefaults, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, LabelOverlay, Connection, Component, DeleteConnectionOptions, BehaviouralTypeDescriptor, SourceSelector } from '@jsplumb/core';
+import { JsPlumbDefaults, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, LabelOverlay, Connection, Component, DeleteConnectionOptions, BehaviouralTypeDescriptor, SourceSelector, UIGroup } from '@jsplumb/core';
 import { PointXY, Dictionary, Size, Extents } from "@jsplumb/util";
 import { DragManager } from "./drag-manager";
 import { jsPlumbDOMElement } from './element-facade';
@@ -14,7 +14,6 @@ export declare type EndpointHelperFunctions<E> = {
     updateNode: (ep: E, node: SVGElement) => void;
 };
 export declare function registerEndpointRenderer<C>(name: string, fns: EndpointHelperFunctions<C>): void;
-export declare const ELEMENT_DIV = "div";
 export declare function getPositionOnElement(evt: Event, el: Element, zoom: number): PointXY;
 export interface DragOptions {
     containment?: ContainmentType;
@@ -97,6 +96,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     private groupDragOptions;
     private elementDragOptions;
     constructor(_instanceIndex: number, defaults?: BrowserJsPlumbDefaults);
+    private fireOverlayMethod;
     /**
      * Adds a filter to the list of filters used to determine whether or not a given event should start an element drag.
      * @param filter CSS3 selector, or function that takes an element and returns true/false
@@ -175,6 +175,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     getOffset(el: Element): PointXY;
     getSize(el: Element): Size;
     getStyle(el: Element, prop: string): any;
+    getGroupContentArea(group: UIGroup<any>): ElementType["E"];
     getSelector(ctx: string | Element, spec?: string): ArrayLike<jsPlumbDOMElement>;
     /**
      * Sets the position of the given element.
@@ -267,6 +268,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     getEndpointClass(ep: Endpoint): string;
     setEndpointHover(endpoint: Endpoint, h: boolean, doNotCascade?: boolean): void;
     setEndpointVisible(ep: Endpoint, v: boolean): void;
+    setGroupVisible(group: UIGroup<Element>, state: boolean): void;
     deleteConnection(connection: Connection, params?: DeleteConnectionOptions): boolean;
     addSourceSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): SourceSelector;
     removeSourceSelector(selector: SourceSelector): void;

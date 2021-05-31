@@ -6,31 +6,8 @@ import {
     Endpoint,
     Overlay,
     RedrawResult,
-    EVENT_ELEMENT_MOUSE_OUT,
-    EVENT_ELEMENT_MOUSE_OVER,
-    SELECTOR_CONNECTOR,
-    EVENT_CLICK,
-    EVENT_DBL_CLICK,
-    EVENT_CONNECTION_MOUSEOVER,
-    EVENT_CONNECTION_MOUSEOUT,
-    EVENT_ENDPOINT_CLICK,
-    EVENT_ENDPOINT_DBL_CLICK,
-    EVENT_ENDPOINT_MOUSEOVER,
-    EVENT_ENDPOINT_MOUSEOUT,
-    SELECTOR_OVERLAY,
-    EVENT_ELEMENT_CLICK,
-    EVENT_ELEMENT_DBL_CLICK,
     ATTRIBUTE_NOT_DRAGGABLE,
-    SELECTOR_ENDPOINT,
     SELECTOR_MANAGED_ELEMENT,
-    EVENT_MOUSEOVER,
-    EVENT_MOUSEOUT,
-    EVENT_MOUSEMOVE,
-    EVENT_MOUSEEXIT,
-    EVENT_MOUSEENTER,
-    ATTRIBUTE_CONTAINER,
-    CLASS_CONNECTOR,
-    CLASS_ENDPOINT,
     CLASS_OVERLAY,
     ATTRIBUTE_MANAGED,
     TRUE,
@@ -38,7 +15,6 @@ import {
     ABSOLUTE,
     FIXED,
     STATIC,
-    PROPERTY_POSITION,
     UNDEFINED,
     PaintStyle,
     isArrowOverlay,
@@ -54,10 +30,10 @@ import {
     DeleteConnectionOptions,
     BehaviouralTypeDescriptor,
     SourceSelector,
-    EVENT_TAP,
-    EVENT_DBL_TAP,
-    EVENT_ELEMENT_TAP,
-    EVENT_ELEMENT_DBL_TAP
+    OverlayMouseEventParams,
+    UIGroup,
+    CLASS_CONNECTOR,
+    CLASS_ENDPOINT
 } from '@jsplumb/core'
 
 import {
@@ -111,6 +87,39 @@ import {HTMLElementOverlay} from "./html-element-overlay"
 import {SVGElementOverlay} from "./svg-element-overlay"
 import {paintSvgConnector} from "./svg-element-connector"
 import {SvgEndpoint} from "./svg-element-endpoint"
+import {
+    ATTRIBUTE_CONTAINER,
+    EVENT_CONNECTION_MOUSEOUT,
+    EVENT_CONNECTION_MOUSEOVER,
+    EVENT_DBL_CLICK,
+    EVENT_DBL_TAP,
+    EVENT_ELEMENT_CLICK,
+    EVENT_ELEMENT_DBL_TAP,
+    EVENT_ELEMENT_MOUSE_OUT,
+    EVENT_ELEMENT_MOUSE_OVER,
+    EVENT_ELEMENT_TAP,
+    EVENT_ENDPOINT_CLICK,
+    EVENT_ENDPOINT_DBL_CLICK,
+    EVENT_ENDPOINT_MOUSEOUT,
+    EVENT_ENDPOINT_MOUSEOVER,
+    EVENT_MOUSEOUT,
+    EVENT_MOUSEOVER,
+    EVENT_TAP,
+    EVENT_ENDPOINT_DBL_TAP,
+    EVENT_ENDPOINT_TAP,
+    EVENT_ELEMENT_DBL_CLICK,
+    EVENT_MOUSEENTER,
+    EVENT_MOUSEEXIT,
+    SELECTOR_ENDPOINT,
+    SELECTOR_GROUP_CONTAINER,
+    SELECTOR_OVERLAY,
+    SELECTOR_CONNECTOR,
+    PROPERTY_POSITION,
+    EVENT_CONNECTION_CLICK,
+    EVENT_CONNECTION_DBL_CLICK,
+    EVENT_CONNECTION_DBL_TAP,
+    EVENT_CONNECTION_TAP, EVENT_CLICK, ENDPOINT, CONNECTION, compoundEvent
+} from "./constants"
 
 export interface UIComponent {
     canvas: HTMLElement
@@ -126,8 +135,6 @@ const endpointMap:Dictionary<EndpointHelperFunctions<any>> = {}
 export function registerEndpointRenderer<C>(name:string, fns:EndpointHelperFunctions<C>) {
     endpointMap[name] = fns
 }
-
-export const ELEMENT_DIV = "div"
 
 export function getPositionOnElement(evt:Event, el:Element, zoom:number):PointXY {
     const jel = el as jsPlumbDOMElement
@@ -287,6 +294,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     constructor(public _instanceIndex:number, defaults?:BrowserJsPlumbDefaults) {
         super(_instanceIndex, defaults)
 
+
+
         // by default, elements are draggable
         this.elementsDraggable = defaults && defaults.elementsDraggable !== false
 
@@ -332,10 +341,10 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
                 this.fire(event, connectorElement.jtk.connector.connection, e)
             }
         }
-        this._connectorClick = _connClick.bind(this, EVENT_CLICK)
-        this._connectorDblClick = _connClick.bind(this, EVENT_DBL_CLICK)
-        this._connectorTap = _connClick.bind(this, EVENT_TAP)
-        this._connectorDblTap = _connClick.bind(this, EVENT_DBL_TAP)
+        this._connectorClick = _connClick.bind(this, EVENT_CONNECTION_CLICK)
+        this._connectorDblClick = _connClick.bind(this, EVENT_CONNECTION_DBL_CLICK)
+        this._connectorTap = _connClick.bind(this, EVENT_CONNECTION_TAP)
+        this._connectorDblTap = _connClick.bind(this, EVENT_CONNECTION_DBL_TAP)
 
         const _connectorHover = function(state:boolean, e:MouseEvent) {
             const el = getEventSource(e).parentNode
@@ -376,9 +385,9 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             let overlayElement = findParent(getEventSource(e), SELECTOR_OVERLAY, this.getContainer(), true)
             let overlay = overlayElement.jtk.overlay
             if (overlay) {
-                overlay[method](e)
+                this.fireOverlayMethod(overlay, method, e)
             }
-        }
+        }.bind(this)
 
         this._overlayClick = _oClick.bind(this, EVENT_CLICK)
         this._overlayDblClick = _oClick.bind(this, EVENT_DBL_CLICK)
@@ -427,6 +436,15 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         this._elementMouseexit = _elementHover.bind(this, false)
 
         this._attachEventDelegates()
+    }
+
+
+
+    private fireOverlayMethod(overlay:Overlay, event:string, e:MouseEvent) {
+        const stem = overlay.component instanceof Connection ? CONNECTION : ENDPOINT
+        const mappedEvent = compoundEvent(stem, event)
+        overlay.fire<OverlayMouseEventParams>(event, { e, overlay })
+        this.fire(mappedEvent, overlay.component, e)
     }
 
     /**
@@ -647,6 +665,12 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             return (<any>el).currentStyle[prop]
         }
     }
+
+    getGroupContentArea(group: UIGroup<any>): ElementType["E"] {
+        let da = this.getSelector(group.el, SELECTOR_GROUP_CONTAINER)
+        return da && da.length > 0 ? da[0] : group.el
+    }
+
 
     getSelector(ctx:string | Element, spec?:string):ArrayLike<jsPlumbDOMElement> {
 
@@ -1232,6 +1256,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     }
 
     destroyEndpoint(ep: Endpoint): void {
+        let anchorClass = this.endpointAnchorClassPrefix + (ep.currentAnchorClass ? "-" + ep.currentAnchorClass : "")
+        this.removeClass(ep.element, anchorClass)
         cleanup(ep.endpoint as any)
     }
 
@@ -1290,6 +1316,17 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
     setEndpointVisible(ep: Endpoint, v: boolean): void {
         setVisible(ep.endpoint as any, v)
+    }
+
+    setGroupVisible(group: UIGroup<Element>, state: boolean): void {
+        let m = group.el.querySelectorAll(SELECTOR_MANAGED_ELEMENT)
+        for (let i = 0; i < m.length; i++) {
+            if (state) {
+                this.show(m[i], true)
+            } else {
+                this.hide(m[i], true)
+            }
+        }
     }
 
     deleteConnection(connection: Connection, params?: DeleteConnectionOptions): boolean {

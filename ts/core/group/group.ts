@@ -85,11 +85,6 @@ export class UIGroup<E = any> extends UINode<E> {
         return this.dropOverride && (this.revert || this.prune || this.orphan)
     }
 
-    getContentArea():any {
-        let da = this.instance.getSelector(this.el, Constants.SELECTOR_GROUP_CONTAINER)
-        return da && da.length > 0 ? da[0] : this.el
-    }
-
     // this function, and getEndpoint below, are stubs for a future setup in which we can choose endpoint
     // and anchor based upon the connection and the index (source/target) of the endpoint to be proxied.
     getAnchor (conn:Connection, endpointIndex:number):AnchorSpec {
@@ -101,7 +96,7 @@ export class UIGroup<E = any> extends UINode<E> {
     }
 
     add(_el:E, doNotFireEvent?:boolean):void {
-        const dragArea = this.getContentArea()
+        const dragArea = this.instance.getGroupContentArea(this)
         const __el = _el as unknown as jsPlumbElement<E>
         //this.instance.each(_el, (__el:any) => {
 
@@ -143,8 +138,9 @@ export class UIGroup<E = any> extends UINode<E> {
             return e === child
         })
 
+        // TODO this knows about DOM
         if (manipulateDOM) {
-            try { (<any>this.getContentArea()).removeChild(__el); }
+            try { (<any>this.instance.getGroupContentArea(this)).removeChild(__el); }
             catch (e) {
                 log("Could not remove element from Group " + e)
             }
@@ -201,13 +197,13 @@ export class UIGroup<E = any> extends UINode<E> {
             const entry = this.instance.getManagedElements()[groupElId]
             entry.group = this.elId
             const elpos = this.instance.getOffsetRelativeToRoot(group.el)
-            const cpos = this.collapsed ? this.instance.getOffsetRelativeToRoot(this.el) : this.instance.getOffsetRelativeToRoot(this.getContentArea());
+            const cpos = this.collapsed ? this.instance.getOffsetRelativeToRoot(this.el) : this.instance.getOffsetRelativeToRoot(this.instance.getGroupContentArea(this));
 
             (group.el as unknown as jsPlumbElement<E>)._jsPlumbParentGroup = this
 
             this.children.push(group)
 
-            this.instance._appendElement(group.el, this.getContentArea())
+            this.instance._appendElement(group.el, this.instance.getGroupContentArea(this))
 
             group.group = this
             let newPosition = {x: elpos.x - cpos.x, y: elpos.y - cpos.y}
@@ -230,7 +226,7 @@ export class UIGroup<E = any> extends UINode<E> {
         if (group.group === this) {
             const jel = group.el as unknown as jsPlumbElement<E>
 
-            const d = this.getContentArea()
+            const d = this.instance.getGroupContentArea(this)
             if (d === jel.parentNode) {
                 d.removeChild(group.el)
             }

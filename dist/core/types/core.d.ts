@@ -433,6 +433,7 @@ export declare abstract class JsPlumbInstance<T extends {
     proxyConnection(connection: Connection, index: number, proxyEl: T["E"], endpointGenerator: (c: Connection, idx: number) => EndpointSpec, anchorGenerator: (c: Connection, idx: number) => AnchorSpec): void;
     unproxyConnection(connection: Connection, index: number): void;
     sourceOrTargetChanged(originalId: string, newId: string, connection: Connection, newElement: T["E"], index: number): void;
+    abstract setGroupVisible(group: UIGroup, state: boolean): void;
     getGroup(groupId: string): UIGroup<T["E"]>;
     getGroupFor(el: T["E"]): UIGroup<T["E"]>;
     addGroup(params: AddGroupOptions<T["E"]>): UIGroup<T["E"]>;
@@ -481,6 +482,7 @@ export declare abstract class JsPlumbInstance<T extends {
     abstract getSize(el: T["E"]): Size;
     abstract getOffset(el: T["E"]): PointXY;
     abstract getOffsetRelativeToRoot(el: T["E"] | string): PointXY;
+    abstract getGroupContentArea(group: UIGroup): T["E"];
     abstract setPosition(el: T["E"], p: PointXY): void;
     abstract on(el: Document | T["E"] | ArrayLike<T["E"]>, event: string, callbackOrSelector: Function | string, callback?: Function): void;
     abstract off(el: Document | T["E"] | ArrayLike<T["E"]>, event: string, callback: Function): void;

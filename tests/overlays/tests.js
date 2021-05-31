@@ -670,7 +670,7 @@ var testSuite = function () {
         ok(e1.getOverlay("label2") != null, "endpoint 1 has overlay from addEndpoint call");
     });
 
-    test("label overlay click, bind to click on instance", function() {
+    test("label overlay click, bind to connection:click on instance", function() {
         var d = support.addDiv("d1"), d2 = support.addDiv("d2"),
             conn = _jsPlumb.connect({source:d, target:d2, overlays:[
                     { type: "Label", options:{ id:"lbl" }}
@@ -678,7 +678,7 @@ var testSuite = function () {
             lbl = conn.getOverlay("lbl"),
             c = 0;
 
-        _jsPlumb.bind("click", function() {
+        _jsPlumb.bind("connection:click", function() {
             c++;
         });
 
@@ -702,7 +702,7 @@ var testSuite = function () {
             lbl = conn.getOverlay("lbl"),
             c = 0;
 
-        _jsPlumb.bind("click", function() {
+        _jsPlumb.bind("connection:click", function() {
             c++;
         });
 
@@ -726,7 +726,7 @@ var testSuite = function () {
             lbl = conn.getOverlay("lbl"),
             c = 0;
 
-        _jsPlumb.bind("dblclick", function() {
+        _jsPlumb.bind("connection:dblclick", function() {
             c++;
         });
 

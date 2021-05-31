@@ -26,7 +26,6 @@ export declare class GroupManager<E> {
     removeAllGroups(deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): void;
     forEach(f: (g: UIGroup<E>) => any): void;
     orphan(el: E): [string, PointXY];
-    private _setGroupVisible;
     _updateConnectionsForGroup(group: UIGroup<E>): void;
     private _collapseConnection;
     private _expandConnection;

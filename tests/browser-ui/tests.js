@@ -4071,11 +4071,11 @@ var testSuite = function () {
             c = 0,
             ec = 0;
 
-        _jsPlumb.bind("click", function() {
+        _jsPlumb.bind("connection:click", function() {
             c++;
         });
 
-        _jsPlumb.bind("endpointClick", function() {
+        _jsPlumb.bind("endpoint:click", function() {
             ec++;
         });
 
@@ -4100,11 +4100,11 @@ var testSuite = function () {
             c = 0,
             ec = 0;
 
-        _jsPlumb.bind("dblclick", function() {
+        _jsPlumb.bind("connection:dblclick", function() {
             c++;
         });
 
-        _jsPlumb.bind("endpointDblClick", function() {
+        _jsPlumb.bind("endpoint:dblclick", function() {
             ec++;
         });
 
@@ -4129,11 +4129,11 @@ var testSuite = function () {
             mm = 0,
             mo = 0;
 
-        _jsPlumb.bind("endpointMouseOver", function() {
+        _jsPlumb.bind("endpoint:mouseover", function() {
             mm++;
         });
 
-        _jsPlumb.bind("endpointMouseOut", function() {
+        _jsPlumb.bind("endpoint:mouseout", function() {
             mo++;
         });
 
@@ -4152,7 +4152,7 @@ var testSuite = function () {
             conn = _jsPlumb.connect({source:d, target:d2}),
             c = 0;
 
-        _jsPlumb.bind("click", function() {
+        _jsPlumb.bind("connection:click", function() {
             c++;
         });
 
@@ -4172,7 +4172,7 @@ var testSuite = function () {
             conn = _jsPlumb.connect({source:d, target:d2}),
             c = 0;
 
-        _jsPlumb.bind("dblclick", function() {
+        _jsPlumb.bind("connection:dblclick", function() {
             c++;
         });
 
@@ -4192,11 +4192,11 @@ var testSuite = function () {
             conn = _jsPlumb.connect({source:d, target:d2}),
             mo = 0, mm = 0;
 
-        _jsPlumb.bind("connectionMouseOver", function() {
+        _jsPlumb.bind("connection:mouseover", function() {
             mm++;
         });
 
-        _jsPlumb.bind("connectionMouseOut", function() {
+        _jsPlumb.bind("connection:mouseout", function() {
             mo++;
         });
 
@@ -4216,7 +4216,7 @@ var testSuite = function () {
             lbl = conn.getOverlay("lbl"),
             c = 0;
 
-        _jsPlumb.bind("click", function() {
+        _jsPlumb.bind("connection:click", function() {
             c++;
         });
 
@@ -4235,7 +4235,7 @@ var testSuite = function () {
             lbl = conn.getOverlay("lbl"),
             c = 0;
 
-        _jsPlumb.bind("dblclick", function() {
+        _jsPlumb.bind("connection:dblclick", function() {
             c++;
         });
 
@@ -4259,7 +4259,7 @@ var testSuite = function () {
             lbl = conn.getOverlay("lbl"),
             c = 0;
 
-        _jsPlumb.bind("click", function() {
+        _jsPlumb.bind("connection:click", function() {
             c++;
         });
 
@@ -4278,7 +4278,7 @@ var testSuite = function () {
             lbl = conn.getOverlay("lbl"),
             c = 0;
 
-        _jsPlumb.bind("dblclick", function() {
+        _jsPlumb.bind("connection:dblclick", function() {
             c++;
         });
 

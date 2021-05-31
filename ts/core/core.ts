@@ -1818,6 +1818,8 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
 // ------------------------ GROUPS --------------
 
+    abstract setGroupVisible(group:UIGroup, state:boolean):void
+
     getGroup(groupId:string) { return this.groupManager.getGroup(groupId); }
     getGroupFor(el:T["E"]) { return this.groupManager.getGroupFor(el); }
     addGroup(params:AddGroupOptions<T["E"]>) { return this.groupManager.addGroup(params); }
@@ -2025,6 +2027,8 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     abstract getOffset(el:T["E"]):PointXY
     abstract getOffsetRelativeToRoot(el:T["E"]|string):PointXY
+
+    abstract getGroupContentArea(group:UIGroup):T["E"]
 
     abstract setPosition(el:T["E"], p:PointXY):void
 

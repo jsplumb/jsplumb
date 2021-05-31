@@ -51,11 +51,6 @@ export declare abstract class Overlay extends EventGenerator {
     setVisible(v: boolean): void;
     isVisible(): boolean;
     abstract updateFrom(d: any): void;
-    private _postComponentEvent;
-    click(e: Event): void;
-    dblclick(e: Event): void;
-    tap(e: Event): void;
-    dbltap(e: Event): void;
 }
 export interface OverlayMouseEventParams {
     e: Event;

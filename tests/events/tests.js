@@ -113,65 +113,65 @@ var testSuite = function () {
         ok(clicked, "click event fired")
     })
 
-    test("elementClick", function() {
+    test("element:click", function() {
         var d = _addDiv("one", 50, 50, 100, 100)
 
         _jsPlumb.manage(d)
 
         var clicked = false
-        _jsPlumb.bind("elementClick", function(el, evt) {
+        _jsPlumb.bind("element:click", function(el, evt) {
             clicked = true
         })
 
         support.clickOnElement(d)
 
-        ok(clicked, "elementClick event fired")
+        ok(clicked, "element:click event fired")
     })
 
-    test("elementTap", function() {
+    test("element:tap", function() {
         var d = _addDiv("one", 50, 50, 100, 100)
 
         _jsPlumb.manage(d)
 
         var clicked = false
-        _jsPlumb.bind("elementTap", function(el, evt) {
+        _jsPlumb.bind("element:tap", function(el, evt) {
             clicked = true
         })
 
         support.tapOnElement(d)
 
-        ok(clicked, "elementTap event fired")
+        ok(clicked, "element:tap event fired")
     })
 
-    test("elementDblClick", function() {
+    test("element:dblclick", function() {
         var d = _addDiv("one", 50, 50, 100, 100)
 
         _jsPlumb.manage(d)
 
         var clicked = false
-        _jsPlumb.bind("elementDblClick", function(el, evt) {
+        _jsPlumb.bind("element:dblclick", function(el, evt) {
             clicked = true
         })
 
         support.clickOnElement(d)
         support.clickOnElement(d, 2)
 
-        ok(clicked, "elementDblClick event fired")
+        ok(clicked, "element:dblclick event fired")
     })
 
-    test("elementDblTap", function() {
+    test("element:dbltap", function() {
         var d = _addDiv("one", 50, 50, 100, 100)
 
         _jsPlumb.manage(d)
 
         var clicked = false
-        _jsPlumb.bind("elementDblTap", function(el, evt) {
+        _jsPlumb.bind("element:dbltap", function(el, evt) {
             clicked = true
         })
 
         support.dblTapOnElement(d)
 
-        ok(clicked, "elementDblTap event fired")
+        ok(clicked, "element:dbltap event fired")
     })
 
 
@@ -326,7 +326,7 @@ var testSuite = function () {
         var d = _addDiv("one", 50, 50, 100, 100),
          d2 = _addDiv("two", 50, 50, 400, 400);
         var clicked = false;
-        _jsPlumb.bind("click", function() {
+        _jsPlumb.bind("connection:click", function() {
             clicked = true
         })
         var c = _jsPlumb.connect({source:d, target:d2});
@@ -336,40 +336,40 @@ var testSuite = function () {
         ok(clicked, "click event fired")
     })
 
-    test("connection dblclick", function() {
+    test("connection:dblclick", function() {
         var d = _addDiv("one", 50, 50, 100, 100),
             d2 = _addDiv("two", 50, 50, 400, 400)
 
         var clicked = false;
-        _jsPlumb.bind("dblclick", function() {
+        _jsPlumb.bind("connection:dblclick", function() {
             clicked = true
         })
 
         var c = _jsPlumb.connect({source:d, target:d2});
         support.dblClickOnConnection(c)
 
-        ok(clicked, "dblclick event fired")
+        ok(clicked, "connection:dblclick event fired")
     })
 
-    test("connection tap", function() {
+    test("connection:tap", function() {
         var d = _addDiv("one", 50, 50, 100, 100),
             d2 = _addDiv("two", 50, 50, 400, 400)
         var tapped = false;
-        _jsPlumb.bind("tap", function() {
+        _jsPlumb.bind("connection:tap", function() {
             tapped= true
         })
         var c = _jsPlumb.connect({source:d, target:d2});
 
         support.tapOnConnection(c)
 
-        ok(tapped, "tap event fired")
+        ok(tapped, "connection:tap event fired")
     })
 
-    test("connection dbltap", function() {
+    test("connection:dbltap", function() {
         var d = _addDiv("one", 50, 50, 100, 100),
             d2 = _addDiv("two", 50, 50, 400, 400)
         var tapped = false;
-        _jsPlumb.bind("dbltap", function() {
+        _jsPlumb.bind("connection:dbltap", function() {
             tapped= true
         })
 
@@ -377,7 +377,7 @@ var testSuite = function () {
 
         support.dblTapOnConnection(c)
 
-        ok(tapped, "dbltap event fired")
+        ok(tapped, "connection:dbltap event fired")
     })
 
 // ----------------- connection overlays -------------------------------------------

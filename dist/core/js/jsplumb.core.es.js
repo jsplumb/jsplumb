@@ -1086,14 +1086,11 @@ var UNDEFINED = "undefined";
 var ABSOLUTE = "absolute";
 var FIXED = "fixed";
 var STATIC = "static";
-var ATTRIBUTE_CONTAINER = "data-jtk-container";
 var ATTRIBUTE_GROUP = "data-jtk-group";
-var ATTRIBUTE_GROUP_CONTENT = "data-jtk-group-content";
 var ATTRIBUTE_MANAGED = "data-jtk-managed";
 var ATTRIBUTE_NOT_DRAGGABLE = "data-jtk-not-draggable";
 var ATTRIBUTE_TABINDEX = "tabindex";
 var ATTRIBUTE_SCOPE = "data-jtk-scope";
-var ATTRIBUTE_JTK_ENABLED = "data-jtk-enabled";
 var ATTRIBUTE_SCOPE_PREFIX = ATTRIBUTE_SCOPE + "-";
 var CHECK_CONDITION = "checkCondition";
 var CHECK_DROP_ALLOWED = "checkDropAllowed";
@@ -1109,70 +1106,32 @@ var CLASS_ENDPOINT_ANCHOR_PREFIX = "jtk-endpoint-anchor";
 var CLASS_GROUP_COLLAPSED = "jtk-group-collapsed";
 var CLASS_GROUP_EXPANDED = "jtk-group-expanded";
 var CLASS_OVERLAY = "jtk-overlay";
-var CMD_ORPHAN_ALL = "orphanAll";
-var CMD_HIDE = "hide";
-var CMD_REMOVE_ALL = "removeAll";
-var CMD_SHOW = "show";
-var EVENT_CLICK = "click";
 var EVENT_ANCHOR_CHANGED = "anchor:changed";
 var EVENT_CONNECTION = "connection";
 var EVENT_CONNECTION_DETACHED = "connection:detach";
 var EVENT_CONNECTION_MOVED = "connection:move";
-var EVENT_CONNECTION_MOUSEOUT = "connectionMouseOut";
-var EVENT_CONNECTION_MOUSEOVER = "connectionMouseOver";
 var EVENT_CONTAINER_CHANGE = "container:change";
-var EVENT_CONTEXTMENU = "contextmenu";
-var EVENT_DBL_CLICK = "dblclick";
-var EVENT_DBL_TAP = "dbltap";
-var EVENT_ELEMENT_CLICK = "elementClick";
-var EVENT_ELEMENT_DBL_CLICK = "elementDblClick";
-var EVENT_ELEMENT_TAP = "elementTap";
-var EVENT_ELEMENT_DBL_TAP = "elementDblTap";
-var EVENT_ELEMENT_MOUSE_OUT = "elementMouseout";
-var EVENT_ELEMENT_MOUSE_OVER = "elementMouseover";
-var EVENT_ENDPOINT_CLICK = "endpointClick";
-var EVENT_ENDPOINT_DBL_CLICK = "endpointDblClick";
-var EVENT_ENDPOINT_TAP = "endpointTap";
-var EVENT_ENDPOINT_DBL_TAP = "endpointDblTap";
-var EVENT_ENDPOINT_MOUSEOUT = "endpointMouseOut";
-var EVENT_ENDPOINT_MOUSEOVER = "endpointMouseOver";
 var EVENT_ENDPOINT_REPLACED = "endpoint:replaced";
-var EVENT_INTERNAL_ENDPOINT_UNREGISTERED = "internal.endpointUnregistered";
-var EVENT_FOCUS = "focus";
-var EVENT_INTERNAL_CONNECTION_DETACHED = "internal.connection:detach";
-var EVENT_MANAGE_ELEMENT = "manageElement";
-var EVENT_MOUSEDOWN = "mousedown";
-var EVENT_MOUSEENTER = "mouseenter";
-var EVENT_MOUSEEXIT = "mouseexit";
-var EVENT_MOUSEMOVE = "mousemove";
-var EVENT_MOUSEOUT = "mouseout";
-var EVENT_MOUSEOVER = "mouseover";
-var EVENT_MOUSEUP = "mouseup";
-var EVENT_GROUP_ADDED = "group:add";
+var EVENT_INTERNAL_ENDPOINT_UNREGISTERED = "internal.endpoint:unregistered";
+var EVENT_INTERNAL_CONNECTION_DETACHED = "internal.connection:detached";
+var EVENT_MANAGE_ELEMENT = "element:manage";
+var EVENT_GROUP_ADDED = "group:added";
 var EVENT_GROUP_COLLAPSE = "group:collapse";
 var EVENT_GROUP_EXPAND = "group:expand";
-var EVENT_GROUP_MEMBER_ADDED = "group:addMember";
-var EVENT_GROUP_MEMBER_REMOVED = "group:removeMember";
-var EVENT_GROUP_REMOVED = "group:remove";
+var EVENT_GROUP_MEMBER_ADDED = "group:member:added";
+var EVENT_GROUP_MEMBER_REMOVED = "group:member:removed";
+var EVENT_GROUP_REMOVED = "group:removed";
 var EVENT_MAX_CONNECTIONS = "maxConnections";
-var EVENT_NESTED_GROUP_ADDED = "nestedGroupAdded";
-var EVENT_NESTED_GROUP_REMOVED = "nestedGroupRemoved";
-var EVENT_TAP = "tap";
-var EVENT_UNMANAGE_ELEMENT = "unmanageElement";
-var EVENT_UPDATE = "update";
+var EVENT_NESTED_GROUP_ADDED = "group:nested:added";
+var EVENT_NESTED_GROUP_REMOVED = "group:nested:removed";
+var EVENT_UNMANAGE_ELEMENT = "element:unmanage";
 var EVENT_ZOOM = "zoom";
 var IS_DETACH_ALLOWED = "isDetachAllowed";
 var INTERCEPT_BEFORE_DRAG = "beforeDrag";
 var INTERCEPT_BEFORE_DROP = "beforeDrop";
 var INTERCEPT_BEFORE_DETACH = "beforeDetach";
 var INTERCEPT_BEFORE_START_DETACH = "beforeStartDetach";
-var PROPERTY_POSITION = "position";
-var SELECTOR_CONNECTOR = cls(CLASS_CONNECTOR);
-var SELECTOR_ENDPOINT = cls(CLASS_ENDPOINT);
-var SELECTOR_GROUP = att(ATTRIBUTE_GROUP);
-var SELECTOR_GROUP_CONTAINER = att(ATTRIBUTE_GROUP_CONTENT);
 var SELECTOR_MANAGED_ELEMENT = att(ATTRIBUTE_MANAGED);
-var SELECTOR_OVERLAY = cls(CLASS_OVERLAY);
 var ERROR_SOURCE_ENDPOINT_FULL = "Cannot establish connection: source endpoint is full";
 var ERROR_TARGET_ENDPOINT_FULL = "Cannot establish connection: target endpoint is full";
 var ERROR_SOURCE_DOES_NOT_EXIST = "Cannot establish connection: source does not exist";
@@ -1235,51 +1194,6 @@ function (_EventGenerator) {
     key: "isVisible",
     value: function isVisible() {
       return this.visible;
-    }
-  }, {
-    key: "_postComponentEvent",
-    value: function _postComponentEvent(eventName, originalEvent) {
-      this.instance.fire(eventName, this.component, originalEvent);
-    }
-  }, {
-    key: "click",
-    value: function click(e) {
-      this.fire(EVENT_CLICK, {
-        e: e,
-        overlay: this
-      });
-      var eventName = this.component instanceof Connection ? EVENT_CLICK : EVENT_ENDPOINT_CLICK;
-      this._postComponentEvent(eventName, e);
-    }
-  }, {
-    key: "dblclick",
-    value: function dblclick(e) {
-      this.fire(EVENT_DBL_CLICK, {
-        e: e,
-        overlay: this
-      });
-      var eventName = this.component instanceof Connection ? EVENT_DBL_CLICK : EVENT_ENDPOINT_DBL_CLICK;
-      this._postComponentEvent(eventName, e);
-    }
-  }, {
-    key: "tap",
-    value: function tap(e) {
-      this.fire(EVENT_TAP, {
-        e: e,
-        overlay: this
-      });
-      var eventName = this.component instanceof Connection ? EVENT_TAP : EVENT_ENDPOINT_TAP;
-      this._postComponentEvent(eventName, e);
-    }
-  }, {
-    key: "dbltap",
-    value: function dbltap(e) {
-      this.fire(EVENT_DBL_TAP, {
-        e: e,
-        overlay: this
-      });
-      var eventName = this.component instanceof Connection ? EVENT_DBL_TAP : EVENT_ENDPOINT_DBL_TAP;
-      this._postComponentEvent(eventName, e);
     }
   }]);
   return Overlay;
@@ -2982,8 +2896,6 @@ function (_Component) {
     key: "destroy",
     value: function destroy() {
       _get(_getPrototypeOf(Endpoint.prototype), "destroy", this).call(this);
-      var anchorClass = this.instance.endpointAnchorClassPrefix + (this.currentAnchorClass ? "-" + this.currentAnchorClass : "");
-      this.instance.removeClass(this.element, anchorClass);
       if (this.endpoint != null) {
         this.instance.destroyEndpoint(this);
       }
@@ -3143,12 +3055,6 @@ function (_UINode) {
       return this.dropOverride && (this.revert || this.prune || this.orphan);
     }
   }, {
-    key: "getContentArea",
-    value: function getContentArea() {
-      var da = this.instance.getSelector(this.el, SELECTOR_GROUP_CONTAINER);
-      return da && da.length > 0 ? da[0] : this.el;
-    }
-  }, {
     key: "getAnchor",
     value: function getAnchor(conn, endpointIndex) {
       return this.anchor || "Continuous";
@@ -3166,7 +3072,7 @@ function (_UINode) {
   }, {
     key: "add",
     value: function add(_el, doNotFireEvent) {
-      var dragArea = this.getContentArea();
+      var dragArea = this.instance.getGroupContentArea(this);
       var __el = _el;
       if (__el._jsPlumbParentGroup != null) {
         if (__el._jsPlumbParentGroup === this) {
@@ -3205,7 +3111,7 @@ function (_UINode) {
       });
       if (manipulateDOM) {
         try {
-          this.getContentArea().removeChild(__el);
+          this.instance.getGroupContentArea(this).removeChild(__el);
         } catch (e) {
           log("Could not remove element from Group " + e);
         }
@@ -3260,10 +3166,10 @@ function (_UINode) {
         var entry = this.instance.getManagedElements()[groupElId];
         entry.group = this.elId;
         var elpos = this.instance.getOffsetRelativeToRoot(group.el);
-        var cpos = this.collapsed ? this.instance.getOffsetRelativeToRoot(this.el) : this.instance.getOffsetRelativeToRoot(this.getContentArea());
+        var cpos = this.collapsed ? this.instance.getOffsetRelativeToRoot(this.el) : this.instance.getOffsetRelativeToRoot(this.instance.getGroupContentArea(this));
         group.el._jsPlumbParentGroup = this;
         this.children.push(group);
-        this.instance._appendElement(group.el, this.getContentArea());
+        this.instance._appendElement(group.el, this.instance.getGroupContentArea(this));
         group.group = this;
         var newPosition = {
           x: elpos.x - cpos.x,
@@ -3284,7 +3190,7 @@ function (_UINode) {
     value: function removeGroup(group) {
       if (group.group === this) {
         var jel = group.el;
-        var d = this.getContentArea();
+        var d = this.instance.getGroupContentArea(this);
         if (d === jel.parentNode) {
           d.removeChild(group.el);
         }
@@ -3560,21 +3466,13 @@ function () {
         if (group.group) {
           pos.x += groupPos.x;
           pos.y += groupPos.y;
-          group.group.getContentArea().appendChild(el);
+          this.instance.getGroupContentArea(group.group).appendChild(el);
         } else {
           this.instance._appendElement(el, this.instance.getContainer());
         }
         this.instance.setPosition(el, pos);
         delete jel._jsPlumbParentGroup;
         return [id, pos];
-      }
-    }
-  }, {
-    key: "_setGroupVisible",
-    value: function _setGroupVisible(group, state) {
-      var m = group.el.querySelectorAll(SELECTOR_MANAGED_ELEMENT);
-      for (var i = 0; i < m.length; i++) {
-        this.instance[state ? CMD_SHOW : CMD_HIDE](m[i], true);
       }
     }
   }, {
@@ -3689,7 +3587,7 @@ function () {
       }
       var groupEl = actualGroup.el;
       if (actualGroup.collapseParent == null) {
-        this._setGroupVisible(actualGroup, false);
+        this.instance.setGroupVisible(actualGroup, false);
         actualGroup.collapsed = true;
         if (actualGroup.proxied) {
           this.instance.removeClass(groupEl, CLASS_GROUP_EXPANDED);
@@ -3747,13 +3645,12 @@ function () {
     value: function expandGroup(group, doNotFireEvent) {
       var _this6 = this;
       var actualGroup = this.getGroup(group);
-      if (actualGroup == null
-      ) {
-          return;
-        }
+      if (actualGroup == null) {
+        return;
+      }
       var groupEl = actualGroup.el;
       if (actualGroup.collapseParent == null) {
-        this._setGroupVisible(actualGroup, true);
+        this.instance.setGroupVisible(actualGroup, true);
         actualGroup.collapsed = false;
         if (actualGroup.proxied) {
           this.instance.addClass(groupEl, CLASS_GROUP_EXPANDED);
@@ -3862,7 +3759,7 @@ function () {
           if (currentGroup !== actualGroup) {
             var entry = _this8.instance.manage(el);
             var elpos = _this8.instance.getOffset(el);
-            var cpos = actualGroup.collapsed ? _this8.instance.getOffsetRelativeToRoot(groupEl) : _this8.instance.getOffset(actualGroup.getContentArea());
+            var cpos = actualGroup.collapsed ? _this8.instance.getOffsetRelativeToRoot(groupEl) : _this8.instance.getOffset(_this8.instance.getGroupContentArea(actualGroup));
             entry.group = actualGroup.elId;
             if (currentGroup != null) {
               currentGroup.remove(el, false, doNotFireEvent, false, actualGroup);
@@ -7357,4 +7254,4 @@ EndpointFactory.registerHandler(RectangleEndpointHandler);
 EndpointFactory.registerHandler(BlankEndpointHandler);
 Connectors.register(StraightConnector.type, StraightConnector);
 
-export { ABSOLUTE, ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP, ATTRIBUTE_GROUP_CONTENT, ATTRIBUTE_JTK_ENABLED, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SCOPE, ATTRIBUTE_SCOPE_PREFIX, ATTRIBUTE_TABINDEX, AbstractConnector, ArcSegment, ArrowOverlay, BLOCK, BOTTOM, BlankEndpoint, BlankEndpointHandler, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTED, CLASS_CONNECTOR, CLASS_CONNECTOR_OUTLINE, CLASS_ENDPOINT, CLASS_ENDPOINT_ANCHOR_PREFIX, CLASS_ENDPOINT_CONNECTED, CLASS_ENDPOINT_DROP_ALLOWED, CLASS_ENDPOINT_DROP_FORBIDDEN, CLASS_ENDPOINT_FULL, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, CMD_HIDE, CMD_ORPHAN_ALL, CMD_REMOVE_ALL, CMD_SHOW, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, CustomOverlay, DEFAULT, DiamondOverlay, DotEndpoint, DotEndpointHandler, ERROR_SOURCE_DOES_NOT_EXIST, ERROR_SOURCE_ENDPOINT_FULL, ERROR_TARGET_DOES_NOT_EXIST, ERROR_TARGET_ENDPOINT_FULL, EVENT_ANCHOR_CHANGED, EVENT_CLICK, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_DBL_TAP, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_TAP, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_DBL_TAP, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_REPLACED, EVENT_ENDPOINT_TAP, EVENT_FOCUS, EVENT_GROUP_ADDED, EVENT_GROUP_COLLAPSE, EVENT_GROUP_EXPAND, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_TAP, EVENT_UNMANAGE_ELEMENT, EVENT_UPDATE, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, FALSE, FIXED, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_DROP, INTERCEPT_BEFORE_START_DETACH, IS_DETACH_ALLOWED, JsPlumbInstance, KEY_CONNECTION_OVERLAYS, LEFT, LabelOverlay, LightweightFloatingAnchor, LightweightRouter, NONE, Overlay, OverlayFactory, PROPERTY_POSITION, PlainArrowOverlay, REDROP_POLICY_ANY, REDROP_POLICY_STRICT, RIGHT, RectangleEndpoint, RectangleEndpointHandler, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP, SELECTOR_GROUP_CONTAINER, SELECTOR_MANAGED_ELEMENT, SELECTOR_OVERLAY, SOURCE, SOURCE_INDEX, STATIC, SourceSelector, StraightConnector, StraightSegment, TARGET, TARGET_INDEX, TOP, TRUE, TargetSelector, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _removeTypeCssHelper, _updateHoverStyle, att, classList, cls, convertToFullOverlaySpec, createFloatingAnchor, getDefaultFace, isArrowOverlay, isContinuous, isCustomOverlay, isDiamondOverlay, isDynamic, isEdgeSupported, _isFloating as isFloating, isFullOverlaySpec, isLabelOverlay, isPlainArrowOverlay, makeLightweightAnchorFromSpec };
+export { ABSOLUTE, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SCOPE, ATTRIBUTE_SCOPE_PREFIX, ATTRIBUTE_TABINDEX, AbstractConnector, ArcSegment, ArrowOverlay, BLOCK, BOTTOM, BlankEndpoint, BlankEndpointHandler, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTED, CLASS_CONNECTOR, CLASS_CONNECTOR_OUTLINE, CLASS_ENDPOINT, CLASS_ENDPOINT_ANCHOR_PREFIX, CLASS_ENDPOINT_CONNECTED, CLASS_ENDPOINT_DROP_ALLOWED, CLASS_ENDPOINT_DROP_FORBIDDEN, CLASS_ENDPOINT_FULL, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, CustomOverlay, DEFAULT, DiamondOverlay, DotEndpoint, DotEndpointHandler, ERROR_SOURCE_DOES_NOT_EXIST, ERROR_SOURCE_ENDPOINT_FULL, ERROR_TARGET_DOES_NOT_EXIST, ERROR_TARGET_ENDPOINT_FULL, EVENT_ANCHOR_CHANGED, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_ENDPOINT_REPLACED, EVENT_GROUP_ADDED, EVENT_GROUP_COLLAPSE, EVENT_GROUP_EXPAND, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_UNMANAGE_ELEMENT, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, FALSE, FIXED, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_DROP, INTERCEPT_BEFORE_START_DETACH, IS_DETACH_ALLOWED, JsPlumbInstance, KEY_CONNECTION_OVERLAYS, LEFT, LabelOverlay, LightweightFloatingAnchor, LightweightRouter, NONE, Overlay, OverlayFactory, PlainArrowOverlay, REDROP_POLICY_ANY, REDROP_POLICY_STRICT, RIGHT, RectangleEndpoint, RectangleEndpointHandler, SELECTOR_MANAGED_ELEMENT, SOURCE, SOURCE_INDEX, STATIC, SourceSelector, StraightConnector, StraightSegment, TARGET, TARGET_INDEX, TOP, TRUE, TargetSelector, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _removeTypeCssHelper, _updateHoverStyle, att, classList, cls, convertToFullOverlaySpec, createFloatingAnchor, getDefaultFace, isArrowOverlay, isContinuous, isCustomOverlay, isDiamondOverlay, isDynamic, isEdgeSupported, _isFloating as isFloating, isFullOverlaySpec, isLabelOverlay, isPlainArrowOverlay, makeLightweightAnchorFromSpec };

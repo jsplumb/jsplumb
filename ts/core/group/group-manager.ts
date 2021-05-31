@@ -269,9 +269,10 @@ export class GroupManager<E> {
             if (group.group) {
                 pos.x += groupPos.x
                 pos.y += groupPos.y
-                group.group.getContentArea().appendChild(el); // set as child of parent group, if there is one.
+                this.instance.getGroupContentArea(group.group).appendChild(el)
+                //group.group.getContentArea().appendChild(el); // set as child of parent group, if there is one.
             } else {
-                this.instance._appendElement(el, this.instance.getContainer()); // set back as child of container
+                this.instance._appendElement(el, this.instance.getContainer()) // set back as child of container
             }
 
             this.instance.setPosition(el, pos)
@@ -280,12 +281,12 @@ export class GroupManager<E> {
         }
     }
 
-    private _setGroupVisible(group:UIGroup<E>, state:boolean) {
-        let m = (group.el as any).querySelectorAll(Constants.SELECTOR_MANAGED_ELEMENT)
-        for (let i = 0; i < m.length; i++) {
-            this.instance[state ? Constants.CMD_SHOW : Constants.CMD_HIDE](m[i], true)
-        }
-    }
+    // private _setGroupVisible(group:UIGroup<E>, state:boolean) {
+    //     let m = (group.el as any).querySelectorAll(Constants.SELECTOR_MANAGED_ELEMENT)
+    //     for (let i = 0; i < m.length; i++) {
+    //         this.instance[state ? Constants.CMD_SHOW : Constants.CMD_HIDE](m[i], true)
+    //     }
+    // }
 
     _updateConnectionsForGroup(group:UIGroup<E>) {
 
@@ -399,7 +400,7 @@ export class GroupManager<E> {
         if (actualGroup.collapseParent == null) {
 
             // hide all connections
-            this._setGroupVisible(actualGroup, false)
+            this.instance.setGroupVisible(actualGroup, false)
 
             actualGroup.collapsed = true
 
@@ -479,14 +480,14 @@ export class GroupManager<E> {
 
         let actualGroup = this.getGroup(group)
 
-        if (actualGroup == null /*|| !actualGroup.collapsed*/) {
+        if (actualGroup == null) {
             return
         }
         const groupEl = actualGroup.el
 
         if (actualGroup.collapseParent == null) {
 
-            this._setGroupVisible(actualGroup, true)
+            this.instance.setGroupVisible(actualGroup, true)
             actualGroup.collapsed = false
 
             if (actualGroup.proxied) {
@@ -626,7 +627,7 @@ export class GroupManager<E> {
 
                     const entry = this.instance.manage(el)
                     const elpos = this.instance.getOffset(el)
-                    const cpos = actualGroup.collapsed ? this.instance.getOffsetRelativeToRoot(groupEl) : this.instance.getOffset(actualGroup.getContentArea())
+                    const cpos = actualGroup.collapsed ? this.instance.getOffsetRelativeToRoot(groupEl) : this.instance.getOffset(this.instance.getGroupContentArea(actualGroup))
                     entry.group = actualGroup.elId
 
                     // otherwise, transfer to this group.

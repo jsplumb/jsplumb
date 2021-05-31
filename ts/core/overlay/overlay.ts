@@ -3,8 +3,7 @@ import {JsPlumbInstance} from "../core"
 import {PaintStyle} from "../styles"
 import {Component} from "../component/component"
 import {Dictionary, isString, uuid, EventGenerator} from "@jsplumb/util"
-import {Connection} from '../connector/connection-impl'
-import * as Constants from "../constants"
+
 
 export interface OverlayOptions extends Record<string, any> {
     id?:string
@@ -96,33 +95,33 @@ export abstract class Overlay extends EventGenerator {
 
     abstract updateFrom(d:any):void
 
-    private _postComponentEvent(eventName:string, originalEvent:Event) {
-        this.instance.fire(eventName, this.component, originalEvent)
-    }
+    // private _postComponentEvent(eventName:string, originalEvent:Event) {
+    //     this.instance.fire(eventName, this.component, originalEvent)
+    // }
 
-    click(e:Event) {
-        this.fire<OverlayMouseEventParams>(Constants.EVENT_CLICK, {e, overlay:this})
-        let eventName = this.component instanceof Connection ? Constants.EVENT_CLICK : Constants.EVENT_ENDPOINT_CLICK
-        this._postComponentEvent(eventName, e)
-    }
-
-    dblclick(e:Event) {
-        this.fire<OverlayMouseEventParams>(Constants.EVENT_DBL_CLICK, {e, overlay:this})
-        let eventName = this.component instanceof Connection ? Constants.EVENT_DBL_CLICK : Constants.EVENT_ENDPOINT_DBL_CLICK
-        this._postComponentEvent(eventName, e)
-    }
-
-    tap(e:Event) {
-        this.fire<OverlayMouseEventParams>(Constants.EVENT_TAP, {e, overlay:this})
-        let eventName = this.component instanceof Connection ? Constants.EVENT_TAP : Constants.EVENT_ENDPOINT_TAP
-        this._postComponentEvent(eventName, e)
-    }
-
-    dbltap(e:Event) {
-        this.fire<OverlayMouseEventParams>(Constants.EVENT_DBL_TAP, {e, overlay:this})
-        let eventName = this.component instanceof Connection ? Constants.EVENT_DBL_TAP : Constants.EVENT_ENDPOINT_DBL_TAP
-        this._postComponentEvent(eventName, e)
-    }
+    // click(e:Event) {
+    //     this.fire<OverlayMouseEventParams>(Constants.EVENT_CLICK, {e, overlay:this})
+    //     let eventName = this.component instanceof Connection ? Constants.EVENT_CLICK : Constants.EVENT_ENDPOINT_CLICK
+    //     this._postComponentEvent(eventName, e)
+    // }
+    //
+    // dblclick(e:Event) {
+    //     this.fire<OverlayMouseEventParams>(Constants.EVENT_DBL_CLICK, {e, overlay:this})
+    //     let eventName = this.component instanceof Connection ? Constants.EVENT_DBL_CLICK : Constants.EVENT_ENDPOINT_DBL_CLICK
+    //     this._postComponentEvent(eventName, e)
+    // }
+    //
+    // tap(e:Event) {
+    //     this.fire<OverlayMouseEventParams>(Constants.EVENT_TAP, {e, overlay:this})
+    //     let eventName = this.component instanceof Connection ? Constants.EVENT_TAP : Constants.EVENT_ENDPOINT_TAP
+    //     this._postComponentEvent(eventName, e)
+    // }
+    //
+    // dbltap(e:Event) {
+    //     this.fire<OverlayMouseEventParams>(Constants.EVENT_DBL_TAP, {e, overlay:this})
+    //     let eventName = this.component instanceof Connection ? Constants.EVENT_DBL_TAP : Constants.EVENT_ENDPOINT_DBL_TAP
+    //     this._postComponentEvent(eventName, e)
+    // }
 
 }
 

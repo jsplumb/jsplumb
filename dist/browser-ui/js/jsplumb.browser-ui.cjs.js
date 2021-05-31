@@ -450,6 +450,58 @@ function _size(svg, x, y, w, h) {
   svg.width = w;
 }
 
+function compoundEvent(stem, event, subevent) {
+  var a = [stem, event];
+  if (subevent) {
+    a.push(subevent);
+  }
+  return a.join(":");
+}
+var ATTRIBUTE_CONTAINER = "data-jtk-container";
+var ATTRIBUTE_GROUP_CONTENT = "data-jtk-group-content";
+var ATTRIBUTE_JTK_ENABLED = "data-jtk-enabled";
+var ENDPOINT = "endpoint";
+var ELEMENT = "element";
+var CONNECTION = "connection";
+var ELEMENT_DIV = "div";
+var EVENT_CLICK = "click";
+var EVENT_CONTEXTMENU = "contextmenu";
+var EVENT_DBL_CLICK = "dblclick";
+var EVENT_DBL_TAP = "dbltap";
+var EVENT_FOCUS = "focus";
+var EVENT_MOUSEDOWN = "mousedown";
+var EVENT_MOUSEENTER = "mouseenter";
+var EVENT_MOUSEEXIT = "mouseexit";
+var EVENT_MOUSEMOVE = "mousemove";
+var EVENT_MOUSEUP = "mouseup";
+var EVENT_MOUSEOUT = "mouseout";
+var EVENT_MOUSEOVER = "mouseover";
+var EVENT_TAP = "tap";
+var EVENT_ELEMENT_CLICK = compoundEvent(ELEMENT, EVENT_CLICK);
+var EVENT_ELEMENT_DBL_CLICK = compoundEvent(ELEMENT, EVENT_DBL_CLICK);
+var EVENT_ELEMENT_DBL_TAP = compoundEvent(ELEMENT, EVENT_DBL_TAP);
+var EVENT_ELEMENT_MOUSE_OUT = compoundEvent(ELEMENT, EVENT_MOUSEOUT);
+var EVENT_ELEMENT_MOUSE_OVER = compoundEvent(ELEMENT, EVENT_MOUSEOVER);
+var EVENT_ELEMENT_TAP = compoundEvent(ELEMENT, EVENT_TAP);
+var EVENT_ENDPOINT_CLICK = compoundEvent(ENDPOINT, EVENT_CLICK);
+var EVENT_ENDPOINT_DBL_CLICK = compoundEvent(ENDPOINT, EVENT_DBL_CLICK);
+var EVENT_ENDPOINT_DBL_TAP = compoundEvent(ENDPOINT, EVENT_DBL_TAP);
+var EVENT_ENDPOINT_MOUSEOUT = compoundEvent(ENDPOINT, EVENT_MOUSEOUT);
+var EVENT_ENDPOINT_MOUSEOVER = compoundEvent(ENDPOINT, EVENT_MOUSEOVER);
+var EVENT_ENDPOINT_TAP = compoundEvent(ENDPOINT, EVENT_TAP);
+var EVENT_CONNECTION_CLICK = compoundEvent(CONNECTION, EVENT_CLICK);
+var EVENT_CONNECTION_DBL_CLICK = compoundEvent(CONNECTION, EVENT_DBL_CLICK);
+var EVENT_CONNECTION_DBL_TAP = compoundEvent(CONNECTION, EVENT_DBL_TAP);
+var EVENT_CONNECTION_MOUSEOUT = compoundEvent(CONNECTION, EVENT_MOUSEOUT);
+var EVENT_CONNECTION_MOUSEOVER = compoundEvent(CONNECTION, EVENT_MOUSEOVER);
+var EVENT_CONNECTION_TAP = compoundEvent(CONNECTION, EVENT_TAP);
+var PROPERTY_POSITION = "position";
+var SELECTOR_CONNECTOR = core.cls(core.CLASS_CONNECTOR);
+var SELECTOR_ENDPOINT = core.cls(core.CLASS_ENDPOINT);
+var SELECTOR_GROUP = core.att(core.ATTRIBUTE_GROUP);
+var SELECTOR_GROUP_CONTAINER = core.att(ATTRIBUTE_GROUP_CONTENT);
+var SELECTOR_OVERLAY = core.cls(core.CLASS_OVERLAY);
+
 function _touch(target, pageX, pageY, screenX, screenY, clientX, clientY) {
   return new Touch({
     target: target,
@@ -660,7 +712,7 @@ var DefaultHandler = function DefaultHandler(obj, evt, fn, children) {
     var tfn = _curryChildFilter(children, obj, fn, touchMap[evt]);
     _bind(obj, touchMap[evt], tfn, fn);
   }
-  if (evt === core.EVENT_FOCUS && obj.getAttribute(core.ATTRIBUTE_TABINDEX) == null) {
+  if (evt === EVENT_FOCUS && obj.getAttribute(core.ATTRIBUTE_TABINDEX) == null) {
     obj.setAttribute(core.ATTRIBUTE_TABINDEX, "1");
   }
   _bind(obj, evt, _curryChildFilter(children, obj, fn, evt), fn);
@@ -695,7 +747,7 @@ function () {
     key: "generate",
     value: function generate(clickThreshold, dblClickThreshold) {
       return function (obj, evt, fn, children) {
-        if (evt == core.EVENT_CONTEXTMENU && isMouseDevice) DefaultHandler(obj, evt, fn, children);else {
+        if (evt == EVENT_CONTEXTMENU && isMouseDevice) DefaultHandler(obj, evt, fn, children);else {
           if (obj.__taTapHandler == null) {
             var tt = obj.__taTapHandler = {
               tap: [],
@@ -756,8 +808,8 @@ function () {
             };
             obj.__taTapHandler.downHandler = down;
             obj.__taTapHandler.upHandler = up;
-            DefaultHandler(obj, core.EVENT_MOUSEDOWN, down);
-            DefaultHandler(obj, core.EVENT_MOUSEUP, up);
+            DefaultHandler(obj, EVENT_MOUSEDOWN, down);
+            DefaultHandler(obj, EVENT_MOUSEUP, up);
           }
           obj.__taTapHandler.downSelectors.push(children);
           obj.__taTapHandler[evt].push([fn, children]);
@@ -768,8 +820,8 @@ function () {
               });
               _d(obj.__taTapHandler[evt], fn);
               if (obj.__taTapHandler.downSelectors.length === 0) {
-                _unbind(obj, core.EVENT_MOUSEDOWN, obj.__taTapHandler.downHandler);
-                _unbind(obj, core.EVENT_MOUSEUP, obj.__taTapHandler.upHandler);
+                _unbind(obj, EVENT_MOUSEDOWN, obj.__taTapHandler.downHandler);
+                _unbind(obj, EVENT_MOUSEUP, obj.__taTapHandler.upHandler);
                 delete obj.__taTapHandler;
               }
             }
@@ -799,7 +851,7 @@ function () {
           var over = function over(e) {
             var t = _t(e);
             if (children == null && t == obj && !obj.__tamee.over || matchesSelector$1(t, children, obj) && (t.__tamee == null || !t.__tamee.over)) {
-              meeHelper(core.EVENT_MOUSEENTER, e, obj, t);
+              meeHelper(EVENT_MOUSEENTER, e, obj, t);
               t.__tamee = t.__tamee || {};
               t.__tamee.over = true;
               activeElements.push(t);
@@ -811,12 +863,12 @@ function () {
               if (t == activeElements[i] && !matchesSelector$1(e.relatedTarget || e.toElement, "*", t)) {
                 t.__tamee.over = false;
                 activeElements.splice(i, 1);
-                meeHelper(core.EVENT_MOUSEEXIT, e, obj, t);
+                meeHelper(EVENT_MOUSEEXIT, e, obj, t);
               }
             }
           };
-          _bind(obj, core.EVENT_MOUSEOVER, _curryChildFilter(children, obj, over, core.EVENT_MOUSEOVER), over);
-          _bind(obj, core.EVENT_MOUSEOUT, _curryChildFilter(children, obj, out, core.EVENT_MOUSEOUT), out);
+          _bind(obj, EVENT_MOUSEOVER, _curryChildFilter(children, obj, over, EVENT_MOUSEOVER), over);
+          _bind(obj, EVENT_MOUSEOUT, _curryChildFilter(children, obj, out, EVENT_MOUSEOUT), out);
         }
         fn.__taUnstore = function () {
           delete obj.__tamee[evt][fn.__tauid];
@@ -847,9 +899,9 @@ function () {
     value: function _doBind(el, evt, fn, children) {
       if (fn == null) return;
       var jel = el;
-      if (evt === core.EVENT_TAP || evt === core.EVENT_DBL_TAP || evt === core.EVENT_CONTEXTMENU) {
+      if (evt === EVENT_TAP || evt === EVENT_DBL_TAP || evt === EVENT_CONTEXTMENU) {
         this.tapHandler(jel, evt, fn, children);
-      } else if (evt === core.EVENT_MOUSEENTER || evt == core.EVENT_MOUSEEXIT) this.mouseEnterExitHandler(jel, evt, fn, children);else {
+      } else if (evt === EVENT_MOUSEENTER || evt == EVENT_MOUSEEXIT) this.mouseEnterExitHandler(jel, evt, fn, children);else {
         DefaultHandler(jel, evt, fn, children);
       }
     }
@@ -1250,7 +1302,7 @@ function (_Base) {
       }
       _this._availableSelectors.push(params);
     }
-    _this.k.eventManager.on(_this.el, EVENT_MOUSEDOWN, _this.downListener);
+    _this.k.eventManager.on(_this.el, EVENT_MOUSEDOWN$1, _this.downListener);
     return _this;
   }
   _createClass(Drag, [{
@@ -1278,8 +1330,8 @@ function (_Base) {
     value: function _upListener(e) {
       if (this._downAt) {
         this._downAt = null;
-        this.k.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener);
-        this.k.eventManager.off(document, EVENT_MOUSEUP, this.upListener);
+        this.k.eventManager.off(document, EVENT_MOUSEMOVE$1, this.moveListener);
+        this.k.eventManager.off(document, EVENT_MOUSEUP$1, this.upListener);
         removeClass(document.body, _classes.noSelect);
         this.unmark(e);
         this.stop(e);
@@ -1359,8 +1411,8 @@ function (_Base) {
             y: this._pagePosAtDown.y - this._posAtDown.y
           };
           this._size = _getSize(this._dragEl);
-          this.k.eventManager.on(document, EVENT_MOUSEMOVE, this.moveListener);
-          this.k.eventManager.on(document, EVENT_MOUSEUP, this.upListener);
+          this.k.eventManager.on(document, EVENT_MOUSEMOVE$1, this.moveListener);
+          this.k.eventManager.on(document, EVENT_MOUSEUP$1, this.upListener);
           addClass(document.body, _classes.noSelect);
           this._dispatch(EVENT_BEFORE_START, {
             el: this.el,
@@ -1647,9 +1699,9 @@ function (_Base) {
   }, {
     key: "destroy",
     value: function destroy() {
-      this.k.eventManager.off(this.el, EVENT_MOUSEDOWN, this.downListener);
-      this.k.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener);
-      this.k.eventManager.off(document, EVENT_MOUSEUP, this.upListener);
+      this.k.eventManager.off(this.el, EVENT_MOUSEDOWN$1, this.downListener);
+      this.k.eventManager.off(document, EVENT_MOUSEMOVE$1, this.moveListener);
+      this.k.eventManager.off(document, EVENT_MOUSEUP$1, this.upListener);
       this.downListener = null;
       this.upListener = null;
       this.moveListener = null;
@@ -1757,9 +1809,9 @@ var CLASS_DRAG_HOVER = "jtk-drag-hover";
 var EVENT_DRAG_MOVE = "drag:move";
 var EVENT_DRAG_STOP = "drag:stop";
 var EVENT_DRAG_START = "drag:start";
-var EVENT_MOUSEDOWN = "mousedown";
-var EVENT_MOUSEMOVE = "mousemove";
-var EVENT_MOUSEUP = "mouseup";
+var EVENT_MOUSEDOWN$1 = "mousedown";
+var EVENT_MOUSEMOVE$1 = "mousemove";
+var EVENT_MOUSEUP$1 = "mouseup";
 var EVENT_REVERT = "revert";
 var EVENT_ZOOM = "zoom";
 var EVENT_CONNECTION_ABORT = "connection:abort";
@@ -2443,8 +2495,8 @@ function () {
     var container = instance.getContainer();
     this.mousedownHandler = this._mousedownHandler.bind(this);
     this.mouseupHandler = this._mouseupHandler.bind(this);
-    instance.on(container, EVENT_MOUSEDOWN, core.SELECTOR_MANAGED_ELEMENT, this.mousedownHandler);
-    instance.on(container, EVENT_MOUSEUP, core.SELECTOR_MANAGED_ELEMENT, this.mouseupHandler);
+    instance.on(container, EVENT_MOUSEDOWN$1, core.SELECTOR_MANAGED_ELEMENT, this.mousedownHandler);
+    instance.on(container, EVENT_MOUSEUP$1, core.SELECTOR_MANAGED_ELEMENT, this.mouseupHandler);
   }
   _createClass(EndpointDragHandler, [{
     key: "_resolveDragParent",
@@ -2473,14 +2525,14 @@ function () {
       sourceDef = this._getSourceDefinition(e);
       if (sourceDef != null) {
         sourceEl = this._resolveDragParent(sourceDef.def, eventTarget);
-        if (sourceEl == null || sourceEl.getAttribute(core.ATTRIBUTE_JTK_ENABLED) === core.FALSE) {
+        if (sourceEl == null || sourceEl.getAttribute(ATTRIBUTE_JTK_ENABLED) === core.FALSE) {
           return;
         }
       }
       if (sourceDef) {
         var sourceElement = e.currentTarget,
             def;
-        if (eventTarget.getAttribute(core.ATTRIBUTE_JTK_ENABLED) !== core.FALSE) {
+        if (eventTarget.getAttribute(ATTRIBUTE_JTK_ENABLED) !== core.FALSE) {
           consume(e);
           this._activeDefinition = sourceDef;
           def = sourceDef.def;
@@ -2533,7 +2585,7 @@ function () {
           }
           sourceElement._jsPlumbOrphanedEndpoints = sourceElement._jsPlumbOrphanedEndpoints || [];
           sourceElement._jsPlumbOrphanedEndpoints.push(this.ep);
-          this.instance.trigger(this.ep.endpoint.canvas, EVENT_MOUSEDOWN, e, payload);
+          this.instance.trigger(this.ep.endpoint.canvas, EVENT_MOUSEDOWN$1, e, payload);
         }
       }
     }
@@ -2591,8 +2643,8 @@ function () {
     key: "reset",
     value: function reset() {
       var c = this.instance.getContainer();
-      this.instance.off(c, EVENT_MOUSEUP, this.mouseupHandler);
-      this.instance.off(c, EVENT_MOUSEDOWN, this.mousedownHandler);
+      this.instance.off(c, EVENT_MOUSEUP$1, this.mouseupHandler);
+      this.instance.off(c, EVENT_MOUSEDOWN$1, this.mousedownHandler);
     }
   }, {
     key: "init",
@@ -2729,7 +2781,7 @@ function () {
         if (sourceDef != null) {
           var targetZones = this.instance.getContainer().querySelectorAll(sourceDef.redrop === core.REDROP_POLICY_ANY ? core.SELECTOR_MANAGED_ELEMENT : sourceDef.selector);
           util.forEach(targetZones, function (el) {
-            if (el.getAttribute(core.ATTRIBUTE_JTK_ENABLED) !== "false") {
+            if (el.getAttribute(ATTRIBUTE_JTK_ENABLED) !== "false") {
               var d = {
                 r: null,
                 el: el
@@ -2759,7 +2811,7 @@ function () {
         targetDefs.forEach(function (targetDef) {
           var targetZones = _this.instance.getContainer().querySelectorAll(targetDef.selector);
           util.forEach(targetZones, function (el) {
-            if (el.getAttribute(core.ATTRIBUTE_JTK_ENABLED) !== "false") {
+            if (el.getAttribute(ATTRIBUTE_JTK_ENABLED) !== "false") {
               var d = {
                 r: null,
                 el: el
@@ -3195,7 +3247,7 @@ function (_ElementDragHandler) {
     _classCallCheck(this, GroupDragHandler);
     _this = _possibleConstructorReturn(this, _getPrototypeOf(GroupDragHandler).call(this, instance));
     _this.instance = instance;
-    _defineProperty(_assertThisInitialized(_this), "selector", [">", core.SELECTOR_GROUP, core.SELECTOR_MANAGED_ELEMENT].join(" "));
+    _defineProperty(_assertThisInitialized(_this), "selector", [">", SELECTOR_GROUP, core.SELECTOR_MANAGED_ELEMENT].join(" "));
     _defineProperty(_assertThisInitialized(_this), "doRevalidate", void 0);
     _this.doRevalidate = _this._revalidate.bind(_assertThisInitialized(_this));
     return _this;
@@ -3252,8 +3304,8 @@ function (_ElementDragHandler) {
         this._pruneOrOrphan(params);
       } else {
         if (originalGroup.ghost) {
-          var o1 = this.instance.getOffset(currentGroup.getContentArea());
-          var o2 = this.instance.getOffset(originalGroup.getContentArea());
+          var o1 = this.instance.getOffset(this.instance.getGroupContentArea(currentGroup));
+          var o2 = this.instance.getOffset(this.instance.getGroupContentArea(originalGroup));
           var o = {
             x: o2.x + params.pos.x - o1.x,
             y: o2.y + params.pos.y - o1.y
@@ -3839,7 +3891,6 @@ var endpointMap = {};
 function registerEndpointRenderer(name, fns) {
   endpointMap[name] = fns;
 }
-var ELEMENT_DIV = "div";
 function getPositionOnElement(evt, el, zoom) {
   var jel = el;
   var box = _typeof(el.getBoundingClientRect) !== core.UNDEFINED ? el.getBoundingClientRect() : {
@@ -3984,19 +4035,19 @@ function (_JsPlumbInstance) {
     _this.dragManager.addHandler(_this.elementDragHandler, _this.elementDragOptions);
     var _connClick = function _connClick(event, e) {
       if (!e.defaultPrevented) {
-        var connectorElement = findParent(getEventSource(e), core.SELECTOR_CONNECTOR, this.getContainer(), true);
+        var connectorElement = findParent(getEventSource(e), SELECTOR_CONNECTOR, this.getContainer(), true);
         this.fire(event, connectorElement.jtk.connector.connection, e);
       }
     };
-    _this._connectorClick = _connClick.bind(_assertThisInitialized(_this), core.EVENT_CLICK);
-    _this._connectorDblClick = _connClick.bind(_assertThisInitialized(_this), core.EVENT_DBL_CLICK);
-    _this._connectorTap = _connClick.bind(_assertThisInitialized(_this), core.EVENT_TAP);
-    _this._connectorDblTap = _connClick.bind(_assertThisInitialized(_this), core.EVENT_DBL_TAP);
+    _this._connectorClick = _connClick.bind(_assertThisInitialized(_this), EVENT_CONNECTION_CLICK);
+    _this._connectorDblClick = _connClick.bind(_assertThisInitialized(_this), EVENT_CONNECTION_DBL_CLICK);
+    _this._connectorTap = _connClick.bind(_assertThisInitialized(_this), EVENT_CONNECTION_TAP);
+    _this._connectorDblTap = _connClick.bind(_assertThisInitialized(_this), EVENT_CONNECTION_DBL_TAP);
     var _connectorHover = function _connectorHover(state, e) {
       var el = getEventSource(e).parentNode;
       if (el.jtk && el.jtk.connector) {
         this.setConnectorHover(el.jtk.connector, state);
-        this.fire(state ? core.EVENT_CONNECTION_MOUSEOVER : core.EVENT_CONNECTION_MOUSEOUT, el.jtk.connector.connection, e);
+        this.fire(state ? EVENT_CONNECTION_MOUSEOVER : EVENT_CONNECTION_MOUSEOUT, el.jtk.connector.connection, e);
       }
     };
     _this._connectorMouseover = _connectorHover.bind(_assertThisInitialized(_this), true);
@@ -4006,31 +4057,31 @@ function (_JsPlumbInstance) {
         this.fire(event, endpointElement.jtk.endpoint, e);
       }
     };
-    _this._endpointClick = _epClick.bind(_assertThisInitialized(_this), core.EVENT_ENDPOINT_CLICK);
-    _this._endpointDblClick = _epClick.bind(_assertThisInitialized(_this), core.EVENT_ENDPOINT_DBL_CLICK);
+    _this._endpointClick = _epClick.bind(_assertThisInitialized(_this), EVENT_ENDPOINT_CLICK);
+    _this._endpointDblClick = _epClick.bind(_assertThisInitialized(_this), EVENT_ENDPOINT_DBL_CLICK);
     var _endpointHover = function _endpointHover(state, e) {
       var el = getEventSource(e);
       if (el.jtk && el.jtk.endpoint) {
         this.setEndpointHover(el.jtk.endpoint, state);
-        this.fire(state ? core.EVENT_ENDPOINT_MOUSEOVER : core.EVENT_ENDPOINT_MOUSEOUT, el.jtk.endpoint, e);
+        this.fire(state ? EVENT_ENDPOINT_MOUSEOVER : EVENT_ENDPOINT_MOUSEOUT, el.jtk.endpoint, e);
       }
     };
     _this._endpointMouseover = _endpointHover.bind(_assertThisInitialized(_this), true);
     _this._endpointMouseout = _endpointHover.bind(_assertThisInitialized(_this), false);
-    var _oClick = function _oClick(method, e) {
+    var _oClick = function (method, e) {
       consume(e);
-      var overlayElement = findParent(getEventSource(e), core.SELECTOR_OVERLAY, this.getContainer(), true);
+      var overlayElement = findParent(getEventSource(e), SELECTOR_OVERLAY, this.getContainer(), true);
       var overlay = overlayElement.jtk.overlay;
       if (overlay) {
-        overlay[method](e);
+        this.fireOverlayMethod(overlay, method, e);
       }
-    };
-    _this._overlayClick = _oClick.bind(_assertThisInitialized(_this), core.EVENT_CLICK);
-    _this._overlayDblClick = _oClick.bind(_assertThisInitialized(_this), core.EVENT_DBL_CLICK);
-    _this._overlayTap = _oClick.bind(_assertThisInitialized(_this), core.EVENT_TAP);
-    _this._overlayDblTap = _oClick.bind(_assertThisInitialized(_this), core.EVENT_DBL_TAP);
+    }.bind(_assertThisInitialized(_this));
+    _this._overlayClick = _oClick.bind(_assertThisInitialized(_this), EVENT_CLICK);
+    _this._overlayDblClick = _oClick.bind(_assertThisInitialized(_this), EVENT_DBL_CLICK);
+    _this._overlayTap = _oClick.bind(_assertThisInitialized(_this), EVENT_TAP);
+    _this._overlayDblTap = _oClick.bind(_assertThisInitialized(_this), EVENT_DBL_TAP);
     var _overlayHover = function _overlayHover(state, e) {
-      var overlayElement = findParent(getEventSource(e), core.SELECTOR_OVERLAY, this.getContainer(), true);
+      var overlayElement = findParent(getEventSource(e), SELECTOR_OVERLAY, this.getContainer(), true);
       var overlay = overlayElement.jtk.overlay;
       if (overlay) {
         this.setOverlayHover(overlay, state);
@@ -4040,24 +4091,24 @@ function (_JsPlumbInstance) {
     _this._overlayMouseout = _overlayHover.bind(_assertThisInitialized(_this), false);
     var _elementClick = function _elementClick(event, e, target) {
       if (!e.defaultPrevented) {
-        this.fire(e.detail === 1 ? core.EVENT_ELEMENT_CLICK : core.EVENT_ELEMENT_DBL_CLICK, target, e);
+        this.fire(e.detail === 1 ? EVENT_ELEMENT_CLICK : EVENT_ELEMENT_DBL_CLICK, target, e);
       }
     };
-    _this._elementClick = _elementClick.bind(_assertThisInitialized(_this), core.EVENT_ELEMENT_CLICK);
+    _this._elementClick = _elementClick.bind(_assertThisInitialized(_this), EVENT_ELEMENT_CLICK);
     var _elementTap = function _elementTap(event, e, target) {
       if (!e.defaultPrevented) {
-        this.fire(core.EVENT_ELEMENT_TAP, target, e);
+        this.fire(EVENT_ELEMENT_TAP, target, e);
       }
     };
-    _this._elementTap = _elementTap.bind(_assertThisInitialized(_this), core.EVENT_ELEMENT_TAP);
+    _this._elementTap = _elementTap.bind(_assertThisInitialized(_this), EVENT_ELEMENT_TAP);
     var _elementDblTap = function _elementDblTap(event, e, target) {
       if (!e.defaultPrevented) {
-        this.fire(core.EVENT_ELEMENT_DBL_TAP, target, e);
+        this.fire(EVENT_ELEMENT_DBL_TAP, target, e);
       }
     };
-    _this._elementDblTap = _elementDblTap.bind(_assertThisInitialized(_this), core.EVENT_ELEMENT_DBL_TAP);
+    _this._elementDblTap = _elementDblTap.bind(_assertThisInitialized(_this), EVENT_ELEMENT_DBL_TAP);
     var _elementHover = function _elementHover(state, e) {
-      this.fire(state ? core.EVENT_ELEMENT_MOUSE_OVER : core.EVENT_ELEMENT_MOUSE_OUT, getEventSource(e), e);
+      this.fire(state ? EVENT_ELEMENT_MOUSE_OVER : EVENT_ELEMENT_MOUSE_OUT, getEventSource(e), e);
     };
     _this._elementMouseenter = _elementHover.bind(_assertThisInitialized(_this), true);
     _this._elementMouseexit = _elementHover.bind(_assertThisInitialized(_this), false);
@@ -4065,6 +4116,17 @@ function (_JsPlumbInstance) {
     return _this;
   }
   _createClass(BrowserJsPlumbInstance, [{
+    key: "fireOverlayMethod",
+    value: function fireOverlayMethod(overlay, event, e) {
+      var stem = overlay.component instanceof core.Connection ? CONNECTION : ENDPOINT;
+      var mappedEvent = compoundEvent(stem, event);
+      overlay.fire(event, {
+        e: e,
+        overlay: overlay
+      });
+      this.fire(mappedEvent, overlay.component, e);
+    }
+  }, {
     key: "addDragFilter",
     value: function addDragFilter(filter, exclude) {
       this.dragManager.addFilter(filter, exclude);
@@ -4230,8 +4292,8 @@ function (_JsPlumbInstance) {
         op = op.offsetParent === container ? null : op.offsetParent;
       }
       if (container != null && (container.scrollTop > 0 || container.scrollLeft > 0)) {
-        var pp = jel.offsetParent != null ? this.getStyle(jel.offsetParent, core.PROPERTY_POSITION) : core.STATIC,
-            p = this.getStyle(jel, core.PROPERTY_POSITION);
+        var pp = jel.offsetParent != null ? this.getStyle(jel.offsetParent, PROPERTY_POSITION) : core.STATIC,
+            p = this.getStyle(jel, PROPERTY_POSITION);
         if (p !== core.ABSOLUTE && p !== core.FIXED && pp !== core.ABSOLUTE && pp !== core.FIXED) {
           out.x -= container.scrollLeft;
           out.y -= container.scrollTop;
@@ -4252,6 +4314,12 @@ function (_JsPlumbInstance) {
       } else {
         return el.currentStyle[prop];
       }
+    }
+  }, {
+    key: "getGroupContentArea",
+    value: function getGroupContentArea(group) {
+      var da = this.getSelector(group.el, SELECTOR_GROUP_CONTAINER);
+      return da && da.length > 0 ? da[0] : group.el;
     }
   }, {
     key: "getSelector",
@@ -4302,54 +4370,54 @@ function (_JsPlumbInstance) {
     key: "_attachEventDelegates",
     value: function _attachEventDelegates() {
       var currentContainer = this.getContainer();
-      this.eventManager.on(currentContainer, core.EVENT_CLICK, core.SELECTOR_OVERLAY, this._overlayClick);
-      this.eventManager.on(currentContainer, core.EVENT_DBL_CLICK, core.SELECTOR_OVERLAY, this._overlayDblClick);
-      this.eventManager.on(currentContainer, core.EVENT_TAP, core.SELECTOR_OVERLAY, this._overlayTap);
-      this.eventManager.on(currentContainer, core.EVENT_DBL_TAP, core.SELECTOR_OVERLAY, this._overlayDblTap);
-      this.eventManager.on(currentContainer, core.EVENT_CLICK, core.SELECTOR_CONNECTOR, this._connectorClick);
-      this.eventManager.on(currentContainer, core.EVENT_DBL_CLICK, core.SELECTOR_CONNECTOR, this._connectorDblClick);
-      this.eventManager.on(currentContainer, core.EVENT_TAP, core.SELECTOR_CONNECTOR, this._connectorTap);
-      this.eventManager.on(currentContainer, core.EVENT_DBL_TAP, core.SELECTOR_CONNECTOR, this._connectorDblTap);
-      this.eventManager.on(currentContainer, core.EVENT_CLICK, core.SELECTOR_ENDPOINT, this._endpointClick);
-      this.eventManager.on(currentContainer, core.EVENT_DBL_CLICK, core.SELECTOR_ENDPOINT, this._endpointDblClick);
-      this.eventManager.on(currentContainer, core.EVENT_CLICK, this.managedElementsSelector, this._elementClick);
-      this.eventManager.on(currentContainer, core.EVENT_TAP, this.managedElementsSelector, this._elementTap);
-      this.eventManager.on(currentContainer, core.EVENT_DBL_TAP, this.managedElementsSelector, this._elementDblTap);
-      this.eventManager.on(currentContainer, core.EVENT_MOUSEOVER, core.SELECTOR_CONNECTOR, this._connectorMouseover);
-      this.eventManager.on(currentContainer, core.EVENT_MOUSEOUT, core.SELECTOR_CONNECTOR, this._connectorMouseout);
-      this.eventManager.on(currentContainer, core.EVENT_MOUSEOVER, core.SELECTOR_ENDPOINT, this._endpointMouseover);
-      this.eventManager.on(currentContainer, core.EVENT_MOUSEOUT, core.SELECTOR_ENDPOINT, this._endpointMouseout);
-      this.eventManager.on(currentContainer, core.EVENT_MOUSEOVER, core.SELECTOR_OVERLAY, this._overlayMouseover);
-      this.eventManager.on(currentContainer, core.EVENT_MOUSEOUT, core.SELECTOR_OVERLAY, this._overlayMouseout);
-      this.eventManager.on(currentContainer, core.EVENT_MOUSEOVER, core.SELECTOR_MANAGED_ELEMENT, this._elementMouseenter);
-      this.eventManager.on(currentContainer, core.EVENT_MOUSEOUT, core.SELECTOR_MANAGED_ELEMENT, this._elementMouseexit);
+      this.eventManager.on(currentContainer, EVENT_CLICK, SELECTOR_OVERLAY, this._overlayClick);
+      this.eventManager.on(currentContainer, EVENT_DBL_CLICK, SELECTOR_OVERLAY, this._overlayDblClick);
+      this.eventManager.on(currentContainer, EVENT_TAP, SELECTOR_OVERLAY, this._overlayTap);
+      this.eventManager.on(currentContainer, EVENT_DBL_TAP, SELECTOR_OVERLAY, this._overlayDblTap);
+      this.eventManager.on(currentContainer, EVENT_CLICK, SELECTOR_CONNECTOR, this._connectorClick);
+      this.eventManager.on(currentContainer, EVENT_DBL_CLICK, SELECTOR_CONNECTOR, this._connectorDblClick);
+      this.eventManager.on(currentContainer, EVENT_TAP, SELECTOR_CONNECTOR, this._connectorTap);
+      this.eventManager.on(currentContainer, EVENT_DBL_TAP, SELECTOR_CONNECTOR, this._connectorDblTap);
+      this.eventManager.on(currentContainer, EVENT_CLICK, SELECTOR_ENDPOINT, this._endpointClick);
+      this.eventManager.on(currentContainer, EVENT_DBL_CLICK, SELECTOR_ENDPOINT, this._endpointDblClick);
+      this.eventManager.on(currentContainer, EVENT_CLICK, this.managedElementsSelector, this._elementClick);
+      this.eventManager.on(currentContainer, EVENT_TAP, this.managedElementsSelector, this._elementTap);
+      this.eventManager.on(currentContainer, EVENT_DBL_TAP, this.managedElementsSelector, this._elementDblTap);
+      this.eventManager.on(currentContainer, EVENT_MOUSEOVER, SELECTOR_CONNECTOR, this._connectorMouseover);
+      this.eventManager.on(currentContainer, EVENT_MOUSEOUT, SELECTOR_CONNECTOR, this._connectorMouseout);
+      this.eventManager.on(currentContainer, EVENT_MOUSEOVER, SELECTOR_ENDPOINT, this._endpointMouseover);
+      this.eventManager.on(currentContainer, EVENT_MOUSEOUT, SELECTOR_ENDPOINT, this._endpointMouseout);
+      this.eventManager.on(currentContainer, EVENT_MOUSEOVER, SELECTOR_OVERLAY, this._overlayMouseover);
+      this.eventManager.on(currentContainer, EVENT_MOUSEOUT, SELECTOR_OVERLAY, this._overlayMouseout);
+      this.eventManager.on(currentContainer, EVENT_MOUSEOVER, core.SELECTOR_MANAGED_ELEMENT, this._elementMouseenter);
+      this.eventManager.on(currentContainer, EVENT_MOUSEOUT, core.SELECTOR_MANAGED_ELEMENT, this._elementMouseexit);
     }
   }, {
     key: "_detachEventDelegates",
     value: function _detachEventDelegates() {
       var currentContainer = this.getContainer();
       if (currentContainer) {
-        this.eventManager.off(currentContainer, core.EVENT_CLICK, this._connectorClick);
-        this.eventManager.off(currentContainer, core.EVENT_DBL_CLICK, this._connectorDblClick);
-        this.eventManager.off(currentContainer, core.EVENT_TAP, this._connectorTap);
-        this.eventManager.off(currentContainer, core.EVENT_DBL_TAP, this._connectorDblTap);
-        this.eventManager.off(currentContainer, core.EVENT_CLICK, this._endpointClick);
-        this.eventManager.off(currentContainer, core.EVENT_DBL_CLICK, this._endpointDblClick);
-        this.eventManager.off(currentContainer, core.EVENT_CLICK, this._overlayClick);
-        this.eventManager.off(currentContainer, core.EVENT_DBL_CLICK, this._overlayDblClick);
-        this.eventManager.off(currentContainer, core.EVENT_TAP, this._overlayTap);
-        this.eventManager.off(currentContainer, core.EVENT_DBL_TAP, this._overlayDblTap);
-        this.eventManager.off(currentContainer, core.EVENT_CLICK, this._elementClick);
-        this.eventManager.off(currentContainer, core.EVENT_TAP, this._elementTap);
-        this.eventManager.off(currentContainer, core.EVENT_DBL_TAP, this._elementDblTap);
-        this.eventManager.off(currentContainer, core.EVENT_MOUSEOVER, this._connectorMouseover);
-        this.eventManager.off(currentContainer, core.EVENT_MOUSEOUT, this._connectorMouseout);
-        this.eventManager.off(currentContainer, core.EVENT_MOUSEOVER, this._endpointMouseover);
-        this.eventManager.off(currentContainer, core.EVENT_MOUSEOUT, this._endpointMouseout);
-        this.eventManager.off(currentContainer, core.EVENT_MOUSEOVER, this._overlayMouseover);
-        this.eventManager.off(currentContainer, core.EVENT_MOUSEOUT, this._overlayMouseout);
-        this.eventManager.off(currentContainer, core.EVENT_MOUSEENTER, this._elementMouseenter);
-        this.eventManager.off(currentContainer, core.EVENT_MOUSEEXIT, this._elementMouseexit);
+        this.eventManager.off(currentContainer, EVENT_CLICK, this._connectorClick);
+        this.eventManager.off(currentContainer, EVENT_DBL_CLICK, this._connectorDblClick);
+        this.eventManager.off(currentContainer, EVENT_TAP, this._connectorTap);
+        this.eventManager.off(currentContainer, EVENT_DBL_TAP, this._connectorDblTap);
+        this.eventManager.off(currentContainer, EVENT_CLICK, this._endpointClick);
+        this.eventManager.off(currentContainer, EVENT_DBL_CLICK, this._endpointDblClick);
+        this.eventManager.off(currentContainer, EVENT_CLICK, this._overlayClick);
+        this.eventManager.off(currentContainer, EVENT_DBL_CLICK, this._overlayDblClick);
+        this.eventManager.off(currentContainer, EVENT_TAP, this._overlayTap);
+        this.eventManager.off(currentContainer, EVENT_DBL_TAP, this._overlayDblTap);
+        this.eventManager.off(currentContainer, EVENT_CLICK, this._elementClick);
+        this.eventManager.off(currentContainer, EVENT_TAP, this._elementTap);
+        this.eventManager.off(currentContainer, EVENT_DBL_TAP, this._elementDblTap);
+        this.eventManager.off(currentContainer, EVENT_MOUSEOVER, this._connectorMouseover);
+        this.eventManager.off(currentContainer, EVENT_MOUSEOUT, this._connectorMouseout);
+        this.eventManager.off(currentContainer, EVENT_MOUSEOVER, this._endpointMouseover);
+        this.eventManager.off(currentContainer, EVENT_MOUSEOUT, this._endpointMouseout);
+        this.eventManager.off(currentContainer, EVENT_MOUSEOVER, this._overlayMouseover);
+        this.eventManager.off(currentContainer, EVENT_MOUSEOUT, this._overlayMouseout);
+        this.eventManager.off(currentContainer, EVENT_MOUSEENTER, this._elementMouseenter);
+        this.eventManager.off(currentContainer, EVENT_MOUSEEXIT, this._elementMouseexit);
       }
     }
   }, {
@@ -4364,10 +4432,10 @@ function (_JsPlumbInstance) {
       if (this.dragManager != null) {
         dragFilters = this.dragManager.reset();
       }
-      this.setAttribute(newContainer, core.ATTRIBUTE_CONTAINER, util.uuid().replace("-", ""));
+      this.setAttribute(newContainer, ATTRIBUTE_CONTAINER, util.uuid().replace("-", ""));
       var currentContainer = this.getContainer();
       if (currentContainer != null) {
-        currentContainer.removeAttribute(core.ATTRIBUTE_CONTAINER);
+        currentContainer.removeAttribute(ATTRIBUTE_CONTAINER);
         var children = util.fromArray(currentContainer.childNodes).filter(function (cn) {
           return cn != null && (_this4.hasClass(cn, core.CLASS_CONNECTOR) || _this4.hasClass(cn, core.CLASS_ENDPOINT) || _this4.hasClass(cn, core.CLASS_OVERLAY) || cn.getAttribute && cn.getAttribute(core.ATTRIBUTE_MANAGED) != null);
         });
@@ -4394,7 +4462,7 @@ function (_JsPlumbInstance) {
     value: function reset() {
       _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "reset", this).call(this);
       var container = this.getContainer();
-      var els = container.querySelectorAll([core.SELECTOR_MANAGED_ELEMENT, core.SELECTOR_ENDPOINT, core.SELECTOR_CONNECTOR, core.SELECTOR_OVERLAY].join(","));
+      var els = container.querySelectorAll([core.SELECTOR_MANAGED_ELEMENT, SELECTOR_ENDPOINT, SELECTOR_CONNECTOR, SELECTOR_OVERLAY].join(","));
       util.forEach(els, function (el) {
         return el.parentNode && el.parentNode.removeChild(el);
       });
@@ -4805,6 +4873,8 @@ function (_JsPlumbInstance) {
   }, {
     key: "destroyEndpoint",
     value: function destroyEndpoint(ep) {
+      var anchorClass = this.endpointAnchorClassPrefix + (ep.currentAnchorClass ? "-" + ep.currentAnchorClass : "");
+      this.removeClass(ep.element, anchorClass);
       cleanup(ep.endpoint);
     }
   }, {
@@ -4863,6 +4933,18 @@ function (_JsPlumbInstance) {
     key: "setEndpointVisible",
     value: function setEndpointVisible(ep, v) {
       setVisible(ep.endpoint, v);
+    }
+  }, {
+    key: "setGroupVisible",
+    value: function setGroupVisible(group, state) {
+      var m = group.el.querySelectorAll(core.SELECTOR_MANAGED_ELEMENT);
+      for (var i = 0; i < m.length; i++) {
+        if (state) {
+          this.show(m[i], true);
+        } else {
+          this.hide(m[i], true);
+        }
+      }
     }
   }, {
     key: "deleteConnection",
@@ -4969,30 +5051,74 @@ function ready(f) {
   _do();
 }
 
+exports.ATTRIBUTE_CONTAINER = ATTRIBUTE_CONTAINER;
+exports.ATTRIBUTE_GROUP_CONTENT = ATTRIBUTE_GROUP_CONTENT;
+exports.ATTRIBUTE_JTK_ENABLED = ATTRIBUTE_JTK_ENABLED;
 exports.ATTR_SCROLLABLE_LIST = ATTR_SCROLLABLE_LIST;
 exports.BrowserJsPlumbInstance = BrowserJsPlumbInstance;
+exports.CONNECTION = CONNECTION;
 exports.Collicat = Collicat;
 exports.Drag = Drag;
+exports.ELEMENT = ELEMENT;
 exports.ELEMENT_DIV = ELEMENT_DIV;
+exports.ENDPOINT = ENDPOINT;
 exports.EVENT_BEFORE_START = EVENT_BEFORE_START;
+exports.EVENT_CLICK = EVENT_CLICK;
 exports.EVENT_CONNECTION_ABORT = EVENT_CONNECTION_ABORT;
+exports.EVENT_CONNECTION_CLICK = EVENT_CONNECTION_CLICK;
+exports.EVENT_CONNECTION_DBL_CLICK = EVENT_CONNECTION_DBL_CLICK;
+exports.EVENT_CONNECTION_DBL_TAP = EVENT_CONNECTION_DBL_TAP;
 exports.EVENT_CONNECTION_DRAG = EVENT_CONNECTION_DRAG;
+exports.EVENT_CONNECTION_MOUSEOUT = EVENT_CONNECTION_MOUSEOUT;
+exports.EVENT_CONNECTION_MOUSEOVER = EVENT_CONNECTION_MOUSEOVER;
+exports.EVENT_CONNECTION_TAP = EVENT_CONNECTION_TAP;
+exports.EVENT_CONTEXTMENU = EVENT_CONTEXTMENU;
+exports.EVENT_DBL_CLICK = EVENT_DBL_CLICK;
+exports.EVENT_DBL_TAP = EVENT_DBL_TAP;
 exports.EVENT_DRAG = EVENT_DRAG;
 exports.EVENT_DRAG_MOVE = EVENT_DRAG_MOVE;
 exports.EVENT_DRAG_START = EVENT_DRAG_START;
 exports.EVENT_DRAG_STOP = EVENT_DRAG_STOP;
 exports.EVENT_DROP = EVENT_DROP;
+exports.EVENT_ELEMENT_CLICK = EVENT_ELEMENT_CLICK;
+exports.EVENT_ELEMENT_DBL_CLICK = EVENT_ELEMENT_DBL_CLICK;
+exports.EVENT_ELEMENT_DBL_TAP = EVENT_ELEMENT_DBL_TAP;
+exports.EVENT_ELEMENT_MOUSE_OUT = EVENT_ELEMENT_MOUSE_OUT;
+exports.EVENT_ELEMENT_MOUSE_OVER = EVENT_ELEMENT_MOUSE_OVER;
+exports.EVENT_ELEMENT_TAP = EVENT_ELEMENT_TAP;
+exports.EVENT_ENDPOINT_CLICK = EVENT_ENDPOINT_CLICK;
+exports.EVENT_ENDPOINT_DBL_CLICK = EVENT_ENDPOINT_DBL_CLICK;
+exports.EVENT_ENDPOINT_DBL_TAP = EVENT_ENDPOINT_DBL_TAP;
+exports.EVENT_ENDPOINT_MOUSEOUT = EVENT_ENDPOINT_MOUSEOUT;
+exports.EVENT_ENDPOINT_MOUSEOVER = EVENT_ENDPOINT_MOUSEOVER;
+exports.EVENT_ENDPOINT_TAP = EVENT_ENDPOINT_TAP;
+exports.EVENT_FOCUS = EVENT_FOCUS;
+exports.EVENT_MOUSEDOWN = EVENT_MOUSEDOWN;
+exports.EVENT_MOUSEENTER = EVENT_MOUSEENTER;
+exports.EVENT_MOUSEEXIT = EVENT_MOUSEEXIT;
+exports.EVENT_MOUSEMOVE = EVENT_MOUSEMOVE;
+exports.EVENT_MOUSEOUT = EVENT_MOUSEOUT;
+exports.EVENT_MOUSEOVER = EVENT_MOUSEOVER;
+exports.EVENT_MOUSEUP = EVENT_MOUSEUP;
 exports.EVENT_OUT = EVENT_OUT;
 exports.EVENT_OVER = EVENT_OVER;
 exports.EVENT_SCROLL = EVENT_SCROLL;
 exports.EVENT_START = EVENT_START;
 exports.EVENT_STOP = EVENT_STOP;
+exports.EVENT_TAP = EVENT_TAP;
 exports.ElementDragHandler = ElementDragHandler;
 exports.EventManager = EventManager;
 exports.JsPlumbList = JsPlumbList;
 exports.JsPlumbListManager = JsPlumbListManager;
+exports.PROPERTY_POSITION = PROPERTY_POSITION;
+exports.SELECTOR_CONNECTOR = SELECTOR_CONNECTOR;
+exports.SELECTOR_ENDPOINT = SELECTOR_ENDPOINT;
+exports.SELECTOR_GROUP = SELECTOR_GROUP;
+exports.SELECTOR_GROUP_CONTAINER = SELECTOR_GROUP_CONTAINER;
+exports.SELECTOR_OVERLAY = SELECTOR_OVERLAY;
 exports.SELECTOR_SCROLLABLE_LIST = SELECTOR_SCROLLABLE_LIST;
 exports.addClass = addClass;
+exports.compoundEvent = compoundEvent;
 exports.consume = consume;
 exports.createElement = createElement;
 exports.createElementNS = createElementNS;
