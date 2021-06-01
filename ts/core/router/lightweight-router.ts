@@ -30,9 +30,8 @@ import {
     rotatePoint,
     sortHelper,
     uuid,
-    Dictionary, PointXY, SortFunction, Rotations, Size
+    Dictionary, PointXY, SortFunction, Rotations, Size, lineLength
 } from "@jsplumb/util"
-import {lineLength} from "../geom"
 
 import {ViewportElement} from "../viewport"
 import {AnchorPlacement, AnchorSpec} from "../common/anchor"

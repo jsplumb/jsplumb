@@ -2132,7 +2132,7 @@
         var _one = function _one(el, bounds, e) {
           var ancestorsOfIntersectingGroups = new Set();
           util.forEach(_this3._groupLocations, function (groupLoc) {
-            if (!ancestorsOfIntersectingGroups.has(groupLoc.group.id) && core.intersects(bounds, groupLoc.r)) {
+            if (!ancestorsOfIntersectingGroups.has(groupLoc.group.id) && util.intersects(bounds, groupLoc.r)) {
               if (groupLoc.group !== _this3._currentDragParentGroup) {
                 _this3.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
               }
@@ -2921,7 +2921,7 @@
               idx,
               _cont;
           for (var i = 0; i < this.endpointDropTargets.length; i++) {
-            if (core.intersects(boundingRect, this.endpointDropTargets[i].r)) {
+            if (util.intersects(boundingRect, this.endpointDropTargets[i].r)) {
               newDropTarget = this.endpointDropTargets[i];
               break;
             }

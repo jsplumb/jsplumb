@@ -455,92 +455,6 @@
     }
   };
 
-  var segmentMultipliers = [null, [1, -1], [1, 1], [-1, 1], [-1, -1]];
-  var inverseSegmentMultipliers = [null, [-1, -1], [-1, 1], [1, 1], [1, -1]];
-  var TWO_PI = 2 * Math.PI;
-  function pointXYFromArray(a) {
-    return {
-      x: a[0],
-      y: a[1]
-    };
-  }
-  function gradient(p1, p2) {
-    if (p2.x === p1.x) return p2.y > p1.y ? Infinity : -Infinity;else if (p2.y === p1.y) return p2.x > p1.x ? 0 : -0;else return (p2.y - p1.y) / (p2.x - p1.x);
-  }
-  function normal(p1, p2) {
-    return -1 / gradient(p1, p2);
-  }
-  function lineLength(p1, p2) {
-    return Math.sqrt(Math.pow(p2.y - p1.y, 2) + Math.pow(p2.x - p1.x, 2));
-  }
-  function quadrant(p1, p2) {
-    if (p2.x > p1.x) {
-      return p2.y > p1.y ? 2 : 1;
-    } else if (p2.x == p1.x) {
-      return p2.y > p1.y ? 2 : 1;
-    } else {
-      return p2.y > p1.y ? 3 : 4;
-    }
-  }
-  function theta(p1, p2) {
-    var m = gradient(p1, p2),
-        t = Math.atan(m),
-        s = quadrant(p1, p2);
-    if (s == 4 || s == 3) t += Math.PI;
-    if (t < 0) t += 2 * Math.PI;
-    return t;
-  }
-  function intersects(r1, r2) {
-    var x1 = r1.x,
-        x2 = r1.x + r1.w,
-        y1 = r1.y,
-        y2 = r1.y + r1.h,
-        a1 = r2.x,
-        a2 = r2.x + r2.w,
-        b1 = r2.y,
-        b2 = r2.y + r2.h;
-    return x1 <= a1 && a1 <= x2 && y1 <= b1 && b1 <= y2 || x1 <= a2 && a2 <= x2 && y1 <= b1 && b1 <= y2 || x1 <= a1 && a1 <= x2 && y1 <= b2 && b2 <= y2 || x1 <= a2 && a1 <= x2 && y1 <= b2 && b2 <= y2 || a1 <= x1 && x1 <= a2 && b1 <= y1 && y1 <= b2 || a1 <= x2 && x2 <= a2 && b1 <= y1 && y1 <= b2 || a1 <= x1 && x1 <= a2 && b1 <= y2 && y2 <= b2 || a1 <= x2 && x1 <= a2 && b1 <= y2 && y2 <= b2;
-  }
-  function encloses(r1, r2, allowSharedEdges) {
-    var x1 = r1.x,
-        x2 = r1.x + r1.w,
-        y1 = r1.y,
-        y2 = r1.y + r1.h,
-        a1 = r2.x,
-        a2 = r2.x + r2.w,
-        b1 = r2.y,
-        b2 = r2.y + r2.h,
-        c = function c(v1, v2, v3, v4) {
-      return allowSharedEdges ? v1 <= v2 && v3 >= v4 : v1 < v2 && v3 > v4;
-    };
-    return c(x1, a1, x2, a2) && c(y1, b1, y2, b2);
-  }
-  function pointOnLine(fromPoint, toPoint, distance) {
-    var m = gradient(fromPoint, toPoint),
-        s = quadrant(fromPoint, toPoint),
-        segmentMultiplier = distance > 0 ? segmentMultipliers[s] : inverseSegmentMultipliers[s],
-        theta = Math.atan(m),
-        y = Math.abs(distance * Math.sin(theta)) * segmentMultiplier[1],
-        x = Math.abs(distance * Math.cos(theta)) * segmentMultiplier[0];
-    return {
-      x: fromPoint.x + x,
-      y: fromPoint.y + y
-    };
-  }
-  function perpendicularLineTo(fromPoint, toPoint, length) {
-    var m = gradient(fromPoint, toPoint),
-        theta2 = Math.atan(-1 / m),
-        y = length / 2 * Math.sin(theta2),
-        x = length / 2 * Math.cos(theta2);
-    return [{
-      x: toPoint.x + x,
-      y: toPoint.y + y
-    }, {
-      x: toPoint.x - x,
-      y: toPoint.y - y
-    }];
-  }
-
   var AbstractConnector =
   function () {
     function AbstractConnector(connection, params) {
@@ -764,7 +678,7 @@
             x2 = params.targetPos.curX,
             y1 = params.sourcePos.curY,
             y2 = params.targetPos.curY,
-            segment = quadrant({
+            segment = util.quadrant({
           x: x1,
           y: y1
         }, {
@@ -919,7 +833,7 @@
       key: "_recalc",
       value: function _recalc() {
         this.length = Math.sqrt(Math.pow(this.x2 - this.x1, 2) + Math.pow(this.y2 - this.y1, 2));
-        this.m = gradient({
+        this.m = util.gradient({
           x: this.x1,
           y: this.y1
         }, {
@@ -968,7 +882,7 @@
           };
         } else {
           var l = absolute ? location > 0 ? location : this.length + location : location * this.length;
-          return pointOnLine({
+          return util.pointOnLine({
             x: this.x1,
             y: this.y1
           }, {
@@ -996,7 +910,7 @@
         if (distance <= 0 && Math.abs(distance) > 1) {
           distance *= -1;
         }
-        return pointOnLine(p, farAwayPoint, distance);
+        return util.pointOnLine(p, farAwayPoint, distance);
       }
     }, {
       key: "within",
@@ -1035,14 +949,14 @@
           out.x = this.within(this.x1, this.x2, _x1) ? _x1 : this.closest(this.x1, this.x2, _x1);
           out.y = this.within(this.y1, this.y2, _y1) ? _y1 : this.closest(this.y1, this.y2, _y1);
         }
-        var fractionInSegment = lineLength({
+        var fractionInSegment = util.lineLength({
           x: out.x,
           y: out.y
         }, {
           x: this.x1,
           y: this.y1
         });
-        out.d = lineLength({
+        out.d = util.lineLength({
           x: x,
           y: y
         }, out);
@@ -1057,7 +971,7 @@
     }, {
       key: "lineIntersection",
       value: function lineIntersection(_x1, _y1, _x2, _y2) {
-        var m2 = Math.abs(gradient({
+        var m2 = Math.abs(util.gradient({
           x: _x1,
           y: _y1
         }, {
@@ -5413,7 +5327,7 @@
             candidates.push({
               source: FACES[sf],
               target: FACES[tf],
-              dist: lineLength(midpoints.source[FACES[sf]], midpoints.target[FACES[tf]])
+              dist: util.lineLength(midpoints.source[FACES[sf]], midpoints.target[FACES[tf]])
             });
           }
         }
@@ -7141,18 +7055,18 @@
         _this.endAngle = _this._calcAngle(_this.x2, _this.y2);
       }
       if (_this.endAngle < 0) {
-        _this.endAngle += TWO_PI;
+        _this.endAngle += util.TWO_PI;
       }
       if (_this.startAngle < 0) {
-        _this.startAngle += TWO_PI;
+        _this.startAngle += util.TWO_PI;
       }
-      var ea = _this.endAngle < _this.startAngle ? _this.endAngle + TWO_PI : _this.endAngle;
+      var ea = _this.endAngle < _this.startAngle ? _this.endAngle + util.TWO_PI : _this.endAngle;
       _this.sweep = Math.abs(ea - _this.startAngle);
       if (_this.anticlockwise) {
-        _this.sweep = TWO_PI - _this.sweep;
+        _this.sweep = util.TWO_PI - _this.sweep;
       }
       _this.circumference = 2 * Math.PI * _this.radius;
-      _this.frac = _this.sweep / TWO_PI;
+      _this.frac = _this.sweep / util.TWO_PI;
       _this.length = _this.circumference * _this.frac;
       _this.extents = {
         xmin: _this.cx - _this.radius,
@@ -7165,7 +7079,7 @@
     _createClass(ArcSegment, [{
       key: "_calcAngle",
       value: function _calcAngle(_x, _y) {
-        return theta({
+        return util.theta({
           x: this.cx,
           y: this.cy
         }, {
@@ -7177,11 +7091,11 @@
       key: "_calcAngleForLocation",
       value: function _calcAngleForLocation(segment, location) {
         if (segment.anticlockwise) {
-          var sa = segment.startAngle < segment.endAngle ? segment.startAngle + TWO_PI : segment.startAngle,
+          var sa = segment.startAngle < segment.endAngle ? segment.startAngle + util.TWO_PI : segment.startAngle,
               s = Math.abs(sa - segment.endAngle);
           return sa - s * location;
         } else {
-          var ea = segment.endAngle < segment.startAngle ? segment.endAngle + TWO_PI : segment.endAngle,
+          var ea = segment.endAngle < segment.startAngle ? segment.endAngle + util.TWO_PI : segment.endAngle,
               ss = Math.abs(ea - segment.startAngle);
           return segment.startAngle + ss * location;
         }
@@ -7230,7 +7144,7 @@
       key: "gradientAtPoint",
       value: function gradientAtPoint(location, absolute) {
         var p = this.pointOnPath(location, absolute);
-        var m = normal({
+        var m = util.normal({
           x: this.cx,
           y: this.cy
         }, p);
@@ -7298,11 +7212,11 @@
             var fromLoc = this.location < 0 ? 1 : 0;
             hxy = connector.pointAlongPathFrom(fromLoc, this.location, false);
             mid = connector.pointAlongPathFrom(fromLoc, this.location - this.direction * this.length / 2, false);
-            txy = pointOnLine(hxy, mid, this.length);
+            txy = util.pointOnLine(hxy, mid, this.length);
           } else if (this.location === 1) {
             hxy = connector.pointOnPath(this.location);
             mid = connector.pointAlongPathFrom(this.location, -this.length);
-            txy = pointOnLine(hxy, mid, this.length);
+            txy = util.pointOnLine(hxy, mid, this.length);
             if (this.direction === -1) {
               var _ = txy;
               txy = hxy;
@@ -7311,7 +7225,7 @@
           } else if (this.location === 0) {
             txy = connector.pointOnPath(this.location);
             mid = connector.pointAlongPathFrom(this.location, this.length);
-            hxy = pointOnLine(txy, mid, this.length);
+            hxy = util.pointOnLine(txy, mid, this.length);
             if (this.direction === -1) {
               var __ = txy;
               txy = hxy;
@@ -7320,10 +7234,10 @@
           } else {
             hxy = connector.pointAlongPathFrom(this.location, this.direction * this.length / 2);
             mid = connector.pointOnPath(this.location);
-            txy = pointOnLine(hxy, mid, this.length);
+            txy = util.pointOnLine(hxy, mid, this.length);
           }
-          tail = perpendicularLineTo(hxy, txy, this.width);
-          cxy = pointOnLine(hxy, txy, this.foldback * this.length);
+          tail = util.perpendicularLineTo(hxy, txy, this.width);
+          cxy = util.pointOnLine(hxy, txy, this.foldback * this.length);
           var d = {
             hxy: hxy,
             tail: tail,
@@ -7531,7 +7445,6 @@
   exports.TARGET_INDEX = TARGET_INDEX;
   exports.TOP = TOP;
   exports.TRUE = TRUE;
-  exports.TWO_PI = TWO_PI;
   exports.TargetSelector = TargetSelector;
   exports.UIGroup = UIGroup;
   exports.UINode = UINode;
@@ -7547,10 +7460,7 @@
   exports.cls = cls;
   exports.convertToFullOverlaySpec = convertToFullOverlaySpec;
   exports.createFloatingAnchor = createFloatingAnchor;
-  exports.encloses = encloses;
   exports.getDefaultFace = getDefaultFace;
-  exports.gradient = gradient;
-  exports.intersects = intersects;
   exports.isArrowOverlay = isArrowOverlay;
   exports.isContinuous = isContinuous;
   exports.isCustomOverlay = isCustomOverlay;
@@ -7561,14 +7471,7 @@
   exports.isFullOverlaySpec = isFullOverlaySpec;
   exports.isLabelOverlay = isLabelOverlay;
   exports.isPlainArrowOverlay = isPlainArrowOverlay;
-  exports.lineLength = lineLength;
   exports.makeLightweightAnchorFromSpec = makeLightweightAnchorFromSpec;
-  exports.normal = normal;
-  exports.perpendicularLineTo = perpendicularLineTo;
-  exports.pointOnLine = pointOnLine;
-  exports.pointXYFromArray = pointXYFromArray;
-  exports.quadrant = quadrant;
-  exports.theta = theta;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 

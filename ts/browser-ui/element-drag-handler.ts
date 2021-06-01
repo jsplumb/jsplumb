@@ -18,10 +18,8 @@ import {
     SELECTOR_MANAGED_ELEMENT,
     ATTRIBUTE_NOT_DRAGGABLE,
     FALSE,
-    CLASS_OVERLAY, cls,
-    intersects
+    CLASS_OVERLAY, cls
 } from "@jsplumb/core"
-
 
 import {
     BoundingBox,
@@ -30,7 +28,8 @@ import {
     forEach,
     getFromSetWithFunction,
     PointXY,
-    Size
+    Size,
+    intersects
 } from "@jsplumb/util"
 
 type IntersectingGroup = {

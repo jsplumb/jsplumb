@@ -1,6 +1,5 @@
 
-import {PointXY} from '@jsplumb/util'
-import {gradient, lineLength, pointOnLine} from "../geom"
+import {gradient, lineLength, pointOnLine, PointXY} from '@jsplumb/util'
 import {AbstractSegment, PointNearPath, SegmentParams} from "../common/abstract-segment"
 
 export type StraightSegmentCoordinates = { x1:number, y1:number, x2:number, y2:number}

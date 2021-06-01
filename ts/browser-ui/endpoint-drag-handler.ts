@@ -40,7 +40,6 @@ import {
     SourceSelector, InternalEndpointOptions,
     BehaviouralTypeDescriptor,
     createFloatingAnchor, LightweightFloatingAnchor, REDROP_POLICY_ANY, FALSE,
-    intersects,
     AnchorSpec, EndpointSpec
 } from "@jsplumb/core"
 
@@ -58,6 +57,7 @@ import {
     IS,
     Dictionary,
     each,
+    intersects,
     addToDictionary,
     BoundingBox
 } from "@jsplumb/util"

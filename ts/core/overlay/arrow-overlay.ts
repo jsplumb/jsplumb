@@ -1,5 +1,4 @@
-import { PointXY, Size , isArray } from '@jsplumb/util'
-import {perpendicularLineTo, pointOnLine} from "../geom"
+import { perpendicularLineTo, pointOnLine, PointXY, Size , isArray } from '@jsplumb/util'
 
 import {ArrowOverlayOptions, Overlay} from "./overlay"
 import {JsPlumbInstance} from "../core"

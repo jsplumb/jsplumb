@@ -1,5 +1,4 @@
 export * from "./constants";
-export * from "./geom";
 export * from './params';
 export * from "./callbacks";
 export * from "./common/anchor";

@@ -1,6 +1,5 @@
 
-import {isArray, log, PointXY, Extents, Constructable} from "@jsplumb/util"
-import {quadrant} from "../geom"
+import {quadrant, isArray, log, PointXY, Extents, Constructable} from "@jsplumb/util"
 
 import { Connection} from '../connector/connection-impl'
 import { Orientation} from '../factory/anchor-record-factory'

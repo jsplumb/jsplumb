@@ -8,7 +8,6 @@ import { Connectors } from './connector/connectors'
 import {EndpointFactory} from "./factory/endpoint-factory"
 
 export * from "./constants"
-export * from "./geom"
 export * from './params'
 export * from "./callbacks"
 export * from "./common/anchor"
