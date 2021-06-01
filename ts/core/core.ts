@@ -24,21 +24,27 @@ import {
 
 import {
     UpdateOffsetOptions,
-    ConnectParams,  // <--
+    ConnectParams  // <--
+} from "./params"
+
+import {
     SourceDefinition,
     TargetDefinition,
     BehaviouralTypeDescriptor,  // <--
-    TypeDescriptor,
+    TypeDescriptor, ConnectionTypeDescriptor, EndpointTypeDescriptor
+} from './type-descriptors'
+
+import {
     ConnectionMovedParams,
     ConnectionDetachedParams,
-    ConnectionEstablishedParams, ConnectionTypeDescriptor, EndpointTypeDescriptor, ManageElementParams
-} from './common'
+    ConnectionEstablishedParams,
+    ManageElementParams
+} from "./callbacks"
 
 import * as Constants from "./constants"
 import {EndpointOptions} from "./endpoint/endpoint-options"
 import {AddGroupOptions, GroupManager} from "./group/group-manager"
 import {UIGroup} from "./group/group"
-
 
 import {Router} from "./router/router"
 import {EndpointSelection} from "./selection/endpoint-selection"
@@ -71,7 +77,8 @@ import {
 import {InternalEndpointOptions} from "./endpoint/endpoint-options"
 import {LightweightRouter} from "./router/lightweight-router"
 import {Connectors} from "./connector/connectors"
-import {AnchorLocations, AnchorPlacement, AnchorSpec, EndpointSpec} from "@jsplumb/common"
+import {AnchorLocations, AnchorPlacement, AnchorSpec} from "./common/anchor"
+import {EndpointSpec} from "./common/endpoint"
 import {StraightConnector} from "./connector/straight-connector"
 
 export interface jsPlumbElement<E> {

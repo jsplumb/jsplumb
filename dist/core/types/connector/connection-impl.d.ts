@@ -1,11 +1,14 @@
 import { JsPlumbInstance } from "../core";
-import { ConnectionTypeDescriptor, ConnectParams } from '../common';
+import { ConnectParams } from '../params';
+import { ConnectionTypeDescriptor } from "../type-descriptors";
 import { AbstractConnector } from "./abstract-connector";
 import { Endpoint } from "../endpoint/endpoint";
 import { PaintStyle } from "../styles";
 import { Component } from "../component/component";
 import { Merge } from "@jsplumb/util";
-import { AnchorSpec, ConnectorSpec, EndpointSpec } from "@jsplumb/common";
+import { AnchorSpec } from "../common/anchor";
+import { EndpointSpec } from "../common/endpoint";
+import { ConnectorSpec } from "../common/connector";
 export declare type ConnectionOptions<E = any> = Merge<ConnectParams<E>, {
     source?: E;
     target?: E;

@@ -2,7 +2,8 @@ import { JsPlumbInstance } from "../core";
 import { Connection } from '../connector/connection-impl';
 import { GroupManager } from "../group/group-manager";
 import { Dictionary, PointXY } from '@jsplumb/util';
-import { AnchorSpec, EndpointSpec } from "@jsplumb/common";
+import { AnchorSpec } from "../common/anchor";
+import { EndpointSpec } from "../common/endpoint";
 export interface GroupOptions {
     id?: string;
     droppable?: boolean;

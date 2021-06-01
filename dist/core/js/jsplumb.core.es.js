@@ -1,6 +1,4 @@
 import { log, isArray, isString, uuid, EventGenerator, isFunction, extend, clone, merge, setToArray, populate, isNumber, map, IS, isAssignableFrom, getWithFunction, removeWithFunction, suggest, forEach, getsert, insertSorted, findWithFunction, rotatePoint, sortHelper, filterList, functionChain, addToDictionary } from '@jsplumb/util';
-import { EMPTY_BOUNDS, AbstractSegment, AnchorLocations } from '@jsplumb/common';
-import { quadrant, gradient, pointOnLine, lineLength, TWO_PI, theta, normal, perpendicularLineTo } from '@jsplumb/geom';
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -207,6 +205,71 @@ var EndpointFactory = {
   }
 };
 
+function noSuchPoint() {
+  return {
+    d: Infinity,
+    x: null,
+    y: null,
+    l: null,
+    x1: null,
+    y1: null,
+    x2: null,
+    y2: null
+  };
+}
+function EMPTY_BOUNDS() {
+  return {
+    xmin: Infinity,
+    xmax: -Infinity,
+    ymin: Infinity,
+    ymax: -Infinity
+  };
+}
+var AbstractSegment =
+function () {
+  function AbstractSegment(params) {
+    _classCallCheck(this, AbstractSegment);
+    this.params = params;
+    _defineProperty(this, "x1", void 0);
+    _defineProperty(this, "x2", void 0);
+    _defineProperty(this, "y1", void 0);
+    _defineProperty(this, "y2", void 0);
+    _defineProperty(this, "extents", EMPTY_BOUNDS());
+    _defineProperty(this, "type", void 0);
+    this.x1 = params.x1;
+    this.y1 = params.y1;
+    this.x2 = params.x2;
+    this.y2 = params.y2;
+  }
+  _createClass(AbstractSegment, [{
+    key: "findClosestPointOnPath",
+    value: function findClosestPointOnPath(x, y) {
+      return noSuchPoint();
+    }
+  }, {
+    key: "lineIntersection",
+    value: function lineIntersection(x1, y1, x2, y2) {
+      return [];
+    }
+  }, {
+    key: "boxIntersection",
+    value: function boxIntersection(x, y, w, h) {
+      var a = [];
+      a.push.apply(a, this.lineIntersection(x, y, x + w, y));
+      a.push.apply(a, this.lineIntersection(x + w, y, x + w, y + h));
+      a.push.apply(a, this.lineIntersection(x + w, y + h, x, y + h));
+      a.push.apply(a, this.lineIntersection(x, y + h, x, y));
+      return a;
+    }
+  }, {
+    key: "boundingBoxIntersection",
+    value: function boundingBoxIntersection(box) {
+      return this.boxIntersection(box.x, box.y, box.w, box.h);
+    }
+  }]);
+  return AbstractSegment;
+}();
+
 var EndpointRepresentation =
 function () {
   function EndpointRepresentation(endpoint, params) {
@@ -387,6 +450,92 @@ var RectangleEndpointHandler = {
     };
   }
 };
+
+var segmentMultipliers = [null, [1, -1], [1, 1], [-1, 1], [-1, -1]];
+var inverseSegmentMultipliers = [null, [-1, -1], [-1, 1], [1, 1], [1, -1]];
+var TWO_PI = 2 * Math.PI;
+function pointXYFromArray(a) {
+  return {
+    x: a[0],
+    y: a[1]
+  };
+}
+function gradient(p1, p2) {
+  if (p2.x === p1.x) return p2.y > p1.y ? Infinity : -Infinity;else if (p2.y === p1.y) return p2.x > p1.x ? 0 : -0;else return (p2.y - p1.y) / (p2.x - p1.x);
+}
+function normal(p1, p2) {
+  return -1 / gradient(p1, p2);
+}
+function lineLength(p1, p2) {
+  return Math.sqrt(Math.pow(p2.y - p1.y, 2) + Math.pow(p2.x - p1.x, 2));
+}
+function quadrant(p1, p2) {
+  if (p2.x > p1.x) {
+    return p2.y > p1.y ? 2 : 1;
+  } else if (p2.x == p1.x) {
+    return p2.y > p1.y ? 2 : 1;
+  } else {
+    return p2.y > p1.y ? 3 : 4;
+  }
+}
+function theta(p1, p2) {
+  var m = gradient(p1, p2),
+      t = Math.atan(m),
+      s = quadrant(p1, p2);
+  if (s == 4 || s == 3) t += Math.PI;
+  if (t < 0) t += 2 * Math.PI;
+  return t;
+}
+function intersects(r1, r2) {
+  var x1 = r1.x,
+      x2 = r1.x + r1.w,
+      y1 = r1.y,
+      y2 = r1.y + r1.h,
+      a1 = r2.x,
+      a2 = r2.x + r2.w,
+      b1 = r2.y,
+      b2 = r2.y + r2.h;
+  return x1 <= a1 && a1 <= x2 && y1 <= b1 && b1 <= y2 || x1 <= a2 && a2 <= x2 && y1 <= b1 && b1 <= y2 || x1 <= a1 && a1 <= x2 && y1 <= b2 && b2 <= y2 || x1 <= a2 && a1 <= x2 && y1 <= b2 && b2 <= y2 || a1 <= x1 && x1 <= a2 && b1 <= y1 && y1 <= b2 || a1 <= x2 && x2 <= a2 && b1 <= y1 && y1 <= b2 || a1 <= x1 && x1 <= a2 && b1 <= y2 && y2 <= b2 || a1 <= x2 && x1 <= a2 && b1 <= y2 && y2 <= b2;
+}
+function encloses(r1, r2, allowSharedEdges) {
+  var x1 = r1.x,
+      x2 = r1.x + r1.w,
+      y1 = r1.y,
+      y2 = r1.y + r1.h,
+      a1 = r2.x,
+      a2 = r2.x + r2.w,
+      b1 = r2.y,
+      b2 = r2.y + r2.h,
+      c = function c(v1, v2, v3, v4) {
+    return allowSharedEdges ? v1 <= v2 && v3 >= v4 : v1 < v2 && v3 > v4;
+  };
+  return c(x1, a1, x2, a2) && c(y1, b1, y2, b2);
+}
+function pointOnLine(fromPoint, toPoint, distance) {
+  var m = gradient(fromPoint, toPoint),
+      s = quadrant(fromPoint, toPoint),
+      segmentMultiplier = distance > 0 ? segmentMultipliers[s] : inverseSegmentMultipliers[s],
+      theta = Math.atan(m),
+      y = Math.abs(distance * Math.sin(theta)) * segmentMultiplier[1],
+      x = Math.abs(distance * Math.cos(theta)) * segmentMultiplier[0];
+  return {
+    x: fromPoint.x + x,
+    y: fromPoint.y + y
+  };
+}
+function perpendicularLineTo(fromPoint, toPoint, length) {
+  var m = gradient(fromPoint, toPoint),
+      theta2 = Math.atan(-1 / m),
+      y = length / 2 * Math.sin(theta2),
+      x = length / 2 * Math.cos(theta2);
+  return [{
+    x: toPoint.x + x,
+    y: toPoint.y + y
+  }, {
+    x: toPoint.x - x,
+    y: toPoint.y - y
+  }];
+}
 
 var AbstractConnector =
 function () {
@@ -1137,6 +1286,29 @@ var ERROR_TARGET_ENDPOINT_FULL = "Cannot establish connection: target endpoint i
 var ERROR_SOURCE_DOES_NOT_EXIST = "Cannot establish connection: source does not exist";
 var ERROR_TARGET_DOES_NOT_EXIST = "Cannot establish connection: target does not exist";
 var KEY_CONNECTION_OVERLAYS = "connectionOverlays";
+
+var AnchorLocations;
+(function (AnchorLocations) {
+  AnchorLocations["Assign"] = "Assign";
+  AnchorLocations["AutoDefault"] = "AutoDefault";
+  AnchorLocations["Bottom"] = "Bottom";
+  AnchorLocations["BottomLeft"] = "BottomLeft";
+  AnchorLocations["BottomRight"] = "BottomRight";
+  AnchorLocations["Center"] = "Center";
+  AnchorLocations["Continuous"] = "Continuous";
+  AnchorLocations["ContinuousBottom"] = "ContinuousBottom";
+  AnchorLocations["ContinuousLeft"] = "ContinuousLeft";
+  AnchorLocations["ContinuousRight"] = "ContinuousRight";
+  AnchorLocations["ContinuousTop"] = "ContinuousTop";
+  AnchorLocations["ContinuousLeftRight"] = "ContinuousLeftRight";
+  AnchorLocations["ContinuousTopBottom"] = "ContinuousTopBottom";
+  AnchorLocations["Left"] = "Left";
+  AnchorLocations["Perimeter"] = "Perimeter";
+  AnchorLocations["Right"] = "Right";
+  AnchorLocations["Top"] = "Top";
+  AnchorLocations["TopLeft"] = "TopLeft";
+  AnchorLocations["TopRight"] = "TopRight";
+})(AnchorLocations || (AnchorLocations = {}));
 
 function isFullOverlaySpec(o) {
   return o.type != null && o.options != null;
@@ -7254,4 +7426,4 @@ EndpointFactory.registerHandler(RectangleEndpointHandler);
 EndpointFactory.registerHandler(BlankEndpointHandler);
 Connectors.register(StraightConnector.type, StraightConnector);
 
-export { ABSOLUTE, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SCOPE, ATTRIBUTE_SCOPE_PREFIX, ATTRIBUTE_TABINDEX, AbstractConnector, ArcSegment, ArrowOverlay, BLOCK, BOTTOM, BlankEndpoint, BlankEndpointHandler, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTED, CLASS_CONNECTOR, CLASS_CONNECTOR_OUTLINE, CLASS_ENDPOINT, CLASS_ENDPOINT_ANCHOR_PREFIX, CLASS_ENDPOINT_CONNECTED, CLASS_ENDPOINT_DROP_ALLOWED, CLASS_ENDPOINT_DROP_FORBIDDEN, CLASS_ENDPOINT_FULL, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, CustomOverlay, DEFAULT, DiamondOverlay, DotEndpoint, DotEndpointHandler, ERROR_SOURCE_DOES_NOT_EXIST, ERROR_SOURCE_ENDPOINT_FULL, ERROR_TARGET_DOES_NOT_EXIST, ERROR_TARGET_ENDPOINT_FULL, EVENT_ANCHOR_CHANGED, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_ENDPOINT_REPLACED, EVENT_GROUP_ADDED, EVENT_GROUP_COLLAPSE, EVENT_GROUP_EXPAND, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_UNMANAGE_ELEMENT, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, FALSE, FIXED, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_DROP, INTERCEPT_BEFORE_START_DETACH, IS_DETACH_ALLOWED, JsPlumbInstance, KEY_CONNECTION_OVERLAYS, LEFT, LabelOverlay, LightweightFloatingAnchor, LightweightRouter, NONE, Overlay, OverlayFactory, PlainArrowOverlay, REDROP_POLICY_ANY, REDROP_POLICY_STRICT, RIGHT, RectangleEndpoint, RectangleEndpointHandler, SELECTOR_MANAGED_ELEMENT, SOURCE, SOURCE_INDEX, STATIC, SourceSelector, StraightConnector, StraightSegment, TARGET, TARGET_INDEX, TOP, TRUE, TargetSelector, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _removeTypeCssHelper, _updateHoverStyle, att, classList, cls, convertToFullOverlaySpec, createFloatingAnchor, getDefaultFace, isArrowOverlay, isContinuous, isCustomOverlay, isDiamondOverlay, isDynamic, isEdgeSupported, _isFloating as isFloating, isFullOverlaySpec, isLabelOverlay, isPlainArrowOverlay, makeLightweightAnchorFromSpec };
+export { ABSOLUTE, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SCOPE, ATTRIBUTE_SCOPE_PREFIX, ATTRIBUTE_TABINDEX, AbstractConnector, AbstractSegment, AnchorLocations, ArcSegment, ArrowOverlay, BLOCK, BOTTOM, BlankEndpoint, BlankEndpointHandler, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTED, CLASS_CONNECTOR, CLASS_CONNECTOR_OUTLINE, CLASS_ENDPOINT, CLASS_ENDPOINT_ANCHOR_PREFIX, CLASS_ENDPOINT_CONNECTED, CLASS_ENDPOINT_DROP_ALLOWED, CLASS_ENDPOINT_DROP_FORBIDDEN, CLASS_ENDPOINT_FULL, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, CustomOverlay, DEFAULT, DiamondOverlay, DotEndpoint, DotEndpointHandler, EMPTY_BOUNDS, ERROR_SOURCE_DOES_NOT_EXIST, ERROR_SOURCE_ENDPOINT_FULL, ERROR_TARGET_DOES_NOT_EXIST, ERROR_TARGET_ENDPOINT_FULL, EVENT_ANCHOR_CHANGED, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_ENDPOINT_REPLACED, EVENT_GROUP_ADDED, EVENT_GROUP_COLLAPSE, EVENT_GROUP_EXPAND, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_UNMANAGE_ELEMENT, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, FALSE, FIXED, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_DROP, INTERCEPT_BEFORE_START_DETACH, IS_DETACH_ALLOWED, JsPlumbInstance, KEY_CONNECTION_OVERLAYS, LEFT, LabelOverlay, LightweightFloatingAnchor, LightweightRouter, NONE, Overlay, OverlayFactory, PlainArrowOverlay, REDROP_POLICY_ANY, REDROP_POLICY_STRICT, RIGHT, RectangleEndpoint, RectangleEndpointHandler, SELECTOR_MANAGED_ELEMENT, SOURCE, SOURCE_INDEX, STATIC, SourceSelector, StraightConnector, StraightSegment, TARGET, TARGET_INDEX, TOP, TRUE, TWO_PI, TargetSelector, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _removeTypeCssHelper, _updateHoverStyle, att, classList, cls, convertToFullOverlaySpec, createFloatingAnchor, encloses, getDefaultFace, gradient, intersects, isArrowOverlay, isContinuous, isCustomOverlay, isDiamondOverlay, isDynamic, isEdgeSupported, _isFloating as isFloating, isFullOverlaySpec, isLabelOverlay, isPlainArrowOverlay, lineLength, makeLightweightAnchorFromSpec, normal, perpendicularLineTo, pointOnLine, pointXYFromArray, quadrant, theta };

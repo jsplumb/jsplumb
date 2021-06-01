@@ -3,9 +3,10 @@ import { Connection, ConnectionOptions } from "./connector/connection-impl";
 import { Endpoint } from "./endpoint/endpoint";
 import { RedrawResult } from "./router/router";
 import { RotatedPointXY, Rotations, PointXY, Size, Dictionary, Extents, EventGenerator } from "@jsplumb/util";
-import { UpdateOffsetOptions, ConnectParams, // <--
-SourceDefinition, BehaviouralTypeDescriptor, // <--
-TypeDescriptor, ConnectionMovedParams, ConnectionTypeDescriptor, EndpointTypeDescriptor } from './common';
+import { UpdateOffsetOptions, ConnectParams } from "./params";
+import { SourceDefinition, BehaviouralTypeDescriptor, // <--
+TypeDescriptor, ConnectionTypeDescriptor, EndpointTypeDescriptor } from './type-descriptors';
+import { ConnectionMovedParams } from "./callbacks";
 import { EndpointOptions } from "./endpoint/endpoint-options";
 import { AddGroupOptions, GroupManager } from "./group/group-manager";
 import { UIGroup } from "./group/group";
@@ -20,7 +21,8 @@ import { AbstractConnector } from './connector/abstract-connector';
 import { PaintStyle } from './styles';
 import { SourceSelector, TargetSelector } from "./source-selector";
 import { InternalEndpointOptions } from "./endpoint/endpoint-options";
-import { AnchorPlacement, AnchorSpec, EndpointSpec } from "@jsplumb/common";
+import { AnchorPlacement, AnchorSpec } from "./common/anchor";
+import { EndpointSpec } from "./common/endpoint";
 export interface jsPlumbElement<E> {
     _jsPlumbGroup: UIGroup<E>;
     _jsPlumbParentGroup: UIGroup<E>;

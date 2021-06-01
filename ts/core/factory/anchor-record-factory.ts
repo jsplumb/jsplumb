@@ -2,7 +2,7 @@ import {Dictionary, PointXY, Rotations, Size, extend, isArray, isNumber, isStrin
 import { Connection } from "../connector/connection-impl"
 import { Endpoint } from "../endpoint/endpoint"
 import { JsPlumbInstance } from "../core"
-import {AnchorSpec, FullAnchorSpec} from "@jsplumb/common"
+import {AnchorSpec, FullAnchorSpec} from "../common/anchor"
 
 export type AnchorOrientationHint = -1 | 0 | 1
 export type Orientation = [  number, number ]

@@ -12,11 +12,11 @@ import {
     BeforeDropParams,
     ManageElementParams,
     UnmanageElementParams,
-    ConnectionEstablishedParams
+    ConnectionEstablishedParams,
+    AnchorLocations, AnchorSpec, EndpointSpec
 } from '@jsplumb/core'
 
 import { extend, Dictionary } from "@jsplumb/util"
-import {AnchorLocations, AnchorSpec, EndpointSpec} from "@jsplumb/common"
 
 export interface ListManagerOptions { }
 

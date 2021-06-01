@@ -6,7 +6,9 @@ import { DeleteConnectionOptions, JsPlumbInstance } from '../core';
 import { Component } from "../component/component";
 import { InternalEndpointOptions } from "./endpoint-options";
 import { LightweightAnchor } from '../factory/anchor-record-factory';
-import { AnchorSpec, ConnectorSpec, EndpointSpec } from "@jsplumb/common";
+import { AnchorSpec } from "../common/anchor";
+import { EndpointSpec } from "../common/endpoint";
+import { ConnectorSpec } from "../common/connector";
 export interface EndpointStyle extends PaintStyle, Record<string, any> {
 }
 export declare class Endpoint<E = any> extends Component {

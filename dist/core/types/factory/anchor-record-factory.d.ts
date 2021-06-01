@@ -2,7 +2,7 @@ import { PointXY, Rotations, Size } from "@jsplumb/util";
 import { Connection } from "../connector/connection-impl";
 import { Endpoint } from "../endpoint/endpoint";
 import { JsPlumbInstance } from "../core";
-import { AnchorSpec } from "@jsplumb/common";
+import { AnchorSpec } from "../common/anchor";
 export declare type AnchorOrientationHint = -1 | 0 | 1;
 export declare type Orientation = [number, number];
 export declare type Face = "top" | "right" | "bottom" | "left";

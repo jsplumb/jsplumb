@@ -18,10 +18,10 @@ import {
     SELECTOR_MANAGED_ELEMENT,
     ATTRIBUTE_NOT_DRAGGABLE,
     FALSE,
-    CLASS_OVERLAY, cls
+    CLASS_OVERLAY, cls,
+    intersects
 } from "@jsplumb/core"
 
-import { intersects } from "@jsplumb/geom"
 
 import {
     BoundingBox,

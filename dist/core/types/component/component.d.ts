@@ -1,6 +1,6 @@
 import { Extents, EventGenerator, Merge, PointXY, Dictionary } from "@jsplumb/util";
 import { PaintStyle } from "../styles";
-import { TypeDescriptor } from '../common';
+import { TypeDescriptor } from '../type-descriptors';
 import { JsPlumbInstance } from "../core";
 import { Connection } from "../connector/connection-impl";
 import { Endpoint } from "../endpoint/endpoint";

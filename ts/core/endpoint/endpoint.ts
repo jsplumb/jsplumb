@@ -10,7 +10,9 @@ import {Component} from "../component/component"
 import {DEFAULT, EVENT_ANCHOR_CHANGED, EVENT_MAX_CONNECTIONS} from "../constants"
 import {InternalEndpointOptions} from "./endpoint-options"
 import { LightweightAnchor } from '../factory/anchor-record-factory'
-import {AnchorLocations, AnchorSpec, ConnectorSpec, EndpointSpec, FullEndpointSpec} from "@jsplumb/common"
+import {AnchorLocations, AnchorSpec} from "../common/anchor"
+import {EndpointSpec, FullEndpointSpec} from "../common/endpoint"
+import {ConnectorSpec} from "../common/connector"
 
 export interface EndpointStyle extends PaintStyle, Record<string, any> {}
 

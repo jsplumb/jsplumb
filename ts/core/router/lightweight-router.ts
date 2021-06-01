@@ -15,7 +15,7 @@ import {
     LightweightFloatingAnchor, makeLightweightAnchorFromSpec,
     TOP, BOTTOM, LEFT, RIGHT
 } from "../factory/anchor-record-factory"
-import {ConnectionDetachedParams} from "../common"
+import {ConnectionDetachedParams} from "../callbacks"
 import {RedrawResult, Router} from "./router"
 import {Connection} from "../connector/connection-impl"
 import {JsPlumbInstance} from "../core"
@@ -32,10 +32,10 @@ import {
     uuid,
     Dictionary, PointXY, SortFunction, Rotations, Size
 } from "@jsplumb/util"
-import {lineLength} from "@jsplumb/geom"
+import {lineLength} from "../geom"
 
 import {ViewportElement} from "../viewport"
-import {AnchorPlacement, AnchorSpec} from "@jsplumb/common"
+import {AnchorPlacement, AnchorSpec} from "../common/anchor"
 
 
 // -------------------- internal data structures --------------------------------------

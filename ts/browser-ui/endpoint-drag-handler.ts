@@ -39,10 +39,11 @@ import {
     ATTRIBUTE_SCOPE_PREFIX,
     SourceSelector, InternalEndpointOptions,
     BehaviouralTypeDescriptor,
-    createFloatingAnchor, LightweightFloatingAnchor, REDROP_POLICY_ANY, FALSE
+    createFloatingAnchor, LightweightFloatingAnchor, REDROP_POLICY_ANY, FALSE,
+    intersects,
+    AnchorSpec, EndpointSpec
 } from "@jsplumb/core"
 
-import { intersects } from "@jsplumb/geom"
 
 import {
     getAllWithFunction,
@@ -60,7 +61,6 @@ import {
     addToDictionary,
     BoundingBox
 } from "@jsplumb/util"
-import {AnchorSpec, EndpointSpec} from "@jsplumb/common"
 import {ATTRIBUTE_JTK_ENABLED, ELEMENT_DIV} from "./constants"
 
 function _makeFloatingEndpoint (paintStyle:PaintStyle,

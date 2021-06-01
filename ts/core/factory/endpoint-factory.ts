@@ -2,7 +2,7 @@ import {EndpointRepresentation} from "../endpoint/endpoints"
 import {Endpoint} from "../endpoint/endpoint"
 import {Orientation} from "../factory/anchor-record-factory"
 import {Constructable, Dictionary, log} from "@jsplumb/util"
-import {AnchorPlacement} from "@jsplumb/common"
+import {AnchorPlacement} from "../common/anchor"
 
 const endpointMap:Dictionary<Constructable<EndpointRepresentation<any>>> = {}
 const endpointComputers:Dictionary<EndpointComputeFunction<any>> = {}

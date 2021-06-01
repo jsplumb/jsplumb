@@ -1,6 +1,5 @@
 import { AbstractBezierConnector, AbstractBezierOptions } from "./abstract-bezier-connector";
-import { AnchorPlacement } from "@jsplumb/common";
-import { Connection, ConnectorComputeParams, PaintGeometry } from "@jsplumb/core";
+import { AnchorPlacement, Connection, ConnectorComputeParams, PaintGeometry } from "@jsplumb/core";
 export interface StateMachineOptions extends AbstractBezierOptions {
 }
 export declare class StateMachineConnector extends AbstractBezierConnector {

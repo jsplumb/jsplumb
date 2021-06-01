@@ -2,7 +2,7 @@ import {
     ConnectionDetachedParams,
     ConnectionEstablishedParams,
     ConnectionMovedParams
-} from '../common'
+} from '../callbacks'
 
 import { JsPlumbInstance, jsPlumbElement } from "../core"
 

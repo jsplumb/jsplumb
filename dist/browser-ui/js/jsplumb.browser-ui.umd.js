@@ -1,8 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@jsplumb/core'), require('@jsplumb/util'), require('@jsplumb/geom'), require('@jsplumb/common')) :
-  typeof define === 'function' && define.amd ? define(['exports', '@jsplumb/core', '@jsplumb/util', '@jsplumb/geom', '@jsplumb/common'], factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.jsPlumbBrowserUI = {}, global.jsPlumb, global.jsPlumbUtil, global.jsPlumbGeom, global.jsPlumbCommon));
-}(this, (function (exports, core, util, geom, common) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@jsplumb/core'), require('@jsplumb/util')) :
+  typeof define === 'function' && define.amd ? define(['exports', '@jsplumb/core', '@jsplumb/util'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.jsPlumbBrowserUI = {}, global.jsPlumb, global.jsPlumbUtil));
+}(this, (function (exports, core, util) { 'use strict';
 
   function _typeof(obj) {
     if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -2132,7 +2132,7 @@
         var _one = function _one(el, bounds, e) {
           var ancestorsOfIntersectingGroups = new Set();
           util.forEach(_this3._groupLocations, function (groupLoc) {
-            if (!ancestorsOfIntersectingGroups.has(groupLoc.group.id) && geom.intersects(bounds, groupLoc.r)) {
+            if (!ancestorsOfIntersectingGroups.has(groupLoc.group.id) && core.intersects(bounds, groupLoc.r)) {
               if (groupLoc.group !== _this3._currentDragParentGroup) {
                 _this3.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER);
               }
@@ -2921,7 +2921,7 @@
               idx,
               _cont;
           for (var i = 0; i < this.endpointDropTargets.length; i++) {
-            if (geom.intersects(boundingRect, this.endpointDropTargets[i].r)) {
+            if (core.intersects(boundingRect, this.endpointDropTargets[i].r)) {
               newDropTarget = this.endpointDropTargets[i];
               break;
             }
@@ -3359,8 +3359,8 @@
     SupportedEdge[SupportedEdge["bottom"] = 1] = "bottom";
   })(exports.SupportedEdge || (exports.SupportedEdge = {}));
   var DEFAULT_ANCHOR_LOCATIONS = new Map();
-  DEFAULT_ANCHOR_LOCATIONS.set(exports.SupportedEdge.top, [common.AnchorLocations.TopRight, common.AnchorLocations.TopLeft]);
-  DEFAULT_ANCHOR_LOCATIONS.set(exports.SupportedEdge.bottom, [common.AnchorLocations.BottomRight, common.AnchorLocations.BottomLeft]);
+  DEFAULT_ANCHOR_LOCATIONS.set(exports.SupportedEdge.top, [core.AnchorLocations.TopRight, core.AnchorLocations.TopLeft]);
+  DEFAULT_ANCHOR_LOCATIONS.set(exports.SupportedEdge.bottom, [core.AnchorLocations.BottomRight, core.AnchorLocations.BottomLeft]);
   var DEFAULT_LIST_OPTIONS = {
     deriveAnchor: function deriveAnchor(edge, index, ep, conn) {
       return DEFAULT_ANCHOR_LOCATIONS.get(edge)[index];

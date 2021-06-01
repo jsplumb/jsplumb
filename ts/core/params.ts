@@ -2,9 +2,9 @@ import {Endpoint, EndpointStyle} from "./endpoint/endpoint"
 import {OverlaySpec} from "./overlay/overlay"
 import {PaintStyle} from "./styles"
 import {Connection} from "./connector/connection-impl"
-import {RedropPolicy} from "./source-selector"
-import { Dictionary } from "@jsplumb/util"
-import {AnchorSpec, ConnectorSpec, EndpointSpec} from "@jsplumb/common"
+import {EndpointSpec} from "./common/endpoint"
+import {AnchorSpec} from "./common/anchor"
+import {ConnectorSpec} from "./common/connector"
 
 export type UUID = string
 
@@ -128,8 +128,6 @@ export interface ConnectParams<E> {
     scope?:string
 }
 
-
-
 /**
  * Internal extension of ConnectParams containing a few extra things needed to establish a connection.
  */
@@ -142,143 +140,10 @@ export interface InternalConnectParams<E> extends ConnectParams<E> {
     id?:string
 }
 
-/**
- * Definition of the parameters passed to a listener for the `connection` event.
- */
-export interface ConnectionEstablishedParams<E = any> {
-    connection:Connection<E>
-    source:E
-    sourceEndpoint:Endpoint<E>
-    sourceId:string
-    target:E
-    targetEndpoint:Endpoint<E>
-    targetId:string
-}
 
 /**
- * Definition of the parameters passed to a listener for the `connection:detach` event.
+ * Options for the UpdateOffset method
  */
-export interface ConnectionDetachedParams<E = any> extends ConnectionEstablishedParams<E> { }
-
-/**
- * Definition of the parameters passed to a listener for the `connection:move` event.
- */
-export interface ConnectionMovedParams<E = any>  {
-    connection:Connection<E>
-    index:number
-    originalSourceId:string
-    newSourceId:string
-    originalTargetId:string
-    newTargetId:string
-    originalEndpoint:Endpoint<E>
-    newEndpoint:Endpoint<E>
-}
-
-/**
- * Definition of the parameters passed to the `beforeDrop` interceptor.
- */
-export interface BeforeDropParams {
-    sourceId: string
-    targetId: string
-    scope: string
-    connection: Connection
-    dropEndpoint: Endpoint
-}
-
-export interface ManageElementParams<E = any> {
-    el:E
-}
-
-export interface UnmanageElementParams<E = any> {
-    el:E
-}
-
-/**
- * Base interface for endpoint/connection types, which are registered via `registerConnectionType` and `registerEndpointType`. This interface
- * contains parameters that are common between the two types.
- */
-export interface TypeDescriptor {
-    cssClass?:string
-    paintStyle?:PaintStyle
-    hoverPaintStyle?:PaintStyle
-    parameters?:any
-    overlays?:Array<OverlaySpec>
-    anchors?:[AnchorSpec, AnchorSpec]
-    anchor?:AnchorSpec
-    scope?:string
-
-    mergeStrategy?:string
-
-    endpoint?:EndpointSpec
-    connectorStyle?:PaintStyle
-    connectorHoverStyle?:PaintStyle
-    connector?:ConnectorSpec
-    connectorClass?:string
-}
-
-/**
- * Definition of an endpoint type.
- */
-export interface EndpointTypeDescriptor extends TypeDescriptor {
-    connectionsDetachable?:boolean
-    reattachConnections?:boolean
-    maxConnections?:number
-}
-
-/**
- * Definition of a connection type.
- */
-export interface ConnectionTypeDescriptor extends TypeDescriptor {
-    detachable?:boolean
-    reattach?:boolean
-    endpoints?:[ EndpointSpec, EndpointSpec ]
-}
-
-export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescriptor {
-
-    parameterExtractor?:(el:T, eventTarget:T) => Dictionary<string>
-    redrop?:RedropPolicy
-
-    extract?:Dictionary<string>
-    uniqueEndpoint?:boolean
-
-    /**
-     * Optional function to call if the user begins a new connection drag when the associated element is full.
-     * @param value
-     * @param event
-     */
-    onMaxConnections?:(value:any, event?:any) => any
-    edgeType?:string
-    portId?:string
-
-    /**
-     * Defaults to true. If false, the user will not be permitted to drag a connection from the current node to itself.
-     */
-    allowLoopback?:boolean
-
-
-    rank?:number
-
-    /**
-     * Optional selector identifying the ancestor of the event target that could be the element to which connections
-     * are added. By default this is the internal attribute jsPlumb uses to mark managed elements (data-jtk-managed)
-     */
-    parentSelector?:string
-}
-
-export interface SourceOrTargetDefinition {
-    enabled?:boolean
-    def:BehaviouralTypeDescriptor
-    endpoint?:Endpoint
-    maxConnections?:number
-    uniqueEndpoint?:boolean
-}
-
-export interface SourceDefinition extends SourceOrTargetDefinition {
-}
-export interface TargetDefinition extends SourceOrTargetDefinition {
-}
-
 export interface UpdateOffsetOptions {
     timestamp?:string
     recalc?:boolean

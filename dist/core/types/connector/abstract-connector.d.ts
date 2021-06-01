@@ -3,7 +3,9 @@ import { Connection } from '../connector/connection-impl';
 import { Orientation } from '../factory/anchor-record-factory';
 import { Endpoint } from '../endpoint/endpoint';
 import { ViewportElement } from "../viewport";
-import { AnchorPlacement, ConnectorOptions, PaintAxis, Segment } from "@jsplumb/common";
+import { AnchorPlacement } from "../common/anchor";
+import { ConnectorOptions, PaintAxis } from "../common/connector";
+import { Segment } from "../common/abstract-segment";
 declare type SegmentForPoint = {
     d: number;
     s: Segment;

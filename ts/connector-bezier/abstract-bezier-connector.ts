@@ -1,7 +1,6 @@
 import {PointXY, log} from "@jsplumb/util"
 
-import {Connection, ArcSegment, AbstractConnector, ConnectorComputeParams, PaintGeometry} from "@jsplumb/core"
-import {AnchorPlacement, ConnectorOptions} from "@jsplumb/common"
+import {Connection, ArcSegment, AbstractConnector, ConnectorComputeParams, PaintGeometry, AnchorPlacement, ConnectorOptions} from "@jsplumb/core"
 
 export interface AbstractBezierOptions extends ConnectorOptions {
     showLoopback?:boolean

@@ -1,10 +1,8 @@
 import {
-    Connection, AbstractConnector, ConnectorComputeParams, PaintGeometry, StraightSegment, ArcSegment
+    Connection, AbstractConnector, ConnectorComputeParams, PaintGeometry, StraightSegment, ArcSegment, ConnectorOptions
 } from "@jsplumb/core"
 
-
 import { Dictionary } from '@jsplumb/util'
-import {ConnectorOptions} from "@jsplumb/common"
 
 export interface FlowchartConnectorOptions extends ConnectorOptions {
     alwaysRespectStubs?:boolean

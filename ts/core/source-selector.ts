@@ -1,4 +1,4 @@
-import {SourceDefinition, SourceOrTargetDefinition, TargetDefinition} from "./common"
+import {SourceDefinition, SourceOrTargetDefinition, TargetDefinition} from "./type-descriptors"
 
 export class ConnectionDragSelector {
 

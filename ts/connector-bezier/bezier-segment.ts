@@ -1,4 +1,4 @@
-import {AbstractSegment, PointNearPath, SegmentParams} from "@jsplumb/common"
+import {AbstractSegment, PointNearPath, SegmentParams} from "@jsplumb/core"
 
 import {PointXY} from '@jsplumb/util'
 

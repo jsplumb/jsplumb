@@ -1,6 +1,6 @@
-import {AbstractSegment, SegmentParams} from "@jsplumb/common"
+import {AbstractSegment, SegmentParams} from "../common/abstract-segment"
 import { PointXY } from '@jsplumb/util'
-import {normal, theta, TWO_PI} from "@jsplumb/geom"
+import {normal, theta, TWO_PI} from "../geom"
 
 const VERY_SMALL_VALUE = 0.0000000001
 

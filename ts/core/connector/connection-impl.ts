@@ -1,6 +1,7 @@
 
 import { JsPlumbInstance } from "../core"
-import {ConnectionTypeDescriptor, ConnectParams } from '../common'
+import {ConnectParams } from '../params'
+import { ConnectionTypeDescriptor } from "../type-descriptors"
 import {AbstractConnector} from "./abstract-connector"
 import {Endpoint} from "../endpoint/endpoint"
 import {PaintStyle} from "../styles"
@@ -11,7 +12,9 @@ import {makeLightweightAnchorFromSpec} from "../factory/anchor-record-factory"
 
 import * as Constants from "../constants"
 import {DEFAULT} from "../constants"
-import {AnchorSpec, ConnectorSpec, ConnectorWithOptions, EndpointSpec} from "@jsplumb/common"
+import {AnchorSpec} from "../common/anchor"
+import {EndpointSpec} from "../common/endpoint"
+import {ConnectorSpec, ConnectorWithOptions} from "../common/connector"
 
 const TYPE_ITEM_ANCHORS = "anchors"
 const TYPE_ITEM_CONNECTOR = "connector"
