@@ -1,12 +1,12 @@
 import { EventGenerator, Size, PointXY } from '@jsplumb/util';
 import { JsPlumbInstance } from "./core";
 export interface ViewportPosition extends PointXY {
-}
-export interface ViewportElementBase<E> extends ViewportPosition {
     w: number;
     h: number;
     r: number;
     c: PointXY;
+}
+export interface ViewportElementBase<E> extends ViewportPosition {
     x2: number;
     y2: number;
     dirty: boolean;

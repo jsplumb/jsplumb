@@ -267,6 +267,10 @@ export declare type BoundingBox = {
 };
 export declare type RectangleXY = BoundingBox;
 export declare type LineXY = [PointXY, PointXY];
+export interface Grid extends Size {
+    thresholdX?: number;
+    thresholdY?: number;
+}
 export interface Size {
     w: number;
     h: number;
@@ -277,6 +281,12 @@ export interface Size {
  * @param p2
  */
 export declare function pointSubtract(p1: PointXY, p2: PointXY): PointXY;
+/**
+ * Adds p1 and p2 togetherm returning a new point.
+ * @param p1
+ * @param p2
+ */
+export declare function pointAdd(p1: PointXY, p2: PointXY): PointXY;
 export interface Rotation {
     r: number;
     c: PointXY;

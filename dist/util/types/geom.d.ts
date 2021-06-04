@@ -25,7 +25,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-import { LineXY, PointXY, RectangleXY } from "./util";
+import { Grid, LineXY, PointXY, RectangleXY } from "./util";
 export declare type Quadrant = 1 | 2 | 3 | 4;
 export declare const TWO_PI: number;
 export declare function pointXYFromArray(a: Array<number>): PointXY;
@@ -125,3 +125,12 @@ export declare function pointOnLine(fromPoint: PointXY, toPoint: PointXY, distan
  * @return {LineXY} Perpendicular line, in the form `[ { x:..., y:... }, { x:..., y:... } ]`.
  */
 export declare function perpendicularLineTo(fromPoint: PointXY, toPoint: PointXY, length: number): LineXY;
+/**
+ * Snap the given x,y to a point on the grid defined by gridX and gridY, using the given thresholds to calculate proximity to the grid.
+ * @param pos Position to transform
+ * @param gridX Spacing of the grid in the X axis
+ * @param gridY Spacing of the grid in the Y axis
+ * @param thresholdX Defines how close to a grid line in the x axis a value must be in order to be snapped to it.
+ * @param thresholdY Defines how close to a grid line in the y axis a value must be in order to be snapped to it.
+ */
+export declare function snapToGrid(pos: PointXY, grid: Grid, thresholdX?: number, thresholdY?: number): PointXY;

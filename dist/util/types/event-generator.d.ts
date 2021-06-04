@@ -8,7 +8,7 @@ export declare abstract class EventGenerator {
     private tick;
     private eventsToDieOn;
     private queue;
-    abstract shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
+    protected abstract shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
     constructor();
     /**
      * Fire the named event

@@ -1,4 +1,4 @@
-import { Dictionary, PointXY, Size } from '@jsplumb/util';
+import { Dictionary, PointXY, Size, Grid } from '@jsplumb/util';
 import { EventManager } from "./event-manager";
 import { jsPlumbDOMElement } from './element-facade';
 export interface DragStartEventParams {
@@ -39,7 +39,6 @@ declare abstract class Base {
     toggleScope(scopes: string): void;
 }
 export declare type GhostProxyGenerator = (el: Element) => Element;
-export declare type Grid = [number, number];
 declare enum ContainmentTypes {
     notNegative = "notNegative",
     parent = "parent",

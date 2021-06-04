@@ -1,5 +1,5 @@
 import { NONE, cls, CLASS_CONNECTOR, CLASS_ENDPOINT, att, ATTRIBUTE_GROUP, CLASS_OVERLAY, ATTRIBUTE_TABINDEX, SELECTOR_MANAGED_ELEMENT, ATTRIBUTE_NOT_DRAGGABLE, FALSE as FALSE$1, SOURCE, TARGET, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_START_DETACH, ATTRIBUTE_SCOPE_PREFIX, REDROP_POLICY_ANY, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, createFloatingAnchor, EndpointRepresentation, AnchorLocations, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, ABSOLUTE, Connection, Endpoint, Overlay, TRUE as TRUE$1, BLOCK, UNDEFINED, STATIC, FIXED, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, JsPlumbInstance, DotEndpoint, RectangleEndpoint, BlankEndpoint } from '@jsplumb/core';
-import { isString, forEach, fastTrim, isArray, log, removeWithFunction, uuid, IS, extend, wrap, getWithFunction, getFromSetWithFunction, intersects, merge, each, getAllWithFunction, functionChain, addToDictionary, isAssignableFrom, fromArray, isFunction } from '@jsplumb/util';
+import { isString, forEach, fastTrim, isArray, log, removeWithFunction, uuid, snapToGrid, IS, extend, wrap, getWithFunction, getFromSetWithFunction, intersects, merge, each, getAllWithFunction, functionChain, addToDictionary, isAssignableFrom, fromArray, isFunction } from '@jsplumb/util';
 
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -996,20 +996,6 @@ function _assignId(obj) {
     return obj;
   }
 }
-function _snap(pos, gridX, gridY, thresholdX, thresholdY) {
-  var _dx = Math.floor(pos.x / gridX),
-      _dxl = gridX * _dx,
-      _dxt = _dxl + gridX,
-      x = Math.abs(pos.x - _dxl) <= thresholdX ? _dxl : Math.abs(_dxt - pos.x) <= thresholdX ? _dxt : pos.x;
-  var _dy = Math.floor(pos.y / gridY),
-      _dyl = gridY * _dy,
-      _dyt = _dyl + gridY,
-      y = Math.abs(pos.y - _dyl) <= thresholdY ? _dyl : Math.abs(_dyt - pos.y) <= thresholdY ? _dyt : pos.y;
-  return {
-    x: x,
-    y: y
-  };
-}
 function findMatchingSelector(availableSelectors, parentElement, childElement) {
   var el = null;
   var draggableId = parentElement.getAttribute("katavorio-draggable"),
@@ -1595,12 +1581,16 @@ function (_Base) {
   }, {
     key: "resolveGrid",
     value: function resolveGrid() {
-      var out = [null, DEFAULT_GRID_X / 2, DEFAULT_GRID_Y / 2];
+      var out = {
+        grid: null,
+        thresholdX: DEFAULT_GRID_X / 2,
+        thresholdY: DEFAULT_GRID_Y / 2
+      };
       if (this._activeSelectorParams != null && this._activeSelectorParams.grid != null) {
-        out[0] = this._activeSelectorParams.grid;
+        out.grid = this._activeSelectorParams.grid;
         if (this._activeSelectorParams.snapThreshold != null) {
-          out[1] = this._activeSelectorParams.snapThreshold;
-          out[2] = this._activeSelectorParams.snapThreshold;
+          out.thresholdX = this._activeSelectorParams.snapThreshold;
+          out.thresholdY = this._activeSelectorParams.snapThreshold;
         }
       }
       return out;
@@ -1609,16 +1599,15 @@ function (_Base) {
     key: "toGrid",
     value: function toGrid(pos) {
       var _this$resolveGrid = this.resolveGrid(),
-          _this$resolveGrid2 = _slicedToArray(_this$resolveGrid, 3),
-          grid = _this$resolveGrid2[0],
-          thresholdX = _this$resolveGrid2[1],
-          thresholdY = _this$resolveGrid2[2];
+          grid = _this$resolveGrid.grid,
+          thresholdX = _this$resolveGrid.thresholdX,
+          thresholdY = _this$resolveGrid.thresholdY;
       if (grid == null) {
         return pos;
       } else {
-        var tx = grid ? grid[0] / 2 : thresholdX,
-            ty = grid ? grid[1] / 2 : thresholdY;
-        return _snap(pos, grid[0], grid[1], tx, ty);
+        var tx = grid ? grid.w / 2 : thresholdX,
+            ty = grid ? grid.h / 2 : thresholdY;
+        return snapToGrid(pos, grid, tx, ty);
       }
     }
   }, {

@@ -492,6 +492,12 @@
         y: p1.y - p2.y
       };
     }
+    function pointAdd(p1, p2) {
+      return {
+        x: p1.x + p2.x,
+        y: p1.y + p2.y
+      };
+    }
 
     function _classCallCheck(instance, Constructor) {
       if (!(instance instanceof Constructor)) {
@@ -812,6 +818,22 @@
         y: toPoint.y - y
       }];
     }
+    function snapToGrid(pos, grid, thresholdX, thresholdY) {
+      thresholdX = thresholdX == null ? grid.w / 2 : thresholdX;
+      thresholdY = thresholdY == null ? grid.h / 2 : thresholdY;
+      var _dx = Math.floor(pos.x / grid.w),
+          _dxl = grid.w * _dx,
+          _dxt = _dxl + grid.w,
+          x = Math.abs(pos.x - _dxl) <= thresholdX ? _dxl : Math.abs(_dxt - pos.x) <= thresholdX ? _dxt : pos.x;
+      var _dy = Math.floor(pos.y / grid.h),
+          _dyl = grid.h * _dy,
+          _dyt = _dyl + grid.h,
+          y = Math.abs(pos.y - _dyl) <= thresholdY ? _dyl : Math.abs(_dyt - pos.y) <= thresholdY ? _dyt : pos.y;
+      return {
+        x: x,
+        y: y
+      };
+    }
 
     exports.EventGenerator = EventGenerator;
     exports.IS = IS;
@@ -859,6 +881,7 @@
     exports.merge = merge;
     exports.normal = normal;
     exports.perpendicularLineTo = perpendicularLineTo;
+    exports.pointAdd = pointAdd;
     exports.pointOnLine = pointOnLine;
     exports.pointSubtract = pointSubtract;
     exports.pointXYFromArray = pointXYFromArray;
@@ -870,6 +893,7 @@
     exports.rotateAnchorOrientation = rotateAnchorOrientation;
     exports.rotatePoint = rotatePoint;
     exports.setToArray = setToArray;
+    exports.snapToGrid = snapToGrid;
     exports.sortHelper = sortHelper;
     exports.subtract = subtract;
     exports.suggest = suggest;

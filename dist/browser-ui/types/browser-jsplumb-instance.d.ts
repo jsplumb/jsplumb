@@ -1,5 +1,5 @@
 import { JsPlumbDefaults, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, LabelOverlay, Connection, Component, DeleteConnectionOptions, BehaviouralTypeDescriptor, SourceSelector, UIGroup } from '@jsplumb/core';
-import { PointXY, Dictionary, Size, Extents } from "@jsplumb/util";
+import { PointXY, Dictionary, Size, Extents, Grid } from "@jsplumb/util";
 import { DragManager } from "./drag-manager";
 import { jsPlumbDOMElement } from './element-facade';
 import { EventManager } from "./event-manager";
@@ -22,7 +22,7 @@ export interface DragOptions {
     stop?: (params: DragStopEventParams) => void;
     cursor?: string;
     zIndex?: number;
-    grid?: [number, number];
+    grid?: Grid;
     trackScroll?: boolean;
 }
 export interface BrowserJsPlumbDefaults extends JsPlumbDefaults<Element> {
@@ -112,7 +112,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
      * Sets the grid that should be used when dragging elements.
      * @param grid [x, y] grid.
      */
-    setDragGrid(grid: [number, number]): void;
+    setDragGrid(grid: Grid): void;
     _removeElement(element: Element): void;
     _appendElement(el: Element, parent: Element): void;
     _getChildElements(el: Element): Array<Element>;

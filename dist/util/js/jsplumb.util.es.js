@@ -486,6 +486,12 @@ function pointSubtract(p1, p2) {
     y: p1.y - p2.y
   };
 }
+function pointAdd(p1, p2) {
+  return {
+    x: p1.x + p2.x,
+    y: p1.y + p2.y
+  };
+}
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -806,5 +812,21 @@ function perpendicularLineTo(fromPoint, toPoint, length) {
     y: toPoint.y - y
   }];
 }
+function snapToGrid(pos, grid, thresholdX, thresholdY) {
+  thresholdX = thresholdX == null ? grid.w / 2 : thresholdX;
+  thresholdY = thresholdY == null ? grid.h / 2 : thresholdY;
+  var _dx = Math.floor(pos.x / grid.w),
+      _dxl = grid.w * _dx,
+      _dxt = _dxl + grid.w,
+      x = Math.abs(pos.x - _dxl) <= thresholdX ? _dxl : Math.abs(_dxt - pos.x) <= thresholdX ? _dxt : pos.x;
+  var _dy = Math.floor(pos.y / grid.h),
+      _dyl = grid.h * _dy,
+      _dyt = _dyl + grid.h,
+      y = Math.abs(pos.y - _dyl) <= thresholdY ? _dyl : Math.abs(_dyt - pos.y) <= thresholdY ? _dyt : pos.y;
+  return {
+    x: x,
+    y: y
+  };
+}
 
-export { EventGenerator, IS, OptimisticEventGenerator, TWO_PI, _mergeOverrides, add, addToDictionary, addToList, addWithFunction, clone, each, encloses, extend, fastTrim, filterList, filterNull, findAllWithFunction, findWithFunction, forEach, fromArray, functionChain, getAllWithFunction, getFromSetWithFunction, getWithFunction, getsert, gradient, insertSorted, intersects, isArray, isAssignableFrom, isBoolean, isDate, isEmpty, isFunction, isNamedFunction, isNull, isNumber, isObject, isString, lineLength, log, logEnabled, map, merge, normal, perpendicularLineTo, pointOnLine, pointSubtract, pointXYFromArray, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, sortHelper, subtract, suggest, theta, uuid, wrap };
+export { EventGenerator, IS, OptimisticEventGenerator, TWO_PI, _mergeOverrides, add, addToDictionary, addToList, addWithFunction, clone, each, encloses, extend, fastTrim, filterList, filterNull, findAllWithFunction, findWithFunction, forEach, fromArray, functionChain, getAllWithFunction, getFromSetWithFunction, getWithFunction, getsert, gradient, insertSorted, intersects, isArray, isAssignableFrom, isBoolean, isDate, isEmpty, isFunction, isNamedFunction, isNull, isNumber, isObject, isString, lineLength, log, logEnabled, map, merge, normal, perpendicularLineTo, pointAdd, pointOnLine, pointSubtract, pointXYFromArray, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, snapToGrid, sortHelper, subtract, suggest, theta, uuid, wrap };
