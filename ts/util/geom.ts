@@ -26,7 +26,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import {LineXY, PointXY, RectangleXY} from "./util"
+import {Grid, LineXY, PointXY, RectangleXY} from "./util"
 
 export type Quadrant = 1 | 2 | 3 | 4
 
@@ -213,4 +213,30 @@ export function perpendicularLineTo(fromPoint: PointXY, toPoint: PointXY, length
         y = length / 2 * Math.sin(theta2),
         x = length / 2 * Math.cos(theta2)
     return [{x: toPoint.x + x, y: toPoint.y + y}, {x: toPoint.x - x, y: toPoint.y - y}]
+}
+
+/**
+ * Snap the given x,y to a point on the grid defined by gridX and gridY, using the given thresholds to calculate proximity to the grid.
+ * @param pos Position to transform
+ * @param gridX Spacing of the grid in the X axis
+ * @param gridY Spacing of the grid in the Y axis
+ * @param thresholdX Defines how close to a grid line in the x axis a value must be in order to be snapped to it.
+ * @param thresholdY Defines how close to a grid line in the y axis a value must be in order to be snapped to it.
+ */
+export function snapToGrid(pos:PointXY, grid:Grid, thresholdX?:number, thresholdY?:number):PointXY {
+
+    thresholdX = thresholdX == null ? grid.w / 2 : thresholdX
+    thresholdY = thresholdY == null ? grid.h / 2 : thresholdY
+
+    let _dx = Math.floor(pos.x / grid.w),
+        _dxl = grid.w * _dx,
+        _dxt = _dxl + grid.w,
+        x = Math.abs(pos.x - _dxl) <= thresholdX ? _dxl : Math.abs(_dxt - pos.x) <= thresholdX ? _dxt : pos.x
+
+    let _dy = Math.floor(pos.y / grid.h),
+        _dyl = grid.h * _dy,
+        _dyt = _dyl + grid.h,
+        y = Math.abs(pos.y - _dyl) <= thresholdY ? _dyl : Math.abs(_dyt - pos.y) <= thresholdY ? _dyt : pos.y
+
+    return {x,y}
 }
