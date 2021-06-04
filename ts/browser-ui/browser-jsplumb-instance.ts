@@ -49,7 +49,7 @@ import {
     Dictionary,
     Size,
     BoundingBox,
-    Extents
+    Extents, Grid
 } from "@jsplumb/util"
 
 import { _attr,
@@ -165,7 +165,7 @@ export interface DragOptions {
     stop?: (params:DragStopEventParams) => void
     cursor?: string
     zIndex?: number
-    grid?:[number, number]
+    grid?:Grid
     trackScroll?:boolean
 }
 
@@ -468,7 +468,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
      * Sets the grid that should be used when dragging elements.
      * @param grid [x, y] grid.
      */
-    setDragGrid(grid:[number, number]) {
+    setDragGrid(grid:Grid) {
         this.dragManager.setOption(this.elementDragHandler, {
             grid:grid
         })
