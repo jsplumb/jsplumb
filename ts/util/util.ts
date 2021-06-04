@@ -773,6 +773,11 @@ export type BoundingBox = { x:number, y:number, w:number, h:number, center?:Poin
 export type RectangleXY = BoundingBox
 export type LineXY = [ PointXY, PointXY ]
 
+export interface Grid extends Size {
+    thresholdX?:number
+    thresholdY?:number
+}
+
 export interface Size { w:number, h:number }
 
 
@@ -788,6 +793,17 @@ export function pointSubtract(p1:PointXY, p2:PointXY):PointXY {
     }
 }
 
+/**
+ * Adds p1 and p2 togetherm returning a new point.
+ * @param p1
+ * @param p2
+ */
+export function pointAdd(p1:PointXY, p2:PointXY):PointXY {
+    return {
+        x:p1.x + p2.x,
+        y:p1.y + p2.y
+    }
+}
 export interface Rotation {r:number, c:PointXY}
 export type Rotations = Array<Rotation>
 
