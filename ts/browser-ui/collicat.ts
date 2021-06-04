@@ -1,4 +1,4 @@
-import {Dictionary, extend, IS, uuid, PointXY, Size} from '@jsplumb/util'
+import {Dictionary, extend, IS, uuid, PointXY, Size, snapToGrid, Grid} from '@jsplumb/util'
 import {addClass, consume, matchesSelector, removeClass, offsetRelativeToRoot} from "./browser-util"
 import {EventManager, pageLocation} from "./event-manager"
 import { jsPlumbDOMElement} from './element-facade'
@@ -61,21 +61,6 @@ function _assignId (obj:Function | string):string {
     } else {
         return obj
     }
-}
-
-function _snap (pos:PointXY, gridX:number, gridY:number, thresholdX:number, thresholdY:number):PointXY {
-
-    let _dx = Math.floor(pos.x / gridX),
-        _dxl = gridX * _dx,
-        _dxt = _dxl + gridX,
-        x = Math.abs(pos.x - _dxl) <= thresholdX ? _dxl : Math.abs(_dxt - pos.x) <= thresholdX ? _dxt : pos.x
-
-    let _dy = Math.floor(pos.y / gridY),
-        _dyl = gridY * _dy,
-        _dyt = _dyl + gridY,
-        y = Math.abs(pos.y - _dyl) <= thresholdY ? _dyl : Math.abs(_dyt - pos.y) <= thresholdY ? _dyt : pos.y
-
-    return {x,y}
 }
 
 /**
@@ -222,8 +207,6 @@ export type GhostProxyGenerator = (el:Element) => Element
 function getConstrainingRectangle(el:jsPlumbDOMElement):{w:number, h:number} {
     return { w:el.parentNode.offsetWidth + el.parentNode.scrollLeft, h:el.parentNode.offsetHeight + el.parentNode.scrollTop}
 }
-
-export type Grid = [number, number]
 
 enum ContainmentTypes {
     notNegative = "notNegative",
@@ -737,13 +720,13 @@ export class Drag extends Base {
         return result
     }
 
-    private resolveGrid():[ Grid, number, number ] {
-        let out:[ Grid, number, number ] = [ null, DEFAULT_GRID_X / 2, DEFAULT_GRID_Y / 2 ]
+    private resolveGrid():{grid:Grid, thresholdX:number, thresholdY:number } {
+        let out = {grid:null as Grid, thresholdX:DEFAULT_GRID_X / 2, thresholdY:DEFAULT_GRID_Y / 2 }
         if(this._activeSelectorParams != null && this._activeSelectorParams.grid != null) {
-            out[0] = this._activeSelectorParams.grid
+            out.grid = this._activeSelectorParams.grid
             if (this._activeSelectorParams.snapThreshold != null) {
-                out[1] = this._activeSelectorParams.snapThreshold
-                out[2] = this._activeSelectorParams.snapThreshold
+                out.thresholdX = this._activeSelectorParams.snapThreshold
+                out.thresholdY = this._activeSelectorParams.snapThreshold
             }
         }
         return out
@@ -755,7 +738,7 @@ export class Drag extends Base {
      */
     private toGrid (pos:PointXY):PointXY {
 
-        const [grid, thresholdX, thresholdY] = this.resolveGrid()
+        const {grid, thresholdX, thresholdY} = this.resolveGrid()
 
         if (grid == null) {
             // if there's no grid, return the desired position.
@@ -763,10 +746,10 @@ export class Drag extends Base {
         }
         else {
 
-            const tx = grid ? grid[0] / 2 : thresholdX,
-                ty = grid ? grid[1] / 2 : thresholdY
+            const tx = grid ? grid.w / 2 : thresholdX,
+                ty = grid ? grid.h / 2 : thresholdY
 
-            return _snap(pos, grid[0], grid[1], tx, ty)
+            return snapToGrid(pos, grid, tx, ty)
         }
     }
 
