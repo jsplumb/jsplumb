@@ -218,15 +218,14 @@ export function perpendicularLineTo(fromPoint: PointXY, toPoint: PointXY, length
 /**
  * Snap the given x,y to a point on the grid defined by gridX and gridY, using the given thresholds to calculate proximity to the grid.
  * @param pos Position to transform
- * @param gridX Spacing of the grid in the X axis
- * @param gridY Spacing of the grid in the Y axis
+ * @param grid Definition of the grid
  * @param thresholdX Defines how close to a grid line in the x axis a value must be in order to be snapped to it.
  * @param thresholdY Defines how close to a grid line in the y axis a value must be in order to be snapped to it.
  */
 export function snapToGrid(pos:PointXY, grid:Grid, thresholdX?:number, thresholdY?:number):PointXY {
 
-    thresholdX = thresholdX == null ? grid.w / 2 : thresholdX
-    thresholdY = thresholdY == null ? grid.h / 2 : thresholdY
+    thresholdX = thresholdX == null ? grid.thresholdX == null ? grid.w / 2 : grid.thresholdX : thresholdX
+    thresholdY = thresholdY == null ? grid.thresholdY == null ? grid.h / 2 : grid.thresholdY : thresholdY
 
     let _dx = Math.floor(pos.x / grid.w),
         _dxl = grid.w * _dx,
