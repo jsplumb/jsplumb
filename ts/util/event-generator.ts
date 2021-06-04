@@ -14,7 +14,7 @@ export abstract class EventGenerator {
     private eventsToDieOn: Dictionary<boolean> = {"ready": true}
     private queue: Array<any> = []
 
-    abstract shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean
+    protected abstract shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean
 
     constructor() { }
 
