@@ -559,7 +559,7 @@ var testSuite = function () {
 
         reinit({
             dragOptions:{
-                grid:[50,50]
+                grid:{w:50, h:50}
             }
         });
 
@@ -585,7 +585,7 @@ var testSuite = function () {
 
         reinit({
             dragOptions:{
-                grid:[50,50]
+                grid:{w:50, h:50}
             }
         });
 
@@ -606,7 +606,7 @@ var testSuite = function () {
         equal(parseInt(d.style.left, 10), 100, "node left snapped to 100 by 50,50 grid after moving 26 px from 50");
         equal(parseInt(d.style.top, 10), 100, "node top snapped to 100 by 50,50 grid after moving 26px from 50");
 
-        _jsPlumb.setDragGrid([20,20])
+        _jsPlumb.setDragGrid({w:20,h:20})
         // drag by just over half the new grid size.  should snap now to the new grid, as the previous grid was larger
         // and would have snapped the element back to where it was.
         support.dragNodeBy(d, 11, 11);
