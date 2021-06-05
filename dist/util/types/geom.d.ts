@@ -28,7 +28,6 @@
 import { Grid, LineXY, PointXY, RectangleXY } from "./util";
 export declare type Quadrant = 1 | 2 | 3 | 4;
 export declare const TWO_PI: number;
-export declare function pointXYFromArray(a: Array<number>): PointXY;
 /**
  * Adds the x and y values of the two points and returns a new point.
  * @param p1
@@ -96,6 +95,20 @@ export declare function theta(p1: PointXY, p2: PointXY): number;
  */
 export declare function intersects(r1: RectangleXY, r2: RectangleXY): boolean;
 /**
+ * Compute the intersection of the two lines.
+ * @param l1
+ * @param l2
+ * @return A point if an intersection found, null otherwise.
+ */
+export declare function lineIntersection(l1: LineXY, l2: LineXY): PointXY | null;
+/**
+ * Finds all points where the given line intersects the given rectangle.
+ * @name findIntersections
+ * @param line
+ * @param r
+ */
+export declare function lineRectangleIntersection(line: LineXY, r: RectangleXY): Array<PointXY>;
+/**
  * @name encloses
  * @function
  * @desc Calculates whether or not r2 is completely enclosed by r1.
@@ -128,8 +141,7 @@ export declare function perpendicularLineTo(fromPoint: PointXY, toPoint: PointXY
 /**
  * Snap the given x,y to a point on the grid defined by gridX and gridY, using the given thresholds to calculate proximity to the grid.
  * @param pos Position to transform
- * @param gridX Spacing of the grid in the X axis
- * @param gridY Spacing of the grid in the Y axis
+ * @param grid Definition of the grid
  * @param thresholdX Defines how close to a grid line in the x axis a value must be in order to be snapped to it.
  * @param thresholdY Defines how close to a grid line in the y axis a value must be in order to be snapped to it.
  */

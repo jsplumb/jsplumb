@@ -275,18 +275,6 @@ export interface Size {
     w: number;
     h: number;
 }
-/**
- * Subtracts p2 from p1, returning a new point.
- * @param p1
- * @param p2
- */
-export declare function pointSubtract(p1: PointXY, p2: PointXY): PointXY;
-/**
- * Adds p1 and p2 togetherm returning a new point.
- * @param p1
- * @param p2
- */
-export declare function pointAdd(p1: PointXY, p2: PointXY): PointXY;
 export interface Rotation {
     r: number;
     c: PointXY;

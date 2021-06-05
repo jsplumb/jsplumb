@@ -480,18 +480,6 @@ function insertSorted(value, array, comparator, sortDescending) {
     array.splice(index, 0, value);
   }
 }
-function pointSubtract(p1, p2) {
-  return {
-    x: p1.x - p2.x,
-    y: p1.y - p2.y
-  };
-}
-function pointAdd(p1, p2) {
-  return {
-    x: p1.x + p2.x,
-    y: p1.y + p2.y
-  };
-}
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -718,12 +706,6 @@ function (_EventGenerator) {
 var segmentMultipliers = [null, [1, -1], [1, 1], [-1, 1], [-1, -1]];
 var inverseSegmentMultipliers = [null, [-1, -1], [-1, 1], [1, 1], [1, -1]];
 var TWO_PI = 2 * Math.PI;
-function pointXYFromArray(a) {
-  return {
-    x: a[0],
-    y: a[1]
-  };
-}
 function add(p1, p2) {
   return {
     x: p1.x + p2.x,
@@ -773,6 +755,76 @@ function intersects(r1, r2) {
       b2 = r2.y + r2.h;
   return x1 <= a1 && a1 <= x2 && y1 <= b1 && b1 <= y2 || x1 <= a2 && a2 <= x2 && y1 <= b1 && b1 <= y2 || x1 <= a1 && a1 <= x2 && y1 <= b2 && b2 <= y2 || x1 <= a2 && a1 <= x2 && y1 <= b2 && b2 <= y2 || a1 <= x1 && x1 <= a2 && b1 <= y1 && y1 <= b2 || a1 <= x2 && x2 <= a2 && b1 <= y1 && y1 <= b2 || a1 <= x1 && x1 <= a2 && b1 <= y2 && y2 <= b2 || a1 <= x2 && x1 <= a2 && b1 <= y2 && y2 <= b2;
 }
+function toABC(line) {
+  var A = line[1].y - line[0].y;
+  var B = line[0].x - line[1].x;
+  return {
+    A: A,
+    B: B,
+    C: A * line[0].x + B * line[0].y
+  };
+}
+function lineIntersection(l1, l2) {
+  var abc1 = toABC(l1),
+      abc2 = toABC(l2),
+      det = abc1.A * abc2.B - abc2.A * abc1.B;
+  if (det == 0) {
+    return null;
+  } else {
+    var candidate = {
+      x: (abc2.B * abc1.C - abc1.B * abc2.C) / det,
+      y: (abc1.A * abc2.C - abc2.A * abc1.C) / det
+    },
+        l1xmin = Math.min(l1[0].x, l1[1].x),
+        l1xmax = Math.max(l1[0].x, l1[1].x),
+        l1ymin = Math.min(l1[0].y, l1[1].y),
+        l1ymax = Math.max(l1[0].y, l1[1].y),
+        l2xmin = Math.min(l2[0].x, l2[1].x),
+        l2xmax = Math.max(l2[0].x, l2[1].x),
+        l2ymin = Math.min(l2[0].y, l2[1].y),
+        l2ymax = Math.max(l2[0].y, l2[1].y);
+    if (candidate.x >= l1xmin && candidate.x <= l1xmax && candidate.y >= l1ymin && candidate.y <= l1ymax && candidate.x >= l2xmin && candidate.x <= l2xmax && candidate.y >= l2ymin && candidate.y <= l2ymax) {
+      return candidate;
+    } else {
+      return null;
+    }
+  }
+}
+function lineRectangleIntersection(line, r) {
+  var out = [],
+      rectangleLines = [[{
+    x: r.x,
+    y: r.y
+  }, {
+    x: r.x + r.w,
+    y: r.y
+  }], [{
+    x: r.x + r.w,
+    y: r.y
+  }, {
+    x: r.x + r.w,
+    y: r.y + r.h
+  }], [{
+    x: r.x,
+    y: r.y
+  }, {
+    x: r.x,
+    y: r.y + r.h
+  }], [{
+    x: r.x,
+    y: r.y + r.h
+  }, {
+    x: r.x + r.w,
+    y: r.y + r.h
+  }]];
+  forEach(rectangleLines, function (rLine) {
+    var intersection = lineIntersection(line, rLine);
+    if (intersection != null) {
+      out.push(intersection);
+    }
+  });
+  return out;
+}
 function encloses(r1, r2, allowSharedEdges) {
   var x1 = r1.x,
       x2 = r1.x + r1.w,
@@ -813,8 +865,8 @@ function perpendicularLineTo(fromPoint, toPoint, length) {
   }];
 }
 function snapToGrid(pos, grid, thresholdX, thresholdY) {
-  thresholdX = thresholdX == null ? grid.w / 2 : thresholdX;
-  thresholdY = thresholdY == null ? grid.h / 2 : thresholdY;
+  thresholdX = thresholdX == null ? grid.thresholdX == null ? grid.w / 2 : grid.thresholdX : thresholdX;
+  thresholdY = thresholdY == null ? grid.thresholdY == null ? grid.h / 2 : grid.thresholdY : thresholdY;
   var _dx = Math.floor(pos.x / grid.w),
       _dxl = grid.w * _dx,
       _dxt = _dxl + grid.w,
@@ -829,4 +881,4 @@ function snapToGrid(pos, grid, thresholdX, thresholdY) {
   };
 }
 
-export { EventGenerator, IS, OptimisticEventGenerator, TWO_PI, _mergeOverrides, add, addToDictionary, addToList, addWithFunction, clone, each, encloses, extend, fastTrim, filterList, filterNull, findAllWithFunction, findWithFunction, forEach, fromArray, functionChain, getAllWithFunction, getFromSetWithFunction, getWithFunction, getsert, gradient, insertSorted, intersects, isArray, isAssignableFrom, isBoolean, isDate, isEmpty, isFunction, isNamedFunction, isNull, isNumber, isObject, isString, lineLength, log, logEnabled, map, merge, normal, perpendicularLineTo, pointAdd, pointOnLine, pointSubtract, pointXYFromArray, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, snapToGrid, sortHelper, subtract, suggest, theta, uuid, wrap };
+export { EventGenerator, IS, OptimisticEventGenerator, TWO_PI, _mergeOverrides, add, addToDictionary, addToList, addWithFunction, clone, each, encloses, extend, fastTrim, filterList, filterNull, findAllWithFunction, findWithFunction, forEach, fromArray, functionChain, getAllWithFunction, getFromSetWithFunction, getWithFunction, getsert, gradient, insertSorted, intersects, isArray, isAssignableFrom, isBoolean, isDate, isEmpty, isFunction, isNamedFunction, isNull, isNumber, isObject, isString, lineIntersection, lineLength, lineRectangleIntersection, log, logEnabled, map, merge, normal, perpendicularLineTo, pointOnLine, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, snapToGrid, sortHelper, subtract, suggest, theta, uuid, wrap };
