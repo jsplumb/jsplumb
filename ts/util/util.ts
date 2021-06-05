@@ -780,30 +780,6 @@ export interface Grid extends Size {
 
 export interface Size { w:number, h:number }
 
-
-/**
- * Subtracts p2 from p1, returning a new point.
- * @param p1
- * @param p2
- */
-export function pointSubtract(p1:PointXY, p2:PointXY):PointXY {
-    return {
-        x:p1.x - p2.x,
-        y:p1.y - p2.y
-    }
-}
-
-/**
- * Adds p1 and p2 togetherm returning a new point.
- * @param p1
- * @param p2
- */
-export function pointAdd(p1:PointXY, p2:PointXY):PointXY {
-    return {
-        x:p1.x + p2.x,
-        y:p1.y + p2.y
-    }
-}
 export interface Rotation {r:number, c:PointXY}
 export type Rotations = Array<Rotation>
 
