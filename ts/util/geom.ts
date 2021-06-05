@@ -26,7 +26,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import {Grid, LineXY, PointXY, RectangleXY} from "./util"
+import {forEach, Grid, LineXY, PointXY, RectangleXY} from "./util"
 
 export type Quadrant = 1 | 2 | 3 | 4
 
@@ -35,9 +35,9 @@ const inverseSegmentMultipliers = [null, [-1, -1], [-1, 1], [1, 1], [1, -1] ]
 
 export const TWO_PI = 2 * Math.PI
 
-export function pointXYFromArray(a: Array<number>): PointXY {
-    return {x: a[0], y: a[1]}
-}
+// export function pointXYFromArray(a: Array<number>): PointXY {
+//     return {x: a[0], y: a[1]}
+// }
 
 /**
  * Adds the x and y values of the two points and returns a new point.
@@ -158,6 +158,86 @@ export function intersects(r1: RectangleXY, r2: RectangleXY): boolean {
         ((a1 <= x2 && x2 <= a2) && (b1 <= y1 && y1 <= b2)) ||
         ((a1 <= x1 && x1 <= a2) && (b1 <= y2 && y2 <= b2)) ||
         ((a1 <= x2 && x1 <= a2) && (b1 <= y2 && y2 <= b2))
+}
+
+/**
+ * Get the A B C components of the given line.
+ * @param line
+ */
+function toABC(line:LineXY):{A:number,B:number, C:number} {
+    const A = line[1].y - line[0].y
+    const B = line[0].x - line[1].x
+    return {
+        A,
+        B,
+        C:(A * line[0].x) + (B * line[0].y)
+    }
+}
+
+/**
+ * Compute the intersection of the two lines.
+ * @param l1
+ * @param l2
+ * @return A point if an intersection found, null otherwise.
+ */
+export function lineIntersection(l1:LineXY, l2:LineXY):PointXY|null {
+
+    const abc1 = toABC(l1),
+        abc2 = toABC(l2),
+        det = (abc1.A * abc2.B) - (abc2.A * abc1.B)
+
+    if (det == 0) {
+        return null
+    } else {
+        const candidate = {
+            x:( (abc2.B * abc1.C) - (abc1.B * abc2.C) ) / det,
+            y:( (abc1.A * abc2.C) - (abc2.A * abc1.C) ) / det
+        },
+            l1xmin = Math.min(l1[0].x, l1[1].x),
+            l1xmax = Math.max(l1[0].x, l1[1].x),
+            l1ymin = Math.min(l1[0].y, l1[1].y),
+            l1ymax = Math.max(l1[0].y, l1[1].y),
+            l2xmin = Math.min(l2[0].x, l2[1].x),
+            l2xmax = Math.max(l2[0].x, l2[1].x),
+            l2ymin = Math.min(l2[0].y, l2[1].y),
+            l2ymax = Math.max(l2[0].y, l2[1].y)
+
+        if (  (candidate.x >= l1xmin && candidate.x <= l1xmax) &&
+            (candidate.y >= l1ymin && candidate.y <= l1ymax) &&
+            (candidate.x >= l2xmin && candidate.x <= l2xmax) &&
+            (candidate.y >= l2ymin && candidate.y <= l2ymax)) {
+            return candidate
+        } else {
+            return null
+        }
+
+    }
+
+}
+
+/**
+ * Finds all points where the given line intersects the given rectangle.
+ * @name findIntersections
+ * @param line
+ * @param r
+ */
+export function lineRectangleIntersection(line:LineXY, r:RectangleXY):Array<PointXY> {
+    const out:Array<PointXY> = [],
+        rectangleLines:Array<LineXY> = [
+            [ { x:r.x, y:r.y }, { x:r.x + r.w, y:r.y }   ],
+            [ { x:r.x + r.w, y:r.y }, { x:r.x + r.w, y:r.y + r.h }   ],
+            [ { x:r.x, y:r.y }, { x:r.x, y:r.y + r.h }   ],
+            [ { x:r.x, y:r.y + r.h }, { x:r.x + r.w, y:r.y + r.h }   ]
+        ]
+
+    forEach(rectangleLines, (rLine) => {
+        const intersection = lineIntersection(line, rLine)
+        if (intersection != null) {
+            out.push(intersection)
+        }
+    })
+
+    return out
 }
 
 /**
