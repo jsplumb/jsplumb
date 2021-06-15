@@ -176,6 +176,8 @@ function toABC(line:LineXY):{A:number,B:number, C:number} {
 
 /**
  * Compute the intersection of the two lines.
+ * @name lineIntersection
+ * @function
  * @param l1
  * @param l2
  * @return A point if an intersection found, null otherwise.
@@ -217,7 +219,8 @@ export function lineIntersection(l1:LineXY, l2:LineXY):PointXY|null {
 
 /**
  * Finds all points where the given line intersects the given rectangle.
- * @name findIntersections
+ * @name lineRectangleIntersection
+ * @function
  * @param line
  * @param r
  */
@@ -241,9 +244,8 @@ export function lineRectangleIntersection(line:LineXY, r:RectangleXY):Array<Poin
 }
 
 /**
+ * Calculates whether or not r2 is completely enclosed by r1.
  * @name encloses
- * @function
- * @desc Calculates whether or not r2 is completely enclosed by r1.
  * @param {RectangleXY} r1 First rectangle
  * @param {RectangleXY} r2 Second rectangle
  * @param {boolean} [allowSharedEdges=false] If true, the concept of enclosure allows for one or more edges to be shared by the two rectangles.
@@ -260,9 +262,8 @@ export function encloses(r1: RectangleXY, r2: RectangleXY, allowSharedEdges?: bo
 }
 
 /**
+ * Calculates a point on the line from `fromPoint` to `toPoint` that is `distance` units along the length of the line.
  * @name pointOnLine
- * @function
- * @desc Calculates a point on the line from `fromPoint` to `toPoint` that is `distance` units along the length of the line.
  * @param {PointXY} fromPoint First point
  * @param {PointXY} toPoint Second point
  * @param {number} distance Distance along the length that the point should be located.
@@ -279,9 +280,8 @@ export function pointOnLine(fromPoint: PointXY, toPoint: PointXY, distance: numb
 }
 
 /**
+ * Calculates a line of length `length` that is perpendicular to the line from `fromPoint` to `toPoint` and passes through `toPoint`.
  * @name perpendicularLineTo
- * @function
- * @desc Calculates a line of length `length` that is perpendicular to the line from `fromPoint` to `toPoint` and passes through `toPoint`.
  * @param {PointXY} fromPoint First point
  * @param {PointXY} toPoint Second point
  * @param {number} length Length of the line to generate
@@ -297,6 +297,7 @@ export function perpendicularLineTo(fromPoint: PointXY, toPoint: PointXY, length
 
 /**
  * Snap the given x,y to a point on the grid defined by gridX and gridY, using the given thresholds to calculate proximity to the grid.
+ * @name snapToGrid
  * @param pos Position to transform
  * @param grid Definition of the grid
  * @param thresholdX Defines how close to a grid line in the x axis a value must be in order to be snapped to it.
