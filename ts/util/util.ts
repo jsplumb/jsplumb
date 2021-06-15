@@ -390,7 +390,7 @@ export function forEach<T>(a:ArrayLike<T>, f:(_a:T) => any):void {
  * @param f Predicate to use to test each entry
  * @return The index of the entry for which the predicate returned true, -1 if not found.
  */
-export function findWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): number {
+export function findWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): number {
     if (a) {
         for (let i = 0; i < a.length; i++) {
             if (f(a[i])) {
@@ -401,7 +401,7 @@ export function findWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): number 
     return -1
 }
 
-export function findAllWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): Array<number> {
+export function findAllWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): Array<number> {
     let o:Array<number> = []
     if (a) {
         for (let i = 0; i < a.length; i++) {
@@ -420,7 +420,7 @@ export function findAllWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): Arra
  * @param f Predicate to use to test each entry
  * @return The entry for which the predicate returned true, null if not found.
  */
-export function getWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): T {
+export function getWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): T {
     const idx = findWithFunction(a, f)
     return idx === -1 ? null : a[idx]
 }
@@ -431,7 +431,7 @@ export function getWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): T {
  * @param f Predicate to use to test each entry
  * @return The entries for which the predicate returned true, empty array if not found.
  */
-export function getAllWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): Array<T> {
+export function getAllWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): Array<T> {
     const indexes = findAllWithFunction(a, f)
     return indexes.map(i => a[i])
 }
