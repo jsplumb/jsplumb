@@ -144,6 +144,20 @@ export class ElementDragHandler implements DragHandler {
 
         }
 
+        if (this._intersectingGroups.length > 0) {
+            // we only support one for the time being
+            let targetGroup = this._intersectingGroups[0].group
+            let intersectingElement = this._intersectingGroups[0].intersectingElement as jsPlumbDOMElement
+
+            let currentGroup = intersectingElement._jsPlumbParentGroup
+
+            if (currentGroup !== targetGroup) {
+                if (currentGroup == null || !currentGroup.overrideDrop(intersectingElement, targetGroup)) {
+                    this.instance.groupManager.addToGroup(targetGroup, false, intersectingElement)
+                }
+            }
+        }
+
         const dragElement = params.drag.getDragElement()
         _one(dragElement,  params.finalPos)
 
@@ -159,22 +173,22 @@ export class ElementDragHandler implements DragHandler {
 
         // do the contents of the drag selection
 
-        if (this._intersectingGroups.length > 0) {
-            // we only support one for the time being
-            let targetGroup = this._intersectingGroups[0].group
-            let intersectingElement = this._intersectingGroups[0].intersectingElement as jsPlumbDOMElement
-
-            let currentGroup = intersectingElement._jsPlumbParentGroup
-
-            if (currentGroup !== targetGroup) {
-                if (currentGroup != null) {
-                    if (currentGroup.overrideDrop(intersectingElement, targetGroup)) {
-                        return
-                    }
-                }
-                this.instance.groupManager.addToGroup(targetGroup, false, intersectingElement)
-            }
-        }
+        // if (this._intersectingGroups.length > 0) {
+        //     // we only support one for the time being
+        //     let targetGroup = this._intersectingGroups[0].group
+        //     let intersectingElement = this._intersectingGroups[0].intersectingElement as jsPlumbDOMElement
+        //
+        //     let currentGroup = intersectingElement._jsPlumbParentGroup
+        //
+        //     if (currentGroup !== targetGroup) {
+        //         if (currentGroup != null) {
+        //             if (currentGroup.overrideDrop(intersectingElement, targetGroup)) {
+        //                 return
+        //             }
+        //         }
+        //         this.instance.groupManager.addToGroup(targetGroup, false, intersectingElement)
+        //     }
+        // }
 
         this._cleanup()
     }
