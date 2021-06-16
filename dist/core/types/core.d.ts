@@ -445,7 +445,7 @@ export declare abstract class JsPlumbInstance<T extends {
     toggleGroup(group: string | UIGroup<T["E"]>): void;
     removeGroup(group: string | UIGroup<T["E"]>, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): Dictionary<PointXY>;
     removeAllGroups(deleteMembers?: boolean, manipulateView?: boolean): void;
-    removeFromGroup(group: string | UIGroup<T["E"]>, ...el: Array<T["E"]>): void;
+    removeFromGroup(group: string | UIGroup<T["E"]>, el: T["E"], doNotFireEvent?: boolean): void;
     paintEndpoint(endpoint: Endpoint, params: {
         timestamp?: string;
         offset?: ViewportElement<T["E"]>;

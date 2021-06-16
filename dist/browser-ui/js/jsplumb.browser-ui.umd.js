@@ -2050,6 +2050,16 @@
             target: _el
           }).removeClass(_this.instance.elementDraggingClass + " " + _this.instance.targetElementDraggingClass, true);
         };
+        if (this._intersectingGroups.length > 0) {
+          var targetGroup = this._intersectingGroups[0].group;
+          var intersectingElement = this._intersectingGroups[0].intersectingElement;
+          var currentGroup = intersectingElement._jsPlumbParentGroup;
+          if (currentGroup !== targetGroup) {
+            if (currentGroup == null || !currentGroup.overrideDrop(intersectingElement, targetGroup)) {
+              this.instance.groupManager.addToGroup(targetGroup, false, intersectingElement);
+            }
+          }
+        }
         var dragElement = params.drag.getDragElement();
         _one(dragElement, params.finalPos);
         this._dragSelectionOffsets.forEach(function (v, k) {
@@ -2061,19 +2071,6 @@
             _one(v[1], pp);
           }
         });
-        if (this._intersectingGroups.length > 0) {
-          var targetGroup = this._intersectingGroups[0].group;
-          var intersectingElement = this._intersectingGroups[0].intersectingElement;
-          var currentGroup = intersectingElement._jsPlumbParentGroup;
-          if (currentGroup !== targetGroup) {
-            if (currentGroup != null) {
-              if (currentGroup.overrideDrop(intersectingElement, targetGroup)) {
-                return;
-              }
-            }
-            this.instance.groupManager.addToGroup(targetGroup, false, intersectingElement);
-          }
-        }
         this._cleanup();
       }
     }, {

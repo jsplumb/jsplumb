@@ -6026,6 +6026,10 @@ function (_EventGenerator) {
       this.removeAllEndpoints(el, true, affectedElements);
       var _one = function _one(_el) {
         var id = _this3.getId(_el);
+        var entry = _this3._managedElements[id];
+        if (entry.group) {
+          _this3.removeFromGroup(entry.group, el, true);
+        }
         _this3.removeAttribute(_el, ATTRIBUTE_MANAGED);
         delete _this3._managedElements[id];
         _this3.viewport.remove(id);
@@ -6838,19 +6842,12 @@ function (_EventGenerator) {
     }
   }, {
     key: "removeFromGroup",
-    value: function removeFromGroup(group) {
-      var _this$groupManager2,
-          _this8 = this;
-      for (var _len2 = arguments.length, el = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
-        el[_key2 - 1] = arguments[_key2];
-      }
-      (_this$groupManager2 = this.groupManager).removeFromGroup.apply(_this$groupManager2, [group, false].concat(el));
-      forEach(el, function (_el) {
-        _this8._appendElement(_el, _this8.getContainer());
-        _this8.updateOffset({
-          recalc: true,
-          elId: _this8.getId(_el)
-        });
+    value: function removeFromGroup(group, el, doNotFireEvent) {
+      this.groupManager.removeFromGroup(group, doNotFireEvent, el);
+      this._appendElement(el, this.getContainer());
+      this.updateOffset({
+        recalc: true,
+        elId: this.getId(el)
       });
     }
   }, {
