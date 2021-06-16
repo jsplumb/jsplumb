@@ -843,7 +843,11 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
         let _one = (_el:T["E"]) => {
 
-            let id = this.getId(_el)
+            const id = this.getId(_el)
+            const entry = this._managedElements[id]
+            if(entry.group) {
+                this.removeFromGroup(entry.group, el, true)
+            }
 
             this.removeAttribute(_el, ATTRIBUTE_MANAGED)
             delete this._managedElements[id]
@@ -1843,12 +1847,12 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     removeAllGroups(deleteMembers?:boolean, manipulateView?:boolean) {
         this.groupManager.removeAllGroups(deleteMembers, manipulateView, false)
     }
-    removeFromGroup (group:string | UIGroup<T["E"]>, ...el:Array<T["E"]>):void {
-        this.groupManager.removeFromGroup(group, false, ...el)
-        forEach(el,(_el) => {
-            this._appendElement(_el, this.getContainer())
-            this.updateOffset({recalc:true, elId:this.getId(_el)})
-        })
+    removeFromGroup (group:string | UIGroup<T["E"]>, el:T["E"], doNotFireEvent?:boolean):void {
+        this.groupManager.removeFromGroup(group, doNotFireEvent, el)
+    //    forEach(el,(_el) => {
+            this._appendElement(el, this.getContainer())
+            this.updateOffset({recalc:true, elId:this.getId(el)})
+      //  })
     }
 
 
