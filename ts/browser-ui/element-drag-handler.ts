@@ -62,6 +62,7 @@ export interface DragPayload {
  */
 export interface DragStopPayload extends DragPayload {
     r:RedrawResult
+    dropGroup?:UIGroup<Element>
 }
 
 /**
@@ -135,7 +136,8 @@ export class ElementDragHandler implements DragHandler {
                 e:params.e,
                 pos:pos,
                 r:redrawResult,
-                originalPosition:this.originalPosition
+                originalPosition:this.originalPosition,
+                dropGroup:dropGroup != null && dropGroup.intersectingElement === _el ? dropGroup.group : null
             })
 
             this.instance.removeClass(_el, CLASS_DRAGGED)
@@ -144,6 +146,7 @@ export class ElementDragHandler implements DragHandler {
 
         }
 
+        let dropGroup:IntersectingGroup = null
         if (this._intersectingGroups.length > 0) {
             // we only support one for the time being
             let targetGroup = this._intersectingGroups[0].group
@@ -153,7 +156,7 @@ export class ElementDragHandler implements DragHandler {
 
             if (currentGroup !== targetGroup) {
                 if (currentGroup == null || !currentGroup.overrideDrop(intersectingElement, targetGroup)) {
-                    this.instance.groupManager.addToGroup(targetGroup, false, intersectingElement)
+                    dropGroup = this._intersectingGroups[0]
                 }
             }
         }
@@ -173,22 +176,9 @@ export class ElementDragHandler implements DragHandler {
 
         // do the contents of the drag selection
 
-        // if (this._intersectingGroups.length > 0) {
-        //     // we only support one for the time being
-        //     let targetGroup = this._intersectingGroups[0].group
-        //     let intersectingElement = this._intersectingGroups[0].intersectingElement as jsPlumbDOMElement
-        //
-        //     let currentGroup = intersectingElement._jsPlumbParentGroup
-        //
-        //     if (currentGroup !== targetGroup) {
-        //         if (currentGroup != null) {
-        //             if (currentGroup.overrideDrop(intersectingElement, targetGroup)) {
-        //                 return
-        //             }
-        //         }
-        //         this.instance.groupManager.addToGroup(targetGroup, false, intersectingElement)
-        //     }
-        // }
+        if (dropGroup != null) {
+            this.instance.groupManager.addToGroup(dropGroup.group, false, dropGroup.intersectingElement)
+        }
 
         this._cleanup()
     }
