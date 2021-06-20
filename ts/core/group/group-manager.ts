@@ -506,14 +506,14 @@ export class GroupManager<E> {
                 _expandSet(actualGroup.connections.source, 0)
                 _expandSet(actualGroup.connections.target, 1)
 
-                const _expandNestedGroup = (group:UIGroup<E>) => {
+                const _expandNestedGroup = (group:UIGroup<E>, ignoreCollapsedStateForNested?:boolean) => {
                   // if the group is collapsed:
                     // - all of its internal connections should remain hidden.
                     // - all external connections should be proxied to this group we are expanding (`actualGroup`)
                   // otherwise:
                     // just expend it as usual
 
-                    if (group.collapsed) {
+                    if (ignoreCollapsedStateForNested || group.collapsed) {
 
                         const _collapseSet =  (conns:Array<Connection>, index:number) => {
                             for (let i = 0; i < conns.length; i++) {
@@ -529,8 +529,8 @@ export class GroupManager<E> {
                         // hide internal connections - the group is collapsed
                         forEach(group.connections.internal,(c:Connection) => c.setVisible(false))
 
-                        // expand child groups
-                        forEach(group.getGroups(), _expandNestedGroup)
+                        // collapse child groups
+                        forEach(group.getGroups(), (g) => _expandNestedGroup(g, true))
 
                     } else {
                         this.expandGroup(group, doNotFireEvent)
@@ -738,6 +738,11 @@ export class GroupManager<E> {
         return ancestors
     }
 
+    /**
+     * Tests if `possibleAncestor` is in fact an ancestor of `group`
+     * @param group
+     * @param possibleAncestor
+     */
     isAncestor(group:UIGroup<E>, possibleAncestor:UIGroup<E>):boolean {
         if (group == null || possibleAncestor == null) {
             return false
