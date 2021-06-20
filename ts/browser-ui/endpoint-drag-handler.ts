@@ -615,21 +615,35 @@ export class EndpointDragHandler implements DragHandler {
 
         this.endpointDropTargets.sort((a:EndpointDropTarget, b:EndpointDropTarget) =>{
 
+            // if target A is a group and target B is not, target B takes precedence
             if (a.targetEl._isJsPlumbGroup && !b.targetEl._isJsPlumbGroup) {
                 return 1
+            // if target B is a group and target A is not, target A takes precedence
             } else if (!a.targetEl._isJsPlumbGroup && b.targetEl._isJsPlumbGroup) {
                 return -1
             } else {
-                if (a.rank != null && b.rank != null) {
-                    if(a.rank > b.rank) {
+                // if they are both groups, is one nested inside the other?
+                if(a.targetEl._isJsPlumbGroup && b.targetEl._isJsPlumbGroup) {
+                    if (this.instance.groupManager.isAncestor(a.targetEl._jsPlumbGroup, b.targetEl._jsPlumbGroup)) {
+                        // b is an ancestor of a. return -1
                         return -1
-                    } else if (a.rank < b.rank) {
+                    } else if (this.instance.groupManager.isAncestor(b.targetEl._jsPlumbGroup, a.targetEl._jsPlumbGroup)) {
+                        // a is an ancestor of b
                         return 1
-                    } else {
-
                     }
+                    // if noone's an ancestor, fall through to the ranking code.
                 } else {
-                    return 0
+                    if (a.rank != null && b.rank != null) {
+                        if (a.rank > b.rank) {
+                            return -1
+                        } else if (a.rank < b.rank) {
+                            return 1
+                        } else {
+
+                        }
+                    } else {
+                        return 0
+                    }
                 }
             }
         })
