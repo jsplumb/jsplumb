@@ -3516,9 +3516,8 @@ function () {
       }
       if (actualGroup.group) {
         actualGroup.group.removeGroup(actualGroup);
-      } else {
-        this.instance.unmanage(actualGroup.el, true);
       }
+      this.instance.unmanage(actualGroup.el, true);
       delete this.groupMap[actualGroup.id];
       this.instance.fire(EVENT_GROUP_REMOVED, {
         group: actualGroup
