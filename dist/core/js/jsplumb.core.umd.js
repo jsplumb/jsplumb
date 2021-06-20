@@ -3752,8 +3752,8 @@
             };
             _expandSet(actualGroup.connections.source, 0);
             _expandSet(actualGroup.connections.target, 1);
-            var _expandNestedGroup = function _expandNestedGroup(group) {
-              if (group.collapsed) {
+            var _expandNestedGroup = function _expandNestedGroup(group, ignoreCollapsedStateForNested) {
+              if (ignoreCollapsedStateForNested || group.collapsed) {
                 var _collapseSet = function _collapseSet(conns, index) {
                   for (var i = 0; i < conns.length; i++) {
                     var c = conns[i];
@@ -3765,7 +3765,9 @@
                 util.forEach(group.connections.internal, function (c) {
                   return c.setVisible(false);
                 });
-                util.forEach(group.getGroups(), _expandNestedGroup);
+                util.forEach(group.getGroups(), function (g) {
+                  return _expandNestedGroup(g, true);
+                });
               } else {
                 _this6.expandGroup(group, doNotFireEvent);
               }
@@ -4996,7 +4998,9 @@
             listToRemoveFrom.splice(rIdx, 1);
             for (var i = 0; i < listToRemoveFrom.length; i++) {
               candidate = listToRemoveFrom[i].c;
-              connsToPaint.add(candidate);
+              if (candidate.placeholder !== true) {
+                connsToPaint.add(candidate);
+              }
               endpointsToPaint.add(listToRemoveFrom[i].c.endpoints[idx]);
               endpointsToPaint.add(listToRemoveFrom[i].c.endpoints[oIdx]);
             }
@@ -5004,7 +5008,9 @@
         }
         for (var _i = 0; _i < listToAddTo.length; _i++) {
           candidate = listToAddTo[_i].c;
-          connsToPaint.add(candidate);
+          if (candidate.placeholder !== true) {
+            connsToPaint.add(candidate);
+          }
           endpointsToPaint.add(listToAddTo[_i].c.endpoints[idx]);
           endpointsToPaint.add(listToAddTo[_i].c.endpoints[oIdx]);
         }
@@ -5152,7 +5158,8 @@
                   });
                 }
                 this._updateAnchorList(this.anchorLists.get(elementId), -Math.PI / 2, 0, {
-                  endpoints: [anEndpoint, anEndpoint]
+                  endpoints: [anEndpoint, anEndpoint],
+                  placeholder: true
                 }, false, elementId, 0, false, getDefaultFace(a), connectionsToPaint, endpointsToPaint);
                 anchorsToUpdate.add(elementId);
               }
@@ -6029,10 +6036,6 @@
         this.removeAllEndpoints(el, true, affectedElements);
         var _one = function _one(_el) {
           var id = _this3.getId(_el);
-          var entry = _this3._managedElements[id];
-          if (entry.group) {
-            _this3.removeFromGroup(entry.group, el, true);
-          }
           _this3.removeAttribute(_el, ATTRIBUTE_MANAGED);
           delete _this3._managedElements[id];
           _this3.viewport.remove(id);

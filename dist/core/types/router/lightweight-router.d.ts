@@ -8,6 +8,7 @@ import { PointXY } from "@jsplumb/util";
 import { AnchorPlacement, AnchorSpec } from "../common/anchor";
 interface ConnectionFacade {
     endpoints: [Endpoint, Endpoint];
+    placeholder?: boolean;
 }
 declare type AnchorListEntry = {
     theta: number;

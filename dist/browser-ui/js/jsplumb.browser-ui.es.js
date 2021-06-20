@@ -2037,7 +2037,8 @@ function () {
           e: params.e,
           pos: pos,
           r: redrawResult,
-          originalPosition: _this.originalPosition
+          originalPosition: _this.originalPosition,
+          dropGroup: dropGroup != null && dropGroup.intersectingElement === _el ? dropGroup.group : null
         });
         _this.instance.removeClass(_el, CLASS_DRAGGED);
         _this.instance.select({
@@ -2047,13 +2048,14 @@ function () {
           target: _el
         }).removeClass(_this.instance.elementDraggingClass + " " + _this.instance.targetElementDraggingClass, true);
       };
+      var dropGroup = null;
       if (this._intersectingGroups.length > 0) {
         var targetGroup = this._intersectingGroups[0].group;
         var intersectingElement = this._intersectingGroups[0].intersectingElement;
         var currentGroup = intersectingElement._jsPlumbParentGroup;
         if (currentGroup !== targetGroup) {
           if (currentGroup == null || !currentGroup.overrideDrop(intersectingElement, targetGroup)) {
-            this.instance.groupManager.addToGroup(targetGroup, false, intersectingElement);
+            dropGroup = this._intersectingGroups[0];
           }
         }
       }
@@ -2068,6 +2070,9 @@ function () {
           _one(v[1], pp);
         }
       });
+      if (dropGroup != null) {
+        this.instance.groupManager.addToGroup(dropGroup.group, false, dropGroup.intersectingElement);
+      }
       this._cleanup();
     }
   }, {
@@ -2831,14 +2836,22 @@ function () {
         } else if (!a.targetEl._isJsPlumbGroup && b.targetEl._isJsPlumbGroup) {
           return -1;
         } else {
-          if (a.rank != null && b.rank != null) {
-            if (a.rank > b.rank) {
+          if (a.targetEl._isJsPlumbGroup && b.targetEl._isJsPlumbGroup) {
+            if (_this.instance.groupManager.isAncestor(a.targetEl._jsPlumbGroup, b.targetEl._jsPlumbGroup)) {
               return -1;
-            } else if (a.rank < b.rank) {
+            } else if (_this.instance.groupManager.isAncestor(b.targetEl._jsPlumbGroup, a.targetEl._jsPlumbGroup)) {
               return 1;
-            } else ;
+            }
           } else {
-            return 0;
+            if (a.rank != null && b.rank != null) {
+              if (a.rank > b.rank) {
+                return -1;
+              } else if (a.rank < b.rank) {
+                return 1;
+              } else ;
+            } else {
+              return 0;
+            }
           }
         }
       });

@@ -50,6 +50,11 @@ export declare class GroupManager<E> {
     addToGroup(group: string | UIGroup<E>, doNotFireEvent: boolean, ...el: Array<E>): void;
     removeFromGroup(group: string | UIGroup<E>, doNotFireEvent: boolean, ...el: Array<E>): void;
     getAncestors(group: UIGroup<E>): Array<UIGroup<E>>;
+    /**
+     * Tests if `possibleAncestor` is in fact an ancestor of `group`
+     * @param group
+     * @param possibleAncestor
+     */
     isAncestor(group: UIGroup<E>, possibleAncestor: UIGroup<E>): boolean;
     getDescendants(group: UIGroup<E>): Array<UIGroup<E>>;
     isDescendant(possibleDescendant: UIGroup<E>, ancestor: UIGroup<E>): boolean;
