@@ -234,9 +234,9 @@ export class GroupManager<E> {
 
         if (actualGroup.group) {
             actualGroup.group.removeGroup(actualGroup)
-        } else {
-            this.instance.unmanage(actualGroup.el, true)
         }
+
+        this.instance.unmanage(actualGroup.el, true)
 
         delete this.groupMap[actualGroup.id]
         this.instance.fire(Constants.EVENT_GROUP_REMOVED, { group:actualGroup })
