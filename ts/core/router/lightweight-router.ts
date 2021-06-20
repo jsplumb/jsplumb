@@ -41,6 +41,7 @@ import {AnchorPlacement, AnchorSpec} from "../common/anchor"
 
 interface ConnectionFacade {
     endpoints: [ Endpoint, Endpoint ]
+    placeholder?:boolean
 }
 
 interface OrientationResult {
@@ -343,7 +344,9 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
                 for (let i = 0; i < listToRemoveFrom.length; i++) {
                     candidate = listToRemoveFrom[i].c
 
-                    connsToPaint.add(candidate)
+                    if (candidate.placeholder !== true) {
+                        connsToPaint.add(candidate)
+                    }
                     endpointsToPaint.add(listToRemoveFrom[i].c.endpoints[idx])
                     endpointsToPaint.add(listToRemoveFrom[i].c.endpoints[oIdx])
                 }
@@ -353,7 +356,9 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
         for (let i = 0; i < listToAddTo.length; i++) {
             candidate = listToAddTo[i].c
 
-            connsToPaint.add(candidate)
+            if (candidate.placeholder !== true) {
+                connsToPaint.add(candidate)
+            }
 
             endpointsToPaint.add(listToAddTo[i].c.endpoints[idx])
             endpointsToPaint.add(listToAddTo[i].c.endpoints[oIdx])
@@ -438,8 +443,6 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
         connection.connector.compute({
             sourcePos: sAnchorP,
             targetPos: tAnchorP,
-            // sourceOrientation:[sAnchorP.ox, sAnchorP.oy],
-            // targetOrientation:[tAnchorP.ox, tAnchorP.oy],
             sourceEndpoint: connection.endpoints[0],
             targetEndpoint: connection.endpoints[1],
             strokeWidth: connection.paintStyleInUse.strokeWidth,
@@ -447,14 +450,6 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
             targetInfo: targetInfo
         })
     }
-
-    // getAnchor(ep: Endpoint<any>): LightweightAnchor {
-    //     return anchorMap.get(ep.id)
-    // }
-
-    // getAnchorOrientation(anchor: LightweightAnchor, endpoint?: Endpoint<any>): [number, number] {
-    //     return getAnchorOrientation(anchor)
-    // }
 
     getEndpointLocation(endpoint: Endpoint<any>, params: AnchorComputeParams): AnchorPlacement {
         params = params || {}
@@ -519,7 +514,7 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
                             this.anchorLists.get(elementId),
                             -Math.PI / 2,
                             0,
-                            {endpoints: [anEndpoint, anEndpoint]},
+                            {endpoints: [anEndpoint, anEndpoint], placeholder:true},
                             false,
                             elementId,
                             0,
