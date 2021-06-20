@@ -1004,6 +1004,55 @@ var testSuite = function () {
         equal(conns.get(0).source, d1, "source is the node element");
     });
 
+    test("connect element to group, drag element inside the group, collapse then expand. Should not fail.", function() {
+        var d1 = support.addDiv("d1", null, null, 0,0, 40, 40),
+            d2 = support.addDiv("d2", null, null, 10,10, 40, 40),
+            d3 = support.addDiv("d3", null, null, 10,10, 40, 40),
+            g = support.addDiv("group", null, null, 600,600, 400, 400);
+
+        _jsPlumb.manageAll([d1, d2, d3])
+
+        var group = _jsPlumb.addGroup({ el:g,
+            revert:false,
+            orphan:true,
+            constrain:false
+        });
+
+        // _dragToGroup(_jsPlumb, d3, group)
+        // _dragToGroup(_jsPlumb, d1, group)
+        _jsPlumb.addToGroup(group, d1, d3)
+
+        _jsPlumb.connect({source:d1, target:g, anchor:"Continuous", endpoint:"Blank"})
+        _jsPlumb.connect({source:d1, target:d3, anchor:"Continuous", endpoint:"Blank"})
+        _jsPlumb.connect({source:d1, target:d2, anchor:"Continuous", endpoint:"Blank"})
+
+        /*_jsPlumb.connect({source:d1, target:g, anchor:"Continuous"})
+        var conns = _jsPlumb.select();
+
+
+
+        equal(1, conns.length, "there is one connection");
+
+        equal(conns.get(0).target, g, "target is the group element");
+        equal(conns.get(0).source, d1, "source is the node element");
+
+
+
+        _jsPlumb.connect({source:d1, target:d2, anchor:"Continuous"})
+        _jsPlumb.connect({source:d3, target:d1, anchor:"Continuous"})
+
+        */equal(3, _jsPlumb.select().length, "there are 3 connections");
+
+        _jsPlumb.collapseGroup(group)
+
+        try {
+            _jsPlumb.expandGroup(group)
+            ok(true, "group was expanded after collapsed without throwing an error")
+        } catch (e) {
+            ok(false, "group threw an error when it was expanded")
+        }
+    });
+
     test("drag a connection from an element to an element inside a group, element added to group before any elements made source/target", function() {
         var d1 = support.addDiv("d1", null, null, 0,0, 40, 40),
             d2 = support.addDiv("d2", null, null, 0,0, 40, 40),
@@ -1126,7 +1175,7 @@ var testSuite = function () {
     //
     // });
 
-    test("drop on node inside group, group configured first", function() {
+    test("drag connection to node inside group, group configured first", function() {
         var d1 = support.addDiv("d1", null, null, 0, 0, 500, 500);
         var d2 = support.addDiv("d2", d1, null, 200, 200, 50, 50);
         var d3 = support.addDiv("d3", null, null, 700, 700, 50, 50);
@@ -1952,6 +2001,11 @@ var testSuite = function () {
 
         equal(true, nestedAdded, "nested group added event");
 
+        // drag a node onto the nested group
+        var d1 = _addNode(50, 50, 50, 50)
+        _dragToGroup(_jsPlumb, d1, g1)
+        equal(g1.children.length, 1, "1 member in the nested group")
+
         support.dragtoDistantLand(g1.el);
         equal(true, nestedRemoved, "nested group removed event");
     });
@@ -1961,7 +2015,6 @@ var testSuite = function () {
             groupB = _addGroupAndContainer(400,400);
 
         groupB.addGroup(groupA);
-
 
         equal(_jsPlumb.groupManager.getGroups().length, 2, "2 groups in the instance");
         equal(groupB.getGroups().length, 1, "groupB reports one child group");
@@ -2161,5 +2214,51 @@ var testSuite = function () {
 
 
     });
+
+    test("nested groups, nested to 5 levels, collapse 2nd level nested, then collapse and expand root. check proxies are on the right elements.", function() {
+        var group1 = _addGroupAndContainer(600,400),
+            group2 = _addGroupAndContainer(300,350),
+            group3 = _addGroupAndContainer(150,150),
+            group4 = _addGroupAndContainer(150,150),
+            group5 = _addGroupAndContainer(150,150)
+
+        group1.addGroup(group2)
+        group2.addGroup(group3)
+        group3.addGroup(group4)
+        group4.addGroup(group5)
+
+        var group0 = _addGroupAndContainer(200,200)
+
+        var e1 = _jsPlumb.connect({source:group1.el, target:group0.el})
+        var e2 = _jsPlumb.connect({source:group2.el, target:group0.el})
+        var e3 = _jsPlumb.connect({source:group3.el, target:group0.el})
+        var e4 = _jsPlumb.connect({source:group4.el, target:group0.el})
+        var e5 = _jsPlumb.connect({source:group5.el, target:group0.el})
+
+        // collapse the first nested group. it should have four proxied edges on it now, for its own edge and those of its children
+        _jsPlumb.collapseGroup(group2)
+
+        equal(e2.proxies.length, 0, "edge 2 is not proxied")
+        equal(e3.proxies[0].ep.element._jsPlumbGroup.id, group2.id, "edge 3 is proxied to group2")
+        equal(e4.proxies[0].ep.element._jsPlumbGroup.id, group2.id, "edge 4 is proxied to group2")
+        equal(e5.proxies[0].ep.element._jsPlumbGroup.id, group2.id, "edge 5 is proxied to group2")
+
+        // now collapse the top group - all edges should now be proxied
+        _jsPlumb.collapseGroup(group1)
+
+        equal(e2.proxies[0].ep.element._jsPlumbGroup.id, group1.id, "edge 2 is proxied to group1")
+        equal(e3.proxies[0].ep.element._jsPlumbGroup.id, group1.id, "edge 3 is proxied to group1")
+        equal(e4.proxies[0].ep.element._jsPlumbGroup.id, group1.id, "edge 4 is proxied to group1")
+        equal(e5.proxies[0].ep.element._jsPlumbGroup.id, group1.id, "edge 5 is proxied to group1")
+
+        // expand the top
+        _jsPlumb.expandGroup(group1)
+
+        equal(e2.proxies.length, 0, "edge 2 is not proxied")
+        equal(e3.proxies[0].ep.element._jsPlumbGroup.id, group2.id, "edge 3 is proxied to group2")
+        equal(e4.proxies[0].ep.element._jsPlumbGroup.id, group2.id, "edge 4 is proxied to group2")
+        equal(e5.proxies[0].ep.element._jsPlumbGroup.id, group2.id, "edge 5 is proxied to group2")
+
+    })
 
 };
