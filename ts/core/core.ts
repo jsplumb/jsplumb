@@ -844,10 +844,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         let _one = (_el:T["E"]) => {
 
             const id = this.getId(_el)
-            const entry = this._managedElements[id]
-            if(entry.group) {
-                this.removeFromGroup(entry.group, el, true)
-            }
 
             this.removeAttribute(_el, ATTRIBUTE_MANAGED)
             delete this._managedElements[id]
