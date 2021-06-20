@@ -2261,4 +2261,39 @@ var testSuite = function () {
 
     })
 
+    test("nested groups, removed nested group and its edges should be removed", function() {
+        var group1 = _addGroupAndContainer(600,400),
+            group2 = _addGroupAndContainer(300,350)
+
+        group1.addGroup(group2)
+
+        var group0 = _addGroupAndContainer(200,200)
+
+        var e2 = _jsPlumb.connect({source:group2.el, target:group0.el})
+
+        equal(_jsPlumb.select().length, 1, "1 edge in instance")
+        _jsPlumb.removeGroup(group2)
+        equal(_jsPlumb.select().length, 0, "0 edges in instance")
+
+    })
+
+    test("nested groups, removed nested group and its edges and those of its children should be removed when delete members flag set", function() {
+        var group1 = _addGroupAndContainer(600,400),
+            group2 = _addGroupAndContainer(300,350),
+            group3 = _addGroupAndContainer(150,150)
+
+        group1.addGroup(group2)
+        group2.addGroup(group3)
+
+        var group0 = _addGroupAndContainer(200,200)
+
+        var e2 = _jsPlumb.connect({source:group2.el, target:group0.el})
+        var e3 = _jsPlumb.connect({source:group3.el, target:group0.el})
+
+        equal(_jsPlumb.select().length, 2, "2 edges in instance")
+        _jsPlumb.removeGroup(group2, true)
+        equal(_jsPlumb.select().length, 0, "0 edges in instance")
+
+    })
+
 };
