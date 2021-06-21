@@ -634,6 +634,37 @@ var testSuite = function () {
         _jsPlumb.deleteConnection(c);
     });
 
+    test("connection registration, node in group to node in group", function() {
+
+        _setupGroups(true);
+
+        // 1. create a connection from one child node to another child node, check it was registered
+        var c = _jsPlumb.connect({source: c3_1, target: c4_1});
+        equal(_jsPlumb.getGroup("three").connections.internal.length, 0, "zero internal connection in group 3");
+        equal(_jsPlumb.getGroup("four").connections.target.length, 1, "one target connections in group 4");
+        equal(_jsPlumb.getGroup("three").connections.source.length, 1, "one source connections in group 3");
+
+
+    });
+
+    test("connection registration, group in group to node in group", function() {
+
+        _setupGroups(true);
+
+        g4.addGroup(g5)
+
+        // 1. create a connection from one child node to another child node, check it was registered
+        var c = _jsPlumb.connect({source: c3_1, target: c5});
+        equal(g3.connections.internal.length, 0, "zero internal connection in group 3");
+        equal(g4.connections.target.length, 1, "one target connections in group 4");
+        equal(g3.connections.source.length, 1, "one source connections in group 3");
+
+        var c2 = _jsPlumb.connect({source: c3_1, target: c5_1});
+        equal(g5.connections.target.length, 1, "one target connections in group 5");
+        equal(g3.connections.source.length, 2, "two source connections in group 3");
+
+    });
+
     test("single group collapse and expand", function() {
 
         _setupGroups();
