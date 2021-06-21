@@ -1175,6 +1175,7 @@ var CLASS_GROUP_EXPANDED = "jtk-group-expanded";
 var CLASS_OVERLAY = "jtk-overlay";
 var EVENT_ANCHOR_CHANGED = "anchor:changed";
 var EVENT_CONNECTION = "connection";
+var EVENT_INTERNAL_CONNECTION = "internal.connection";
 var EVENT_CONNECTION_DETACHED = "connection:detach";
 var EVENT_CONNECTION_MOVED = "connection:move";
 var EVENT_CONTAINER_CHANGE = "container:change";
@@ -3343,7 +3344,7 @@ function () {
     _defineProperty(this, "groupMap", {});
     _defineProperty(this, "_connectionSourceMap", {});
     _defineProperty(this, "_connectionTargetMap", {});
-    instance.bind(EVENT_CONNECTION, function (p) {
+    instance.bind(EVENT_INTERNAL_CONNECTION, function (p) {
       var sourceGroup = _this.getGroupFor(p.source);
       var targetGroup = _this.getGroupFor(p.target);
       if (sourceGroup != null && targetGroup != null && sourceGroup === targetGroup) {
@@ -6463,17 +6464,18 @@ function (_EventGenerator) {
       jpc.pending = null;
       jpc.endpoints[0].isTemporarySource = false;
       this.repaint(jpc.source);
+      var payload = {
+        connection: jpc,
+        source: jpc.source,
+        target: jpc.target,
+        sourceId: jpc.sourceId,
+        targetId: jpc.targetId,
+        sourceEndpoint: jpc.endpoints[0],
+        targetEndpoint: jpc.endpoints[1]
+      };
+      this.fire(EVENT_INTERNAL_CONNECTION, payload, originalEvent);
       if (!params.doNotFireConnectionEvent && params.fireEvent !== false) {
-        var eventArgs = {
-          connection: jpc,
-          source: jpc.source,
-          target: jpc.target,
-          sourceId: jpc.sourceId,
-          targetId: jpc.targetId,
-          sourceEndpoint: jpc.endpoints[0],
-          targetEndpoint: jpc.endpoints[1]
-        };
-        this.fire(EVENT_CONNECTION, eventArgs, originalEvent);
+        this.fire(EVENT_CONNECTION, payload, originalEvent);
       }
     }
   }, {
@@ -7398,6 +7400,7 @@ exports.EVENT_GROUP_EXPAND = EVENT_GROUP_EXPAND;
 exports.EVENT_GROUP_MEMBER_ADDED = EVENT_GROUP_MEMBER_ADDED;
 exports.EVENT_GROUP_MEMBER_REMOVED = EVENT_GROUP_MEMBER_REMOVED;
 exports.EVENT_GROUP_REMOVED = EVENT_GROUP_REMOVED;
+exports.EVENT_INTERNAL_CONNECTION = EVENT_INTERNAL_CONNECTION;
 exports.EVENT_INTERNAL_CONNECTION_DETACHED = EVENT_INTERNAL_CONNECTION_DETACHED;
 exports.EVENT_INTERNAL_ENDPOINT_UNREGISTERED = EVENT_INTERNAL_ENDPOINT_UNREGISTERED;
 exports.EVENT_MANAGE_ELEMENT = EVENT_MANAGE_ELEMENT;

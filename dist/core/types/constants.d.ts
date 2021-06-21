@@ -37,6 +37,7 @@ export declare const CLASS_GROUP_EXPANDED = "jtk-group-expanded";
 export declare const CLASS_OVERLAY = "jtk-overlay";
 export declare const EVENT_ANCHOR_CHANGED = "anchor:changed";
 export declare const EVENT_CONNECTION = "connection";
+export declare const EVENT_INTERNAL_CONNECTION = "internal.connection";
 export declare const EVENT_CONNECTION_DETACHED = "connection:detach";
 export declare const EVENT_CONNECTION_MOVED = "connection:move";
 export declare const EVENT_CONTAINER_CHANGE = "container:change";

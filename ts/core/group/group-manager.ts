@@ -47,7 +47,7 @@ export class GroupManager<E> {
 
     constructor(public instance:JsPlumbInstance) {
 
-        instance.bind(Constants.EVENT_CONNECTION, (p:ConnectionEstablishedParams<E>) => {
+        instance.bind(Constants.EVENT_INTERNAL_CONNECTION, (p:ConnectionEstablishedParams<E>) => {
 
             const sourceGroup = this.getGroupFor(p.source)
             const targetGroup = this.getGroupFor(p.target)

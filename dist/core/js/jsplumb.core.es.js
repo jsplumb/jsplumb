@@ -1171,6 +1171,7 @@ var CLASS_GROUP_EXPANDED = "jtk-group-expanded";
 var CLASS_OVERLAY = "jtk-overlay";
 var EVENT_ANCHOR_CHANGED = "anchor:changed";
 var EVENT_CONNECTION = "connection";
+var EVENT_INTERNAL_CONNECTION = "internal.connection";
 var EVENT_CONNECTION_DETACHED = "connection:detach";
 var EVENT_CONNECTION_MOVED = "connection:move";
 var EVENT_CONTAINER_CHANGE = "container:change";
@@ -3340,7 +3341,7 @@ function () {
     _defineProperty(this, "groupMap", {});
     _defineProperty(this, "_connectionSourceMap", {});
     _defineProperty(this, "_connectionTargetMap", {});
-    instance.bind(EVENT_CONNECTION, function (p) {
+    instance.bind(EVENT_INTERNAL_CONNECTION, function (p) {
       var sourceGroup = _this.getGroupFor(p.source);
       var targetGroup = _this.getGroupFor(p.target);
       if (sourceGroup != null && targetGroup != null && sourceGroup === targetGroup) {
@@ -6460,17 +6461,18 @@ function (_EventGenerator) {
       jpc.pending = null;
       jpc.endpoints[0].isTemporarySource = false;
       this.repaint(jpc.source);
+      var payload = {
+        connection: jpc,
+        source: jpc.source,
+        target: jpc.target,
+        sourceId: jpc.sourceId,
+        targetId: jpc.targetId,
+        sourceEndpoint: jpc.endpoints[0],
+        targetEndpoint: jpc.endpoints[1]
+      };
+      this.fire(EVENT_INTERNAL_CONNECTION, payload, originalEvent);
       if (!params.doNotFireConnectionEvent && params.fireEvent !== false) {
-        var eventArgs = {
-          connection: jpc,
-          source: jpc.source,
-          target: jpc.target,
-          sourceId: jpc.sourceId,
-          targetId: jpc.targetId,
-          sourceEndpoint: jpc.endpoints[0],
-          targetEndpoint: jpc.endpoints[1]
-        };
-        this.fire(EVENT_CONNECTION, eventArgs, originalEvent);
+        this.fire(EVENT_CONNECTION, payload, originalEvent);
       }
     }
   }, {
@@ -7339,4 +7341,4 @@ EndpointFactory.registerHandler(RectangleEndpointHandler);
 EndpointFactory.registerHandler(BlankEndpointHandler);
 Connectors.register(StraightConnector.type, StraightConnector);
 
-export { ABSOLUTE, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SCOPE, ATTRIBUTE_SCOPE_PREFIX, ATTRIBUTE_TABINDEX, AbstractConnector, AbstractSegment, AnchorLocations, ArcSegment, ArrowOverlay, BLOCK, BOTTOM, BlankEndpoint, BlankEndpointHandler, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTED, CLASS_CONNECTOR, CLASS_CONNECTOR_OUTLINE, CLASS_ENDPOINT, CLASS_ENDPOINT_ANCHOR_PREFIX, CLASS_ENDPOINT_CONNECTED, CLASS_ENDPOINT_DROP_ALLOWED, CLASS_ENDPOINT_DROP_FORBIDDEN, CLASS_ENDPOINT_FULL, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, CustomOverlay, DEFAULT, DiamondOverlay, DotEndpoint, DotEndpointHandler, EMPTY_BOUNDS, ERROR_SOURCE_DOES_NOT_EXIST, ERROR_SOURCE_ENDPOINT_FULL, ERROR_TARGET_DOES_NOT_EXIST, ERROR_TARGET_ENDPOINT_FULL, EVENT_ANCHOR_CHANGED, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_ENDPOINT_REPLACED, EVENT_GROUP_ADDED, EVENT_GROUP_COLLAPSE, EVENT_GROUP_EXPAND, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_UNMANAGE_ELEMENT, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, FALSE, FIXED, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_DROP, INTERCEPT_BEFORE_START_DETACH, IS_DETACH_ALLOWED, JsPlumbInstance, KEY_CONNECTION_OVERLAYS, LEFT, LabelOverlay, LightweightFloatingAnchor, LightweightRouter, NONE, Overlay, OverlayFactory, PlainArrowOverlay, REDROP_POLICY_ANY, REDROP_POLICY_STRICT, RIGHT, RectangleEndpoint, RectangleEndpointHandler, SELECTOR_MANAGED_ELEMENT, SOURCE, SOURCE_INDEX, STATIC, SourceSelector, StraightConnector, StraightSegment, TARGET, TARGET_INDEX, TOP, TRUE, TargetSelector, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _removeTypeCssHelper, _updateHoverStyle, att, classList, cls, convertToFullOverlaySpec, createFloatingAnchor, getDefaultFace, isArrowOverlay, isContinuous, isCustomOverlay, isDiamondOverlay, isDynamic, isEdgeSupported, _isFloating as isFloating, isFullOverlaySpec, isLabelOverlay, isPlainArrowOverlay, makeLightweightAnchorFromSpec };
+export { ABSOLUTE, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SCOPE, ATTRIBUTE_SCOPE_PREFIX, ATTRIBUTE_TABINDEX, AbstractConnector, AbstractSegment, AnchorLocations, ArcSegment, ArrowOverlay, BLOCK, BOTTOM, BlankEndpoint, BlankEndpointHandler, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTED, CLASS_CONNECTOR, CLASS_CONNECTOR_OUTLINE, CLASS_ENDPOINT, CLASS_ENDPOINT_ANCHOR_PREFIX, CLASS_ENDPOINT_CONNECTED, CLASS_ENDPOINT_DROP_ALLOWED, CLASS_ENDPOINT_DROP_FORBIDDEN, CLASS_ENDPOINT_FULL, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, CustomOverlay, DEFAULT, DiamondOverlay, DotEndpoint, DotEndpointHandler, EMPTY_BOUNDS, ERROR_SOURCE_DOES_NOT_EXIST, ERROR_SOURCE_ENDPOINT_FULL, ERROR_TARGET_DOES_NOT_EXIST, ERROR_TARGET_ENDPOINT_FULL, EVENT_ANCHOR_CHANGED, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_ENDPOINT_REPLACED, EVENT_GROUP_ADDED, EVENT_GROUP_COLLAPSE, EVENT_GROUP_EXPAND, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_UNMANAGE_ELEMENT, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, FALSE, FIXED, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_DROP, INTERCEPT_BEFORE_START_DETACH, IS_DETACH_ALLOWED, JsPlumbInstance, KEY_CONNECTION_OVERLAYS, LEFT, LabelOverlay, LightweightFloatingAnchor, LightweightRouter, NONE, Overlay, OverlayFactory, PlainArrowOverlay, REDROP_POLICY_ANY, REDROP_POLICY_STRICT, RIGHT, RectangleEndpoint, RectangleEndpointHandler, SELECTOR_MANAGED_ELEMENT, SOURCE, SOURCE_INDEX, STATIC, SourceSelector, StraightConnector, StraightSegment, TARGET, TARGET_INDEX, TOP, TRUE, TargetSelector, UIGroup, UINode, UNDEFINED, Viewport, WILDCARD, X_AXIS_FACES, Y_AXIS_FACES, _removeTypeCssHelper, _updateHoverStyle, att, classList, cls, convertToFullOverlaySpec, createFloatingAnchor, getDefaultFace, isArrowOverlay, isContinuous, isCustomOverlay, isDiamondOverlay, isDynamic, isEdgeSupported, _isFloating as isFloating, isFullOverlaySpec, isLabelOverlay, isPlainArrowOverlay, makeLightweightAnchorFromSpec };
