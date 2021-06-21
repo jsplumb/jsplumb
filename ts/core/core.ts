@@ -1434,17 +1434,19 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         // force a paint
         this.repaint(jpc.source)
 
-        // fire an event
+        const payload:ConnectionEstablishedParams = {
+            connection: jpc,
+            source: jpc.source, target: jpc.target,
+            sourceId: jpc.sourceId, targetId: jpc.targetId,
+            sourceEndpoint: jpc.endpoints[0], targetEndpoint: jpc.endpoints[1]
+        }
+
+        // always fire internal event
+        this.fire(Constants.EVENT_INTERNAL_CONNECTION, payload, originalEvent)
+
+        // maybe fire public event
         if (!params.doNotFireConnectionEvent && params.fireEvent !== false) {
-
-            let eventArgs:ConnectionEstablishedParams = {
-                connection: jpc,
-                source: jpc.source, target: jpc.target,
-                sourceId: jpc.sourceId, targetId: jpc.targetId,
-                sourceEndpoint: jpc.endpoints[0], targetEndpoint: jpc.endpoints[1]
-            }
-
-            this.fire(Constants.EVENT_CONNECTION, eventArgs, originalEvent)
+            this.fire(Constants.EVENT_CONNECTION, payload, originalEvent)
         }
     }
 
