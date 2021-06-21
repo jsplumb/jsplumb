@@ -59,6 +59,7 @@ export const CLASS_OVERLAY = "jtk-overlay"
 
 export const EVENT_ANCHOR_CHANGED = "anchor:changed"
 export const EVENT_CONNECTION = "connection"
+export const EVENT_INTERNAL_CONNECTION = "internal.connection"
 export const EVENT_CONNECTION_DETACHED = "connection:detach"
 export const EVENT_CONNECTION_MOVED = "connection:move"
 
