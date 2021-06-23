@@ -3678,9 +3678,9 @@ function () {
       if (actualGroup.collapseParent == null) {
         this.instance.setGroupVisible(actualGroup, false);
         actualGroup.collapsed = true;
+        this.instance.removeClass(groupEl, CLASS_GROUP_EXPANDED);
+        this.instance.addClass(groupEl, CLASS_GROUP_COLLAPSED);
         if (actualGroup.proxied) {
-          this.instance.removeClass(groupEl, CLASS_GROUP_EXPANDED);
-          this.instance.addClass(groupEl, CLASS_GROUP_COLLAPSED);
           var collapsedConnectionIds = new Set();
           var _collapseSet = function _collapseSet(conns, index) {
             for (var i = 0; i < conns.length; i++) {
@@ -3741,9 +3741,9 @@ function () {
       if (actualGroup.collapseParent == null) {
         this.instance.setGroupVisible(actualGroup, true);
         actualGroup.collapsed = false;
+        this.instance.addClass(groupEl, CLASS_GROUP_EXPANDED);
+        this.instance.removeClass(groupEl, CLASS_GROUP_COLLAPSED);
         if (actualGroup.proxied) {
-          this.instance.addClass(groupEl, CLASS_GROUP_EXPANDED);
-          this.instance.removeClass(groupEl, CLASS_GROUP_COLLAPSED);
           var _expandSet = function _expandSet(conns, index) {
             for (var i = 0; i < conns.length; i++) {
               var c = conns[i];
@@ -3769,7 +3769,7 @@ function () {
                 return _expandNestedGroup(g, true);
               });
             } else {
-              _this6.expandGroup(group, doNotFireEvent);
+              _this6.expandGroup(group, true);
             }
           };
           util.forEach(actualGroup.getGroups(), _expandNestedGroup);
@@ -3786,33 +3786,6 @@ function () {
         this.instance.addClass(groupEl, CLASS_GROUP_EXPANDED);
         this.instance.removeClass(groupEl, CLASS_GROUP_COLLAPSED);
       }
-    }
-  }, {
-    key: "cascadeExpand",
-    value: function cascadeExpand(expandedGroup, targetGroup) {
-      var _this7 = this;
-      if (expandedGroup.proxied) {
-        var _expandSet = function _expandSet(conns, index) {
-          for (var i = 0; i < conns.length; i++) {
-            var c = conns[i];
-            if (targetGroup.collapsed) {
-              _this7._collapseConnection(c, index, targetGroup);
-            } else {
-              _this7._expandConnection(c, index, expandedGroup);
-            }
-          }
-        };
-        _expandSet(targetGroup.connections.source, 0);
-        _expandSet(targetGroup.connections.target, 1);
-      }
-      this.instance.revalidate(targetGroup.el);
-      this.repaintGroup(targetGroup);
-      this.instance.fire(EVENT_GROUP_EXPAND, {
-        group: targetGroup
-      });
-      util.forEach(targetGroup.getGroups(), function (cg) {
-        _this7.cascadeExpand(expandedGroup, cg);
-      });
     }
   }, {
     key: "toggleGroup",
@@ -3838,7 +3811,7 @@ function () {
   }, {
     key: "addToGroup",
     value: function addToGroup(group, doNotFireEvent) {
-      var _this8 = this;
+      var _this7 = this;
       var actualGroup = this.getGroup(group);
       if (actualGroup) {
         var groupEl = actualGroup.el;
@@ -3848,13 +3821,13 @@ function () {
               droppingGroup = jel._jsPlumbGroup;
           var currentGroup = jel._jsPlumbParentGroup;
           if (currentGroup !== actualGroup) {
-            var entry = _this8.instance.manage(el);
-            var elpos = _this8.instance.getOffset(el);
-            var cpos = actualGroup.collapsed ? _this8.instance.getOffsetRelativeToRoot(groupEl) : _this8.instance.getOffset(_this8.instance.getGroupContentArea(actualGroup));
+            var entry = _this7.instance.manage(el);
+            var elpos = _this7.instance.getOffset(el);
+            var cpos = actualGroup.collapsed ? _this7.instance.getOffsetRelativeToRoot(groupEl) : _this7.instance.getOffset(_this7.instance.getGroupContentArea(actualGroup));
             entry.group = actualGroup.elId;
             if (currentGroup != null) {
               currentGroup.remove(el, false, doNotFireEvent, false, actualGroup);
-              _this8._updateConnectionsForGroup(currentGroup);
+              _this7._updateConnectionsForGroup(currentGroup);
             }
             if (isGroup) {
               actualGroup.addGroup(droppingGroup);
@@ -3867,29 +3840,29 @@ function () {
                 c.setVisible(false);
                 if (c.endpoints[oidx].element._jsPlumbGroup === actualGroup) {
                   c.endpoints[oidx].setVisible(false);
-                  _this8._expandConnection(c, oidx, actualGroup);
+                  _this7._expandConnection(c, oidx, actualGroup);
                 } else {
                   c.endpoints[index].setVisible(false);
-                  _this8._collapseConnection(c, index, actualGroup);
+                  _this7._collapseConnection(c, index, actualGroup);
                 }
               });
             };
             if (actualGroup.collapsed) {
-              handleDroppedConnections(_this8.instance.select({
+              handleDroppedConnections(_this7.instance.select({
                 source: el
               }), 0);
-              handleDroppedConnections(_this8.instance.select({
+              handleDroppedConnections(_this7.instance.select({
                 target: el
               }), 1);
             }
-            var elId = _this8.instance.getId(el);
+            var elId = _this7.instance.getId(el);
             var newPosition = {
               x: elpos.x - cpos.x,
               y: elpos.y - cpos.y
             };
-            _this8.instance.setPosition(el, newPosition);
-            _this8._updateConnectionsForGroup(actualGroup);
-            _this8.instance.revalidate(el);
+            _this7.instance.setPosition(el, newPosition);
+            _this7._updateConnectionsForGroup(actualGroup);
+            _this7.instance.revalidate(el);
             if (!doNotFireEvent) {
               var p = {
                 group: actualGroup,
@@ -3899,7 +3872,7 @@ function () {
               if (currentGroup) {
                 p.sourceGroup = currentGroup;
               }
-              _this8.instance.fire(EVENT_GROUP_MEMBER_ADDED, p);
+              _this7.instance.fire(EVENT_GROUP_MEMBER_ADDED, p);
             }
           }
         };
@@ -3912,7 +3885,7 @@ function () {
   }, {
     key: "removeFromGroup",
     value: function removeFromGroup(group, doNotFireEvent) {
-      var _this9 = this;
+      var _this8 = this;
       var actualGroup = this.getGroup(group);
       if (actualGroup) {
         var _one = function _one(_el) {
@@ -3924,8 +3897,8 @@ function () {
                   for (var j = 0; j < c.proxies.length; j++) {
                     if (c.proxies[j] != null) {
                       var proxiedElement = c.proxies[j].originalEp.element;
-                      if (proxiedElement === _el || _this9.isElementDescendant(proxiedElement, _el)) {
-                        _this9._expandConnection(c, index, actualGroup);
+                      if (proxiedElement === _el || _this8.isElementDescendant(proxiedElement, _el)) {
+                        _this8._expandConnection(c, index, actualGroup);
                       }
                     }
                   }
@@ -3936,7 +3909,7 @@ function () {
             _expandSet(actualGroup.connections.target.slice(), 1);
           }
           actualGroup.remove(_el, null, doNotFireEvent);
-          var entry = _this9.instance.getManagedElements()[_this9.instance.getId(_el)];
+          var entry = _this8.instance.getManagedElements()[_this8.instance.getId(_el)];
           if (entry) {
             delete entry.group;
           }

@@ -39,12 +39,6 @@ export declare class GroupManager<E> {
      */
     cascadeCollapse(collapsedGroup: UIGroup<E>, targetGroup: UIGroup<E>, collapsedIds: Set<string>): void;
     expandGroup(group: string | UIGroup<E>, doNotFireEvent?: boolean): void;
-    /**
-     * Cascade an expand from the given `collapsedGroup` into the given `targetGroup`.
-     * @param expandedGroup
-     * @param targetGroup
-     */
-    cascadeExpand(expandedGroup: UIGroup<E>, targetGroup: UIGroup<E>): void;
     toggleGroup(group: string | UIGroup<E>): void;
     repaintGroup(group: string | UIGroup<E>): void;
     addToGroup(group: string | UIGroup<E>, doNotFireEvent: boolean, ...el: Array<E>): void;

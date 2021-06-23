@@ -5047,6 +5047,14 @@
     _do();
   }
 
+  Object.keys(core).forEach(function (k) {
+    if (k !== 'default') Object.defineProperty(exports, k, {
+      enumerable: true,
+      get: function () {
+        return core[k];
+      }
+    });
+  });
   exports.ATTRIBUTE_CONTAINER = ATTRIBUTE_CONTAINER;
   exports.ATTRIBUTE_GROUP_CONTENT = ATTRIBUTE_GROUP_CONTENT;
   exports.ATTRIBUTE_JTK_ENABLED = ATTRIBUTE_JTK_ENABLED;
