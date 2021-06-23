@@ -2327,4 +2327,37 @@ var testSuite = function () {
 
     })
 
+    test("events, including check that nested group expand/collapse do not fire their own events", function() {
+        var groupA = _addGroupAndContainer(600, 400),
+            groupB = _addGroupAndContainer(300, 350),
+            groupC = _addGroupAndContainer(150, 150)
+
+        groupA.addGroup(groupB)
+        groupB.addGroup(groupC)
+
+        var collapseCount = 0, expandCount = 0
+
+        _jsPlumb.bind("group:collapse", function(p) {
+            collapseCount++
+            ok(p.group != null, "group provided in collapse callback")
+        })
+
+        _jsPlumb.bind("group:expand", function(p) {
+            expandCount++
+            ok(p.group != null, "group provided in expand callback")
+        })
+
+        _jsPlumb.collapseGroup(groupA)
+        equal(collapseCount, 1, "one collapse events when the parent group was collapsed")
+
+        _jsPlumb.expandGroup(groupA)
+        equal(expandCount, 1, "one expand events when the parent group was expanded (nested groups should not have expand events fired unless they are explicitly expanded)")
+
+        _jsPlumb.collapseGroup(groupB)
+        equal(collapseCount, 2, "two collapse events in total after group B was collapsed")
+
+        _jsPlumb.collapseGroup(groupA)
+        equal(collapseCount, 3, "3 collapse events in total after group A was collapsed")
+    })
+
 };
