@@ -397,17 +397,21 @@ export class GroupManager<E> {
 
         let groupEl = actualGroup.el
 
+        // is this group a descendant of some other group that is currently collapsed?
         if (actualGroup.collapseParent == null) {
 
-            // hide all connections
+            // if it isn't, we go through the process of proxying connections
+
+            // first hide all connections
             this.instance.setGroupVisible(actualGroup, false)
 
             actualGroup.collapsed = true
 
-            if (actualGroup.proxied) {
+            this.instance.removeClass(groupEl, Constants.CLASS_GROUP_EXPANDED)
+            this.instance.addClass(groupEl, Constants.CLASS_GROUP_COLLAPSED)
 
-                this.instance.removeClass(groupEl, Constants.CLASS_GROUP_EXPANDED)
-                this.instance.addClass(groupEl, Constants.CLASS_GROUP_COLLAPSED)
+            // if this group, when collapsed, should have its connections proxied (which is the default behaviour):
+            if (actualGroup.proxied) {
 
                 const collapsedConnectionIds = new Set<string>()
 
@@ -422,10 +426,12 @@ export class GroupManager<E> {
                     }
                 }
 
-                // setup proxies for sources and targets
+                // setup proxies for sources and targets. note: internal connections are not proxied, and at this point have
+                // been hidden.
                 _collapseSet(actualGroup.connections.source, 0)
                 _collapseSet(actualGroup.connections.target, 1)
 
+                // cascade the collapse down to child groups
                 forEach(actualGroup.getGroups(),(cg: UIGroup<E>) => {
                     this.cascadeCollapse(actualGroup, cg, collapsedConnectionIds)
                 })
@@ -437,6 +443,9 @@ export class GroupManager<E> {
             this.instance.fire<GroupCollapsedParams<E>>(Constants.EVENT_GROUP_COLLAPSE, { group:actualGroup  })
 
         } else {
+            // if this group is a descendant of some other group that is already collapsed, then visually this group is
+            // also collapsed, so we just set the `collapsed` flag and change the css classes, without altering any of the
+            // group's connections.
             actualGroup.collapsed = true
             this.instance.removeClass(groupEl, Constants.CLASS_GROUP_EXPANDED)
             this.instance.addClass(groupEl, Constants.CLASS_GROUP_COLLAPSED)
@@ -485,16 +494,20 @@ export class GroupManager<E> {
         }
         const groupEl = actualGroup.el
 
+        // is this group inside an ancestor group that is currently collapsed?
         if (actualGroup.collapseParent == null) {
+
+            // ...if it is not, unproxy connections for this group.
 
             this.instance.setGroupVisible(actualGroup, true)
             actualGroup.collapsed = false
 
-            if (actualGroup.proxied) {
-                this.instance.addClass(groupEl, Constants.CLASS_GROUP_EXPANDED)
-                this.instance.removeClass(groupEl, Constants.CLASS_GROUP_COLLAPSED)
+            this.instance.addClass(groupEl, Constants.CLASS_GROUP_EXPANDED)
+            this.instance.removeClass(groupEl, Constants.CLASS_GROUP_COLLAPSED)
 
-                // collapses all connections in a group.
+            if (actualGroup.proxied) {
+
+                // expands all connections in a group.
                 const _expandSet = (conns: Array<Connection>, index: number) => {
                     for (let i = 0; i < conns.length; i++) {
                         let c = conns[i]
@@ -502,7 +515,8 @@ export class GroupManager<E> {
                     }
                 }
 
-                // setup proxies for sources and targets
+                // discard proxies for sources and targets (internal connections are ignored, they've already been made visible and
+                // were never proxied.
                 _expandSet(actualGroup.connections.source, 0)
                 _expandSet(actualGroup.connections.target, 1)
 
@@ -533,14 +547,14 @@ export class GroupManager<E> {
                         forEach(group.getGroups(), (g) => _expandNestedGroup(g, true))
 
                     } else {
-                        this.expandGroup(group, doNotFireEvent)
+                        this.expandGroup(group, true)
                     }
                 }
 
-                // expand any nested groups. this will take into account if the nested group is collapsed.
+                //expand any nested groups. this will take into account if the nested group is collapsed.
                 forEach(actualGroup.getGroups(), _expandNestedGroup)
-            }
 
+            }
 
             this.instance.revalidate(groupEl)
             this.repaintGroup(actualGroup)
@@ -548,48 +562,12 @@ export class GroupManager<E> {
                 this.instance.fire<GroupExpandedParams<E>>(Constants.EVENT_GROUP_EXPAND, {group: actualGroup})
             }
         } else {
+            // if this group is a descendant of some collapsed group, just change the `collapsed` flag and
+            // css classes on the group's element.
             actualGroup.collapsed = false
             this.instance.addClass(groupEl, Constants.CLASS_GROUP_EXPANDED)
             this.instance.removeClass(groupEl, Constants.CLASS_GROUP_COLLAPSED)
         }
-    }
-
-    /**
-     * Cascade an expand from the given `collapsedGroup` into the given `targetGroup`.
-     * @param expandedGroup
-     * @param targetGroup
-     */
-    cascadeExpand(expandedGroup:UIGroup<E>, targetGroup:UIGroup<E>) {
-        //  What to do.
-        //
-        // We assume this method is only called when targetGroup is legitimately a descendant of collapsedGroup.
-        // Basically all the connections on this group have to be re-proxied onto collapsedGroup, and this group has to be hidden.
-
-        if (expandedGroup.proxied) {
-            const _expandSet = (conns: Array<Connection>, index: number) => {
-                for (let i = 0; i < conns.length; i++) {
-                    let c = conns[i]
-                    if (targetGroup.collapsed) {
-                        this._collapseConnection(c, index, targetGroup)
-                    } else {
-                        this._expandConnection(c, index, expandedGroup)
-                    }
-                }
-            }
-
-            // setup proxies for sources and targets
-            _expandSet(targetGroup.connections.source, 0)
-            _expandSet(targetGroup.connections.target, 1)
-
-        }
-
-        this.instance.revalidate(targetGroup.el)
-        this.repaintGroup(targetGroup)
-        this.instance.fire<GroupExpandedParams<E>>(Constants.EVENT_GROUP_EXPAND, {group: targetGroup})
-
-        forEach(targetGroup.getGroups(),(cg:UIGroup<E>) => {
-            this.cascadeExpand(expandedGroup, cg)
-        })
     }
 
     toggleGroup(group:string|UIGroup<E>) {
