@@ -52,11 +52,17 @@ export function paintSvgConnector(instance:BrowserJsPlumbInstance, connector:Abs
             _applyStyles((connector as any).canvas, (connector as any).bgPath, outlineStyle)
         }
 
-        if ((connector as any).path == null) {
-            (connector as any).path = _node(ELEMENT_PATH, a)
-            _appendAtIndex((connector as any).canvas, (connector as any).path, paintStyle.outlineStroke ? 1 : 0)
+        const cany = connector as any
+
+        if (cany.path == null) {
+            cany.path = _node(ELEMENT_PATH, a)
+            _appendAtIndex(cany.canvas, cany.path, paintStyle.outlineStroke ? 1 : 0)
         }
         else {
+            // this can occur when a type is added and then removed: the path is a child of a previous svg container element
+            if (cany.path.parentNode !== cany.canvas) {
+                _appendAtIndex(cany.canvas, cany.path, paintStyle.outlineStroke ? 1 : 0);
+            }
             _attr((connector as any).path, a)
         }
 
