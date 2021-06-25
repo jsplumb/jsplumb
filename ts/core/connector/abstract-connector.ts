@@ -53,10 +53,8 @@ export interface PaintGeometry {
     anchorOrientation?:string
 }
 
-
-
 export interface Connector {
-
+    type:string
 }
 
 export interface Geometry {
