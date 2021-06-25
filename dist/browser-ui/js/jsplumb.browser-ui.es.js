@@ -1,5 +1,4 @@
 import { NONE, cls, CLASS_CONNECTOR, CLASS_ENDPOINT, att, ATTRIBUTE_GROUP, CLASS_OVERLAY, ATTRIBUTE_TABINDEX, SELECTOR_MANAGED_ELEMENT, ATTRIBUTE_NOT_DRAGGABLE, FALSE as FALSE$1, SOURCE, TARGET, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_START_DETACH, ATTRIBUTE_SCOPE_PREFIX, REDROP_POLICY_ANY, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, createFloatingAnchor, EndpointRepresentation, AnchorLocations, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, ABSOLUTE, Connection, Endpoint, Overlay, TRUE as TRUE$1, BLOCK, UNDEFINED, STATIC, FIXED, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, JsPlumbInstance, DotEndpoint, RectangleEndpoint, BlankEndpoint } from '@jsplumb/core';
-export * from '@jsplumb/core';
 import { isString, forEach, fastTrim, isArray, log, removeWithFunction, uuid, snapToGrid, IS, extend, wrap, getWithFunction, getFromSetWithFunction, intersects, merge, each, getAllWithFunction, functionChain, addToDictionary, isAssignableFrom, fromArray, isFunction } from '@jsplumb/util';
 
 function _typeof(obj) {
@@ -3785,10 +3784,14 @@ function paintSvgConnector(instance, connector, paintStyle, extents) {
       }
       _applyStyles(connector.canvas, connector.bgPath, outlineStyle);
     }
-    if (connector.path == null) {
-      connector.path = _node(ELEMENT_PATH, a);
-      _appendAtIndex(connector.canvas, connector.path, paintStyle.outlineStroke ? 1 : 0);
+    var cany = connector;
+    if (cany.path == null) {
+      cany.path = _node(ELEMENT_PATH, a);
+      _appendAtIndex(cany.canvas, cany.path, paintStyle.outlineStroke ? 1 : 0);
     } else {
+      if (cany.path.parentNode !== cany.canvas) {
+        _appendAtIndex(cany.canvas, cany.path, paintStyle.outlineStroke ? 1 : 0);
+      }
       _attr(connector.path, a);
     }
     _applyStyles(connector.canvas, connector.path, paintStyle);

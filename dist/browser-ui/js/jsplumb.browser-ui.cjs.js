@@ -3787,10 +3787,14 @@ function paintSvgConnector(instance, connector, paintStyle, extents) {
       }
       _applyStyles(connector.canvas, connector.bgPath, outlineStyle);
     }
-    if (connector.path == null) {
-      connector.path = _node(ELEMENT_PATH, a);
-      _appendAtIndex(connector.canvas, connector.path, paintStyle.outlineStroke ? 1 : 0);
+    var cany = connector;
+    if (cany.path == null) {
+      cany.path = _node(ELEMENT_PATH, a);
+      _appendAtIndex(cany.canvas, cany.path, paintStyle.outlineStroke ? 1 : 0);
     } else {
+      if (cany.path.parentNode !== cany.canvas) {
+        _appendAtIndex(cany.canvas, cany.path, paintStyle.outlineStroke ? 1 : 0);
+      }
       _attr(connector.path, a);
     }
     _applyStyles(connector.canvas, connector.path, paintStyle);
@@ -5048,14 +5052,6 @@ function ready(f) {
   _do();
 }
 
-Object.keys(core).forEach(function (k) {
-  if (k !== 'default') Object.defineProperty(exports, k, {
-    enumerable: true,
-    get: function () {
-      return core[k];
-    }
-  });
-});
 exports.ATTRIBUTE_CONTAINER = ATTRIBUTE_CONTAINER;
 exports.ATTRIBUTE_GROUP_CONTENT = ATTRIBUTE_GROUP_CONTENT;
 exports.ATTRIBUTE_JTK_ENABLED = ATTRIBUTE_JTK_ENABLED;
