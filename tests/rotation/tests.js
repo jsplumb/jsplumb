@@ -84,7 +84,7 @@ var testSuite = function () {
         // var e16Loc2 = sa.lastReturnValue.slice();
         // var e17Loc2 = ta.lastReturnValue.slice();
 
-        equal("center center", d16.style.transformOrigin, "transform origin was set");
+        ok(d16.style.transformOrigin == "center center" || d16.style.transformOrigin == "center center 0px", "transform origin was set");
         equal(d16.style.transform, "rotate(90deg)", "rotate transform was set");
 
         equal(e16Loc.curX, 25, "e16 x position is correct after rotation of d16");
@@ -99,7 +99,7 @@ var testSuite = function () {
         e16Loc = _jsPlumb.router.getEndpointLocation(c.endpoints[0]),
             e17Loc = _jsPlumb.router.getEndpointLocation(c.endpoints[1]);
 
-        equal("center center", d17.style.transformOrigin, "d17 transform origin was set");
+        ok(d17.style.transformOrigin == "center center" || d17.style.transformOrigin == "center center 0px", "d17 transform origin was set");
         equal(d17.style.transform, "rotate(90deg)", "d17 rotate transform was set");
         equal(e16Loc.curX, 25, "e16 x position is correct after rotation of 1d7");
         equal(e16Loc.curY, 125, "e16 y position is correct after rotation of d17");
