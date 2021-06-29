@@ -3233,7 +3233,7 @@ function (_UINode) {
     value: function orphanAll() {
       var orphanedPositions = {};
       for (var i = 0; i < this.children.length; i++) {
-        var newPosition = this.manager.orphan(this.children[i].el);
+        var newPosition = this.manager.orphan(this.children[i].el, false);
         orphanedPositions[newPosition[0]] = newPosition[1];
       }
       this.children.length = 0;
@@ -3541,18 +3541,18 @@ function () {
     }
   }, {
     key: "orphan",
-    value: function orphan(el) {
+    value: function orphan(el, doNotTransferToAncestor) {
       var jel = el;
       if (jel._jsPlumbParentGroup) {
-        var group = jel._jsPlumbParentGroup;
-        var groupPos = this.instance.getOffset(jel);
+        var currentParent = jel._jsPlumbParentGroup;
+        var positionRelativeToGroup = this.instance.getOffset(jel);
         var id = this.instance.getId(jel);
         var pos = this.instance.getOffset(el);
         jel.parentNode.removeChild(jel);
-        if (group.group) {
-          pos.x += groupPos.x;
-          pos.y += groupPos.y;
-          this.instance.getGroupContentArea(group.group).appendChild(el);
+        if (doNotTransferToAncestor !== true && currentParent.group) {
+          pos.x += positionRelativeToGroup.x;
+          pos.y += positionRelativeToGroup.y;
+          this.instance.getGroupContentArea(currentParent.group).appendChild(el);
         } else {
           this.instance._appendElement(el, this.instance.getContainer());
         }

@@ -3297,7 +3297,7 @@
             out = _get(_getPrototypeOf(GroupDragHandler.prototype), "onStop", this).call(this, params),
             currentGroup = jel._jsPlumbParentGroup;
         if (currentGroup === originalGroup) {
-          this._pruneOrOrphan(params);
+          this._pruneOrOrphan(params, true);
         } else {
           if (originalGroup.ghost) {
             var o1 = this.instance.getOffset(this.instance.getGroupContentArea(currentGroup));
@@ -3327,7 +3327,7 @@
       }
     }, {
       key: "_pruneOrOrphan",
-      value: function _pruneOrOrphan(params) {
+      value: function _pruneOrOrphan(params, doNotTransferToAncestor) {
         var jel = params.el;
         var orphanedPosition = null;
         if (!this._isInsideParent(jel, params.pos)) {
@@ -3339,7 +3339,7 @@
               group.remove(params.el, true);
             }
           } else if (group.orphan) {
-            orphanedPosition = this.instance.groupManager.orphan(params.el);
+            orphanedPosition = this.instance.groupManager.orphan(params.el, doNotTransferToAncestor);
             if (jel._isJsPlumbGroup) {
               group.removeGroup(jel._jsPlumbGroup);
             } else {
