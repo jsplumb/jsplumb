@@ -173,7 +173,7 @@ export class UIGroup<E = any> extends UINode<E> {
         let orphanedPositions:Dictionary<PointXY> = {}
 
         for (let i = 0; i < this.children.length; i++) {
-            let newPosition = this.manager.orphan(this.children[i].el)
+            let newPosition = this.manager.orphan(this.children[i].el, false)
             orphanedPositions[newPosition[0]] = newPosition[1]
         }
         this.children.length = 0
