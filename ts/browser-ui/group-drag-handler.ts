@@ -69,7 +69,7 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
             currentGroup:UIGroup<Element> = jel._jsPlumbParentGroup
 
         if (currentGroup === originalGroup) {
-            this._pruneOrOrphan(params)
+            this._pruneOrOrphan(params, true)
         } else {
             if (originalGroup.ghost) {
                 const o1 = this.instance.getOffset(this.instance.getGroupContentArea(currentGroup))
@@ -97,7 +97,7 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
         return rightEdge > 0 && leftEdge < s.w && bottomEdge > 0 && topEdge < s.h
     }
 
-    private _pruneOrOrphan(params:DragStopEventParams):[string, PointXY] {
+    private _pruneOrOrphan(params:DragStopEventParams, doNotTransferToAncestor:boolean):[string, PointXY] {
 
         const jel = params.el as unknown as jsPlumbDOMElement
         let orphanedPosition = null
@@ -113,7 +113,7 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
                 }
 
             } else if (group.orphan) {
-                orphanedPosition = this.instance.groupManager.orphan(params.el)
+                orphanedPosition = this.instance.groupManager.orphan(params.el, doNotTransferToAncestor)
                 if (jel._isJsPlumbGroup) {
                     // remove the nested group from the parent
                     group.removeGroup(jel._jsPlumbGroup)
