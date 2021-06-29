@@ -257,20 +257,22 @@ export class GroupManager<E> {
 
     // it would be nice to type `_el` as an element here, but the type of the element is currently specified by the
     // concrete implementation of jsplumb (of which there is 'DOM',  a browser implementation, at the moment.)
-    orphan(el:E):[string, PointXY] {
+    orphan(el:E, doNotTransferToAncestor:boolean):[string, PointXY] {
         const jel = el as unknown as jsPlumbElement<E>
         if (jel._jsPlumbParentGroup) {
-            const group = jel._jsPlumbParentGroup
-            const groupPos = this.instance.getOffset(jel)
+            const currentParent = jel._jsPlumbParentGroup
+            const positionRelativeToGroup = this.instance.getOffset(jel)
             const id = this.instance.getId(jel)
             const pos = this.instance.getOffset(el);
             (jel as any).parentNode.removeChild(jel)
 
-            if (group.group) {
-                pos.x += groupPos.x
-                pos.y += groupPos.y
-                this.instance.getGroupContentArea(group.group).appendChild(el)
-                //group.group.getContentArea().appendChild(el); // set as child of parent group, if there is one.
+            if (doNotTransferToAncestor !== true && currentParent.group) {
+                // if the current parent is itself a nested group, add the orphaned element to the parent group. This is not
+                // necessarily correct when the node is being orphaned as a result of a drag, since the node may not in fact
+                // be a child of any of the parents, and in that case the `doNotTransferToAncestor` will be set.
+                pos.x += positionRelativeToGroup.x
+                pos.y += positionRelativeToGroup.y
+                this.instance.getGroupContentArea(currentParent.group).appendChild(el)
             } else {
                 this.instance._appendElement(el, this.instance.getContainer()) // set back as child of container
             }
@@ -280,13 +282,6 @@ export class GroupManager<E> {
             return [id, pos]
         }
     }
-
-    // private _setGroupVisible(group:UIGroup<E>, state:boolean) {
-    //     let m = (group.el as any).querySelectorAll(Constants.SELECTOR_MANAGED_ELEMENT)
-    //     for (let i = 0; i < m.length; i++) {
-    //         this.instance[state ? Constants.CMD_SHOW : Constants.CMD_HIDE](m[i], true)
-    //     }
-    // }
 
     _updateConnectionsForGroup(group:UIGroup<E>) {
 
