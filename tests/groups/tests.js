@@ -1888,6 +1888,29 @@ var testSuite = function () {
         ok(groupB.group == null, "groupB has no parent group");
     });
 
+    test("nested groups, a node can be dragged out of its parent nested group and its new position is reported correctly", function() {
+        var groupA = _addGroupAndContainer(400,400),
+            groupB = _addGroupAndContainer(100,100),
+            nodeA = _addNodeToGroup(groupB, 50, 50, 50, 50)
+
+        groupA.orphan = true;
+        groupB.orphan = true;
+
+        _dragToGroup(_jsPlumb, groupB.el, groupA);
+
+        equal(_jsPlumb.getGroupContentArea(groupA), groupB.el.parentNode, "groupB is child of groupA in the DOM");
+        equal(groupA.getGroups().length, 1, "groupA has one child group");
+        equal(nodeA._jsPlumbParentGroup, groupB, "node A is in group B")
+
+        support.dragNodeTo(nodeA, 600, 0)
+
+        equal(nodeA._jsPlumbParentGroup, null, "node A is not in group B after being dragged out")
+        equal(parseInt(nodeA.style.left, 10), 600, "Node A at left 600")
+        equal(parseInt(nodeA.style.top, 10), 0, "Node A at top 0")
+        equal(0, groupB.children.length, "groupB has no children")
+        equal(1, groupA.children.length, "groupA has one child")
+    });
+
     test("nested groups, support allowNestedGroups flag on jsplumb constructor (defaults to true)", function() {
         var j = jsPlumbBrowserUI.newInstance({
             container:container,
