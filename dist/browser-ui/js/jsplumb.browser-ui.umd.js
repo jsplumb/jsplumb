@@ -614,11 +614,11 @@
   function touchCount(e) {
     return touches(e).length;
   }
-  function _bind(obj, type, fn, originalFn) {
+  function _bind(obj, type, fn, originalFn, options) {
     _store(obj, type, fn);
     originalFn.__tauid = fn.__tauid;
     if (obj.addEventListener) {
-      obj.addEventListener(type, fn, false);
+      obj.addEventListener(type, fn, false, options);
     } else if (obj.attachEvent) {
       var key = type + fn.__tauid;
       obj["e" + key] = fn;
@@ -704,15 +704,15 @@
     fn.__taExtra = fn.__taExtra || [];
     fn.__taExtra.push([evt, newFn]);
   }
-  var DefaultHandler = function DefaultHandler(obj, evt, fn, children) {
+  var DefaultHandler = function DefaultHandler(obj, evt, fn, children, options) {
     if (isTouchDevice && touchMap[evt]) {
       var tfn = _curryChildFilter(children, obj, fn, touchMap[evt]);
-      _bind(obj, touchMap[evt], tfn, fn);
+      _bind(obj, touchMap[evt], tfn, fn, options);
     }
     if (evt === EVENT_FOCUS && obj.getAttribute(core.ATTRIBUTE_TABINDEX) == null) {
       obj.setAttribute(core.ATTRIBUTE_TABINDEX, "1");
     }
-    _bind(obj, evt, _curryChildFilter(children, obj, fn, evt), fn);
+    _bind(obj, evt, _curryChildFilter(children, obj, fn, evt), fn, options);
   };
   var _tapProfiles = {
     "tap": {
@@ -893,21 +893,21 @@
     }
     _createClass(EventManager, [{
       key: "_doBind",
-      value: function _doBind(el, evt, fn, children) {
+      value: function _doBind(el, evt, fn, children, options) {
         if (fn == null) return;
         var jel = el;
         if (evt === EVENT_TAP || evt === EVENT_DBL_TAP || evt === EVENT_CONTEXTMENU) {
-          this.tapHandler(jel, evt, fn, children);
-        } else if (evt === EVENT_MOUSEENTER || evt == EVENT_MOUSEEXIT) this.mouseEnterExitHandler(jel, evt, fn, children);else {
-          DefaultHandler(jel, evt, fn, children);
+          this.tapHandler(jel, evt, fn, children, options);
+        } else if (evt === EVENT_MOUSEENTER || evt == EVENT_MOUSEEXIT) this.mouseEnterExitHandler(jel, evt, fn, children, options);else {
+          DefaultHandler(jel, evt, fn, children, options);
         }
       }
     }, {
       key: "on",
-      value: function on(el, event, children, fn) {
+      value: function on(el, event, children, fn, options) {
         var _c = fn == null ? null : children,
             _f = fn == null ? children : fn;
-        this._doBind(el, event, _f, _c);
+        this._doBind(el, event, _f, _c, options);
         return this;
       }
     }, {

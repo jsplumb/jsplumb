@@ -14,7 +14,11 @@ export declare class EventManager {
     private readonly mouseEnterExitHandler;
     constructor(params?: EventManagerOptions);
     private _doBind;
-    on(el: any, event: string, children?: string | Function, fn?: Function): this;
+    on(el: any, event: string, children?: string | Function, fn?: Function, options?: {
+        passive?: boolean;
+        capture?: boolean;
+        once?: boolean;
+    }): this;
     off(el: any, event: string, fn: any): this;
     trigger(el: any, event: string, originalEvent: any, payload?: any, detail?: number): this;
 }

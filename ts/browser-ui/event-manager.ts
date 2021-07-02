@@ -158,11 +158,11 @@ export function touchCount (e:Event):number {
     return touches(e).length
 }
 
-function _bind (obj:any, type:string, fn:any, originalFn?:any) {
+function _bind (obj:any, type:string, fn:any, originalFn:any, options?:{passive?:boolean, capture?:boolean, once?:boolean}) {
     _store(obj, type, fn)
     originalFn.__tauid = fn.__tauid
     if (obj.addEventListener) {
-        obj.addEventListener(type, fn, false)
+        obj.addEventListener(type, fn, false, options)
     }
     else if (obj.attachEvent) {
         const key = type + fn.__tauid
@@ -276,16 +276,16 @@ function registerExtraFunction (fn:FunctionFacade, evt:string, newFn:FunctionFac
     fn.__taExtra.push([evt, newFn])
 }
 
-type Handler = (obj:any, evt:string, fn:FunctionFacade, children?:string) => void
-const DefaultHandler:Handler = (obj:any, evt:string, fn:FunctionFacade, children?:string) => {
+type Handler = (obj:any, evt:string, fn:FunctionFacade, children?:string, options?:{passive?:boolean, capture?:boolean, once?:boolean}) => void
+const DefaultHandler:Handler = (obj:any, evt:string, fn:FunctionFacade, children?:string, options?:{passive?:boolean, capture?:boolean, once?:boolean}) => {
     if (isTouchDevice && touchMap[evt]) {
         const tfn = _curryChildFilter(children, obj, fn, touchMap[evt])
-        _bind(obj, touchMap[evt], tfn , fn)
+        _bind(obj, touchMap[evt], tfn , fn, options)
     }
     if (evt === EVENT_FOCUS && obj.getAttribute(ATTRIBUTE_TABINDEX) == null) {
         obj.setAttribute(ATTRIBUTE_TABINDEX, "1")
     }
-    _bind(obj, evt, _curryChildFilter(children, obj, fn, evt), fn)
+    _bind(obj, evt, _curryChildFilter(children, obj, fn, evt), fn, options)
 }
 
 const _tapProfiles = {
@@ -470,26 +470,26 @@ export class EventManager {
         this.tapHandler = TapHandler.generate(this.clickThreshold, this.dblClickThreshold)
     }
 
-    private _doBind (el:Element, evt:string, fn:any, children?:string) {
+    private _doBind (el:Element, evt:string, fn:any, children?:string, options?:{passive?:boolean, capture?:boolean, once?:boolean}) {
         if (fn == null) return
 
         const jel = el as unknown as jsPlumbDOMElement
 
         if (evt === EVENT_TAP || evt === EVENT_DBL_TAP || evt === EVENT_CONTEXTMENU) {
-            this.tapHandler(jel, evt, fn, children)
+            this.tapHandler(jel, evt, fn, children, options)
         }
         else if (evt === EVENT_MOUSEENTER || evt == EVENT_MOUSEEXIT)
-            this.mouseEnterExitHandler(jel, evt, fn, children)
+            this.mouseEnterExitHandler(jel, evt, fn, children, options)
         else {
-            DefaultHandler(jel, evt, fn, children)
+            DefaultHandler(jel, evt, fn, children, options)
         }
     }
 
-    on (el:any, event:string, children?:string|Function, fn?:Function) {
+    on (el:any, event:string, children?:string|Function, fn?:Function, options?:{passive?:boolean, capture?:boolean, once?:boolean}) {
         let _c = fn == null ? null : children as string,
             _f = fn == null ? children as Function : fn
 
-        this._doBind(el, event, _f, _c)
+        this._doBind(el, event, _f, _c, options)
         return this
     }
 
