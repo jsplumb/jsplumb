@@ -1,0 +1,32 @@
+{
+  "private": true,
+  "version": "5.0.0-RC1",
+  "description": "Visual connectivity for webapps",
+  "scripts": {
+    "rollup": "echo \"\n--- Running Rollup...\n\"; rollup -c rollup.config.bundle.js"
+  },
+  "author": "jsPlumb (hello@jsplumbtoolkit.com)",
+  "license": "(MIT OR GPL-2.0)",
+  "dependencies": {},
+  "devDependencies": {
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.4",
+    "@babel/plugin-proposal-class-properties": "^7.4.4",
+    "@babel/plugin-proposal-object-rest-spread": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
+    "@babel/preset-typescript": "^7.3.3",
+    "@rollup/plugin-babel": "^5.2.1",
+    "@rollup/plugin-commonjs": "^15.0.0",
+    "@rollup/plugin-node-resolve": "^9.0.0",
+    "babel-loader": "^8.0.6",
+    "rollup": "^2.26.11",
+    "rollup-plugin-cleanup": "^3.2.1",
+    "typedoc": "0.15.0",
+    "typescript": "~3.4.0",
+    "@jsplumb/util": "file:../dist/util/jsplumb-util.tgz",
+    "@jsplumb/core": "file:../dist/core/jsplumb-core.tgz",
+    "@jsplumb/connector-bezier": "file:../dist/connector-bezier/jsplumb-connector-bezier.tgz",
+    "@jsplumb/connector-flowchart": "file:../dist/connector-flowchart/jsplumb-connector-flowchart.tgz",
+    "@jsplumb/browser-ui": "file:../dist/browser-ui/jsplumb-browser-ui.tgz"
+  }
+}
