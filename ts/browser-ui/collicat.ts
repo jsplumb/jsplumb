@@ -2,7 +2,7 @@ import {Dictionary, extend, IS, uuid, PointXY, Size, snapToGrid, Grid} from '@js
 import {addClass, consume, matchesSelector, removeClass, offsetRelativeToRoot} from "./browser-util"
 import {EventManager, pageLocation} from "./event-manager"
 import { jsPlumbDOMElement} from './element-facade'
-import {EVENT_MOUSEUP, EVENT_MOUSEDOWN, EVENT_MOUSEMOVE, EVENT_REVERT} from "./drag-manager"
+import {EVENT_MOUSEUP, EVENT_MOUSEDOWN, EVENT_MOUSEMOVE, EVENT_REVERT} from "./constants"
 
 function findDelegateElement(parentElement:jsPlumbDOMElement, childElement:jsPlumbDOMElement, selector:string) {
     if (matchesSelector(childElement, selector, parentElement)) {

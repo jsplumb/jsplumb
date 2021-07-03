@@ -10,16 +10,6 @@ export declare const CLASS_DRAG_SELECTED = "jtk-drag-selected";
 export declare const CLASS_DRAG_ACTIVE = "jtk-drag-active";
 export declare const CLASS_DRAGGED = "jtk-dragged";
 export declare const CLASS_DRAG_HOVER = "jtk-drag-hover";
-export declare const EVENT_DRAG_MOVE = "drag:move";
-export declare const EVENT_DRAG_STOP = "drag:stop";
-export declare const EVENT_DRAG_START = "drag:start";
-export declare const EVENT_MOUSEDOWN = "mousedown";
-export declare const EVENT_MOUSEMOVE = "mousemove";
-export declare const EVENT_MOUSEUP = "mouseup";
-export declare const EVENT_REVERT = "revert";
-export declare const EVENT_ZOOM = "zoom";
-export declare const EVENT_CONNECTION_ABORT = "connection:abort";
-export declare const EVENT_CONNECTION_DRAG = "connection:drag";
 export interface DragHandler {
     selector: string;
     onStart: (params: DragStartEventParams) => boolean;

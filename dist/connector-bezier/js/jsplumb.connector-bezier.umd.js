@@ -634,7 +634,7 @@
       y: p.point.y - y
     }];
   }
-  function lineIntersection(x1, y1, x2, y2, curve) {
+  function bezierLineIntersection(x1, y1, x2, y2, curve) {
     var a = y2 - y1,
         b = x1 - x2,
         c = x1 * (y1 - y2) + y1 * (x2 - x1),
@@ -666,18 +666,18 @@
   }
   function boxIntersection(x, y, w, h, curve) {
     var i = [];
-    i.push.apply(i, lineIntersection(x, y, x + w, y, curve));
-    i.push.apply(i, lineIntersection(x + w, y, x + w, y + h, curve));
-    i.push.apply(i, lineIntersection(x + w, y + h, x, y + h, curve));
-    i.push.apply(i, lineIntersection(x, y + h, x, y, curve));
+    i.push.apply(i, bezierLineIntersection(x, y, x + w, y, curve));
+    i.push.apply(i, bezierLineIntersection(x + w, y, x + w, y + h, curve));
+    i.push.apply(i, bezierLineIntersection(x + w, y + h, x, y + h, curve));
+    i.push.apply(i, bezierLineIntersection(x, y + h, x, y, curve));
     return i;
   }
   function boundingBoxIntersection(boundingBox, curve) {
     var i = [];
-    i.push.apply(i, lineIntersection(boundingBox.x, boundingBox.y, boundingBox.x + boundingBox.w, boundingBox.y, curve));
-    i.push.apply(i, lineIntersection(boundingBox.x + boundingBox.w, boundingBox.y, boundingBox.x + boundingBox.w, boundingBox.y + boundingBox.h, curve));
-    i.push.apply(i, lineIntersection(boundingBox.x + boundingBox.w, boundingBox.y + boundingBox.h, boundingBox.x, boundingBox.y + boundingBox.h, curve));
-    i.push.apply(i, lineIntersection(boundingBox.x, boundingBox.y + boundingBox.h, boundingBox.x, boundingBox.y, curve));
+    i.push.apply(i, bezierLineIntersection(boundingBox.x, boundingBox.y, boundingBox.x + boundingBox.w, boundingBox.y, curve));
+    i.push.apply(i, bezierLineIntersection(boundingBox.x + boundingBox.w, boundingBox.y, boundingBox.x + boundingBox.w, boundingBox.y + boundingBox.h, curve));
+    i.push.apply(i, bezierLineIntersection(boundingBox.x + boundingBox.w, boundingBox.y + boundingBox.h, boundingBox.x, boundingBox.y + boundingBox.h, curve));
+    i.push.apply(i, bezierLineIntersection(boundingBox.x, boundingBox.y + boundingBox.h, boundingBox.x, boundingBox.y, curve));
     return i;
   }
   function _computeCoefficientsForAxis(curve, axis) {
@@ -824,8 +824,8 @@
       }
     }, {
       key: "lineIntersection",
-      value: function lineIntersection$1(x1, y1, x2, y2) {
-        return lineIntersection(x1, y1, x2, y2, this.curve);
+      value: function lineIntersection(x1, y1, x2, y2) {
+        return bezierLineIntersection(x1, y1, x2, y2, this.curve);
       }
     }], [{
       key: "_translateLocation",
@@ -1066,6 +1066,7 @@
   exports.BezierConnector = BezierConnector;
   exports.BezierSegment = BezierSegment;
   exports.StateMachineConnector = StateMachineConnector;
+  exports.bezierLineIntersection = bezierLineIntersection;
   exports.boundingBoxIntersection = boundingBoxIntersection;
   exports.boxIntersection = boxIntersection;
   exports.computeBezierLength = computeBezierLength;
@@ -1074,7 +1075,6 @@
   exports.gradientAtPoint = gradientAtPoint;
   exports.gradientAtPointAlongPathFrom = gradientAtPointAlongPathFrom;
   exports.isPoint = isPoint;
-  exports.lineIntersection = lineIntersection;
   exports.locationAlongCurveFrom = locationAlongCurveFrom;
   exports.nearestPointOnCurve = nearestPointOnCurve;
   exports.perpendicularToPathAt = perpendicularToPathAt;

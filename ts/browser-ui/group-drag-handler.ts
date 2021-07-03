@@ -1,12 +1,12 @@
 
 import {ElementDragHandler} from "./element-drag-handler"
-import {EVENT_REVERT, GhostProxyingDragHandler} from "./drag-manager"
+import {GhostProxyingDragHandler} from "./drag-manager"
 import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
 import { jsPlumbDOMElement} from './element-facade'
 import {DragEventParams, Drag, DragStopEventParams} from "./collicat"
 import {SELECTOR_MANAGED_ELEMENT, UIGroup} from "@jsplumb/core"
 import { PointXY } from "@jsplumb/util"
-import {SELECTOR_GROUP} from "./constants"
+import {EVENT_REVERT, SELECTOR_GROUP} from "./constants"
 
 
 export class GroupDragHandler extends ElementDragHandler implements GhostProxyingDragHandler {

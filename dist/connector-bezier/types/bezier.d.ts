@@ -143,7 +143,7 @@ export declare function perpendicularToPathAt(curve: Curve, location: number, le
  * @param curve
  * @returns {Array}
  */
-export declare function lineIntersection(x1: number, y1: number, x2: number, y2: number, curve: Curve): Array<PointXY>;
+export declare function bezierLineIntersection(x1: number, y1: number, x2: number, y2: number, curve: Curve): Array<PointXY>;
 /**
  * Calculates all intersections of the given box with the given curve.
  * @param x X position of top left corner of box

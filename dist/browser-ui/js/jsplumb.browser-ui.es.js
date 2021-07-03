@@ -1,4 +1,4 @@
-import { NONE, cls, CLASS_CONNECTOR, CLASS_ENDPOINT, att, ATTRIBUTE_GROUP, CLASS_OVERLAY, ATTRIBUTE_TABINDEX, SELECTOR_MANAGED_ELEMENT, ATTRIBUTE_NOT_DRAGGABLE, FALSE as FALSE$1, SOURCE, TARGET, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_START_DETACH, ATTRIBUTE_SCOPE_PREFIX, REDROP_POLICY_ANY, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, createFloatingAnchor, EndpointRepresentation, AnchorLocations, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, ABSOLUTE, Connection, Endpoint, Overlay, TRUE as TRUE$1, BLOCK, UNDEFINED, STATIC, FIXED, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, JsPlumbInstance, DotEndpoint, RectangleEndpoint, BlankEndpoint } from '@jsplumb/core';
+import { NONE, cls, CLASS_CONNECTOR, CLASS_ENDPOINT, att, ATTRIBUTE_GROUP, CLASS_OVERLAY, ATTRIBUTE_TABINDEX, EVENT_ZOOM, SELECTOR_MANAGED_ELEMENT, ATTRIBUTE_NOT_DRAGGABLE, FALSE as FALSE$1, SOURCE, TARGET, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_START_DETACH, ATTRIBUTE_SCOPE_PREFIX, REDROP_POLICY_ANY, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, createFloatingAnchor, EndpointRepresentation, AnchorLocations, EVENT_MANAGE_ELEMENT, EVENT_UNMANAGE_ELEMENT, EVENT_CONNECTION, INTERCEPT_BEFORE_DROP, ABSOLUTE, Connection, Endpoint, Overlay, TRUE as TRUE$1, BLOCK, UNDEFINED, STATIC, FIXED, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, JsPlumbInstance, DotEndpoint, RectangleEndpoint, BlankEndpoint } from '@jsplumb/core';
 import { isString, forEach, fastTrim, isArray, log, removeWithFunction, uuid, snapToGrid, IS, extend, wrap, getWithFunction, getFromSetWithFunction, intersects, merge, each, getAllWithFunction, functionChain, addToDictionary, isAssignableFrom, fromArray, isFunction } from '@jsplumb/util';
 
 function _typeof(obj) {
@@ -471,6 +471,12 @@ var EVENT_MOUSEUP = "mouseup";
 var EVENT_MOUSEOUT = "mouseout";
 var EVENT_MOUSEOVER = "mouseover";
 var EVENT_TAP = "tap";
+var EVENT_DRAG_MOVE = "drag:move";
+var EVENT_DRAG_STOP = "drag:stop";
+var EVENT_DRAG_START = "drag:start";
+var EVENT_REVERT = "revert";
+var EVENT_CONNECTION_ABORT = "connection:abort";
+var EVENT_CONNECTION_DRAG = "connection:drag";
 var EVENT_ELEMENT_CLICK = compoundEvent(ELEMENT, EVENT_CLICK);
 var EVENT_ELEMENT_DBL_CLICK = compoundEvent(ELEMENT, EVENT_DBL_CLICK);
 var EVENT_ELEMENT_DBL_TAP = compoundEvent(ELEMENT, EVENT_DBL_TAP);
@@ -1282,7 +1288,7 @@ function (_Base) {
       }
       _this._availableSelectors.push(params);
     }
-    _this.k.eventManager.on(_this.el, EVENT_MOUSEDOWN$1, _this.downListener);
+    _this.k.eventManager.on(_this.el, EVENT_MOUSEDOWN, _this.downListener);
     return _this;
   }
   _createClass(Drag, [{
@@ -1310,8 +1316,8 @@ function (_Base) {
     value: function _upListener(e) {
       if (this._downAt) {
         this._downAt = null;
-        this.k.eventManager.off(document, EVENT_MOUSEMOVE$1, this.moveListener);
-        this.k.eventManager.off(document, EVENT_MOUSEUP$1, this.upListener);
+        this.k.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener);
+        this.k.eventManager.off(document, EVENT_MOUSEUP, this.upListener);
         removeClass(document.body, _classes.noSelect);
         this.unmark(e);
         this.stop(e);
@@ -1391,8 +1397,8 @@ function (_Base) {
             y: this._pagePosAtDown.y - this._posAtDown.y
           };
           this._size = _getSize(this._dragEl);
-          this.k.eventManager.on(document, EVENT_MOUSEMOVE$1, this.moveListener);
-          this.k.eventManager.on(document, EVENT_MOUSEUP$1, this.upListener);
+          this.k.eventManager.on(document, EVENT_MOUSEMOVE, this.moveListener);
+          this.k.eventManager.on(document, EVENT_MOUSEUP, this.upListener);
           addClass(document.body, _classes.noSelect);
           this._dispatch(EVENT_BEFORE_START, {
             el: this.el,
@@ -1682,9 +1688,9 @@ function (_Base) {
   }, {
     key: "destroy",
     value: function destroy() {
-      this.k.eventManager.off(this.el, EVENT_MOUSEDOWN$1, this.downListener);
-      this.k.eventManager.off(document, EVENT_MOUSEMOVE$1, this.moveListener);
-      this.k.eventManager.off(document, EVENT_MOUSEUP$1, this.upListener);
+      this.k.eventManager.off(this.el, EVENT_MOUSEDOWN, this.downListener);
+      this.k.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener);
+      this.k.eventManager.off(document, EVENT_MOUSEUP, this.upListener);
       this.downListener = null;
       this.upListener = null;
       this.moveListener = null;
@@ -1789,16 +1795,6 @@ var CLASS_DRAG_SELECTED = "jtk-drag-selected";
 var CLASS_DRAG_ACTIVE = "jtk-drag-active";
 var CLASS_DRAGGED = "jtk-dragged";
 var CLASS_DRAG_HOVER = "jtk-drag-hover";
-var EVENT_DRAG_MOVE = "drag:move";
-var EVENT_DRAG_STOP = "drag:stop";
-var EVENT_DRAG_START = "drag:start";
-var EVENT_MOUSEDOWN$1 = "mousedown";
-var EVENT_MOUSEMOVE$1 = "mousemove";
-var EVENT_MOUSEUP$1 = "mouseup";
-var EVENT_REVERT = "revert";
-var EVENT_ZOOM = "zoom";
-var EVENT_CONNECTION_ABORT = "connection:abort";
-var EVENT_CONNECTION_DRAG = "connection:drag";
 var DragManager =
 function () {
   function DragManager(instance, options) {
@@ -2480,8 +2476,8 @@ function () {
     var container = instance.getContainer();
     this.mousedownHandler = this._mousedownHandler.bind(this);
     this.mouseupHandler = this._mouseupHandler.bind(this);
-    instance.on(container, EVENT_MOUSEDOWN$1, SELECTOR_MANAGED_ELEMENT, this.mousedownHandler);
-    instance.on(container, EVENT_MOUSEUP$1, SELECTOR_MANAGED_ELEMENT, this.mouseupHandler);
+    instance.on(container, EVENT_MOUSEDOWN, SELECTOR_MANAGED_ELEMENT, this.mousedownHandler);
+    instance.on(container, EVENT_MOUSEUP, SELECTOR_MANAGED_ELEMENT, this.mouseupHandler);
   }
   _createClass(EndpointDragHandler, [{
     key: "_resolveDragParent",
@@ -2570,7 +2566,7 @@ function () {
           }
           sourceElement._jsPlumbOrphanedEndpoints = sourceElement._jsPlumbOrphanedEndpoints || [];
           sourceElement._jsPlumbOrphanedEndpoints.push(this.ep);
-          this.instance.trigger(this.ep.endpoint.canvas, EVENT_MOUSEDOWN$1, e, payload);
+          this.instance.trigger(this.ep.endpoint.canvas, EVENT_MOUSEDOWN, e, payload);
         }
       }
     }
@@ -2628,8 +2624,8 @@ function () {
     key: "reset",
     value: function reset() {
       var c = this.instance.getContainer();
-      this.instance.off(c, EVENT_MOUSEUP$1, this.mouseupHandler);
-      this.instance.off(c, EVENT_MOUSEDOWN$1, this.mousedownHandler);
+      this.instance.off(c, EVENT_MOUSEUP, this.mouseupHandler);
+      this.instance.off(c, EVENT_MOUSEDOWN, this.mousedownHandler);
     }
   }, {
     key: "init",
@@ -5049,4 +5045,4 @@ function ready(f) {
   _do();
 }
 
-export { ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP_CONTENT, ATTRIBUTE_JTK_ENABLED, ATTR_SCROLLABLE_LIST, BrowserJsPlumbInstance, CONNECTION, Collicat, Drag, ELEMENT, ELEMENT_DIV, ENDPOINT, EVENT_BEFORE_START, EVENT_CLICK, EVENT_CONNECTION_ABORT, EVENT_CONNECTION_CLICK, EVENT_CONNECTION_DBL_CLICK, EVENT_CONNECTION_DBL_TAP, EVENT_CONNECTION_DRAG, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_TAP, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_DRAG, EVENT_DRAG_MOVE, EVENT_DRAG_START, EVENT_DRAG_STOP, EVENT_DROP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_DBL_TAP, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_TAP, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_DBL_TAP, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_TAP, EVENT_FOCUS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_OUT, EVENT_OVER, EVENT_SCROLL, EVENT_START, EVENT_STOP, EVENT_TAP, ElementDragHandler, EventManager, JsPlumbList, JsPlumbListManager, PROPERTY_POSITION, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP, SELECTOR_GROUP_CONTAINER, SELECTOR_OVERLAY, SELECTOR_SCROLLABLE_LIST, SupportedEdge, addClass, compoundEvent, consume, createElement, createElementNS, findParent, getClass, getEventSource, getPositionOnElement, getTouch, hasClass, isArrayLike, isNodeList, matchesSelector, newInstance, offsetRelativeToRoot, pageLocation, ready, registerEndpointRenderer, removeClass, size, toggleClass, touchCount, touches };
+export { ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP_CONTENT, ATTRIBUTE_JTK_ENABLED, ATTR_SCROLLABLE_LIST, BrowserJsPlumbInstance, CONNECTION, Collicat, Drag, ELEMENT, ELEMENT_DIV, ENDPOINT, EVENT_BEFORE_START, EVENT_CLICK, EVENT_CONNECTION_ABORT, EVENT_CONNECTION_CLICK, EVENT_CONNECTION_DBL_CLICK, EVENT_CONNECTION_DBL_TAP, EVENT_CONNECTION_DRAG, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_TAP, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_DRAG, EVENT_DRAG_MOVE, EVENT_DRAG_START, EVENT_DRAG_STOP, EVENT_DROP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_DBL_TAP, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_TAP, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_DBL_TAP, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_TAP, EVENT_FOCUS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_OUT, EVENT_OVER, EVENT_REVERT, EVENT_SCROLL, EVENT_START, EVENT_STOP, EVENT_TAP, ElementDragHandler, EventManager, JsPlumbList, JsPlumbListManager, PROPERTY_POSITION, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP, SELECTOR_GROUP_CONTAINER, SELECTOR_OVERLAY, SELECTOR_SCROLLABLE_LIST, SupportedEdge, addClass, compoundEvent, consume, createElement, createElementNS, findParent, getClass, getEventSource, getPositionOnElement, getTouch, hasClass, isArrayLike, isNodeList, matchesSelector, newInstance, offsetRelativeToRoot, pageLocation, ready, registerEndpointRenderer, removeClass, size, toggleClass, touchCount, touches };

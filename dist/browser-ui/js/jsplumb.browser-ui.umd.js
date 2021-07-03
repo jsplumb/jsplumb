@@ -474,6 +474,12 @@
   var EVENT_MOUSEOUT = "mouseout";
   var EVENT_MOUSEOVER = "mouseover";
   var EVENT_TAP = "tap";
+  var EVENT_DRAG_MOVE = "drag:move";
+  var EVENT_DRAG_STOP = "drag:stop";
+  var EVENT_DRAG_START = "drag:start";
+  var EVENT_REVERT = "revert";
+  var EVENT_CONNECTION_ABORT = "connection:abort";
+  var EVENT_CONNECTION_DRAG = "connection:drag";
   var EVENT_ELEMENT_CLICK = compoundEvent(ELEMENT, EVENT_CLICK);
   var EVENT_ELEMENT_DBL_CLICK = compoundEvent(ELEMENT, EVENT_DBL_CLICK);
   var EVENT_ELEMENT_DBL_TAP = compoundEvent(ELEMENT, EVENT_DBL_TAP);
@@ -1285,7 +1291,7 @@
         }
         _this._availableSelectors.push(params);
       }
-      _this.k.eventManager.on(_this.el, EVENT_MOUSEDOWN$1, _this.downListener);
+      _this.k.eventManager.on(_this.el, EVENT_MOUSEDOWN, _this.downListener);
       return _this;
     }
     _createClass(Drag, [{
@@ -1313,8 +1319,8 @@
       value: function _upListener(e) {
         if (this._downAt) {
           this._downAt = null;
-          this.k.eventManager.off(document, EVENT_MOUSEMOVE$1, this.moveListener);
-          this.k.eventManager.off(document, EVENT_MOUSEUP$1, this.upListener);
+          this.k.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener);
+          this.k.eventManager.off(document, EVENT_MOUSEUP, this.upListener);
           removeClass(document.body, _classes.noSelect);
           this.unmark(e);
           this.stop(e);
@@ -1394,8 +1400,8 @@
               y: this._pagePosAtDown.y - this._posAtDown.y
             };
             this._size = _getSize(this._dragEl);
-            this.k.eventManager.on(document, EVENT_MOUSEMOVE$1, this.moveListener);
-            this.k.eventManager.on(document, EVENT_MOUSEUP$1, this.upListener);
+            this.k.eventManager.on(document, EVENT_MOUSEMOVE, this.moveListener);
+            this.k.eventManager.on(document, EVENT_MOUSEUP, this.upListener);
             addClass(document.body, _classes.noSelect);
             this._dispatch(EVENT_BEFORE_START, {
               el: this.el,
@@ -1685,9 +1691,9 @@
     }, {
       key: "destroy",
       value: function destroy() {
-        this.k.eventManager.off(this.el, EVENT_MOUSEDOWN$1, this.downListener);
-        this.k.eventManager.off(document, EVENT_MOUSEMOVE$1, this.moveListener);
-        this.k.eventManager.off(document, EVENT_MOUSEUP$1, this.upListener);
+        this.k.eventManager.off(this.el, EVENT_MOUSEDOWN, this.downListener);
+        this.k.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener);
+        this.k.eventManager.off(document, EVENT_MOUSEUP, this.upListener);
         this.downListener = null;
         this.upListener = null;
         this.moveListener = null;
@@ -1792,16 +1798,6 @@
   var CLASS_DRAG_ACTIVE = "jtk-drag-active";
   var CLASS_DRAGGED = "jtk-dragged";
   var CLASS_DRAG_HOVER = "jtk-drag-hover";
-  var EVENT_DRAG_MOVE = "drag:move";
-  var EVENT_DRAG_STOP = "drag:stop";
-  var EVENT_DRAG_START = "drag:start";
-  var EVENT_MOUSEDOWN$1 = "mousedown";
-  var EVENT_MOUSEMOVE$1 = "mousemove";
-  var EVENT_MOUSEUP$1 = "mouseup";
-  var EVENT_REVERT = "revert";
-  var EVENT_ZOOM = "zoom";
-  var EVENT_CONNECTION_ABORT = "connection:abort";
-  var EVENT_CONNECTION_DRAG = "connection:drag";
   var DragManager =
   function () {
     function DragManager(instance, options) {
@@ -1830,7 +1826,7 @@
           ghostProxy: CLASS_GHOST_PROXY
         }
       });
-      this.instance.bind(EVENT_ZOOM, function (z) {
+      this.instance.bind(core.EVENT_ZOOM, function (z) {
         _this.collicat.setZoom(z);
       });
       options = options || {};
@@ -2483,8 +2479,8 @@
       var container = instance.getContainer();
       this.mousedownHandler = this._mousedownHandler.bind(this);
       this.mouseupHandler = this._mouseupHandler.bind(this);
-      instance.on(container, EVENT_MOUSEDOWN$1, core.SELECTOR_MANAGED_ELEMENT, this.mousedownHandler);
-      instance.on(container, EVENT_MOUSEUP$1, core.SELECTOR_MANAGED_ELEMENT, this.mouseupHandler);
+      instance.on(container, EVENT_MOUSEDOWN, core.SELECTOR_MANAGED_ELEMENT, this.mousedownHandler);
+      instance.on(container, EVENT_MOUSEUP, core.SELECTOR_MANAGED_ELEMENT, this.mouseupHandler);
     }
     _createClass(EndpointDragHandler, [{
       key: "_resolveDragParent",
@@ -2573,7 +2569,7 @@
             }
             sourceElement._jsPlumbOrphanedEndpoints = sourceElement._jsPlumbOrphanedEndpoints || [];
             sourceElement._jsPlumbOrphanedEndpoints.push(this.ep);
-            this.instance.trigger(this.ep.endpoint.canvas, EVENT_MOUSEDOWN$1, e, payload);
+            this.instance.trigger(this.ep.endpoint.canvas, EVENT_MOUSEDOWN, e, payload);
           }
         }
       }
@@ -2631,8 +2627,8 @@
       key: "reset",
       value: function reset() {
         var c = this.instance.getContainer();
-        this.instance.off(c, EVENT_MOUSEUP$1, this.mouseupHandler);
-        this.instance.off(c, EVENT_MOUSEDOWN$1, this.mousedownHandler);
+        this.instance.off(c, EVENT_MOUSEUP, this.mouseupHandler);
+        this.instance.off(c, EVENT_MOUSEDOWN, this.mousedownHandler);
       }
     }, {
       key: "init",
@@ -5102,6 +5098,7 @@
   exports.EVENT_MOUSEUP = EVENT_MOUSEUP;
   exports.EVENT_OUT = EVENT_OUT;
   exports.EVENT_OVER = EVENT_OVER;
+  exports.EVENT_REVERT = EVENT_REVERT;
   exports.EVENT_SCROLL = EVENT_SCROLL;
   exports.EVENT_START = EVENT_START;
   exports.EVENT_STOP = EVENT_STOP;

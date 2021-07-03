@@ -1,5 +1,7 @@
 import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
 import { jsPlumbDOMElement} from './element-facade'
+import { EVENT_REVERT } from './constants'
+import { EVENT_ZOOM } from "@jsplumb/core"
 
 import {extend, wrap, Dictionary, forEach, PointXY, getWithFunction, BoundingBox, Size} from '@jsplumb/util'
 
@@ -32,17 +34,6 @@ export const CLASS_DRAG_SELECTED = "jtk-drag-selected"
 export const CLASS_DRAG_ACTIVE = "jtk-drag-active"
 export const CLASS_DRAGGED = "jtk-dragged"
 export const CLASS_DRAG_HOVER = "jtk-drag-hover"
-
-export const EVENT_DRAG_MOVE = "drag:move"
-export const EVENT_DRAG_STOP = "drag:stop"
-export const EVENT_DRAG_START = "drag:start"
-export const EVENT_MOUSEDOWN = "mousedown"
-export const EVENT_MOUSEMOVE = "mousemove"
-export const EVENT_MOUSEUP = "mouseup"
-export const EVENT_REVERT = "revert"
-export const EVENT_ZOOM = "zoom"
-export const EVENT_CONNECTION_ABORT = "connection:abort"
-export const EVENT_CONNECTION_DRAG = "connection:drag"
 
 export interface DragHandler {
 

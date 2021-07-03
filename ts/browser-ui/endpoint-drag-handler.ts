@@ -1,14 +1,17 @@
 import {
     CLASS_DRAG_ACTIVE,
     CLASS_DRAG_HOVER,
-    DragHandler,
+    DragHandler
+} from "./drag-manager"
+import {BrowserJsPlumbInstance, getPositionOnElement} from "./browser-jsplumb-instance"
+import { jsPlumbDOMElement} from './element-facade'
+
+import {
     EVENT_MOUSEDOWN,
     EVENT_MOUSEUP,
     EVENT_CONNECTION_ABORT,
     EVENT_CONNECTION_DRAG
-} from "./drag-manager"
-import {BrowserJsPlumbInstance, getPositionOnElement} from "./browser-jsplumb-instance"
-import { jsPlumbDOMElement} from './element-facade'
+} from './constants'
 
 import {consume, createElement, findParent} from "./browser-util"
 

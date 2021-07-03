@@ -41,6 +41,13 @@ export const EVENT_MOUSEOUT = "mouseout"
 export const EVENT_MOUSEOVER = "mouseover"
 export const EVENT_TAP = "tap"
 
+export const EVENT_DRAG_MOVE = "drag:move"
+export const EVENT_DRAG_STOP = "drag:stop"
+export const EVENT_DRAG_START = "drag:start"
+export const EVENT_REVERT = "revert"
+export const EVENT_CONNECTION_ABORT = "connection:abort"
+export const EVENT_CONNECTION_DRAG = "connection:drag"
+
 export const EVENT_ELEMENT_CLICK = compoundEvent(ELEMENT, EVENT_CLICK)
 export const EVENT_ELEMENT_DBL_CLICK = compoundEvent(ELEMENT, EVENT_DBL_CLICK)
 export const EVENT_ELEMENT_DBL_TAP = compoundEvent(ELEMENT, EVENT_DBL_TAP)

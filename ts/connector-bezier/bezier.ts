@@ -525,7 +525,7 @@ export function perpendicularToPathAt (curve:Curve, location:number, length:numb
  * @param curve
  * @returns {Array}
  */
-export function lineIntersection (x1:number, y1:number, x2:number, y2:number, curve:Curve):Array<PointXY> {
+export function bezierLineIntersection (x1:number, y1:number, x2:number, y2:number, curve:Curve):Array<PointXY> {
     let a = y2 - y1,
         b = x1 - x2,
         c = (x1 * (y1 - y2)) + (y1 * (x2-x1)),
@@ -579,10 +579,10 @@ export function lineIntersection (x1:number, y1:number, x2:number, y2:number, cu
  */
 export function boxIntersection (x:number, y:number, w:number, h:number, curve:Curve):Array<PointXY> {
     let i:Array<PointXY> = []
-    i.push.apply(i, lineIntersection(x, y, x + w, y, curve))
-    i.push.apply(i, lineIntersection(x + w, y, x + w, y + h, curve))
-    i.push.apply(i, lineIntersection(x + w, y + h, x, y + h, curve))
-    i.push.apply(i, lineIntersection(x, y + h, x, y, curve))
+    i.push.apply(i, bezierLineIntersection(x, y, x + w, y, curve))
+    i.push.apply(i, bezierLineIntersection(x + w, y, x + w, y + h, curve))
+    i.push.apply(i, bezierLineIntersection(x + w, y + h, x, y + h, curve))
+    i.push.apply(i, bezierLineIntersection(x, y + h, x, y, curve))
     return i
 }
 
@@ -594,10 +594,10 @@ export function boxIntersection (x:number, y:number, w:number, h:number, curve:C
  */
 export function boundingBoxIntersection (boundingBox:BoundingBox, curve:Curve):Array<PointXY> {
     let i:Array<PointXY> = []
-    i.push.apply(i, lineIntersection(boundingBox.x, boundingBox.y, boundingBox.x + boundingBox.w, boundingBox.y, curve))
-    i.push.apply(i, lineIntersection(boundingBox.x + boundingBox.w, boundingBox.y, boundingBox.x + boundingBox.w, boundingBox.y + boundingBox.h, curve))
-    i.push.apply(i, lineIntersection(boundingBox.x + boundingBox.w, boundingBox.y + boundingBox.h, boundingBox.x, boundingBox.y + boundingBox.h, curve))
-    i.push.apply(i, lineIntersection(boundingBox.x, boundingBox.y + boundingBox.h, boundingBox.x, boundingBox.y, curve))
+    i.push.apply(i, bezierLineIntersection(boundingBox.x, boundingBox.y, boundingBox.x + boundingBox.w, boundingBox.y, curve))
+    i.push.apply(i, bezierLineIntersection(boundingBox.x + boundingBox.w, boundingBox.y, boundingBox.x + boundingBox.w, boundingBox.y + boundingBox.h, curve))
+    i.push.apply(i, bezierLineIntersection(boundingBox.x + boundingBox.w, boundingBox.y + boundingBox.h, boundingBox.x, boundingBox.y + boundingBox.h, curve))
+    i.push.apply(i, bezierLineIntersection(boundingBox.x, boundingBox.y + boundingBox.h, boundingBox.x, boundingBox.y, curve))
     return i
 }
 

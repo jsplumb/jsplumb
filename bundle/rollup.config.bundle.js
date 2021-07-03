@@ -4,8 +4,8 @@ export default {
     input: `./index.js`,
     output: [
         {
-            name: "jsPlumb",
-            file: `./dist/jsplumb.bundle.umd.js`,
+            name: "jsPlumbBrowserUI",
+            file: `./dist/jsplumb.bundle.js`,
             format: 'iife'
         }
     ],

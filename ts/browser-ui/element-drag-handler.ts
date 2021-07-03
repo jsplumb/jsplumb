@@ -2,10 +2,13 @@ import {
     CLASS_DRAG_ACTIVE,
     CLASS_DRAG_HOVER, CLASS_DRAG_SELECTED,
     CLASS_DRAGGED,
-    DragHandler,
-    EVENT_DRAG_MOVE, EVENT_DRAG_START,
-    EVENT_DRAG_STOP,
+    DragHandler
 } from "./drag-manager"
+
+import {
+    EVENT_DRAG_MOVE, EVENT_DRAG_START,
+    EVENT_DRAG_STOP
+} from './constants'
 
 import {BrowserJsPlumbInstance, DragGroupSpec} from "./browser-jsplumb-instance"
 import { jsPlumbDOMElement} from './element-facade'
