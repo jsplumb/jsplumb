@@ -86,8 +86,8 @@ var testSuite = function () {
         setup: function () {
             consoleOutput = null
             makeContainer()
-            _jsPlumb = jsPlumb.newInstance({container:container});
-            defaults = jsPlumb.extend({}, _jsPlumb.defaults);
+            _jsPlumb = jsPlumbBrowserUI.newInstance({container:container});
+            defaults = jsPlumbBrowserUI.extend({}, _jsPlumb.defaults);
         }
     });
 
