@@ -3,8 +3,8 @@ import {Dictionary, fastTrim, forEach, isArray, isString, log, PointXY, Size} fr
 
 // These are utility functions for use inside a Browser.
 
-export function matchesSelector (el:jsPlumbDOMElement, selector:string, ctx?:HTMLElement) {
-    ctx = (ctx || el.parentNode) as HTMLElement
+export function matchesSelector (el:jsPlumbDOMElement, selector:string, ctx?:Element) {
+    ctx = (ctx || el.parentNode) as Element
     let possibles = ctx.querySelectorAll(selector)
     for (let i = 0; i < possibles.length; i++) {
         if (possibles[i] === el) {
@@ -242,7 +242,7 @@ export function offsetRelativeToRoot(el:Element):PointXY {
     }
 }
 
-export function size(el:HTMLElement):Size {
-    return { w:el.offsetWidth, h:el.offsetHeight }
+export function size(el:Element):Size {
+    return { w:(el as any).offsetWidth, h:(el as any).offsetHeight }
 }
 
