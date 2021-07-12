@@ -6002,8 +6002,7 @@ function (_EventGenerator) {
     key: "unmanage",
     value: function unmanage(el, removeElement) {
       var _this3 = this;
-      var affectedElements = [];
-      this.removeAllEndpoints(el, true, affectedElements);
+      this.removeAllEndpoints(el, true);
       var _one = function _one(_el) {
         var id = _this3.getId(_el);
         _this3.removeAttribute(_el, ATTRIBUTE_MANAGED);
@@ -6016,9 +6015,7 @@ function (_EventGenerator) {
           _this3._removeElement(_el);
         }
       };
-      for (var ae = 1; ae < affectedElements.length; ae++) {
-        _one(affectedElements[ae]);
-      }
+      this._getAssociatedElements(el).map(_one);
       _one(el);
     }
   }, {
@@ -6450,25 +6447,23 @@ function (_EventGenerator) {
     }
   }, {
     key: "removeAllEndpoints",
-    value: function removeAllEndpoints(el, recurse, affectedElements) {
+    value: function removeAllEndpoints(el, recurse) {
       var _this7 = this;
-      affectedElements = affectedElements || [];
       var _one = function _one(_el) {
         var id = _this7.getId(_el),
             ebe = _this7.endpointsByElement[id],
             i,
             ii;
         if (ebe) {
-          affectedElements.push(_el);
           for (i = 0, ii = ebe.length; i < ii; i++) {
             _this7.deleteEndpoint(ebe[i]);
           }
         }
         delete _this7.endpointsByElement[id];
-        if (recurse) {
-          _this7._getChildElements(_el).map(_one);
-        }
       };
+      if (recurse) {
+        this._getAssociatedElements(el).map(_one);
+      }
       _one(el);
       return this;
     }

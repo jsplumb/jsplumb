@@ -115,7 +115,6 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     setDragGrid(grid: Grid): void;
     _removeElement(element: Element): void;
     _appendElement(el: Element, parent: Element): void;
-    _getChildElements(el: Element): Array<Element>;
     _getAssociatedElements(el: Element): Array<Element>;
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
     getClass(el: Element): string;

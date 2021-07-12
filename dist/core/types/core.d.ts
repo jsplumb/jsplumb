@@ -205,6 +205,7 @@ export declare abstract class JsPlumbInstance<T extends {
     getManagedElement(id: string): T["E"];
     /**
      * Stops managing the given element.
+     * @method unmanage
      * @param el Element, or ID of the element to stop managing.
      * @param removeElement If true, also remove the element from the renderer.
      */
@@ -369,19 +370,20 @@ export declare abstract class JsPlumbInstance<T extends {
     /**
      * Adds the connection to the backing model, fires an event if necessary and then redraws. This is a package-private method, not intended to be
      * called by external code.
-     * @param jpc
+     * @method _finaliseConnection
+     * @param {Connection} jpc Connection to finalise
      * @param params
-     * @param originalEvent
+     * @param {Event} [originalEvent] Optional original event that resulted in the creation of this connection.
      * @private
      */
     _finaliseConnection(jpc: Connection, params?: any, originalEvent?: Event): void;
     /**
      * Remove every endpoint registered to the given element.
+     * @method removeAllEndpoints
      * @param el Element to remove endpoints for.
      * @param recurse If true, also remove endpoints for elements that are descendants of this element.
-     * @param affectedElements Used internally to access the full list of elements affected by this change.
      */
-    removeAllEndpoints(el: T["E"], recurse?: boolean, affectedElements?: Array<T["E"]>): JsPlumbInstance;
+    removeAllEndpoints(el: T["E"], recurse?: boolean): JsPlumbInstance;
     protected _createSourceDefinition(params?: BehaviouralTypeDescriptor, referenceParams?: BehaviouralTypeDescriptor): SourceDefinition;
     /**
      * Registers a selector for connection drag on the instance. This is a newer version of the `makeSource` functionality
@@ -469,7 +471,6 @@ export declare abstract class JsPlumbInstance<T extends {
     abstract _getAssociatedElements(el: T["E"]): Array<T["E"]>;
     abstract _removeElement(el: T["E"]): void;
     abstract _appendElement(el: T["E"], parent: T["E"]): void;
-    abstract _getChildElements(el: T["E"]): Array<T["E"]>;
     abstract removeClass(el: T["E"] | ArrayLike<T["E"]>, clazz: string): void;
     abstract addClass(el: T["E"] | ArrayLike<T["E"]>, clazz: string): void;
     abstract toggleClass(el: T["E"] | ArrayLike<T["E"]>, clazz: string): void;

@@ -4153,23 +4153,16 @@ function (_JsPlumbInstance) {
       }
     }
   }, {
-    key: "_getChildElements",
-    value: function _getChildElements(el) {
-      var out = [];
-      if (el && el.nodeType !== 3 && el.nodeType !== 8) {
-        for (var i = 0, ii = el.childNodes.length; i < ii; i++) {
-          if (el.childNodes[i].nodeType !== 3 && el.childNodes[i].nodeType !== 8) out.push(el.childNodes[i]);
-        }
-      }
-      return out;
-    }
-  }, {
     key: "_getAssociatedElements",
     value: function _getAssociatedElements(el) {
-      var els = el.querySelectorAll(core.SELECTOR_MANAGED_ELEMENT);
       var a = [];
-      Array.prototype.push.apply(a, els);
-      return a;
+      if (el.nodeType !== 3 && el.nodeType !== 8) {
+        var els = el.querySelectorAll(core.SELECTOR_MANAGED_ELEMENT);
+        Array.prototype.push.apply(a, els);
+      }
+      return a.filter(function (_a) {
+        return _a.nodeType !== 3 && _a.nodeType !== 8;
+      });
     }
   }, {
     key: "shouldFireEvent",
