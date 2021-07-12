@@ -542,8 +542,34 @@ export class EventManager {
             const ite = !bindingAMouseEvent && !originalIsMouse && (isTouchDevice && touchMap[event]),
                 evtName = ite ? "TouchEvent" : "MouseEvents"
 
+            // create event using constructors.
+            // wont work for IE11.  currently causes
+            // a test to fail also.
+            // if (ite) {
+            //     const touchList = _touchAndList(_el, pl.x, pl.y, sl.x, sl.y, cl.x, cl.y)
+            //     evt = new TouchEvent(eventToBind,{
+            //             touches:touchList,
+            //             targetTouches:touchList,
+            //             changedTouches:touchList,
+            //             bubbles:true,
+            //             cancelable:true
+            //         })
+            // } else {
+            //     evt = new MouseEvent(eventToBind, {
+            //         bubbles:true,
+            //         cancelable:true,
+            //         screenX:sl.x,
+            //         screenY:sl.y,
+            //         clientX:cl.x,
+            //         clientY:cl.y,
+            //         button:1,
+            //         relatedTarget:_el
+            //     })
+            // }
+
             evt = document.createEvent(evtName)
             eventGenerators[evtName](evt)
+
             _decorate(evt)
             _el.dispatchEvent(evt)
         })
