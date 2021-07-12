@@ -49,7 +49,7 @@ import {
     Dictionary,
     Size,
     BoundingBox,
-    Extents, Grid
+    Extents, Grid, filterList
 } from "@jsplumb/util"
 
 import { _attr,
@@ -484,22 +484,13 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
     }
 
-    _getChildElements(el: Element): Array<Element> {
-        const out:Array<Element> = []
-        if (el && (<any>el).nodeType !== 3 && (<any>el).nodeType !== 8) {
-            for (let i = 0, ii = (<any>el).childNodes.length; i < ii; i++) {
-                if ((<any>el).childNodes[i].nodeType !== 3 && (<any>el).childNodes[i].nodeType !== 8)
-                out.push((<any>el).childNodes[i])
-            }
-        }
-        return out
-    }
-
     _getAssociatedElements(el: Element): Array<Element> {
-        let els = el.querySelectorAll(SELECTOR_MANAGED_ELEMENT)
         let a:Array<Element> = []
-        Array.prototype.push.apply(a, els)
-        return a
+        if ((el as any).nodeType !== 3 && (el as any).nodeType !== 8) {
+            let els = el.querySelectorAll(SELECTOR_MANAGED_ELEMENT)
+            Array.prototype.push.apply(a, els)
+        }
+        return a.filter((_a:Element) => (_a as any).nodeType !== 3 && (_a as any).nodeType !== 8 )
     }
 
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean {
