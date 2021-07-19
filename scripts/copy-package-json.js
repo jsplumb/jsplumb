@@ -7,6 +7,13 @@ p.forEach(pkg => {
     g.copy(`ts/${pkg}/package.json`, target)
     const pp = JSON.parse(g.readString(target))
     pp.version = v
+
+    for (let dep in pp.dependencies) {
+        if (dep.indexOf("@jsplumb/") === 0) {
+            pp.dependencies[dep] = v
+        }
+    }
+
     g.write(target, JSON.stringify(pp, 2, 2))
 })
 

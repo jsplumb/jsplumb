@@ -29,6 +29,8 @@
   ],
   "author": "jsPlumb (hello@jsplumbtoolkit.com)",
   "license": "(MIT OR GPL-2.0)",
-  "dependencies": {},
+  "dependencies": {
+    "@jsplumb/util": "5.0.0-RC1"
+  },
   "devDependencies": {}
 }
