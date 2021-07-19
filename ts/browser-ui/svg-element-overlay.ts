@@ -1,6 +1,7 @@
 
 import { _attr, _node, _appendAtIndex, ELEMENT_PATH } from './svg-util'
-import {Component, Connection, Endpoint, Overlay, PaintStyle} from "@jsplumb/core"
+import {Component, Connection, Endpoint, Overlay} from "@jsplumb/core"
+import { PaintStyle } from "@jsplumb/common"
 import {Extents} from "@jsplumb/util"
 
 export interface SvgOverlayPaintParams extends Extents, PaintStyle {

@@ -1,6 +1,7 @@
-import { CustomOverlayOptions, Overlay } from "./overlay";
+import { Overlay } from "./overlay";
 import { JsPlumbInstance } from "../core";
 import { Component } from '../component/component';
+import { CustomOverlayOptions } from "@jsplumb/common";
 export declare class CustomOverlay extends Overlay {
     instance: JsPlumbInstance;
     component: Component;

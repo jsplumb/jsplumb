@@ -1,5 +1,6 @@
 import { log } from '@jsplumb/util';
-import { ArcSegment, AbstractConnector, AbstractSegment, Connectors } from '@jsplumb/core';
+import { ArcSegment, AbstractConnector, Connectors } from '@jsplumb/core';
+import { AbstractSegment } from '@jsplumb/common';
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {

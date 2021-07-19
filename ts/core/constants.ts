@@ -11,19 +11,12 @@ export function att(...attName:Array<string>):string {
     return attName.map((an:string) => "[" + an + "]").join(",")
 }
 
-export const DEFAULT = "default"
-export const WILDCARD = "*"
 export const SOURCE = "source"
 export const TARGET = "target"
 export const BLOCK = "block"
 export const NONE = "none"
 export const SOURCE_INDEX = 0
 export const TARGET_INDEX = 1
-
-export const TRUE = "true"
-export const FALSE = "false"
-
-export const UNDEFINED = "undefined"
 
 export const ABSOLUTE = "absolute"
 export const FIXED = "fixed"

@@ -1,4 +1,4 @@
-import {PaintStyle} from "@jsplumb/core"
+import {PaintStyle} from "@jsplumb/common"
 import {Extents} from "@jsplumb/util"
 
 import { _attr, _pos, _size  } from './svg-util'

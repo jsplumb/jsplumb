@@ -1,11 +1,11 @@
 import { Extents, EventGenerator, Merge, PointXY, Dictionary } from "@jsplumb/util";
-import { PaintStyle } from "../styles";
+import { Overlay } from '../overlay/overlay';
 import { TypeDescriptor } from '../type-descriptors';
 import { JsPlumbInstance } from "../core";
 import { Connection } from "../connector/connection-impl";
 import { Endpoint } from "../endpoint/endpoint";
-import { Overlay, OverlaySpec } from "../overlay/overlay";
 import { LabelOverlay } from "../overlay/label-overlay";
+import { OverlaySpec, PaintStyle } from "@jsplumb/common";
 export declare type ComponentParameters = Record<string, any>;
 export declare function _removeTypeCssHelper<E>(component: Component, typeIndex: number): void;
 export declare function _updateHoverStyle<E>(component: Component): void;

@@ -1,4 +1,16 @@
-import {AnchorOptions} from "@jsplumb/core"
+
+export interface AnchorOptions extends Record<string, any> {
+    cssClass?:string
+}
+
+/**
+ * Constructor options for a Perimeter Anchor.
+ */
+export interface PerimeterAnchorOptions extends AnchorOptions {
+    shape:string
+    rotation?:number
+    anchorCount?:number
+}
 
 export type AnchorPlacement = {
     curX:number,

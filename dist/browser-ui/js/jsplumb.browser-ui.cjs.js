@@ -4,6 +4,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 var core = require('@jsplumb/core');
 var util = require('@jsplumb/util');
+var common = require('@jsplumb/common');
 
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -2195,7 +2196,7 @@ function () {
       }
       var cont = true;
       var nd = el.getAttribute(core.ATTRIBUTE_NOT_DRAGGABLE);
-      if (this.instance.elementsDraggable === false || nd != null && nd !== core.FALSE) {
+      if (this.instance.elementsDraggable === false || nd != null && nd !== common.FALSE) {
         cont = false;
       }
       if (cont) {
@@ -2510,14 +2511,14 @@ function () {
       sourceDef = this._getSourceDefinition(e);
       if (sourceDef != null) {
         sourceEl = this._resolveDragParent(sourceDef.def, eventTarget);
-        if (sourceEl == null || sourceEl.getAttribute(ATTRIBUTE_JTK_ENABLED) === core.FALSE) {
+        if (sourceEl == null || sourceEl.getAttribute(ATTRIBUTE_JTK_ENABLED) === common.FALSE) {
           return;
         }
       }
       if (sourceDef) {
         var sourceElement = e.currentTarget,
             def;
-        if (eventTarget.getAttribute(ATTRIBUTE_JTK_ENABLED) !== core.FALSE) {
+        if (eventTarget.getAttribute(ATTRIBUTE_JTK_ENABLED) !== common.FALSE) {
           consume(e);
           this._activeDefinition = sourceDef;
           def = sourceDef.def;
@@ -3355,8 +3356,8 @@ function (_ElementDragHandler) {
   SupportedEdge[SupportedEdge["bottom"] = 1] = "bottom";
 })(exports.SupportedEdge || (exports.SupportedEdge = {}));
 var DEFAULT_ANCHOR_LOCATIONS = new Map();
-DEFAULT_ANCHOR_LOCATIONS.set(exports.SupportedEdge.top, [core.AnchorLocations.TopRight, core.AnchorLocations.TopLeft]);
-DEFAULT_ANCHOR_LOCATIONS.set(exports.SupportedEdge.bottom, [core.AnchorLocations.BottomRight, core.AnchorLocations.BottomLeft]);
+DEFAULT_ANCHOR_LOCATIONS.set(exports.SupportedEdge.top, [common.AnchorLocations.TopRight, common.AnchorLocations.TopLeft]);
+DEFAULT_ANCHOR_LOCATIONS.set(exports.SupportedEdge.bottom, [common.AnchorLocations.BottomRight, common.AnchorLocations.BottomLeft]);
 var DEFAULT_LIST_OPTIONS = {
   deriveAnchor: function deriveAnchor(edge, index, ep, conn) {
     return DEFAULT_ANCHOR_LOCATIONS.get(edge)[index];
@@ -3846,7 +3847,7 @@ function () {
         ep.instance.addClass(canvas, classes);
         var scopes = ep.endpoint.scope.split(/\s/);
         for (var i = 0; i < scopes.length; i++) {
-          ep.instance.setAttribute(canvas, core.ATTRIBUTE_SCOPE_PREFIX + scopes[i], core.TRUE);
+          ep.instance.setAttribute(canvas, core.ATTRIBUTE_SCOPE_PREFIX + scopes[i], common.TRUE);
         }
         if (!ep.instance._suspendDrawing) {
           _size(canvas, 0, 0, 1, 1);
@@ -3890,7 +3891,7 @@ function registerEndpointRenderer(name, fns) {
 }
 function getPositionOnElement(evt, el, zoom) {
   var jel = el;
-  var box = _typeof(el.getBoundingClientRect) !== core.UNDEFINED ? el.getBoundingClientRect() : {
+  var box = _typeof(el.getBoundingClientRect) !== common.UNDEFINED ? el.getBoundingClientRect() : {
     left: 0,
     top: 0,
     width: 0,
@@ -4299,7 +4300,7 @@ function (_JsPlumbInstance) {
   }, {
     key: "getStyle",
     value: function getStyle(el, prop) {
-      if (_typeof(window.getComputedStyle) !== core.UNDEFINED) {
+      if (_typeof(window.getComputedStyle) !== common.UNDEFINED) {
         return getComputedStyle(el, null).getPropertyValue(prop);
       } else {
         return el.currentStyle[prop];
@@ -4340,14 +4341,14 @@ function (_JsPlumbInstance) {
       if (draggable) {
         this.removeAttribute(element, core.ATTRIBUTE_NOT_DRAGGABLE);
       } else {
-        this.setAttribute(element, core.ATTRIBUTE_NOT_DRAGGABLE, core.TRUE);
+        this.setAttribute(element, core.ATTRIBUTE_NOT_DRAGGABLE, common.TRUE);
       }
     }
   }, {
     key: "isDraggable",
     value: function isDraggable(el) {
       var d = this.getAttribute(el, core.ATTRIBUTE_NOT_DRAGGABLE);
-      return d == null || d === core.FALSE;
+      return d == null || d === common.FALSE;
     }
   }, {
     key: "toggleDraggable",

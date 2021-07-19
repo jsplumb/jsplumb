@@ -2,7 +2,8 @@ import {ArrowOverlay} from "./arrow-overlay"
 import {JsPlumbInstance} from "../core"
 import {Component} from '../component/component'
 import { OverlayFactory } from '../factory/overlay-factory'
-import {ArrowOverlayOptions, Overlay} from "../overlay/overlay"
+import {ArrowOverlayOptions} from "@jsplumb/common"
+import { Overlay } from "./overlay"
 
 export class PlainArrowOverlay extends ArrowOverlay {
 

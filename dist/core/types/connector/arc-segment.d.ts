@@ -1,4 +1,4 @@
-import { AbstractSegment, SegmentParams } from "../common/abstract-segment";
+import { AbstractSegment, SegmentParams } from "@jsplumb/common";
 import { PointXY } from '@jsplumb/util';
 export interface ArcSegmentParams extends SegmentParams {
     cx: number;

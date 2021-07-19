@@ -2,16 +2,13 @@ import { PointXY, Rotations, Size } from "@jsplumb/util";
 import { Connection } from "../connector/connection-impl";
 import { Endpoint } from "../endpoint/endpoint";
 import { JsPlumbInstance } from "../core";
-import { AnchorSpec } from "../common/anchor";
+import { AnchorSpec } from "@jsplumb/common";
 export declare type AnchorOrientationHint = -1 | 0 | 1;
 export declare type Orientation = [number, number];
 export declare type Face = "top" | "right" | "bottom" | "left";
 export declare type Axis = [Face, Face];
 export declare const X_AXIS_FACES: Axis;
 export declare const Y_AXIS_FACES: Axis;
-export interface AnchorOptions extends Record<string, any> {
-    cssClass?: string;
-}
 export declare type AnchorComputeParams = {
     xy?: PointXY;
     wh?: Size;
@@ -26,14 +23,6 @@ export declare type AnchorComputeParams = {
     rotation?: Rotations;
     tRotation?: Rotations;
 };
-/**
- * Constructor options for a Perimeter Anchor.
- */
-export interface PerimeterAnchorOptions extends AnchorOptions {
-    shape: string;
-    rotation?: number;
-    anchorCount?: number;
-}
 export interface AnchorRecord {
     x: number;
     y: number;

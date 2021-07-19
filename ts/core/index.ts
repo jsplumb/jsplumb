@@ -10,10 +10,6 @@ import {EndpointFactory} from "./factory/endpoint-factory"
 export * from "./constants"
 export * from './params'
 export * from "./callbacks"
-export * from "./common/anchor"
-export * from "./common/endpoint"
-export * from "./common/connector"
-export * from "./common/abstract-segment"
 export * from "./type-descriptors"
 
 export * from "./core"
@@ -59,8 +55,6 @@ export * from './router/router'
 
 export * from "./factory/anchor-record-factory"
 export * from './router/lightweight-router'
-
-export * from "./styles"
 
 EndpointFactory.registerHandler(DotEndpointHandler)
 EndpointFactory.registerHandler(RectangleEndpointHandler)

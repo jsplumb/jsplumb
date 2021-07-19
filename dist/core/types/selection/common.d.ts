@@ -1,5 +1,4 @@
-import { PaintStyle } from '../styles';
-import { OverlaySpec } from '../overlay/overlay';
+import { PaintStyle, OverlaySpec } from '@jsplumb/common';
 import { Component } from "../component/component";
 import { JsPlumbInstance } from "../core";
 import { Dictionary } from "@jsplumb/util";

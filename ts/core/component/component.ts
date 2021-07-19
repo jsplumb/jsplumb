@@ -1,19 +1,20 @@
 import {Extents, EventGenerator,clone, extend, isFunction, isString, log, Merge, merge, populate, setToArray, uuid, PointXY, Dictionary} from "@jsplumb/util"
 
-import {PaintStyle} from "../styles"
+import { Overlay } from '../overlay/overlay'
 import {TypeDescriptor} from '../type-descriptors'
 import { JsPlumbInstance } from "../core"
 import {Connection} from "../connector/connection-impl"
 import {Endpoint} from "../endpoint/endpoint"
 import { INTERCEPT_BEFORE_DROP } from '../constants'
 import {
-    convertToFullOverlaySpec, FullOverlaySpec,
-    LabelOverlayOptions,
-    Overlay,
-    OverlaySpec
+    convertToFullOverlaySpec
 } from "../overlay/overlay"
 import { LabelOverlay } from "../overlay/label-overlay"
 import { OverlayFactory } from "../factory/overlay-factory"
+import { FullOverlaySpec,
+    LabelOverlayOptions,
+
+    OverlaySpec, PaintStyle } from "@jsplumb/common"
 
 export type ComponentParameters = Record<string, any>
 

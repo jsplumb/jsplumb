@@ -20,9 +20,10 @@ import {
     UIGroup,
     SELECTOR_MANAGED_ELEMENT,
     ATTRIBUTE_NOT_DRAGGABLE,
-    FALSE,
     CLASS_OVERLAY, cls
 } from "@jsplumb/core"
+
+import { FALSE } from "@jsplumb/common"
 
 import {
     BoundingBox,

@@ -19,7 +19,7 @@
     "copy-package-json": "echo \"\n--- Copying package jsons into distribution directories...\n\"; node ./scripts/copy-package-json.js",
     "copy-defs": "echo \"\n--- Copying typescript definitions into distribution directories...\n\"; node ./scripts/copy-typescript-defs.js",
     "create-distribution": "echo \"\n-- Building packages...\n\";node ./scripts/create-packages.js;npm run build:bundle",
-    "build:bundle": "rm -rf bundle/dist;rm -rf bundle/node_modules;cd bundle;npm i;rollup -c rollup.config.bundle.js",
+    "build:bundle": "rm -rf bundle/dist;rm -rf bundle/node_modules;cd bundle;npm i;rollup -c rollup.config.bundle.js;rm package-lock.json",
     "rollup": "echo \"\n--- Running Rollup...\n\"; rollup -c",
     "rollup-dev": "rollup -c -w",
     "link": "node scripts/link.js"
@@ -35,11 +35,12 @@
     "connectivity"
   ],
   "packages": [
-    "util", "core", "connector-bezier", "connector-flowchart", "browser-ui"
+    "util", "common", "core", "connector-bezier", "connector-flowchart", "browser-ui"
   ],
   "packageNames": {
     "@jsplumb/core":"jsPlumb",
     "@jsplumb/util":"jsPlumbUtil",
+    "@jsplumb/common":"jsPlumbCommon",
     "@jsplumb/browser-ui":"jsPlumbBrowserUI",
     "@jsplumb/connector-bezier":"jsPlumbConnectorBezier",
     "@jsplumb/connector-flowchart":"jsPlumbConnectorFlowchart"

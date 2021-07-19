@@ -3,6 +3,7 @@
  * scope with the name `jsPlumb`.
  */
 export * from '@jsplumb/util'
+export * from '@jsplumb/common'
 export * from '@jsplumb/core'
 export * from '@jsplumb/connector-flowchart'
 export * from '@jsplumb/connector-bezier'

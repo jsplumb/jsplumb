@@ -1,8 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@jsplumb/core'), require('@jsplumb/util')) :
-  typeof define === 'function' && define.amd ? define(['exports', '@jsplumb/core', '@jsplumb/util'], factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.jsPlumbBrowserUI = {}, global.jsPlumb, global.jsPlumbUtil));
-}(this, (function (exports, core, util) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@jsplumb/core'), require('@jsplumb/util'), require('@jsplumb/common')) :
+  typeof define === 'function' && define.amd ? define(['exports', '@jsplumb/core', '@jsplumb/util', '@jsplumb/common'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.jsPlumbBrowserUI = {}, global.jsPlumb, global.jsPlumbUtil, global.jsPlumbCommon));
+}(this, (function (exports, core, util, common) { 'use strict';
 
   function _typeof(obj) {
     if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -2194,7 +2194,7 @@
         }
         var cont = true;
         var nd = el.getAttribute(core.ATTRIBUTE_NOT_DRAGGABLE);
-        if (this.instance.elementsDraggable === false || nd != null && nd !== core.FALSE) {
+        if (this.instance.elementsDraggable === false || nd != null && nd !== common.FALSE) {
           cont = false;
         }
         if (cont) {
@@ -2509,14 +2509,14 @@
         sourceDef = this._getSourceDefinition(e);
         if (sourceDef != null) {
           sourceEl = this._resolveDragParent(sourceDef.def, eventTarget);
-          if (sourceEl == null || sourceEl.getAttribute(ATTRIBUTE_JTK_ENABLED) === core.FALSE) {
+          if (sourceEl == null || sourceEl.getAttribute(ATTRIBUTE_JTK_ENABLED) === common.FALSE) {
             return;
           }
         }
         if (sourceDef) {
           var sourceElement = e.currentTarget,
               def;
-          if (eventTarget.getAttribute(ATTRIBUTE_JTK_ENABLED) !== core.FALSE) {
+          if (eventTarget.getAttribute(ATTRIBUTE_JTK_ENABLED) !== common.FALSE) {
             consume(e);
             this._activeDefinition = sourceDef;
             def = sourceDef.def;
@@ -3354,8 +3354,8 @@
     SupportedEdge[SupportedEdge["bottom"] = 1] = "bottom";
   })(exports.SupportedEdge || (exports.SupportedEdge = {}));
   var DEFAULT_ANCHOR_LOCATIONS = new Map();
-  DEFAULT_ANCHOR_LOCATIONS.set(exports.SupportedEdge.top, [core.AnchorLocations.TopRight, core.AnchorLocations.TopLeft]);
-  DEFAULT_ANCHOR_LOCATIONS.set(exports.SupportedEdge.bottom, [core.AnchorLocations.BottomRight, core.AnchorLocations.BottomLeft]);
+  DEFAULT_ANCHOR_LOCATIONS.set(exports.SupportedEdge.top, [common.AnchorLocations.TopRight, common.AnchorLocations.TopLeft]);
+  DEFAULT_ANCHOR_LOCATIONS.set(exports.SupportedEdge.bottom, [common.AnchorLocations.BottomRight, common.AnchorLocations.BottomLeft]);
   var DEFAULT_LIST_OPTIONS = {
     deriveAnchor: function deriveAnchor(edge, index, ep, conn) {
       return DEFAULT_ANCHOR_LOCATIONS.get(edge)[index];
@@ -3845,7 +3845,7 @@
           ep.instance.addClass(canvas, classes);
           var scopes = ep.endpoint.scope.split(/\s/);
           for (var i = 0; i < scopes.length; i++) {
-            ep.instance.setAttribute(canvas, core.ATTRIBUTE_SCOPE_PREFIX + scopes[i], core.TRUE);
+            ep.instance.setAttribute(canvas, core.ATTRIBUTE_SCOPE_PREFIX + scopes[i], common.TRUE);
           }
           if (!ep.instance._suspendDrawing) {
             _size(canvas, 0, 0, 1, 1);
@@ -3889,7 +3889,7 @@
   }
   function getPositionOnElement(evt, el, zoom) {
     var jel = el;
-    var box = _typeof(el.getBoundingClientRect) !== core.UNDEFINED ? el.getBoundingClientRect() : {
+    var box = _typeof(el.getBoundingClientRect) !== common.UNDEFINED ? el.getBoundingClientRect() : {
       left: 0,
       top: 0,
       width: 0,
@@ -4298,7 +4298,7 @@
     }, {
       key: "getStyle",
       value: function getStyle(el, prop) {
-        if (_typeof(window.getComputedStyle) !== core.UNDEFINED) {
+        if (_typeof(window.getComputedStyle) !== common.UNDEFINED) {
           return getComputedStyle(el, null).getPropertyValue(prop);
         } else {
           return el.currentStyle[prop];
@@ -4339,14 +4339,14 @@
         if (draggable) {
           this.removeAttribute(element, core.ATTRIBUTE_NOT_DRAGGABLE);
         } else {
-          this.setAttribute(element, core.ATTRIBUTE_NOT_DRAGGABLE, core.TRUE);
+          this.setAttribute(element, core.ATTRIBUTE_NOT_DRAGGABLE, common.TRUE);
         }
       }
     }, {
       key: "isDraggable",
       value: function isDraggable(el) {
         var d = this.getAttribute(el, core.ATTRIBUTE_NOT_DRAGGABLE);
-        return d == null || d === core.FALSE;
+        return d == null || d === common.FALSE;
       }
     }, {
       key: "toggleDraggable",

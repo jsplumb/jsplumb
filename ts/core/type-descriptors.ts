@@ -2,11 +2,7 @@
  * Base interface for endpoint/connection types, which are registered via `registerConnectionType` and `registerEndpointType`. This interface
  * contains parameters that are common between the two types.
  */
-import {PaintStyle} from "./styles"
-import {OverlaySpec} from "./overlay/overlay"
-import {AnchorSpec} from "./common/anchor"
-import {EndpointSpec} from "./common/endpoint"
-import {ConnectorSpec} from "./common/connector"
+import {PaintStyle, OverlaySpec, ConnectorSpec, EndpointSpec, AnchorSpec} from "@jsplumb/common"
 import {Dictionary} from "@jsplumb/util"
 import {RedropPolicy} from "./source-selector"
 import {Endpoint} from "./endpoint/endpoint"

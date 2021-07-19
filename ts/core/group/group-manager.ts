@@ -9,6 +9,7 @@ import { JsPlumbInstance, jsPlumbElement } from "../core"
 import {UIGroup, GroupOptions, UINode} from "./group"
 import * as Constants from "../constants"
 import {PointXY,IS, removeWithFunction, Dictionary, suggest, forEach } from "@jsplumb/util"
+import { WILDCARD } from "@jsplumb/common"
 import {Connection} from "../connector/connection-impl"
 import {ConnectionSelection} from "../selection/connection-selection"
 import {SELECTOR_MANAGED_ELEMENT} from "../constants"
@@ -302,11 +303,11 @@ export class GroupManager<E> {
 
             const c1 = this.instance.getConnections({
                 source: members,
-                scope: Constants.WILDCARD
+                scope: WILDCARD
             }, true) as Array<Connection>
             const c2 = this.instance.getConnections({
                 target: members,
-                scope: Constants.WILDCARD
+                scope: WILDCARD
             }, true) as Array<Connection>
             const processed = {}
 

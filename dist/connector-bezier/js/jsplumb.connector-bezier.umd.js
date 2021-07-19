@@ -1,8 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@jsplumb/util'), require('@jsplumb/core')) :
-  typeof define === 'function' && define.amd ? define(['exports', '@jsplumb/util', '@jsplumb/core'], factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.jsPlumbConnectorBezier = {}, global.jsPlumbUtil, global.jsPlumb));
-}(this, (function (exports, util, core) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@jsplumb/util'), require('@jsplumb/core'), require('@jsplumb/common')) :
+  typeof define === 'function' && define.amd ? define(['exports', '@jsplumb/util', '@jsplumb/core', '@jsplumb/common'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.jsPlumbConnectorBezier = {}, global.jsPlumbUtil, global.jsPlumb, global.jsPlumbCommon));
+}(this, (function (exports, util, core, common) { 'use strict';
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -837,7 +837,7 @@
       }
     }]);
     return BezierSegment;
-  }(core.AbstractSegment);
+  }(common.AbstractSegment);
   _defineProperty(BezierSegment, "segmentType", "Bezier");
 
   var BezierConnector =

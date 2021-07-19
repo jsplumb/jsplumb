@@ -1,17 +1,12 @@
 export declare function cls(...className: Array<string>): string;
 export declare function classList(...className: Array<string>): string;
 export declare function att(...attName: Array<string>): string;
-export declare const DEFAULT = "default";
-export declare const WILDCARD = "*";
 export declare const SOURCE = "source";
 export declare const TARGET = "target";
 export declare const BLOCK = "block";
 export declare const NONE = "none";
 export declare const SOURCE_INDEX = 0;
 export declare const TARGET_INDEX = 1;
-export declare const TRUE = "true";
-export declare const FALSE = "false";
-export declare const UNDEFINED = "undefined";
 export declare const ABSOLUTE = "absolute";
 export declare const FIXED = "fixed";
 export declare const STATIC = "static";

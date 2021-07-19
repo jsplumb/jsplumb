@@ -1,11 +1,7 @@
 import { Connection } from "../connector/connection-impl";
 import { EndpointRepresentation } from "./endpoints";
-import { PaintStyle } from "../styles";
-import { OverlaySpec } from "../overlay/overlay";
 import { LightweightAnchor } from "../factory/anchor-record-factory";
-import { AnchorSpec } from "../common/anchor";
-import { EndpointSpec } from "../common/endpoint";
-import { ConnectorSpec } from "../common/connector";
+import { PaintStyle, OverlaySpec, AnchorSpec, EndpointSpec, ConnectorSpec } from "@jsplumb/common";
 export interface InternalEndpointOptions<E> extends EndpointOptions<E> {
     isTemporarySource?: boolean;
     elementId?: string;

@@ -34,7 +34,7 @@ import {
 } from "@jsplumb/util"
 
 import {ViewportElement} from "../viewport"
-import {AnchorPlacement, AnchorSpec} from "../common/anchor"
+import {AnchorPlacement, AnchorSpec} from "@jsplumb/common"
 
 
 // -------------------- internal data structures --------------------------------------

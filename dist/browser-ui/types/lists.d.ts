@@ -1,6 +1,7 @@
 import { BrowserJsPlumbInstance } from "./browser-jsplumb-instance";
 import { jsPlumbDOMElement } from './element-facade';
-import { Endpoint, Connection, AnchorSpec, EndpointSpec } from '@jsplumb/core';
+import { Endpoint, Connection } from '@jsplumb/core';
+import { AnchorSpec, EndpointSpec } from "@jsplumb/common";
 import { Dictionary } from "@jsplumb/util";
 export interface ListManagerOptions {
 }

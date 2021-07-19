@@ -1,20 +1,14 @@
 
-import {PaintStyle} from "../styles"
-import {OverlaySpec} from "../overlay/overlay"
 import {Connection} from "../connector/connection-impl"
 import { EndpointFactory } from "../factory/endpoint-factory"
 import { EndpointRepresentation } from './endpoints'
-import {extend, merge, isString, isAssignableFrom} from '@jsplumb/util'
-import {DeleteConnectionOptions, JsPlumbInstance} from '../core'
-import {Component} from "../component/component"
-import {DEFAULT, EVENT_ANCHOR_CHANGED, EVENT_MAX_CONNECTIONS} from "../constants"
-import {InternalEndpointOptions} from "./endpoint-options"
+import { extend, isString, isAssignableFrom } from '@jsplumb/util'
+import { DeleteConnectionOptions, JsPlumbInstance } from '../core'
+import { Component } from "../component/component"
+import { EVENT_ANCHOR_CHANGED, EVENT_MAX_CONNECTIONS } from "../constants"
+import { InternalEndpointOptions } from "./endpoint-options"
 import { LightweightAnchor } from '../factory/anchor-record-factory'
-import {AnchorLocations, AnchorSpec} from "../common/anchor"
-import {EndpointSpec, FullEndpointSpec} from "../common/endpoint"
-import {ConnectorSpec} from "../common/connector"
-
-export interface EndpointStyle extends PaintStyle, Record<string, any> {}
+import { PaintStyle, OverlaySpec, DEFAULT, AnchorLocations, AnchorSpec, EndpointSpec, FullEndpointSpec, ConnectorSpec } from "@jsplumb/common"
 
 const typeParameters = [ "connectorStyle", "connectorHoverStyle", "connectorOverlays", "connector", "connectionType", "connectorClass", "connectorHoverClass" ]
 

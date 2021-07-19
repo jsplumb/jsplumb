@@ -4,6 +4,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 var util = require('@jsplumb/util');
 var core = require('@jsplumb/core');
+var common = require('@jsplumb/common');
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -838,7 +839,7 @@ function (_AbstractSegment) {
     }
   }]);
   return BezierSegment;
-}(core.AbstractSegment);
+}(common.AbstractSegment);
 _defineProperty(BezierSegment, "segmentType", "Bezier");
 
 var BezierConnector =

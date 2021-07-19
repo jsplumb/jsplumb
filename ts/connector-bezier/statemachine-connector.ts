@@ -1,6 +1,7 @@
 import {AbstractBezierConnector, AbstractBezierOptions} from "./abstract-bezier-connector"
 import {BezierSegment} from "./bezier-segment"
-import {AnchorPlacement, Connection, ConnectorComputeParams, PaintGeometry} from "@jsplumb/core"
+import {Connection, ConnectorComputeParams, PaintGeometry} from "@jsplumb/core"
+import { AnchorPlacement } from "@jsplumb/common"
 
 function _segment (x1:number, y1:number, x2:number, y2:number):number {
     if (x1 <= x2 && y2 <= y1) {

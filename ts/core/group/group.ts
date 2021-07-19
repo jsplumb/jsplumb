@@ -6,8 +6,7 @@ import { GroupManager } from "../group/group-manager"
 import { Dictionary, PointXY, removeWithFunction, uuid, log, getWithFunction} from '@jsplumb/util'
 
 import * as Constants from "../constants"
-import {AnchorSpec} from "../common/anchor"
-import { EndpointSpec } from "../common/endpoint"
+import { EndpointSpec, AnchorSpec } from "@jsplumb/common"
 
 export interface GroupOptions {
     id?:string

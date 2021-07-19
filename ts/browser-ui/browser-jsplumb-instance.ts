@@ -10,13 +10,9 @@ import {
     SELECTOR_MANAGED_ELEMENT,
     CLASS_OVERLAY,
     ATTRIBUTE_MANAGED,
-    TRUE,
-    FALSE,
     ABSOLUTE,
     FIXED,
     STATIC,
-    UNDEFINED,
-    PaintStyle,
     isArrowOverlay,
     isPlainArrowOverlay,
     LabelOverlay,
@@ -49,8 +45,13 @@ import {
     Dictionary,
     Size,
     BoundingBox,
-    Extents, Grid, filterList
+    Extents, Grid
 } from "@jsplumb/util"
+
+import { TRUE,
+    FALSE,
+    UNDEFINED,
+    PaintStyle} from "@jsplumb/common"
 
 import { _attr,
     _node,

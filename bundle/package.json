@@ -12,6 +12,7 @@
     "@rollup/plugin-node-resolve": "^9.0.0",
     "rollup": "^2.26.11",
     "@jsplumb/util": "file:../dist/util/jsplumb-util.tgz",
+    "@jsplumb/common": "file:../dist/common/jsplumb-common.tgz",
     "@jsplumb/core": "file:../dist/core/jsplumb-core.tgz",
     "@jsplumb/connector-bezier": "file:../dist/connector-bezier/jsplumb-connector-bezier.tgz",
     "@jsplumb/connector-flowchart": "file:../dist/connector-flowchart/jsplumb-connector-flowchart.tgz",

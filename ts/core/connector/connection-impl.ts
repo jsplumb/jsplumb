@@ -4,17 +4,14 @@ import {ConnectParams } from '../params'
 import { ConnectionTypeDescriptor } from "../type-descriptors"
 import {AbstractConnector} from "./abstract-connector"
 import {Endpoint} from "../endpoint/endpoint"
-import {PaintStyle} from "../styles"
+
 import {Component} from "../component/component"
 import {extend, IS, isString, merge, uuid, Merge, Dictionary} from "@jsplumb/util"
 import {Overlay} from "../overlay/overlay"
 import {makeLightweightAnchorFromSpec} from "../factory/anchor-record-factory"
 
 import * as Constants from "../constants"
-import {DEFAULT} from "../constants"
-import {AnchorSpec} from "../common/anchor"
-import {EndpointSpec} from "../common/endpoint"
-import {ConnectorSpec, ConnectorWithOptions} from "../common/connector"
+import {ConnectorSpec, ConnectorWithOptions, AnchorSpec, EndpointSpec, DEFAULT, PaintStyle} from "@jsplumb/common"
 
 const TYPE_ITEM_ANCHORS = "anchors"
 const TYPE_ITEM_CONNECTOR = "connector"

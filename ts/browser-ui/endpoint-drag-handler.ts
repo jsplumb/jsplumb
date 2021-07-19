@@ -29,7 +29,6 @@ import {
     EndpointRepresentation,
     EVENT_MAX_CONNECTIONS,
     IS_DETACH_ALLOWED,
-    PaintStyle,
     SOURCE,
     SourceDefinition,
     SourceOrTargetDefinition,
@@ -42,10 +41,11 @@ import {
     ATTRIBUTE_SCOPE_PREFIX,
     SourceSelector, InternalEndpointOptions,
     BehaviouralTypeDescriptor,
-    createFloatingAnchor, LightweightFloatingAnchor, REDROP_POLICY_ANY, FALSE,
-    AnchorSpec, EndpointSpec
+    createFloatingAnchor, LightweightFloatingAnchor, REDROP_POLICY_ANY
 } from "@jsplumb/core"
 
+import { FALSE,
+    AnchorSpec, EndpointSpec, PaintStyle } from "@jsplumb/common"
 
 import {
     getAllWithFunction,

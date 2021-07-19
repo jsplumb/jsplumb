@@ -1,4 +1,4 @@
-import {AbstractSegment, SegmentParams} from "../common/abstract-segment"
+import {AbstractSegment, SegmentParams} from "@jsplumb/common"
 import { normal, theta, TWO_PI, PointXY } from '@jsplumb/util'
 
 const VERY_SMALL_VALUE = 0.0000000001

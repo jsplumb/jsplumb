@@ -3,7 +3,7 @@ import {JsPlumbDefaults} from "./defaults"
 import {Connection, ConnectionOptions} from "./connector/connection-impl"
 import {Endpoint} from "./endpoint/endpoint"
 import { DotEndpoint } from './endpoint/dot-endpoint'
-import {convertToFullOverlaySpec, FullOverlaySpec} from "./overlay/overlay"
+import {convertToFullOverlaySpec} from "./overlay/overlay"
 import {RedrawResult} from "./router/router"
 import {
     findWithFunction,
@@ -55,7 +55,15 @@ import { Component } from './component/component'
 import { Overlay } from './overlay/overlay'
 import { LabelOverlay } from './overlay/label-overlay'
 import { AbstractConnector } from './connector/abstract-connector'
-import { PaintStyle} from './styles'
+import {
+    PaintStyle,
+    FullOverlaySpec,
+    AnchorLocations,
+    AnchorPlacement,
+    AnchorSpec,
+    EndpointSpec,
+    WILDCARD, DEFAULT
+} from '@jsplumb/common'
 import {AnchorComputeParams} from "./factory/anchor-record-factory"
 import {SourceSelector, TargetSelector} from "./source-selector"
 import {
@@ -77,8 +85,7 @@ import {
 import {InternalEndpointOptions} from "./endpoint/endpoint-options"
 import {LightweightRouter} from "./router/lightweight-router"
 import {Connectors} from "./connector/connectors"
-import {AnchorLocations, AnchorPlacement, AnchorSpec} from "./common/anchor"
-import {EndpointSpec} from "./common/endpoint"
+
 import {StraightConnector} from "./connector/straight-connector"
 
 export interface jsPlumbElement<E> {
@@ -444,12 +451,12 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     selectEndpoints(params?:SelectEndpointOptions<T["E"]>):EndpointSelection {
         params = params || {}
-        params.scope = params.scope || Constants.WILDCARD
+        params.scope = params.scope || WILDCARD
 
         let noElementFilters = !params.element && !params.source && !params.target,
-            elements = noElementFilters ? Constants.WILDCARD : prepareList(this, params.element),
-            sources = noElementFilters ? Constants.WILDCARD : prepareList(this, params.source),
-            targets = noElementFilters ? Constants.WILDCARD : prepareList(this, params.target),
+            elements = noElementFilters ? WILDCARD : prepareList(this, params.element),
+            sources = noElementFilters ? WILDCARD : prepareList(this, params.source),
+            targets = noElementFilters ? WILDCARD : prepareList(this, params.target),
 
             scopes = prepareList(this, params.scope, true)
 
@@ -1484,7 +1491,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     protected _createSourceDefinition(params?:BehaviouralTypeDescriptor, referenceParams?:BehaviouralTypeDescriptor):SourceDefinition {
         let p:BehaviouralTypeDescriptor = extend({}, referenceParams)
         extend(p, params)
-        p.edgeType = p.edgeType || Constants.DEFAULT
+        p.edgeType = p.edgeType || DEFAULT
         let aae = this._deriveEndpointAndAnchorSpec(p.edgeType)
         p.endpoint = p.endpoint || aae.endpoints[0]
         p.anchor = p.anchor || aae.anchors[0]
@@ -1556,7 +1563,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         // put jsplumb ref into params without altering the params passed in
         let p:BehaviouralTypeDescriptor = extend({}, referenceParams)
         extend(p, params)
-        p.edgeType  = p.edgeType || Constants.DEFAULT
+        p.edgeType  = p.edgeType || DEFAULT
 
         let maxConnections = p.maxConnections || -1;//,
 

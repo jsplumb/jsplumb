@@ -18,11 +18,9 @@ import { Component } from './component/component';
 import { Overlay } from './overlay/overlay';
 import { LabelOverlay } from './overlay/label-overlay';
 import { AbstractConnector } from './connector/abstract-connector';
-import { PaintStyle } from './styles';
+import { PaintStyle, AnchorPlacement, AnchorSpec, EndpointSpec } from '@jsplumb/common';
 import { SourceSelector, TargetSelector } from "./source-selector";
 import { InternalEndpointOptions } from "./endpoint/endpoint-options";
-import { AnchorPlacement, AnchorSpec } from "./common/anchor";
-import { EndpointSpec } from "./common/endpoint";
 export interface jsPlumbElement<E> {
     _jsPlumbGroup: UIGroup<E>;
     _jsPlumbParentGroup: UIGroup<E>;
@@ -213,6 +211,7 @@ export declare abstract class JsPlumbInstance<T extends {
     /**
      * Sets rotation for the element to the given number of degrees (not radians). A value of null is treated as a
      * rotation of 0 degrees.
+     * @method rotate
      * @param element Element to rotate
      * @param rotation Amount to totate
      * @param _doNotRepaint For internal use.
@@ -251,7 +250,6 @@ export declare abstract class JsPlumbInstance<T extends {
      * Internal method to create an Endpoint from the given options, perhaps with the given id. Do not use this method
      * as a consumer of the API. If you wish to add an Endpoint to some element, use `addEndpoint` instead.
      * @param params Options for the Endpoint.
-     * @param id Optional ID for the Endpoint.
      * @private
      */
     _internal_newEndpoint(params: InternalEndpointOptions<T["E"]>): Endpoint;
@@ -269,16 +267,19 @@ export declare abstract class JsPlumbInstance<T extends {
      * Updates position/size information for the given element and redraws its Endpoints and their Connections. Use this method when you've
      * made a change to some element that may have caused the element to change its position or size and you want to ensure the connections are
      * in the right place.
+     * @method revalidate
      * @param el Element to revalidate.
      * @param timestamp Optional, used internally to avoid recomputing position/size information if it has already been computed.
      */
     revalidate(el: T["E"], timestamp?: string): RedrawResult;
     /**
      * Repaint every connection and endpoint in the instance.
+     * @method repaintEverything
      */
     repaintEverything(): JsPlumbInstance;
     /**
      * Sets the position of the given element to be [x,y].
+     * @method setElementPosition
      * @param el Element to set the position for
      * @param x Position in X axis
      * @param y Position in Y axis
@@ -288,6 +289,7 @@ export declare abstract class JsPlumbInstance<T extends {
     /**
      * Repaints all connections and endpoints associated with the given element, _without recomputing the element
      * size and position_. If you want to first recompute element size and position you should call `revalidate(el)` instead,
+     * @method repaint
      * @param el
      * @param timestamp Optional parameter used internally to avoid recalculating offsets multiple times in one paint.
      * @param offsetsWereJustCalculated If true, we don't recalculate the offsets of child elements of the element we're repainting.
@@ -306,11 +308,13 @@ export declare abstract class JsPlumbInstance<T extends {
     _maybePruneEndpoint(endpoint: Endpoint): boolean;
     /**
      * Delete the given endpoint.
+     * @method deleteEndpoint
      * @param object Either an Endpoint, or the UUID of an Endpoint.
      */
     deleteEndpoint(object: string | Endpoint): JsPlumbInstance;
     /**
      * Add an Endpoint to the given element.
+     * @method addEndpoint
      * @param el Element to add the endpoint to.
      * @param params
      * @param referenceParams

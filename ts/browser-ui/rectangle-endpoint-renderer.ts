@@ -2,7 +2,8 @@ import {registerEndpointRenderer} from "./browser-jsplumb-instance"
 
 import { _attr, _node } from './svg-util'
 
-import {PaintStyle, RectangleEndpoint} from "@jsplumb/core"
+import {RectangleEndpoint} from "@jsplumb/core"
+import { PaintStyle } from "@jsplumb/common"
 
 const RECT = "rect"
 

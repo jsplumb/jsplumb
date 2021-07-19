@@ -2,7 +2,7 @@ import { Connection } from '../connector/connection-impl';
 import { Endpoint } from '../endpoint/endpoint';
 import { PointXY } from '@jsplumb/util';
 import { AnchorComputeParams, Face, LightweightContinuousAnchor, Orientation } from "../factory/anchor-record-factory";
-import { AnchorPlacement, AnchorSpec } from "../common/anchor";
+import { AnchorPlacement, AnchorSpec } from "@jsplumb/common";
 export interface RedrawResult {
     c: Set<Connection>;
     e: Set<Endpoint>;

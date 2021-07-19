@@ -1,32 +1,7 @@
 import { JsPlumbInstance } from "../core";
-import { PaintStyle } from "../styles";
 import { Component } from "../component/component";
 import { Dictionary, EventGenerator } from "@jsplumb/util";
-export interface OverlayOptions extends Record<string, any> {
-    id?: string;
-    cssClass?: string;
-    location?: number | number[];
-    events?: Dictionary<(value: any, event?: any) => any>;
-}
-export interface ArrowOverlayOptions extends OverlayOptions {
-    width?: number;
-    length?: number;
-    direction?: number;
-    foldback?: number;
-    paintStyle?: PaintStyle;
-}
-export interface LabelOverlayOptions extends OverlayOptions {
-    label: string | Function;
-    labelLocationAttribute?: string;
-}
-export interface CustomOverlayOptions extends OverlayOptions {
-    create: (c: Component) => any;
-}
-export declare type FullOverlaySpec = {
-    type: string;
-    options: OverlayOptions;
-};
-export declare type OverlaySpec = string | FullOverlaySpec;
+import { OverlaySpec, FullOverlaySpec, OverlayOptions } from "@jsplumb/common";
 /**
  * Returns whether or not the given overlay spec is a 'full' overlay spec, ie. has a `type` and some `options`, or is just an overlay name.
  * @param o

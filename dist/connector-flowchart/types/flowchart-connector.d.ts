@@ -1,4 +1,5 @@
-import { Connection, AbstractConnector, ConnectorComputeParams, PaintGeometry, ConnectorOptions } from "@jsplumb/core";
+import { Connection, AbstractConnector, ConnectorComputeParams, PaintGeometry } from "@jsplumb/core";
+import { ConnectorOptions } from "@jsplumb/common";
 export interface FlowchartConnectorOptions extends ConnectorOptions {
     alwaysRespectStubs?: boolean;
     midpoint?: number;

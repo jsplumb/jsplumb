@@ -1,7 +1,8 @@
 import { ArrowOverlay } from "./arrow-overlay";
 import { JsPlumbInstance } from "../core";
 import { Component } from '../component/component';
-import { ArrowOverlayOptions, Overlay } from "../overlay/overlay";
+import { Overlay } from "../overlay/overlay";
+import { ArrowOverlayOptions } from "@jsplumb/common";
 export declare class DiamondOverlay extends ArrowOverlay {
     instance: JsPlumbInstance;
     static type: string;

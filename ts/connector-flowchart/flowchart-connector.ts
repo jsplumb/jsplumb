@@ -1,6 +1,8 @@
 import {
-    Connection, AbstractConnector, ConnectorComputeParams, PaintGeometry, StraightSegment, ArcSegment, ConnectorOptions
+    Connection, AbstractConnector, ConnectorComputeParams, PaintGeometry, StraightSegment, ArcSegment
 } from "@jsplumb/core"
+
+import { ConnectorOptions } from "@jsplumb/common"
 
 import { Dictionary } from '@jsplumb/util'
 

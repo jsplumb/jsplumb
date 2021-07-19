@@ -7,7 +7,7 @@ import {
     LightweightContinuousAnchor,
     Orientation
 } from "../factory/anchor-record-factory"
-import {AnchorPlacement, AnchorSpec} from "../common/anchor"
+import {AnchorPlacement, AnchorSpec} from "@jsplumb/common"
 
 export interface RedrawResult {
     c:Set<Connection>

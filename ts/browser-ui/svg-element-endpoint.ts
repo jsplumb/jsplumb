@@ -8,10 +8,11 @@ import {
     ATTRIBUTE_SCOPE_PREFIX,
     BLOCK,
     EndpointRepresentation,
-    NONE,
-    PaintStyle,
-    TRUE
+    NONE
 } from "@jsplumb/core"
+
+import { PaintStyle,
+    TRUE } from "@jsplumb/common"
 
 import { extend } from "@jsplumb/util"
 import {ELEMENT_DIV} from "./constants"

@@ -1,9 +1,10 @@
 
-import {LabelOverlayOptions, Overlay} from "./overlay"
+import { Overlay} from "./overlay"
 import {Size,isFunction} from "@jsplumb/util"
 import {Component} from "../component/component"
 import {JsPlumbInstance} from "../core"
 import {OverlayFactory} from "../factory/overlay-factory"
+import { LabelOverlayOptions } from "@jsplumb/common"
 
 export class LabelOverlay extends Overlay {
 

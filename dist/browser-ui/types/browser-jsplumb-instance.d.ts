@@ -1,5 +1,6 @@
-import { JsPlumbDefaults, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, PaintStyle, LabelOverlay, Connection, Component, DeleteConnectionOptions, BehaviouralTypeDescriptor, SourceSelector, UIGroup } from '@jsplumb/core';
+import { JsPlumbDefaults, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, LabelOverlay, Connection, Component, DeleteConnectionOptions, BehaviouralTypeDescriptor, SourceSelector, UIGroup } from '@jsplumb/core';
 import { PointXY, Dictionary, Size, Extents, Grid } from "@jsplumb/util";
+import { PaintStyle } from "@jsplumb/common";
 import { DragManager } from "./drag-manager";
 import { jsPlumbDOMElement } from './element-facade';
 import { EventManager } from "./event-manager";

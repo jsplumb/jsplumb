@@ -3,6 +3,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 var util = require('@jsplumb/util');
+var common = require('@jsplumb/common');
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -209,71 +210,6 @@ var EndpointFactory = {
   }
 };
 
-function noSuchPoint() {
-  return {
-    d: Infinity,
-    x: null,
-    y: null,
-    l: null,
-    x1: null,
-    y1: null,
-    x2: null,
-    y2: null
-  };
-}
-function EMPTY_BOUNDS() {
-  return {
-    xmin: Infinity,
-    xmax: -Infinity,
-    ymin: Infinity,
-    ymax: -Infinity
-  };
-}
-var AbstractSegment =
-function () {
-  function AbstractSegment(params) {
-    _classCallCheck(this, AbstractSegment);
-    this.params = params;
-    _defineProperty(this, "x1", void 0);
-    _defineProperty(this, "x2", void 0);
-    _defineProperty(this, "y1", void 0);
-    _defineProperty(this, "y2", void 0);
-    _defineProperty(this, "extents", EMPTY_BOUNDS());
-    _defineProperty(this, "type", void 0);
-    this.x1 = params.x1;
-    this.y1 = params.y1;
-    this.x2 = params.x2;
-    this.y2 = params.y2;
-  }
-  _createClass(AbstractSegment, [{
-    key: "findClosestPointOnPath",
-    value: function findClosestPointOnPath(x, y) {
-      return noSuchPoint();
-    }
-  }, {
-    key: "lineIntersection",
-    value: function lineIntersection(x1, y1, x2, y2) {
-      return [];
-    }
-  }, {
-    key: "boxIntersection",
-    value: function boxIntersection(x, y, w, h) {
-      var a = [];
-      a.push.apply(a, this.lineIntersection(x, y, x + w, y));
-      a.push.apply(a, this.lineIntersection(x + w, y, x + w, y + h));
-      a.push.apply(a, this.lineIntersection(x + w, y + h, x, y + h));
-      a.push.apply(a, this.lineIntersection(x, y + h, x, y));
-      return a;
-    }
-  }, {
-    key: "boundingBoxIntersection",
-    value: function boundingBoxIntersection(box) {
-      return this.boxIntersection(box.x, box.y, box.w, box.h);
-    }
-  }]);
-  return AbstractSegment;
-}();
-
 var EndpointRepresentation =
 function () {
   function EndpointRepresentation(endpoint, params) {
@@ -285,7 +221,7 @@ function () {
     _defineProperty(this, "w", void 0);
     _defineProperty(this, "h", void 0);
     _defineProperty(this, "computedValue", void 0);
-    _defineProperty(this, "bounds", EMPTY_BOUNDS());
+    _defineProperty(this, "bounds", common.EMPTY_BOUNDS());
     _defineProperty(this, "classes", []);
     _defineProperty(this, "instance", void 0);
     _defineProperty(this, "type", void 0);
@@ -481,7 +417,7 @@ function () {
     _defineProperty(this, "w", void 0);
     _defineProperty(this, "h", void 0);
     _defineProperty(this, "segment", void 0);
-    _defineProperty(this, "bounds", EMPTY_BOUNDS());
+    _defineProperty(this, "bounds", common.EMPTY_BOUNDS());
     _defineProperty(this, "cssClass", void 0);
     _defineProperty(this, "hoverClass", void 0);
     _defineProperty(this, "geometry", void 0);
@@ -531,7 +467,7 @@ function () {
   }, {
     key: "resetBounds",
     value: function resetBounds() {
-      this.bounds = EMPTY_BOUNDS();
+      this.bounds = common.EMPTY_BOUNDS();
     }
   }, {
     key: "findSegmentForPoint",
@@ -1047,7 +983,7 @@ function (_AbstractSegment) {
     }
   }]);
   return StraightSegment;
-}(AbstractSegment);
+}(common.AbstractSegment);
 _defineProperty(StraightSegment, "segmentType", "Straight");
 
 var StraightConnector =
@@ -1139,17 +1075,12 @@ function att() {
     return "[" + an + "]";
   }).join(",");
 }
-var DEFAULT = "default";
-var WILDCARD = "*";
 var SOURCE = "source";
 var TARGET = "target";
 var BLOCK = "block";
 var NONE = "none";
 var SOURCE_INDEX = 0;
 var TARGET_INDEX = 1;
-var TRUE = "true";
-var FALSE = "false";
-var UNDEFINED = "undefined";
 var ABSOLUTE = "absolute";
 var FIXED = "fixed";
 var STATIC = "static";
@@ -1205,28 +1136,6 @@ var ERROR_TARGET_ENDPOINT_FULL = "Cannot establish connection: target endpoint i
 var ERROR_SOURCE_DOES_NOT_EXIST = "Cannot establish connection: source does not exist";
 var ERROR_TARGET_DOES_NOT_EXIST = "Cannot establish connection: target does not exist";
 var KEY_CONNECTION_OVERLAYS = "connectionOverlays";
-
-(function (AnchorLocations) {
-  AnchorLocations["Assign"] = "Assign";
-  AnchorLocations["AutoDefault"] = "AutoDefault";
-  AnchorLocations["Bottom"] = "Bottom";
-  AnchorLocations["BottomLeft"] = "BottomLeft";
-  AnchorLocations["BottomRight"] = "BottomRight";
-  AnchorLocations["Center"] = "Center";
-  AnchorLocations["Continuous"] = "Continuous";
-  AnchorLocations["ContinuousBottom"] = "ContinuousBottom";
-  AnchorLocations["ContinuousLeft"] = "ContinuousLeft";
-  AnchorLocations["ContinuousRight"] = "ContinuousRight";
-  AnchorLocations["ContinuousTop"] = "ContinuousTop";
-  AnchorLocations["ContinuousLeftRight"] = "ContinuousLeftRight";
-  AnchorLocations["ContinuousTopBottom"] = "ContinuousTopBottom";
-  AnchorLocations["Left"] = "Left";
-  AnchorLocations["Perimeter"] = "Perimeter";
-  AnchorLocations["Right"] = "Right";
-  AnchorLocations["Top"] = "Top";
-  AnchorLocations["TopLeft"] = "TopLeft";
-  AnchorLocations["TopRight"] = "TopRight";
-})(exports.AnchorLocations || (exports.AnchorLocations = {}));
 
 function isFullOverlaySpec(o) {
   return o.type != null && o.options != null;
@@ -2516,7 +2425,7 @@ function (_Component) {
     _this.setConnector(_this.endpoints[0].connector || _this.endpoints[1].connector || params.connector || _this.instance.defaults.connector, true);
     var data = params.data == null || !util.IS.anObject(params.data) ? {} : params.data;
     _this.setData(data);
-    var _types = [DEFAULT, _this.endpoints[0].edgeType, _this.endpoints[1].edgeType, params.type].join(" ");
+    var _types = [common.DEFAULT, _this.endpoints[0].edgeType, _this.endpoints[1].edgeType, params.type].join(" ");
     if (/[^\s]/.test(_types)) {
       _this.addType(_types, params.data);
     }
@@ -2843,10 +2752,10 @@ function (_Component) {
     if (params.preparedAnchor != null) {
       _this.setPreparedAnchor(params.preparedAnchor);
     } else {
-      var anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : instance.defaults.anchor || exports.AnchorLocations.Top;
+      var anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : instance.defaults.anchor || common.AnchorLocations.Top;
       _this.setAnchor(anchorParamsToUse);
     }
-    var type = [DEFAULT, params.type || ""].join(" ");
+    var type = [common.DEFAULT, params.type || ""].join(" ");
     _this.addType(type, params.data);
     return _this;
   }
@@ -3582,11 +3491,11 @@ function () {
       if (members.length > 0) {
         var c1 = this.instance.getConnections({
           source: members,
-          scope: WILDCARD
+          scope: common.WILDCARD
         }, true);
         var c2 = this.instance.getConnections({
           target: members,
-          scope: WILDCARD
+          scope: common.WILDCARD
         }, true);
         var processed = {};
         var gs, gt;
@@ -5571,7 +5480,7 @@ function (_EventGenerator) {
     _defineProperty(_assertThisInitialized(_this), "DEFAULT_SCOPE", void 0);
     _defineProperty(_assertThisInitialized(_this), "_zoom", 1);
     _this.defaults = {
-      anchor: exports.AnchorLocations.Bottom,
+      anchor: common.AnchorLocations.Bottom,
       anchors: [null, null],
       connectionsDetachable: true,
       connectionOverlays: [],
@@ -5709,11 +5618,11 @@ function (_EventGenerator) {
     key: "selectEndpoints",
     value: function selectEndpoints(params) {
       params = params || {};
-      params.scope = params.scope || WILDCARD;
+      params.scope = params.scope || common.WILDCARD;
       var noElementFilters = !params.element && !params.source && !params.target,
-          elements = noElementFilters ? WILDCARD : prepareList(this, params.element),
-          sources = noElementFilters ? WILDCARD : prepareList(this, params.source),
-          targets = noElementFilters ? WILDCARD : prepareList(this, params.target),
+          elements = noElementFilters ? common.WILDCARD : prepareList(this, params.element),
+          sources = noElementFilters ? common.WILDCARD : prepareList(this, params.source),
+          targets = noElementFilters ? common.WILDCARD : prepareList(this, params.target),
           scopes = prepareList(this, params.scope, true);
       var ep = [];
       for (var _el2 in this.endpointsByElement) {
@@ -6475,7 +6384,7 @@ function (_EventGenerator) {
     value: function _createSourceDefinition(params, referenceParams) {
       var p = util.extend({}, referenceParams);
       util.extend(p, params);
-      p.edgeType = p.edgeType || DEFAULT;
+      p.edgeType = p.edgeType || common.DEFAULT;
       var aae = this._deriveEndpointAndAnchorSpec(p.edgeType);
       p.endpoint = p.endpoint || aae.endpoints[0];
       p.anchor = p.anchor || aae.anchors[0];
@@ -6526,7 +6435,7 @@ function (_EventGenerator) {
     value: function _createTargetDefinition(params, referenceParams) {
       var p = util.extend({}, referenceParams);
       util.extend(p, params);
-      p.edgeType = p.edgeType || DEFAULT;
+      p.edgeType = p.edgeType || common.DEFAULT;
       var maxConnections = p.maxConnections || -1;
       var _def = {
         def: util.extend({}, p),
@@ -7138,7 +7047,7 @@ function (_AbstractSegment) {
     }
   }]);
   return ArcSegment;
-}(AbstractSegment);
+}(common.AbstractSegment);
 _defineProperty(ArcSegment, "segmentType", "Arc");
 
 var DEFAULT_WIDTH = 20;
@@ -7320,7 +7229,6 @@ exports.ATTRIBUTE_SCOPE = ATTRIBUTE_SCOPE;
 exports.ATTRIBUTE_SCOPE_PREFIX = ATTRIBUTE_SCOPE_PREFIX;
 exports.ATTRIBUTE_TABINDEX = ATTRIBUTE_TABINDEX;
 exports.AbstractConnector = AbstractConnector;
-exports.AbstractSegment = AbstractSegment;
 exports.ArcSegment = ArcSegment;
 exports.ArrowOverlay = ArrowOverlay;
 exports.BLOCK = BLOCK;
@@ -7347,11 +7255,9 @@ exports.ConnectionDragSelector = ConnectionDragSelector;
 exports.ConnectionSelection = ConnectionSelection;
 exports.Connectors = Connectors;
 exports.CustomOverlay = CustomOverlay;
-exports.DEFAULT = DEFAULT;
 exports.DiamondOverlay = DiamondOverlay;
 exports.DotEndpoint = DotEndpoint;
 exports.DotEndpointHandler = DotEndpointHandler;
-exports.EMPTY_BOUNDS = EMPTY_BOUNDS;
 exports.ERROR_SOURCE_DOES_NOT_EXIST = ERROR_SOURCE_DOES_NOT_EXIST;
 exports.ERROR_SOURCE_ENDPOINT_FULL = ERROR_SOURCE_ENDPOINT_FULL;
 exports.ERROR_TARGET_DOES_NOT_EXIST = ERROR_TARGET_DOES_NOT_EXIST;
@@ -7381,7 +7287,6 @@ exports.Endpoint = Endpoint;
 exports.EndpointFactory = EndpointFactory;
 exports.EndpointRepresentation = EndpointRepresentation;
 exports.EndpointSelection = EndpointSelection;
-exports.FALSE = FALSE;
 exports.FIXED = FIXED;
 exports.GroupManager = GroupManager;
 exports.INTERCEPT_BEFORE_DETACH = INTERCEPT_BEFORE_DETACH;
@@ -7414,13 +7319,10 @@ exports.StraightSegment = StraightSegment;
 exports.TARGET = TARGET;
 exports.TARGET_INDEX = TARGET_INDEX;
 exports.TOP = TOP;
-exports.TRUE = TRUE;
 exports.TargetSelector = TargetSelector;
 exports.UIGroup = UIGroup;
 exports.UINode = UINode;
-exports.UNDEFINED = UNDEFINED;
 exports.Viewport = Viewport;
-exports.WILDCARD = WILDCARD;
 exports.X_AXIS_FACES = X_AXIS_FACES;
 exports.Y_AXIS_FACES = Y_AXIS_FACES;
 exports._removeTypeCssHelper = _removeTypeCssHelper;

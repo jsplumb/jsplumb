@@ -1,6 +1,6 @@
 import {SelectionBase} from './common'
 import { Endpoint} from '../endpoint/endpoint'
-import {AnchorSpec} from "../common/anchor"
+import {AnchorSpec} from "@jsplumb/common"
 
 export class EndpointSelection extends SelectionBase<Endpoint> {
 

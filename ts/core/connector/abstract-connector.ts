@@ -6,9 +6,7 @@ import { Orientation} from '../factory/anchor-record-factory'
 import { Endpoint} from '../endpoint/endpoint'
 
 import { ViewportElement } from "../viewport"
-import {AnchorPlacement} from "../common/anchor"
-import {ConnectorOptions, PaintAxis} from "../common/connector"
-import {EMPTY_BOUNDS, Segment} from "../common/abstract-segment"
+import {AnchorPlacement, ConnectorOptions, PaintAxis, EMPTY_BOUNDS, Segment} from "@jsplumb/common"
 
 type SegmentForPoint = { d: number, s: Segment, x: number, y: number, l: number, x1:number, y1:number, x2:number, y2:number, index:number, connectorLocation: number }
 

@@ -1,16 +1,10 @@
-import { PaintStyle } from "../styles";
-import { OverlaySpec } from "../overlay/overlay";
 import { Connection } from "../connector/connection-impl";
 import { EndpointRepresentation } from './endpoints';
 import { DeleteConnectionOptions, JsPlumbInstance } from '../core';
 import { Component } from "../component/component";
 import { InternalEndpointOptions } from "./endpoint-options";
 import { LightweightAnchor } from '../factory/anchor-record-factory';
-import { AnchorSpec } from "../common/anchor";
-import { EndpointSpec } from "../common/endpoint";
-import { ConnectorSpec } from "../common/connector";
-export interface EndpointStyle extends PaintStyle, Record<string, any> {
-}
+import { PaintStyle, OverlaySpec, AnchorSpec, EndpointSpec, ConnectorSpec } from "@jsplumb/common";
 export declare class Endpoint<E = any> extends Component {
     instance: JsPlumbInstance;
     getIdPrefix(): string;

@@ -2,7 +2,7 @@ import {Dictionary, PointXY, Rotations, Size, extend, isArray, isNumber, isStrin
 import { Connection } from "../connector/connection-impl"
 import { Endpoint } from "../endpoint/endpoint"
 import { JsPlumbInstance } from "../core"
-import {AnchorSpec, FullAnchorSpec} from "../common/anchor"
+import {AnchorSpec, FullAnchorSpec} from "@jsplumb/common"
 
 export type AnchorOrientationHint = -1 | 0 | 1
 export type Orientation = [  number, number ]
@@ -12,10 +12,6 @@ export type Axis = [ Face, Face ]
 
 export const X_AXIS_FACES:Axis = ["left", "right"]
 export const Y_AXIS_FACES:Axis = ["top", "bottom"]
-
-export interface AnchorOptions extends Record<string, any> {
-    cssClass?:string
-}
 
 export type AnchorComputeParams = {
     xy?: PointXY
@@ -30,15 +26,6 @@ export type AnchorComputeParams = {
     elementId?:string
     rotation?:Rotations
     tRotation?:Rotations
-}
-
-/**
- * Constructor options for a Perimeter Anchor.
- */
-export interface PerimeterAnchorOptions extends AnchorOptions {
-    shape:string
-    rotation?:number
-    anchorCount?:number
 }
 
 export interface AnchorRecord {

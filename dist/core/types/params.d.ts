@@ -1,10 +1,6 @@
-import { Endpoint, EndpointStyle } from "./endpoint/endpoint";
-import { OverlaySpec } from "./overlay/overlay";
-import { PaintStyle } from "./styles";
+import { Endpoint } from "./endpoint/endpoint";
 import { Connection } from "./connector/connection-impl";
-import { EndpointSpec } from "./common/endpoint";
-import { AnchorSpec } from "./common/anchor";
-import { ConnectorSpec } from "./common/connector";
+import { EndpointStyle, OverlaySpec, PaintStyle, AnchorSpec, ConnectorSpec, EndpointSpec } from "@jsplumb/common";
 export declare type UUID = string;
 /**
  * Options for the `connect` call on a JsPlumbInstance
