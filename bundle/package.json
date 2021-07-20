@@ -1,5 +1,5 @@
 {
-  "private": true,
+  "name": "@jsplumb/browser-ui-bundle",
   "version": "5.0.0-RC1",
   "description": "Visual connectivity for webapps",
   "scripts": {

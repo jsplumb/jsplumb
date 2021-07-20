@@ -884,7 +884,6 @@ var jsPlumbBrowserUI = (function (exports) {
     };
   }
 
-  var AnchorLocations;
   (function (AnchorLocations) {
     AnchorLocations["Assign"] = "Assign";
     AnchorLocations["AutoDefault"] = "AutoDefault";
@@ -905,7 +904,7 @@ var jsPlumbBrowserUI = (function (exports) {
     AnchorLocations["Top"] = "Top";
     AnchorLocations["TopLeft"] = "TopLeft";
     AnchorLocations["TopRight"] = "TopRight";
-  })(AnchorLocations || (AnchorLocations = {}));
+  })(exports.AnchorLocations || (exports.AnchorLocations = {}));
 
   function _classCallCheck$1(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -3762,7 +3761,7 @@ var jsPlumbBrowserUI = (function (exports) {
       if (params.preparedAnchor != null) {
         _this.setPreparedAnchor(params.preparedAnchor);
       } else {
-        var anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : instance.defaults.anchor || AnchorLocations.Top;
+        var anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : instance.defaults.anchor || exports.AnchorLocations.Top;
         _this.setAnchor(anchorParamsToUse);
       }
       var type = [DEFAULT, params.type || ""].join(" ");
@@ -6490,7 +6489,7 @@ var jsPlumbBrowserUI = (function (exports) {
       _defineProperty$2(_assertThisInitialized$1(_this), "DEFAULT_SCOPE", void 0);
       _defineProperty$2(_assertThisInitialized$1(_this), "_zoom", 1);
       _this.defaults = {
-        anchor: AnchorLocations.Bottom,
+        anchor: exports.AnchorLocations.Bottom,
         anchors: [null, null],
         connectionsDetachable: true,
         connectionOverlays: [],
@@ -13001,8 +13000,8 @@ var jsPlumbBrowserUI = (function (exports) {
     SupportedEdge[SupportedEdge["bottom"] = 1] = "bottom";
   })(exports.SupportedEdge || (exports.SupportedEdge = {}));
   var DEFAULT_ANCHOR_LOCATIONS = new Map();
-  DEFAULT_ANCHOR_LOCATIONS.set(exports.SupportedEdge.top, [AnchorLocations.TopRight, AnchorLocations.TopLeft]);
-  DEFAULT_ANCHOR_LOCATIONS.set(exports.SupportedEdge.bottom, [AnchorLocations.BottomRight, AnchorLocations.BottomLeft]);
+  DEFAULT_ANCHOR_LOCATIONS.set(exports.SupportedEdge.top, [exports.AnchorLocations.TopRight, exports.AnchorLocations.TopLeft]);
+  DEFAULT_ANCHOR_LOCATIONS.set(exports.SupportedEdge.bottom, [exports.AnchorLocations.BottomRight, exports.AnchorLocations.BottomLeft]);
   var DEFAULT_LIST_OPTIONS = {
     deriveAnchor: function deriveAnchor(edge, index, ep, conn) {
       return DEFAULT_ANCHOR_LOCATIONS.get(edge)[index];
@@ -14700,6 +14699,7 @@ var jsPlumbBrowserUI = (function (exports) {
   exports.ATTR_SCROLLABLE_LIST = ATTR_SCROLLABLE_LIST;
   exports.AbstractBezierConnector = AbstractBezierConnector;
   exports.AbstractConnector = AbstractConnector;
+  exports.AbstractSegment = AbstractSegment;
   exports.ArcSegment = ArcSegment;
   exports.ArrowOverlay = ArrowOverlay;
   exports.BLOCK = BLOCK;
@@ -14731,12 +14731,14 @@ var jsPlumbBrowserUI = (function (exports) {
   exports.ConnectionSelection = ConnectionSelection;
   exports.Connectors = Connectors;
   exports.CustomOverlay = CustomOverlay;
+  exports.DEFAULT = DEFAULT;
   exports.DiamondOverlay = DiamondOverlay;
   exports.DotEndpoint = DotEndpoint;
   exports.DotEndpointHandler = DotEndpointHandler;
   exports.Drag = Drag;
   exports.ELEMENT = ELEMENT;
   exports.ELEMENT_DIV = ELEMENT_DIV;
+  exports.EMPTY_BOUNDS = EMPTY_BOUNDS;
   exports.ENDPOINT = ENDPOINT;
   exports.ERROR_SOURCE_DOES_NOT_EXIST = ERROR_SOURCE_DOES_NOT_EXIST;
   exports.ERROR_SOURCE_ENDPOINT_FULL = ERROR_SOURCE_ENDPOINT_FULL;
@@ -14815,6 +14817,7 @@ var jsPlumbBrowserUI = (function (exports) {
   exports.EndpointSelection = EndpointSelection;
   exports.EventGenerator = EventGenerator;
   exports.EventManager = EventManager;
+  exports.FALSE = FALSE;
   exports.FIXED = FIXED;
   exports.FlowchartConnector = FlowchartConnector;
   exports.GroupManager = GroupManager;
@@ -14860,11 +14863,14 @@ var jsPlumbBrowserUI = (function (exports) {
   exports.TARGET = TARGET;
   exports.TARGET_INDEX = TARGET_INDEX;
   exports.TOP = TOP;
+  exports.TRUE = TRUE;
   exports.TWO_PI = TWO_PI;
   exports.TargetSelector = TargetSelector;
   exports.UIGroup = UIGroup;
   exports.UINode = UINode;
+  exports.UNDEFINED = UNDEFINED;
   exports.Viewport = Viewport;
+  exports.WILDCARD = WILDCARD;
   exports.X_AXIS_FACES = X_AXIS_FACES;
   exports.Y_AXIS_FACES = Y_AXIS_FACES;
   exports._mergeOverrides = _mergeOverrides;
