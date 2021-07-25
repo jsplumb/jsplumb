@@ -24,7 +24,6 @@ export { EventManager, pageLocation, touches, touchCount, getTouch } from './eve
 export * from "./browser-util"
 export * from './element-facade'
 export * from './element-drag-handler'
-export * from './lists'
 
 export function newInstance(defaults?:BrowserJsPlumbDefaults): BrowserJsPlumbInstance {
     return new BrowserJsPlumbInstance(getInstanceIndex(), defaults)

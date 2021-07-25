@@ -1,5 +1,5 @@
-import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
-import { jsPlumbDOMElement} from './element-facade'
+import {jsPlumbDOMElement, BrowserJsPlumbInstance} from "@jsplumb/browser-ui"
+
 import {
     Endpoint,
     Connection,
@@ -15,16 +15,13 @@ import {
     ConnectionEstablishedParams
 } from '@jsplumb/core'
 
-import {
-    AnchorLocations, AnchorSpec, EndpointSpec } from "@jsplumb/common"
+import { AnchorSpec, EndpointSpec } from "@jsplumb/common"
 
 import { extend, Dictionary } from "@jsplumb/util"
 
-export interface ListManagerOptions { }
+import { SupportedEdge, SELECTOR_SCROLLABLE_LIST, EVENT_SCROLL, DEFAULT_LIST_OPTIONS, ATTR_SCROLLABLE_LIST } from'./constants'
 
-export enum SupportedEdge {
-    top, bottom
-}
+export interface ListManagerOptions { }
 
 /**
  * Constructor options for a list.
@@ -55,20 +52,6 @@ export interface JsPlumbListOptions {
      */
     deriveEndpoint?:(edge:SupportedEdge, index:number, ep:Endpoint, conn:Connection) => EndpointSpec
 }
-
-const DEFAULT_ANCHOR_LOCATIONS:Map<SupportedEdge, [string, string]> = new Map()
-DEFAULT_ANCHOR_LOCATIONS.set(SupportedEdge.top, [AnchorLocations.TopRight, AnchorLocations.TopLeft])
-DEFAULT_ANCHOR_LOCATIONS.set(SupportedEdge.bottom, [AnchorLocations.BottomRight, AnchorLocations.BottomLeft])
-
-const DEFAULT_LIST_OPTIONS = {
-    deriveAnchor:(edge:SupportedEdge, index:number, ep:Endpoint, conn:Connection) => {
-        return DEFAULT_ANCHOR_LOCATIONS.get(edge)[index]
-    }
-}
-
-export const ATTR_SCROLLABLE_LIST = "jtk-scrollable-list"
-export const SELECTOR_SCROLLABLE_LIST = att(ATTR_SCROLLABLE_LIST)
-export const EVENT_SCROLL = "scroll"
 
 
 /**

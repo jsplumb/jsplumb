@@ -82,7 +82,7 @@ import {
     DragStopEventParams, ContainmentType
 } from './collicat'
 
-import {JsPlumbList, JsPlumbListManager, JsPlumbListOptions} from "./lists"
+//import {JsPlumbList, JsPlumbListManager, JsPlumbListOptions} from "./lists"
 
 import {HTMLElementOverlay} from "./html-element-overlay"
 import {SVGElementOverlay} from "./svg-element-overlay"
@@ -265,7 +265,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     _elementMouseexit:Function
 
     eventManager:EventManager
-    listManager:JsPlumbListManager
+    //listManager:JsPlumbListManager
 
     draggingClass = "jtk-dragging"
 
@@ -304,7 +304,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
         this.eventManager = new EventManager()
         this.dragManager = new DragManager(this, defaults && defaults.dragOptions ? defaults.dragOptions : null)
-        this.listManager = new JsPlumbListManager(this)
+        //this.listManager = new JsPlumbListManager(this)
 
         this.dragManager.addHandler(new EndpointDragHandler(this))
         this.groupDragOptions = {
@@ -917,22 +917,22 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         consume(e, doNotPreventDefault)
     }
 
-    /**
-     * Adds a managed list to the instance.
-     * @param el Element containing the list.
-     * @param options
-     */
-    addList (el:Element, options?:JsPlumbListOptions):JsPlumbList {
-        return this.listManager.addList(el, options)
-    }
-
-    /**
-     * Removes a managed list from the instance
-     * @param el Element containing the list.
-     */
-    removeList (el:Element) {
-        this.listManager.removeList(el)
-    }
+    // /**
+    //  * Adds a managed list to the instance.
+    //  * @param el Element containing the list.
+    //  * @param options
+    //  */
+    // addList (el:Element, options?:JsPlumbListOptions):JsPlumbList {
+    //     return this.listManager.addList(el, options)
+    // }
+    //
+    // /**
+    //  * Removes a managed list from the instance
+    //  * @param el Element containing the list.
+    //  */
+    // removeList (el:Element) {
+    //     this.listManager.removeList(el)
+    // }
 
     rotate(element: Element, rotation: number, doNotRepaint?: boolean):RedrawResult {
         const elementId = this.getId(element)

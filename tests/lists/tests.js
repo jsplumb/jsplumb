@@ -1,5 +1,5 @@
 QUnit.config.reorder = false;
-var defaults = null, support, _jsPlumb, divs = [], container
+var defaults = null, support, _jsPlumb, divs = [], container, listManager
 
 function makeAList(count, x, y) {
     var parent = support.addDiv(support.uuid(), null, null, x, y)
@@ -45,8 +45,8 @@ function makeTwoLists(count1, count2) {
         c2[i].className = "targetList"
     }
 
-    _jsPlumb.addList(l1)
-    _jsPlumb.addList(l2)
+    listManager.addList(l1)
+    listManager.addList(l2)
 
     _jsPlumb.addSourceSelector(".sourceList", {
         allowLoopback:false,
@@ -81,6 +81,7 @@ var testSuite = function () {
             _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
             support = jsPlumbTestSupport.getInstance(_jsPlumb);
             defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
+            listManager = jsPlumbBrowserUILists.newInstance(_jsPlumb)
         }
     });
 

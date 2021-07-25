@@ -35,13 +35,14 @@
     "connectivity"
   ],
   "packages": [
-    "util", "common", "core", "connector-bezier", "connector-flowchart", "browser-ui"
+    "util", "common", "core", "connector-bezier", "connector-flowchart", "browser-ui", "browser-ui-lists"
   ],
   "packageNames": {
     "@jsplumb/core":"jsPlumb",
     "@jsplumb/util":"jsPlumbUtil",
     "@jsplumb/common":"jsPlumbCommon",
     "@jsplumb/browser-ui":"jsPlumbBrowserUI",
+    "@jsplumb/browser-ui-lists": "jsPlumbBrowserUILists",
     "@jsplumb/connector-bezier":"jsPlumbConnectorBezier",
     "@jsplumb/connector-flowchart":"jsPlumbConnectorFlowchart"
   },

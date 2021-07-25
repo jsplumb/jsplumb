@@ -16,6 +16,8 @@ One major change between 5.x and 2.x is that jsPlumb is now broken up into a num
 
 - `@jsplumb/browser-ui` This package is the equivalent of `jsPlumb` in 2.x - it provides a concrete instance of jsPlumb that renders connections as SVG elements in the DOM. Depends on `@jsplumb/core`. Note that from 5.x onwards the default connector is now the `Straight` connector, so you will need to import other connectors if you want them - see below.
 
+- `@jsplumb/browser-ui-lists` Scrollable list manager. Depends on `@jsplumb/browser-ui`.
+
 - `@jsplumb/bundle` This package contains all of the other packages, and contains a single JS file - `jsplumb.bundle.umd.js`, which exposes a `jsPlumbBrowserUI` member on the window. Using this package you do not have the option of any tree shaking, and you are importing everything, which you may not need.  Currently this package is not published on npm. 
 
 

@@ -5,7 +5,6 @@ import { DragManager } from "./drag-manager";
 import { jsPlumbDOMElement } from './element-facade';
 import { EventManager } from "./event-manager";
 import { DragStartEventParams, DragEventParams, DragStopEventParams, ContainmentType } from './collicat';
-import { JsPlumbList, JsPlumbListManager, JsPlumbListOptions } from "./lists";
 export interface UIComponent {
     canvas: HTMLElement;
     svg: SVGElement;
@@ -78,7 +77,6 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     _elementMouseenter: Function;
     _elementMouseexit: Function;
     eventManager: EventManager;
-    listManager: JsPlumbListManager;
     draggingClass: string;
     elementDraggingClass: string;
     hoverClass: string;
@@ -225,17 +223,6 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
      * @param doNotPreventDefault
      */
     consume(e: Event, doNotPreventDefault?: boolean): void;
-    /**
-     * Adds a managed list to the instance.
-     * @param el Element containing the list.
-     * @param options
-     */
-    addList(el: Element, options?: JsPlumbListOptions): JsPlumbList;
-    /**
-     * Removes a managed list from the instance
-     * @param el Element containing the list.
-     */
-    removeList(el: Element): void;
     rotate(element: Element, rotation: number, doNotRepaint?: boolean): RedrawResult;
     svg: {
         node: (name: string, attributes?: Dictionary<string | number>) => SVGElement;
