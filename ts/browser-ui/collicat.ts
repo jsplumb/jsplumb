@@ -37,7 +37,7 @@ function _setPosition(el:HTMLElement, pos:PointXY) {
 }
 
 export interface DragStartEventParams {
-    e:Event
+    e:MouseEvent
     el:jsPlumbDOMElement
     pos:PointXY
     drag:Drag
