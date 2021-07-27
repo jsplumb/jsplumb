@@ -2,7 +2,7 @@ import { Dictionary, PointXY, Size, Grid } from '@jsplumb/util';
 import { EventManager } from "./event-manager";
 import { jsPlumbDOMElement } from './element-facade';
 export interface DragStartEventParams {
-    e: Event;
+    e: MouseEvent;
     el: jsPlumbDOMElement;
     pos: PointXY;
     drag: Drag;
@@ -131,7 +131,7 @@ export declare class Drag extends Base {
     private _moveListener;
     private mark;
     private unmark;
-    moveBy(dx: number, dy: number, e?: Event): void;
+    moveBy(dx: number, dy: number, e?: MouseEvent): void;
     abort(): void;
     getDragElement(retrieveOriginalElement?: boolean): jsPlumbDOMElement;
     stop(e?: MouseEvent, force?: boolean): void;
