@@ -612,7 +612,7 @@ export class Drag extends Base {
         this._isConstrained = false
     }
 
-    moveBy (dx:number, dy:number, e?:Event) {
+    moveBy (dx:number, dy:number, e?:MouseEvent) {
 
         let desiredLoc = this.toGrid({x:this._posAtDown.x + dx, y:this._posAtDown.y + dy}),
             cPos:PointXY = this._doConstrain(desiredLoc, this._dragEl, this._constrainRect, this._size)
