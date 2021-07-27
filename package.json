@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "5.0.0-RC5",
+  "version": "5.0.0-RC7",
   "workspaces": [
     "ts/*"
   ],
@@ -18,7 +18,7 @@
     "copy-css": "node ./scripts/copy-css.js",
     "copy-package-json": "echo \"\n--- Copying package jsons into distribution directories...\n\"; node ./scripts/copy-package-json.js",
     "copy-defs": "echo \"\n--- Copying typescript definitions into distribution directories...\n\"; node ./scripts/copy-typescript-defs.js",
-    "create-distribution": "echo \"\n-- Building packages...\n\";node ./scripts/create-packages.js;npm run build:bundle",
+    "create-distribution": "set -e;npm run package;echo \"\n-- Building distribution packages...\n\";node ./scripts/create-packages.js;npm run build:bundle",
     "build:bundle": "node ./bundle/build.js",
     "rollup": "echo \"\n--- Running Rollup...\n\"; rollup -c",
     "rollup-dev": "rollup -c -w",
