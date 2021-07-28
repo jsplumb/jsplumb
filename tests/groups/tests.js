@@ -202,7 +202,7 @@ var testSuite = function () {
 
     /**
      * testing the various defaults, combinations of values. for instance, both `prune` and `orphan` cannot be set. the default
-     * is to `orphan`. etc.
+     * is to `orphan`. `revert` is forced to false if `orphan` is true. 'ghost:true' forces 'constrain:true'.
      */
     test("group construction", function() {
 
@@ -210,8 +210,15 @@ var testSuite = function () {
         var gg = support.addDiv("group1")
         var g = _jsPlumb.addGroup({ el: gg })
 
+        equal(true, g.revert, "by default, group has `revert` marked false");
         equal(false, g.orphan, "by default, group has `orphan` marked false");
         equal(false, g.prune, "by default, group has `prune` marked false");
+        equal(true, g.droppable, "by default, group has `droppable` marked true");
+        equal(false, g.ghost, "by default, group has `ghost` marked false");
+        equal(true, g.enabled, "by default, group has `enabled` marked true");
+        equal(true, g.proxied, "by default, group has `proxied` marked true");
+
+        equal(false, g.constrain, "by default, group has `constrain` marked false");
 
         // set prune
         var gg = support.addDiv("group1")
@@ -221,11 +228,39 @@ var testSuite = function () {
         equal(true, g.prune, "group has `prune` marked true");
 
         // orphan and prune cannot both be true: orphan has priority
-        var gg = support.addDiv("group1")
-        var g = _jsPlumb.addGroup({ el: gg, prune:true, orphan:true })
+        gg = support.addDiv("group2")
+        g = _jsPlumb.addGroup({ el: gg, prune:true, orphan:true })
 
         equal(true, g.orphan, "group has `orphan` marked true");
         equal(false, g.prune, "group has `prune` marked false");
+
+        // orphan and revert cannot both be true: orphan has priority. in this test we use the fact that revert defaults to true
+        gg = support.addDiv("group2")
+        g = _jsPlumb.addGroup({ el: gg, orphan:true })
+
+        equal(true, g.orphan, "group has `orphan` marked true");
+        equal(false, g.revert, "group has `revert` marked false because orphan was marked true");
+
+        // orphan and revert cannot both be true: orphan has priority. in this test we explicitly set revert to true
+        gg = support.addDiv("group2")
+        g = _jsPlumb.addGroup({ el: gg, orphan:true, revert:true })
+
+        equal(true, g.orphan, "group has `orphan` marked true");
+        equal(false, g.revert, "group has `revert` marked false because orphan was marked true");
+
+        // 'ghost:true' forces constrain:true
+        gg = support.addDiv("group2")
+        g = _jsPlumb.addGroup({ el: gg, ghost:true})
+
+        equal(true, g.ghost, "group has `ghost` marked true");
+        equal(true, g.constrain, "group has `constrain` marked true because ghost was marked true");
+
+        // 'ghost:true' forces constrain:true, override constrain:false
+        gg = support.addDiv("group2")
+        g = _jsPlumb.addGroup({ el: gg, ghost:true, constrain:false})
+
+        equal(true, g.ghost, "group has `ghost` marked true");
+        equal(true, g.constrain, "group has `constrain` marked true because ghost was marked true");
 
     });
 
@@ -411,21 +446,10 @@ var testSuite = function () {
 
         equal(_jsPlumb.getGroup("four").children.length, 2, "2 members in group four at start");
 
-        // els = _jsPlumb.getDragManager().getElementsForDraggable("container3");
-        // equal(support.countKeys(els), 2, "2 elements for group 3 to repaint");
-        // els = _jsPlumb.getDragManager().getElementsForDraggable("container4");
-        // equal(support.countKeys(els), 2, "2 elements for group 4 to repaint");
-
         // drag 4_1 to group 3
         _dragToGroup(_jsPlumb, c4_1, "three");
         equal(_jsPlumb.getGroup("four").children.length, 1, "1 member in group four after moving a node out");
         equal(_jsPlumb.getGroup("three").children.length, 3, "3 members in group three");
-
-        // els = _jsPlumb.getDragManager().getElementsForDraggable("container3");
-        // equal(support.countKeys(els), 3, "3 elements for group 3 to repaint");
-
-        // els = _jsPlumb.getDragManager().getElementsForDraggable("container4");
-        // equal(support.countKeys(els), 1, "1 element for group 4 to repaint");
 
         // drag 4_2 to group 5 (which is not droppable)
         equal(_jsPlumb.getGroup("five").children.length, 2, "2 members in group five before drop attempt");
@@ -433,22 +457,11 @@ var testSuite = function () {
         equal(_jsPlumb.getGroup("four").children.length, 0, "move to group 5 fails, not droppable: 0 members in group four because it prunes");
         equal(_jsPlumb.getGroup("five").children.length, 2, "but still only 2 members in group five");
 
-        // els = _jsPlumb.getDragManager().getElementsForDraggable("container4");
-        // equal(support.countKeys(els), 0, "0 elements for group 4 to repaint");
-        //
-        // els = _jsPlumb.getDragManager().getElementsForDraggable("container3");
-        // equal(support.countKeys(els), 3, "3 elements for group 3 to repaint");
-
     });
 
     test("groups, moving between groups, take one", function() {
         _setupGroups();
         var els;
-
-        // els = _jsPlumb.getDragManager().getElementsForDraggable("container3");
-        // equal(support.countKeys(els), 2, "2 elements for group 3 to repaint");
-        // els = _jsPlumb.getDragManager().getElementsForDraggable("container4");
-        // equal(support.countKeys(els), 2, "2 elements for group 4 to repaint");
 
         var addEvt = false, removeEvt = false;
         _jsPlumb.bind("group:member:added", function() {
@@ -457,17 +470,11 @@ var testSuite = function () {
         _jsPlumb.bind("group:member:removed", function() {
             removeEvt = true;
         });
+
         // move 4_1 to group 3
         _jsPlumb.addToGroup(_jsPlumb.getGroup("three"), c4_1);
         equal(_jsPlumb.getGroup("four").children.length, 1, "1 member in group four");
         equal(_jsPlumb.getGroup("three").children.length, 3, "3 members in group three");
-
-        // els = _jsPlumb.getDragManager().getElementsForDraggable("container3");
-        // equal(support.countKeys(els), 3, "3 elements for group 3 to repaint");
-        //
-        // els = _jsPlumb.getDragManager().getElementsForDraggable("container4");
-        // equal(support.countKeys(els), 1, "1 element for group 4 to repaint");
-
 
         ok(addEvt, "add event was fired");
         ok(removeEvt, "remove event was fired");
@@ -508,6 +515,12 @@ var testSuite = function () {
         equal(_jsPlumb.getGroup("two").children.length, 3, "3 members in group two after attempting drop from group 1");
         equal(_jsPlumb.getGroup("one").children.length, 2, "2 members in group one after drop on group 2 failed due to constraint");
 
+        // drag 2_1 to group 3. should not work, as group 2 has overrideDrop set.
+        equal(_jsPlumb.getGroup("three").children.length, 2, "2 members in group three before attempted drop");
+        _dragToGroup(_jsPlumb, c1_2, "three");
+        equal(_jsPlumb.getGroup("two").children.length, 3, "3 members in group two after attempting to drag one out");
+        equal(_jsPlumb.getGroup("three").children.length, 2, "still 2 members in group three after attempted drop");
+
     });
 
     test("dragging nodes out of groups", function() {
@@ -536,7 +549,6 @@ var testSuite = function () {
         // check the node position
         var c2_2_pos2 = getNodePosition(c2_2);
         ok(positionsEqual(c2_2_pos, c2_2_pos2), "c2_2 not moved");
-
 
         // c3, should also allow nodes to be dropped outside
         var c32o = getNodePosition(c3_2);
