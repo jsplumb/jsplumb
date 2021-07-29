@@ -58,7 +58,7 @@ import { _attr,
     ElementAttributes,
     _pos} from './svg-util'
 
-import {_isInsideParent, DragManager} from "./drag-manager"
+import {DragManager} from "./drag-manager"
 import {ElementDragHandler} from "./element-drag-handler"
 import {EndpointDragHandler} from "./endpoint-drag-handler"
 import {GroupDragHandler} from "./group-drag-handler"
@@ -79,10 +79,10 @@ import {
     DragHandlerOptions,
     DragStartEventParams,
     DragEventParams,
-    DragStopEventParams, ContainmentType
+    DragStopEventParams,
+    ContainmentType,
+    isInsideParent
 } from './collicat'
-
-//import {JsPlumbList, JsPlumbListManager, JsPlumbListOptions} from "./lists"
 
 import {HTMLElementOverlay} from "./html-element-overlay"
 import {SVGElementOverlay} from "./svg-element-overlay"
@@ -323,7 +323,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             revertFunction:(dragEl:Element, pos:PointXY):boolean => {
                 const _el = <any>dragEl
                 // if drag el not removed from DOM (pruned by a group), and it has a group which has revert:true, then revert.
-                return _el.parentNode != null && _el._jsPlumbParentGroup && _el._jsPlumbParentGroup.revert ? !_isInsideParent(this, _el, pos) : false
+                return _el.parentNode != null && _el._jsPlumbParentGroup && _el._jsPlumbParentGroup.revert ? !isInsideParent(this, _el, pos) : false
             }
         }
         this.dragManager.addHandler(new GroupDragHandler(this), this.groupDragOptions)
