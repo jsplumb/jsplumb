@@ -1,11 +1,11 @@
 
-import {ElementDragHandler} from "./element-drag-handler"
+import {ElementDragHandler, IntersectingGroup} from "./element-drag-handler"
 import {GhostProxyingDragHandler} from "./drag-manager"
 import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
 import { jsPlumbDOMElement} from './element-facade'
-import {DragEventParams, Drag, DragStopEventParams} from "./collicat"
+import {DragEventParams, Drag, DragStopEventParams, isInsideParent} from "./collicat"
 import {SELECTOR_MANAGED_ELEMENT, UIGroup} from "@jsplumb/core"
-import { PointXY } from "@jsplumb/util"
+import {PointXY} from "@jsplumb/util"
 import {EVENT_REVERT, SELECTOR_GROUP} from "./constants"
 
 
@@ -59,49 +59,68 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
         return null
     }
 
-    onStop(params: DragStopEventParams) {
+    onStop(params: DragStopEventParams):void {
 
-        const jel = params.el as unknown as jsPlumbDOMElement
-        const originalElement = params.drag.getDragElement(true)
-
+        const jel = params.drag.getDragElement() as unknown as jsPlumbDOMElement
         let originalGroup:UIGroup<Element> = jel._jsPlumbParentGroup,
-            out = super.onStop(params),
-            currentGroup:UIGroup<Element> = jel._jsPlumbParentGroup
+            isInGroup = isInsideParent(this.instance, jel, params.finalPos),
+            draggedOutOfGroup = false
 
-        if (currentGroup === originalGroup) {
-            this._pruneOrOrphan(params, true)
-        } else {
+        let dropGroup:IntersectingGroup = null
+
+        // 1. is it still within the bounds of the group? if so, nothing needs to be done.
+        if (!isInGroup) {
+            // 2. if not in group bounds, is it intersecting some other group (via the _intersectingGroups list) ? Entries in this list
+            // have been vetted to ensure that things can be dropped on them, and that the group in which the current element resides is not
+            // overriding drop on another group.
+
+            dropGroup = this.getDropGroup()
+            if (dropGroup == null) {
+                // if there was no drop group, then we need to prune or orphan the element
+                const orphanedPosition:[string, PointXY] = this._pruneOrOrphan(params, true, true)
+                draggedOutOfGroup = true
+                // if the element was orphaned, we now adjust the final position of the drag to reflect its position after being orphaned from the group.
+                if (orphanedPosition != null) {
+                    params.finalPos = orphanedPosition[1]
+                }
+
+            } // else, the superclass will take care of dropping it on a new group.
+
+        }
+
+        // we pass in the dropGroup here (which may be null) because we've already figured it out so there's no point in making the superclass
+        // do it again
+        super.onStop(params, draggedOutOfGroup, originalGroup, dropGroup)
+
+        let currentGroup:UIGroup<Element> = jel._jsPlumbParentGroup
+        if (currentGroup !== originalGroup) {
+            const originalElement = params.drag.getDragElement(true)
             if (originalGroup.ghost) {
                 const o1 = this.instance.getOffset(this.instance.getGroupContentArea(currentGroup))
                 const o2 = this.instance.getOffset(this.instance.getGroupContentArea(originalGroup))
                 const o = { x:o2.x + params.pos.x - o1.x, y:o2.y + params.pos.y - o1.y}
                 originalElement.style.left = o.x + "px"
                 originalElement.style.top = o.y + "px"
+
+                this.instance.revalidate(originalElement)
             }
         }
-
-        this.instance.revalidate(originalElement)
-
-        return out
     }
 
-    private _isInsideParent(_el:jsPlumbDOMElement, pos:PointXY):boolean {
-        let p = _el.offsetParent,
-            s = this.instance.getSize(p),
-            ss = this.instance.getSize(_el),
-            leftEdge = pos.x,
-            rightEdge = leftEdge + ss.w,
-            topEdge = pos.y,
-            bottomEdge = topEdge + ss.h
 
-        return rightEdge > 0 && leftEdge < s.w && bottomEdge > 0 && topEdge < s.h
-    }
-
-    private _pruneOrOrphan(params:DragStopEventParams, doNotTransferToAncestor:boolean):[string, PointXY] {
+    /**
+     * Perhaps prune or orphan the element represented by the given drag params.
+     * @param params
+     * @param doNotTransferToAncestor Used when dealing with nested groups. When true, it means remove the element from any groups; when false, which is
+     * the default, elements that are orphaned will be added to this group's ancestor, if it has one.
+     * @param isDefinitelyNotInsideParent Used internally when this method is called and we've already done an intersections test. This flag saves us repeating the calculation.
+     * @private
+     */
+    private _pruneOrOrphan(params:DragStopEventParams, doNotTransferToAncestor:boolean, isDefinitelyNotInsideParent:boolean):[string, PointXY] {
 
         const jel = params.el as unknown as jsPlumbDOMElement
         let orphanedPosition = null
-        if (!this._isInsideParent(jel, params.pos)) {
+        if (isDefinitelyNotInsideParent || !isInsideParent(this.instance, jel, params.pos)) {
             let group = jel._jsPlumbParentGroup
             if (group.prune) {
                 if (jel._isJsPlumbGroup) {
