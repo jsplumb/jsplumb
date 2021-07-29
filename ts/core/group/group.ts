@@ -62,12 +62,13 @@ export class UIGroup<E = any> extends UINode<E> {
 
         this.elId = instance.getId(el)
 
-        this.revert = options.revert !== false
+        this.orphan = options.orphan === true
+
+        this.revert = this.orphan === true ? false : options.revert !== false
         this.droppable = options.droppable !== false
         this.ghost = options.ghost === true
         this.enabled = options.enabled !== false
 
-        this.orphan = options.orphan === true
         this.prune = this.orphan !== true && options.prune === true
 
         this.constrain = this.ghost || (options.constrain === true)
