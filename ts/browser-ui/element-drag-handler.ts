@@ -36,13 +36,13 @@ import {
     intersects
 } from "@jsplumb/util"
 
-type IntersectingGroup = {
-    group:UIGroup<Element>
+export type IntersectingGroup = {
+    groupLoc:GroupLocation
     d:number
     intersectingElement:Element
 }
 
-type GroupLocation = {
+export type GroupLocation = {
     el:Element
     r: BoundingBox
     group: UIGroup<Element>
@@ -59,6 +59,7 @@ export interface DragPayload {
     e:Event
     pos:PointXY
     originalPosition:PointXY
+    payload?:Record<string, any>
 }
 
 /**
@@ -67,6 +68,8 @@ export interface DragPayload {
 export interface DragStopPayload extends DragPayload {
     r:RedrawResult
     dropGroup?:UIGroup<Element>
+    originalGroup?:UIGroup<Element>
+    draggedOutOfGroup:boolean
 }
 
 /**
@@ -104,8 +107,10 @@ export class ElementDragHandler implements DragHandler {
 
     selector: string = "> " + SELECTOR_MANAGED_ELEMENT + ":not(" + cls(CLASS_OVERLAY) + ")"
     private _dragOffset:PointXY = null
+
     private _groupLocations:Array<GroupLocation> = []
-    private _intersectingGroups:Array<IntersectingGroup> = []
+
+    protected _intersectingGroups:Array<IntersectingGroup> = []
     private _currentDragParentGroup:UIGroup<Element> = null
 
     private _dragGroupByElementIdMap:Dictionary<DragGroup> = {}
@@ -119,6 +124,8 @@ export class ElementDragHandler implements DragHandler {
     private _dragSelectionOffsets:Map<string, [PointXY, jsPlumbDOMElement]> = new Map()
     private _dragSizes:Map<string, Size> = new Map()
 
+    private _dragPayload:Record<string, any> = null
+
     protected drag:Drag
     originalPosition:PointXY
 
@@ -129,31 +136,16 @@ export class ElementDragHandler implements DragHandler {
         return null
     }
 
-    onStop(params:DragStopEventParams):void {
-
-        const _one = (_el:Element, pos:PointXY) => {
-
-            const redrawResult = this.instance.setElementPosition(_el, pos.x, pos.y)
-
-            this.instance.fire<DragStopPayload>(EVENT_DRAG_STOP, {
-                el:_el,
-                e:params.e,
-                pos:pos,
-                r:redrawResult,
-                originalPosition:this.originalPosition,
-                dropGroup:dropGroup != null && dropGroup.intersectingElement === _el ? dropGroup.group : null
-            })
-
-            this.instance.removeClass(_el, CLASS_DRAGGED)
-            this.instance.select({source: _el}).removeClass(this.instance.elementDraggingClass + " " + this.instance.sourceElementDraggingClass, true)
-            this.instance.select({target: _el}).removeClass(this.instance.elementDraggingClass + " " + this.instance.targetElementDraggingClass, true)
-
-        }
-
+    //
+    // TODO this should return a map of element ids to drop groups, ie. we should support dropping multiple elements on multiple
+    // groups in any one operation.
+    //
+    protected getDropGroup():IntersectingGroup|null {
+        // figure out if there is a group that we're hovering on.
         let dropGroup:IntersectingGroup = null
         if (this._intersectingGroups.length > 0) {
             // we only support one for the time being
-            let targetGroup = this._intersectingGroups[0].group
+            let targetGroup = this._intersectingGroups[0].groupLoc.group
             let intersectingElement = this._intersectingGroups[0].intersectingElement as jsPlumbDOMElement
 
             let currentGroup = intersectingElement._jsPlumbParentGroup
@@ -164,10 +156,52 @@ export class ElementDragHandler implements DragHandler {
                 }
             }
         }
+        return dropGroup
+    }
+
+    onStop(params:DragStopEventParams, draggedOutOfGroup?:boolean, originalGroup?:UIGroup, dropGroup?:IntersectingGroup):void {
 
         const dragElement = params.drag.getDragElement()
-        _one(dragElement,  params.finalPos)
 
+        dropGroup = dropGroup || this.getDropGroup()
+
+        // add the element to the group
+        if (dropGroup != null) {
+            this.instance.groupManager.addToGroup(dropGroup.groupLoc.group, false, dropGroup.intersectingElement)
+        }
+
+        /**
+         * Sets the final position of a given element, fires a drag stop event, and removes drag classes from the element.
+         * @param _el
+         * @param pos
+         * @private
+         */
+        const _one = (_el:Element, pos:PointXY, originalGroup?:UIGroup, dropGroup?:IntersectingGroup) => {
+
+            const redrawResult = this.instance.setElementPosition(_el, pos.x, pos.y)
+
+            this.instance.fire<DragStopPayload>(EVENT_DRAG_STOP, {
+                el:_el,
+                e:params.e,
+                pos:pos,
+                r:redrawResult,
+                originalPosition:this.originalPosition,
+                dropGroup: dropGroup != null ? dropGroup.groupLoc.group : null,
+                originalGroup,
+                payload:this._dragPayload,
+                draggedOutOfGroup
+            })
+
+            this.instance.removeClass(_el, CLASS_DRAGGED)
+            this.instance.select({source: _el}).removeClass(this.instance.elementDraggingClass + " " + this.instance.sourceElementDraggingClass, true)
+            this.instance.select({target: _el}).removeClass(this.instance.elementDraggingClass + " " + this.instance.targetElementDraggingClass, true)
+
+        }
+
+        // set position of main drag element, fire event etc
+        _one(dragElement,  params.finalPos, originalGroup, dropGroup)
+
+        // compute the final positions for all the other elements in the drag, fire events etc.
         this._dragSelectionOffsets.forEach( (v:[PointXY, jsPlumbDOMElement], k:string) => {
             if (v[1] !== params.el) {
                 const pp = {
@@ -178,11 +212,7 @@ export class ElementDragHandler implements DragHandler {
             }
         })
 
-        // do the contents of the drag selection
 
-        if (dropGroup != null) {
-            this.instance.groupManager.addToGroup(dropGroup.group, false, dropGroup.intersectingElement)
-        }
 
         this._cleanup()
     }
@@ -200,6 +230,8 @@ export class ElementDragHandler implements DragHandler {
         this._dragOffset = null
         this._dragSelectionOffsets.clear()
         this._dragSizes.clear()
+
+        this._dragPayload = null
 
         this._currentDragGroupOffsets.clear()
         this._currentDragGroupSizes.clear()
@@ -229,7 +261,7 @@ export class ElementDragHandler implements DragHandler {
 
         const _one = (el:HTMLElement, bounds:BoundingBox, e:Event) => {
 
-            // keep track of the ancestors of each intersecting group we find. if
+            // keep track of the ancestors of each intersecting group we find.
             const ancestorsOfIntersectingGroups = new Set<string>()
 
             forEach(this._groupLocations,(groupLoc:GroupLocation) => {
@@ -244,7 +276,7 @@ export class ElementDragHandler implements DragHandler {
                     }
 
                     this._intersectingGroups.push({
-                        group:groupLoc.group,
+                        groupLoc,
                         intersectingElement:params.drag.getDragElement(true),
                         d:0
                     })
@@ -263,7 +295,8 @@ export class ElementDragHandler implements DragHandler {
                 el:el,
                 e:params.e,
                 pos:{x:bounds.x,y:bounds.y},
-                originalPosition:this.originalPosition
+                originalPosition:this.originalPosition,
+                payload:this._dragPayload
             })
         }
 
@@ -350,7 +383,8 @@ export class ElementDragHandler implements DragHandler {
                                     o = this.instance.getOffset(groupEl),
                                     boundingRect = {x: o.x, y: o.y, w: s.w, h: s.h}
 
-                                this._groupLocations.push({el: groupEl, r: boundingRect, group: group})
+                                const groupLocation = {el: groupEl, r: boundingRect, group: group}
+                                this._groupLocations.push(groupLocation)
 
                                 // dont add the active class to the element/group's current parent (if any)
                                 if (group !== this._currentDragParentGroup) {
@@ -395,6 +429,8 @@ export class ElementDragHandler implements DragHandler {
             if (dragStartReturn === false) {
                 this._cleanup()
                 return false
+            } else {
+                this._dragPayload = dragStartReturn
             }
 
             if (this._currentDragGroup != null) {
