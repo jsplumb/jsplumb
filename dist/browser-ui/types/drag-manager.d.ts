@@ -1,7 +1,6 @@
 import { BrowserJsPlumbInstance } from "./browser-jsplumb-instance";
-import { Dictionary, PointXY } from '@jsplumb/util';
+import { Dictionary } from '@jsplumb/util';
 import { BeforeStartEventParams, Drag, DragEventParams, DragHandlerOptions, DragStartEventParams, DragStopEventParams, GhostProxyGenerator } from "./collicat";
-export declare function _isInsideParent(instance: BrowserJsPlumbInstance, _el: HTMLElement, pos: PointXY): boolean;
 export declare const CLASS_DELEGATED_DRAGGABLE = "jtk-delegated-draggable";
 export declare const CLASS_DRAGGABLE = "jtk-draggable";
 export declare const CLASS_DRAG_CONTAINER = "jtk-drag";

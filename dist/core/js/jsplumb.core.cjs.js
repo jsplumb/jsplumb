@@ -3032,11 +3032,11 @@ function (_UINode) {
     jel._isJsPlumbGroup = true;
     jel._jsPlumbGroup = _assertThisInitialized(_this);
     _this.elId = instance.getId(el);
-    _this.revert = options.revert !== false;
+    _this.orphan = options.orphan === true;
+    _this.revert = _this.orphan === true ? false : options.revert !== false;
     _this.droppable = options.droppable !== false;
     _this.ghost = options.ghost === true;
     _this.enabled = options.enabled !== false;
-    _this.orphan = options.orphan === true;
     _this.prune = _this.orphan !== true && options.prune === true;
     _this.constrain = _this.ghost || options.constrain === true;
     _this.proxied = options.proxied !== false;

@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "5.0.0-RC8",
+  "version": "5.0.0-RC9",
   "workspaces": [
     "ts/*"
   ],

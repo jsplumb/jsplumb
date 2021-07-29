@@ -1,11 +1,13 @@
 import { Dictionary, PointXY, Size, Grid } from '@jsplumb/util';
 import { EventManager } from "./event-manager";
 import { jsPlumbDOMElement } from './element-facade';
+import { BrowserJsPlumbInstance } from "./browser-jsplumb-instance";
 export interface DragStartEventParams {
     e: MouseEvent;
     el: jsPlumbDOMElement;
     pos: PointXY;
     drag: Drag;
+    size: Size;
 }
 export interface DragEventParams extends DragStartEventParams {
 }
@@ -14,8 +16,9 @@ export interface BeforeStartEventParams extends DragStartEventParams {
 }
 export interface DragStopEventParams extends DragEventParams {
     finalPos: PointXY;
-    selection: Array<[jsPlumbDOMElement, PointXY, Drag]>;
+    selection: Array<[jsPlumbDOMElement, PointXY, Drag, Size]>;
 }
+export declare function isInsideParent(instance: BrowserJsPlumbInstance, _el: HTMLElement, pos: PointXY): boolean;
 export declare const EVENT_START = "start";
 export declare const EVENT_BEFORE_START = "beforeStart";
 export declare const EVENT_DRAG = "drag";

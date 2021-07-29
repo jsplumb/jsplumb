@@ -20,6 +20,13 @@ export declare class GroupDragHandler extends ElementDragHandler implements Ghos
     onDrag(params: DragEventParams): void;
     onDragAbort(el: jsPlumbDOMElement): void;
     onStop(params: DragStopEventParams): void;
-    private _isInsideParent;
+    /**
+     * Perhaps prune or orphan the element represented by the given drag params.
+     * @param params
+     * @param doNotTransferToAncestor Used when dealing with nested groups. When true, it means remove the element from any groups; when false, which is
+     * the default, elements that are orphaned will be added to this group's ancestor, if it has one.
+     * @param isDefinitelyNotInsideParent Used internally when this method is called and we've already done an intersections test. This flag saves us repeating the calculation.
+     * @private
+     */
     private _pruneOrOrphan;
 }
