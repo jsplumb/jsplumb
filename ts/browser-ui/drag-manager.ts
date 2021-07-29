@@ -14,17 +14,7 @@ import {
     GhostProxyGenerator
 } from "./collicat"
 
-export function _isInsideParent(instance:BrowserJsPlumbInstance, _el:HTMLElement, pos:PointXY):boolean {
-    const p = <any>_el.parentNode,
-        s = instance.getSize(p),
-        ss = instance.getSize(_el),
-        leftEdge = pos.x,
-        rightEdge = leftEdge + ss.w,
-        topEdge = pos.y,
-        bottomEdge = topEdge + ss.h
 
-    return rightEdge > 0 && leftEdge < s.w && bottomEdge > 0 && topEdge < s.h
-}
 
 export const CLASS_DELEGATED_DRAGGABLE = "jtk-delegated-draggable"
 export const CLASS_DRAGGABLE = "jtk-draggable"
