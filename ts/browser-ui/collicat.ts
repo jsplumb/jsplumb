@@ -3,6 +3,7 @@ import {addClass, consume, matchesSelector, removeClass, offsetRelativeToRoot} f
 import {EventManager, pageLocation} from "./event-manager"
 import { jsPlumbDOMElement} from './element-facade'
 import {EVENT_MOUSEUP, EVENT_MOUSEDOWN, EVENT_MOUSEMOVE, EVENT_REVERT} from "./constants"
+import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
 
 function findDelegateElement(parentElement:jsPlumbDOMElement, childElement:jsPlumbDOMElement, selector:string) {
     if (matchesSelector(childElement, selector, parentElement)) {
@@ -41,6 +42,7 @@ export interface DragStartEventParams {
     el:jsPlumbDOMElement
     pos:PointXY
     drag:Drag
+    size:Size
 }
 
 export interface DragEventParams extends DragStartEventParams { }
@@ -51,7 +53,7 @@ export interface BeforeStartEventParams extends DragStartEventParams {}
 
 export interface DragStopEventParams extends DragEventParams {
     finalPos:PointXY
-    selection:Array<[jsPlumbDOMElement, PointXY, Drag]>
+    selection:Array<[jsPlumbDOMElement, PointXY, Drag, Size]>
 }
 
 function _assignId (obj:Function | string):string {
@@ -61,6 +63,18 @@ function _assignId (obj:Function | string):string {
     } else {
         return obj
     }
+}
+// TODO would be nice to be able to set a tolerance here. "is half inside parent" etc
+export function isInsideParent(instance:BrowserJsPlumbInstance, _el:HTMLElement, pos:PointXY):boolean {
+    const p = <any>_el.parentNode,
+        s = instance.getSize(p),
+        ss = instance.getSize(_el),
+        leftEdge = pos.x,
+        rightEdge = leftEdge + ss.w,
+        topEdge = pos.y,
+        bottomEdge = topEdge + ss.h
+
+    return rightEdge > 0 && leftEdge < s.w && bottomEdge > 0 && topEdge < s.h
 }
 
 /**
@@ -534,7 +548,7 @@ export class Drag extends Base {
                 this.k.eventManager.on(document, EVENT_MOUSEUP, this.upListener)
 
                 addClass(document.body as any, _classes.noSelect)
-                this._dispatch<BeforeStartEventParams>(EVENT_BEFORE_START, {el:this.el, pos:this._posAtDown, e:e, drag:this})
+                this._dispatch<BeforeStartEventParams>(EVENT_BEFORE_START, {el:this.el, pos:this._posAtDown, e:e, drag:this, size:this._size})
             }
             else if (this._consumeFilteredEvents) {
                 consume(e)
@@ -545,7 +559,7 @@ export class Drag extends Base {
     private _moveListener(e:MouseEvent) {
         if (this._downAt) {
             if (!this._moving) {
-                const dispatchResult = this._dispatch<DragStartEventParams>(EVENT_START, {el:this.el, pos:this._posAtDown, e:e, drag:this})
+                const dispatchResult = this._dispatch<DragStartEventParams>(EVENT_START, {el:this.el, pos:this._posAtDown, e:e, drag:this, size:this._size})
                 if (dispatchResult !== false) {
                     if (!this._downAt) {
                         return
@@ -668,7 +682,7 @@ export class Drag extends Base {
 
         _setPosition(this._dragEl, {x:cPos.x + this._ghostDx, y:cPos.y + this._ghostDy})
 
-        this._dispatch<DragEventParams>("drag", {el:this.el, pos:cPos, e:e, drag:this})
+        this._dispatch<DragEventParams>("drag", {el:this.el, pos:cPos, e:e, drag:this, size:this._size})
     }
 
     abort() {
@@ -683,10 +697,10 @@ export class Drag extends Base {
 
     stop (e?:MouseEvent, force?:boolean) {
         if (force || this._moving) {
-            let positions:Array<[jsPlumbDOMElement, PointXY, Drag]> = [],
+            let positions:Array<[jsPlumbDOMElement, PointXY, Drag, Size]> = [],
                 dPos = _getPosition(this._dragEl)
 
-            positions.push([ this._dragEl, dPos, this ])
+            positions.push([ this._dragEl, dPos, this, this._size ])
 
             this._dispatch<DragStopEventParams>(EVENT_STOP, {
                 el: this._dragEl,
@@ -694,7 +708,8 @@ export class Drag extends Base {
                 finalPos:dPos,
                 e: e,
                 drag: this,
-                selection:positions
+                selection:positions,
+                size:this._size
             })
         } else if (!this._moving) {
             this._activeSelectorParams.dragAbort ? this._activeSelectorParams.dragAbort(this._elementToDrag) : null
