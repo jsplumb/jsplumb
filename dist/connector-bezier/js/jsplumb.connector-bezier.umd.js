@@ -72,6 +72,19 @@
     return _setPrototypeOf(o, p);
   }
 
+  function _isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   function _assertThisInitialized(self) {
     if (self === void 0) {
       throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -88,19 +101,32 @@
     return _assertThisInitialized(self);
   }
 
-  var AbstractBezierConnector =
-  function (_AbstractConnector) {
-    _inherits(AbstractBezierConnector, _AbstractConnector);
-    _createClass(AbstractBezierConnector, [{
-      key: "getDefaultStubs",
-      value: function getDefaultStubs() {
-        return [0, 0];
+  function _createSuper(Derived) {
+    var hasNativeReflectConstruct = _isNativeReflectConstruct();
+
+    return function _createSuperInternal() {
+      var Super = _getPrototypeOf(Derived),
+          result;
+
+      if (hasNativeReflectConstruct) {
+        var NewTarget = _getPrototypeOf(this).constructor;
+
+        result = Reflect.construct(Super, arguments, NewTarget);
+      } else {
+        result = Super.apply(this, arguments);
       }
-    }]);
+
+      return _possibleConstructorReturn(this, result);
+    };
+  }
+
+  var AbstractBezierConnector = function (_AbstractConnector) {
+    _inherits(AbstractBezierConnector, _AbstractConnector);
+    var _super = _createSuper(AbstractBezierConnector);
     function AbstractBezierConnector(connection, params) {
       var _this;
       _classCallCheck(this, AbstractBezierConnector);
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(AbstractBezierConnector).call(this, connection, params));
+      _this = _super.call(this, connection, params);
       _this.connection = connection;
       _defineProperty(_assertThisInitialized(_this), "showLoopback", void 0);
       _defineProperty(_assertThisInitialized(_this), "curviness", void 0);
@@ -122,6 +148,11 @@
       return _this;
     }
     _createClass(AbstractBezierConnector, [{
+      key: "getDefaultStubs",
+      value: function getDefaultStubs() {
+        return [0, 0];
+      }
+    }, {
       key: "_compute",
       value: function _compute(paintInfo, p) {
         var sp = p.sourcePos,
@@ -725,13 +756,13 @@
     return t;
   }
 
-  var BezierSegment =
-  function (_AbstractSegment) {
+  var BezierSegment = function (_AbstractSegment) {
     _inherits(BezierSegment, _AbstractSegment);
+    var _super = _createSuper(BezierSegment);
     function BezierSegment(params) {
       var _this;
       _classCallCheck(this, BezierSegment);
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(BezierSegment).call(this, params));
+      _this = _super.call(this, params);
       _defineProperty(_assertThisInitialized(_this), "curve", void 0);
       _defineProperty(_assertThisInitialized(_this), "cp1x", void 0);
       _defineProperty(_assertThisInitialized(_this), "cp1y", void 0);
@@ -840,13 +871,13 @@
   }(common.AbstractSegment);
   _defineProperty(BezierSegment, "segmentType", "Bezier");
 
-  var BezierConnector =
-  function (_AbstractBezierConnec) {
+  var BezierConnector = function (_AbstractBezierConnec) {
     _inherits(BezierConnector, _AbstractBezierConnec);
+    var _super = _createSuper(BezierConnector);
     function BezierConnector(connection, params) {
       var _this;
       _classCallCheck(this, BezierConnector);
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(BezierConnector).call(this, connection, params));
+      _this = _super.call(this, connection, params);
       _this.connection = connection;
       _defineProperty(_assertThisInitialized(_this), "type", BezierConnector.type);
       _defineProperty(_assertThisInitialized(_this), "majorAnchor", void 0);
@@ -976,13 +1007,13 @@
       }
     }
   }
-  var StateMachineConnector =
-  function (_AbstractBezierConnec) {
+  var StateMachineConnector = function (_AbstractBezierConnec) {
     _inherits(StateMachineConnector, _AbstractBezierConnec);
+    var _super = _createSuper(StateMachineConnector);
     function StateMachineConnector(connection, params) {
       var _this;
       _classCallCheck(this, StateMachineConnector);
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(StateMachineConnector).call(this, connection, params));
+      _this = _super.call(this, connection, params);
       _this.connection = connection;
       _defineProperty(_assertThisInitialized(_this), "type", StateMachineConnector.type);
       _defineProperty(_assertThisInitialized(_this), "_controlPoint", void 0);

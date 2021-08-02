@@ -72,6 +72,19 @@
     return _setPrototypeOf(o, p);
   }
 
+  function _isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   function _assertThisInitialized(self) {
     if (self === void 0) {
       throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -88,6 +101,25 @@
     return _assertThisInitialized(self);
   }
 
+  function _createSuper(Derived) {
+    var hasNativeReflectConstruct = _isNativeReflectConstruct();
+
+    return function _createSuperInternal() {
+      var Super = _getPrototypeOf(Derived),
+          result;
+
+      if (hasNativeReflectConstruct) {
+        var NewTarget = _getPrototypeOf(this).constructor;
+
+        result = Reflect.construct(Super, arguments, NewTarget);
+      } else {
+        result = Super.apply(this, arguments);
+      }
+
+      return _possibleConstructorReturn(this, result);
+    };
+  }
+
   function sgn(n) {
     return n < 0 ? -1 : n === 0 ? 0 : 1;
   }
@@ -102,19 +134,13 @@
     _a.push.apply(_a, a);
     return _a;
   }
-  var FlowchartConnector =
-  function (_AbstractConnector) {
+  var FlowchartConnector = function (_AbstractConnector) {
     _inherits(FlowchartConnector, _AbstractConnector);
-    _createClass(FlowchartConnector, [{
-      key: "getDefaultStubs",
-      value: function getDefaultStubs() {
-        return [30, 30];
-      }
-    }]);
+    var _super = _createSuper(FlowchartConnector);
     function FlowchartConnector(connection, params) {
       var _this;
       _classCallCheck(this, FlowchartConnector);
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(FlowchartConnector).call(this, connection, params));
+      _this = _super.call(this, connection, params);
       _this.connection = connection;
       _defineProperty(_assertThisInitialized(_this), "type", FlowchartConnector.type);
       _defineProperty(_assertThisInitialized(_this), "internalSegments", []);
@@ -137,6 +163,11 @@
       return _this;
     }
     _createClass(FlowchartConnector, [{
+      key: "getDefaultStubs",
+      value: function getDefaultStubs() {
+        return [30, 30];
+      }
+    }, {
       key: "addASegment",
       value: function addASegment(x, y, paintInfo) {
         if (this.lastx === x && this.lasty === y) {

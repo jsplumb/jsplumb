@@ -56,8 +56,7 @@ var ATTR_SCROLLABLE_LIST = "jtk-scrollable-list";
 var SELECTOR_SCROLLABLE_LIST = att(ATTR_SCROLLABLE_LIST);
 var EVENT_SCROLL = "scroll";
 
-var JsPlumbListManager =
-function () {
+var JsPlumbListManager = function () {
   function JsPlumbListManager(instance, params) {
     var _this = this;
     _classCallCheck(this, JsPlumbListManager);
@@ -139,8 +138,7 @@ function () {
   }]);
   return JsPlumbListManager;
 }();
-var JsPlumbList =
-function () {
+var JsPlumbList = function () {
   function JsPlumbList(instance, el, options, id) {
     _classCallCheck(this, JsPlumbList);
     this.instance = instance;
@@ -197,23 +195,23 @@ function () {
           });
         }
         else if (children[i].offsetTop + children[i].offsetHeight > _this2.el.scrollTop + _this2.domElement.offsetHeight) {
-            children[i]._jsPlumbProxies = children[i]._jsPlumbProxies || [];
-            _this2.instance.select({
-              source: children[i]
-            }).each(function (c) {
-              _this2._proxyConnection(children[i], c, 0, SupportedEdge.bottom);
-            });
-            _this2.instance.select({
-              target: children[i]
-            }).each(function (c) {
-              _this2._proxyConnection(children[i], c, 1, SupportedEdge.bottom);
-            });
-          } else if (children[i]._jsPlumbProxies) {
-            for (var j = 0; j < children[i]._jsPlumbProxies.length; j++) {
-              _this2.instance.unproxyConnection(children[i]._jsPlumbProxies[j][0], children[i]._jsPlumbProxies[j][1]);
-            }
-            delete children[i]._jsPlumbProxies;
+          children[i]._jsPlumbProxies = children[i]._jsPlumbProxies || [];
+          _this2.instance.select({
+            source: children[i]
+          }).each(function (c) {
+            _this2._proxyConnection(children[i], c, 0, SupportedEdge.bottom);
+          });
+          _this2.instance.select({
+            target: children[i]
+          }).each(function (c) {
+            _this2._proxyConnection(children[i], c, 1, SupportedEdge.bottom);
+          });
+        } else if (children[i]._jsPlumbProxies) {
+          for (var j = 0; j < children[i]._jsPlumbProxies.length; j++) {
+            _this2.instance.unproxyConnection(children[i]._jsPlumbProxies[j][0], children[i]._jsPlumbProxies[j][1]);
           }
+          delete children[i]._jsPlumbProxies;
+        }
         _this2.instance.revalidate(children[i]);
       };
       for (var i = 0; i < children.length; i++) {

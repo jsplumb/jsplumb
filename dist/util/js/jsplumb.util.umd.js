@@ -410,7 +410,7 @@
       for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
       }
-      if ( typeof console !== "undefined") {
+      if (typeof console !== "undefined") {
         try {
           var msg = arguments[arguments.length - 1];
           console.log(msg);
@@ -555,6 +555,19 @@
       return _setPrototypeOf(o, p);
     }
 
+    function _isNativeReflectConstruct() {
+      if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+      if (Reflect.construct.sham) return false;
+      if (typeof Proxy === "function") return true;
+
+      try {
+        Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
     function _assertThisInitialized(self) {
       if (self === void 0) {
         throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -571,8 +584,26 @@
       return _assertThisInitialized(self);
     }
 
-    var EventGenerator =
-    function () {
+    function _createSuper(Derived) {
+      var hasNativeReflectConstruct = _isNativeReflectConstruct();
+
+      return function _createSuperInternal() {
+        var Super = _getPrototypeOf(Derived),
+            result;
+
+        if (hasNativeReflectConstruct) {
+          var NewTarget = _getPrototypeOf(this).constructor;
+
+          result = Reflect.construct(Super, arguments, NewTarget);
+        } else {
+          result = Super.apply(this, arguments);
+        }
+
+        return _possibleConstructorReturn(this, result);
+      };
+    }
+
+    var EventGenerator = function () {
       function EventGenerator() {
         _classCallCheck(this, EventGenerator);
         _defineProperty(this, "_listeners", {});
@@ -693,12 +724,12 @@
       }]);
       return EventGenerator;
     }();
-    var OptimisticEventGenerator =
-    function (_EventGenerator) {
+    var OptimisticEventGenerator = function (_EventGenerator) {
       _inherits(OptimisticEventGenerator, _EventGenerator);
+      var _super = _createSuper(OptimisticEventGenerator);
       function OptimisticEventGenerator() {
         _classCallCheck(this, OptimisticEventGenerator);
-        return _possibleConstructorReturn(this, _getPrototypeOf(OptimisticEventGenerator).apply(this, arguments));
+        return _super.apply(this, arguments);
       }
       _createClass(OptimisticEventGenerator, [{
         key: "shouldFireEvent",

@@ -407,7 +407,7 @@ var jsPlumbBrowserUI = (function (exports) {
     for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
-    if ( typeof console !== "undefined") {
+    if (typeof console !== "undefined") {
       try {
         var msg = arguments[arguments.length - 1];
         console.log(msg);
@@ -484,13 +484,13 @@ var jsPlumbBrowserUI = (function (exports) {
     }
   }
 
-  function _classCallCheck(instance, Constructor) {
+  function _classCallCheck$5(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
       throw new TypeError("Cannot call a class as a function");
     }
   }
 
-  function _defineProperties(target, props) {
+  function _defineProperties$5(target, props) {
     for (var i = 0; i < props.length; i++) {
       var descriptor = props[i];
       descriptor.enumerable = descriptor.enumerable || false;
@@ -500,13 +500,13 @@ var jsPlumbBrowserUI = (function (exports) {
     }
   }
 
-  function _createClass(Constructor, protoProps, staticProps) {
-    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-    if (staticProps) _defineProperties(Constructor, staticProps);
+  function _createClass$5(Constructor, protoProps, staticProps) {
+    if (protoProps) _defineProperties$5(Constructor.prototype, protoProps);
+    if (staticProps) _defineProperties$5(Constructor, staticProps);
     return Constructor;
   }
 
-  function _defineProperty(obj, key, value) {
+  function _defineProperty$5(obj, key, value) {
     if (key in obj) {
       Object.defineProperty(obj, key, {
         value: value,
@@ -521,7 +521,7 @@ var jsPlumbBrowserUI = (function (exports) {
     return obj;
   }
 
-  function _inherits(subClass, superClass) {
+  function _inherits$4(subClass, superClass) {
     if (typeof superClass !== "function" && superClass !== null) {
       throw new TypeError("Super expression must either be null or a function");
     }
@@ -533,26 +533,39 @@ var jsPlumbBrowserUI = (function (exports) {
         configurable: true
       }
     });
-    if (superClass) _setPrototypeOf(subClass, superClass);
+    if (superClass) _setPrototypeOf$4(subClass, superClass);
   }
 
-  function _getPrototypeOf(o) {
-    _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+  function _getPrototypeOf$4(o) {
+    _getPrototypeOf$4 = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
       return o.__proto__ || Object.getPrototypeOf(o);
     };
-    return _getPrototypeOf(o);
+    return _getPrototypeOf$4(o);
   }
 
-  function _setPrototypeOf(o, p) {
-    _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+  function _setPrototypeOf$4(o, p) {
+    _setPrototypeOf$4 = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
       o.__proto__ = p;
       return o;
     };
 
-    return _setPrototypeOf(o, p);
+    return _setPrototypeOf$4(o, p);
   }
 
-  function _assertThisInitialized(self) {
+  function _isNativeReflectConstruct$4() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function _assertThisInitialized$4(self) {
     if (self === void 0) {
       throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
     }
@@ -560,27 +573,45 @@ var jsPlumbBrowserUI = (function (exports) {
     return self;
   }
 
-  function _possibleConstructorReturn(self, call) {
+  function _possibleConstructorReturn$4(self, call) {
     if (call && (typeof call === "object" || typeof call === "function")) {
       return call;
     }
 
-    return _assertThisInitialized(self);
+    return _assertThisInitialized$4(self);
   }
 
-  var EventGenerator =
-  function () {
+  function _createSuper$4(Derived) {
+    var hasNativeReflectConstruct = _isNativeReflectConstruct$4();
+
+    return function _createSuperInternal() {
+      var Super = _getPrototypeOf$4(Derived),
+          result;
+
+      if (hasNativeReflectConstruct) {
+        var NewTarget = _getPrototypeOf$4(this).constructor;
+
+        result = Reflect.construct(Super, arguments, NewTarget);
+      } else {
+        result = Super.apply(this, arguments);
+      }
+
+      return _possibleConstructorReturn$4(this, result);
+    };
+  }
+
+  var EventGenerator = function () {
     function EventGenerator() {
-      _classCallCheck(this, EventGenerator);
-      _defineProperty(this, "_listeners", {});
-      _defineProperty(this, "eventsSuspended", false);
-      _defineProperty(this, "tick", false);
-      _defineProperty(this, "eventsToDieOn", {
+      _classCallCheck$5(this, EventGenerator);
+      _defineProperty$5(this, "_listeners", {});
+      _defineProperty$5(this, "eventsSuspended", false);
+      _defineProperty$5(this, "tick", false);
+      _defineProperty$5(this, "eventsToDieOn", {
         "ready": true
       });
-      _defineProperty(this, "queue", []);
+      _defineProperty$5(this, "queue", []);
     }
-    _createClass(EventGenerator, [{
+    _createClass$5(EventGenerator, [{
       key: "fire",
       value: function fire(event, value, originalEvent) {
         var ret = null;
@@ -690,14 +721,14 @@ var jsPlumbBrowserUI = (function (exports) {
     }]);
     return EventGenerator;
   }();
-  var OptimisticEventGenerator =
-  function (_EventGenerator) {
-    _inherits(OptimisticEventGenerator, _EventGenerator);
+  var OptimisticEventGenerator = function (_EventGenerator) {
+    _inherits$4(OptimisticEventGenerator, _EventGenerator);
+    var _super = _createSuper$4(OptimisticEventGenerator);
     function OptimisticEventGenerator() {
-      _classCallCheck(this, OptimisticEventGenerator);
-      return _possibleConstructorReturn(this, _getPrototypeOf(OptimisticEventGenerator).apply(this, arguments));
+      _classCallCheck$5(this, OptimisticEventGenerator);
+      return _super.apply(this, arguments);
     }
-    _createClass(OptimisticEventGenerator, [{
+    _createClass$5(OptimisticEventGenerator, [{
       key: "shouldFireEvent",
       value: function shouldFireEvent(event, value, originalEvent) {
         return true;
@@ -884,6 +915,7 @@ var jsPlumbBrowserUI = (function (exports) {
     };
   }
 
+  exports.AnchorLocations = void 0;
   (function (AnchorLocations) {
     AnchorLocations["Assign"] = "Assign";
     AnchorLocations["AutoDefault"] = "AutoDefault";
@@ -906,13 +938,13 @@ var jsPlumbBrowserUI = (function (exports) {
     AnchorLocations["TopRight"] = "TopRight";
   })(exports.AnchorLocations || (exports.AnchorLocations = {}));
 
-  function _classCallCheck$1(instance, Constructor) {
+  function _classCallCheck$4(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
       throw new TypeError("Cannot call a class as a function");
     }
   }
 
-  function _defineProperties$1(target, props) {
+  function _defineProperties$4(target, props) {
     for (var i = 0; i < props.length; i++) {
       var descriptor = props[i];
       descriptor.enumerable = descriptor.enumerable || false;
@@ -922,13 +954,13 @@ var jsPlumbBrowserUI = (function (exports) {
     }
   }
 
-  function _createClass$1(Constructor, protoProps, staticProps) {
-    if (protoProps) _defineProperties$1(Constructor.prototype, protoProps);
-    if (staticProps) _defineProperties$1(Constructor, staticProps);
+  function _createClass$4(Constructor, protoProps, staticProps) {
+    if (protoProps) _defineProperties$4(Constructor.prototype, protoProps);
+    if (staticProps) _defineProperties$4(Constructor, staticProps);
     return Constructor;
   }
 
-  function _defineProperty$1(obj, key, value) {
+  function _defineProperty$4(obj, key, value) {
     if (key in obj) {
       Object.defineProperty(obj, key, {
         value: value,
@@ -963,23 +995,22 @@ var jsPlumbBrowserUI = (function (exports) {
       ymax: -Infinity
     };
   }
-  var AbstractSegment =
-  function () {
+  var AbstractSegment = function () {
     function AbstractSegment(params) {
-      _classCallCheck$1(this, AbstractSegment);
+      _classCallCheck$4(this, AbstractSegment);
       this.params = params;
-      _defineProperty$1(this, "x1", void 0);
-      _defineProperty$1(this, "x2", void 0);
-      _defineProperty$1(this, "y1", void 0);
-      _defineProperty$1(this, "y2", void 0);
-      _defineProperty$1(this, "extents", EMPTY_BOUNDS());
-      _defineProperty$1(this, "type", void 0);
+      _defineProperty$4(this, "x1", void 0);
+      _defineProperty$4(this, "x2", void 0);
+      _defineProperty$4(this, "y1", void 0);
+      _defineProperty$4(this, "y2", void 0);
+      _defineProperty$4(this, "extents", EMPTY_BOUNDS());
+      _defineProperty$4(this, "type", void 0);
       this.x1 = params.x1;
       this.y1 = params.y1;
       this.x2 = params.x2;
       this.y2 = params.y2;
     }
-    _createClass$1(AbstractSegment, [{
+    _createClass$4(AbstractSegment, [{
       key: "findClosestPointOnPath",
       value: function findClosestPointOnPath(x, y) {
         return noSuchPoint();
@@ -1010,17 +1041,17 @@ var jsPlumbBrowserUI = (function (exports) {
 
   var UNDEFINED = "undefined";
   var DEFAULT = "default";
-  var TRUE = "true";
-  var FALSE = "false";
+  var TRUE$1 = "true";
+  var FALSE$1 = "false";
   var WILDCARD = "*";
 
-  function _classCallCheck$2(instance, Constructor) {
+  function _classCallCheck$3(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
       throw new TypeError("Cannot call a class as a function");
     }
   }
 
-  function _defineProperties$2(target, props) {
+  function _defineProperties$3(target, props) {
     for (var i = 0; i < props.length; i++) {
       var descriptor = props[i];
       descriptor.enumerable = descriptor.enumerable || false;
@@ -1030,13 +1061,13 @@ var jsPlumbBrowserUI = (function (exports) {
     }
   }
 
-  function _createClass$2(Constructor, protoProps, staticProps) {
-    if (protoProps) _defineProperties$2(Constructor.prototype, protoProps);
-    if (staticProps) _defineProperties$2(Constructor, staticProps);
+  function _createClass$3(Constructor, protoProps, staticProps) {
+    if (protoProps) _defineProperties$3(Constructor.prototype, protoProps);
+    if (staticProps) _defineProperties$3(Constructor, staticProps);
     return Constructor;
   }
 
-  function _defineProperty$2(obj, key, value) {
+  function _defineProperty$3(obj, key, value) {
     if (key in obj) {
       Object.defineProperty(obj, key, {
         value: value,
@@ -1051,7 +1082,7 @@ var jsPlumbBrowserUI = (function (exports) {
     return obj;
   }
 
-  function _inherits$1(subClass, superClass) {
+  function _inherits$3(subClass, superClass) {
     if (typeof superClass !== "function" && superClass !== null) {
       throw new TypeError("Super expression must either be null or a function");
     }
@@ -1063,26 +1094,39 @@ var jsPlumbBrowserUI = (function (exports) {
         configurable: true
       }
     });
-    if (superClass) _setPrototypeOf$1(subClass, superClass);
+    if (superClass) _setPrototypeOf$3(subClass, superClass);
   }
 
-  function _getPrototypeOf$1(o) {
-    _getPrototypeOf$1 = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+  function _getPrototypeOf$3(o) {
+    _getPrototypeOf$3 = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
       return o.__proto__ || Object.getPrototypeOf(o);
     };
-    return _getPrototypeOf$1(o);
+    return _getPrototypeOf$3(o);
   }
 
-  function _setPrototypeOf$1(o, p) {
-    _setPrototypeOf$1 = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+  function _setPrototypeOf$3(o, p) {
+    _setPrototypeOf$3 = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
       o.__proto__ = p;
       return o;
     };
 
-    return _setPrototypeOf$1(o, p);
+    return _setPrototypeOf$3(o, p);
   }
 
-  function _assertThisInitialized$1(self) {
+  function _isNativeReflectConstruct$3() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function _assertThisInitialized$3(self) {
     if (self === void 0) {
       throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
     }
@@ -1090,29 +1134,48 @@ var jsPlumbBrowserUI = (function (exports) {
     return self;
   }
 
-  function _possibleConstructorReturn$1(self, call) {
+  function _possibleConstructorReturn$3(self, call) {
     if (call && (typeof call === "object" || typeof call === "function")) {
       return call;
     }
 
-    return _assertThisInitialized$1(self);
+    return _assertThisInitialized$3(self);
   }
 
-  function _superPropBase(object, property) {
+  function _createSuper$3(Derived) {
+    var hasNativeReflectConstruct = _isNativeReflectConstruct$3();
+
+    return function _createSuperInternal() {
+      var Super = _getPrototypeOf$3(Derived),
+          result;
+
+      if (hasNativeReflectConstruct) {
+        var NewTarget = _getPrototypeOf$3(this).constructor;
+
+        result = Reflect.construct(Super, arguments, NewTarget);
+      } else {
+        result = Super.apply(this, arguments);
+      }
+
+      return _possibleConstructorReturn$3(this, result);
+    };
+  }
+
+  function _superPropBase$1(object, property) {
     while (!Object.prototype.hasOwnProperty.call(object, property)) {
-      object = _getPrototypeOf$1(object);
+      object = _getPrototypeOf$3(object);
       if (object === null) break;
     }
 
     return object;
   }
 
-  function _get(target, property, receiver) {
+  function _get$1(target, property, receiver) {
     if (typeof Reflect !== "undefined" && Reflect.get) {
-      _get = Reflect.get;
+      _get$1 = Reflect.get;
     } else {
-      _get = function _get(target, property, receiver) {
-        var base = _superPropBase(target, property);
+      _get$1 = function _get(target, property, receiver) {
+        var base = _superPropBase$1(target, property);
 
         if (!base) return;
         var desc = Object.getOwnPropertyDescriptor(base, property);
@@ -1125,41 +1188,41 @@ var jsPlumbBrowserUI = (function (exports) {
       };
     }
 
-    return _get(target, property, receiver || target);
+    return _get$1(target, property, receiver || target);
   }
 
-  function _slicedToArray(arr, i) {
-    return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
+  function _slicedToArray$1(arr, i) {
+    return _arrayWithHoles$1(arr) || _iterableToArrayLimit$1(arr, i) || _unsupportedIterableToArray$1(arr, i) || _nonIterableRest$1();
   }
 
   function _toConsumableArray(arr) {
-    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
+    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray$1(arr) || _nonIterableSpread();
   }
 
   function _arrayWithoutHoles(arr) {
-    if (Array.isArray(arr)) {
-      for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
-
-      return arr2;
-    }
+    if (Array.isArray(arr)) return _arrayLikeToArray$1(arr);
   }
 
-  function _arrayWithHoles(arr) {
+  function _arrayWithHoles$1(arr) {
     if (Array.isArray(arr)) return arr;
   }
 
   function _iterableToArray(iter) {
-    if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
+    if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
   }
 
-  function _iterableToArrayLimit(arr, i) {
+  function _iterableToArrayLimit$1(arr, i) {
+    var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"];
+
+    if (_i == null) return;
     var _arr = [];
     var _n = true;
     var _d = false;
-    var _e = undefined;
+
+    var _s, _e;
 
     try {
-      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+      for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) {
         _arr.push(_s.value);
 
         if (i && _arr.length === i) break;
@@ -1178,20 +1241,37 @@ var jsPlumbBrowserUI = (function (exports) {
     return _arr;
   }
 
+  function _unsupportedIterableToArray$1(o, minLen) {
+    if (!o) return;
+    if (typeof o === "string") return _arrayLikeToArray$1(o, minLen);
+    var n = Object.prototype.toString.call(o).slice(8, -1);
+    if (n === "Object" && o.constructor) n = o.constructor.name;
+    if (n === "Map" || n === "Set") return Array.from(o);
+    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$1(o, minLen);
+  }
+
+  function _arrayLikeToArray$1(arr, len) {
+    if (len == null || len > arr.length) len = arr.length;
+
+    for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+    return arr2;
+  }
+
   function _nonIterableSpread() {
-    throw new TypeError("Invalid attempt to spread non-iterable instance");
+    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
   }
 
-  function _nonIterableRest() {
-    throw new TypeError("Invalid attempt to destructure non-iterable instance");
+  function _nonIterableRest$1() {
+    throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
   }
 
-  var endpointMap = {};
+  var endpointMap$1 = {};
   var endpointComputers = {};
   var handlers = {};
   var EndpointFactory = {
     get: function get(ep, name, params) {
-      var e = endpointMap[name];
+      var e = endpointMap$1[name];
       if (!e) {
         throw {
           message: "jsPlumb: unknown endpoint type '" + name + "'"
@@ -1214,26 +1294,25 @@ var jsPlumbBrowserUI = (function (exports) {
     },
     registerHandler: function registerHandler(eph) {
       handlers[eph.type] = eph;
-      endpointMap[eph.type] = eph.cls;
+      endpointMap$1[eph.type] = eph.cls;
       endpointComputers[eph.type] = eph.compute;
     }
   };
 
-  var EndpointRepresentation =
-  function () {
+  var EndpointRepresentation = function () {
     function EndpointRepresentation(endpoint, params) {
-      _classCallCheck$2(this, EndpointRepresentation);
+      _classCallCheck$3(this, EndpointRepresentation);
       this.endpoint = endpoint;
-      _defineProperty$2(this, "typeId", void 0);
-      _defineProperty$2(this, "x", void 0);
-      _defineProperty$2(this, "y", void 0);
-      _defineProperty$2(this, "w", void 0);
-      _defineProperty$2(this, "h", void 0);
-      _defineProperty$2(this, "computedValue", void 0);
-      _defineProperty$2(this, "bounds", EMPTY_BOUNDS());
-      _defineProperty$2(this, "classes", []);
-      _defineProperty$2(this, "instance", void 0);
-      _defineProperty$2(this, "type", void 0);
+      _defineProperty$3(this, "typeId", void 0);
+      _defineProperty$3(this, "x", void 0);
+      _defineProperty$3(this, "y", void 0);
+      _defineProperty$3(this, "w", void 0);
+      _defineProperty$3(this, "h", void 0);
+      _defineProperty$3(this, "computedValue", void 0);
+      _defineProperty$3(this, "bounds", EMPTY_BOUNDS());
+      _defineProperty$3(this, "classes", []);
+      _defineProperty$3(this, "instance", void 0);
+      _defineProperty$3(this, "type", void 0);
       params = params || {};
       this.instance = endpoint.instance;
       if (endpoint.cssClass) {
@@ -1243,7 +1322,7 @@ var jsPlumbBrowserUI = (function (exports) {
         this.classes.push(params.cssClass);
       }
     }
-    _createClass$2(EndpointRepresentation, [{
+    _createClass$3(EndpointRepresentation, [{
       key: "addClass",
       value: function addClass(c) {
         this.classes.push(c);
@@ -1275,17 +1354,17 @@ var jsPlumbBrowserUI = (function (exports) {
     return EndpointRepresentation;
   }();
 
-  var DotEndpoint =
-  function (_EndpointRepresentati) {
-    _inherits$1(DotEndpoint, _EndpointRepresentati);
+  var DotEndpoint = function (_EndpointRepresentati) {
+    _inherits$3(DotEndpoint, _EndpointRepresentati);
+    var _super = _createSuper$3(DotEndpoint);
     function DotEndpoint(endpoint, params) {
       var _this;
-      _classCallCheck$2(this, DotEndpoint);
-      _this = _possibleConstructorReturn$1(this, _getPrototypeOf$1(DotEndpoint).call(this, endpoint, params));
-      _defineProperty$2(_assertThisInitialized$1(_this), "radius", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "defaultOffset", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "defaultInnerRadius", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "type", DotEndpoint.type);
+      _classCallCheck$3(this, DotEndpoint);
+      _this = _super.call(this, endpoint, params);
+      _defineProperty$3(_assertThisInitialized$3(_this), "radius", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "defaultOffset", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "defaultInnerRadius", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "type", DotEndpoint.type);
       params = params || {};
       _this.radius = params.radius || 5;
       _this.defaultOffset = 0.5 * _this.radius;
@@ -1294,7 +1373,7 @@ var jsPlumbBrowserUI = (function (exports) {
     }
     return DotEndpoint;
   }(EndpointRepresentation);
-  _defineProperty$2(DotEndpoint, "type", "Dot");
+  _defineProperty$3(DotEndpoint, "type", "Dot");
   var DotEndpointHandler = {
     type: DotEndpoint.type,
     cls: DotEndpoint,
@@ -1323,19 +1402,19 @@ var jsPlumbBrowserUI = (function (exports) {
     }
   };
 
-  var BlankEndpoint =
-  function (_EndpointRepresentati) {
-    _inherits$1(BlankEndpoint, _EndpointRepresentati);
+  var BlankEndpoint = function (_EndpointRepresentati) {
+    _inherits$3(BlankEndpoint, _EndpointRepresentati);
+    var _super = _createSuper$3(BlankEndpoint);
     function BlankEndpoint(endpoint, params) {
       var _this;
-      _classCallCheck$2(this, BlankEndpoint);
-      _this = _possibleConstructorReturn$1(this, _getPrototypeOf$1(BlankEndpoint).call(this, endpoint, params));
-      _defineProperty$2(_assertThisInitialized$1(_this), "type", BlankEndpoint.type);
+      _classCallCheck$3(this, BlankEndpoint);
+      _this = _super.call(this, endpoint, params);
+      _defineProperty$3(_assertThisInitialized$3(_this), "type", BlankEndpoint.type);
       return _this;
     }
     return BlankEndpoint;
   }(EndpointRepresentation);
-  _defineProperty$2(BlankEndpoint, "type", "Blank");
+  _defineProperty$3(BlankEndpoint, "type", "Blank");
   var BlankEndpointHandler = {
     type: BlankEndpoint.type,
     cls: BlankEndpoint,
@@ -1351,22 +1430,22 @@ var jsPlumbBrowserUI = (function (exports) {
     }
   };
 
-  var RectangleEndpoint =
-  function (_EndpointRepresentati) {
-    _inherits$1(RectangleEndpoint, _EndpointRepresentati);
+  var RectangleEndpoint = function (_EndpointRepresentati) {
+    _inherits$3(RectangleEndpoint, _EndpointRepresentati);
+    var _super = _createSuper$3(RectangleEndpoint);
     function RectangleEndpoint(endpoint, params) {
       var _this;
-      _classCallCheck$2(this, RectangleEndpoint);
-      _this = _possibleConstructorReturn$1(this, _getPrototypeOf$1(RectangleEndpoint).call(this, endpoint, params));
-      _defineProperty$2(_assertThisInitialized$1(_this), "width", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "height", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "type", RectangleEndpoint.type);
+      _classCallCheck$3(this, RectangleEndpoint);
+      _this = _super.call(this, endpoint, params);
+      _defineProperty$3(_assertThisInitialized$3(_this), "width", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "height", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "type", RectangleEndpoint.type);
       params = params || {};
       _this.width = params.width || 10;
       _this.height = params.height || 10;
       return _this;
     }
-    _createClass$2(RectangleEndpoint, null, [{
+    _createClass$3(RectangleEndpoint, null, [{
       key: "_getParams",
       value: function _getParams(ep) {
         return {
@@ -1377,7 +1456,7 @@ var jsPlumbBrowserUI = (function (exports) {
     }]);
     return RectangleEndpoint;
   }(EndpointRepresentation);
-  _defineProperty$2(RectangleEndpoint, "type", "Rectangle");
+  _defineProperty$3(RectangleEndpoint, "type", "Rectangle");
   var RectangleEndpointHandler = {
     type: RectangleEndpoint.type,
     cls: RectangleEndpoint,
@@ -1400,36 +1479,35 @@ var jsPlumbBrowserUI = (function (exports) {
     }
   };
 
-  var AbstractConnector =
-  function () {
+  var AbstractConnector = function () {
     function AbstractConnector(connection, params) {
-      _classCallCheck$2(this, AbstractConnector);
+      _classCallCheck$3(this, AbstractConnector);
       this.connection = connection;
-      _defineProperty$2(this, "type", void 0);
-      _defineProperty$2(this, "edited", false);
-      _defineProperty$2(this, "stub", void 0);
-      _defineProperty$2(this, "sourceStub", void 0);
-      _defineProperty$2(this, "targetStub", void 0);
-      _defineProperty$2(this, "maxStub", void 0);
-      _defineProperty$2(this, "typeId", void 0);
-      _defineProperty$2(this, "gap", void 0);
-      _defineProperty$2(this, "sourceGap", void 0);
-      _defineProperty$2(this, "targetGap", void 0);
-      _defineProperty$2(this, "segments", []);
-      _defineProperty$2(this, "totalLength", 0);
-      _defineProperty$2(this, "segmentProportions", []);
-      _defineProperty$2(this, "segmentProportionalLengths", []);
-      _defineProperty$2(this, "paintInfo", null);
-      _defineProperty$2(this, "strokeWidth", void 0);
-      _defineProperty$2(this, "x", void 0);
-      _defineProperty$2(this, "y", void 0);
-      _defineProperty$2(this, "w", void 0);
-      _defineProperty$2(this, "h", void 0);
-      _defineProperty$2(this, "segment", void 0);
-      _defineProperty$2(this, "bounds", EMPTY_BOUNDS());
-      _defineProperty$2(this, "cssClass", void 0);
-      _defineProperty$2(this, "hoverClass", void 0);
-      _defineProperty$2(this, "geometry", void 0);
+      _defineProperty$3(this, "type", void 0);
+      _defineProperty$3(this, "edited", false);
+      _defineProperty$3(this, "stub", void 0);
+      _defineProperty$3(this, "sourceStub", void 0);
+      _defineProperty$3(this, "targetStub", void 0);
+      _defineProperty$3(this, "maxStub", void 0);
+      _defineProperty$3(this, "typeId", void 0);
+      _defineProperty$3(this, "gap", void 0);
+      _defineProperty$3(this, "sourceGap", void 0);
+      _defineProperty$3(this, "targetGap", void 0);
+      _defineProperty$3(this, "segments", []);
+      _defineProperty$3(this, "totalLength", 0);
+      _defineProperty$3(this, "segmentProportions", []);
+      _defineProperty$3(this, "segmentProportionalLengths", []);
+      _defineProperty$3(this, "paintInfo", null);
+      _defineProperty$3(this, "strokeWidth", void 0);
+      _defineProperty$3(this, "x", void 0);
+      _defineProperty$3(this, "y", void 0);
+      _defineProperty$3(this, "w", void 0);
+      _defineProperty$3(this, "h", void 0);
+      _defineProperty$3(this, "segment", void 0);
+      _defineProperty$3(this, "bounds", EMPTY_BOUNDS());
+      _defineProperty$3(this, "cssClass", void 0);
+      _defineProperty$3(this, "hoverClass", void 0);
+      _defineProperty$3(this, "geometry", void 0);
       this.stub = params.stub || this.getDefaultStubs();
       this.sourceStub = isArray(this.stub) ? this.stub[0] : this.stub;
       this.targetStub = isArray(this.stub) ? this.stub[1] : this.stub;
@@ -1440,7 +1518,7 @@ var jsPlumbBrowserUI = (function (exports) {
       this.cssClass = params.cssClass || "";
       this.hoverClass = params.hoverClass || "";
     }
-    _createClass$2(AbstractConnector, [{
+    _createClass$3(AbstractConnector, [{
       key: "getTypeDescriptor",
       value: function getTypeDescriptor() {
         return "connector";
@@ -1746,21 +1824,21 @@ var jsPlumbBrowserUI = (function (exports) {
     return AbstractConnector;
   }();
 
-  var StraightSegment =
-  function (_AbstractSegment) {
-    _inherits$1(StraightSegment, _AbstractSegment);
+  var StraightSegment = function (_AbstractSegment) {
+    _inherits$3(StraightSegment, _AbstractSegment);
+    var _super = _createSuper$3(StraightSegment);
     function StraightSegment(params) {
       var _this;
-      _classCallCheck$2(this, StraightSegment);
-      _this = _possibleConstructorReturn$1(this, _getPrototypeOf$1(StraightSegment).call(this, params));
-      _defineProperty$2(_assertThisInitialized$1(_this), "length", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "m", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "m2", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "x1", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "x2", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "y1", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "y2", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "type", StraightSegment.segmentType);
+      _classCallCheck$3(this, StraightSegment);
+      _this = _super.call(this, params);
+      _defineProperty$3(_assertThisInitialized$3(_this), "length", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "m", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "m2", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "x1", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "x2", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "y1", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "y2", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "type", StraightSegment.segmentType);
       _this._setCoordinates({
         x1: params.x1,
         y1: params.y1,
@@ -1769,7 +1847,7 @@ var jsPlumbBrowserUI = (function (exports) {
       });
       return _this;
     }
-    _createClass$2(StraightSegment, [{
+    _createClass$3(StraightSegment, [{
       key: "getPath",
       value: function getPath(isFirstSegment) {
         return (isFirstSegment ? "M " + this.x1 + " " + this.y1 + " " : "") + "L " + this.x2 + " " + this.y2;
@@ -1993,23 +2071,22 @@ var jsPlumbBrowserUI = (function (exports) {
     }]);
     return StraightSegment;
   }(AbstractSegment);
-  _defineProperty$2(StraightSegment, "segmentType", "Straight");
+  _defineProperty$3(StraightSegment, "segmentType", "Straight");
 
-  var StraightConnector =
-  function (_AbstractConnector) {
-    _inherits$1(StraightConnector, _AbstractConnector);
+  var StraightConnector = function (_AbstractConnector) {
+    _inherits$3(StraightConnector, _AbstractConnector);
+    var _super = _createSuper$3(StraightConnector);
     function StraightConnector() {
-      var _getPrototypeOf2;
       var _this;
-      _classCallCheck$2(this, StraightConnector);
+      _classCallCheck$3(this, StraightConnector);
       for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
       }
-      _this = _possibleConstructorReturn$1(this, (_getPrototypeOf2 = _getPrototypeOf$1(StraightConnector)).call.apply(_getPrototypeOf2, [this].concat(args)));
-      _defineProperty$2(_assertThisInitialized$1(_this), "type", StraightConnector.type);
+      _this = _super.call.apply(_super, [this].concat(args));
+      _defineProperty$3(_assertThisInitialized$3(_this), "type", StraightConnector.type);
       return _this;
     }
-    _createClass$2(StraightConnector, [{
+    _createClass$3(StraightConnector, [{
       key: "getDefaultStubs",
       value: function getDefaultStubs() {
         return [0, 0];
@@ -2043,7 +2120,7 @@ var jsPlumbBrowserUI = (function (exports) {
     }]);
     return StraightConnector;
   }(AbstractConnector);
-  _defineProperty$2(StraightConnector, "type", "Straight");
+  _defineProperty$3(StraightConnector, "type", "Straight");
 
   var connectorMap = {};
   var Connectors = {
@@ -2162,21 +2239,21 @@ var jsPlumbBrowserUI = (function (exports) {
     o.options.id = o.options.id || uuid();
     return o;
   }
-  var Overlay =
-  function (_EventGenerator) {
-    _inherits$1(Overlay, _EventGenerator);
+  var Overlay = function (_EventGenerator) {
+    _inherits$3(Overlay, _EventGenerator);
+    var _super = _createSuper$3(Overlay);
     function Overlay(instance, component, p) {
       var _this;
-      _classCallCheck$2(this, Overlay);
-      _this = _possibleConstructorReturn$1(this, _getPrototypeOf$1(Overlay).call(this));
+      _classCallCheck$3(this, Overlay);
+      _this = _super.call(this);
       _this.instance = instance;
       _this.component = component;
-      _defineProperty$2(_assertThisInitialized$1(_this), "id", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "type", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "cssClass", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "visible", true);
-      _defineProperty$2(_assertThisInitialized$1(_this), "location", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "events", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "id", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "type", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "cssClass", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "visible", true);
+      _defineProperty$3(_assertThisInitialized$3(_this), "location", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "events", void 0);
       p = p || {};
       _this.id = p.id || uuid();
       _this.cssClass = p.cssClass || "";
@@ -2187,7 +2264,7 @@ var jsPlumbBrowserUI = (function (exports) {
       }
       return _this;
     }
-    _createClass$2(Overlay, [{
+    _createClass$3(Overlay, [{
       key: "shouldFireEvent",
       value: function shouldFireEvent(event, value, originalEvent) {
         return true;
@@ -2224,26 +2301,26 @@ var jsPlumbBrowserUI = (function (exports) {
     }
   };
 
-  var LabelOverlay =
-  function (_Overlay) {
-    _inherits$1(LabelOverlay, _Overlay);
+  var LabelOverlay = function (_Overlay) {
+    _inherits$3(LabelOverlay, _Overlay);
+    var _super = _createSuper$3(LabelOverlay);
     function LabelOverlay(instance, component, p) {
       var _this;
-      _classCallCheck$2(this, LabelOverlay);
-      _this = _possibleConstructorReturn$1(this, _getPrototypeOf$1(LabelOverlay).call(this, instance, component, p));
+      _classCallCheck$3(this, LabelOverlay);
+      _this = _super.call(this, instance, component, p);
       _this.instance = instance;
       _this.component = component;
-      _defineProperty$2(_assertThisInitialized$1(_this), "label", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "labelText", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "type", LabelOverlay.type);
-      _defineProperty$2(_assertThisInitialized$1(_this), "cachedDimensions", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "label", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "labelText", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "type", LabelOverlay.type);
+      _defineProperty$3(_assertThisInitialized$3(_this), "cachedDimensions", void 0);
       p = p || {
         label: ""
       };
       _this.setLabel(p.label);
       return _this;
     }
-    _createClass$2(LabelOverlay, [{
+    _createClass$3(LabelOverlay, [{
       key: "getLabel",
       value: function getLabel() {
         if (isFunction(this.label)) {
@@ -2277,7 +2354,7 @@ var jsPlumbBrowserUI = (function (exports) {
     }]);
     return LabelOverlay;
   }(Overlay);
-  _defineProperty$2(LabelOverlay, "type", "Label");
+  _defineProperty$3(LabelOverlay, "type", "Label");
   function isLabelOverlay(o) {
     return o.type === LabelOverlay.type;
   }
@@ -2371,44 +2448,44 @@ var jsPlumbBrowserUI = (function (exports) {
     component.overlays[_newOverlay.id] = _newOverlay;
     return _newOverlay;
   }
-  var Component =
-  function (_EventGenerator) {
-    _inherits$1(Component, _EventGenerator);
+  var Component = function (_EventGenerator) {
+    _inherits$3(Component, _EventGenerator);
+    var _super = _createSuper$3(Component);
     function Component(instance, params) {
       var _this;
-      _classCallCheck$2(this, Component);
-      _this = _possibleConstructorReturn$1(this, _getPrototypeOf$1(Component).call(this));
+      _classCallCheck$3(this, Component);
+      _this = _super.call(this);
       _this.instance = instance;
-      _defineProperty$2(_assertThisInitialized$1(_this), "defaultLabelLocation", 0.5);
-      _defineProperty$2(_assertThisInitialized$1(_this), "overlays", {});
-      _defineProperty$2(_assertThisInitialized$1(_this), "overlayPositions", {});
-      _defineProperty$2(_assertThisInitialized$1(_this), "overlayPlacements", {});
-      _defineProperty$2(_assertThisInitialized$1(_this), "clone", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "deleted", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "segment", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "x", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "y", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "w", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "h", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "id", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "visible", true);
-      _defineProperty$2(_assertThisInitialized$1(_this), "typeId", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "params", {});
-      _defineProperty$2(_assertThisInitialized$1(_this), "paintStyle", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "hoverPaintStyle", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "paintStyleInUse", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "_hover", false);
-      _defineProperty$2(_assertThisInitialized$1(_this), "lastPaintedAt", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "data", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "_defaultType", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "events", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "parameters", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "_types", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "_typeCache", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "cssClass", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "hoverClass", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "beforeDetach", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "beforeDrop", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "defaultLabelLocation", 0.5);
+      _defineProperty$3(_assertThisInitialized$3(_this), "overlays", {});
+      _defineProperty$3(_assertThisInitialized$3(_this), "overlayPositions", {});
+      _defineProperty$3(_assertThisInitialized$3(_this), "overlayPlacements", {});
+      _defineProperty$3(_assertThisInitialized$3(_this), "clone", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "deleted", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "segment", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "x", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "y", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "w", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "h", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "id", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "visible", true);
+      _defineProperty$3(_assertThisInitialized$3(_this), "typeId", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "params", {});
+      _defineProperty$3(_assertThisInitialized$3(_this), "paintStyle", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "hoverPaintStyle", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "paintStyleInUse", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "_hover", false);
+      _defineProperty$3(_assertThisInitialized$3(_this), "lastPaintedAt", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "data", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "_defaultType", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "events", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "parameters", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "_types", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "_typeCache", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "cssClass", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "hoverClass", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "beforeDetach", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "beforeDrop", void 0);
       params = params || {};
       _this.cssClass = params.cssClass || "";
       _this.hoverClass = params.hoverClass || instance.defaults.hoverClass;
@@ -2461,7 +2538,7 @@ var jsPlumbBrowserUI = (function (exports) {
       }
       return _this;
     }
-    _createClass$2(Component, [{
+    _createClass$3(Component, [{
       key: "isDetachAllowed",
       value: function isDetachAllowed(connection) {
         var r = true;
@@ -2910,16 +2987,15 @@ var jsPlumbBrowserUI = (function (exports) {
 
   var X_AXIS_FACES = ["left", "right"];
   var Y_AXIS_FACES = ["top", "bottom"];
-  var LightweightFloatingAnchor =
-  function () {
+  var LightweightFloatingAnchor = function () {
     function LightweightFloatingAnchor(instance, element) {
-      _classCallCheck$2(this, LightweightFloatingAnchor);
+      _classCallCheck$3(this, LightweightFloatingAnchor);
       this.instance = instance;
       this.element = element;
-      _defineProperty$2(this, "isFloating", true);
-      _defineProperty$2(this, "isContinuous", void 0);
-      _defineProperty$2(this, "isDynamic", void 0);
-      _defineProperty$2(this, "locations", [{
+      _defineProperty$3(this, "isFloating", true);
+      _defineProperty$3(this, "isContinuous", void 0);
+      _defineProperty$3(this, "isDynamic", void 0);
+      _defineProperty$3(this, "locations", [{
         x: 0,
         y: 0,
         ox: 0,
@@ -2930,17 +3006,17 @@ var jsPlumbBrowserUI = (function (exports) {
         ioy: 0,
         cls: ''
       }]);
-      _defineProperty$2(this, "currentLocation", 0);
-      _defineProperty$2(this, "locked", false);
-      _defineProperty$2(this, "cssClass", '');
-      _defineProperty$2(this, "timestamp", null);
-      _defineProperty$2(this, "type", "Floating");
-      _defineProperty$2(this, "id", uuid());
-      _defineProperty$2(this, "orientation", [0, 0]);
-      _defineProperty$2(this, "size", void 0);
+      _defineProperty$3(this, "currentLocation", 0);
+      _defineProperty$3(this, "locked", false);
+      _defineProperty$3(this, "cssClass", '');
+      _defineProperty$3(this, "timestamp", null);
+      _defineProperty$3(this, "type", "Floating");
+      _defineProperty$3(this, "id", uuid());
+      _defineProperty$3(this, "orientation", [0, 0]);
+      _defineProperty$3(this, "size", void 0);
       this.size = instance.getSize(element);
     }
-    _createClass$2(LightweightFloatingAnchor, [{
+    _createClass$3(LightweightFloatingAnchor, [{
       key: "over",
       value: function over(endpoint) {
         this.orientation = this.instance.router.getEndpointOrientation(endpoint);
@@ -3286,63 +3362,44 @@ var jsPlumbBrowserUI = (function (exports) {
     }
     return e;
   }
-  var Connection =
-  function (_Component) {
-    _inherits$1(Connection, _Component);
-    _createClass$2(Connection, [{
-      key: "getIdPrefix",
-      value: function getIdPrefix() {
-        return "_jsPlumb_c";
-      }
-    }, {
-      key: "getDefaultOverlayKey",
-      value: function getDefaultOverlayKey() {
-        return KEY_CONNECTION_OVERLAYS;
-      }
-    }, {
-      key: "getXY",
-      value: function getXY() {
-        return {
-          x: this.connector.x,
-          y: this.connector.y
-        };
-      }
-    }]);
+  var Connection = function (_Component) {
+    _inherits$3(Connection, _Component);
+    var _super = _createSuper$3(Connection);
     function Connection(instance, params) {
       var _this;
-      _classCallCheck$2(this, Connection);
-      _this = _possibleConstructorReturn$1(this, _getPrototypeOf$1(Connection).call(this, instance, params));
+      _classCallCheck$3(this, Connection);
+      _this = _super.call(this, instance, params);
       _this.instance = instance;
-      _defineProperty$2(_assertThisInitialized$1(_this), "connector", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "defaultLabelLocation", 0.5);
-      _defineProperty$2(_assertThisInitialized$1(_this), "scope", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "typeId", "_jsplumb_connection");
-      _defineProperty$2(_assertThisInitialized$1(_this), "previousConnection", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "sourceId", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "targetId", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "source", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "target", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "detachable", true);
-      _defineProperty$2(_assertThisInitialized$1(_this), "reattach", false);
-      _defineProperty$2(_assertThisInitialized$1(_this), "uuids", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "cost", 1);
-      _defineProperty$2(_assertThisInitialized$1(_this), "directed", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "endpoints", [null, null]);
-      _defineProperty$2(_assertThisInitialized$1(_this), "endpointStyles", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "endpointSpec", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "endpointsSpec", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "endpointStyle", {});
-      _defineProperty$2(_assertThisInitialized$1(_this), "endpointHoverStyle", {});
-      _defineProperty$2(_assertThisInitialized$1(_this), "endpointHoverStyles", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "suspendedEndpoint", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "suspendedIndex", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "suspendedElement", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "suspendedElementId", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "suspendedElementType", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "_forceReattach", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "_forceDetach", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "proxies", []);
-      _defineProperty$2(_assertThisInitialized$1(_this), "pending", false);
+      _defineProperty$3(_assertThisInitialized$3(_this), "connector", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "defaultLabelLocation", 0.5);
+      _defineProperty$3(_assertThisInitialized$3(_this), "scope", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "typeId", "_jsplumb_connection");
+      _defineProperty$3(_assertThisInitialized$3(_this), "previousConnection", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "sourceId", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "targetId", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "source", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "target", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "detachable", true);
+      _defineProperty$3(_assertThisInitialized$3(_this), "reattach", false);
+      _defineProperty$3(_assertThisInitialized$3(_this), "uuids", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "cost", 1);
+      _defineProperty$3(_assertThisInitialized$3(_this), "directed", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "endpoints", [null, null]);
+      _defineProperty$3(_assertThisInitialized$3(_this), "endpointStyles", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "endpointSpec", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "endpointsSpec", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "endpointStyle", {});
+      _defineProperty$3(_assertThisInitialized$3(_this), "endpointHoverStyle", {});
+      _defineProperty$3(_assertThisInitialized$3(_this), "endpointHoverStyles", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "suspendedEndpoint", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "suspendedIndex", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "suspendedElement", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "suspendedElementId", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "suspendedElementType", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "_forceReattach", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "_forceDetach", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "proxies", []);
+      _defineProperty$3(_assertThisInitialized$3(_this), "pending", false);
       _this.id = params.id;
       _this.previousConnection = params.previousConnection;
       _this.source = params.source;
@@ -3440,7 +3497,25 @@ var jsPlumbBrowserUI = (function (exports) {
       }
       return _this;
     }
-    _createClass$2(Connection, [{
+    _createClass$3(Connection, [{
+      key: "getIdPrefix",
+      value: function getIdPrefix() {
+        return "_jsPlumb_c";
+      }
+    }, {
+      key: "getDefaultOverlayKey",
+      value: function getDefaultOverlayKey() {
+        return KEY_CONNECTION_OVERLAYS;
+      }
+    }, {
+      key: "getXY",
+      value: function getXY() {
+        return {
+          x: this.connector.x,
+          y: this.connector.y
+        };
+      }
+    }, {
       key: "makeEndpoint",
       value: function makeEndpoint(isSource, el, elId, anchor, ep) {
         elId = elId || this.instance.getId(el);
@@ -3483,7 +3558,7 @@ var jsPlumbBrowserUI = (function (exports) {
           }
           this.setPreparedConnector(_connector);
         }
-        _get(_getPrototypeOf$1(Connection.prototype), "applyType", this).call(this, t, typeMap);
+        _get$1(_getPrototypeOf$3(Connection.prototype), "applyType", this).call(this, t, typeMap);
         if (t.detachable != null) {
           this.setDetachable(t.detachable);
         }
@@ -3518,7 +3593,7 @@ var jsPlumbBrowserUI = (function (exports) {
     }, {
       key: "addClass",
       value: function addClass(c, cascade) {
-        _get(_getPrototypeOf$1(Connection.prototype), "addClass", this).call(this, c);
+        _get$1(_getPrototypeOf$3(Connection.prototype), "addClass", this).call(this, c);
         if (cascade) {
           this.endpoints[0].addClass(c);
           this.endpoints[1].addClass(c);
@@ -3533,7 +3608,7 @@ var jsPlumbBrowserUI = (function (exports) {
     }, {
       key: "removeClass",
       value: function removeClass(c, cascade) {
-        _get(_getPrototypeOf$1(Connection.prototype), "removeClass", this).call(this, c);
+        _get$1(_getPrototypeOf$3(Connection.prototype), "removeClass", this).call(this, c);
         if (cascade) {
           this.endpoints[0].removeClass(c);
           this.endpoints[1].removeClass(c);
@@ -3548,7 +3623,7 @@ var jsPlumbBrowserUI = (function (exports) {
     }, {
       key: "setVisible",
       value: function setVisible(v) {
-        _get(_getPrototypeOf$1(Connection.prototype), "setVisible", this).call(this, v);
+        _get$1(_getPrototypeOf$3(Connection.prototype), "setVisible", this).call(this, v);
         if (this.connector) {
           this.instance.setConnectorVisible(this.connector, v);
         }
@@ -3557,7 +3632,7 @@ var jsPlumbBrowserUI = (function (exports) {
     }, {
       key: "destroy",
       value: function destroy() {
-        _get(_getPrototypeOf$1(Connection.prototype), "destroy", this).call(this);
+        _get$1(_getPrototypeOf$3(Connection.prototype), "destroy", this).call(this);
         this.endpoints = null;
         this.endpointStyles = null;
         this.source = null;
@@ -3644,73 +3719,49 @@ var jsPlumbBrowserUI = (function (exports) {
     }]);
     return Connection;
   }(Component);
-  _defineProperty$2(Connection, "type", "connection");
+  _defineProperty$3(Connection, "type", "connection");
 
   var typeParameters = ["connectorStyle", "connectorHoverStyle", "connectorOverlays", "connector", "connectionType", "connectorClass", "connectorHoverClass"];
-  var Endpoint =
-  function (_Component) {
-    _inherits$1(Endpoint, _Component);
-    _createClass$2(Endpoint, [{
-      key: "getIdPrefix",
-      value: function getIdPrefix() {
-        return "_jsplumb_e";
-      }
-    }, {
-      key: "getTypeDescriptor",
-      value: function getTypeDescriptor() {
-        return "endpoint";
-      }
-    }, {
-      key: "getXY",
-      value: function getXY() {
-        return {
-          x: this.endpoint.x,
-          y: this.endpoint.y
-        };
-      }
-    }, {
-      key: "getDefaultOverlayKey",
-      value: function getDefaultOverlayKey() {
-        return "endpointOverlays";
-      }
-    }]);
+  var Endpoint = function (_Component) {
+    _inherits$3(Endpoint, _Component);
+    var _super = _createSuper$3(Endpoint);
     function Endpoint(instance, params) {
       var _this;
-      _classCallCheck$2(this, Endpoint);
-      _this = _possibleConstructorReturn$1(this, _getPrototypeOf$1(Endpoint).call(this, instance, params));
+      _classCallCheck$3(this, Endpoint);
+      _this = _super.call(this, instance, params);
       _this.instance = instance;
-      _defineProperty$2(_assertThisInitialized$1(_this), "connections", []);
-      _defineProperty$2(_assertThisInitialized$1(_this), "endpoint", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "element", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "elementId", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "dragAllowedWhenFull", true);
-      _defineProperty$2(_assertThisInitialized$1(_this), "timestamp", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "portId", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "maxConnections", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "proxiedBy", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "connectorClass", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "connectorHoverClass", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "finalEndpoint", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "enabled", true);
-      _defineProperty$2(_assertThisInitialized$1(_this), "isSource", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "isTarget", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "isTemporarySource", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "connectionCost", 1);
-      _defineProperty$2(_assertThisInitialized$1(_this), "connectionsDirected", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "connectionsDetachable", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "reattachConnections", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "currentAnchorClass", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "referenceEndpoint", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "edgeType", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "connector", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "connectorOverlays", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "connectorStyle", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "connectorHoverStyle", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "deleteOnEmpty", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "uuid", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "scope", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "_anchor", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "defaultLabelLocation", [0.5, 0.5]);
+      _defineProperty$3(_assertThisInitialized$3(_this), "connections", []);
+      _defineProperty$3(_assertThisInitialized$3(_this), "endpoint", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "element", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "elementId", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "dragAllowedWhenFull", true);
+      _defineProperty$3(_assertThisInitialized$3(_this), "timestamp", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "portId", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "maxConnections", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "proxiedBy", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "connectorClass", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "connectorHoverClass", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "finalEndpoint", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "enabled", true);
+      _defineProperty$3(_assertThisInitialized$3(_this), "isSource", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "isTarget", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "isTemporarySource", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "connectionCost", 1);
+      _defineProperty$3(_assertThisInitialized$3(_this), "connectionsDirected", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "connectionsDetachable", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "reattachConnections", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "currentAnchorClass", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "referenceEndpoint", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "edgeType", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "connector", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "connectorOverlays", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "connectorStyle", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "connectorHoverStyle", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "deleteOnEmpty", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "uuid", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "scope", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "_anchor", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "defaultLabelLocation", [0.5, 0.5]);
       _this.appendToDefaultType({
         edgeType: params.edgeType,
         maxConnections: params.maxConnections == null ? _this.instance.defaults.maxConnections : params.maxConnections,
@@ -3768,7 +3819,30 @@ var jsPlumbBrowserUI = (function (exports) {
       _this.addType(type, params.data);
       return _this;
     }
-    _createClass$2(Endpoint, [{
+    _createClass$3(Endpoint, [{
+      key: "getIdPrefix",
+      value: function getIdPrefix() {
+        return "_jsplumb_e";
+      }
+    }, {
+      key: "getTypeDescriptor",
+      value: function getTypeDescriptor() {
+        return "endpoint";
+      }
+    }, {
+      key: "getXY",
+      value: function getXY() {
+        return {
+          x: this.endpoint.x,
+          y: this.endpoint.y
+        };
+      }
+    }, {
+      key: "getDefaultOverlayKey",
+      value: function getDefaultOverlayKey() {
+        return "endpointOverlays";
+      }
+    }, {
       key: "_updateAnchorClass",
       value: function _updateAnchorClass() {
         var ac = this._anchor && this._anchor.cssClass;
@@ -3861,7 +3935,7 @@ var jsPlumbBrowserUI = (function (exports) {
     }, {
       key: "setVisible",
       value: function setVisible(v, doNotChangeConnections, doNotNotifyOtherEndpoint) {
-        _get(_getPrototypeOf$1(Endpoint.prototype), "setVisible", this).call(this, v);
+        _get$1(_getPrototypeOf$3(Endpoint.prototype), "setVisible", this).call(this, v);
         this.endpoint.setVisible(v);
         if (v) {
           this.showOverlays();
@@ -3883,7 +3957,7 @@ var jsPlumbBrowserUI = (function (exports) {
     }, {
       key: "applyType",
       value: function applyType(t, typeMap) {
-        _get(_getPrototypeOf$1(Endpoint.prototype), "applyType", this).call(this, t, typeMap);
+        _get$1(_getPrototypeOf$3(Endpoint.prototype), "applyType", this).call(this, t, typeMap);
         this.setPaintStyle(t.endpointStyle || t.paintStyle);
         this.setHoverPaintStyle(t.endpointHoverStyle || t.hoverPaintStyle);
         this.connectorStyle = t.connectorStyle;
@@ -3903,7 +3977,7 @@ var jsPlumbBrowserUI = (function (exports) {
     }, {
       key: "destroy",
       value: function destroy() {
-        _get(_getPrototypeOf$1(Endpoint.prototype), "destroy", this).call(this);
+        _get$1(_getPrototypeOf$3(Endpoint.prototype), "destroy", this).call(this);
         if (this.endpoint != null) {
           this.instance.destroyEndpoint(this);
         }
@@ -3985,7 +4059,7 @@ var jsPlumbBrowserUI = (function (exports) {
     }, {
       key: "addClass",
       value: function addClass(clazz, cascade) {
-        _get(_getPrototypeOf$1(Endpoint.prototype), "addClass", this).call(this, clazz, cascade);
+        _get$1(_getPrototypeOf$3(Endpoint.prototype), "addClass", this).call(this, clazz, cascade);
         if (this.endpoint != null) {
           this.endpoint.addClass(clazz);
         }
@@ -3993,7 +4067,7 @@ var jsPlumbBrowserUI = (function (exports) {
     }, {
       key: "removeClass",
       value: function removeClass(clazz, cascade) {
-        _get(_getPrototypeOf$1(Endpoint.prototype), "removeClass", this).call(this, clazz, cascade);
+        _get$1(_getPrototypeOf$3(Endpoint.prototype), "removeClass", this).call(this, clazz, cascade);
         if (this.endpoint != null) {
           this.endpoint.removeClass(clazz);
         }
@@ -4003,43 +4077,43 @@ var jsPlumbBrowserUI = (function (exports) {
   }(Component);
 
   var UINode = function UINode(instance, el) {
-    _classCallCheck$2(this, UINode);
+    _classCallCheck$3(this, UINode);
     this.instance = instance;
     this.el = el;
-    _defineProperty$2(this, "group", void 0);
+    _defineProperty$3(this, "group", void 0);
   };
-  var UIGroup =
-  function (_UINode) {
-    _inherits$1(UIGroup, _UINode);
+  var UIGroup = function (_UINode) {
+    _inherits$3(UIGroup, _UINode);
+    var _super = _createSuper$3(UIGroup);
     function UIGroup(instance, el, options) {
       var _this;
-      _classCallCheck$2(this, UIGroup);
-      _this = _possibleConstructorReturn$1(this, _getPrototypeOf$1(UIGroup).call(this, instance, el));
+      _classCallCheck$3(this, UIGroup);
+      _this = _super.call(this, instance, el);
       _this.instance = instance;
-      _defineProperty$2(_assertThisInitialized$1(_this), "children", []);
-      _defineProperty$2(_assertThisInitialized$1(_this), "collapsed", false);
-      _defineProperty$2(_assertThisInitialized$1(_this), "droppable", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "enabled", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "orphan", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "constrain", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "proxied", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "ghost", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "revert", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "prune", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "dropOverride", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "anchor", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "endpoint", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "connections", {
+      _defineProperty$3(_assertThisInitialized$3(_this), "children", []);
+      _defineProperty$3(_assertThisInitialized$3(_this), "collapsed", false);
+      _defineProperty$3(_assertThisInitialized$3(_this), "droppable", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "enabled", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "orphan", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "constrain", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "proxied", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "ghost", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "revert", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "prune", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "dropOverride", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "anchor", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "endpoint", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "connections", {
         source: [],
         target: [],
         internal: []
       });
-      _defineProperty$2(_assertThisInitialized$1(_this), "manager", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "id", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "elId", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "manager", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "id", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "elId", void 0);
       var jel = _this.el;
       jel._isJsPlumbGroup = true;
-      jel._jsPlumbGroup = _assertThisInitialized$1(_this);
+      jel._jsPlumbGroup = _assertThisInitialized$3(_this);
       _this.elId = instance.getId(el);
       _this.orphan = options.orphan === true;
       _this.revert = _this.orphan === true ? false : options.revert !== false;
@@ -4057,7 +4131,7 @@ var jsPlumbBrowserUI = (function (exports) {
       instance.setAttribute(el, ATTRIBUTE_GROUP, "");
       return _this;
     }
-    _createClass$2(UIGroup, [{
+    _createClass$3(UIGroup, [{
       key: "overrideDrop",
       value: function overrideDrop(el, targetGroup) {
         return this.dropOverride && (this.revert || this.prune || this.orphan);
@@ -4253,15 +4327,14 @@ var jsPlumbBrowserUI = (function (exports) {
     return UIGroup;
   }(UINode);
 
-  var GroupManager =
-  function () {
+  var GroupManager = function () {
     function GroupManager(instance) {
       var _this = this;
-      _classCallCheck$2(this, GroupManager);
+      _classCallCheck$3(this, GroupManager);
       this.instance = instance;
-      _defineProperty$2(this, "groupMap", {});
-      _defineProperty$2(this, "_connectionSourceMap", {});
-      _defineProperty$2(this, "_connectionTargetMap", {});
+      _defineProperty$3(this, "groupMap", {});
+      _defineProperty$3(this, "_connectionSourceMap", {});
+      _defineProperty$3(this, "_connectionTargetMap", {});
       instance.bind(EVENT_INTERNAL_CONNECTION, function (p) {
         var sourceGroup = _this.getGroupFor(p.source);
         var targetGroup = _this.getGroupFor(p.target);
@@ -4318,7 +4391,7 @@ var jsPlumbBrowserUI = (function (exports) {
         }
       });
     }
-    _createClass$2(GroupManager, [{
+    _createClass$3(GroupManager, [{
       key: "_cleanupDetachedConnection",
       value: function _cleanupDetachedConnection(conn) {
         conn.proxies.length = 0;
@@ -4549,8 +4622,8 @@ var jsPlumbBrowserUI = (function (exports) {
             etg = et._jsPlumbParentGroup,
             etgcp = etg != null ? etg.collapseParent || etg : null;
         if (esgcp == null || etgcp == null || esgcp.id !== etgcp.id) {
-          var groupEl = group.el,
-              groupElId = this.instance.getId(groupEl);
+          var groupEl = group.el;
+              this.instance.getId(groupEl);
           this.instance.proxyConnection(conn, index, groupEl,
           function (conn, index) {
             return group.getEndpoint(conn, index);
@@ -4773,7 +4846,7 @@ var jsPlumbBrowserUI = (function (exports) {
                   target: el
                 }), 1);
               }
-              var elId = _this7.instance.getId(el);
+              _this7.instance.getId(el);
               var newPosition = {
                 x: elpos.x - cpos.x,
                 y: elpos.y - cpos.y
@@ -4888,14 +4961,18 @@ var jsPlumbBrowserUI = (function (exports) {
     return GroupManager;
   }();
 
-  var SelectionBase =
-  function () {
+  var SelectionBase = function () {
     function SelectionBase(instance, entries) {
-      _classCallCheck$2(this, SelectionBase);
+      _classCallCheck$3(this, SelectionBase);
       this.instance = instance;
       this.entries = entries;
     }
-    _createClass$2(SelectionBase, [{
+    _createClass$3(SelectionBase, [{
+      key: "length",
+      get: function get() {
+        return this.entries.length;
+      }
+    }, {
       key: "each",
       value: function each(handler) {
         forEach(this.entries, function (e) {
@@ -5092,23 +5169,18 @@ var jsPlumbBrowserUI = (function (exports) {
         });
         return this;
       }
-    }, {
-      key: "length",
-      get: function get() {
-        return this.entries.length;
-      }
     }]);
     return SelectionBase;
   }();
 
-  var EndpointSelection =
-  function (_SelectionBase) {
-    _inherits$1(EndpointSelection, _SelectionBase);
+  var EndpointSelection = function (_SelectionBase) {
+    _inherits$3(EndpointSelection, _SelectionBase);
+    var _super = _createSuper$3(EndpointSelection);
     function EndpointSelection() {
-      _classCallCheck$2(this, EndpointSelection);
-      return _possibleConstructorReturn$1(this, _getPrototypeOf$1(EndpointSelection).apply(this, arguments));
+      _classCallCheck$3(this, EndpointSelection);
+      return _super.apply(this, arguments);
     }
-    _createClass$2(EndpointSelection, [{
+    _createClass$3(EndpointSelection, [{
       key: "setEnabled",
       value: function setEnabled(e) {
         this.each(function (ep) {
@@ -5146,14 +5218,14 @@ var jsPlumbBrowserUI = (function (exports) {
     return EndpointSelection;
   }(SelectionBase);
 
-  var ConnectionSelection =
-  function (_SelectionBase) {
-    _inherits$1(ConnectionSelection, _SelectionBase);
+  var ConnectionSelection = function (_SelectionBase) {
+    _inherits$3(ConnectionSelection, _SelectionBase);
+    var _super = _createSuper$3(ConnectionSelection);
     function ConnectionSelection() {
-      _classCallCheck$2(this, ConnectionSelection);
-      return _possibleConstructorReturn$1(this, _getPrototypeOf$1(ConnectionSelection).apply(this, arguments));
+      _classCallCheck$3(this, ConnectionSelection);
+      return _super.apply(this, arguments);
     }
-    _createClass$2(ConnectionSelection, [{
+    _createClass$3(ConnectionSelection, [{
       key: "setDetachable",
       value: function setDetachable(d) {
         this.each(function (c) {
@@ -5200,8 +5272,8 @@ var jsPlumbBrowserUI = (function (exports) {
   }(SelectionBase);
 
   var Transaction = function Transaction() {
-    _classCallCheck$2(this, Transaction);
-    _defineProperty$2(this, "affectedElements", new Set());
+    _classCallCheck$3(this, Transaction);
+    _defineProperty$3(this, "affectedElements", new Set());
   };
   function EMPTY_POSITION() {
     return {
@@ -5292,24 +5364,24 @@ var jsPlumbBrowserUI = (function (exports) {
       array.splice(idx, 1);
     }
   }
-  var Viewport =
-  function (_EventGenerator) {
-    _inherits$1(Viewport, _EventGenerator);
+  var Viewport = function (_EventGenerator) {
+    _inherits$3(Viewport, _EventGenerator);
+    var _super = _createSuper$3(Viewport);
     function Viewport(instance) {
       var _this;
-      _classCallCheck$2(this, Viewport);
-      _this = _possibleConstructorReturn$1(this, _getPrototypeOf$1(Viewport).call(this));
+      _classCallCheck$3(this, Viewport);
+      _this = _super.call(this);
       _this.instance = instance;
-      _defineProperty$2(_assertThisInitialized$1(_this), "_currentTransaction", null);
-      _defineProperty$2(_assertThisInitialized$1(_this), "_sortedElements", {
+      _defineProperty$3(_assertThisInitialized$3(_this), "_currentTransaction", null);
+      _defineProperty$3(_assertThisInitialized$3(_this), "_sortedElements", {
         xmin: [],
         xmax: [],
         ymin: [],
         ymax: []
       });
-      _defineProperty$2(_assertThisInitialized$1(_this), "_elementMap", new Map());
-      _defineProperty$2(_assertThisInitialized$1(_this), "_transformedElementMap", new Map());
-      _defineProperty$2(_assertThisInitialized$1(_this), "_bounds", {
+      _defineProperty$3(_assertThisInitialized$3(_this), "_elementMap", new Map());
+      _defineProperty$3(_assertThisInitialized$3(_this), "_transformedElementMap", new Map());
+      _defineProperty$3(_assertThisInitialized$3(_this), "_bounds", {
         minx: 0,
         maxx: 0,
         miny: 0,
@@ -5317,7 +5389,7 @@ var jsPlumbBrowserUI = (function (exports) {
       });
       return _this;
     }
-    _createClass$2(Viewport, [{
+    _createClass$3(Viewport, [{
       key: "_updateBounds",
       value: function _updateBounds(id, updatedElement, doNotRecalculateBounds) {
         if (updatedElement != null) {
@@ -5552,16 +5624,15 @@ var jsPlumbBrowserUI = (function (exports) {
     return Viewport;
   }(EventGenerator);
 
-  var ConnectionDragSelector =
-  function () {
+  var ConnectionDragSelector = function () {
     function ConnectionDragSelector(selector, def) {
       var exclude = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-      _classCallCheck$2(this, ConnectionDragSelector);
+      _classCallCheck$3(this, ConnectionDragSelector);
       this.selector = selector;
       this.def = def;
       this.exclude = exclude;
     }
-    _createClass$2(ConnectionDragSelector, [{
+    _createClass$3(ConnectionDragSelector, [{
       key: "setEnabled",
       value: function setEnabled(enabled) {
         this.def.enabled = enabled;
@@ -5576,27 +5647,27 @@ var jsPlumbBrowserUI = (function (exports) {
   }();
   var REDROP_POLICY_STRICT = "strict";
   var REDROP_POLICY_ANY = "any";
-  var SourceSelector =
-  function (_ConnectionDragSelect) {
-    _inherits$1(SourceSelector, _ConnectionDragSelect);
+  var SourceSelector = function (_ConnectionDragSelect) {
+    _inherits$3(SourceSelector, _ConnectionDragSelect);
+    var _super = _createSuper$3(SourceSelector);
     function SourceSelector(selector, def, exclude) {
       var _this;
-      _classCallCheck$2(this, SourceSelector);
-      _this = _possibleConstructorReturn$1(this, _getPrototypeOf$1(SourceSelector).call(this, selector, def, exclude));
+      _classCallCheck$3(this, SourceSelector);
+      _this = _super.call(this, selector, def, exclude);
       _this.def = def;
-      _defineProperty$2(_assertThisInitialized$1(_this), "redrop", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "redrop", void 0);
       _this.redrop = def.def.redrop || REDROP_POLICY_STRICT;
       return _this;
     }
     return SourceSelector;
   }(ConnectionDragSelector);
-  var TargetSelector =
-  function (_ConnectionDragSelect2) {
-    _inherits$1(TargetSelector, _ConnectionDragSelect2);
+  var TargetSelector = function (_ConnectionDragSelect2) {
+    _inherits$3(TargetSelector, _ConnectionDragSelect2);
+    var _super2 = _createSuper$3(TargetSelector);
     function TargetSelector(selector, def, exclude) {
       var _this2;
-      _classCallCheck$2(this, TargetSelector);
-      _this2 = _possibleConstructorReturn$1(this, _getPrototypeOf$1(TargetSelector).call(this, selector, def, exclude));
+      _classCallCheck$3(this, TargetSelector);
+      _this2 = _super2.call(this, selector, def, exclude);
       _this2.def = def;
       return _this2;
     }
@@ -5664,14 +5735,13 @@ var jsPlumbBrowserUI = (function (exports) {
   function getCurrentLocation(anchor) {
     return [anchor.currentLocation, anchor.locations[anchor.currentLocation]];
   }
-  var LightweightRouter =
-  function () {
+  var LightweightRouter = function () {
     function LightweightRouter(instance) {
       var _this = this;
-      _classCallCheck$2(this, LightweightRouter);
+      _classCallCheck$3(this, LightweightRouter);
       this.instance = instance;
-      _defineProperty$2(this, "anchorLists", new Map());
-      _defineProperty$2(this, "anchorLocations", new Map());
+      _defineProperty$3(this, "anchorLists", new Map());
+      _defineProperty$3(this, "anchorLocations", new Map());
       instance.bind(EVENT_INTERNAL_CONNECTION_DETACHED, function (p) {
         _this._removeEndpointFromAnchorLists(p.sourceEndpoint);
         _this._removeEndpointFromAnchorLists(p.targetEndpoint);
@@ -5680,7 +5750,7 @@ var jsPlumbBrowserUI = (function (exports) {
         _this._removeEndpointFromAnchorLists(ep);
       });
     }
-    _createClass$2(LightweightRouter, [{
+    _createClass$3(LightweightRouter, [{
       key: "getAnchorOrientation",
       value: function getAnchorOrientation(anchor) {
         var loc = this.anchorLocations.get(anchor.id);
@@ -5797,9 +5867,9 @@ var jsPlumbBrowserUI = (function (exports) {
           return pos;
         }
         var _getCurrentLocation = getCurrentLocation(anchor),
-            _getCurrentLocation2 = _slicedToArray(_getCurrentLocation, 2),
-            _ = _getCurrentLocation2[0],
-            currentLoc = _getCurrentLocation2[1];
+            _getCurrentLocation2 = _slicedToArray$1(_getCurrentLocation, 2);
+            _getCurrentLocation2[0];
+            var currentLoc = _getCurrentLocation2[1];
         pos = this._computeSingleLocation(currentLoc, xy, wh, params);
         return this._setComputedPosition(anchor, pos, timestamp);
       }
@@ -5815,14 +5885,14 @@ var jsPlumbBrowserUI = (function (exports) {
             txy = params.txy,
             twh = params.twh;
         var _getCurrentLocation3 = getCurrentLocation(anchor),
-            _getCurrentLocation4 = _slicedToArray(_getCurrentLocation3, 2),
+            _getCurrentLocation4 = _slicedToArray$1(_getCurrentLocation3, 2),
             currentIdx = _getCurrentLocation4[0],
             currentLoc = _getCurrentLocation4[1];
         if (anchor.locked || txy == null || twh == null) {
           pos = this._computeSingleLocation(currentLoc, xy, wh, params);
         } else {
           var _this$_anchorSelector = this._anchorSelector(xy, wh, txy, twh, params.rotation, params.tRotation, anchor.locations),
-              _this$_anchorSelector2 = _slicedToArray(_this$_anchorSelector, 2),
+              _this$_anchorSelector2 = _slicedToArray$1(_this$_anchorSelector, 2),
               newIdx = _this$_anchorSelector2[0],
               newLoc = _this$_anchorSelector2[1];
           anchor.currentLocation = newIdx;
@@ -5906,7 +5976,7 @@ var jsPlumbBrowserUI = (function (exports) {
           endpointsToPaint.add(listToAddTo[_i].c.endpoints[oIdx]);
         }
         {
-          var insertIdx = reverse ?  0 : listToAddTo.length;
+          var insertIdx = reverse ? 0 : listToAddTo.length;
           listToAddTo.splice(insertIdx, 0, values);
         }
         endpoint._continuousAnchorEdge = edgeId;
@@ -6436,58 +6506,47 @@ var jsPlumbBrowserUI = (function (exports) {
       }
     }
   }
-  var JsPlumbInstance =
-  function (_EventGenerator) {
-    _inherits$1(JsPlumbInstance, _EventGenerator);
-    _createClass$2(JsPlumbInstance, [{
-      key: "defaultScope",
-      get: function get() {
-        return this.DEFAULT_SCOPE;
-      }
-    }, {
-      key: "currentZoom",
-      get: function get() {
-        return this._zoom;
-      }
-    }]);
+  var JsPlumbInstance = function (_EventGenerator) {
+    _inherits$3(JsPlumbInstance, _EventGenerator);
+    var _super = _createSuper$3(JsPlumbInstance);
     function JsPlumbInstance(_instanceIndex, defaults) {
       var _this;
-      _classCallCheck$2(this, JsPlumbInstance);
-      _this = _possibleConstructorReturn$1(this, _getPrototypeOf$1(JsPlumbInstance).call(this));
+      _classCallCheck$3(this, JsPlumbInstance);
+      _this = _super.call(this);
       _this._instanceIndex = _instanceIndex;
-      _defineProperty$2(_assertThisInitialized$1(_this), "defaults", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "_initialDefaults", {});
-      _defineProperty$2(_assertThisInitialized$1(_this), "isConnectionBeingDragged", false);
-      _defineProperty$2(_assertThisInitialized$1(_this), "currentlyDragging", false);
-      _defineProperty$2(_assertThisInitialized$1(_this), "hoverSuspended", false);
-      _defineProperty$2(_assertThisInitialized$1(_this), "_suspendDrawing", false);
-      _defineProperty$2(_assertThisInitialized$1(_this), "_suspendedAt", null);
-      _defineProperty$2(_assertThisInitialized$1(_this), "connectorClass", CLASS_CONNECTOR);
-      _defineProperty$2(_assertThisInitialized$1(_this), "connectorOutlineClass", CLASS_CONNECTOR_OUTLINE);
-      _defineProperty$2(_assertThisInitialized$1(_this), "connectedClass", CLASS_CONNECTED);
-      _defineProperty$2(_assertThisInitialized$1(_this), "endpointClass", CLASS_ENDPOINT);
-      _defineProperty$2(_assertThisInitialized$1(_this), "endpointConnectedClass", CLASS_ENDPOINT_CONNECTED);
-      _defineProperty$2(_assertThisInitialized$1(_this), "endpointFullClass", CLASS_ENDPOINT_FULL);
-      _defineProperty$2(_assertThisInitialized$1(_this), "endpointDropAllowedClass", CLASS_ENDPOINT_DROP_ALLOWED);
-      _defineProperty$2(_assertThisInitialized$1(_this), "endpointDropForbiddenClass", CLASS_ENDPOINT_DROP_FORBIDDEN);
-      _defineProperty$2(_assertThisInitialized$1(_this), "endpointAnchorClassPrefix", CLASS_ENDPOINT_ANCHOR_PREFIX);
-      _defineProperty$2(_assertThisInitialized$1(_this), "overlayClass", CLASS_OVERLAY);
-      _defineProperty$2(_assertThisInitialized$1(_this), "connections", []);
-      _defineProperty$2(_assertThisInitialized$1(_this), "endpointsByElement", {});
-      _defineProperty$2(_assertThisInitialized$1(_this), "endpointsByUUID", new Map());
-      _defineProperty$2(_assertThisInitialized$1(_this), "sourceSelectors", []);
-      _defineProperty$2(_assertThisInitialized$1(_this), "targetSelectors", []);
-      _defineProperty$2(_assertThisInitialized$1(_this), "allowNestedGroups", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "_curIdStamp", 1);
-      _defineProperty$2(_assertThisInitialized$1(_this), "viewport", new Viewport(_assertThisInitialized$1(_this)));
-      _defineProperty$2(_assertThisInitialized$1(_this), "router", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "groupManager", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "_connectionTypes", new Map());
-      _defineProperty$2(_assertThisInitialized$1(_this), "_endpointTypes", new Map());
-      _defineProperty$2(_assertThisInitialized$1(_this), "_container", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "_managedElements", {});
-      _defineProperty$2(_assertThisInitialized$1(_this), "DEFAULT_SCOPE", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "_zoom", 1);
+      _defineProperty$3(_assertThisInitialized$3(_this), "defaults", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "_initialDefaults", {});
+      _defineProperty$3(_assertThisInitialized$3(_this), "isConnectionBeingDragged", false);
+      _defineProperty$3(_assertThisInitialized$3(_this), "currentlyDragging", false);
+      _defineProperty$3(_assertThisInitialized$3(_this), "hoverSuspended", false);
+      _defineProperty$3(_assertThisInitialized$3(_this), "_suspendDrawing", false);
+      _defineProperty$3(_assertThisInitialized$3(_this), "_suspendedAt", null);
+      _defineProperty$3(_assertThisInitialized$3(_this), "connectorClass", CLASS_CONNECTOR);
+      _defineProperty$3(_assertThisInitialized$3(_this), "connectorOutlineClass", CLASS_CONNECTOR_OUTLINE);
+      _defineProperty$3(_assertThisInitialized$3(_this), "connectedClass", CLASS_CONNECTED);
+      _defineProperty$3(_assertThisInitialized$3(_this), "endpointClass", CLASS_ENDPOINT);
+      _defineProperty$3(_assertThisInitialized$3(_this), "endpointConnectedClass", CLASS_ENDPOINT_CONNECTED);
+      _defineProperty$3(_assertThisInitialized$3(_this), "endpointFullClass", CLASS_ENDPOINT_FULL);
+      _defineProperty$3(_assertThisInitialized$3(_this), "endpointDropAllowedClass", CLASS_ENDPOINT_DROP_ALLOWED);
+      _defineProperty$3(_assertThisInitialized$3(_this), "endpointDropForbiddenClass", CLASS_ENDPOINT_DROP_FORBIDDEN);
+      _defineProperty$3(_assertThisInitialized$3(_this), "endpointAnchorClassPrefix", CLASS_ENDPOINT_ANCHOR_PREFIX);
+      _defineProperty$3(_assertThisInitialized$3(_this), "overlayClass", CLASS_OVERLAY);
+      _defineProperty$3(_assertThisInitialized$3(_this), "connections", []);
+      _defineProperty$3(_assertThisInitialized$3(_this), "endpointsByElement", {});
+      _defineProperty$3(_assertThisInitialized$3(_this), "endpointsByUUID", new Map());
+      _defineProperty$3(_assertThisInitialized$3(_this), "sourceSelectors", []);
+      _defineProperty$3(_assertThisInitialized$3(_this), "targetSelectors", []);
+      _defineProperty$3(_assertThisInitialized$3(_this), "allowNestedGroups", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "_curIdStamp", 1);
+      _defineProperty$3(_assertThisInitialized$3(_this), "viewport", new Viewport(_assertThisInitialized$3(_this)));
+      _defineProperty$3(_assertThisInitialized$3(_this), "router", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "groupManager", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "_connectionTypes", new Map());
+      _defineProperty$3(_assertThisInitialized$3(_this), "_endpointTypes", new Map());
+      _defineProperty$3(_assertThisInitialized$3(_this), "_container", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "_managedElements", {});
+      _defineProperty$3(_assertThisInitialized$3(_this), "DEFAULT_SCOPE", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "_zoom", 1);
       _this.defaults = {
         anchor: exports.AnchorLocations.Bottom,
         anchors: [null, null],
@@ -6521,12 +6580,22 @@ var jsPlumbBrowserUI = (function (exports) {
       extend(_this._initialDefaults, _this.defaults);
       _this.DEFAULT_SCOPE = _this.defaults.scope;
       _this.allowNestedGroups = _this._initialDefaults.allowNestedGroups !== false;
-      _this.router = new LightweightRouter(_assertThisInitialized$1(_this));
-      _this.groupManager = new GroupManager(_assertThisInitialized$1(_this));
+      _this.router = new LightweightRouter(_assertThisInitialized$3(_this));
+      _this.groupManager = new GroupManager(_assertThisInitialized$3(_this));
       _this.setContainer(_this._initialDefaults.container);
       return _this;
     }
-    _createClass$2(JsPlumbInstance, [{
+    _createClass$3(JsPlumbInstance, [{
+      key: "defaultScope",
+      get: function get() {
+        return this.DEFAULT_SCOPE;
+      }
+    }, {
+      key: "currentZoom",
+      get: function get() {
+        return this._zoom;
+      }
+    }, {
       key: "getContainer",
       value: function getContainer() {
         return this._container;
@@ -7908,24 +7977,24 @@ var jsPlumbBrowserUI = (function (exports) {
     }
     return n;
   }
-  var ArcSegment =
-  function (_AbstractSegment) {
-    _inherits$1(ArcSegment, _AbstractSegment);
+  var ArcSegment = function (_AbstractSegment) {
+    _inherits$3(ArcSegment, _AbstractSegment);
+    var _super = _createSuper$3(ArcSegment);
     function ArcSegment(params) {
       var _this;
-      _classCallCheck$2(this, ArcSegment);
-      _this = _possibleConstructorReturn$1(this, _getPrototypeOf$1(ArcSegment).call(this, params));
-      _defineProperty$2(_assertThisInitialized$1(_this), "type", ArcSegment.segmentType);
-      _defineProperty$2(_assertThisInitialized$1(_this), "cx", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "cy", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "radius", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "anticlockwise", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "startAngle", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "endAngle", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "sweep", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "length", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "circumference", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "frac", void 0);
+      _classCallCheck$3(this, ArcSegment);
+      _this = _super.call(this, params);
+      _defineProperty$3(_assertThisInitialized$3(_this), "type", ArcSegment.segmentType);
+      _defineProperty$3(_assertThisInitialized$3(_this), "cx", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "cy", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "radius", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "anticlockwise", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "startAngle", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "endAngle", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "sweep", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "length", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "circumference", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "frac", void 0);
       _this.cx = params.cx;
       _this.cy = params.cy;
       _this.radius = params.r;
@@ -7963,7 +8032,7 @@ var jsPlumbBrowserUI = (function (exports) {
       };
       return _this;
     }
-    _createClass$2(ArcSegment, [{
+    _createClass$3(ArcSegment, [{
       key: "_calcAngle",
       value: function _calcAngle(_x, _y) {
         return theta({
@@ -8057,27 +8126,27 @@ var jsPlumbBrowserUI = (function (exports) {
     }]);
     return ArcSegment;
   }(AbstractSegment);
-  _defineProperty$2(ArcSegment, "segmentType", "Arc");
+  _defineProperty$3(ArcSegment, "segmentType", "Arc");
 
   var DEFAULT_WIDTH = 20;
   var DEFAULT_LENGTH = 20;
-  var ArrowOverlay =
-  function (_Overlay) {
-    _inherits$1(ArrowOverlay, _Overlay);
+  var ArrowOverlay = function (_Overlay) {
+    _inherits$3(ArrowOverlay, _Overlay);
+    var _super = _createSuper$3(ArrowOverlay);
     function ArrowOverlay(instance, component, p) {
       var _this;
-      _classCallCheck$2(this, ArrowOverlay);
-      _this = _possibleConstructorReturn$1(this, _getPrototypeOf$1(ArrowOverlay).call(this, instance, component, p));
+      _classCallCheck$3(this, ArrowOverlay);
+      _this = _super.call(this, instance, component, p);
       _this.instance = instance;
       _this.component = component;
-      _defineProperty$2(_assertThisInitialized$1(_this), "width", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "length", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "foldback", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "direction", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "location", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "paintStyle", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "type", ArrowOverlay.type);
-      _defineProperty$2(_assertThisInitialized$1(_this), "cachedDimensions", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "width", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "length", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "foldback", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "direction", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "location", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "paintStyle", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "type", ArrowOverlay.type);
+      _defineProperty$3(_assertThisInitialized$3(_this), "cachedDimensions", void 0);
       p = p || {};
       _this.width = p.width || DEFAULT_WIDTH;
       _this.length = p.length || DEFAULT_LENGTH;
@@ -8089,7 +8158,7 @@ var jsPlumbBrowserUI = (function (exports) {
       _this.location = p.location == null ? _this.location : isArray(p.location) ? p.location[0] : p.location;
       return _this;
     }
-    _createClass$2(ArrowOverlay, [{
+    _createClass$3(ArrowOverlay, [{
       key: "draw",
       value: function draw(component, currentConnectionPaintStyle, absolutePosition) {
         if (component instanceof AbstractConnector) {
@@ -8152,74 +8221,74 @@ var jsPlumbBrowserUI = (function (exports) {
     }]);
     return ArrowOverlay;
   }(Overlay);
-  _defineProperty$2(ArrowOverlay, "type", "Arrow");
+  _defineProperty$3(ArrowOverlay, "type", "Arrow");
   function isArrowOverlay(o) {
     return o.type === ArrowOverlay.type;
   }
   OverlayFactory.register(ArrowOverlay.type, ArrowOverlay);
 
-  var PlainArrowOverlay =
-  function (_ArrowOverlay) {
-    _inherits$1(PlainArrowOverlay, _ArrowOverlay);
+  var PlainArrowOverlay = function (_ArrowOverlay) {
+    _inherits$3(PlainArrowOverlay, _ArrowOverlay);
+    var _super = _createSuper$3(PlainArrowOverlay);
     function PlainArrowOverlay(instance, component, p) {
       var _this;
-      _classCallCheck$2(this, PlainArrowOverlay);
-      _this = _possibleConstructorReturn$1(this, _getPrototypeOf$1(PlainArrowOverlay).call(this, instance, component, p));
+      _classCallCheck$3(this, PlainArrowOverlay);
+      _this = _super.call(this, instance, component, p);
       _this.instance = instance;
-      _defineProperty$2(_assertThisInitialized$1(_this), "type", PlainArrowOverlay.type);
+      _defineProperty$3(_assertThisInitialized$3(_this), "type", PlainArrowOverlay.type);
       _this.foldback = 1;
       return _this;
     }
     return PlainArrowOverlay;
   }(ArrowOverlay);
-  _defineProperty$2(PlainArrowOverlay, "type", "PlainArrow");
+  _defineProperty$3(PlainArrowOverlay, "type", "PlainArrow");
   function isPlainArrowOverlay(o) {
     return o.type === PlainArrowOverlay.type;
   }
   OverlayFactory.register("PlainArrow", PlainArrowOverlay);
 
-  var DiamondOverlay =
-  function (_ArrowOverlay) {
-    _inherits$1(DiamondOverlay, _ArrowOverlay);
+  var DiamondOverlay = function (_ArrowOverlay) {
+    _inherits$3(DiamondOverlay, _ArrowOverlay);
+    var _super = _createSuper$3(DiamondOverlay);
     function DiamondOverlay(instance, component, p) {
       var _this;
-      _classCallCheck$2(this, DiamondOverlay);
-      _this = _possibleConstructorReturn$1(this, _getPrototypeOf$1(DiamondOverlay).call(this, instance, component, p));
+      _classCallCheck$3(this, DiamondOverlay);
+      _this = _super.call(this, instance, component, p);
       _this.instance = instance;
-      _defineProperty$2(_assertThisInitialized$1(_this), "type", DiamondOverlay.type);
+      _defineProperty$3(_assertThisInitialized$3(_this), "type", DiamondOverlay.type);
       _this.length = _this.length / 2;
       _this.foldback = 2;
       return _this;
     }
     return DiamondOverlay;
   }(ArrowOverlay);
-  _defineProperty$2(DiamondOverlay, "type", "Diamond");
+  _defineProperty$3(DiamondOverlay, "type", "Diamond");
   function isDiamondOverlay(o) {
     return o.type === DiamondOverlay.type;
   }
   OverlayFactory.register(DiamondOverlay.type, DiamondOverlay);
 
-  var CustomOverlay =
-  function (_Overlay) {
-    _inherits$1(CustomOverlay, _Overlay);
+  var CustomOverlay = function (_Overlay) {
+    _inherits$3(CustomOverlay, _Overlay);
+    var _super = _createSuper$3(CustomOverlay);
     function CustomOverlay(instance, component, p) {
       var _this;
-      _classCallCheck$2(this, CustomOverlay);
-      _this = _possibleConstructorReturn$1(this, _getPrototypeOf$1(CustomOverlay).call(this, instance, component, p));
+      _classCallCheck$3(this, CustomOverlay);
+      _this = _super.call(this, instance, component, p);
       _this.instance = instance;
       _this.component = component;
-      _defineProperty$2(_assertThisInitialized$1(_this), "create", void 0);
-      _defineProperty$2(_assertThisInitialized$1(_this), "type", CustomOverlay.type);
+      _defineProperty$3(_assertThisInitialized$3(_this), "create", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "type", CustomOverlay.type);
       _this.create = p.create;
       return _this;
     }
-    _createClass$2(CustomOverlay, [{
+    _createClass$3(CustomOverlay, [{
       key: "updateFrom",
       value: function updateFrom(d) {}
     }]);
     return CustomOverlay;
   }(Overlay);
-  _defineProperty$2(CustomOverlay, "type", "Custom");
+  _defineProperty$3(CustomOverlay, "type", "Custom");
   function isCustomOverlay(o) {
     return o.type === CustomOverlay.type;
   }
@@ -8230,13 +8299,13 @@ var jsPlumbBrowserUI = (function (exports) {
   EndpointFactory.registerHandler(BlankEndpointHandler);
   Connectors.register(StraightConnector.type, StraightConnector);
 
-  function _classCallCheck$3(instance, Constructor) {
+  function _classCallCheck$2(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
       throw new TypeError("Cannot call a class as a function");
     }
   }
 
-  function _defineProperties$3(target, props) {
+  function _defineProperties$2(target, props) {
     for (var i = 0; i < props.length; i++) {
       var descriptor = props[i];
       descriptor.enumerable = descriptor.enumerable || false;
@@ -8246,13 +8315,13 @@ var jsPlumbBrowserUI = (function (exports) {
     }
   }
 
-  function _createClass$3(Constructor, protoProps, staticProps) {
-    if (protoProps) _defineProperties$3(Constructor.prototype, protoProps);
-    if (staticProps) _defineProperties$3(Constructor, staticProps);
+  function _createClass$2(Constructor, protoProps, staticProps) {
+    if (protoProps) _defineProperties$2(Constructor.prototype, protoProps);
+    if (staticProps) _defineProperties$2(Constructor, staticProps);
     return Constructor;
   }
 
-  function _defineProperty$3(obj, key, value) {
+  function _defineProperty$2(obj, key, value) {
     if (key in obj) {
       Object.defineProperty(obj, key, {
         value: value,
@@ -8298,6 +8367,19 @@ var jsPlumbBrowserUI = (function (exports) {
     return _setPrototypeOf$2(o, p);
   }
 
+  function _isNativeReflectConstruct$2() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   function _assertThisInitialized$2(self) {
     if (self === void 0) {
       throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -8314,11 +8396,30 @@ var jsPlumbBrowserUI = (function (exports) {
     return _assertThisInitialized$2(self);
   }
 
-  function sgn(n) {
+  function _createSuper$2(Derived) {
+    var hasNativeReflectConstruct = _isNativeReflectConstruct$2();
+
+    return function _createSuperInternal() {
+      var Super = _getPrototypeOf$2(Derived),
+          result;
+
+      if (hasNativeReflectConstruct) {
+        var NewTarget = _getPrototypeOf$2(this).constructor;
+
+        result = Reflect.construct(Super, arguments, NewTarget);
+      } else {
+        result = Super.apply(this, arguments);
+      }
+
+      return _possibleConstructorReturn$2(this, result);
+    };
+  }
+
+  function sgn$1(n) {
     return n < 0 ? -1 : n === 0 ? 0 : 1;
   }
   function segmentDirections(segment) {
-    return [sgn(segment[2] - segment[0]), sgn(segment[3] - segment[1])];
+    return [sgn$1(segment[2] - segment[0]), sgn$1(segment[3] - segment[1])];
   }
   function segLength(s) {
     return Math.sqrt(Math.pow(s[0] - s[2], 2) + Math.pow(s[1] - s[3], 2));
@@ -8328,30 +8429,24 @@ var jsPlumbBrowserUI = (function (exports) {
     _a.push.apply(_a, a);
     return _a;
   }
-  var FlowchartConnector =
-  function (_AbstractConnector) {
+  var FlowchartConnector = function (_AbstractConnector) {
     _inherits$2(FlowchartConnector, _AbstractConnector);
-    _createClass$3(FlowchartConnector, [{
-      key: "getDefaultStubs",
-      value: function getDefaultStubs() {
-        return [30, 30];
-      }
-    }]);
+    var _super = _createSuper$2(FlowchartConnector);
     function FlowchartConnector(connection, params) {
       var _this;
-      _classCallCheck$3(this, FlowchartConnector);
-      _this = _possibleConstructorReturn$2(this, _getPrototypeOf$2(FlowchartConnector).call(this, connection, params));
+      _classCallCheck$2(this, FlowchartConnector);
+      _this = _super.call(this, connection, params);
       _this.connection = connection;
-      _defineProperty$3(_assertThisInitialized$2(_this), "type", FlowchartConnector.type);
-      _defineProperty$3(_assertThisInitialized$2(_this), "internalSegments", []);
-      _defineProperty$3(_assertThisInitialized$2(_this), "midpoint", void 0);
-      _defineProperty$3(_assertThisInitialized$2(_this), "alwaysRespectStubs", void 0);
-      _defineProperty$3(_assertThisInitialized$2(_this), "cornerRadius", void 0);
-      _defineProperty$3(_assertThisInitialized$2(_this), "lastx", void 0);
-      _defineProperty$3(_assertThisInitialized$2(_this), "lasty", void 0);
-      _defineProperty$3(_assertThisInitialized$2(_this), "lastOrientation", void 0);
-      _defineProperty$3(_assertThisInitialized$2(_this), "loopbackRadius", void 0);
-      _defineProperty$3(_assertThisInitialized$2(_this), "isLoopbackCurrently", void 0);
+      _defineProperty$2(_assertThisInitialized$2(_this), "type", FlowchartConnector.type);
+      _defineProperty$2(_assertThisInitialized$2(_this), "internalSegments", []);
+      _defineProperty$2(_assertThisInitialized$2(_this), "midpoint", void 0);
+      _defineProperty$2(_assertThisInitialized$2(_this), "alwaysRespectStubs", void 0);
+      _defineProperty$2(_assertThisInitialized$2(_this), "cornerRadius", void 0);
+      _defineProperty$2(_assertThisInitialized$2(_this), "lastx", void 0);
+      _defineProperty$2(_assertThisInitialized$2(_this), "lasty", void 0);
+      _defineProperty$2(_assertThisInitialized$2(_this), "lastOrientation", void 0);
+      _defineProperty$2(_assertThisInitialized$2(_this), "loopbackRadius", void 0);
+      _defineProperty$2(_assertThisInitialized$2(_this), "isLoopbackCurrently", void 0);
       _this.midpoint = params.midpoint == null || isNaN(params.midpoint) ? 0.5 : params.midpoint;
       _this.cornerRadius = params.cornerRadius != null ? params.cornerRadius : 0;
       _this.alwaysRespectStubs = params.alwaysRespectStubs === true;
@@ -8362,7 +8457,12 @@ var jsPlumbBrowserUI = (function (exports) {
       _this.isLoopbackCurrently = false;
       return _this;
     }
-    _createClass$3(FlowchartConnector, [{
+    _createClass$2(FlowchartConnector, [{
+      key: "getDefaultStubs",
+      value: function getDefaultStubs() {
+        return [30, 30];
+      }
+    }, {
       key: "addASegment",
       value: function addASegment(x, y, paintInfo) {
         if (this.lastx === x && this.lasty === y) {
@@ -8587,17 +8687,17 @@ var jsPlumbBrowserUI = (function (exports) {
     }]);
     return FlowchartConnector;
   }(AbstractConnector);
-  _defineProperty$3(FlowchartConnector, "type", "Flowchart");
+  _defineProperty$2(FlowchartConnector, "type", "Flowchart");
 
   Connectors.register(FlowchartConnector.type, FlowchartConnector);
 
-  function _classCallCheck$4(instance, Constructor) {
+  function _classCallCheck$1(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
       throw new TypeError("Cannot call a class as a function");
     }
   }
 
-  function _defineProperties$4(target, props) {
+  function _defineProperties$1(target, props) {
     for (var i = 0; i < props.length; i++) {
       var descriptor = props[i];
       descriptor.enumerable = descriptor.enumerable || false;
@@ -8607,13 +8707,13 @@ var jsPlumbBrowserUI = (function (exports) {
     }
   }
 
-  function _createClass$4(Constructor, protoProps, staticProps) {
-    if (protoProps) _defineProperties$4(Constructor.prototype, protoProps);
-    if (staticProps) _defineProperties$4(Constructor, staticProps);
+  function _createClass$1(Constructor, protoProps, staticProps) {
+    if (protoProps) _defineProperties$1(Constructor.prototype, protoProps);
+    if (staticProps) _defineProperties$1(Constructor, staticProps);
     return Constructor;
   }
 
-  function _defineProperty$4(obj, key, value) {
+  function _defineProperty$1(obj, key, value) {
     if (key in obj) {
       Object.defineProperty(obj, key, {
         value: value,
@@ -8628,7 +8728,7 @@ var jsPlumbBrowserUI = (function (exports) {
     return obj;
   }
 
-  function _inherits$3(subClass, superClass) {
+  function _inherits$1(subClass, superClass) {
     if (typeof superClass !== "function" && superClass !== null) {
       throw new TypeError("Super expression must either be null or a function");
     }
@@ -8640,26 +8740,39 @@ var jsPlumbBrowserUI = (function (exports) {
         configurable: true
       }
     });
-    if (superClass) _setPrototypeOf$3(subClass, superClass);
+    if (superClass) _setPrototypeOf$1(subClass, superClass);
   }
 
-  function _getPrototypeOf$3(o) {
-    _getPrototypeOf$3 = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+  function _getPrototypeOf$1(o) {
+    _getPrototypeOf$1 = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
       return o.__proto__ || Object.getPrototypeOf(o);
     };
-    return _getPrototypeOf$3(o);
+    return _getPrototypeOf$1(o);
   }
 
-  function _setPrototypeOf$3(o, p) {
-    _setPrototypeOf$3 = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+  function _setPrototypeOf$1(o, p) {
+    _setPrototypeOf$1 = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
       o.__proto__ = p;
       return o;
     };
 
-    return _setPrototypeOf$3(o, p);
+    return _setPrototypeOf$1(o, p);
   }
 
-  function _assertThisInitialized$3(self) {
+  function _isNativeReflectConstruct$1() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function _assertThisInitialized$1(self) {
     if (self === void 0) {
       throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
     }
@@ -8667,37 +8780,50 @@ var jsPlumbBrowserUI = (function (exports) {
     return self;
   }
 
-  function _possibleConstructorReturn$3(self, call) {
+  function _possibleConstructorReturn$1(self, call) {
     if (call && (typeof call === "object" || typeof call === "function")) {
       return call;
     }
 
-    return _assertThisInitialized$3(self);
+    return _assertThisInitialized$1(self);
   }
 
-  var AbstractBezierConnector =
-  function (_AbstractConnector) {
-    _inherits$3(AbstractBezierConnector, _AbstractConnector);
-    _createClass$4(AbstractBezierConnector, [{
-      key: "getDefaultStubs",
-      value: function getDefaultStubs() {
-        return [0, 0];
+  function _createSuper$1(Derived) {
+    var hasNativeReflectConstruct = _isNativeReflectConstruct$1();
+
+    return function _createSuperInternal() {
+      var Super = _getPrototypeOf$1(Derived),
+          result;
+
+      if (hasNativeReflectConstruct) {
+        var NewTarget = _getPrototypeOf$1(this).constructor;
+
+        result = Reflect.construct(Super, arguments, NewTarget);
+      } else {
+        result = Super.apply(this, arguments);
       }
-    }]);
+
+      return _possibleConstructorReturn$1(this, result);
+    };
+  }
+
+  var AbstractBezierConnector = function (_AbstractConnector) {
+    _inherits$1(AbstractBezierConnector, _AbstractConnector);
+    var _super = _createSuper$1(AbstractBezierConnector);
     function AbstractBezierConnector(connection, params) {
       var _this;
-      _classCallCheck$4(this, AbstractBezierConnector);
-      _this = _possibleConstructorReturn$3(this, _getPrototypeOf$3(AbstractBezierConnector).call(this, connection, params));
+      _classCallCheck$1(this, AbstractBezierConnector);
+      _this = _super.call(this, connection, params);
       _this.connection = connection;
-      _defineProperty$4(_assertThisInitialized$3(_this), "showLoopback", void 0);
-      _defineProperty$4(_assertThisInitialized$3(_this), "curviness", void 0);
-      _defineProperty$4(_assertThisInitialized$3(_this), "margin", void 0);
-      _defineProperty$4(_assertThisInitialized$3(_this), "proximityLimit", void 0);
-      _defineProperty$4(_assertThisInitialized$3(_this), "orientation", void 0);
-      _defineProperty$4(_assertThisInitialized$3(_this), "loopbackRadius", void 0);
-      _defineProperty$4(_assertThisInitialized$3(_this), "clockwise", void 0);
-      _defineProperty$4(_assertThisInitialized$3(_this), "isLoopbackCurrently", void 0);
-      _defineProperty$4(_assertThisInitialized$3(_this), "geometry", void 0);
+      _defineProperty$1(_assertThisInitialized$1(_this), "showLoopback", void 0);
+      _defineProperty$1(_assertThisInitialized$1(_this), "curviness", void 0);
+      _defineProperty$1(_assertThisInitialized$1(_this), "margin", void 0);
+      _defineProperty$1(_assertThisInitialized$1(_this), "proximityLimit", void 0);
+      _defineProperty$1(_assertThisInitialized$1(_this), "orientation", void 0);
+      _defineProperty$1(_assertThisInitialized$1(_this), "loopbackRadius", void 0);
+      _defineProperty$1(_assertThisInitialized$1(_this), "clockwise", void 0);
+      _defineProperty$1(_assertThisInitialized$1(_this), "isLoopbackCurrently", void 0);
+      _defineProperty$1(_assertThisInitialized$1(_this), "geometry", void 0);
       params = params || {};
       _this.showLoopback = params.showLoopback !== false;
       _this.curviness = params.curviness || 10;
@@ -8708,7 +8834,12 @@ var jsPlumbBrowserUI = (function (exports) {
       _this.isLoopbackCurrently = false;
       return _this;
     }
-    _createClass$4(AbstractBezierConnector, [{
+    _createClass$1(AbstractBezierConnector, [{
+      key: "getDefaultStubs",
+      value: function getDefaultStubs() {
+        return [0, 0];
+      }
+    }, {
       key: "_compute",
       value: function _compute(paintInfo, p) {
         var sp = p.sourcePos,
@@ -8940,9 +9071,9 @@ var jsPlumbBrowserUI = (function (exports) {
     var n_crossings = 0,
         sign,
         old_sign;
-    sign = old_sign = sgn$1(curve[0].y);
+    sign = old_sign = sgn(curve[0].y);
     for (var i = 1; i <= degree; i++) {
-      sign = sgn$1(curve[i].y);
+      sign = sgn(curve[i].y);
       if (sign != old_sign) n_crossings++;
       old_sign = sign;
     }
@@ -9273,7 +9404,7 @@ var jsPlumbBrowserUI = (function (exports) {
   function _computeCoefficients(curve) {
     return [_computeCoefficientsForAxis(curve, "x"), _computeCoefficientsForAxis(curve, "y")];
   }
-  function sgn$1(x) {
+  function sgn(x) {
     return x < 0 ? -1 : x > 0 ? 1 : 0;
   }
   function _cubicRoots(a, b, c, d) {
@@ -9288,8 +9419,8 @@ var jsPlumbBrowserUI = (function (exports) {
         t = [0, 0, 0];
     if (D >= 0)
       {
-        S = sgn$1(R + Math.sqrt(D)) * Math.pow(Math.abs(R + Math.sqrt(D)), 1 / 3);
-        T = sgn$1(R - Math.sqrt(D)) * Math.pow(Math.abs(R - Math.sqrt(D)), 1 / 3);
+        S = sgn(R + Math.sqrt(D)) * Math.pow(Math.abs(R + Math.sqrt(D)), 1 / 3);
+        T = sgn(R - Math.sqrt(D)) * Math.pow(Math.abs(R - Math.sqrt(D)), 1 / 3);
         t[0] = -A / 3 + (S + T);
         t[1] = -A / 3 - (S + T) / 2;
         t[2] = -A / 3 - (S + T) / 2;
@@ -9312,24 +9443,24 @@ var jsPlumbBrowserUI = (function (exports) {
     return t;
   }
 
-  var BezierSegment =
-  function (_AbstractSegment) {
-    _inherits$3(BezierSegment, _AbstractSegment);
+  var BezierSegment = function (_AbstractSegment) {
+    _inherits$1(BezierSegment, _AbstractSegment);
+    var _super = _createSuper$1(BezierSegment);
     function BezierSegment(params) {
       var _this;
-      _classCallCheck$4(this, BezierSegment);
-      _this = _possibleConstructorReturn$3(this, _getPrototypeOf$3(BezierSegment).call(this, params));
-      _defineProperty$4(_assertThisInitialized$3(_this), "curve", void 0);
-      _defineProperty$4(_assertThisInitialized$3(_this), "cp1x", void 0);
-      _defineProperty$4(_assertThisInitialized$3(_this), "cp1y", void 0);
-      _defineProperty$4(_assertThisInitialized$3(_this), "cp2x", void 0);
-      _defineProperty$4(_assertThisInitialized$3(_this), "cp2y", void 0);
-      _defineProperty$4(_assertThisInitialized$3(_this), "x1", void 0);
-      _defineProperty$4(_assertThisInitialized$3(_this), "x2", void 0);
-      _defineProperty$4(_assertThisInitialized$3(_this), "y1", void 0);
-      _defineProperty$4(_assertThisInitialized$3(_this), "y2", void 0);
-      _defineProperty$4(_assertThisInitialized$3(_this), "length", 0);
-      _defineProperty$4(_assertThisInitialized$3(_this), "type", BezierSegment.segmentType);
+      _classCallCheck$1(this, BezierSegment);
+      _this = _super.call(this, params);
+      _defineProperty$1(_assertThisInitialized$1(_this), "curve", void 0);
+      _defineProperty$1(_assertThisInitialized$1(_this), "cp1x", void 0);
+      _defineProperty$1(_assertThisInitialized$1(_this), "cp1y", void 0);
+      _defineProperty$1(_assertThisInitialized$1(_this), "cp2x", void 0);
+      _defineProperty$1(_assertThisInitialized$1(_this), "cp2y", void 0);
+      _defineProperty$1(_assertThisInitialized$1(_this), "x1", void 0);
+      _defineProperty$1(_assertThisInitialized$1(_this), "x2", void 0);
+      _defineProperty$1(_assertThisInitialized$1(_this), "y1", void 0);
+      _defineProperty$1(_assertThisInitialized$1(_this), "y2", void 0);
+      _defineProperty$1(_assertThisInitialized$1(_this), "length", 0);
+      _defineProperty$1(_assertThisInitialized$1(_this), "type", BezierSegment.segmentType);
       _this.cp1x = params.cp1x;
       _this.cp1y = params.cp1y;
       _this.cp2x = params.cp2x;
@@ -9359,7 +9490,7 @@ var jsPlumbBrowserUI = (function (exports) {
       };
       return _this;
     }
-    _createClass$4(BezierSegment, [{
+    _createClass$1(BezierSegment, [{
       key: "getPath",
       value: function getPath(isFirstSegment) {
         return (isFirstSegment ? "M " + this.x2 + " " + this.y2 + " " : "") + "C " + this.cp2x + " " + this.cp2y + " " + this.cp1x + " " + this.cp1y + " " + this.x1 + " " + this.y1;
@@ -9425,25 +9556,25 @@ var jsPlumbBrowserUI = (function (exports) {
     }]);
     return BezierSegment;
   }(AbstractSegment);
-  _defineProperty$4(BezierSegment, "segmentType", "Bezier");
+  _defineProperty$1(BezierSegment, "segmentType", "Bezier");
 
-  var BezierConnector =
-  function (_AbstractBezierConnec) {
-    _inherits$3(BezierConnector, _AbstractBezierConnec);
+  var BezierConnector = function (_AbstractBezierConnec) {
+    _inherits$1(BezierConnector, _AbstractBezierConnec);
+    var _super = _createSuper$1(BezierConnector);
     function BezierConnector(connection, params) {
       var _this;
-      _classCallCheck$4(this, BezierConnector);
-      _this = _possibleConstructorReturn$3(this, _getPrototypeOf$3(BezierConnector).call(this, connection, params));
+      _classCallCheck$1(this, BezierConnector);
+      _this = _super.call(this, connection, params);
       _this.connection = connection;
-      _defineProperty$4(_assertThisInitialized$3(_this), "type", BezierConnector.type);
-      _defineProperty$4(_assertThisInitialized$3(_this), "majorAnchor", void 0);
-      _defineProperty$4(_assertThisInitialized$3(_this), "minorAnchor", void 0);
+      _defineProperty$1(_assertThisInitialized$1(_this), "type", BezierConnector.type);
+      _defineProperty$1(_assertThisInitialized$1(_this), "majorAnchor", void 0);
+      _defineProperty$1(_assertThisInitialized$1(_this), "minorAnchor", void 0);
       params = params || {};
       _this.majorAnchor = params.curviness || 150;
       _this.minorAnchor = 10;
       return _this;
     }
-    _createClass$4(BezierConnector, [{
+    _createClass$1(BezierConnector, [{
       key: "getCurviness",
       value: function getCurviness() {
         return this.majorAnchor;
@@ -9513,7 +9644,7 @@ var jsPlumbBrowserUI = (function (exports) {
     }]);
     return BezierConnector;
   }(AbstractBezierConnector);
-  _defineProperty$4(BezierConnector, "type", "Bezier");
+  _defineProperty$1(BezierConnector, "type", "Bezier");
 
   function _segment(x1, y1, x2, y2) {
     if (x1 <= x2 && y2 <= y1) {
@@ -9563,24 +9694,24 @@ var jsPlumbBrowserUI = (function (exports) {
       }
     }
   }
-  var StateMachineConnector =
-  function (_AbstractBezierConnec) {
-    _inherits$3(StateMachineConnector, _AbstractBezierConnec);
+  var StateMachineConnector = function (_AbstractBezierConnec) {
+    _inherits$1(StateMachineConnector, _AbstractBezierConnec);
+    var _super = _createSuper$1(StateMachineConnector);
     function StateMachineConnector(connection, params) {
       var _this;
-      _classCallCheck$4(this, StateMachineConnector);
-      _this = _possibleConstructorReturn$3(this, _getPrototypeOf$3(StateMachineConnector).call(this, connection, params));
+      _classCallCheck$1(this, StateMachineConnector);
+      _this = _super.call(this, connection, params);
       _this.connection = connection;
-      _defineProperty$4(_assertThisInitialized$3(_this), "type", StateMachineConnector.type);
-      _defineProperty$4(_assertThisInitialized$3(_this), "_controlPoint", void 0);
-      _defineProperty$4(_assertThisInitialized$3(_this), "proximityLimit", void 0);
+      _defineProperty$1(_assertThisInitialized$1(_this), "type", StateMachineConnector.type);
+      _defineProperty$1(_assertThisInitialized$1(_this), "_controlPoint", void 0);
+      _defineProperty$1(_assertThisInitialized$1(_this), "proximityLimit", void 0);
       _this.curviness = params.curviness || 10;
       _this.margin = params.margin || 5;
       _this.proximityLimit = params.proximityLimit || 80;
       _this.clockwise = params.orientation && params.orientation === "clockwise";
       return _this;
     }
-    _createClass$4(StateMachineConnector, [{
+    _createClass$1(StateMachineConnector, [{
       key: "_computeBezier",
       value: function _computeBezier(paintInfo, params, sp, tp, w, h) {
         var _sx = sp.curX < tp.curX ? 0 : w,
@@ -9644,12 +9775,14 @@ var jsPlumbBrowserUI = (function (exports) {
     }]);
     return StateMachineConnector;
   }(AbstractBezierConnector);
-  _defineProperty$4(StateMachineConnector, "type", "StateMachine");
+  _defineProperty$1(StateMachineConnector, "type", "StateMachine");
 
   Connectors.register(BezierConnector.type, BezierConnector);
   Connectors.register(StateMachineConnector.type, StateMachineConnector);
 
   function _typeof(obj) {
+    "@babel/helpers - typeof";
+
     if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
       _typeof = function (obj) {
         return typeof obj;
@@ -9663,13 +9796,13 @@ var jsPlumbBrowserUI = (function (exports) {
     return _typeof(obj);
   }
 
-  function _classCallCheck$5(instance, Constructor) {
+  function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
       throw new TypeError("Cannot call a class as a function");
     }
   }
 
-  function _defineProperties$5(target, props) {
+  function _defineProperties(target, props) {
     for (var i = 0; i < props.length; i++) {
       var descriptor = props[i];
       descriptor.enumerable = descriptor.enumerable || false;
@@ -9679,13 +9812,13 @@ var jsPlumbBrowserUI = (function (exports) {
     }
   }
 
-  function _createClass$5(Constructor, protoProps, staticProps) {
-    if (protoProps) _defineProperties$5(Constructor.prototype, protoProps);
-    if (staticProps) _defineProperties$5(Constructor, staticProps);
+  function _createClass(Constructor, protoProps, staticProps) {
+    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) _defineProperties(Constructor, staticProps);
     return Constructor;
   }
 
-  function _defineProperty$5(obj, key, value) {
+  function _defineProperty(obj, key, value) {
     if (key in obj) {
       Object.defineProperty(obj, key, {
         value: value,
@@ -9700,7 +9833,7 @@ var jsPlumbBrowserUI = (function (exports) {
     return obj;
   }
 
-  function _inherits$4(subClass, superClass) {
+  function _inherits(subClass, superClass) {
     if (typeof superClass !== "function" && superClass !== null) {
       throw new TypeError("Super expression must either be null or a function");
     }
@@ -9712,26 +9845,39 @@ var jsPlumbBrowserUI = (function (exports) {
         configurable: true
       }
     });
-    if (superClass) _setPrototypeOf$4(subClass, superClass);
+    if (superClass) _setPrototypeOf(subClass, superClass);
   }
 
-  function _getPrototypeOf$4(o) {
-    _getPrototypeOf$4 = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+  function _getPrototypeOf(o) {
+    _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
       return o.__proto__ || Object.getPrototypeOf(o);
     };
-    return _getPrototypeOf$4(o);
+    return _getPrototypeOf(o);
   }
 
-  function _setPrototypeOf$4(o, p) {
-    _setPrototypeOf$4 = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+  function _setPrototypeOf(o, p) {
+    _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
       o.__proto__ = p;
       return o;
     };
 
-    return _setPrototypeOf$4(o, p);
+    return _setPrototypeOf(o, p);
   }
 
-  function _assertThisInitialized$4(self) {
+  function _isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function _assertThisInitialized(self) {
     if (self === void 0) {
       throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
     }
@@ -9739,29 +9885,48 @@ var jsPlumbBrowserUI = (function (exports) {
     return self;
   }
 
-  function _possibleConstructorReturn$4(self, call) {
+  function _possibleConstructorReturn(self, call) {
     if (call && (typeof call === "object" || typeof call === "function")) {
       return call;
     }
 
-    return _assertThisInitialized$4(self);
+    return _assertThisInitialized(self);
   }
 
-  function _superPropBase$1(object, property) {
+  function _createSuper(Derived) {
+    var hasNativeReflectConstruct = _isNativeReflectConstruct();
+
+    return function _createSuperInternal() {
+      var Super = _getPrototypeOf(Derived),
+          result;
+
+      if (hasNativeReflectConstruct) {
+        var NewTarget = _getPrototypeOf(this).constructor;
+
+        result = Reflect.construct(Super, arguments, NewTarget);
+      } else {
+        result = Super.apply(this, arguments);
+      }
+
+      return _possibleConstructorReturn(this, result);
+    };
+  }
+
+  function _superPropBase(object, property) {
     while (!Object.prototype.hasOwnProperty.call(object, property)) {
-      object = _getPrototypeOf$4(object);
+      object = _getPrototypeOf(object);
       if (object === null) break;
     }
 
     return object;
   }
 
-  function _get$1(target, property, receiver) {
+  function _get(target, property, receiver) {
     if (typeof Reflect !== "undefined" && Reflect.get) {
-      _get$1 = Reflect.get;
+      _get = Reflect.get;
     } else {
-      _get$1 = function _get(target, property, receiver) {
-        var base = _superPropBase$1(target, property);
+      _get = function _get(target, property, receiver) {
+        var base = _superPropBase(target, property);
 
         if (!base) return;
         var desc = Object.getOwnPropertyDescriptor(base, property);
@@ -9774,25 +9939,29 @@ var jsPlumbBrowserUI = (function (exports) {
       };
     }
 
-    return _get$1(target, property, receiver || target);
+    return _get(target, property, receiver || target);
   }
 
-  function _slicedToArray$1(arr, i) {
-    return _arrayWithHoles$1(arr) || _iterableToArrayLimit$1(arr, i) || _nonIterableRest$1();
+  function _slicedToArray(arr, i) {
+    return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
   }
 
-  function _arrayWithHoles$1(arr) {
+  function _arrayWithHoles(arr) {
     if (Array.isArray(arr)) return arr;
   }
 
-  function _iterableToArrayLimit$1(arr, i) {
+  function _iterableToArrayLimit(arr, i) {
+    var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"];
+
+    if (_i == null) return;
     var _arr = [];
     var _n = true;
     var _d = false;
-    var _e = undefined;
+
+    var _s, _e;
 
     try {
-      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+      for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) {
         _arr.push(_s.value);
 
         if (i && _arr.length === i) break;
@@ -9811,11 +9980,28 @@ var jsPlumbBrowserUI = (function (exports) {
     return _arr;
   }
 
-  function _nonIterableRest$1() {
-    throw new TypeError("Invalid attempt to destructure non-iterable instance");
+  function _unsupportedIterableToArray(o, minLen) {
+    if (!o) return;
+    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+    var n = Object.prototype.toString.call(o).slice(8, -1);
+    if (n === "Object" && o.constructor) n = o.constructor.name;
+    if (n === "Map" || n === "Set") return Array.from(o);
+    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
   }
 
-  function matchesSelector(el, selector, ctx) {
+  function _arrayLikeToArray(arr, len) {
+    if (len == null || len > arr.length) len = arr.length;
+
+    for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+    return arr2;
+  }
+
+  function _nonIterableRest() {
+    throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+
+  function matchesSelector$1(el, selector, ctx) {
     ctx = ctx || el.parentNode;
     var possibles = ctx.querySelectorAll(selector);
     for (var i = 0; i < possibles.length; i++) {
@@ -9836,13 +10022,13 @@ var jsPlumbBrowserUI = (function (exports) {
     }
   }
   function findParent(el, selector, container, matchOnElementAlso) {
-    if (matchOnElementAlso && matchesSelector(el, selector, container)) {
+    if (matchOnElementAlso && matchesSelector$1(el, selector, container)) {
       return el;
     } else {
       el = el.parentNode;
     }
     while (el != null && el !== container) {
-      if (matchesSelector(el, selector)) {
+      if (matchesSelector$1(el, selector)) {
         return el;
       } else {
         el = el.parentNode;
@@ -10173,7 +10359,7 @@ var jsPlumbBrowserUI = (function (exports) {
   function _touchAndList(target, pageX, pageY, screenX, screenY, clientX, clientY) {
     return _touchList(_touch(target, pageX, pageY, screenX, screenY, clientX, clientY));
   }
-  function matchesSelector$1(el, selector, ctx) {
+  function matchesSelector(el, selector, ctx) {
     ctx = ctx || el.parentNode;
     var possibles = ctx.querySelectorAll(selector);
     for (var i = 0; i < possibles.length; i++) {
@@ -10226,7 +10412,7 @@ var jsPlumbBrowserUI = (function (exports) {
   }
   var guid = 1;
   var isTouchDevice = "ontouchstart" in document.documentElement || navigator.maxTouchPoints != null && navigator.maxTouchPoints > 0;
-  var isMouseDevice = "onmousedown" in document.documentElement;
+  var isMouseDevice = ("onmousedown" in document.documentElement);
   var touchMap = {
     "mousedown": "touchstart",
     "mouseup": "touchend",
@@ -10282,7 +10468,7 @@ var jsPlumbBrowserUI = (function (exports) {
   function _unbind(obj, type, fn) {
     var _this = this;
     if (fn == null) return;
-    _each(obj, function (_el) {
+    _each$1(obj, function (_el) {
       _unstore(_el, type, fn);
       if (fn.__tauid != null) {
         if (_el.removeEventListener) {
@@ -10300,7 +10486,7 @@ var jsPlumbBrowserUI = (function (exports) {
       }
     });
   }
-  function _each(obj, fn) {
+  function _each$1(obj, fn) {
     if (obj == null) return;
     var entries = typeof obj === "string" ? document.querySelectorAll(obj) : obj.length != null ? obj : [obj];
     for (var i = 0; i < entries.length; i++) {
@@ -10338,7 +10524,7 @@ var jsPlumbBrowserUI = (function (exports) {
           for (var p = 0; !done && p < pathInfo.end; p++) {
             target = pathInfo.path[p];
             for (var i = 0; !done && i < c.length; i++) {
-              if (matchesSelector$1(target, c[i], obj)) {
+              if (matchesSelector(target, c[i], obj)) {
                 fn.apply(target, [e, target]);
                 done = true;
                 break;
@@ -10386,12 +10572,11 @@ var jsPlumbBrowserUI = (function (exports) {
       }
     }
   }
-  var TapHandler =
-  function () {
+  var TapHandler = function () {
     function TapHandler() {
-      _classCallCheck$5(this, TapHandler);
+      _classCallCheck(this, TapHandler);
     }
-    _createClass$5(TapHandler, null, [{
+    _createClass(TapHandler, null, [{
       key: "generate",
       value: function generate(clickThreshold, dblClickThreshold) {
         return function (obj, evt, fn, children) {
@@ -10412,7 +10597,7 @@ var jsPlumbBrowserUI = (function (exports) {
                   if (finished) return;
                   target = pathInfo.path[p];
                   for (var i = 0; i < tt.downSelectors.length; i++) {
-                    if (tt.downSelectors[i] == null || matchesSelector$1(target, tt.downSelectors[i], obj)) {
+                    if (tt.downSelectors[i] == null || matchesSelector(target, tt.downSelectors[i], obj)) {
                       tt.down = true;
                       setTimeout(clearSingle, clickThreshold);
                       setTimeout(clearDouble, dblClickThreshold);
@@ -10437,7 +10622,7 @@ var jsPlumbBrowserUI = (function (exports) {
                           pathInfo = _pi(e, target, obj, tt[eventId][i][1] != null);
                           for (var pLoop = 0; pLoop < pathInfo.end; pLoop++) {
                             currentTarget = pathInfo.path[pLoop];
-                            if (tt[eventId][i][1] == null || matchesSelector$1(currentTarget, tt[eventId][i][1], obj)) {
+                            if (tt[eventId][i][1] == null || matchesSelector(currentTarget, tt[eventId][i][1], obj)) {
                               tt[eventId][i][0].apply(currentTarget, [e, currentTarget]);
                               break;
                             }
@@ -10480,12 +10665,11 @@ var jsPlumbBrowserUI = (function (exports) {
     }]);
     return TapHandler;
   }();
-  var MouseEnterExitHandler =
-  function () {
+  var MouseEnterExitHandler = function () {
     function MouseEnterExitHandler() {
-      _classCallCheck$5(this, MouseEnterExitHandler);
+      _classCallCheck(this, MouseEnterExitHandler);
     }
-    _createClass$5(MouseEnterExitHandler, null, [{
+    _createClass(MouseEnterExitHandler, null, [{
       key: "generate",
       value: function generate() {
         var activeElements = [];
@@ -10498,7 +10682,7 @@ var jsPlumbBrowserUI = (function (exports) {
             };
             var over = function over(e) {
               var t = _t(e);
-              if (children == null && t == obj && !obj.__tamee.over || matchesSelector$1(t, children, obj) && (t.__tamee == null || !t.__tamee.over)) {
+              if (children == null && t == obj && !obj.__tamee.over || matchesSelector(t, children, obj) && (t.__tamee == null || !t.__tamee.over)) {
                 meeHelper(EVENT_MOUSEENTER, e, obj, t);
                 t.__tamee = t.__tamee || {};
                 t.__tamee.over = true;
@@ -10508,7 +10692,7 @@ var jsPlumbBrowserUI = (function (exports) {
                 out = function out(e) {
               var t = _t(e);
               for (var i = 0; i < activeElements.length; i++) {
-                if (t == activeElements[i] && !matchesSelector$1(e.relatedTarget || e.toElement, "*", t)) {
+                if (t == activeElements[i] && !matchesSelector(e.relatedTarget || e.toElement, "*", t)) {
                   t.__tamee.over = false;
                   activeElements.splice(i, 1);
                   meeHelper(EVENT_MOUSEEXIT, e, obj, t);
@@ -10528,21 +10712,20 @@ var jsPlumbBrowserUI = (function (exports) {
     }]);
     return MouseEnterExitHandler;
   }();
-  var EventManager =
-  function () {
+  var EventManager = function () {
     function EventManager(params) {
-      _classCallCheck$5(this, EventManager);
-      _defineProperty$5(this, "clickThreshold", void 0);
-      _defineProperty$5(this, "dblClickThreshold", void 0);
-      _defineProperty$5(this, "tapHandler", void 0);
-      _defineProperty$5(this, "mouseEnterExitHandler", void 0);
+      _classCallCheck(this, EventManager);
+      _defineProperty(this, "clickThreshold", void 0);
+      _defineProperty(this, "dblClickThreshold", void 0);
+      _defineProperty(this, "tapHandler", void 0);
+      _defineProperty(this, "mouseEnterExitHandler", void 0);
       params = params || {};
       this.clickThreshold = params.clickThreshold || 250;
       this.dblClickThreshold = params.dblClickThreshold || 450;
       this.mouseEnterExitHandler = MouseEnterExitHandler.generate();
       this.tapHandler = TapHandler.generate(this.clickThreshold, this.dblClickThreshold);
     }
-    _createClass$5(EventManager, [{
+    _createClass(EventManager, [{
       key: "_doBind",
       value: function _doBind(el, evt, fn, children, options) {
         if (fn == null) return;
@@ -10576,7 +10759,7 @@ var jsPlumbBrowserUI = (function (exports) {
         var pl = pageLocation(originalEvent),
             sl = screenLocation(originalEvent),
             cl = clientLocation(originalEvent);
-        _each(el, function (_el) {
+        _each$1(el, function (_el) {
           var evt;
           originalEvent = originalEvent || {
             screenX: sl.x,
@@ -10613,12 +10796,12 @@ var jsPlumbBrowserUI = (function (exports) {
   }();
 
   function findDelegateElement(parentElement, childElement, selector) {
-    if (matchesSelector(childElement, selector, parentElement)) {
+    if (matchesSelector$1(childElement, selector, parentElement)) {
       return childElement;
     } else {
       var currentParent = childElement.parentNode;
       while (currentParent != null && currentParent !== parentElement) {
-        if (matchesSelector(currentParent, selector, parentElement)) {
+        if (matchesSelector$1(currentParent, selector, parentElement)) {
           return currentParent;
         } else {
           currentParent = currentParent.parentNode;
@@ -10668,7 +10851,7 @@ var jsPlumbBrowserUI = (function (exports) {
       el = findDelegateElement(parentElement, childElement, prefix + availableSelectors[i].selector);
       if (el != null) {
         if (availableSelectors[i].filter) {
-          var matches = matchesSelector(childElement, availableSelectors[i].filter, el),
+          var matches = matchesSelector$1(childElement, availableSelectors[i].filter, el),
               exclude = availableSelectors[i].filterExclude === true;
           if (exclude && !matches || matches) {
             return null;
@@ -10687,18 +10870,18 @@ var jsPlumbBrowserUI = (function (exports) {
   var EVENT_OUT = "out";
   var EVENT_STOP = "stop";
   var ATTRIBUTE_DRAGGABLE = "katavorio-draggable";
-  var CLASS_DRAGGABLE = ATTRIBUTE_DRAGGABLE;
+  var CLASS_DRAGGABLE$1 = ATTRIBUTE_DRAGGABLE;
   var DEFAULT_GRID_X = 10;
   var DEFAULT_GRID_Y = 10;
-  var TRUE$1 = function TRUE() {
+  var TRUE = function TRUE() {
     return true;
   };
-  var FALSE$1 = function FALSE() {
+  var FALSE = function FALSE() {
     return false;
   };
   var _classes = {
     delegatedDraggable: "katavorio-delegated-draggable",
-    draggable: CLASS_DRAGGABLE,
+    draggable: CLASS_DRAGGABLE$1,
     drag: "katavorio-drag",
     selected: "katavorio-drag-selected",
     noSelect: "katavorio-drag-no-select",
@@ -10707,7 +10890,7 @@ var jsPlumbBrowserUI = (function (exports) {
   };
   var _events = [EVENT_STOP, EVENT_START, EVENT_DRAG, EVENT_DROP, EVENT_OVER, EVENT_OUT, EVENT_BEFORE_START];
   var _devNull = function _devNull() {};
-  var _each$1 = function _each(obj, fn) {
+  var _each = function _each(obj, fn) {
     if (obj == null) return;
     obj = !IS.aString(obj) && obj.tagName == null && obj.length != null ? obj : [obj];
     for (var i = 0; i < obj.length; i++) {
@@ -10716,20 +10899,19 @@ var jsPlumbBrowserUI = (function (exports) {
   };
   var _inputFilter = function _inputFilter(e, el, collicat) {
     var t = e.srcElement || e.target;
-    return !matchesSelector(t, collicat.getInputFilterSelector(), el);
+    return !matchesSelector$1(t, collicat.getInputFilterSelector(), el);
   };
-  var Base =
-  function () {
+  var Base = function () {
     function Base(el, k) {
-      _classCallCheck$5(this, Base);
+      _classCallCheck(this, Base);
       this.el = el;
       this.k = k;
-      _defineProperty$5(this, "_class", void 0);
-      _defineProperty$5(this, "uuid", uuid());
-      _defineProperty$5(this, "enabled", true);
-      _defineProperty$5(this, "scopes", []);
+      _defineProperty(this, "_class", void 0);
+      _defineProperty(this, "uuid", uuid());
+      _defineProperty(this, "enabled", true);
+      _defineProperty(this, "scopes", []);
     }
-    _createClass$5(Base, [{
+    _createClass(Base, [{
       key: "setEnabled",
       value: function setEnabled(e) {
         this.enabled = e;
@@ -10748,10 +10930,10 @@ var jsPlumbBrowserUI = (function (exports) {
       key: "addScope",
       value: function addScope(scopes) {
         var m = {};
-        _each$1(this.scopes, function (s) {
+        _each(this.scopes, function (s) {
           m[s] = true;
         });
-        _each$1(scopes ? scopes.split(/\s+/) : [], function (s) {
+        _each(scopes ? scopes.split(/\s+/) : [], function (s) {
           m[s] = true;
         });
         this.scopes.length = 0;
@@ -10763,10 +10945,10 @@ var jsPlumbBrowserUI = (function (exports) {
       key: "removeScope",
       value: function removeScope(scopes) {
         var m = {};
-        _each$1(this.scopes, function (s) {
+        _each(this.scopes, function (s) {
           m[s] = true;
         });
-        _each$1(scopes ? scopes.split(/\s+/) : [], function (s) {
+        _each(scopes ? scopes.split(/\s+/) : [], function (s) {
           delete m[s];
         });
         this.scopes.length = 0;
@@ -10778,10 +10960,10 @@ var jsPlumbBrowserUI = (function (exports) {
       key: "toggleScope",
       value: function toggleScope(scopes) {
         var m = {};
-        _each$1(this.scopes, function (s) {
+        _each(this.scopes, function (s) {
           m[s] = true;
         });
-        _each$1(scopes ? scopes.split(/\s+/) : [], function (s) {
+        _each(scopes ? scopes.split(/\s+/) : [], function (s) {
           if (m[s]) delete m[s];else m[s] = true;
         });
         this.scopes.length = 0;
@@ -10804,61 +10986,61 @@ var jsPlumbBrowserUI = (function (exports) {
     ContainmentTypes["parent"] = "parent";
     ContainmentTypes["parentEnclosed"] = "parentEnclosed";
   })(ContainmentTypes || (ContainmentTypes = {}));
-  var Drag =
-  function (_Base) {
-    _inherits$4(Drag, _Base);
+  var Drag = function (_Base) {
+    _inherits(Drag, _Base);
+    var _super = _createSuper(Drag);
     function Drag(el, params, k) {
       var _this;
-      _classCallCheck$5(this, Drag);
-      _this = _possibleConstructorReturn$4(this, _getPrototypeOf$4(Drag).call(this, el, k));
-      _defineProperty$5(_assertThisInitialized$4(_this), "_class", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "rightButtonCanDrag", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "consumeStartEvent", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "clone", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "scroll", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "trackScroll", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_downAt", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_posAtDown", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_pagePosAtDown", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_pageDelta", {
+      _classCallCheck(this, Drag);
+      _this = _super.call(this, el, k);
+      _defineProperty(_assertThisInitialized(_this), "_class", void 0);
+      _defineProperty(_assertThisInitialized(_this), "rightButtonCanDrag", void 0);
+      _defineProperty(_assertThisInitialized(_this), "consumeStartEvent", void 0);
+      _defineProperty(_assertThisInitialized(_this), "clone", void 0);
+      _defineProperty(_assertThisInitialized(_this), "scroll", void 0);
+      _defineProperty(_assertThisInitialized(_this), "trackScroll", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_downAt", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_posAtDown", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_pagePosAtDown", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_pageDelta", {
         x: 0,
         y: 0
       });
-      _defineProperty$5(_assertThisInitialized$4(_this), "_moving", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_lastPosition", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_lastScrollValues", {
+      _defineProperty(_assertThisInitialized(_this), "_moving", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_lastPosition", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_lastScrollValues", {
         x: 0,
         y: 0
       });
-      _defineProperty$5(_assertThisInitialized$4(_this), "_initialScroll", {
+      _defineProperty(_assertThisInitialized(_this), "_initialScroll", {
         x: 0,
         y: 0
       });
-      _defineProperty$5(_assertThisInitialized$4(_this), "_size", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_currentParentPosition", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_ghostParentPosition", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_dragEl", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_multipleDrop", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_ghostProxyOffsets", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_ghostDx", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_ghostDy", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_isConstrained", false);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_ghostProxyParent", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_useGhostProxy", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_ghostProxyFunction", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_activeSelectorParams", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_availableSelectors", []);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_canDrag", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_consumeFilteredEvents", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_parent", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_ignoreZoom", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_filters", {});
-      _defineProperty$5(_assertThisInitialized$4(_this), "_constrainRect", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_elementToDrag", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "downListener", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "moveListener", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "upListener", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "listeners", {
+      _defineProperty(_assertThisInitialized(_this), "_size", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_currentParentPosition", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_ghostParentPosition", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_dragEl", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_multipleDrop", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_ghostProxyOffsets", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_ghostDx", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_ghostDy", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_isConstrained", false);
+      _defineProperty(_assertThisInitialized(_this), "_ghostProxyParent", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_useGhostProxy", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_ghostProxyFunction", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_activeSelectorParams", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_availableSelectors", []);
+      _defineProperty(_assertThisInitialized(_this), "_canDrag", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_consumeFilteredEvents", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_parent", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_ignoreZoom", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_filters", {});
+      _defineProperty(_assertThisInitialized(_this), "_constrainRect", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_elementToDrag", void 0);
+      _defineProperty(_assertThisInitialized(_this), "downListener", void 0);
+      _defineProperty(_assertThisInitialized(_this), "moveListener", void 0);
+      _defineProperty(_assertThisInitialized(_this), "upListener", void 0);
+      _defineProperty(_assertThisInitialized(_this), "listeners", {
         "start": [],
         "drag": [],
         "stop": [],
@@ -10869,9 +11051,9 @@ var jsPlumbBrowserUI = (function (exports) {
       });
       _this._class = _this.k.css.draggable;
       addClass(_this.el, _this._class);
-      _this.downListener = _this._downListener.bind(_assertThisInitialized$4(_this));
-      _this.upListener = _this._upListener.bind(_assertThisInitialized$4(_this));
-      _this.moveListener = _this._moveListener.bind(_assertThisInitialized$4(_this));
+      _this.downListener = _this._downListener.bind(_assertThisInitialized(_this));
+      _this.upListener = _this._upListener.bind(_assertThisInitialized(_this));
+      _this.moveListener = _this._moveListener.bind(_assertThisInitialized(_this));
       _this.rightButtonCanDrag = params.rightButtonCanDrag === true;
       _this.consumeStartEvent = params.consumeStartEvent !== false;
       _this._dragEl = _this.el;
@@ -10879,7 +11061,7 @@ var jsPlumbBrowserUI = (function (exports) {
       _this.scroll = params.scroll === true;
       _this.trackScroll = params.trackScroll !== false;
       _this._multipleDrop = params.multipleDrop !== false;
-      _this._canDrag = params.canDrag || TRUE$1;
+      _this._canDrag = params.canDrag || TRUE;
       _this._consumeFilteredEvents = params.consumeFilteredEvents;
       _this._parent = params.parent;
       _this._ignoreZoom = params.ignoreZoom === true;
@@ -10913,7 +11095,7 @@ var jsPlumbBrowserUI = (function (exports) {
         });
       }
       if (params.ghostProxy === true) {
-        _this._useGhostProxy = TRUE$1;
+        _this._useGhostProxy = TRUE;
       } else {
         if (params.ghostProxy && typeof params.ghostProxy === "function") {
           _this._useGhostProxy = params.ghostProxy;
@@ -10949,7 +11131,7 @@ var jsPlumbBrowserUI = (function (exports) {
       _this.k.eventManager.on(_this.el, EVENT_MOUSEDOWN, _this.downListener);
       return _this;
     }
-    _createClass$5(Drag, [{
+    _createClass(Drag, [{
       key: "on",
       value: function on(evt, fn) {
         if (this.listeners[evt]) {
@@ -11281,7 +11463,7 @@ var jsPlumbBrowserUI = (function (exports) {
     }, {
       key: "setUseGhostProxy",
       value: function setUseGhostProxy(val) {
-        this._useGhostProxy = val ? TRUE$1 : FALSE$1;
+        this._useGhostProxy = val ? TRUE : FALSE;
       }
     }, {
       key: "_doConstrain",
@@ -11317,7 +11499,7 @@ var jsPlumbBrowserUI = (function (exports) {
             var t = e.srcElement || e.target;
             var m;
             if (IS.aString(f)) {
-              m = matchesSelector(t, f, _this2.el);
+              m = matchesSelector$1(t, f, _this2.el);
             } else if (typeof f === "function") {
               m = f(e, _this2.el);
             }
@@ -11362,14 +11544,13 @@ var jsPlumbBrowserUI = (function (exports) {
   }(Base);
   var DEFAULT_INPUTS = ["input", "textarea", "select", "button", "option"];
   var DEFAULT_INPUT_FILTER_SELECTOR = DEFAULT_INPUTS.join(",");
-  var Collicat =
-  function () {
+  var Collicat = function () {
     function Collicat(options) {
-      _classCallCheck$5(this, Collicat);
-      _defineProperty$5(this, "eventManager", void 0);
-      _defineProperty$5(this, "zoom", 1);
-      _defineProperty$5(this, "css", {});
-      _defineProperty$5(this, "inputFilterSelector", void 0);
+      _classCallCheck(this, Collicat);
+      _defineProperty(this, "eventManager", void 0);
+      _defineProperty(this, "zoom", 1);
+      _defineProperty(this, "css", {});
+      _defineProperty(this, "inputFilterSelector", void 0);
       options = options || {};
       this.inputFilterSelector = options.inputFilterSelector || DEFAULT_INPUT_FILTER_SELECTOR;
       this.eventManager = new EventManager();
@@ -11377,7 +11558,7 @@ var jsPlumbBrowserUI = (function (exports) {
       var _c = options.css || {};
       extend(this.css, _c);
     }
-    _createClass$5(Collicat, [{
+    _createClass(Collicat, [{
       key: "getZoom",
       value: function getZoom() {
         return this.zoom;
@@ -11440,34 +11621,33 @@ var jsPlumbBrowserUI = (function (exports) {
   }();
 
   var CLASS_DELEGATED_DRAGGABLE = "jtk-delegated-draggable";
-  var CLASS_DRAGGABLE$1 = "jtk-draggable";
+  var CLASS_DRAGGABLE = "jtk-draggable";
   var CLASS_DRAG_CONTAINER = "jtk-drag";
   var CLASS_GHOST_PROXY = "jtk-ghost-proxy";
   var CLASS_DRAG_SELECTED = "jtk-drag-selected";
   var CLASS_DRAG_ACTIVE = "jtk-drag-active";
   var CLASS_DRAGGED = "jtk-dragged";
   var CLASS_DRAG_HOVER = "jtk-drag-hover";
-  var DragManager =
-  function () {
+  var DragManager = function () {
     function DragManager(instance, options) {
       var _this = this;
-      _classCallCheck$5(this, DragManager);
+      _classCallCheck(this, DragManager);
       this.instance = instance;
-      _defineProperty$5(this, "collicat", void 0);
-      _defineProperty$5(this, "drag", void 0);
-      _defineProperty$5(this, "_draggables", {});
-      _defineProperty$5(this, "_dlist", []);
-      _defineProperty$5(this, "_elementsWithEndpoints", {});
-      _defineProperty$5(this, "_draggablesForElements", {});
-      _defineProperty$5(this, "handlers", []);
-      _defineProperty$5(this, "_trackScroll", void 0);
-      _defineProperty$5(this, "_filtersToAdd", []);
+      _defineProperty(this, "collicat", void 0);
+      _defineProperty(this, "drag", void 0);
+      _defineProperty(this, "_draggables", {});
+      _defineProperty(this, "_dlist", []);
+      _defineProperty(this, "_elementsWithEndpoints", {});
+      _defineProperty(this, "_draggablesForElements", {});
+      _defineProperty(this, "handlers", []);
+      _defineProperty(this, "_trackScroll", void 0);
+      _defineProperty(this, "_filtersToAdd", []);
       this.collicat = new Collicat({
         zoom: this.instance.currentZoom,
         css: {
           noSelect: this.instance.dragSelectClass,
           delegatedDraggable: CLASS_DELEGATED_DRAGGABLE,
-          draggable: CLASS_DRAGGABLE$1,
+          draggable: CLASS_DRAGGABLE,
           drag: CLASS_DRAG_CONTAINER,
           selected: CLASS_DRAG_SELECTED,
           active: CLASS_DRAG_ACTIVE,
@@ -11481,7 +11661,7 @@ var jsPlumbBrowserUI = (function (exports) {
       options = options || {};
       this._trackScroll = options.trackScroll !== false;
     }
-    _createClass$5(DragManager, [{
+    _createClass(DragManager, [{
       key: "addHandler",
       value: function addHandler(handler, dragOptions) {
         var _this2 = this;
@@ -11643,29 +11823,28 @@ var jsPlumbBrowserUI = (function (exports) {
       return false;
     }
   }
-  var ElementDragHandler =
-  function () {
+  var ElementDragHandler = function () {
     function ElementDragHandler(instance) {
-      _classCallCheck$5(this, ElementDragHandler);
+      _classCallCheck(this, ElementDragHandler);
       this.instance = instance;
-      _defineProperty$5(this, "selector", "> " + SELECTOR_MANAGED_ELEMENT + ":not(" + cls(CLASS_OVERLAY) + ")");
-      _defineProperty$5(this, "_dragOffset", null);
-      _defineProperty$5(this, "_groupLocations", []);
-      _defineProperty$5(this, "_intersectingGroups", []);
-      _defineProperty$5(this, "_currentDragParentGroup", null);
-      _defineProperty$5(this, "_dragGroupByElementIdMap", {});
-      _defineProperty$5(this, "_dragGroupMap", {});
-      _defineProperty$5(this, "_currentDragGroup", null);
-      _defineProperty$5(this, "_currentDragGroupOffsets", new Map());
-      _defineProperty$5(this, "_currentDragGroupSizes", new Map());
-      _defineProperty$5(this, "_dragSelection", []);
-      _defineProperty$5(this, "_dragSelectionOffsets", new Map());
-      _defineProperty$5(this, "_dragSizes", new Map());
-      _defineProperty$5(this, "_dragPayload", null);
-      _defineProperty$5(this, "drag", void 0);
-      _defineProperty$5(this, "originalPosition", void 0);
+      _defineProperty(this, "selector", "> " + SELECTOR_MANAGED_ELEMENT + ":not(" + cls(CLASS_OVERLAY) + ")");
+      _defineProperty(this, "_dragOffset", null);
+      _defineProperty(this, "_groupLocations", []);
+      _defineProperty(this, "_intersectingGroups", []);
+      _defineProperty(this, "_currentDragParentGroup", null);
+      _defineProperty(this, "_dragGroupByElementIdMap", {});
+      _defineProperty(this, "_dragGroupMap", {});
+      _defineProperty(this, "_currentDragGroup", null);
+      _defineProperty(this, "_currentDragGroupOffsets", new Map());
+      _defineProperty(this, "_currentDragGroupSizes", new Map());
+      _defineProperty(this, "_dragSelection", []);
+      _defineProperty(this, "_dragSelectionOffsets", new Map());
+      _defineProperty(this, "_dragSizes", new Map());
+      _defineProperty(this, "_dragPayload", null);
+      _defineProperty(this, "drag", void 0);
+      _defineProperty(this, "originalPosition", void 0);
     }
-    _createClass$5(ElementDragHandler, [{
+    _createClass(ElementDragHandler, [{
       key: "onDragInit",
       value: function onDragInit(el) {
         return null;
@@ -11855,7 +12034,7 @@ var jsPlumbBrowserUI = (function (exports) {
         }
         var cont = true;
         var nd = el.getAttribute(ATTRIBUTE_NOT_DRAGGABLE);
-        if (this.instance.elementsDraggable === false || nd != null && nd !== FALSE) {
+        if (this.instance.elementsDraggable === false || nd != null && nd !== FALSE$1) {
           cont = false;
         }
         if (cont) {
@@ -12108,45 +12287,44 @@ var jsPlumbBrowserUI = (function (exports) {
     return negate ? !ok : ok;
   }
   var SELECTOR_DRAG_ACTIVE_OR_HOVER = cls(CLASS_DRAG_ACTIVE, CLASS_DRAG_HOVER);
-  var EndpointDragHandler =
-  function () {
+  var EndpointDragHandler = function () {
     function EndpointDragHandler(instance) {
-      _classCallCheck$5(this, EndpointDragHandler);
+      _classCallCheck(this, EndpointDragHandler);
       this.instance = instance;
-      _defineProperty$5(this, "jpc", void 0);
-      _defineProperty$5(this, "existingJpc", void 0);
-      _defineProperty$5(this, "_originalAnchor", void 0);
-      _defineProperty$5(this, "ep", void 0);
-      _defineProperty$5(this, "endpointRepresentation", void 0);
-      _defineProperty$5(this, "canvasElement", void 0);
-      _defineProperty$5(this, "_activeDefinition", void 0);
-      _defineProperty$5(this, "placeholderInfo", {
+      _defineProperty(this, "jpc", void 0);
+      _defineProperty(this, "existingJpc", void 0);
+      _defineProperty(this, "_originalAnchor", void 0);
+      _defineProperty(this, "ep", void 0);
+      _defineProperty(this, "endpointRepresentation", void 0);
+      _defineProperty(this, "canvasElement", void 0);
+      _defineProperty(this, "_activeDefinition", void 0);
+      _defineProperty(this, "placeholderInfo", {
         id: null,
         element: null
       });
-      _defineProperty$5(this, "floatingIndex", void 0);
-      _defineProperty$5(this, "floatingId", void 0);
-      _defineProperty$5(this, "floatingElement", void 0);
-      _defineProperty$5(this, "floatingEndpoint", void 0);
-      _defineProperty$5(this, "floatingAnchor", void 0);
-      _defineProperty$5(this, "_stopped", void 0);
-      _defineProperty$5(this, "inPlaceCopy", void 0);
-      _defineProperty$5(this, "endpointDropTargets", []);
-      _defineProperty$5(this, "currentDropTarget", null);
-      _defineProperty$5(this, "payload", void 0);
-      _defineProperty$5(this, "floatingConnections", {});
-      _defineProperty$5(this, "_forceReattach", void 0);
-      _defineProperty$5(this, "_forceDetach", void 0);
-      _defineProperty$5(this, "mousedownHandler", void 0);
-      _defineProperty$5(this, "mouseupHandler", void 0);
-      _defineProperty$5(this, "selector", cls(CLASS_ENDPOINT));
+      _defineProperty(this, "floatingIndex", void 0);
+      _defineProperty(this, "floatingId", void 0);
+      _defineProperty(this, "floatingElement", void 0);
+      _defineProperty(this, "floatingEndpoint", void 0);
+      _defineProperty(this, "floatingAnchor", void 0);
+      _defineProperty(this, "_stopped", void 0);
+      _defineProperty(this, "inPlaceCopy", void 0);
+      _defineProperty(this, "endpointDropTargets", []);
+      _defineProperty(this, "currentDropTarget", null);
+      _defineProperty(this, "payload", void 0);
+      _defineProperty(this, "floatingConnections", {});
+      _defineProperty(this, "_forceReattach", void 0);
+      _defineProperty(this, "_forceDetach", void 0);
+      _defineProperty(this, "mousedownHandler", void 0);
+      _defineProperty(this, "mouseupHandler", void 0);
+      _defineProperty(this, "selector", cls(CLASS_ENDPOINT));
       var container = instance.getContainer();
       this.mousedownHandler = this._mousedownHandler.bind(this);
       this.mouseupHandler = this._mouseupHandler.bind(this);
       instance.on(container, EVENT_MOUSEDOWN, SELECTOR_MANAGED_ELEMENT, this.mousedownHandler);
       instance.on(container, EVENT_MOUSEUP, SELECTOR_MANAGED_ELEMENT, this.mouseupHandler);
     }
-    _createClass$5(EndpointDragHandler, [{
+    _createClass(EndpointDragHandler, [{
       key: "_resolveDragParent",
       value: function _resolveDragParent(def, eventTarget) {
         var container = this.instance.getContainer();
@@ -12173,14 +12351,14 @@ var jsPlumbBrowserUI = (function (exports) {
         sourceDef = this._getSourceDefinition(e);
         if (sourceDef != null) {
           sourceEl = this._resolveDragParent(sourceDef.def, eventTarget);
-          if (sourceEl == null || sourceEl.getAttribute(ATTRIBUTE_JTK_ENABLED) === FALSE) {
+          if (sourceEl == null || sourceEl.getAttribute(ATTRIBUTE_JTK_ENABLED) === FALSE$1) {
             return;
           }
         }
         if (sourceDef) {
           var sourceElement = e.currentTarget,
               def;
-          if (eventTarget.getAttribute(ATTRIBUTE_JTK_ENABLED) !== FALSE) {
+          if (eventTarget.getAttribute(ATTRIBUTE_JTK_ENABLED) !== FALSE$1) {
             consume(e);
             this._activeDefinition = sourceDef;
             def = sourceDef.def;
@@ -12373,10 +12551,10 @@ var jsPlumbBrowserUI = (function (exports) {
           _continue = false;
         }
         else if (_typeof(beforeDrag) === "object") {
-            extend(beforeDrag, this.payload || {});
-          } else {
-            beforeDrag = this.payload || {};
-          }
+          extend(beforeDrag, this.payload || {});
+        } else {
+          beforeDrag = this.payload || {};
+        }
         return [_continue, beforeDrag];
       }
     }, {
@@ -12534,7 +12712,7 @@ var jsPlumbBrowserUI = (function (exports) {
         this.canvasElement = this.endpointRepresentation.canvas;
         this.jpc = this.ep.connectorSelector();
         var _this$_shouldStartDra = this._shouldStartDrag(),
-            _this$_shouldStartDra2 = _slicedToArray$1(_this$_shouldStartDra, 2),
+            _this$_shouldStartDra2 = _slicedToArray(_this$_shouldStartDra, 2),
             _continue = _this$_shouldStartDra2[0],
             payload = _this$_shouldStartDra2[1];
         if (_continue === false) {
@@ -12667,11 +12845,10 @@ var jsPlumbBrowserUI = (function (exports) {
           var idx = this._getFloatingAnchorIndex();
           var suspendedEndpoint = this.jpc.suspendedEndpoint;
           var dropEndpoint;
-          var discarded = false;
           if (this.currentDropTarget != null) {
             dropEndpoint = this._getDropEndpoint(p, this.jpc);
             if (dropEndpoint == null) {
-              discarded = !this._reattachOrDiscard(p.e);
+              !this._reattachOrDiscard(p.e);
             } else {
               if (suspendedEndpoint && suspendedEndpoint.id === dropEndpoint.id) {
                 this._doForceReattach(idx);
@@ -12895,20 +13072,20 @@ var jsPlumbBrowserUI = (function (exports) {
     return EndpointDragHandler;
   }();
 
-  var GroupDragHandler =
-  function (_ElementDragHandler) {
-    _inherits$4(GroupDragHandler, _ElementDragHandler);
+  var GroupDragHandler = function (_ElementDragHandler) {
+    _inherits(GroupDragHandler, _ElementDragHandler);
+    var _super = _createSuper(GroupDragHandler);
     function GroupDragHandler(instance) {
       var _this;
-      _classCallCheck$5(this, GroupDragHandler);
-      _this = _possibleConstructorReturn$4(this, _getPrototypeOf$4(GroupDragHandler).call(this, instance));
+      _classCallCheck(this, GroupDragHandler);
+      _this = _super.call(this, instance);
       _this.instance = instance;
-      _defineProperty$5(_assertThisInitialized$4(_this), "selector", [">", SELECTOR_GROUP, SELECTOR_MANAGED_ELEMENT].join(" "));
-      _defineProperty$5(_assertThisInitialized$4(_this), "doRevalidate", void 0);
-      _this.doRevalidate = _this._revalidate.bind(_assertThisInitialized$4(_this));
+      _defineProperty(_assertThisInitialized(_this), "selector", [">", SELECTOR_GROUP, SELECTOR_MANAGED_ELEMENT].join(" "));
+      _defineProperty(_assertThisInitialized(_this), "doRevalidate", void 0);
+      _this.doRevalidate = _this._revalidate.bind(_assertThisInitialized(_this));
       return _this;
     }
-    _createClass$5(GroupDragHandler, [{
+    _createClass(GroupDragHandler, [{
       key: "reset",
       value: function reset() {
         this.drag.off(EVENT_REVERT, this.doRevalidate);
@@ -12941,7 +13118,7 @@ var jsPlumbBrowserUI = (function (exports) {
     }, {
       key: "onDrag",
       value: function onDrag(params) {
-        _get$1(_getPrototypeOf$4(GroupDragHandler.prototype), "onDrag", this).call(this, params);
+        _get(_getPrototypeOf(GroupDragHandler.prototype), "onDrag", this).call(this, params);
       }
     }, {
       key: "onDragAbort",
@@ -12966,7 +13143,7 @@ var jsPlumbBrowserUI = (function (exports) {
             }
           }
         }
-        _get$1(_getPrototypeOf$4(GroupDragHandler.prototype), "onStop", this).call(this, params, draggedOutOfGroup, originalGroup, dropGroup);
+        _get(_getPrototypeOf(GroupDragHandler.prototype), "onStop", this).call(this, params, draggedOutOfGroup, originalGroup, dropGroup);
         var currentGroup = jel._jsPlumbParentGroup;
         if (currentGroup !== originalGroup) {
           var originalElement = params.drag.getDragElement(true);
@@ -13011,16 +13188,15 @@ var jsPlumbBrowserUI = (function (exports) {
     return GroupDragHandler;
   }(ElementDragHandler);
 
-  var HTMLElementOverlay =
-  function () {
+  var HTMLElementOverlay = function () {
     function HTMLElementOverlay(instance, overlay) {
-      _classCallCheck$5(this, HTMLElementOverlay);
+      _classCallCheck(this, HTMLElementOverlay);
       this.instance = instance;
       this.overlay = overlay;
-      _defineProperty$5(this, "htmlElementOverlay", void 0);
+      _defineProperty(this, "htmlElementOverlay", void 0);
       this.htmlElementOverlay = overlay;
     }
-    _createClass$5(HTMLElementOverlay, null, [{
+    _createClass(HTMLElementOverlay, null, [{
       key: "createElement",
       value: function createElement$1(o) {
         var el = createElement(ELEMENT_DIV, {}, o.instance.overlayClass + " " + (o.cssClass ? o.cssClass : ""));
@@ -13076,21 +13252,20 @@ var jsPlumbBrowserUI = (function (exports) {
     return HTMLElementOverlay;
   }();
 
-  var SVGElementOverlay =
-  function (_Overlay) {
-    _inherits$4(SVGElementOverlay, _Overlay);
+  var SVGElementOverlay = function (_Overlay) {
+    _inherits(SVGElementOverlay, _Overlay);
+    var _super = _createSuper(SVGElementOverlay);
     function SVGElementOverlay() {
-      var _getPrototypeOf2;
       var _this;
-      _classCallCheck$5(this, SVGElementOverlay);
+      _classCallCheck(this, SVGElementOverlay);
       for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
       }
-      _this = _possibleConstructorReturn$4(this, (_getPrototypeOf2 = _getPrototypeOf$4(SVGElementOverlay)).call.apply(_getPrototypeOf2, [this].concat(args)));
-      _defineProperty$5(_assertThisInitialized$4(_this), "path", void 0);
+      _this = _super.call.apply(_super, [this].concat(args));
+      _defineProperty(_assertThisInitialized(_this), "path", void 0);
       return _this;
     }
-    _createClass$5(SVGElementOverlay, null, [{
+    _createClass(SVGElementOverlay, null, [{
       key: "ensurePath",
       value: function ensurePath(o) {
         if (o.path == null) {
@@ -13152,12 +13327,11 @@ var jsPlumbBrowserUI = (function (exports) {
     return SVGElementOverlay;
   }(Overlay);
 
-  var SvgComponent =
-  function () {
+  var SvgComponent = function () {
     function SvgComponent() {
-      _classCallCheck$5(this, SvgComponent);
+      _classCallCheck(this, SvgComponent);
     }
-    _createClass$5(SvgComponent, null, [{
+    _createClass(SvgComponent, null, [{
       key: "paint",
       value: function paint(connector, useDivWrapper, paintStyle, extents) {
         if (paintStyle != null) {
@@ -13270,12 +13444,11 @@ var jsPlumbBrowserUI = (function (exports) {
     }
   }
 
-  var SvgEndpoint =
-  function () {
+  var SvgEndpoint = function () {
     function SvgEndpoint() {
-      _classCallCheck$5(this, SvgEndpoint);
+      _classCallCheck(this, SvgEndpoint);
     }
-    _createClass$5(SvgEndpoint, null, [{
+    _createClass(SvgEndpoint, null, [{
       key: "getEndpointElement",
       value: function getEndpointElement(ep) {
         if (ep.canvas != null) {
@@ -13297,7 +13470,7 @@ var jsPlumbBrowserUI = (function (exports) {
           ep.instance.addClass(canvas, classes);
           var scopes = ep.endpoint.scope.split(/\s/);
           for (var i = 0; i < scopes.length; i++) {
-            ep.instance.setAttribute(canvas, ATTRIBUTE_SCOPE_PREFIX + scopes[i], TRUE);
+            ep.instance.setAttribute(canvas, ATTRIBUTE_SCOPE_PREFIX + scopes[i], TRUE$1);
           }
           if (!ep.instance._suspendDrawing) {
             _size(canvas, 0, 0, 1, 1);
@@ -13335,9 +13508,9 @@ var jsPlumbBrowserUI = (function (exports) {
     return SvgEndpoint;
   }();
 
-  var endpointMap$1 = {};
+  var endpointMap = {};
   function registerEndpointRenderer(name, fns) {
-    endpointMap$1[name] = fns;
+    endpointMap[name] = fns;
   }
   function getPositionOnElement(evt, el, zoom) {
     var jel = el;
@@ -13395,51 +13568,51 @@ var jsPlumbBrowserUI = (function (exports) {
       return el;
     });
   }
-  var BrowserJsPlumbInstance =
-  function (_JsPlumbInstance) {
-    _inherits$4(BrowserJsPlumbInstance, _JsPlumbInstance);
+  var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
+    _inherits(BrowserJsPlumbInstance, _JsPlumbInstance);
+    var _super = _createSuper(BrowserJsPlumbInstance);
     function BrowserJsPlumbInstance(_instanceIndex, defaults) {
       var _this;
-      _classCallCheck$5(this, BrowserJsPlumbInstance);
-      _this = _possibleConstructorReturn$4(this, _getPrototypeOf$4(BrowserJsPlumbInstance).call(this, _instanceIndex, defaults));
+      _classCallCheck(this, BrowserJsPlumbInstance);
+      _this = _super.call(this, _instanceIndex, defaults);
       _this._instanceIndex = _instanceIndex;
-      _defineProperty$5(_assertThisInitialized$4(_this), "dragManager", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_connectorClick", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_connectorDblClick", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_connectorTap", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_connectorDblTap", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_endpointClick", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_endpointDblClick", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_overlayClick", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_overlayDblClick", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_overlayTap", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_overlayDblTap", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_connectorMouseover", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_connectorMouseout", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_endpointMouseover", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_endpointMouseout", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_overlayMouseover", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_overlayMouseout", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_elementClick", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_elementTap", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_elementDblTap", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_elementMouseenter", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "_elementMouseexit", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "eventManager", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "draggingClass", "jtk-dragging");
-      _defineProperty$5(_assertThisInitialized$4(_this), "elementDraggingClass", "jtk-element-dragging");
-      _defineProperty$5(_assertThisInitialized$4(_this), "hoverClass", "jtk-hover");
-      _defineProperty$5(_assertThisInitialized$4(_this), "sourceElementDraggingClass", "jtk-source-element-dragging");
-      _defineProperty$5(_assertThisInitialized$4(_this), "targetElementDraggingClass", "jtk-target-element-dragging");
-      _defineProperty$5(_assertThisInitialized$4(_this), "hoverSourceClass", "jtk-source-hover");
-      _defineProperty$5(_assertThisInitialized$4(_this), "hoverTargetClass", "jtk-target-hover");
-      _defineProperty$5(_assertThisInitialized$4(_this), "dragSelectClass", "jtk-drag-select");
-      _defineProperty$5(_assertThisInitialized$4(_this), "managedElementsSelector", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "elementsDraggable", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "elementDragHandler", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "groupDragOptions", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "elementDragOptions", void 0);
-      _defineProperty$5(_assertThisInitialized$4(_this), "svg", {
+      _defineProperty(_assertThisInitialized(_this), "dragManager", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_connectorClick", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_connectorDblClick", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_connectorTap", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_connectorDblTap", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_endpointClick", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_endpointDblClick", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_overlayClick", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_overlayDblClick", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_overlayTap", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_overlayDblTap", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_connectorMouseover", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_connectorMouseout", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_endpointMouseover", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_endpointMouseout", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_overlayMouseover", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_overlayMouseout", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_elementClick", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_elementTap", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_elementDblTap", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_elementMouseenter", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_elementMouseexit", void 0);
+      _defineProperty(_assertThisInitialized(_this), "eventManager", void 0);
+      _defineProperty(_assertThisInitialized(_this), "draggingClass", "jtk-dragging");
+      _defineProperty(_assertThisInitialized(_this), "elementDraggingClass", "jtk-element-dragging");
+      _defineProperty(_assertThisInitialized(_this), "hoverClass", "jtk-hover");
+      _defineProperty(_assertThisInitialized(_this), "sourceElementDraggingClass", "jtk-source-element-dragging");
+      _defineProperty(_assertThisInitialized(_this), "targetElementDraggingClass", "jtk-target-element-dragging");
+      _defineProperty(_assertThisInitialized(_this), "hoverSourceClass", "jtk-source-hover");
+      _defineProperty(_assertThisInitialized(_this), "hoverTargetClass", "jtk-target-hover");
+      _defineProperty(_assertThisInitialized(_this), "dragSelectClass", "jtk-drag-select");
+      _defineProperty(_assertThisInitialized(_this), "managedElementsSelector", void 0);
+      _defineProperty(_assertThisInitialized(_this), "elementsDraggable", void 0);
+      _defineProperty(_assertThisInitialized(_this), "elementDragHandler", void 0);
+      _defineProperty(_assertThisInitialized(_this), "groupDragOptions", void 0);
+      _defineProperty(_assertThisInitialized(_this), "elementDragOptions", void 0);
+      _defineProperty(_assertThisInitialized(_this), "svg", {
         node: function node(name, attributes) {
           return _node(name, attributes);
         },
@@ -13453,8 +13626,8 @@ var jsPlumbBrowserUI = (function (exports) {
       _this.elementsDraggable = defaults && defaults.elementsDraggable !== false;
       _this.managedElementsSelector = defaults ? defaults.managedElementsSelector || SELECTOR_MANAGED_ELEMENT : SELECTOR_MANAGED_ELEMENT;
       _this.eventManager = new EventManager();
-      _this.dragManager = new DragManager(_assertThisInitialized$4(_this), defaults && defaults.dragOptions ? defaults.dragOptions : null);
-      _this.dragManager.addHandler(new EndpointDragHandler(_assertThisInitialized$4(_this)));
+      _this.dragManager = new DragManager(_assertThisInitialized(_this), defaults && defaults.dragOptions ? defaults.dragOptions : null);
+      _this.dragManager.addHandler(new EndpointDragHandler(_assertThisInitialized(_this)));
       _this.groupDragOptions = {
         constrainFunction: function constrainFunction(desiredLoc, dragEl, constrainRect, size) {
           var x = desiredLoc.x,
@@ -13472,11 +13645,11 @@ var jsPlumbBrowserUI = (function (exports) {
         },
         revertFunction: function revertFunction(dragEl, pos) {
           var _el = dragEl;
-          return _el.parentNode != null && _el._jsPlumbParentGroup && _el._jsPlumbParentGroup.revert ? !isInsideParent(_assertThisInitialized$4(_this), _el, pos) : false;
+          return _el.parentNode != null && _el._jsPlumbParentGroup && _el._jsPlumbParentGroup.revert ? !isInsideParent(_assertThisInitialized(_this), _el, pos) : false;
         }
       };
-      _this.dragManager.addHandler(new GroupDragHandler(_assertThisInitialized$4(_this)), _this.groupDragOptions);
-      _this.elementDragHandler = new ElementDragHandler(_assertThisInitialized$4(_this));
+      _this.dragManager.addHandler(new GroupDragHandler(_assertThisInitialized(_this)), _this.groupDragOptions);
+      _this.elementDragHandler = new ElementDragHandler(_assertThisInitialized(_this));
       _this.elementDragOptions = defaults && defaults.dragOptions || {};
       _this.dragManager.addHandler(_this.elementDragHandler, _this.elementDragOptions);
       var _connClick = function _connClick(event, e) {
@@ -13485,10 +13658,10 @@ var jsPlumbBrowserUI = (function (exports) {
           this.fire(event, connectorElement.jtk.connector.connection, e);
         }
       };
-      _this._connectorClick = _connClick.bind(_assertThisInitialized$4(_this), EVENT_CONNECTION_CLICK);
-      _this._connectorDblClick = _connClick.bind(_assertThisInitialized$4(_this), EVENT_CONNECTION_DBL_CLICK);
-      _this._connectorTap = _connClick.bind(_assertThisInitialized$4(_this), EVENT_CONNECTION_TAP);
-      _this._connectorDblTap = _connClick.bind(_assertThisInitialized$4(_this), EVENT_CONNECTION_DBL_TAP);
+      _this._connectorClick = _connClick.bind(_assertThisInitialized(_this), EVENT_CONNECTION_CLICK);
+      _this._connectorDblClick = _connClick.bind(_assertThisInitialized(_this), EVENT_CONNECTION_DBL_CLICK);
+      _this._connectorTap = _connClick.bind(_assertThisInitialized(_this), EVENT_CONNECTION_TAP);
+      _this._connectorDblTap = _connClick.bind(_assertThisInitialized(_this), EVENT_CONNECTION_DBL_TAP);
       var _connectorHover = function _connectorHover(state, e) {
         var el = getEventSource(e).parentNode;
         if (el.jtk && el.jtk.connector) {
@@ -13496,15 +13669,15 @@ var jsPlumbBrowserUI = (function (exports) {
           this.fire(state ? EVENT_CONNECTION_MOUSEOVER : EVENT_CONNECTION_MOUSEOUT, el.jtk.connector.connection, e);
         }
       };
-      _this._connectorMouseover = _connectorHover.bind(_assertThisInitialized$4(_this), true);
-      _this._connectorMouseout = _connectorHover.bind(_assertThisInitialized$4(_this), false);
+      _this._connectorMouseover = _connectorHover.bind(_assertThisInitialized(_this), true);
+      _this._connectorMouseout = _connectorHover.bind(_assertThisInitialized(_this), false);
       var _epClick = function _epClick(event, e, endpointElement) {
         if (!e.defaultPrevented) {
           this.fire(event, endpointElement.jtk.endpoint, e);
         }
       };
-      _this._endpointClick = _epClick.bind(_assertThisInitialized$4(_this), EVENT_ENDPOINT_CLICK);
-      _this._endpointDblClick = _epClick.bind(_assertThisInitialized$4(_this), EVENT_ENDPOINT_DBL_CLICK);
+      _this._endpointClick = _epClick.bind(_assertThisInitialized(_this), EVENT_ENDPOINT_CLICK);
+      _this._endpointDblClick = _epClick.bind(_assertThisInitialized(_this), EVENT_ENDPOINT_DBL_CLICK);
       var _endpointHover = function _endpointHover(state, e) {
         var el = getEventSource(e);
         if (el.jtk && el.jtk.endpoint) {
@@ -13512,8 +13685,8 @@ var jsPlumbBrowserUI = (function (exports) {
           this.fire(state ? EVENT_ENDPOINT_MOUSEOVER : EVENT_ENDPOINT_MOUSEOUT, el.jtk.endpoint, e);
         }
       };
-      _this._endpointMouseover = _endpointHover.bind(_assertThisInitialized$4(_this), true);
-      _this._endpointMouseout = _endpointHover.bind(_assertThisInitialized$4(_this), false);
+      _this._endpointMouseover = _endpointHover.bind(_assertThisInitialized(_this), true);
+      _this._endpointMouseout = _endpointHover.bind(_assertThisInitialized(_this), false);
       var _oClick = function (method, e) {
         consume(e);
         var overlayElement = findParent(getEventSource(e), SELECTOR_OVERLAY, this.getContainer(), true);
@@ -13521,11 +13694,11 @@ var jsPlumbBrowserUI = (function (exports) {
         if (overlay) {
           this.fireOverlayMethod(overlay, method, e);
         }
-      }.bind(_assertThisInitialized$4(_this));
-      _this._overlayClick = _oClick.bind(_assertThisInitialized$4(_this), EVENT_CLICK);
-      _this._overlayDblClick = _oClick.bind(_assertThisInitialized$4(_this), EVENT_DBL_CLICK);
-      _this._overlayTap = _oClick.bind(_assertThisInitialized$4(_this), EVENT_TAP);
-      _this._overlayDblTap = _oClick.bind(_assertThisInitialized$4(_this), EVENT_DBL_TAP);
+      }.bind(_assertThisInitialized(_this));
+      _this._overlayClick = _oClick.bind(_assertThisInitialized(_this), EVENT_CLICK);
+      _this._overlayDblClick = _oClick.bind(_assertThisInitialized(_this), EVENT_DBL_CLICK);
+      _this._overlayTap = _oClick.bind(_assertThisInitialized(_this), EVENT_TAP);
+      _this._overlayDblTap = _oClick.bind(_assertThisInitialized(_this), EVENT_DBL_TAP);
       var _overlayHover = function _overlayHover(state, e) {
         var overlayElement = findParent(getEventSource(e), SELECTOR_OVERLAY, this.getContainer(), true);
         var overlay = overlayElement.jtk.overlay;
@@ -13533,35 +13706,35 @@ var jsPlumbBrowserUI = (function (exports) {
           this.setOverlayHover(overlay, state);
         }
       };
-      _this._overlayMouseover = _overlayHover.bind(_assertThisInitialized$4(_this), true);
-      _this._overlayMouseout = _overlayHover.bind(_assertThisInitialized$4(_this), false);
+      _this._overlayMouseover = _overlayHover.bind(_assertThisInitialized(_this), true);
+      _this._overlayMouseout = _overlayHover.bind(_assertThisInitialized(_this), false);
       var _elementClick = function _elementClick(event, e, target) {
         if (!e.defaultPrevented) {
           this.fire(e.detail === 1 ? EVENT_ELEMENT_CLICK : EVENT_ELEMENT_DBL_CLICK, target, e);
         }
       };
-      _this._elementClick = _elementClick.bind(_assertThisInitialized$4(_this), EVENT_ELEMENT_CLICK);
+      _this._elementClick = _elementClick.bind(_assertThisInitialized(_this), EVENT_ELEMENT_CLICK);
       var _elementTap = function _elementTap(event, e, target) {
         if (!e.defaultPrevented) {
           this.fire(EVENT_ELEMENT_TAP, target, e);
         }
       };
-      _this._elementTap = _elementTap.bind(_assertThisInitialized$4(_this), EVENT_ELEMENT_TAP);
+      _this._elementTap = _elementTap.bind(_assertThisInitialized(_this), EVENT_ELEMENT_TAP);
       var _elementDblTap = function _elementDblTap(event, e, target) {
         if (!e.defaultPrevented) {
           this.fire(EVENT_ELEMENT_DBL_TAP, target, e);
         }
       };
-      _this._elementDblTap = _elementDblTap.bind(_assertThisInitialized$4(_this), EVENT_ELEMENT_DBL_TAP);
+      _this._elementDblTap = _elementDblTap.bind(_assertThisInitialized(_this), EVENT_ELEMENT_DBL_TAP);
       var _elementHover = function _elementHover(state, e) {
         this.fire(state ? EVENT_ELEMENT_MOUSE_OVER : EVENT_ELEMENT_MOUSE_OUT, getEventSource(e), e);
       };
-      _this._elementMouseenter = _elementHover.bind(_assertThisInitialized$4(_this), true);
-      _this._elementMouseexit = _elementHover.bind(_assertThisInitialized$4(_this), false);
+      _this._elementMouseenter = _elementHover.bind(_assertThisInitialized(_this), true);
+      _this._elementMouseexit = _elementHover.bind(_assertThisInitialized(_this), false);
       _this._attachEventDelegates();
       return _this;
     }
-    _createClass$5(BrowserJsPlumbInstance, [{
+    _createClass(BrowserJsPlumbInstance, [{
       key: "fireOverlayMethod",
       value: function fireOverlayMethod(overlay, event, e) {
         var stem = overlay.component instanceof Connection ? CONNECTION : ENDPOINT;
@@ -13789,14 +13962,14 @@ var jsPlumbBrowserUI = (function (exports) {
         if (draggable) {
           this.removeAttribute(element, ATTRIBUTE_NOT_DRAGGABLE);
         } else {
-          this.setAttribute(element, ATTRIBUTE_NOT_DRAGGABLE, TRUE);
+          this.setAttribute(element, ATTRIBUTE_NOT_DRAGGABLE, TRUE$1);
         }
       }
     }, {
       key: "isDraggable",
       value: function isDraggable(el) {
         var d = this.getAttribute(el, ATTRIBUTE_NOT_DRAGGABLE);
-        return d == null || d === FALSE;
+        return d == null || d === FALSE$1;
       }
     }, {
       key: "toggleDraggable",
@@ -13882,7 +14055,7 @@ var jsPlumbBrowserUI = (function (exports) {
             newContainer.appendChild(el);
           });
         }
-        _get$1(_getPrototypeOf$4(BrowserJsPlumbInstance.prototype), "setContainer", this).call(this, newContainer);
+        _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "setContainer", this).call(this, newContainer);
         if (this.eventManager != null) {
           this._attachEventDelegates();
         }
@@ -13899,7 +14072,7 @@ var jsPlumbBrowserUI = (function (exports) {
     }, {
       key: "reset",
       value: function reset() {
-        _get$1(_getPrototypeOf$4(BrowserJsPlumbInstance.prototype), "reset", this).call(this);
+        _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "reset", this).call(this);
         var container = this.getContainer();
         var els = container.querySelectorAll([SELECTOR_MANAGED_ELEMENT, SELECTOR_ENDPOINT, SELECTOR_CONNECTOR, SELECTOR_OVERLAY].join(","));
         forEach(els, function (el) {
@@ -13914,13 +14087,13 @@ var jsPlumbBrowserUI = (function (exports) {
           this.dragManager.reset();
         }
         this.clearDragSelection();
-        _get$1(_getPrototypeOf$4(BrowserJsPlumbInstance.prototype), "destroy", this).call(this);
+        _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "destroy", this).call(this);
       }
     }, {
       key: "unmanage",
       value: function unmanage(el, removeElement) {
         this.removeFromDragSelection(el);
-        _get$1(_getPrototypeOf$4(BrowserJsPlumbInstance.prototype), "unmanage", this).call(this, el, removeElement);
+        _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "unmanage", this).call(this, el, removeElement);
       }
     }, {
       key: "addToDragSelection",
@@ -14001,7 +14174,7 @@ var jsPlumbBrowserUI = (function (exports) {
         if (this._managedElements[elementId]) {
           this._managedElements[elementId].el.style.transform = "rotate(" + rotation + "deg)";
           this._managedElements[elementId].el.style.transformOrigin = "center center";
-          return _get$1(_getPrototypeOf$4(BrowserJsPlumbInstance.prototype), "rotate", this).call(this, element, rotation, doNotRepaint);
+          return _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "rotate", this).call(this, element, rotation, doNotRepaint);
         }
         return {
           c: new Set(),
@@ -14309,7 +14482,7 @@ var jsPlumbBrowserUI = (function (exports) {
     }, {
       key: "renderEndpoint",
       value: function renderEndpoint(ep, paintStyle) {
-        var renderer = endpointMap$1[ep.endpoint.type];
+        var renderer = endpointMap[ep.endpoint.type];
         if (renderer != null) {
           SvgEndpoint.paint(ep.endpoint, renderer, paintStyle);
         } else {
@@ -14381,7 +14554,7 @@ var jsPlumbBrowserUI = (function (exports) {
         if (connection != null && connection.deleted !== true) {
           this.setEndpointHover(connection.endpoints[0], false, true);
           this.setEndpointHover(connection.endpoints[1], false, true);
-          return _get$1(_getPrototypeOf$4(BrowserJsPlumbInstance.prototype), "deleteConnection", this).call(this, connection, params);
+          return _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "deleteConnection", this).call(this, connection, params);
         } else {
           return false;
         }
@@ -14390,20 +14563,20 @@ var jsPlumbBrowserUI = (function (exports) {
       key: "addSourceSelector",
       value: function addSourceSelector(selector, params, exclude) {
         this.addDragFilter(selector);
-        return _get$1(_getPrototypeOf$4(BrowserJsPlumbInstance.prototype), "addSourceSelector", this).call(this, selector, params, exclude);
+        return _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "addSourceSelector", this).call(this, selector, params, exclude);
       }
     }, {
       key: "removeSourceSelector",
       value: function removeSourceSelector(selector) {
         this.removeDragFilter(selector.selector);
-        _get$1(_getPrototypeOf$4(BrowserJsPlumbInstance.prototype), "removeSourceSelector", this).call(this, selector);
+        _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "removeSourceSelector", this).call(this, selector);
       }
     }]);
     return BrowserJsPlumbInstance;
   }(JsPlumbInstance);
 
   var CIRCLE = "circle";
-  var register = function register() {
+  var register$2 = function register() {
     registerEndpointRenderer(DotEndpoint.type, {
       makeNode: function makeNode(ep, style) {
         return _node(CIRCLE, {
@@ -14446,7 +14619,7 @@ var jsPlumbBrowserUI = (function (exports) {
     "fill": "transparent",
     "stroke": "transparent"
   };
-  var register$2 = function register() {
+  var register = function register() {
     registerEndpointRenderer(BlankEndpoint.type, {
       makeNode: function makeNode(ep, style) {
         return _node("rect", BLANK_ATTRIBUTES);
@@ -14457,8 +14630,8 @@ var jsPlumbBrowserUI = (function (exports) {
     });
   };
 
-  register();
   register$2();
+  register();
   register$1();
   var _jsPlumbInstanceIndex = 0;
   function getInstanceIndex() {
@@ -14609,7 +14782,7 @@ var jsPlumbBrowserUI = (function (exports) {
   exports.EndpointSelection = EndpointSelection;
   exports.EventGenerator = EventGenerator;
   exports.EventManager = EventManager;
-  exports.FALSE = FALSE;
+  exports.FALSE = FALSE$1;
   exports.FIXED = FIXED;
   exports.FlowchartConnector = FlowchartConnector;
   exports.GroupManager = GroupManager;
@@ -14652,7 +14825,7 @@ var jsPlumbBrowserUI = (function (exports) {
   exports.TARGET = TARGET;
   exports.TARGET_INDEX = TARGET_INDEX;
   exports.TOP = TOP;
-  exports.TRUE = TRUE;
+  exports.TRUE = TRUE$1;
   exports.TWO_PI = TWO_PI;
   exports.TargetSelector = TargetSelector;
   exports.UIGroup = UIGroup;
@@ -14746,7 +14919,7 @@ var jsPlumbBrowserUI = (function (exports) {
   exports.logEnabled = logEnabled;
   exports.makeLightweightAnchorFromSpec = makeLightweightAnchorFromSpec;
   exports.map = map;
-  exports.matchesSelector = matchesSelector;
+  exports.matchesSelector = matchesSelector$1;
   exports.merge = merge;
   exports.nearestPointOnCurve = nearestPointOnCurve;
   exports.newInstance = newInstance;

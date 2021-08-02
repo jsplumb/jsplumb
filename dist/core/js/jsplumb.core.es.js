@@ -1,4 +1,4 @@
-import { log, isArray, quadrant, gradient, pointOnLine, lineLength, isString, uuid, EventGenerator, isFunction, extend, clone, merge, setToArray, populate, isNumber, map, IS, isAssignableFrom, getWithFunction, removeWithFunction, suggest, forEach, getsert, insertSorted, findWithFunction, rotatePoint, sortHelper, filterList, functionChain, addToDictionary, TWO_PI, theta, normal, perpendicularLineTo } from '@jsplumb/util';
+import { log, isArray, quadrant, gradient, pointOnLine, lineLength, uuid, isString, EventGenerator, isFunction, clone, extend, merge, setToArray, populate, isNumber, map, IS, isAssignableFrom, getWithFunction, removeWithFunction, suggest, forEach, getsert, insertSorted, findWithFunction, rotatePoint, sortHelper, filterList, functionChain, addToDictionary, TWO_PI, theta, normal, perpendicularLineTo } from '@jsplumb/util';
 import { EMPTY_BOUNDS, AbstractSegment, DEFAULT, AnchorLocations, WILDCARD } from '@jsplumb/common';
 
 function _classCallCheck(instance, Constructor) {
@@ -69,6 +69,19 @@ function _setPrototypeOf(o, p) {
   return _setPrototypeOf(o, p);
 }
 
+function _isNativeReflectConstruct() {
+  if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+  if (Reflect.construct.sham) return false;
+  if (typeof Proxy === "function") return true;
+
+  try {
+    Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 function _assertThisInitialized(self) {
   if (self === void 0) {
     throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -83,6 +96,25 @@ function _possibleConstructorReturn(self, call) {
   }
 
   return _assertThisInitialized(self);
+}
+
+function _createSuper(Derived) {
+  var hasNativeReflectConstruct = _isNativeReflectConstruct();
+
+  return function _createSuperInternal() {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (hasNativeReflectConstruct) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
 }
 
 function _superPropBase(object, property) {
@@ -116,19 +148,15 @@ function _get(target, property, receiver) {
 }
 
 function _slicedToArray(arr, i) {
-  return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
+  return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
 }
 
 function _toConsumableArray(arr) {
-  return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
+  return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
 }
 
 function _arrayWithoutHoles(arr) {
-  if (Array.isArray(arr)) {
-    for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
-
-    return arr2;
-  }
+  if (Array.isArray(arr)) return _arrayLikeToArray(arr);
 }
 
 function _arrayWithHoles(arr) {
@@ -136,17 +164,21 @@ function _arrayWithHoles(arr) {
 }
 
 function _iterableToArray(iter) {
-  if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
+  if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
 }
 
 function _iterableToArrayLimit(arr, i) {
+  var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"];
+
+  if (_i == null) return;
   var _arr = [];
   var _n = true;
   var _d = false;
-  var _e = undefined;
+
+  var _s, _e;
 
   try {
-    for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+    for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) {
       _arr.push(_s.value);
 
       if (i && _arr.length === i) break;
@@ -165,12 +197,29 @@ function _iterableToArrayLimit(arr, i) {
   return _arr;
 }
 
+function _unsupportedIterableToArray(o, minLen) {
+  if (!o) return;
+  if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+  var n = Object.prototype.toString.call(o).slice(8, -1);
+  if (n === "Object" && o.constructor) n = o.constructor.name;
+  if (n === "Map" || n === "Set") return Array.from(o);
+  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+}
+
+function _arrayLikeToArray(arr, len) {
+  if (len == null || len > arr.length) len = arr.length;
+
+  for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+  return arr2;
+}
+
 function _nonIterableSpread() {
-  throw new TypeError("Invalid attempt to spread non-iterable instance");
+  throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
 }
 
 function _nonIterableRest() {
-  throw new TypeError("Invalid attempt to destructure non-iterable instance");
+  throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
 }
 
 var endpointMap = {};
@@ -206,8 +255,7 @@ var EndpointFactory = {
   }
 };
 
-var EndpointRepresentation =
-function () {
+var EndpointRepresentation = function () {
   function EndpointRepresentation(endpoint, params) {
     _classCallCheck(this, EndpointRepresentation);
     this.endpoint = endpoint;
@@ -262,13 +310,13 @@ function () {
   return EndpointRepresentation;
 }();
 
-var DotEndpoint =
-function (_EndpointRepresentati) {
+var DotEndpoint = function (_EndpointRepresentati) {
   _inherits(DotEndpoint, _EndpointRepresentati);
+  var _super = _createSuper(DotEndpoint);
   function DotEndpoint(endpoint, params) {
     var _this;
     _classCallCheck(this, DotEndpoint);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(DotEndpoint).call(this, endpoint, params));
+    _this = _super.call(this, endpoint, params);
     _defineProperty(_assertThisInitialized(_this), "radius", void 0);
     _defineProperty(_assertThisInitialized(_this), "defaultOffset", void 0);
     _defineProperty(_assertThisInitialized(_this), "defaultInnerRadius", void 0);
@@ -310,13 +358,13 @@ var DotEndpointHandler = {
   }
 };
 
-var BlankEndpoint =
-function (_EndpointRepresentati) {
+var BlankEndpoint = function (_EndpointRepresentati) {
   _inherits(BlankEndpoint, _EndpointRepresentati);
+  var _super = _createSuper(BlankEndpoint);
   function BlankEndpoint(endpoint, params) {
     var _this;
     _classCallCheck(this, BlankEndpoint);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(BlankEndpoint).call(this, endpoint, params));
+    _this = _super.call(this, endpoint, params);
     _defineProperty(_assertThisInitialized(_this), "type", BlankEndpoint.type);
     return _this;
   }
@@ -338,13 +386,13 @@ var BlankEndpointHandler = {
   }
 };
 
-var RectangleEndpoint =
-function (_EndpointRepresentati) {
+var RectangleEndpoint = function (_EndpointRepresentati) {
   _inherits(RectangleEndpoint, _EndpointRepresentati);
+  var _super = _createSuper(RectangleEndpoint);
   function RectangleEndpoint(endpoint, params) {
     var _this;
     _classCallCheck(this, RectangleEndpoint);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(RectangleEndpoint).call(this, endpoint, params));
+    _this = _super.call(this, endpoint, params);
     _defineProperty(_assertThisInitialized(_this), "width", void 0);
     _defineProperty(_assertThisInitialized(_this), "height", void 0);
     _defineProperty(_assertThisInitialized(_this), "type", RectangleEndpoint.type);
@@ -387,8 +435,7 @@ var RectangleEndpointHandler = {
   }
 };
 
-var AbstractConnector =
-function () {
+var AbstractConnector = function () {
   function AbstractConnector(connection, params) {
     _classCallCheck(this, AbstractConnector);
     this.connection = connection;
@@ -733,13 +780,13 @@ function () {
   return AbstractConnector;
 }();
 
-var StraightSegment =
-function (_AbstractSegment) {
+var StraightSegment = function (_AbstractSegment) {
   _inherits(StraightSegment, _AbstractSegment);
+  var _super = _createSuper(StraightSegment);
   function StraightSegment(params) {
     var _this;
     _classCallCheck(this, StraightSegment);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(StraightSegment).call(this, params));
+    _this = _super.call(this, params);
     _defineProperty(_assertThisInitialized(_this), "length", void 0);
     _defineProperty(_assertThisInitialized(_this), "m", void 0);
     _defineProperty(_assertThisInitialized(_this), "m2", void 0);
@@ -982,17 +1029,16 @@ function (_AbstractSegment) {
 }(AbstractSegment);
 _defineProperty(StraightSegment, "segmentType", "Straight");
 
-var StraightConnector =
-function (_AbstractConnector) {
+var StraightConnector = function (_AbstractConnector) {
   _inherits(StraightConnector, _AbstractConnector);
+  var _super = _createSuper(StraightConnector);
   function StraightConnector() {
-    var _getPrototypeOf2;
     var _this;
     _classCallCheck(this, StraightConnector);
     for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
-    _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(StraightConnector)).call.apply(_getPrototypeOf2, [this].concat(args)));
+    _this = _super.call.apply(_super, [this].concat(args));
     _defineProperty(_assertThisInitialized(_this), "type", StraightConnector.type);
     return _this;
   }
@@ -1149,13 +1195,13 @@ function convertToFullOverlaySpec(spec) {
   o.options.id = o.options.id || uuid();
   return o;
 }
-var Overlay =
-function (_EventGenerator) {
+var Overlay = function (_EventGenerator) {
   _inherits(Overlay, _EventGenerator);
+  var _super = _createSuper(Overlay);
   function Overlay(instance, component, p) {
     var _this;
     _classCallCheck(this, Overlay);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Overlay).call(this));
+    _this = _super.call(this);
     _this.instance = instance;
     _this.component = component;
     _defineProperty(_assertThisInitialized(_this), "id", void 0);
@@ -1211,13 +1257,13 @@ var OverlayFactory = {
   }
 };
 
-var LabelOverlay =
-function (_Overlay) {
+var LabelOverlay = function (_Overlay) {
   _inherits(LabelOverlay, _Overlay);
+  var _super = _createSuper(LabelOverlay);
   function LabelOverlay(instance, component, p) {
     var _this;
     _classCallCheck(this, LabelOverlay);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(LabelOverlay).call(this, instance, component, p));
+    _this = _super.call(this, instance, component, p);
     _this.instance = instance;
     _this.component = component;
     _defineProperty(_assertThisInitialized(_this), "label", void 0);
@@ -1358,13 +1404,13 @@ function _processOverlay(component, o) {
   component.overlays[_newOverlay.id] = _newOverlay;
   return _newOverlay;
 }
-var Component =
-function (_EventGenerator) {
+var Component = function (_EventGenerator) {
   _inherits(Component, _EventGenerator);
+  var _super = _createSuper(Component);
   function Component(instance, params) {
     var _this;
     _classCallCheck(this, Component);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Component).call(this));
+    _this = _super.call(this);
     _this.instance = instance;
     _defineProperty(_assertThisInitialized(_this), "defaultLabelLocation", 0.5);
     _defineProperty(_assertThisInitialized(_this), "overlays", {});
@@ -1897,8 +1943,7 @@ function (_EventGenerator) {
 
 var X_AXIS_FACES = ["left", "right"];
 var Y_AXIS_FACES = ["top", "bottom"];
-var LightweightFloatingAnchor =
-function () {
+var LightweightFloatingAnchor = function () {
   function LightweightFloatingAnchor(instance, element) {
     _classCallCheck(this, LightweightFloatingAnchor);
     this.instance = instance;
@@ -2273,32 +2318,13 @@ function prepareEndpoint(conn, existing, index, anchor, element, elementId, endp
   }
   return e;
 }
-var Connection =
-function (_Component) {
+var Connection = function (_Component) {
   _inherits(Connection, _Component);
-  _createClass(Connection, [{
-    key: "getIdPrefix",
-    value: function getIdPrefix() {
-      return "_jsPlumb_c";
-    }
-  }, {
-    key: "getDefaultOverlayKey",
-    value: function getDefaultOverlayKey() {
-      return KEY_CONNECTION_OVERLAYS;
-    }
-  }, {
-    key: "getXY",
-    value: function getXY() {
-      return {
-        x: this.connector.x,
-        y: this.connector.y
-      };
-    }
-  }]);
+  var _super = _createSuper(Connection);
   function Connection(instance, params) {
     var _this;
     _classCallCheck(this, Connection);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Connection).call(this, instance, params));
+    _this = _super.call(this, instance, params);
     _this.instance = instance;
     _defineProperty(_assertThisInitialized(_this), "connector", void 0);
     _defineProperty(_assertThisInitialized(_this), "defaultLabelLocation", 0.5);
@@ -2428,6 +2454,24 @@ function (_Component) {
     return _this;
   }
   _createClass(Connection, [{
+    key: "getIdPrefix",
+    value: function getIdPrefix() {
+      return "_jsPlumb_c";
+    }
+  }, {
+    key: "getDefaultOverlayKey",
+    value: function getDefaultOverlayKey() {
+      return KEY_CONNECTION_OVERLAYS;
+    }
+  }, {
+    key: "getXY",
+    value: function getXY() {
+      return {
+        x: this.connector.x,
+        y: this.connector.y
+      };
+    }
+  }, {
     key: "makeEndpoint",
     value: function makeEndpoint(isSource, el, elId, anchor, ep) {
       elId = elId || this.instance.getId(el);
@@ -2634,37 +2678,13 @@ function (_Component) {
 _defineProperty(Connection, "type", "connection");
 
 var typeParameters = ["connectorStyle", "connectorHoverStyle", "connectorOverlays", "connector", "connectionType", "connectorClass", "connectorHoverClass"];
-var Endpoint =
-function (_Component) {
+var Endpoint = function (_Component) {
   _inherits(Endpoint, _Component);
-  _createClass(Endpoint, [{
-    key: "getIdPrefix",
-    value: function getIdPrefix() {
-      return "_jsplumb_e";
-    }
-  }, {
-    key: "getTypeDescriptor",
-    value: function getTypeDescriptor() {
-      return "endpoint";
-    }
-  }, {
-    key: "getXY",
-    value: function getXY() {
-      return {
-        x: this.endpoint.x,
-        y: this.endpoint.y
-      };
-    }
-  }, {
-    key: "getDefaultOverlayKey",
-    value: function getDefaultOverlayKey() {
-      return "endpointOverlays";
-    }
-  }]);
+  var _super = _createSuper(Endpoint);
   function Endpoint(instance, params) {
     var _this;
     _classCallCheck(this, Endpoint);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Endpoint).call(this, instance, params));
+    _this = _super.call(this, instance, params);
     _this.instance = instance;
     _defineProperty(_assertThisInitialized(_this), "connections", []);
     _defineProperty(_assertThisInitialized(_this), "endpoint", void 0);
@@ -2756,6 +2776,29 @@ function (_Component) {
     return _this;
   }
   _createClass(Endpoint, [{
+    key: "getIdPrefix",
+    value: function getIdPrefix() {
+      return "_jsplumb_e";
+    }
+  }, {
+    key: "getTypeDescriptor",
+    value: function getTypeDescriptor() {
+      return "endpoint";
+    }
+  }, {
+    key: "getXY",
+    value: function getXY() {
+      return {
+        x: this.endpoint.x,
+        y: this.endpoint.y
+      };
+    }
+  }, {
+    key: "getDefaultOverlayKey",
+    value: function getDefaultOverlayKey() {
+      return "endpointOverlays";
+    }
+  }, {
     key: "_updateAnchorClass",
     value: function _updateAnchorClass() {
       var ac = this._anchor && this._anchor.cssClass;
@@ -2995,13 +3038,13 @@ var UINode = function UINode(instance, el) {
   this.el = el;
   _defineProperty(this, "group", void 0);
 };
-var UIGroup =
-function (_UINode) {
+var UIGroup = function (_UINode) {
   _inherits(UIGroup, _UINode);
+  var _super = _createSuper(UIGroup);
   function UIGroup(instance, el, options) {
     var _this;
     _classCallCheck(this, UIGroup);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(UIGroup).call(this, instance, el));
+    _this = _super.call(this, instance, el);
     _this.instance = instance;
     _defineProperty(_assertThisInitialized(_this), "children", []);
     _defineProperty(_assertThisInitialized(_this), "collapsed", false);
@@ -3240,8 +3283,7 @@ function (_UINode) {
   return UIGroup;
 }(UINode);
 
-var GroupManager =
-function () {
+var GroupManager = function () {
   function GroupManager(instance) {
     var _this = this;
     _classCallCheck(this, GroupManager);
@@ -3536,8 +3578,8 @@ function () {
           etg = et._jsPlumbParentGroup,
           etgcp = etg != null ? etg.collapseParent || etg : null;
       if (esgcp == null || etgcp == null || esgcp.id !== etgcp.id) {
-        var groupEl = group.el,
-            groupElId = this.instance.getId(groupEl);
+        var groupEl = group.el;
+            this.instance.getId(groupEl);
         this.instance.proxyConnection(conn, index, groupEl,
         function (conn, index) {
           return group.getEndpoint(conn, index);
@@ -3760,7 +3802,7 @@ function () {
                 target: el
               }), 1);
             }
-            var elId = _this7.instance.getId(el);
+            _this7.instance.getId(el);
             var newPosition = {
               x: elpos.x - cpos.x,
               y: elpos.y - cpos.y
@@ -3875,14 +3917,18 @@ function () {
   return GroupManager;
 }();
 
-var SelectionBase =
-function () {
+var SelectionBase = function () {
   function SelectionBase(instance, entries) {
     _classCallCheck(this, SelectionBase);
     this.instance = instance;
     this.entries = entries;
   }
   _createClass(SelectionBase, [{
+    key: "length",
+    get: function get() {
+      return this.entries.length;
+    }
+  }, {
     key: "each",
     value: function each(handler) {
       forEach(this.entries, function (e) {
@@ -4079,21 +4125,16 @@ function () {
       });
       return this;
     }
-  }, {
-    key: "length",
-    get: function get() {
-      return this.entries.length;
-    }
   }]);
   return SelectionBase;
 }();
 
-var EndpointSelection =
-function (_SelectionBase) {
+var EndpointSelection = function (_SelectionBase) {
   _inherits(EndpointSelection, _SelectionBase);
+  var _super = _createSuper(EndpointSelection);
   function EndpointSelection() {
     _classCallCheck(this, EndpointSelection);
-    return _possibleConstructorReturn(this, _getPrototypeOf(EndpointSelection).apply(this, arguments));
+    return _super.apply(this, arguments);
   }
   _createClass(EndpointSelection, [{
     key: "setEnabled",
@@ -4133,12 +4174,12 @@ function (_SelectionBase) {
   return EndpointSelection;
 }(SelectionBase);
 
-var ConnectionSelection =
-function (_SelectionBase) {
+var ConnectionSelection = function (_SelectionBase) {
   _inherits(ConnectionSelection, _SelectionBase);
+  var _super = _createSuper(ConnectionSelection);
   function ConnectionSelection() {
     _classCallCheck(this, ConnectionSelection);
-    return _possibleConstructorReturn(this, _getPrototypeOf(ConnectionSelection).apply(this, arguments));
+    return _super.apply(this, arguments);
   }
   _createClass(ConnectionSelection, [{
     key: "setDetachable",
@@ -4279,13 +4320,13 @@ function _clearElementIndex(id, array) {
     array.splice(idx, 1);
   }
 }
-var Viewport =
-function (_EventGenerator) {
+var Viewport = function (_EventGenerator) {
   _inherits(Viewport, _EventGenerator);
+  var _super = _createSuper(Viewport);
   function Viewport(instance) {
     var _this;
     _classCallCheck(this, Viewport);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Viewport).call(this));
+    _this = _super.call(this);
     _this.instance = instance;
     _defineProperty(_assertThisInitialized(_this), "_currentTransaction", null);
     _defineProperty(_assertThisInitialized(_this), "_sortedElements", {
@@ -4539,8 +4580,7 @@ function (_EventGenerator) {
   return Viewport;
 }(EventGenerator);
 
-var ConnectionDragSelector =
-function () {
+var ConnectionDragSelector = function () {
   function ConnectionDragSelector(selector, def) {
     var exclude = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     _classCallCheck(this, ConnectionDragSelector);
@@ -4563,13 +4603,13 @@ function () {
 }();
 var REDROP_POLICY_STRICT = "strict";
 var REDROP_POLICY_ANY = "any";
-var SourceSelector =
-function (_ConnectionDragSelect) {
+var SourceSelector = function (_ConnectionDragSelect) {
   _inherits(SourceSelector, _ConnectionDragSelect);
+  var _super = _createSuper(SourceSelector);
   function SourceSelector(selector, def, exclude) {
     var _this;
     _classCallCheck(this, SourceSelector);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(SourceSelector).call(this, selector, def, exclude));
+    _this = _super.call(this, selector, def, exclude);
     _this.def = def;
     _defineProperty(_assertThisInitialized(_this), "redrop", void 0);
     _this.redrop = def.def.redrop || REDROP_POLICY_STRICT;
@@ -4577,13 +4617,13 @@ function (_ConnectionDragSelect) {
   }
   return SourceSelector;
 }(ConnectionDragSelector);
-var TargetSelector =
-function (_ConnectionDragSelect2) {
+var TargetSelector = function (_ConnectionDragSelect2) {
   _inherits(TargetSelector, _ConnectionDragSelect2);
+  var _super2 = _createSuper(TargetSelector);
   function TargetSelector(selector, def, exclude) {
     var _this2;
     _classCallCheck(this, TargetSelector);
-    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(TargetSelector).call(this, selector, def, exclude));
+    _this2 = _super2.call(this, selector, def, exclude);
     _this2.def = def;
     return _this2;
   }
@@ -4651,8 +4691,7 @@ function isDynamic(a) {
 function getCurrentLocation(anchor) {
   return [anchor.currentLocation, anchor.locations[anchor.currentLocation]];
 }
-var LightweightRouter =
-function () {
+var LightweightRouter = function () {
   function LightweightRouter(instance) {
     var _this = this;
     _classCallCheck(this, LightweightRouter);
@@ -4784,9 +4823,9 @@ function () {
         return pos;
       }
       var _getCurrentLocation = getCurrentLocation(anchor),
-          _getCurrentLocation2 = _slicedToArray(_getCurrentLocation, 2),
-          _ = _getCurrentLocation2[0],
-          currentLoc = _getCurrentLocation2[1];
+          _getCurrentLocation2 = _slicedToArray(_getCurrentLocation, 2);
+          _getCurrentLocation2[0];
+          var currentLoc = _getCurrentLocation2[1];
       pos = this._computeSingleLocation(currentLoc, xy, wh, params);
       return this._setComputedPosition(anchor, pos, timestamp);
     }
@@ -4893,7 +4932,7 @@ function () {
         endpointsToPaint.add(listToAddTo[_i].c.endpoints[oIdx]);
       }
       {
-        var insertIdx = reverse ?  0 : listToAddTo.length;
+        var insertIdx = reverse ? 0 : listToAddTo.length;
         listToAddTo.splice(insertIdx, 0, values);
       }
       endpoint._continuousAnchorEdge = edgeId;
@@ -5423,24 +5462,13 @@ function removeManagedConnection(connection, sourceEl, targetEl) {
     }
   }
 }
-var JsPlumbInstance =
-function (_EventGenerator) {
+var JsPlumbInstance = function (_EventGenerator) {
   _inherits(JsPlumbInstance, _EventGenerator);
-  _createClass(JsPlumbInstance, [{
-    key: "defaultScope",
-    get: function get() {
-      return this.DEFAULT_SCOPE;
-    }
-  }, {
-    key: "currentZoom",
-    get: function get() {
-      return this._zoom;
-    }
-  }]);
+  var _super = _createSuper(JsPlumbInstance);
   function JsPlumbInstance(_instanceIndex, defaults) {
     var _this;
     _classCallCheck(this, JsPlumbInstance);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(JsPlumbInstance).call(this));
+    _this = _super.call(this);
     _this._instanceIndex = _instanceIndex;
     _defineProperty(_assertThisInitialized(_this), "defaults", void 0);
     _defineProperty(_assertThisInitialized(_this), "_initialDefaults", {});
@@ -5514,6 +5542,16 @@ function (_EventGenerator) {
     return _this;
   }
   _createClass(JsPlumbInstance, [{
+    key: "defaultScope",
+    get: function get() {
+      return this.DEFAULT_SCOPE;
+    }
+  }, {
+    key: "currentZoom",
+    get: function get() {
+      return this._zoom;
+    }
+  }, {
     key: "getContainer",
     value: function getContainer() {
       return this._container;
@@ -6895,13 +6933,13 @@ function gentleRound(n) {
   }
   return n;
 }
-var ArcSegment =
-function (_AbstractSegment) {
+var ArcSegment = function (_AbstractSegment) {
   _inherits(ArcSegment, _AbstractSegment);
+  var _super = _createSuper(ArcSegment);
   function ArcSegment(params) {
     var _this;
     _classCallCheck(this, ArcSegment);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(ArcSegment).call(this, params));
+    _this = _super.call(this, params);
     _defineProperty(_assertThisInitialized(_this), "type", ArcSegment.segmentType);
     _defineProperty(_assertThisInitialized(_this), "cx", void 0);
     _defineProperty(_assertThisInitialized(_this), "cy", void 0);
@@ -7048,13 +7086,13 @@ _defineProperty(ArcSegment, "segmentType", "Arc");
 
 var DEFAULT_WIDTH = 20;
 var DEFAULT_LENGTH = 20;
-var ArrowOverlay =
-function (_Overlay) {
+var ArrowOverlay = function (_Overlay) {
   _inherits(ArrowOverlay, _Overlay);
+  var _super = _createSuper(ArrowOverlay);
   function ArrowOverlay(instance, component, p) {
     var _this;
     _classCallCheck(this, ArrowOverlay);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(ArrowOverlay).call(this, instance, component, p));
+    _this = _super.call(this, instance, component, p);
     _this.instance = instance;
     _this.component = component;
     _defineProperty(_assertThisInitialized(_this), "width", void 0);
@@ -7145,13 +7183,13 @@ function isArrowOverlay(o) {
 }
 OverlayFactory.register(ArrowOverlay.type, ArrowOverlay);
 
-var PlainArrowOverlay =
-function (_ArrowOverlay) {
+var PlainArrowOverlay = function (_ArrowOverlay) {
   _inherits(PlainArrowOverlay, _ArrowOverlay);
+  var _super = _createSuper(PlainArrowOverlay);
   function PlainArrowOverlay(instance, component, p) {
     var _this;
     _classCallCheck(this, PlainArrowOverlay);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(PlainArrowOverlay).call(this, instance, component, p));
+    _this = _super.call(this, instance, component, p);
     _this.instance = instance;
     _defineProperty(_assertThisInitialized(_this), "type", PlainArrowOverlay.type);
     _this.foldback = 1;
@@ -7165,13 +7203,13 @@ function isPlainArrowOverlay(o) {
 }
 OverlayFactory.register("PlainArrow", PlainArrowOverlay);
 
-var DiamondOverlay =
-function (_ArrowOverlay) {
+var DiamondOverlay = function (_ArrowOverlay) {
   _inherits(DiamondOverlay, _ArrowOverlay);
+  var _super = _createSuper(DiamondOverlay);
   function DiamondOverlay(instance, component, p) {
     var _this;
     _classCallCheck(this, DiamondOverlay);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(DiamondOverlay).call(this, instance, component, p));
+    _this = _super.call(this, instance, component, p);
     _this.instance = instance;
     _defineProperty(_assertThisInitialized(_this), "type", DiamondOverlay.type);
     _this.length = _this.length / 2;
@@ -7186,13 +7224,13 @@ function isDiamondOverlay(o) {
 }
 OverlayFactory.register(DiamondOverlay.type, DiamondOverlay);
 
-var CustomOverlay =
-function (_Overlay) {
+var CustomOverlay = function (_Overlay) {
   _inherits(CustomOverlay, _Overlay);
+  var _super = _createSuper(CustomOverlay);
   function CustomOverlay(instance, component, p) {
     var _this;
     _classCallCheck(this, CustomOverlay);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(CustomOverlay).call(this, instance, component, p));
+    _this = _super.call(this, instance, component, p);
     _this.instance = instance;
     _this.component = component;
     _defineProperty(_assertThisInitialized(_this), "create", void 0);

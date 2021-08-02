@@ -4,6 +4,7 @@
     (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.jsPlumbCommon = {}));
 }(this, (function (exports) { 'use strict';
 
+    exports.AnchorLocations = void 0;
     (function (AnchorLocations) {
       AnchorLocations["Assign"] = "Assign";
       AnchorLocations["AutoDefault"] = "AutoDefault";
@@ -83,8 +84,7 @@
         ymax: -Infinity
       };
     }
-    var AbstractSegment =
-    function () {
+    var AbstractSegment = function () {
       function AbstractSegment(params) {
         _classCallCheck(this, AbstractSegment);
         this.params = params;

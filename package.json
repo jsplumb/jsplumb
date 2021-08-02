@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "5.0.0-RC10",
+  "version": "5.0.0-RC11",
   "workspaces": [
     "ts/*"
   ],
@@ -35,16 +35,22 @@
     "connectivity"
   ],
   "packages": [
-    "util", "common", "core", "connector-bezier", "connector-flowchart", "browser-ui", "browser-ui-lists"
+    "util",
+    "common",
+    "core",
+    "connector-bezier",
+    "connector-flowchart",
+    "browser-ui",
+    "browser-ui-lists"
   ],
   "packageNames": {
-    "@jsplumb/core":"jsPlumb",
-    "@jsplumb/util":"jsPlumbUtil",
-    "@jsplumb/common":"jsPlumbCommon",
-    "@jsplumb/browser-ui":"jsPlumbBrowserUI",
+    "@jsplumb/core": "jsPlumb",
+    "@jsplumb/util": "jsPlumbUtil",
+    "@jsplumb/common": "jsPlumbCommon",
+    "@jsplumb/browser-ui": "jsPlumbBrowserUI",
     "@jsplumb/browser-ui-lists": "jsPlumbBrowserUILists",
-    "@jsplumb/connector-bezier":"jsPlumbConnectorBezier",
-    "@jsplumb/connector-flowchart":"jsPlumbConnectorFlowchart"
+    "@jsplumb/connector-bezier": "jsPlumbConnectorBezier",
+    "@jsplumb/connector-flowchart": "jsPlumbConnectorFlowchart"
   },
   "author": "jsPlumb (hello@jsplumbtoolkit.com)",
   "license": "(MIT OR GPL-2.0)",

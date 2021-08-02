@@ -2,6 +2,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
+exports.AnchorLocations = void 0;
 (function (AnchorLocations) {
   AnchorLocations["Assign"] = "Assign";
   AnchorLocations["AutoDefault"] = "AutoDefault";
@@ -81,8 +82,7 @@ function EMPTY_BOUNDS() {
     ymax: -Infinity
   };
 }
-var AbstractSegment =
-function () {
+var AbstractSegment = function () {
   function AbstractSegment(params) {
     _classCallCheck(this, AbstractSegment);
     this.params = params;

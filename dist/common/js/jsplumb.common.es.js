@@ -78,8 +78,7 @@ function EMPTY_BOUNDS() {
     ymax: -Infinity
   };
 }
-var AbstractSegment =
-function () {
+var AbstractSegment = function () {
   function AbstractSegment(params) {
     _classCallCheck(this, AbstractSegment);
     this.params = params;
