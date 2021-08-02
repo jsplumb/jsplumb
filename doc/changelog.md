@@ -953,6 +953,115 @@ be supported on individual `draggable(..)` method calls.
 - The `Katavorio` library, which used to be a separate project, has now been incorporated into jsPlumb. At present there is nothing exposed on the window as we did with Mottle, but there could be.
 
  
+## 2.15.5
+
+December 14th 2020
+
+- Extra piece of cleanup for Endpoint/Connection canvases to avoid leaking memory via element refs.
+
+## 2.15.4
+
+December 12th 2020
+
+- Added missing `addOverlay` and `removeOverlay` methods on Connection in index.d.ts
+
+## 2.15.3
+
+December 8th 2020
+
+- Fix for infinite loop in `empty()` method (issue #997)
+
+## 2.15.2
+
+December 1st 2020
+
+- Further minor updates to index.d.ts, specifically the addition of a couple of missing return types.
+
+## 2.15.1
+
+November 27th 2020
+
+- A minor release that includes updates to index.d.ts to include methods/types for working with Groups
+
+## 2.15.0
+
+October 26th 2020
+
+### Breaking
+
+- `revalidate` now supports only a single element as argument, and returns a `RedrawResult` object, which contains a list of Connections
+and Endpoints that were repainted as a result of the call.
+
+### Non-breaking
+
+- When element rotated, fix issue where the original x/y locations for an anchor were being overwritten
+
+
+## 2.14.7
+
+October 15th 2020
+
+- additional unit testing for the setTarget method
+- added `destroy` method to jsPlumb class, which performs a reset and also sets a bunch of closure-wide variables to null.
+- switched a few functions from using closures to using members on the Anchor class
+- added support for rotating elements, using the `rotate(element:string|Element, degrees:number)` method of jsPlumb.
+
+## 2.14.6
+
+September 4th 2020
+
+- Internal changes to reference a Router for various methods rather than an AnchorManager. There is no functional change; this work was undertaken to assist in the 4.x rewrite.
+
+## 2.14.5
+
+July 27th 2020
+
+- Further updates to type defs for Connection and Endpoint - added setParameter/setParameters/getParameter/getParameters
+
+## 2.14.4
+
+July 27th 2020
+
+- change `parameters` to `Record<string, any>` in `EndpointOptions` in type definitions
+- add `parameters` to `ConnectParams` in type definitions
+
+## 2.14.3
+
+July 14th 2020
+
+- Backed out the change from 2.14.0 that dispensed with taking overlay placements/stroke width into account. In some cases browsers were choosing spurious values for stroke width with this setup.
+
+## 2.14.2
+
+July 12th 2020
+
+- Always use width/height of at least 1 pixel in SVG element. This is a proper fix for the issue from 2.14.0; don't use 2.14.1.
+
+## 2.14.1
+
+July 12th 2020
+
+- Fixed issue with SVG elements sometimes being assigned height/width of 0, in which case overflow is ignored.
+
+## 2.14.0
+
+July 11th 2020
+
+### Breaking
+
+- Refactored connection paint code to not take overlay placements or stroke width of connector into account when computing SVG bounds.  The `.jtk-connector` class in the `jsplumbtoolkit-defaults.css` file now has `overflow:visible`, which covers this. If you are upgrading from a prior version you should ensure this style is applied to your `.jtk-connector` elements.
+
+### Non-breaking
+
+- `doNotFireEvent` parameter in `deleteConnection` js doc switched to `fireEvent` (issue 932)
+- Internal refactoring of paint code to introduce the concept of a "router". No functional change.
+
+## 2.13.4
+
+July 9th 2020
+
+- Added missing `uuid` option to `EndpointOptions` in types. No change to the code.
+
 ## 2.13.3
 
 Jun 16th 2020
