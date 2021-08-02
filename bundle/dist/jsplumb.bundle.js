@@ -7019,8 +7019,8 @@ var jsPlumbBrowserUI = (function (exports) {
       key: "_internal_newEndpoint",
       value: function _internal_newEndpoint(params) {
         var _p = extend({}, params);
-        var managedElement = this.manage(_p.element);
-        _p.elementId = this.getId(_p.element);
+        var managedElement = this.manage(_p.element, _p.elementId);
+        _p.elementId = _p.elementId || this.getId(_p.element);
         _p.id = "ep_" + this._idstamp();
         var ep = new Endpoint(this, _p);
         addManagedEndpoint(managedElement, ep);
