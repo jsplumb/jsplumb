@@ -20,6 +20,9 @@ pp.module = "jsplumb.bundle.js"
 
 g.write(`${base}/dist/package.json`, JSON.stringify(pp, 2, 2))
 
-cp.execSync("rm package-lock.json",{ cwd: base, env: process.env, stdio: 'inherit' } )
-
-//rm -rf bundle/dist;rm -rf bundle/node_modules;cd bundle;npm i;rollup -c rollup.config.bundle.js;rm package-lock.json
+try {
+    cp.execSync("rm package-lock.json", {cwd: base, env: process.env, stdio: 'inherit'})
+}
+catch (e) {
+    console.log("No package-lock.json to delete; not fatal.")
+}
