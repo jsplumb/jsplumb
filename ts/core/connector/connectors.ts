@@ -1,6 +1,5 @@
 import {AbstractConnector} from "./abstract-connector"
 import {Constructable, Dictionary} from "@jsplumb/util"
-import { JsPlumbInstance } from ".."
 import {Connection} from "./connection-impl"
 
 const connectorMap:Dictionary<Constructable<AbstractConnector>> = {}

@@ -11,3 +11,10 @@ export declare type ConnectorWithOptions = {
 };
 export declare type ConnectorSpec = ConnectorId | ConnectorWithOptions;
 export declare type PaintAxis = "y" | "x";
+export interface Connector {
+    type: string;
+}
+export interface Geometry {
+    source: any;
+    target: any;
+}

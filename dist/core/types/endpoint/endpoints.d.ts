@@ -2,10 +2,7 @@ import { JsPlumbInstance } from "../core";
 import { Orientation } from "../factory/anchor-record-factory";
 import { Endpoint } from "./endpoint";
 import { Extents } from '@jsplumb/util';
-import { AnchorPlacement } from "@jsplumb/common";
-export interface EndpointRepresentationParams {
-    cssClass?: string;
-}
+import { AnchorPlacement, EndpointRepresentationParams } from "@jsplumb/common";
 /**
  * Superclass for all types of Endpoint. This class is renderer
  * agnostic, as are any subclasses of it.

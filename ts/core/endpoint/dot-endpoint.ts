@@ -1,14 +1,10 @@
-import {EndpointRepresentation, EndpointRepresentationParams} from "./endpoints"
+import {EndpointRepresentation } from "./endpoints"
 import {Orientation} from "../factory/anchor-record-factory"
 import {Endpoint} from "./endpoint"
 import {EndpointHandler} from "../factory/endpoint-factory"
-import {AnchorPlacement} from "@jsplumb/common"
+import {AnchorPlacement, DotEndpointParams} from "@jsplumb/common"
 
 export type ComputedDotEndpoint = [ number, number, number, number, number ]
-
-export interface DotEndpointParams extends EndpointRepresentationParams {
-    radius?:number
-}
 
 export class DotEndpoint extends EndpointRepresentation<ComputedDotEndpoint> {
 

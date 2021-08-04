@@ -1,10 +1,8 @@
-import { EndpointRepresentation, EndpointRepresentationParams } from "./endpoints";
+import { EndpointRepresentation } from "./endpoints";
 import { Endpoint } from "./endpoint";
 import { EndpointHandler } from "../factory/endpoint-factory";
+import { DotEndpointParams } from "@jsplumb/common";
 export declare type ComputedDotEndpoint = [number, number, number, number, number];
-export interface DotEndpointParams extends EndpointRepresentationParams {
-    radius?: number;
-}
 export declare class DotEndpoint extends EndpointRepresentation<ComputedDotEndpoint> {
     radius: number;
     defaultOffset: number;
