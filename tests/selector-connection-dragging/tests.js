@@ -49,7 +49,7 @@ var testSuite = function () {
         _jsPlumb.manage(d2)
         _jsPlumb.addTargetSelector("#d2")
 
-        let elDragged = false;
+        var elDragged = false;
         _jsPlumb.bind("drag:move", function() {
             elDragged = true
         })
@@ -68,6 +68,81 @@ var testSuite = function () {
 
         support.dragConnection(sourceNode, d2, true)
         equal(1, _jsPlumb.select().length, "still only one connection in the instance - the node itself is not a source")
+
+    })
+
+    test("addSourceSelector, scope, doesnt match", function() {
+        var sourceNode = makeSourceNode()
+        var zone = addZone(sourceNode, "zone1")
+        zone.setAttribute("data-jtk-scope", "FOO")
+
+        var d2 = support.addDiv("d2")
+        d2.className = "node"
+        _jsPlumb.manage(d2)
+        _jsPlumb.addTargetSelector("#d2")
+        d2.setAttribute("data-jtk-scope", "BAR")
+
+        _jsPlumb.addSourceSelector(".zone1", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart"
+        })
+
+        support.dragConnection(zone, d2, true)
+
+        equal(0, _jsPlumb.select().length, "zero connections in the instance, scopes did not match")
+
+    })
+
+    test("addSourceSelector, scope, does match", function() {
+        var sourceNode = makeSourceNode()
+        var zone = addZone(sourceNode, "zone1")
+        zone.setAttribute("data-jtk-scope", "FOO")
+
+        var d2 = support.addDiv("d2")
+        d2.className = "node"
+        _jsPlumb.manage(d2)
+        _jsPlumb.addTargetSelector("#d2")
+        d2.setAttribute("data-jtk-scope", "FOO")
+
+        _jsPlumb.addSourceSelector(".zone1", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart"
+        })
+
+        support.dragConnection(zone, d2, true)
+
+        equal(1, _jsPlumb.select().length, "one connections in the instance, scopes matched")
+
+    })
+
+    test("addSourceSelector, scope, doesnt match and then it does", function() {
+        var sourceNode = makeSourceNode()
+        var zone = addZone(sourceNode, "zone1")
+        zone.setAttribute("data-jtk-scope", "FOO")
+
+        var d2 = support.addDiv("d2")
+        d2.className = "node"
+        _jsPlumb.manage(d2)
+        _jsPlumb.addTargetSelector("#d2")
+        d2.setAttribute("data-jtk-scope", "BAR")
+
+        _jsPlumb.addSourceSelector(".zone1", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart"
+        })
+
+        support.dragConnection(zone, d2, true)
+
+        equal(0, _jsPlumb.select().length, "zero connections in the instance, scopes did not match")
+
+        d2.setAttribute("data-jtk-scope", "FOO")
+
+        support.dragConnection(zone, d2, true)
+
+        equal(1, _jsPlumb.select().length, "one connections in the instance, scopes matched after target updates")
 
     })
 
