@@ -10,7 +10,7 @@ import {
     EVENT_MOUSEDOWN,
     EVENT_MOUSEUP,
     EVENT_CONNECTION_ABORT,
-    EVENT_CONNECTION_DRAG
+    EVENT_CONNECTION_DRAG, ATTRIBUTE_JTK_SCOPE
 } from './constants'
 
 import {consume, createElement, findParent} from "./browser-util"
@@ -236,8 +236,16 @@ export class EndpointDragHandler implements DragHandler {
                 extend(tempEndpointParams, def)
                 tempEndpointParams.isTemporarySource = true
 
+                // if the definition declared a scope, use it
                 if (def.scope) {
                     tempEndpointParams.scope = def.scope
+                } else {
+                    // otherwise if the element itself declared a scope, use that
+                    const scopeFromElement  = eventTarget.getAttribute(ATTRIBUTE_JTK_SCOPE)
+                    if (scopeFromElement != null) {
+                        tempEndpointParams.scope = scopeFromElement
+                    }
+                    // otherwise we'll use the default scope
                 }
 
                 // what we want to do here is have `addEndpoint` contact the parameter extractor, because then we could use the same one
@@ -555,7 +563,14 @@ export class EndpointDragHandler implements DragHandler {
                 const targetZones = this.instance.getContainer().querySelectorAll(sourceDef.redrop === REDROP_POLICY_ANY ? SELECTOR_MANAGED_ELEMENT : sourceDef.selector)
                 forEach(targetZones, (el:Element) => {
 
-                    if (el.getAttribute(ATTRIBUTE_JTK_ENABLED) !== "false") {
+                    if (el.getAttribute(ATTRIBUTE_JTK_ENABLED) !== FALSE) {
+
+                        // if the target element declared a scope, test that it matches our current endpoint's scope
+                        const scopeFromElement  = el.getAttribute(ATTRIBUTE_JTK_SCOPE)
+                        if (scopeFromElement != null && scopeFromElement !== this.ep.scope) {
+                            return
+                        }
+
                         let d: any = {r: null, el}
                         d.targetEl = findParent(el as unknown as jsPlumbDOMElement, SELECTOR_MANAGED_ELEMENT, this.instance.getContainer(), true)
 
@@ -583,7 +598,13 @@ export class EndpointDragHandler implements DragHandler {
                 const targetZones = this.instance.getContainer().querySelectorAll(targetDef.selector)
                 forEach(targetZones, (el:Element) => {
 
-                    if (el.getAttribute(ATTRIBUTE_JTK_ENABLED) !== "false") {
+                    if (el.getAttribute(ATTRIBUTE_JTK_ENABLED) !== FALSE) {
+
+                        // if the target element declared a scope, test that it matches our current endpoint's scope
+                        const scopeFromElement  = el.getAttribute(ATTRIBUTE_JTK_SCOPE)
+                        if (scopeFromElement != null && scopeFromElement !== this.ep.scope) {
+                            return
+                        }
 
                         let d: any = {r: null, el}
 
