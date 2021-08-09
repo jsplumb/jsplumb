@@ -18,6 +18,7 @@ export function compoundEvent(stem:string, event:string, subevent?:string) {
 export const ATTRIBUTE_CONTAINER = "data-jtk-container"
 export const ATTRIBUTE_GROUP_CONTENT = "data-jtk-group-content"
 export const ATTRIBUTE_JTK_ENABLED = "data-jtk-enabled"
+export const ATTRIBUTE_JTK_SCOPE = "data-jtk-scope"
 
 export const ENDPOINT = "endpoint"
 export const ELEMENT = "element"
