@@ -514,6 +514,7 @@ function compoundEvent(stem, event, subevent) {
 var ATTRIBUTE_CONTAINER = "data-jtk-container";
 var ATTRIBUTE_GROUP_CONTENT = "data-jtk-group-content";
 var ATTRIBUTE_JTK_ENABLED = "data-jtk-enabled";
+var ATTRIBUTE_JTK_SCOPE = "data-jtk-scope";
 var ENDPOINT = "endpoint";
 var ELEMENT = "element";
 var CONNECTION = "connection";
@@ -2610,6 +2611,11 @@ var EndpointDragHandler = function () {
           tempEndpointParams.isTemporarySource = true;
           if (def.scope) {
             tempEndpointParams.scope = def.scope;
+          } else {
+            var scopeFromElement = eventTarget.getAttribute(ATTRIBUTE_JTK_SCOPE);
+            if (scopeFromElement != null) {
+              tempEndpointParams.scope = scopeFromElement;
+            }
           }
           var extractedParameters = def.parameterExtractor ? def.parameterExtractor(sourceEl, eventTarget) : {};
           tempEndpointParams = util.merge(tempEndpointParams, extractedParameters);
@@ -2833,7 +2839,11 @@ var EndpointDragHandler = function () {
         if (sourceDef != null) {
           var targetZones = this.instance.getContainer().querySelectorAll(sourceDef.redrop === core.REDROP_POLICY_ANY ? core.SELECTOR_MANAGED_ELEMENT : sourceDef.selector);
           util.forEach(targetZones, function (el) {
-            if (el.getAttribute(ATTRIBUTE_JTK_ENABLED) !== "false") {
+            if (el.getAttribute(ATTRIBUTE_JTK_ENABLED) !== common.FALSE) {
+              var scopeFromElement = el.getAttribute(ATTRIBUTE_JTK_SCOPE);
+              if (scopeFromElement != null && scopeFromElement !== _this.ep.scope) {
+                return;
+              }
               var d = {
                 r: null,
                 el: el
@@ -2863,7 +2873,11 @@ var EndpointDragHandler = function () {
         targetDefs.forEach(function (targetDef) {
           var targetZones = _this.instance.getContainer().querySelectorAll(targetDef.selector);
           util.forEach(targetZones, function (el) {
-            if (el.getAttribute(ATTRIBUTE_JTK_ENABLED) !== "false") {
+            if (el.getAttribute(ATTRIBUTE_JTK_ENABLED) !== common.FALSE) {
+              var scopeFromElement = el.getAttribute(ATTRIBUTE_JTK_SCOPE);
+              if (scopeFromElement != null && scopeFromElement !== _this.ep.scope) {
+                return;
+              }
               var d = {
                 r: null,
                 el: el
@@ -4882,6 +4896,7 @@ function ready(f) {
 exports.ATTRIBUTE_CONTAINER = ATTRIBUTE_CONTAINER;
 exports.ATTRIBUTE_GROUP_CONTENT = ATTRIBUTE_GROUP_CONTENT;
 exports.ATTRIBUTE_JTK_ENABLED = ATTRIBUTE_JTK_ENABLED;
+exports.ATTRIBUTE_JTK_SCOPE = ATTRIBUTE_JTK_SCOPE;
 exports.BrowserJsPlumbInstance = BrowserJsPlumbInstance;
 exports.CONNECTION = CONNECTION;
 exports.Collicat = Collicat;

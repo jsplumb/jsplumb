@@ -10288,6 +10288,7 @@ var jsPlumbBrowserUI = (function (exports) {
   var ATTRIBUTE_CONTAINER = "data-jtk-container";
   var ATTRIBUTE_GROUP_CONTENT = "data-jtk-group-content";
   var ATTRIBUTE_JTK_ENABLED = "data-jtk-enabled";
+  var ATTRIBUTE_JTK_SCOPE = "data-jtk-scope";
   var ENDPOINT = "endpoint";
   var ELEMENT = "element";
   var CONNECTION = "connection";
@@ -12384,6 +12385,11 @@ var jsPlumbBrowserUI = (function (exports) {
             tempEndpointParams.isTemporarySource = true;
             if (def.scope) {
               tempEndpointParams.scope = def.scope;
+            } else {
+              var scopeFromElement = eventTarget.getAttribute(ATTRIBUTE_JTK_SCOPE);
+              if (scopeFromElement != null) {
+                tempEndpointParams.scope = scopeFromElement;
+              }
             }
             var extractedParameters = def.parameterExtractor ? def.parameterExtractor(sourceEl, eventTarget) : {};
             tempEndpointParams = merge(tempEndpointParams, extractedParameters);
@@ -12607,7 +12613,11 @@ var jsPlumbBrowserUI = (function (exports) {
           if (sourceDef != null) {
             var targetZones = this.instance.getContainer().querySelectorAll(sourceDef.redrop === REDROP_POLICY_ANY ? SELECTOR_MANAGED_ELEMENT : sourceDef.selector);
             forEach(targetZones, function (el) {
-              if (el.getAttribute(ATTRIBUTE_JTK_ENABLED) !== "false") {
+              if (el.getAttribute(ATTRIBUTE_JTK_ENABLED) !== FALSE$1) {
+                var scopeFromElement = el.getAttribute(ATTRIBUTE_JTK_SCOPE);
+                if (scopeFromElement != null && scopeFromElement !== _this.ep.scope) {
+                  return;
+                }
                 var d = {
                   r: null,
                   el: el
@@ -12637,7 +12647,11 @@ var jsPlumbBrowserUI = (function (exports) {
           targetDefs.forEach(function (targetDef) {
             var targetZones = _this.instance.getContainer().querySelectorAll(targetDef.selector);
             forEach(targetZones, function (el) {
-              if (el.getAttribute(ATTRIBUTE_JTK_ENABLED) !== "false") {
+              if (el.getAttribute(ATTRIBUTE_JTK_ENABLED) !== FALSE$1) {
+                var scopeFromElement = el.getAttribute(ATTRIBUTE_JTK_SCOPE);
+                if (scopeFromElement != null && scopeFromElement !== _this.ep.scope) {
+                  return;
+                }
                 var d = {
                   r: null,
                   el: el
@@ -14658,6 +14672,7 @@ var jsPlumbBrowserUI = (function (exports) {
   exports.ATTRIBUTE_GROUP = ATTRIBUTE_GROUP;
   exports.ATTRIBUTE_GROUP_CONTENT = ATTRIBUTE_GROUP_CONTENT;
   exports.ATTRIBUTE_JTK_ENABLED = ATTRIBUTE_JTK_ENABLED;
+  exports.ATTRIBUTE_JTK_SCOPE = ATTRIBUTE_JTK_SCOPE;
   exports.ATTRIBUTE_MANAGED = ATTRIBUTE_MANAGED;
   exports.ATTRIBUTE_NOT_DRAGGABLE = ATTRIBUTE_NOT_DRAGGABLE;
   exports.ATTRIBUTE_SCOPE = ATTRIBUTE_SCOPE;

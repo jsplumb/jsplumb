@@ -510,6 +510,7 @@ function compoundEvent(stem, event, subevent) {
 var ATTRIBUTE_CONTAINER = "data-jtk-container";
 var ATTRIBUTE_GROUP_CONTENT = "data-jtk-group-content";
 var ATTRIBUTE_JTK_ENABLED = "data-jtk-enabled";
+var ATTRIBUTE_JTK_SCOPE = "data-jtk-scope";
 var ENDPOINT = "endpoint";
 var ELEMENT = "element";
 var CONNECTION = "connection";
@@ -2606,6 +2607,11 @@ var EndpointDragHandler = function () {
           tempEndpointParams.isTemporarySource = true;
           if (def.scope) {
             tempEndpointParams.scope = def.scope;
+          } else {
+            var scopeFromElement = eventTarget.getAttribute(ATTRIBUTE_JTK_SCOPE);
+            if (scopeFromElement != null) {
+              tempEndpointParams.scope = scopeFromElement;
+            }
           }
           var extractedParameters = def.parameterExtractor ? def.parameterExtractor(sourceEl, eventTarget) : {};
           tempEndpointParams = merge(tempEndpointParams, extractedParameters);
@@ -2829,7 +2835,11 @@ var EndpointDragHandler = function () {
         if (sourceDef != null) {
           var targetZones = this.instance.getContainer().querySelectorAll(sourceDef.redrop === REDROP_POLICY_ANY ? SELECTOR_MANAGED_ELEMENT : sourceDef.selector);
           forEach(targetZones, function (el) {
-            if (el.getAttribute(ATTRIBUTE_JTK_ENABLED) !== "false") {
+            if (el.getAttribute(ATTRIBUTE_JTK_ENABLED) !== FALSE$1) {
+              var scopeFromElement = el.getAttribute(ATTRIBUTE_JTK_SCOPE);
+              if (scopeFromElement != null && scopeFromElement !== _this.ep.scope) {
+                return;
+              }
               var d = {
                 r: null,
                 el: el
@@ -2859,7 +2869,11 @@ var EndpointDragHandler = function () {
         targetDefs.forEach(function (targetDef) {
           var targetZones = _this.instance.getContainer().querySelectorAll(targetDef.selector);
           forEach(targetZones, function (el) {
-            if (el.getAttribute(ATTRIBUTE_JTK_ENABLED) !== "false") {
+            if (el.getAttribute(ATTRIBUTE_JTK_ENABLED) !== FALSE$1) {
+              var scopeFromElement = el.getAttribute(ATTRIBUTE_JTK_SCOPE);
+              if (scopeFromElement != null && scopeFromElement !== _this.ep.scope) {
+                return;
+              }
               var d = {
                 r: null,
                 el: el
@@ -4875,4 +4889,4 @@ function ready(f) {
   _do();
 }
 
-export { ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP_CONTENT, ATTRIBUTE_JTK_ENABLED, BrowserJsPlumbInstance, CONNECTION, Collicat, Drag, ELEMENT, ELEMENT_DIV, ENDPOINT, EVENT_BEFORE_START, EVENT_CLICK, EVENT_CONNECTION_ABORT, EVENT_CONNECTION_CLICK, EVENT_CONNECTION_DBL_CLICK, EVENT_CONNECTION_DBL_TAP, EVENT_CONNECTION_DRAG, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_TAP, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_DRAG, EVENT_DRAG_MOVE, EVENT_DRAG_START, EVENT_DRAG_STOP, EVENT_DROP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_DBL_TAP, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_TAP, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_DBL_TAP, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_TAP, EVENT_FOCUS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_OUT, EVENT_OVER, EVENT_REVERT, EVENT_START, EVENT_STOP, EVENT_TAP, ElementDragHandler, EventManager, PROPERTY_POSITION, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP, SELECTOR_GROUP_CONTAINER, SELECTOR_OVERLAY, addClass, compoundEvent, consume, createElement, createElementNS, findParent, getClass, getEventSource, getPositionOnElement, getTouch, hasClass, isArrayLike, isInsideParent, isNodeList, matchesSelector$1 as matchesSelector, newInstance, offsetRelativeToRoot, pageLocation, ready, registerEndpointRenderer, removeClass, size, toggleClass, touchCount, touches };
+export { ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP_CONTENT, ATTRIBUTE_JTK_ENABLED, ATTRIBUTE_JTK_SCOPE, BrowserJsPlumbInstance, CONNECTION, Collicat, Drag, ELEMENT, ELEMENT_DIV, ENDPOINT, EVENT_BEFORE_START, EVENT_CLICK, EVENT_CONNECTION_ABORT, EVENT_CONNECTION_CLICK, EVENT_CONNECTION_DBL_CLICK, EVENT_CONNECTION_DBL_TAP, EVENT_CONNECTION_DRAG, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_TAP, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_DRAG, EVENT_DRAG_MOVE, EVENT_DRAG_START, EVENT_DRAG_STOP, EVENT_DROP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_DBL_TAP, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_TAP, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_DBL_TAP, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_TAP, EVENT_FOCUS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_OUT, EVENT_OVER, EVENT_REVERT, EVENT_START, EVENT_STOP, EVENT_TAP, ElementDragHandler, EventManager, PROPERTY_POSITION, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP, SELECTOR_GROUP_CONTAINER, SELECTOR_OVERLAY, addClass, compoundEvent, consume, createElement, createElementNS, findParent, getClass, getEventSource, getPositionOnElement, getTouch, hasClass, isArrayLike, isInsideParent, isNodeList, matchesSelector$1 as matchesSelector, newInstance, offsetRelativeToRoot, pageLocation, ready, registerEndpointRenderer, removeClass, size, toggleClass, touchCount, touches };

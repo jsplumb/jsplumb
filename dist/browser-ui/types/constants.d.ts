@@ -2,6 +2,7 @@ export declare function compoundEvent(stem: string, event: string, subevent?: st
 export declare const ATTRIBUTE_CONTAINER = "data-jtk-container";
 export declare const ATTRIBUTE_GROUP_CONTENT = "data-jtk-group-content";
 export declare const ATTRIBUTE_JTK_ENABLED = "data-jtk-enabled";
+export declare const ATTRIBUTE_JTK_SCOPE = "data-jtk-scope";
 export declare const ENDPOINT = "endpoint";
 export declare const ELEMENT = "element";
 export declare const CONNECTION = "connection";
