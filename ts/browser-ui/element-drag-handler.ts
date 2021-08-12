@@ -137,8 +137,7 @@ export class ElementDragHandler implements DragHandler {
     }
 
     //
-    // TODO this should return a map of element ids to drop groups, ie. we should support dropping multiple elements on multiple
-    // groups in any one operation.
+    //
     //
     protected getDropGroup():IntersectingGroup|null {
         // figure out if there is a group that we're hovering on.
@@ -165,9 +164,15 @@ export class ElementDragHandler implements DragHandler {
 
         dropGroup = dropGroup || this.getDropGroup()
 
-        // add the element to the group
+        // add the element(s) to the group
         if (dropGroup != null) {
             this.instance.groupManager.addToGroup(dropGroup.groupLoc.group, false, dropGroup.intersectingElement)
+
+            this._dragSelectionOffsets.forEach( (v:[PointXY, jsPlumbDOMElement], k:string) => {
+                if (v[1] !== params.el) {
+                    this.instance.groupManager.addToGroup(dropGroup.groupLoc.group, false, v[1])
+                }
+            })
         }
 
         /**
@@ -208,11 +213,9 @@ export class ElementDragHandler implements DragHandler {
                     x:params.finalPos.x + v[0].x,
                     y:params.finalPos.y + v[0].y
                 }
-                _one(v[1], pp)
+                _one(v[1], pp, v[1]._jsPlumbParentGroup, dropGroup)
             }
         })
-
-
 
         this._cleanup()
     }
