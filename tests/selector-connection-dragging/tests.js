@@ -197,7 +197,7 @@ var testSuite = function () {
         _jsPlumb.manage(d2)
         _jsPlumb.addTargetSelector("#d2")
 
-        let elDragged = false;
+        var elDragged = false;
         _jsPlumb.bind("drag:move", function() {
             elDragged = true
         })
