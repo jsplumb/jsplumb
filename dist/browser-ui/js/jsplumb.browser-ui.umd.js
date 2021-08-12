@@ -2103,6 +2103,11 @@
         dropGroup = dropGroup || this.getDropGroup();
         if (dropGroup != null) {
           this.instance.groupManager.addToGroup(dropGroup.groupLoc.group, false, dropGroup.intersectingElement);
+          this._dragSelectionOffsets.forEach(function (v, k) {
+            if (v[1] !== params.el) {
+              _this.instance.groupManager.addToGroup(dropGroup.groupLoc.group, false, v[1]);
+            }
+          });
         }
         var _one = function _one(_el, pos, originalGroup, dropGroup) {
           var redrawResult = _this.instance.setElementPosition(_el, pos.x, pos.y);
@@ -2132,7 +2137,7 @@
               x: params.finalPos.x + v[0].x,
               y: params.finalPos.y + v[0].y
             };
-            _one(v[1], pp);
+            _one(v[1], pp, v[1]._jsPlumbParentGroup, dropGroup);
           }
         });
         this._cleanup();
