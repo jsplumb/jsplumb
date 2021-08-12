@@ -163,8 +163,6 @@ var testSuite = function () {
 
         c_noparent = support.addDiv("c_noparent", null, "w", 1000, 1000);
 
-      //  _jsPlumb.draggable([c1_1,c1_2,c2_1,c2_2,c3_1,c3_2,c4_1,c4_2,c5_1,c5_2, c6_1, c6_2]);
-
         g1 = _addGroup(_jsPlumb, "one", c1, [c1_1,c1_2], { constrain:true, droppable:false});
         g2 = _addGroup(_jsPlumb, "two", c2, [c2_1,c2_2], {dropOverride:true});
         g3 = _addGroup(_jsPlumb, "three", c3, [c3_1,c3_2],{ revert:false });
@@ -363,7 +361,7 @@ var testSuite = function () {
 
     });
 
-    test("adding to/removing from group, test that elements are managed correctly and their `group` flag is set.", function() {
+    test("adding to/removing from group programmatically, test that elements are managed correctly and their `group` flag is set.", function() {
         var gg = support.addDiv("group1")
         gg.style.width = "600px";
         gg.style.height = "600px";
@@ -400,7 +398,7 @@ var testSuite = function () {
 
     });
 
-    test("adding to/removing from group, test that elements are managed correctly and their `group` flag is set - nested groups", function() {
+    test("adding to/removing from group programnmatically, test that elements are managed correctly and their `group` flag is set - nested groups", function() {
         var gg = support.addDiv("group1")
         gg.style.width = "600px";
         gg.style.height = "600px";
@@ -440,10 +438,47 @@ var testSuite = function () {
 
     });
 
+    test("groups, dropping onto a group, single node", function() {
+
+        var groupEl = support.addDiv("container1", null, "container", 0, 50, 300, 300);
+        var child1 = support.addDiv("child1", null, "w", 400, 400);
+        var child2 = support.addDiv("child2", null, "w", 880, 830);
+
+        _jsPlumb.manageAll([groupEl, child1, child2])
+
+        var group = _addGroup(_jsPlumb, "one", groupEl, []);
+        equal(group.children.length, 0, "0 members in group at start");
+
+
+        _dragToGroup(_jsPlumb, child1, "one");
+
+        equal(group.children.length, 1, "1 member in group after node drag/drop");
+
+    });
+
+    test("groups, dropping onto a group, multiple nodes", function() {
+
+        var groupEl = support.addDiv("container1", null, "container", 0, 50, 300, 300);
+        var child1 = support.addDiv("child1", null, "w", 400, 400);
+        var child2 = support.addDiv("child2", null, "w", 880, 830);
+
+        _jsPlumb.manageAll([groupEl, child1, child2])
+
+        var group = _addGroup(_jsPlumb, "one", groupEl, []);
+        equal(group.children.length, 0, "0 members in group at start");
+
+        // add child2 to the drag selection. when child1 is dragged it will be dragged too, and it should be dropped into the group also.
+        _jsPlumb.addToDragSelection(child2)
+
+        _dragToGroup(_jsPlumb, child1, "one");
+
+        equal(group.children.length, 2, " 2 members in group after node drag/drop because 2 members in the drag selection");
+
+    });
+
+
     test("groups, dragging between groups, take one", function() {
         _setupGroups();
-        var els;
-
         equal(_jsPlumb.getGroup("four").children.length, 2, "2 members in group four at start");
 
         // drag 4_1 to group 3
@@ -760,8 +795,7 @@ var testSuite = function () {
         _jsPlumb.collapseGroup("three");
     });
 
-    test("drop element on collapsed group", function()
-    {
+    test("drop on collapsed group", function() {
         _setupGroups(true);
 
         equal(_jsPlumb.select().length, 0, "0 connections to start");
@@ -808,9 +842,6 @@ var testSuite = function () {
         equal(c3.proxies[1].originalEp.element.id, "c5_1", "target in connection dropped on collapsed group has been correctly proxied");
 
         equal(_jsPlumb.select().length, 3, "3 connections in total");
-
-
-
 
     });
 
