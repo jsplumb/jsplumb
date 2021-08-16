@@ -222,13 +222,11 @@ function getConstrainingRectangle(el:jsPlumbDOMElement):{w:number, h:number} {
     return { w:el.parentNode.offsetWidth + el.parentNode.scrollLeft, h:el.parentNode.offsetHeight + el.parentNode.scrollTop}
 }
 
-enum ContainmentTypes {
+export enum ContainmentType {
     notNegative = "notNegative",
     parent = "parent",
     parentEnclosed = "parentEnclosed"
 }
-
-export type ContainmentType = keyof typeof ContainmentTypes
 
 export interface DragHandlerOptions {
     selector?:string
