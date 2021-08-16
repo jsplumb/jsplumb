@@ -14,13 +14,12 @@ import {
     GhostProxyGenerator
 } from "./collicat"
 
-
+import {DragSelection, CLASS_DRAG_SELECTED} from "./drag-selection"
 
 export const CLASS_DELEGATED_DRAGGABLE = "jtk-delegated-draggable"
 export const CLASS_DRAGGABLE = "jtk-draggable"
 export const CLASS_DRAG_CONTAINER = "jtk-drag"
 export const CLASS_GHOST_PROXY = "jtk-ghost-proxy"
-export const CLASS_DRAG_SELECTED = "jtk-drag-selected"
 export const CLASS_DRAG_ACTIVE = "jtk-drag-active"
 export const CLASS_DRAGGED = "jtk-dragged"
 export const CLASS_DRAG_HOVER = "jtk-drag-hover"
@@ -69,7 +68,8 @@ export class DragManager {
 
     private _filtersToAdd:Array<DragFilterSpec> = []
 
-    constructor(protected instance:BrowserJsPlumbInstance, options?:DragManagerOptions) {
+
+    constructor(protected instance:BrowserJsPlumbInstance, protected dragSelection:DragSelection, options?:DragManagerOptions) {
 
         // create a delegated drag handler
         this.collicat = new Collicat({
