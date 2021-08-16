@@ -258,7 +258,7 @@ export class GroupManager<E> {
 
     // it would be nice to type `_el` as an element here, but the type of the element is currently specified by the
     // concrete implementation of jsplumb (of which there is 'DOM',  a browser implementation, at the moment.)
-    orphan(el:E, doNotTransferToAncestor:boolean):[string, PointXY] {
+    orphan(el:E, doNotTransferToAncestor:boolean):{id:string, pos:PointXY} {
         const jel = el as unknown as jsPlumbElement<E>
         if (jel._jsPlumbParentGroup) {
             const currentParent = jel._jsPlumbParentGroup
@@ -280,7 +280,7 @@ export class GroupManager<E> {
 
             this.instance.setPosition(el, pos)
             delete jel._jsPlumbParentGroup
-            return [id, pos]
+            return {id, pos}
         }
     }
 
