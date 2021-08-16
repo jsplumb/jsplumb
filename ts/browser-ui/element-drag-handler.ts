@@ -1,6 +1,6 @@
 import {
     CLASS_DRAG_ACTIVE,
-    CLASS_DRAG_HOVER, CLASS_DRAG_SELECTED,
+    CLASS_DRAG_HOVER,
     CLASS_DRAGGED,
     DragHandler
 } from "./drag-manager"
@@ -13,7 +13,7 @@ import {
 import {BrowserJsPlumbInstance, DragGroupSpec} from "./browser-jsplumb-instance"
 import { jsPlumbDOMElement} from './element-facade'
 
-import {DragEventParams,Drag,DragStopEventParams} from "./collicat"
+import {DragEventParams, Drag, DragStopEventParams, isInsideParent} from "./collicat"
 import {
     JsPlumbInstance,
     RedrawResult,
@@ -35,6 +35,7 @@ import {
     Size,
     intersects
 } from "@jsplumb/util"
+import {DragSelection} from "./drag-selection"
 
 export type IntersectingGroup = {
     groupLoc:GroupLocation
@@ -69,7 +70,7 @@ export interface DragStopPayload extends DragPayload {
     r:RedrawResult
     dropGroup?:UIGroup<Element>
     originalGroup?:UIGroup<Element>
-    draggedOutOfGroup:boolean
+    //draggedOutOfGroup:boolean
 }
 
 /**
@@ -120,16 +121,12 @@ export class ElementDragHandler implements DragHandler {
     private _currentDragGroupOffsets:Map<string, [PointXY, jsPlumbDOMElement]> = new Map()
     private _currentDragGroupSizes:Map<string, Size> = new Map()
 
-    private _dragSelection: Array<jsPlumbDOMElement> = []
-    private _dragSelectionOffsets:Map<string, [PointXY, jsPlumbDOMElement]> = new Map()
-    private _dragSizes:Map<string, Size> = new Map()
-
     private _dragPayload:Record<string, any> = null
 
     protected drag:Drag
     originalPosition:PointXY
 
-    constructor(protected instance:BrowserJsPlumbInstance) {}
+    constructor(protected instance:BrowserJsPlumbInstance, protected _dragSelection:DragSelection) {}
 
     onDragInit(el:Element):Element { return null; }
     onDragAbort(el: Element):void {
@@ -168,9 +165,9 @@ export class ElementDragHandler implements DragHandler {
         if (dropGroup != null) {
             this.instance.groupManager.addToGroup(dropGroup.groupLoc.group, false, dropGroup.intersectingElement)
 
-            this._dragSelectionOffsets.forEach( (v:[PointXY, jsPlumbDOMElement], k:string) => {
-                if (v[1] !== params.el) {
-                    this.instance.groupManager.addToGroup(dropGroup.groupLoc.group, false, v[1])
+            this._dragSelection.each((el, id, o, s) => {
+                if (el !== params.el) {
+                    this.instance.groupManager.addToGroup(dropGroup.groupLoc.group, false, el)
                 }
             })
         }
@@ -194,7 +191,7 @@ export class ElementDragHandler implements DragHandler {
                 dropGroup: dropGroup != null ? dropGroup.groupLoc.group : null,
                 originalGroup,
                 payload:this._dragPayload,
-                draggedOutOfGroup
+                //draggedOutOfGroup
             })
 
             this.instance.removeClass(_el, CLASS_DRAGGED)
@@ -207,13 +204,13 @@ export class ElementDragHandler implements DragHandler {
         _one(dragElement,  params.finalPos, originalGroup, dropGroup)
 
         // compute the final positions for all the other elements in the drag, fire events etc.
-        this._dragSelectionOffsets.forEach( (v:[PointXY, jsPlumbDOMElement], k:string) => {
-            if (v[1] !== params.el) {
+        this._dragSelection.each((el:jsPlumbDOMElement, id:string, o:PointXY, s:Size) => {
+            if (el !== params.el) {
                 const pp = {
-                    x:params.finalPos.x + v[0].x,
-                    y:params.finalPos.y + v[0].y
+                    x:params.finalPos.x + o.x,
+                    y:params.finalPos.y + o.y
                 }
-                _one(v[1], pp, v[1]._jsPlumbParentGroup, dropGroup)
+                _one(el, pp, el._jsPlumbParentGroup, dropGroup)
             }
         })
 
@@ -231,8 +228,8 @@ export class ElementDragHandler implements DragHandler {
         this.instance.hoverSuspended = false
 
         this._dragOffset = null
-        this._dragSelectionOffsets.clear()
-        this._dragSizes.clear()
+
+        this._dragSelection.reset()
 
         this._dragPayload = null
 
@@ -303,15 +300,11 @@ export class ElementDragHandler implements DragHandler {
             })
         }
 
-        const elBounds = { x:ui.x, y:ui.y, w:elSize.w, h:elSize.h }
+        const elBounds:BoundingBox = { x:ui.x, y:ui.y, w:elSize.w, h:elSize.h }
         _one(el, elBounds, params.e)
 
-        this._dragSelectionOffsets.forEach((v:[PointXY, jsPlumbDOMElement], k:string) => {
-            const s = this._dragSizes.get(k)
-            let _b:BoundingBox = {x:elBounds.x + v[0].x, y:elBounds.y + v[0].y, w:s.w, h:s.h}
-            v[1].style.left = _b.x + "px"
-            v[1].style.top = _b.y + "px"
-            _one(v[1], _b, params.e)
+        this._dragSelection.positionElements(elBounds, (el:jsPlumbDOMElement, id:string, s:Size, b:BoundingBox)=>{
+            _one(el, b, params.e)
         })
 
         this._currentDragGroupOffsets.forEach((v:[PointXY, jsPlumbDOMElement], k:string) => {
@@ -348,15 +341,8 @@ export class ElementDragHandler implements DragHandler {
             this._intersectingGroups.length = 0
             this.instance.hoverSuspended = true
 
-            // reset the drag selection offsets array
-            this._dragSelectionOffsets.clear()
-            this._dragSizes.clear()
-            forEach(this._dragSelection,(jel:jsPlumbDOMElement) => {
-                let id = this.instance.getId(jel)
-                let off = this.instance.getOffset(jel)
-                this._dragSelectionOffsets.set(id, [ { x:off.x- elOffset.x, y:off.y - elOffset.y }, jel])
-                this._dragSizes.set(id, this.instance.getSize(jel))
-            })
+            // refresh the drag selection offsets
+            this._dragSelection.refreshOffsets(elOffset)
 
             const _one = (_el:jsPlumbDOMElement):any => {
 
@@ -450,45 +436,6 @@ export class ElementDragHandler implements DragHandler {
         return cont
     }
 
-    addToDragSelection(el:Element) {
-
-        const domElement = el as unknown as jsPlumbDOMElement
-        if (this._dragSelection.indexOf(domElement) === -1) {
-            this.instance.addClass(el, CLASS_DRAG_SELECTED)
-            this._dragSelection.push(domElement)
-        }
-    }
-
-    clearDragSelection() {
-        forEach(this._dragSelection,(el) => this.instance.removeClass(el, CLASS_DRAG_SELECTED))
-        this._dragSelection.length = 0
-    }
-
-    removeFromDragSelection(el:Element) {
-        const domElement = el as unknown as jsPlumbDOMElement
-        this._dragSelection = this._dragSelection.filter((e:jsPlumbDOMElement) => {
-            const out = e !== domElement
-            if (!out) {
-                this.instance.removeClass(e, CLASS_DRAG_SELECTED)
-            }
-            return out
-        })
-    }
-
-    toggleDragSelection(el:Element) {
-        const domElement = el as unknown as jsPlumbDOMElement
-        const isInSelection = this._dragSelection.indexOf(domElement) !== -1
-        if (isInSelection) {
-            this.removeFromDragSelection(el)
-        } else {
-            this.addToDragSelection(el)
-        }
-    }
-
-    getDragSelection():Array<Element> {
-        return this._dragSelection
-    }
-
     addToDragGroup(spec:DragGroupSpec, ...els:Array<Element>) {
 
         const details = decodeDragGroupSpec(this.instance, spec)
@@ -536,6 +483,45 @@ export class ElementDragHandler implements DragHandler {
                 }
             }
         })
+    }
+
+    /**
+     * Perhaps prune or orphan the element represented by the given drag params.
+     * @param params
+     * @param doNotTransferToAncestor Used when dealing with nested groups. When true, it means remove the element from any groups; when false, which is
+     * the default, elements that are orphaned will be added to this group's ancestor, if it has one.
+     * @param isDefinitelyNotInsideParent Used internally when this method is called and we've already done an intersections test. This flag saves us repeating the calculation.
+     * @private
+     */
+    protected _pruneOrOrphan(params:DragStopEventParams, doNotTransferToAncestor:boolean, isDefinitelyNotInsideParent:boolean):[string, PointXY] {
+
+        const jel = params.el as unknown as jsPlumbDOMElement
+        let orphanedPosition = null
+        if (isDefinitelyNotInsideParent || !isInsideParent(this.instance, jel, params.pos)) {
+            let group = jel._jsPlumbParentGroup
+            if (group.prune) {
+                if (jel._isJsPlumbGroup) {
+                    // remove the group from the instance
+                    this.instance.removeGroup(jel._jsPlumbGroup)
+                } else {
+                    // instruct the group to remove the element from itself and also from the DOM.
+                    group.remove(params.el, true)
+                }
+
+            } else if (group.orphan) {
+                orphanedPosition = this.instance.groupManager.orphan(params.el, doNotTransferToAncestor)
+                if (jel._isJsPlumbGroup) {
+                    // remove the nested group from the parent
+                    group.removeGroup(jel._jsPlumbGroup)
+                } else {
+                    // remove the element from the group's DOM element.
+                    group.remove(params.el)
+                }
+
+            }
+        }
+
+        return orphanedPosition
     }
 
 }
