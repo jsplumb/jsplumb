@@ -558,7 +558,7 @@ var testSuite = function () {
 
     });
 
-    test("dragging nodes out of groups", function() {
+    test("dragging nodes out of groups, single nodes", function() {
         _setupGroups();
 
         var groupOneSize = getGroupSize("one");
@@ -602,6 +602,74 @@ var testSuite = function () {
         support.dragtoDistantLand(c5_2);
         equal(_jsPlumb.getGroup("five").children.length, 1, "1 member in group five");
         ok(c5_2.parentNode != null, "c5_2 still in DOM");
+    });
+
+    test("dragging nodes out of groups, multiple nodes", function() {
+        _setupGroups();
+
+        var groupOneSize = getGroupSize("one");
+        var groupTwoSize = getGroupSize("two");
+        var c1_1_size = getNodeSize(c1_1);
+        var c1_2_size = getNodeSize(c1_2);
+        var c2_2_size = getNodeSize(c2_2);
+
+        _jsPlumb.addToDragSelection(c1_1)
+        // try dragging 1_2 (and 1_1) right out of the box and dropping it. it should not work: c1 has constrain switched on.
+        // 1_2 will end up in the bottom right corner of the group.
+        //var c12o = _jsPlumb.getOffset(c1_2);
+        support.dragtoDistantLand(c1_2);
+        equal(_jsPlumb.getGroup("one").children.length, 2, "2 members in group one");
+        // check the nodes have not actually moved.
+        var c1_2_pos = getNodePosition(c1_2);
+        equal(groupOneSize.w - c1_2_size.w, c1_2_pos[0], "c1_2 left position constrained by parent");
+        equal(groupOneSize.h - c1_2_size.h, c1_2_pos[1], "c1_2 top position constrained by parent");
+
+        var c1_1_pos = getNodePosition(c1_2);
+        equal(groupOneSize.w - c1_1_size.w, c1_1_pos[0], "c1_1 left position constrained by parent");
+        equal(groupOneSize.h - c1_1_size.h, c1_1_pos[1], "c1_1 top position constrained by parent");
+
+        _jsPlumb.clearDragSelection()
+        _jsPlumb.addToDragSelection(c2_1)
+        // try dragging 2_2 right out of the box and dropping it. g2 has dropOverride:true so this should not be possible.
+        var c2_2_pos = getNodePosition(c2_2);
+        var c2_1_pos = getNodePosition(c2_1);
+        support.dragtoDistantLand(c2_2);
+        equal(_jsPlumb.getGroup("two").children.length, 2, "2 members in group two");
+        // check the node position
+        var c2_2_pos2 = getNodePosition(c2_2);
+        ok(positionsEqual(c2_2_pos, c2_2_pos2), "c2_2 not moved");
+        var c2_1_pos2 = getNodePosition(c2_1);
+        ok(positionsEqual(c2_1_pos, c2_1_pos2), "c2_1 not moved");
+
+        // c3, should allow nodes to be dropped outside (but not removed)
+        _jsPlumb.clearDragSelection()
+        _jsPlumb.addToDragSelection(c3_1)
+        var c32o = getNodePosition(c3_2);
+        var c31o = getNodePosition(c3_1);
+        support.dragtoDistantLand(c3_2);
+        equal(_jsPlumb.getGroup("three").children.length, 2, "2 members in group three");
+        // check the node has moved. but just not removed from the group.
+        var c32o2 = getNodePosition(c3_2);
+        ok(positionsNotEqual(c32o, c32o2), "left and top positions changed for node dropped outside of group 3");
+        var c31o2 = getNodePosition(c3_1);
+        ok(positionsNotEqual(c31o, c31o2), "left and top positions changed for other node dropped outside of group 3");
+
+        // c4 prunes nodes on drop outside
+        _jsPlumb.clearDragSelection()
+        _jsPlumb.addToDragSelection(c4_1)
+        //var c32o = getNodePosition(c3_2);
+        support.dragtoDistantLand(c4_2);
+        equal(_jsPlumb.getGroup("four").children.length, 0, "0 members in group four - they were both dragged out.");
+        ok(c4_2.parentNode == null, "c4_2 removed from DOM");
+        ok(c4_1.parentNode == null, "c4_1 removed from DOM");
+
+        // c5 orphans nodes on drop outside (remove from group but not from DOM)
+        _jsPlumb.clearDragSelection()
+        _jsPlumb.addToDragSelection(c5_1)
+        support.dragtoDistantLand(c5_2);
+        equal(_jsPlumb.getGroup("five").children.length, 0, "0 members in group five - they were both dragged out");
+        ok(c5_2.parentNode != null, "c5_2 still in DOM");
+        ok(c5_1.parentNode != null, "c5_1 still in DOM");
     });
 
     /**
