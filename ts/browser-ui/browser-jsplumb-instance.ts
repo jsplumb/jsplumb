@@ -322,11 +322,6 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
                 }
 
                 return {x, y}
-            },
-            revertFunction:(dragEl:Element, pos:PointXY):boolean => {
-                const _el = <any>dragEl
-                // if drag el not removed from DOM (pruned by a group), and it has a group which has revert:true, then revert.
-                return _el.parentNode != null && _el._jsPlumbParentGroup && _el._jsPlumbParentGroup.revert ? !isInsideParent(this, _el, pos) : false
             }
         }
         this.dragManager.addHandler(new GroupDragHandler(this, this.dragSelection), this.groupDragOptions)
