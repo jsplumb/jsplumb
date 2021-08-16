@@ -121,6 +121,7 @@ import {
     EVENT_CONNECTION_DBL_TAP,
     EVENT_CONNECTION_TAP, EVENT_CLICK, ENDPOINT, CONNECTION, compoundEvent
 } from "./constants"
+import {DragSelection} from "./drag-selection"
 
 export interface UIComponent {
     canvas: HTMLElement
@@ -236,6 +237,7 @@ function getCustomElement(o:CustomOverlay):jsPlumbDOMElement {
  */
 export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
+    private dragSelection:DragSelection
     dragManager:DragManager
     _connectorClick:Function
     _connectorDblClick:Function
@@ -303,7 +305,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         this.managedElementsSelector = defaults ? (defaults.managedElementsSelector || SELECTOR_MANAGED_ELEMENT) : SELECTOR_MANAGED_ELEMENT
 
         this.eventManager = new EventManager()
-        this.dragManager = new DragManager(this, defaults && defaults.dragOptions ? defaults.dragOptions : null)
+        this.dragSelection = new DragSelection(this)
+        this.dragManager = new DragManager(this, this.dragSelection,defaults && defaults.dragOptions ? defaults.dragOptions : null)
         //this.listManager = new JsPlumbListManager(this)
 
         this.dragManager.addHandler(new EndpointDragHandler(this))
@@ -326,9 +329,9 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
                 return _el.parentNode != null && _el._jsPlumbParentGroup && _el._jsPlumbParentGroup.revert ? !isInsideParent(this, _el, pos) : false
             }
         }
-        this.dragManager.addHandler(new GroupDragHandler(this), this.groupDragOptions)
+        this.dragManager.addHandler(new GroupDragHandler(this, this.dragSelection), this.groupDragOptions)
 
-        this.elementDragHandler = new ElementDragHandler(this)
+        this.elementDragHandler = new ElementDragHandler(this, this.dragSelection)
 
         this.elementDragOptions = (defaults && defaults.dragOptions) || {}
 
@@ -821,8 +824,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
         if (this.dragManager != null) {
             this.dragManager.addHandler(new EndpointDragHandler(this))
-            this.dragManager.addHandler(new GroupDragHandler(this), this.groupDragOptions)
-            this.elementDragHandler = new ElementDragHandler(this)
+            this.dragManager.addHandler(new GroupDragHandler(this, this.dragSelection), this.groupDragOptions)
+            this.elementDragHandler = new ElementDragHandler(this, this.dragSelection)
             this.dragManager.addHandler(this.elementDragHandler, this.elementDragOptions)
             if (dragFilters != null) {
                 this.dragManager.setFilters(dragFilters)
@@ -856,24 +859,21 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     }
 
     addToDragSelection(...el:Array<Element>) {
-        forEach(el, (_el) => this.elementDragHandler.addToDragSelection(_el))
+        forEach(el, (_el) => this.dragSelection.add(_el))
     }
 
     clearDragSelection() {
-        this.elementDragHandler.clearDragSelection()
+        this.dragSelection.clear()
     }
 
     removeFromDragSelection(...el:Array<Element>) {
-        forEach(el, (_el) => this.elementDragHandler.removeFromDragSelection(_el))
+        forEach(el, (_el) => this.dragSelection.remove(_el))
     }
 
     toggleDragSelection(...el:Array<Element>) {
-        forEach(el,(_el) => this.elementDragHandler.toggleDragSelection(_el))
+        forEach(el,(_el) => this.dragSelection.toggle(_el))
     }
 
-    getDragSelection():Array<Element> {
-        return this.elementDragHandler.getDragSelection()
-    }
 
     // ------------ drag groups
 
