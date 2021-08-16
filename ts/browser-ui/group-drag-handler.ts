@@ -7,6 +7,7 @@ import {DragEventParams, Drag, DragStopEventParams, isInsideParent} from "./coll
 import {SELECTOR_MANAGED_ELEMENT, UIGroup} from "@jsplumb/core"
 import {PointXY} from "@jsplumb/util"
 import {EVENT_REVERT, SELECTOR_GROUP} from "./constants"
+import {DragSelection} from "./drag-selection"
 
 
 export class GroupDragHandler extends ElementDragHandler implements GhostProxyingDragHandler {
@@ -15,8 +16,8 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
 
     doRevalidate:(el:jsPlumbDOMElement) => void
 
-    constructor(protected instance:BrowserJsPlumbInstance) {
-        super(instance)
+    constructor(protected instance:BrowserJsPlumbInstance, protected dragSelection:DragSelection) {
+        super(instance, dragSelection)
 
         this.doRevalidate = this._revalidate.bind(this)
     }
@@ -49,14 +50,6 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
         const newEl = jel.cloneNode(true)
         newEl._jsPlumbParentGroup = jel._jsPlumbParentGroup
         return newEl
-    }
-
-    onDrag(params: DragEventParams) {
-        super.onDrag(params)
-    }
-
-    onDragAbort(el: jsPlumbDOMElement):void {
-        return null
     }
 
     onStop(params: DragStopEventParams):void {
@@ -108,43 +101,6 @@ export class GroupDragHandler extends ElementDragHandler implements GhostProxyin
     }
 
 
-    /**
-     * Perhaps prune or orphan the element represented by the given drag params.
-     * @param params
-     * @param doNotTransferToAncestor Used when dealing with nested groups. When true, it means remove the element from any groups; when false, which is
-     * the default, elements that are orphaned will be added to this group's ancestor, if it has one.
-     * @param isDefinitelyNotInsideParent Used internally when this method is called and we've already done an intersections test. This flag saves us repeating the calculation.
-     * @private
-     */
-    private _pruneOrOrphan(params:DragStopEventParams, doNotTransferToAncestor:boolean, isDefinitelyNotInsideParent:boolean):[string, PointXY] {
 
-        const jel = params.el as unknown as jsPlumbDOMElement
-        let orphanedPosition = null
-        if (isDefinitelyNotInsideParent || !isInsideParent(this.instance, jel, params.pos)) {
-            let group = jel._jsPlumbParentGroup
-            if (group.prune) {
-                if (jel._isJsPlumbGroup) {
-                    // remove the group from the instance
-                    this.instance.removeGroup(jel._jsPlumbGroup)
-                } else {
-                    // instruct the group to remove the element from itself and also from the DOM.
-                    group.remove(params.el, true)
-                }
-
-            } else if (group.orphan) {
-                orphanedPosition = this.instance.groupManager.orphan(params.el, doNotTransferToAncestor)
-                if (jel._isJsPlumbGroup) {
-                    // remove the nested group from the parent
-                    group.removeGroup(jel._jsPlumbGroup)
-                } else {
-                    // remove the element from the group's DOM element.
-                    group.remove(params.el)
-                }
-
-            }
-        }
-
-        return orphanedPosition
-    }
 
 }
