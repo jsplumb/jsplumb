@@ -158,100 +158,110 @@ export class ElementDragHandler implements DragHandler {
     onStop(params:DragStopEventParams, daggedOutOfGroup?:boolean, originalGoup?:UIGroup, dropGoup?:IntersectingGroup):void {
 
         const jel = params.drag.getDragElement() as unknown as jsPlumbDOMElement
-        let originalGroup:UIGroup<Element> = jel._jsPlumbParentGroup,
-            wasInGroup = originalGroup != null,
-            isInGroup = wasInGroup && isInsideParent(this.instance, jel, params.finalPos),
-            draggedOutOfGroup = false
 
         let dropGroup:IntersectingGroup = this.getDropGroup()
 
-
-        /* from subclass */
-
-        if (wasInGroup && !isInGroup) {
-            // 2. if not in group bounds, is it intersecting some other group (via the _intersectingGroups list) ? Entries in this list
-            // have been vetted to ensure that things can be dropped on them, and that the group in which the current element resides is not
-            // overriding drop on another group.
-
-            //dropGroup = this.getDropGroup()
-            if (dropGroup == null) {
-                // if there was no drop group, then we need to prune or orphan the element
-                const orphanedPosition:[string, PointXY] = this._pruneOrOrphan(params, true, true)
-                draggedOutOfGroup = true
-                // if the element was orphaned, we now adjust the final position of the drag to reflect its position after being orphaned from the group.
-                if (orphanedPosition != null) {
-                    params.finalPos = orphanedPosition[1]
-                }
-
-            } // else, the superclass will take care of dropping it on a new group.
-
-        }
-
-        /* -- */
-
-        // add the element(s) to the group
-        if (dropGroup != null) {
-            this.instance.groupManager.addToGroup(dropGroup.groupLoc.group, false, dropGroup.intersectingElement)
-
-            this._dragSelection.each((el, id, o, s) => {
-                if (el !== params.el) {
-                    this.instance.groupManager.addToGroup(dropGroup.groupLoc.group, false, el)
-                }
-            })
-        }
-
-        /**
-         * Sets the final position of a given element, fires a drag stop event, and removes drag classes from the element.
-         * @param _el
-         * @param pos
-         * @private
+        /*
+        we have `dropGroup`, which is the group that the focus element was perhaps dropped on. we now need to create a list of
+        elements to process, with their element, id, and offset.
          */
-        const _one = (_el:Element, pos:PointXY, originalGroup?:UIGroup, dropGroup?:IntersectingGroup) => {
+        const elementsToProcess:Array<{el:jsPlumbDOMElement, id:string, pos:PointXY, originalPos:PointXY, originalGroup:UIGroup, draggedOutOfGroup:boolean, redrawResult:RedrawResult, reverted:boolean}> = []
+        elementsToProcess.push({
+            el:jel,
+            id:this.instance.getId(jel),
+            pos:params.finalPos,
+            originalGroup:jel._jsPlumbParentGroup,
+            draggedOutOfGroup:false,
+            redrawResult:null,
+            originalPos:params.originalPos,
+            reverted:false
+        })
 
-            const redrawResult = this.instance.setElementPosition(_el, pos.x, pos.y)
-
-            this.instance.fire<DragStopPayload>(EVENT_DRAG_STOP, {
-                el:_el,
-                e:params.e,
-                pos:pos,
-                r:redrawResult,
-                originalPosition:this.originalPosition,
-                dropGroup: dropGroup != null ? dropGroup.groupLoc.group : null,
-                originalGroup,
-                payload:this._dragPayload,
-                //draggedOutOfGroup
-            })
-
-            this.instance.removeClass(_el, CLASS_DRAGGED)
-            this.instance.select({source: _el}).removeClass(this.instance.elementDraggingClass + " " + this.instance.sourceElementDraggingClass, true)
-            this.instance.select({target: _el}).removeClass(this.instance.elementDraggingClass + " " + this.instance.targetElementDraggingClass, true)
-
-        }
-
-        // set position of main drag element, fire event etc
-        _one(jel,  params.finalPos, originalGroup, dropGroup)
-
-        // compute the final positions for all the other elements in the drag, fire events etc.
-        this._dragSelection.each((el:jsPlumbDOMElement, id:string, o:PointXY, s:Size) => {
+        this._dragSelection.each((el, id, o, s) => {
             if (el !== params.el) {
                 const pp = {
                     x:params.finalPos.x + o.x,
                     y:params.finalPos.y + o.y
                 }
-                _one(el, pp, el._jsPlumbParentGroup, dropGroup)
+                const op = {
+                    x:params.originalPos.x + o.x,
+                    y:params.originalPos.y + o.y
+                }
+                elementsToProcess.push({
+                    el, id, pos:pp, originalPos:op, originalGroup:el._jsPlumbParentGroup, draggedOutOfGroup:false, redrawResult:null, reverted:false
+                })
             }
         })
 
+        // now we have a list of all the elements that have been dragged.
 
-        /* from subclass */
+        forEach(elementsToProcess, (p:{el:jsPlumbDOMElement, id:string, pos:PointXY, originalPos:PointXY,
+                                            originalGroup:UIGroup, draggedOutOfGroup:boolean,
+                                            redrawResult:RedrawResult, reverted:boolean})=> {
+            let wasInGroup = p.originalGroup != null,
+                isInGroup = wasInGroup && isInsideParent(this.instance, p.el, p.pos)
 
-        if (wasInGroup) {
+            if (wasInGroup && !isInGroup) {
+                if (dropGroup == null) {
+                    // the element may be pruned or orphaned by its group
+                    const orphanedPosition = this._pruneOrOrphan(p, true, true)
+                    p.draggedOutOfGroup = true
+                    if (orphanedPosition.pos != null) {
+                        // if orphaned, update the drag end position.
+                        p.pos = orphanedPosition.pos.pos
+                    } else {
+                        if (!orphanedPosition.pruned && p.originalGroup.revert) {
+                            // if not pruned and the original group has revert set, revert the element.
+                            p.pos = p.originalPos
+                            p.reverted = true
+                            p.draggedOutOfGroup = false
+                        }
+                    }
+                }
+            }
+
+            if (dropGroup != null) {
+                this.instance.groupManager.addToGroup(dropGroup.groupLoc.group, false, p.el)
+            }
+
+            // if this element was reverted we have to set its position in the DOM.
+            if (p.reverted) {
+                this.instance.setPosition(p.el, p.pos)
+            }
+            // in all cases we update the viewport.
+            p.redrawResult = this.instance.setElementPosition(p.el, p.pos.x, p.pos.y)
+
+            this.instance.removeClass(p.el, CLASS_DRAGGED)
+            this.instance.select({source: p.el}).removeClass(this.instance.elementDraggingClass + " " + this.instance.sourceElementDraggingClass, true)
+            this.instance.select({target: p.el}).removeClass(this.instance.elementDraggingClass + " " + this.instance.targetElementDraggingClass, true)
+
+            // this is the ghost proxy code. ghosts wont have been created for anything other than the main element i think. this code could,
+            // currently, go outside of this loop (which it is, below).
+            // if (wasInGroup) {
+            //     let currentGroup: UIGroup<Element> = jel._jsPlumbParentGroup
+            //     if (currentGroup !== p.originalGroup) {
+            //         const originalElement = params.drag.getDragElement(true)
+            //         if (originalGroup.ghost) {
+            //             const o1 = this.instance.getOffset(this.instance.getGroupContentArea(currentGroup))
+            //             const o2 = this.instance.getOffset(this.instance.getGroupContentArea(originalGroup))
+            //             const o = {x: o2.x + params.pos.x - o1.x, y: o2.y + params.pos.y - o1.y}
+            //             originalElement.style.left = o.x + "px"
+            //             originalElement.style.top = o.y + "px"
+            //
+            //             this.instance.revalidate(originalElement)
+            //         }
+            //     }
+            // }
+        })
+
+        // ghost proxy - see above.
+        if (elementsToProcess[0].originalGroup != null) {
             let currentGroup: UIGroup<Element> = jel._jsPlumbParentGroup
-            if (currentGroup !== originalGroup) {
+            if (currentGroup !== elementsToProcess[0].originalGroup) {
                 const originalElement = params.drag.getDragElement(true)
-                if (originalGroup.ghost) {
+                if (elementsToProcess[0].originalGroup.ghost) {
                     const o1 = this.instance.getOffset(this.instance.getGroupContentArea(currentGroup))
-                    const o2 = this.instance.getOffset(this.instance.getGroupContentArea(originalGroup))
+                    const o2 = this.instance.getOffset(this.instance.getGroupContentArea(elementsToProcess[0].originalGroup))
                     const o = {x: o2.x + params.pos.x - o1.x, y: o2.y + params.pos.y - o1.y}
                     originalElement.style.left = o.x + "px"
                     originalElement.style.top = o.y + "px"
@@ -260,6 +270,13 @@ export class ElementDragHandler implements DragHandler {
                 }
             }
         }
+
+        this.instance.fire(EVENT_DRAG_STOP, {
+            elements:elementsToProcess,
+            e:params.e,
+            el:jel,
+            payload:this._dragPayload
+        })
 
         this._cleanup()
     }
@@ -540,10 +557,10 @@ export class ElementDragHandler implements DragHandler {
      * @param isDefinitelyNotInsideParent Used internally when this method is called and we've already done an intersections test. This flag saves us repeating the calculation.
      * @private
      */
-    protected _pruneOrOrphan(params:DragStopEventParams, doNotTransferToAncestor:boolean, isDefinitelyNotInsideParent:boolean):[string, PointXY] {
+    private _pruneOrOrphan(params:{el:jsPlumbDOMElement, pos:PointXY }, doNotTransferToAncestor:boolean, isDefinitelyNotInsideParent:boolean):{pruned:boolean, pos?:{id:string, pos:PointXY}} {
 
         const jel = params.el as unknown as jsPlumbDOMElement
-        let orphanedPosition = null
+        let orphanedPosition = {pruned:false, pos:null as any}
         if (isDefinitelyNotInsideParent || !isInsideParent(this.instance, jel, params.pos)) {
             let group = jel._jsPlumbParentGroup
             if (group.prune) {
@@ -554,9 +571,10 @@ export class ElementDragHandler implements DragHandler {
                     // instruct the group to remove the element from itself and also from the DOM.
                     group.remove(params.el, true)
                 }
+                orphanedPosition.pruned = true
 
             } else if (group.orphan) {
-                orphanedPosition = this.instance.groupManager.orphan(params.el, doNotTransferToAncestor)
+                orphanedPosition.pos = this.instance.groupManager.orphan(params.el, doNotTransferToAncestor)
                 if (jel._isJsPlumbGroup) {
                     // remove the nested group from the parent
                     group.removeGroup(jel._jsPlumbGroup)
