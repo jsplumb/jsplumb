@@ -1,20 +1,24 @@
 import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
-import { jsPlumbDOMElement} from './element-facade'
-import { EVENT_REVERT } from './constants'
-import { EVENT_ZOOM } from "@jsplumb/core"
+import {jsPlumbDOMElement} from './element-facade'
+import {EVENT_REVERT} from './constants'
+import {EVENT_ZOOM} from "@jsplumb/core"
 
-import {extend, wrap, Dictionary, forEach, PointXY, getWithFunction, BoundingBox, Size} from '@jsplumb/util'
+import {BoundingBox, Dictionary, extend, forEach, getWithFunction, PointXY, Size, wrap} from '@jsplumb/util'
 
 import {
     BeforeStartEventParams,
     Collicat,
-    Drag, DragEventParams,
-    DragHandlerOptions, DragParams,
-    DragStartEventParams, DragStopEventParams,
+    ContainmentType,
+    Drag,
+    DragEventParams,
+    DragHandlerOptions,
+    DragParams,
+    DragStartEventParams,
+    DragStopEventParams,
     GhostProxyGenerator
 } from "./collicat"
 
-import {DragSelection, CLASS_DRAG_SELECTED} from "./drag-selection"
+import {CLASS_DRAG_SELECTED, DragSelection} from "./drag-selection"
 
 export const CLASS_DELEGATED_DRAGGABLE = "jtk-delegated-draggable"
 export const CLASS_DRAGGABLE = "jtk-draggable"
@@ -111,7 +115,7 @@ export class DragManager {
 
         if(o.constrainFunction == null && o.containment != null) {
             switch(o.containment) {
-                case "notNegative": {
+                case ContainmentType.notNegative: {
                     o.constrainFunction = (pos:PointXY, dragEl:jsPlumbDOMElement, _constrainRect:BoundingBox, _size:Size):PointXY => {
                         return {
                             x: Math.max(0, Math.min(pos.x)),
@@ -120,7 +124,7 @@ export class DragManager {
                     }
                     break
                 }
-                case "parent":{
+                case ContainmentType.parent:{
                     const padding = o.containmentPadding || 5
                     o.constrainFunction = (pos:PointXY, dragEl:jsPlumbDOMElement, _constrainRect:BoundingBox, _size:Size):PointXY => {
                         const x = pos.x < 0 ? 0 : pos.x > (_constrainRect.w - padding) ? _constrainRect.w - padding : pos.x
@@ -129,7 +133,7 @@ export class DragManager {
                     }
                     break
                 }
-                case "parentEnclosed": {
+                case ContainmentType.parentEnclosed: {
                     o.constrainFunction = (pos:PointXY, dragEl:jsPlumbDOMElement, _constrainRect:BoundingBox, _size:Size):PointXY => {
                         const x = pos.x < 0 ? 0 : (pos.x + _size.w) > _constrainRect.w ? (_constrainRect.w - _size.w) : pos.x
                         const y = pos.y < 0 ? 0 : (pos.y + _size.h) > _constrainRect.h ? (_constrainRect.h - _size.h) : pos.y
