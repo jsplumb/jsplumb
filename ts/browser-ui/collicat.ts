@@ -45,7 +45,9 @@ export interface DragStartEventParams {
     size:Size
 }
 
-export interface DragEventParams extends DragStartEventParams { }
+export interface DragEventParams extends DragStartEventParams {
+    originalPos:PointXY
+}
 
 export type RevertEventParams = jsPlumbDOMElement
 
@@ -456,9 +458,11 @@ export class Drag extends Base {
                 this._dragEl && this._dragEl.parentNode && this._dragEl.parentNode.removeChild(this._dragEl)
                 this._dragEl = null
             } else {
-                if (this._activeSelectorParams && this._activeSelectorParams.revertFunction && this._activeSelectorParams.revertFunction(this._dragEl, _getPosition(this._dragEl)) === true) {
-                    _setPosition(this._dragEl, this._posAtDown)
-                    this._dispatch<RevertEventParams>(EVENT_REVERT, this._dragEl)
+                if (this._activeSelectorParams && this._activeSelectorParams.revertFunction) {
+                    if (this._activeSelectorParams.revertFunction(this._dragEl, _getPosition(this._dragEl)) === true) {
+                        _setPosition(this._dragEl, this._posAtDown)
+                        this._dispatch<RevertEventParams>(EVENT_REVERT, this._dragEl)
+                    }
                 }
             }
 
@@ -680,7 +684,7 @@ export class Drag extends Base {
 
         _setPosition(this._dragEl, {x:cPos.x + this._ghostDx, y:cPos.y + this._ghostDy})
 
-        this._dispatch<DragEventParams>("drag", {el:this.el, pos:cPos, e:e, drag:this, size:this._size})
+        this._dispatch<DragEventParams>(EVENT_DRAG, {el:this.el, pos:cPos, e:e, drag:this, size:this._size, originalPos:this._posAtDown})
     }
 
     abort() {
@@ -707,7 +711,8 @@ export class Drag extends Base {
                 e: e,
                 drag: this,
                 selection:positions,
-                size:this._size
+                size:this._size,
+                originalPos:{x:this._posAtDown.x, y:this._posAtDown.y}
             })
         } else if (!this._moving) {
             this._activeSelectorParams.dragAbort ? this._activeSelectorParams.dragAbort(this._elementToDrag) : null
