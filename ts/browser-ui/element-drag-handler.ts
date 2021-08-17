@@ -63,7 +63,7 @@ export interface DragPayload {
     payload?:Record<string, any>
 }
 
-export type DraggedElement = {el:jsPlumbDOMElement, id:string, pos:PointXY, originalPos:PointXY, originalGroup:UIGroup, draggedOutOfGroup:boolean, redrawResult:RedrawResult, reverted:boolean}
+export type DraggedElement = {el:jsPlumbDOMElement, id:string, pos:PointXY, originalPos:PointXY, originalGroup:UIGroup, draggedOutOfGroup:boolean, redrawResult:RedrawResult, reverted:boolean, dropGroup:UIGroup}
 
 /**
  * Payload for `drag:stop` event. In addition to the base payload, contains a redraw result object, listing all the connections and endpoints that were affected by the drag.
@@ -176,7 +176,8 @@ export class ElementDragHandler implements DragHandler {
             draggedOutOfGroup:false,
             redrawResult:null,
             originalPos:params.originalPos,
-            reverted:false
+            reverted:false,
+            dropGroup:dropGroup != null ? dropGroup.groupLoc.group : null
         })
 
         this._dragSelection.each((el, id, o, s) => {
@@ -210,7 +211,7 @@ export class ElementDragHandler implements DragHandler {
                     y:params.originalPos.y + o.y
                 }
                 elementsToProcess.push({
-                    el, id, pos:pp, originalPos:op, originalGroup:el._jsPlumbParentGroup, draggedOutOfGroup:false, redrawResult:null, reverted:false
+                    el, id, pos:pp, originalPos:op, originalGroup:el._jsPlumbParentGroup, draggedOutOfGroup:false, redrawResult:null, reverted:false, dropGroup:dropGroup != null ? dropGroup.groupLoc.group : null
                 })
             }
         })
@@ -242,6 +243,8 @@ export class ElementDragHandler implements DragHandler {
 
             if (dropGroup != null && !isInOriginalGroup) {
                 this.instance.groupManager.addToGroup(dropGroup.groupLoc.group, false, p.el)
+            } else {
+                p.dropGroup = null
             }
 
             // if this element was reverted we have to set its position in the DOM.
@@ -424,6 +427,20 @@ export class ElementDragHandler implements DragHandler {
             this._groupLocations.length = 0
             this._intersectingGroups.length = 0
             this.instance.hoverSuspended = true
+
+            // get the drag element and find its descendants. then filter the drag selection to mark any descendant inactive,
+            // as they should not drag when an ancestor of theirs is being dragged.
+            const originalElement = params.drag.getDragElement(true),
+                descendants = originalElement.querySelectorAll(SELECTOR_MANAGED_ELEMENT),
+                a:Array<Element> = []
+
+            Array.prototype.push.apply(a, descendants)
+
+            this._dragSelection.filterActiveSet((p:{id:string, jel:jsPlumbDOMElement}) => {
+                return a.indexOf(p.jel) === -1
+            })
+
+            // ---------------
 
             // refresh the drag selection offsets
             this._dragSelection.refreshOffsets(elOffset)
