@@ -1,5 +1,5 @@
 import { JsPlumbDefaults, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, LabelOverlay, Connection, Component, DeleteConnectionOptions, BehaviouralTypeDescriptor, SourceSelector, UIGroup } from '@jsplumb/core';
-import { PointXY, Dictionary, Size, Extents, Grid } from "@jsplumb/util";
+import { PointXY, Dictionary, Size, BoundingBox, Extents, Grid } from "@jsplumb/util";
 import { PaintStyle } from "@jsplumb/common";
 import { DragManager } from "./drag-manager";
 import { jsPlumbDOMElement } from './element-facade';
@@ -48,12 +48,14 @@ export declare type DragGroupSpec = string | {
     id: string;
     active: boolean;
 };
+export declare function groupDragConstrain(desiredLoc: PointXY, dragEl: jsPlumbDOMElement, constrainRect: BoundingBox, size: Size): PointXY;
 /**
  * JsPlumbInstance that renders to the DOM in a browser, and supports dragging of elements/connections.
  *
  */
 export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     _instanceIndex: number;
+    private dragSelection;
     dragManager: DragManager;
     _connectorClick: Function;
     _connectorDblClick: Function;
@@ -194,7 +196,6 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     clearDragSelection(): void;
     removeFromDragSelection(...el: Array<Element>): void;
     toggleDragSelection(...el: Array<Element>): void;
-    getDragSelection(): Array<Element>;
     /**
      * Adds the given element(s) to the given drag group.
      * @param spec Either the ID of some drag group, in which case the elements are all added as 'active', or an object of the form

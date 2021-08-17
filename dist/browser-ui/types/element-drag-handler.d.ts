@@ -4,6 +4,7 @@ import { jsPlumbDOMElement } from './element-facade';
 import { DragEventParams, Drag, DragStopEventParams } from "./collicat";
 import { RedrawResult, UIGroup } from "@jsplumb/core";
 import { BoundingBox, PointXY } from "@jsplumb/util";
+import { DragSelection } from "./drag-selection";
 export declare type IntersectingGroup = {
     groupLoc: GroupLocation;
     d: number;
@@ -24,14 +25,24 @@ export interface DragPayload {
     originalPosition: PointXY;
     payload?: Record<string, any>;
 }
+export declare type DraggedElement = {
+    el: jsPlumbDOMElement;
+    id: string;
+    pos: PointXY;
+    originalPos: PointXY;
+    originalGroup: UIGroup;
+    draggedOutOfGroup: boolean;
+    redrawResult: RedrawResult;
+    reverted: boolean;
+};
 /**
  * Payload for `drag:stop` event. In addition to the base payload, contains a redraw result object, listing all the connections and endpoints that were affected by the drag.
  */
-export interface DragStopPayload extends DragPayload {
-    r: RedrawResult;
-    dropGroup?: UIGroup<Element>;
-    originalGroup?: UIGroup<Element>;
-    draggedOutOfGroup: boolean;
+export interface DragStopPayload {
+    elements: Array<DraggedElement>;
+    e: Event;
+    el: Element;
+    payload?: Record<string, any>;
 }
 /**
  * Payload for `drag:move` event.
@@ -45,6 +56,7 @@ export interface DragStartPayload extends DragPayload {
 }
 export declare class ElementDragHandler implements DragHandler {
     protected instance: BrowserJsPlumbInstance;
+    protected _dragSelection: DragSelection;
     selector: string;
     private _dragOffset;
     private _groupLocations;
@@ -55,17 +67,14 @@ export declare class ElementDragHandler implements DragHandler {
     private _currentDragGroup;
     private _currentDragGroupOffsets;
     private _currentDragGroupSizes;
-    private _dragSelection;
-    private _dragSelectionOffsets;
-    private _dragSizes;
     private _dragPayload;
     protected drag: Drag;
     originalPosition: PointXY;
-    constructor(instance: BrowserJsPlumbInstance);
+    constructor(instance: BrowserJsPlumbInstance, _dragSelection: DragSelection);
     onDragInit(el: Element): Element;
     onDragAbort(el: Element): void;
     protected getDropGroup(): IntersectingGroup | null;
-    onStop(params: DragStopEventParams, draggedOutOfGroup?: boolean, originalGroup?: UIGroup, dropGroup?: IntersectingGroup): void;
+    onStop(params: DragStopEventParams): void;
     private _cleanup;
     reset(): void;
     init(drag: Drag): void;
@@ -76,12 +85,16 @@ export declare class ElementDragHandler implements DragHandler {
         pos: PointXY;
         drag: Drag;
     }): boolean;
-    addToDragSelection(el: Element): void;
-    clearDragSelection(): void;
-    removeFromDragSelection(el: Element): void;
-    toggleDragSelection(el: Element): void;
-    getDragSelection(): Array<Element>;
     addToDragGroup(spec: DragGroupSpec, ...els: Array<Element>): void;
     removeFromDragGroup(...els: Array<Element>): void;
     setDragGroupState(state: boolean, ...els: Array<Element>): void;
+    /**
+     * Perhaps prune or orphan the element represented by the given drag params.
+     * @param params
+     * @param doNotTransferToAncestor Used when dealing with nested groups. When true, it means remove the element from any groups; when false, which is
+     * the default, elements that are orphaned will be added to this group's ancestor, if it has one.
+     * @param isDefinitelyNotInsideParent Used internally when this method is called and we've already done an intersections test. This flag saves us repeating the calculation.
+     * @private
+     */
+    private _pruneOrOrphan;
 }

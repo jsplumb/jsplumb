@@ -1,11 +1,11 @@
 import { BrowserJsPlumbInstance } from "./browser-jsplumb-instance";
 import { Dictionary } from '@jsplumb/util';
 import { BeforeStartEventParams, Drag, DragEventParams, DragHandlerOptions, DragStartEventParams, DragStopEventParams, GhostProxyGenerator } from "./collicat";
+import { DragSelection } from "./drag-selection";
 export declare const CLASS_DELEGATED_DRAGGABLE = "jtk-delegated-draggable";
 export declare const CLASS_DRAGGABLE = "jtk-draggable";
 export declare const CLASS_DRAG_CONTAINER = "jtk-drag";
 export declare const CLASS_GHOST_PROXY = "jtk-ghost-proxy";
-export declare const CLASS_DRAG_SELECTED = "jtk-drag-selected";
 export declare const CLASS_DRAG_ACTIVE = "jtk-drag-active";
 export declare const CLASS_DRAGGED = "jtk-dragged";
 export declare const CLASS_DRAG_HOVER = "jtk-drag-hover";
@@ -29,6 +29,7 @@ export interface DragManagerOptions {
 }
 export declare class DragManager {
     protected instance: BrowserJsPlumbInstance;
+    protected dragSelection: DragSelection;
     private collicat;
     private drag;
     _draggables: Dictionary<any>;
@@ -41,7 +42,7 @@ export declare class DragManager {
     }>;
     private _trackScroll;
     private _filtersToAdd;
-    constructor(instance: BrowserJsPlumbInstance, options?: DragManagerOptions);
+    constructor(instance: BrowserJsPlumbInstance, dragSelection: DragSelection, options?: DragManagerOptions);
     addHandler(handler: DragHandler, dragOptions?: DragHandlerOptions): void;
     addFilter(filter: Function | string, exclude?: boolean): void;
     removeFilter(filter: Function | string): void;

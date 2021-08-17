@@ -25,7 +25,10 @@ export declare class GroupManager<E> {
     removeGroup(group: string | UIGroup<E>, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): Dictionary<PointXY>;
     removeAllGroups(deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): void;
     forEach(f: (g: UIGroup<E>) => any): void;
-    orphan(el: E, doNotTransferToAncestor: boolean): [string, PointXY];
+    orphan(el: E, doNotTransferToAncestor: boolean): {
+        id: string;
+        pos: PointXY;
+    };
     _updateConnectionsForGroup(group: UIGroup<E>): void;
     private _collapseConnection;
     private _expandConnection;

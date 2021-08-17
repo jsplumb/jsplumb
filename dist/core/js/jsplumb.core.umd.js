@@ -3511,7 +3511,10 @@
           }
           this.instance.setPosition(el, pos);
           delete jel._jsPlumbParentGroup;
-          return [id, pos];
+          return {
+            id: id,
+            pos: pos
+          };
         }
       }
     }, {

@@ -1,5 +1,5 @@
 import { NONE, cls, CLASS_CONNECTOR, CLASS_ENDPOINT, att, ATTRIBUTE_GROUP, CLASS_OVERLAY, ATTRIBUTE_TABINDEX, EVENT_ZOOM, SELECTOR_MANAGED_ELEMENT, ATTRIBUTE_NOT_DRAGGABLE, SOURCE, TARGET, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_START_DETACH, ATTRIBUTE_SCOPE_PREFIX, REDROP_POLICY_ANY, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, createFloatingAnchor, EndpointRepresentation, ABSOLUTE, Connection, Endpoint, Overlay, BLOCK, STATIC, FIXED, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, JsPlumbInstance, DotEndpoint, RectangleEndpoint, BlankEndpoint } from '@jsplumb/core';
-import { isString, forEach, fastTrim, isArray, log, removeWithFunction, uuid, snapToGrid, IS, extend, wrap, getWithFunction, getFromSetWithFunction, intersects, merge, each, getAllWithFunction, functionChain, addToDictionary, isAssignableFrom, fromArray, isFunction } from '@jsplumb/util';
+import { isString, forEach, fastTrim, isArray, log, removeWithFunction, uuid, snapToGrid, IS, extend, findWithFunction, wrap, getWithFunction, getFromSetWithFunction, intersects, merge, each, getAllWithFunction, functionChain, addToDictionary, isAssignableFrom, fromArray, isFunction } from '@jsplumb/util';
 import { FALSE as FALSE$1, TRUE as TRUE$1, UNDEFINED } from '@jsplumb/common';
 
 function _typeof(obj) {
@@ -1203,12 +1203,12 @@ function getConstrainingRectangle(el) {
     h: el.parentNode.offsetHeight + el.parentNode.scrollTop
   };
 }
-var ContainmentTypes;
-(function (ContainmentTypes) {
-  ContainmentTypes["notNegative"] = "notNegative";
-  ContainmentTypes["parent"] = "parent";
-  ContainmentTypes["parentEnclosed"] = "parentEnclosed";
-})(ContainmentTypes || (ContainmentTypes = {}));
+var ContainmentType;
+(function (ContainmentType) {
+  ContainmentType["notNegative"] = "notNegative";
+  ContainmentType["parent"] = "parent";
+  ContainmentType["parentEnclosed"] = "parentEnclosed";
+})(ContainmentType || (ContainmentType = {}));
 var Drag = function (_Base) {
   _inherits(Drag, _Base);
   var _super = _createSuper(Drag);
@@ -1389,9 +1389,11 @@ var Drag = function (_Base) {
           this._dragEl && this._dragEl.parentNode && this._dragEl.parentNode.removeChild(this._dragEl);
           this._dragEl = null;
         } else {
-          if (this._activeSelectorParams && this._activeSelectorParams.revertFunction && this._activeSelectorParams.revertFunction(this._dragEl, _getPosition(this._dragEl)) === true) {
-            _setPosition(this._dragEl, this._posAtDown);
-            this._dispatch(EVENT_REVERT, this._dragEl);
+          if (this._activeSelectorParams && this._activeSelectorParams.revertFunction) {
+            if (this._activeSelectorParams.revertFunction(this._dragEl, _getPosition(this._dragEl)) === true) {
+              _setPosition(this._dragEl, this._posAtDown);
+              this._dispatch(EVENT_REVERT, this._dragEl);
+            }
           }
         }
       }
@@ -1593,12 +1595,13 @@ var Drag = function (_Base) {
         x: cPos.x + this._ghostDx,
         y: cPos.y + this._ghostDy
       });
-      this._dispatch("drag", {
+      this._dispatch(EVENT_DRAG, {
         el: this.el,
         pos: cPos,
         e: e,
         drag: this,
-        size: this._size
+        size: this._size,
+        originalPos: this._posAtDown
       });
     }
   }, {
@@ -1627,7 +1630,11 @@ var Drag = function (_Base) {
           e: e,
           drag: this,
           selection: positions,
-          size: this._size
+          size: this._size,
+          originalPos: {
+            x: this._posAtDown.x,
+            y: this._posAtDown.y
+          }
         });
       } else if (!this._moving) {
         this._activeSelectorParams.dragAbort ? this._activeSelectorParams.dragAbort(this._elementToDrag) : null;
@@ -1843,19 +1850,152 @@ var Collicat = function () {
   return Collicat;
 }();
 
+var CLASS_DRAG_SELECTED = "jtk-drag-selected";
+var DragSelection = function () {
+  function DragSelection(instance) {
+    _classCallCheck(this, DragSelection);
+    this.instance = instance;
+    _defineProperty(this, "_dragSelection", []);
+    _defineProperty(this, "_dragSelectionOffsets", new Map());
+    _defineProperty(this, "_dragSizes", new Map());
+    _defineProperty(this, "_dragElements", new Map());
+  }
+  _createClass(DragSelection, [{
+    key: "length",
+    get: function get() {
+      return this._dragSelection.length;
+    }
+  }, {
+    key: "clear",
+    value: function clear() {
+      var _this = this;
+      this.reset();
+      forEach(this._dragSelection, function (p) {
+        return _this.instance.removeClass(p.jel, CLASS_DRAG_SELECTED);
+      });
+      this._dragSelection.length = 0;
+    }
+  }, {
+    key: "reset",
+    value: function reset() {
+      this._dragSelectionOffsets.clear();
+      this._dragSizes.clear();
+      this._dragElements.clear();
+    }
+  }, {
+    key: "refreshOffsets",
+    value: function refreshOffsets(origin) {
+      var _this2 = this;
+      forEach(this._dragSelection, function (p) {
+        var off = _this2.instance.getOffset(p.jel);
+        _this2._dragSelectionOffsets.set(p.id, {
+          x: off.x - origin.x,
+          y: off.y - origin.y
+        });
+        _this2._dragSizes.set(p.id, _this2.instance.getSize(p.jel));
+      });
+    }
+  }, {
+    key: "each",
+    value: function each(f) {
+      var _this3 = this;
+      forEach(this._dragSelection, function (p) {
+        var s = _this3._dragSizes.get(p.id);
+        var o = _this3._dragSelectionOffsets.get(p.id);
+        f(p.jel, p.id, o, s);
+      });
+    }
+  }, {
+    key: "positionElements",
+    value: function positionElements(bounds, callback) {
+      var _this4 = this;
+      forEach(this._dragSelection, function (p) {
+        var s = _this4._dragSizes.get(p.id);
+        var o = _this4._dragSelectionOffsets.get(p.id);
+        var _b = {
+          x: bounds.x + o.x,
+          y: bounds.y + o.y,
+          w: s.w,
+          h: s.h
+        };
+        var x = _b.x,
+            y = _b.y;
+        if (p.jel._jsPlumbParentGroup && p.jel._jsPlumbParentGroup.constrain) {
+          var constrainRect = {
+            w: p.jel.parentNode.offsetWidth + p.jel.parentNode.scrollLeft,
+            h: p.jel.parentNode.offsetHeight + p.jel.parentNode.scrollTop
+          };
+          x = Math.max(_b.x, 0);
+          y = Math.max(_b.y, 0);
+          x = Math.min(x, constrainRect.w - s.w);
+          y = Math.min(y, constrainRect.h - s.h);
+          _b.x = x;
+          _b.y = y;
+        }
+        p.jel.style.left = _b.x + "px";
+        p.jel.style.top = _b.y + "px";
+        callback(p.jel, p.id, s, _b);
+      });
+    }
+  }, {
+    key: "add",
+    value: function add(el, id) {
+      var jel = el;
+      id = id || this.instance.getId(jel);
+      var idx = findWithFunction(this._dragSelection, function (p) {
+        return p.id === id;
+      });
+      if (idx === -1) {
+        this.instance.addClass(el, CLASS_DRAG_SELECTED);
+        this._dragSelection.push({
+          id: id,
+          jel: jel
+        });
+      }
+    }
+  }, {
+    key: "remove",
+    value: function remove(el) {
+      var _this5 = this;
+      var jel = el;
+      this._dragSelection = this._dragSelection.filter(function (p) {
+        var out = p.jel !== jel;
+        if (!out) {
+          _this5.instance.removeClass(p.jel, CLASS_DRAG_SELECTED);
+        }
+        return out;
+      });
+    }
+  }, {
+    key: "toggle",
+    value: function toggle(el) {
+      var jel = el;
+      var idx = findWithFunction(this._dragSelection, function (p) {
+        return p.jel === jel;
+      });
+      if (idx !== -1) {
+        this.remove(jel);
+      } else {
+        this.add(el);
+      }
+    }
+  }]);
+  return DragSelection;
+}();
+
 var CLASS_DELEGATED_DRAGGABLE = "jtk-delegated-draggable";
 var CLASS_DRAGGABLE = "jtk-draggable";
 var CLASS_DRAG_CONTAINER = "jtk-drag";
 var CLASS_GHOST_PROXY = "jtk-ghost-proxy";
-var CLASS_DRAG_SELECTED = "jtk-drag-selected";
 var CLASS_DRAG_ACTIVE = "jtk-drag-active";
 var CLASS_DRAGGED = "jtk-dragged";
 var CLASS_DRAG_HOVER = "jtk-drag-hover";
 var DragManager = function () {
-  function DragManager(instance, options) {
+  function DragManager(instance, dragSelection, options) {
     var _this = this;
     _classCallCheck(this, DragManager);
     this.instance = instance;
+    this.dragSelection = dragSelection;
     _defineProperty(this, "collicat", void 0);
     _defineProperty(this, "drag", void 0);
     _defineProperty(this, "_draggables", {});
@@ -1913,7 +2053,7 @@ var DragManager = function () {
       }
       if (o.constrainFunction == null && o.containment != null) {
         switch (o.containment) {
-          case "notNegative":
+          case ContainmentType.notNegative:
             {
               o.constrainFunction = function (pos, dragEl, _constrainRect, _size) {
                 return {
@@ -1923,7 +2063,7 @@ var DragManager = function () {
               };
               break;
             }
-          case "parent":
+          case ContainmentType.parent:
             {
               var padding = o.containmentPadding || 5;
               o.constrainFunction = function (pos, dragEl, _constrainRect, _size) {
@@ -1936,7 +2076,7 @@ var DragManager = function () {
               };
               break;
             }
-          case "parentEnclosed":
+          case ContainmentType.parentEnclosed:
             {
               o.constrainFunction = function (pos, dragEl, _constrainRect, _size) {
                 var x = pos.x < 0 ? 0 : pos.x + _size.w > _constrainRect.w ? _constrainRect.w - _size.w : pos.x;
@@ -2047,9 +2187,10 @@ function isActiveDragGroupMember(dragGroup, el) {
   }
 }
 var ElementDragHandler = function () {
-  function ElementDragHandler(instance) {
+  function ElementDragHandler(instance, _dragSelection) {
     _classCallCheck(this, ElementDragHandler);
     this.instance = instance;
+    this._dragSelection = _dragSelection;
     _defineProperty(this, "selector", "> " + SELECTOR_MANAGED_ELEMENT + ":not(" + cls(CLASS_OVERLAY) + ")");
     _defineProperty(this, "_dragOffset", null);
     _defineProperty(this, "_groupLocations", []);
@@ -2060,9 +2201,6 @@ var ElementDragHandler = function () {
     _defineProperty(this, "_currentDragGroup", null);
     _defineProperty(this, "_currentDragGroupOffsets", new Map());
     _defineProperty(this, "_currentDragGroupSizes", new Map());
-    _defineProperty(this, "_dragSelection", []);
-    _defineProperty(this, "_dragSelectionOffsets", new Map());
-    _defineProperty(this, "_dragSizes", new Map());
     _defineProperty(this, "_dragPayload", null);
     _defineProperty(this, "drag", void 0);
     _defineProperty(this, "originalPosition", void 0);
@@ -2095,48 +2233,112 @@ var ElementDragHandler = function () {
     }
   }, {
     key: "onStop",
-    value: function onStop(params, draggedOutOfGroup, originalGroup, dropGroup) {
+    value: function onStop(params) {
       var _this = this;
-      var dragElement = params.drag.getDragElement();
-      dropGroup = dropGroup || this.getDropGroup();
-      if (dropGroup != null) {
-        this.instance.groupManager.addToGroup(dropGroup.groupLoc.group, false, dropGroup.intersectingElement);
-        this._dragSelectionOffsets.forEach(function (v, k) {
-          if (v[1] !== params.el) {
-            _this.instance.groupManager.addToGroup(dropGroup.groupLoc.group, false, v[1]);
+      var jel = params.drag.getDragElement();
+      var dropGroup = this.getDropGroup();
+      var elementsToProcess = [];
+      elementsToProcess.push({
+        el: jel,
+        id: this.instance.getId(jel),
+        pos: params.finalPos,
+        originalGroup: jel._jsPlumbParentGroup,
+        draggedOutOfGroup: false,
+        redrawResult: null,
+        originalPos: params.originalPos,
+        reverted: false
+      });
+      this._dragSelection.each(function (el, id, o, s) {
+        if (el !== params.el) {
+          var pp = {
+            x: params.finalPos.x + o.x,
+            y: params.finalPos.y + o.y
+          };
+          var x = pp.x,
+              y = pp.y;
+          if (el._jsPlumbParentGroup && el._jsPlumbParentGroup.constrain) {
+            var constrainRect = {
+              w: el.parentNode.offsetWidth + el.parentNode.scrollLeft,
+              h: el.parentNode.offsetHeight + el.parentNode.scrollTop
+            };
+            x = Math.max(x, 0);
+            y = Math.max(y, 0);
+            x = Math.min(x, constrainRect.w - s.w);
+            y = Math.min(y, constrainRect.h - s.h);
+            pp.x = x;
+            pp.y = y;
           }
-        });
-      }
-      var _one = function _one(_el, pos, originalGroup, dropGroup) {
-        var redrawResult = _this.instance.setElementPosition(_el, pos.x, pos.y);
-        _this.instance.fire(EVENT_DRAG_STOP, {
-          el: _el,
-          e: params.e,
-          pos: pos,
-          r: redrawResult,
-          originalPosition: _this.originalPosition,
-          dropGroup: dropGroup != null ? dropGroup.groupLoc.group : null,
-          originalGroup: originalGroup,
-          payload: _this._dragPayload,
-          draggedOutOfGroup: draggedOutOfGroup
-        });
-        _this.instance.removeClass(_el, CLASS_DRAGGED);
+          var op = {
+            x: params.originalPos.x + o.x,
+            y: params.originalPos.y + o.y
+          };
+          elementsToProcess.push({
+            el: el,
+            id: id,
+            pos: pp,
+            originalPos: op,
+            originalGroup: el._jsPlumbParentGroup,
+            draggedOutOfGroup: false,
+            redrawResult: null,
+            reverted: false
+          });
+        }
+      });
+      forEach(elementsToProcess, function (p) {
+        var wasInGroup = p.originalGroup != null,
+            isInOriginalGroup = wasInGroup && isInsideParent(_this.instance, p.el, p.pos);
+        if (wasInGroup && !isInOriginalGroup) {
+          if (dropGroup == null) {
+            var orphanedPosition = _this._pruneOrOrphan(p, true, true);
+            p.draggedOutOfGroup = true;
+            if (orphanedPosition.pos != null) {
+              p.pos = orphanedPosition.pos.pos;
+            } else {
+              if (!orphanedPosition.pruned && p.originalGroup.revert) {
+                p.pos = p.originalPos;
+                p.reverted = true;
+                p.draggedOutOfGroup = false;
+              }
+            }
+          }
+        }
+        if (dropGroup != null && !isInOriginalGroup) {
+          _this.instance.groupManager.addToGroup(dropGroup.groupLoc.group, false, p.el);
+        }
+        if (p.reverted) {
+          _this.instance.setPosition(p.el, p.pos);
+        }
+        p.redrawResult = _this.instance.setElementPosition(p.el, p.pos.x, p.pos.y);
+        _this.instance.removeClass(p.el, CLASS_DRAGGED);
         _this.instance.select({
-          source: _el
+          source: p.el
         }).removeClass(_this.instance.elementDraggingClass + " " + _this.instance.sourceElementDraggingClass, true);
         _this.instance.select({
-          target: _el
+          target: p.el
         }).removeClass(_this.instance.elementDraggingClass + " " + _this.instance.targetElementDraggingClass, true);
-      };
-      _one(dragElement, params.finalPos, originalGroup, dropGroup);
-      this._dragSelectionOffsets.forEach(function (v, k) {
-        if (v[1] !== params.el) {
-          var pp = {
-            x: params.finalPos.x + v[0].x,
-            y: params.finalPos.y + v[0].y
-          };
-          _one(v[1], pp, v[1]._jsPlumbParentGroup, dropGroup);
+      });
+      if (elementsToProcess[0].originalGroup != null) {
+        var currentGroup = jel._jsPlumbParentGroup;
+        if (currentGroup !== elementsToProcess[0].originalGroup) {
+          var originalElement = params.drag.getDragElement(true);
+          if (elementsToProcess[0].originalGroup.ghost) {
+            var o1 = this.instance.getOffset(this.instance.getGroupContentArea(currentGroup));
+            var o2 = this.instance.getOffset(this.instance.getGroupContentArea(elementsToProcess[0].originalGroup));
+            var o = {
+              x: o2.x + params.pos.x - o1.x,
+              y: o2.y + params.pos.y - o1.y
+            };
+            originalElement.style.left = o.x + "px";
+            originalElement.style.top = o.y + "px";
+            this.instance.revalidate(originalElement);
+          }
         }
+      }
+      this.instance.fire(EVENT_DRAG_STOP, {
+        elements: elementsToProcess,
+        e: params.e,
+        el: jel,
+        payload: this._dragPayload
       });
       this._cleanup();
     }
@@ -2152,8 +2354,7 @@ var ElementDragHandler = function () {
       this._groupLocations.length = 0;
       this.instance.hoverSuspended = false;
       this._dragOffset = null;
-      this._dragSelectionOffsets.clear();
-      this._dragSizes.clear();
+      this._dragSelection.reset();
       this._dragPayload = null;
       this._currentDragGroupOffsets.clear();
       this._currentDragGroupSizes.clear();
@@ -2221,17 +2422,8 @@ var ElementDragHandler = function () {
         h: elSize.h
       };
       _one(el, elBounds, params.e);
-      this._dragSelectionOffsets.forEach(function (v, k) {
-        var s = _this3._dragSizes.get(k);
-        var _b = {
-          x: elBounds.x + v[0].x,
-          y: elBounds.y + v[0].y,
-          w: s.w,
-          h: s.h
-        };
-        v[1].style.left = _b.x + "px";
-        v[1].style.top = _b.y + "px";
-        _one(v[1], _b, params.e);
+      this._dragSelection.positionElements(elBounds, function (el, id, s, b) {
+        _one(el, b, params.e);
       });
       this._currentDragGroupOffsets.forEach(function (v, k) {
         var s = _this3._currentDragGroupSizes.get(k);
@@ -2269,17 +2461,7 @@ var ElementDragHandler = function () {
         this._groupLocations.length = 0;
         this._intersectingGroups.length = 0;
         this.instance.hoverSuspended = true;
-        this._dragSelectionOffsets.clear();
-        this._dragSizes.clear();
-        forEach(this._dragSelection, function (jel) {
-          var id = _this4.instance.getId(jel);
-          var off = _this4.instance.getOffset(jel);
-          _this4._dragSelectionOffsets.set(id, [{
-            x: off.x - elOffset.x,
-            y: off.y - elOffset.y
-          }, jel]);
-          _this4._dragSizes.set(id, _this4.instance.getSize(jel));
-        });
+        this._dragSelection.refreshOffsets(elOffset);
         var _one = function _one(_el) {
           if (!_el._isJsPlumbGroup || _this4.instance.allowNestedGroups) {
             var isNotInAGroup = !_el._jsPlumbParentGroup;
@@ -2362,56 +2544,9 @@ var ElementDragHandler = function () {
       return cont;
     }
   }, {
-    key: "addToDragSelection",
-    value: function addToDragSelection(el) {
-      var domElement = el;
-      if (this._dragSelection.indexOf(domElement) === -1) {
-        this.instance.addClass(el, CLASS_DRAG_SELECTED);
-        this._dragSelection.push(domElement);
-      }
-    }
-  }, {
-    key: "clearDragSelection",
-    value: function clearDragSelection() {
-      var _this5 = this;
-      forEach(this._dragSelection, function (el) {
-        return _this5.instance.removeClass(el, CLASS_DRAG_SELECTED);
-      });
-      this._dragSelection.length = 0;
-    }
-  }, {
-    key: "removeFromDragSelection",
-    value: function removeFromDragSelection(el) {
-      var _this6 = this;
-      var domElement = el;
-      this._dragSelection = this._dragSelection.filter(function (e) {
-        var out = e !== domElement;
-        if (!out) {
-          _this6.instance.removeClass(e, CLASS_DRAG_SELECTED);
-        }
-        return out;
-      });
-    }
-  }, {
-    key: "toggleDragSelection",
-    value: function toggleDragSelection(el) {
-      var domElement = el;
-      var isInSelection = this._dragSelection.indexOf(domElement) !== -1;
-      if (isInSelection) {
-        this.removeFromDragSelection(el);
-      } else {
-        this.addToDragSelection(el);
-      }
-    }
-  }, {
-    key: "getDragSelection",
-    value: function getDragSelection() {
-      return this._dragSelection;
-    }
-  }, {
     key: "addToDragGroup",
     value: function addToDragGroup(spec) {
-      var _this7 = this;
+      var _this5 = this;
       var details = decodeDragGroupSpec(this.instance, spec);
       var dragGroup = this._dragGroupMap[details.id];
       if (dragGroup == null) {
@@ -2426,25 +2561,25 @@ var ElementDragHandler = function () {
       }
       this.removeFromDragGroup.apply(this, els);
       forEach(els, function (el) {
-        var elId = _this7.instance.getId(el);
+        var elId = _this5.instance.getId(el);
         dragGroup.members.add({
           elId: elId,
           el: el,
           active: details.active
         });
-        _this7._dragGroupByElementIdMap[elId] = dragGroup;
+        _this5._dragGroupByElementIdMap[elId] = dragGroup;
       });
     }
   }, {
     key: "removeFromDragGroup",
     value: function removeFromDragGroup() {
-      var _this8 = this;
+      var _this6 = this;
       for (var _len2 = arguments.length, els = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
         els[_key2] = arguments[_key2];
       }
       forEach(els, function (el) {
-        var id = _this8.instance.getId(el);
-        var dragGroup = _this8._dragGroupByElementIdMap[id];
+        var id = _this6.instance.getId(el);
+        var dragGroup = _this6._dragGroupByElementIdMap[id];
         if (dragGroup != null) {
           var s = new Set();
           dragGroup.members.forEach(function (member) {
@@ -2453,22 +2588,22 @@ var ElementDragHandler = function () {
             }
           });
           dragGroup.members = s;
-          delete _this8._dragGroupByElementIdMap[id];
+          delete _this6._dragGroupByElementIdMap[id];
         }
       });
     }
   }, {
     key: "setDragGroupState",
     value: function setDragGroupState(state) {
-      var _this9 = this;
+      var _this7 = this;
       for (var _len3 = arguments.length, els = new Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
         els[_key3 - 1] = arguments[_key3];
       }
       var elementIds = els.map(function (el) {
-        return _this9.instance.getId(el);
+        return _this7.instance.getId(el);
       });
       forEach(elementIds, function (id) {
-        var dragGroup = _this9._dragGroupByElementIdMap[id];
+        var dragGroup = _this7._dragGroupByElementIdMap[id];
         if (dragGroup != null) {
           var member = getFromSetWithFunction(dragGroup.members, function (m) {
             return m.elId === id;
@@ -2478,6 +2613,34 @@ var ElementDragHandler = function () {
           }
         }
       });
+    }
+  }, {
+    key: "_pruneOrOrphan",
+    value: function _pruneOrOrphan(params, doNotTransferToAncestor, isDefinitelyNotInsideParent) {
+      var jel = params.el;
+      var orphanedPosition = {
+        pruned: false,
+        pos: null
+      };
+      if (isDefinitelyNotInsideParent || !isInsideParent(this.instance, jel, params.pos)) {
+        var group = jel._jsPlumbParentGroup;
+        if (group.prune) {
+          if (jel._isJsPlumbGroup) {
+            this.instance.removeGroup(jel._jsPlumbGroup);
+          } else {
+            group.remove(params.el, true);
+          }
+          orphanedPosition.pruned = true;
+        } else if (group.orphan) {
+          orphanedPosition.pos = this.instance.groupManager.orphan(params.el, doNotTransferToAncestor);
+          if (jel._isJsPlumbGroup) {
+            group.removeGroup(jel._jsPlumbGroup);
+          } else {
+            group.remove(params.el);
+          }
+        }
+      }
+      return orphanedPosition;
     }
   }]);
   return ElementDragHandler;
@@ -3316,11 +3479,12 @@ var EndpointDragHandler = function () {
 var GroupDragHandler = function (_ElementDragHandler) {
   _inherits(GroupDragHandler, _ElementDragHandler);
   var _super = _createSuper(GroupDragHandler);
-  function GroupDragHandler(instance) {
+  function GroupDragHandler(instance, dragSelection) {
     var _this;
     _classCallCheck(this, GroupDragHandler);
-    _this = _super.call(this, instance);
+    _this = _super.call(this, instance, dragSelection);
     _this.instance = instance;
+    _this.dragSelection = dragSelection;
     _defineProperty(_assertThisInitialized(_this), "selector", [">", SELECTOR_GROUP, SELECTOR_MANAGED_ELEMENT].join(" "));
     _defineProperty(_assertThisInitialized(_this), "doRevalidate", void 0);
     _this.doRevalidate = _this._revalidate.bind(_assertThisInitialized(_this));
@@ -3355,75 +3519,6 @@ var GroupDragHandler = function (_ElementDragHandler) {
       var newEl = jel.cloneNode(true);
       newEl._jsPlumbParentGroup = jel._jsPlumbParentGroup;
       return newEl;
-    }
-  }, {
-    key: "onDrag",
-    value: function onDrag(params) {
-      _get(_getPrototypeOf(GroupDragHandler.prototype), "onDrag", this).call(this, params);
-    }
-  }, {
-    key: "onDragAbort",
-    value: function onDragAbort(el) {
-      return null;
-    }
-  }, {
-    key: "onStop",
-    value: function onStop(params) {
-      var jel = params.drag.getDragElement();
-      var originalGroup = jel._jsPlumbParentGroup,
-          isInGroup = isInsideParent(this.instance, jel, params.finalPos),
-          draggedOutOfGroup = false;
-      var dropGroup = null;
-      if (!isInGroup) {
-        dropGroup = this.getDropGroup();
-        if (dropGroup == null) {
-          var orphanedPosition = this._pruneOrOrphan(params, true, true);
-          draggedOutOfGroup = true;
-          if (orphanedPosition != null) {
-            params.finalPos = orphanedPosition[1];
-          }
-        }
-      }
-      _get(_getPrototypeOf(GroupDragHandler.prototype), "onStop", this).call(this, params, draggedOutOfGroup, originalGroup, dropGroup);
-      var currentGroup = jel._jsPlumbParentGroup;
-      if (currentGroup !== originalGroup) {
-        var originalElement = params.drag.getDragElement(true);
-        if (originalGroup.ghost) {
-          var o1 = this.instance.getOffset(this.instance.getGroupContentArea(currentGroup));
-          var o2 = this.instance.getOffset(this.instance.getGroupContentArea(originalGroup));
-          var o = {
-            x: o2.x + params.pos.x - o1.x,
-            y: o2.y + params.pos.y - o1.y
-          };
-          originalElement.style.left = o.x + "px";
-          originalElement.style.top = o.y + "px";
-          this.instance.revalidate(originalElement);
-        }
-      }
-    }
-  }, {
-    key: "_pruneOrOrphan",
-    value: function _pruneOrOrphan(params, doNotTransferToAncestor, isDefinitelyNotInsideParent) {
-      var jel = params.el;
-      var orphanedPosition = null;
-      if (isDefinitelyNotInsideParent || !isInsideParent(this.instance, jel, params.pos)) {
-        var group = jel._jsPlumbParentGroup;
-        if (group.prune) {
-          if (jel._isJsPlumbGroup) {
-            this.instance.removeGroup(jel._jsPlumbGroup);
-          } else {
-            group.remove(params.el, true);
-          }
-        } else if (group.orphan) {
-          orphanedPosition = this.instance.groupManager.orphan(params.el, doNotTransferToAncestor);
-          if (jel._isJsPlumbGroup) {
-            group.removeGroup(jel._jsPlumbGroup);
-          } else {
-            group.remove(params.el);
-          }
-        }
-      }
-      return orphanedPosition;
     }
   }]);
   return GroupDragHandler;
@@ -3809,6 +3904,20 @@ function getCustomElement(o) {
     return el;
   });
 }
+function groupDragConstrain(desiredLoc, dragEl, constrainRect, size) {
+  var x = desiredLoc.x,
+      y = desiredLoc.y;
+  if (dragEl._jsPlumbParentGroup && dragEl._jsPlumbParentGroup.constrain) {
+    x = Math.max(desiredLoc.x, 0);
+    y = Math.max(desiredLoc.y, 0);
+    x = Math.min(x, constrainRect.w - size.w);
+    y = Math.min(y, constrainRect.h - size.h);
+  }
+  return {
+    x: x,
+    y: y
+  };
+}
 var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
   _inherits(BrowserJsPlumbInstance, _JsPlumbInstance);
   var _super = _createSuper(BrowserJsPlumbInstance);
@@ -3817,6 +3926,7 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
     _classCallCheck(this, BrowserJsPlumbInstance);
     _this = _super.call(this, _instanceIndex, defaults);
     _this._instanceIndex = _instanceIndex;
+    _defineProperty(_assertThisInitialized(_this), "dragSelection", void 0);
     _defineProperty(_assertThisInitialized(_this), "dragManager", void 0);
     _defineProperty(_assertThisInitialized(_this), "_connectorClick", void 0);
     _defineProperty(_assertThisInitialized(_this), "_connectorDblClick", void 0);
@@ -3867,30 +3977,14 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
     _this.elementsDraggable = defaults && defaults.elementsDraggable !== false;
     _this.managedElementsSelector = defaults ? defaults.managedElementsSelector || SELECTOR_MANAGED_ELEMENT : SELECTOR_MANAGED_ELEMENT;
     _this.eventManager = new EventManager();
-    _this.dragManager = new DragManager(_assertThisInitialized(_this), defaults && defaults.dragOptions ? defaults.dragOptions : null);
+    _this.dragSelection = new DragSelection(_assertThisInitialized(_this));
+    _this.dragManager = new DragManager(_assertThisInitialized(_this), _this.dragSelection, defaults && defaults.dragOptions ? defaults.dragOptions : null);
     _this.dragManager.addHandler(new EndpointDragHandler(_assertThisInitialized(_this)));
     _this.groupDragOptions = {
-      constrainFunction: function constrainFunction(desiredLoc, dragEl, constrainRect, size) {
-        var x = desiredLoc.x,
-            y = desiredLoc.y;
-        if (dragEl._jsPlumbParentGroup && dragEl._jsPlumbParentGroup.constrain) {
-          x = Math.max(desiredLoc.x, 0);
-          y = Math.max(desiredLoc.y, 0);
-          x = Math.min(x, constrainRect.w - size.w);
-          y = Math.min(y, constrainRect.h - size.h);
-        }
-        return {
-          x: x,
-          y: y
-        };
-      },
-      revertFunction: function revertFunction(dragEl, pos) {
-        var _el = dragEl;
-        return _el.parentNode != null && _el._jsPlumbParentGroup && _el._jsPlumbParentGroup.revert ? !isInsideParent(_assertThisInitialized(_this), _el, pos) : false;
-      }
+      constrainFunction: groupDragConstrain
     };
-    _this.dragManager.addHandler(new GroupDragHandler(_assertThisInitialized(_this)), _this.groupDragOptions);
-    _this.elementDragHandler = new ElementDragHandler(_assertThisInitialized(_this));
+    _this.dragManager.addHandler(new GroupDragHandler(_assertThisInitialized(_this), _this.dragSelection), _this.groupDragOptions);
+    _this.elementDragHandler = new ElementDragHandler(_assertThisInitialized(_this), _this.dragSelection);
     _this.elementDragOptions = defaults && defaults.dragOptions || {};
     _this.dragManager.addHandler(_this.elementDragHandler, _this.elementDragOptions);
     var _connClick = function _connClick(event, e) {
@@ -4302,8 +4396,8 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
       }
       if (this.dragManager != null) {
         this.dragManager.addHandler(new EndpointDragHandler(this));
-        this.dragManager.addHandler(new GroupDragHandler(this), this.groupDragOptions);
-        this.elementDragHandler = new ElementDragHandler(this);
+        this.dragManager.addHandler(new GroupDragHandler(this, this.dragSelection), this.groupDragOptions);
+        this.elementDragHandler = new ElementDragHandler(this, this.dragSelection);
         this.dragManager.addHandler(this.elementDragHandler, this.elementDragOptions);
         if (dragFilters != null) {
           this.dragManager.setFilters(dragFilters);
@@ -4344,13 +4438,13 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
         el[_key] = arguments[_key];
       }
       forEach(el, function (_el) {
-        return _this5.elementDragHandler.addToDragSelection(_el);
+        return _this5.dragSelection.add(_el);
       });
     }
   }, {
     key: "clearDragSelection",
     value: function clearDragSelection() {
-      this.elementDragHandler.clearDragSelection();
+      this.dragSelection.clear();
     }
   }, {
     key: "removeFromDragSelection",
@@ -4360,7 +4454,7 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
         el[_key2] = arguments[_key2];
       }
       forEach(el, function (_el) {
-        return _this6.elementDragHandler.removeFromDragSelection(_el);
+        return _this6.dragSelection.remove(_el);
       });
     }
   }, {
@@ -4371,13 +4465,8 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
         el[_key3] = arguments[_key3];
       }
       forEach(el, function (_el) {
-        return _this7.elementDragHandler.toggleDragSelection(_el);
+        return _this7.dragSelection.toggle(_el);
       });
-    }
-  }, {
-    key: "getDragSelection",
-    value: function getDragSelection() {
-      return this.elementDragHandler.getDragSelection();
     }
   }, {
     key: "addToDragGroup",
@@ -4894,4 +4983,4 @@ function ready(f) {
   _do();
 }
 
-export { ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP_CONTENT, ATTRIBUTE_JTK_ENABLED, ATTRIBUTE_JTK_SCOPE, BrowserJsPlumbInstance, CONNECTION, Collicat, Drag, ELEMENT, ELEMENT_DIV, ENDPOINT, EVENT_BEFORE_START, EVENT_CLICK, EVENT_CONNECTION_ABORT, EVENT_CONNECTION_CLICK, EVENT_CONNECTION_DBL_CLICK, EVENT_CONNECTION_DBL_TAP, EVENT_CONNECTION_DRAG, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_TAP, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_DRAG, EVENT_DRAG_MOVE, EVENT_DRAG_START, EVENT_DRAG_STOP, EVENT_DROP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_DBL_TAP, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_TAP, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_DBL_TAP, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_TAP, EVENT_FOCUS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_OUT, EVENT_OVER, EVENT_REVERT, EVENT_START, EVENT_STOP, EVENT_TAP, ElementDragHandler, EventManager, PROPERTY_POSITION, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP, SELECTOR_GROUP_CONTAINER, SELECTOR_OVERLAY, addClass, compoundEvent, consume, createElement, createElementNS, findParent, getClass, getEventSource, getPositionOnElement, getTouch, hasClass, isArrayLike, isInsideParent, isNodeList, matchesSelector$1 as matchesSelector, newInstance, offsetRelativeToRoot, pageLocation, ready, registerEndpointRenderer, removeClass, size, toggleClass, touchCount, touches };
+export { ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP_CONTENT, ATTRIBUTE_JTK_ENABLED, ATTRIBUTE_JTK_SCOPE, BrowserJsPlumbInstance, CONNECTION, Collicat, ContainmentType, Drag, ELEMENT, ELEMENT_DIV, ENDPOINT, EVENT_BEFORE_START, EVENT_CLICK, EVENT_CONNECTION_ABORT, EVENT_CONNECTION_CLICK, EVENT_CONNECTION_DBL_CLICK, EVENT_CONNECTION_DBL_TAP, EVENT_CONNECTION_DRAG, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_TAP, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_DRAG, EVENT_DRAG_MOVE, EVENT_DRAG_START, EVENT_DRAG_STOP, EVENT_DROP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_DBL_TAP, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_TAP, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_DBL_TAP, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_TAP, EVENT_FOCUS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_OUT, EVENT_OVER, EVENT_REVERT, EVENT_START, EVENT_STOP, EVENT_TAP, ElementDragHandler, EventManager, PROPERTY_POSITION, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP, SELECTOR_GROUP_CONTAINER, SELECTOR_OVERLAY, addClass, compoundEvent, consume, createElement, createElementNS, findParent, getClass, getEventSource, getPositionOnElement, getTouch, groupDragConstrain, hasClass, isArrayLike, isInsideParent, isNodeList, matchesSelector$1 as matchesSelector, newInstance, offsetRelativeToRoot, pageLocation, ready, registerEndpointRenderer, removeClass, size, toggleClass, touchCount, touches };

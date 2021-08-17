@@ -10,6 +10,7 @@ export interface DragStartEventParams {
     size: Size;
 }
 export interface DragEventParams extends DragStartEventParams {
+    originalPos: PointXY;
 }
 export declare type RevertEventParams = jsPlumbDOMElement;
 export interface BeforeStartEventParams extends DragStartEventParams {
@@ -42,12 +43,11 @@ declare abstract class Base {
     toggleScope(scopes: string): void;
 }
 export declare type GhostProxyGenerator = (el: Element) => Element;
-declare enum ContainmentTypes {
+export declare enum ContainmentType {
     notNegative = "notNegative",
     parent = "parent",
     parentEnclosed = "parentEnclosed"
 }
-export declare type ContainmentType = keyof typeof ContainmentTypes;
 export interface DragHandlerOptions {
     selector?: string;
     start?: (p: DragStartEventParams) => any;
