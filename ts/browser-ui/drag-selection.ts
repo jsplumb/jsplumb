@@ -65,6 +65,27 @@ export class DragSelection {
             const s = this._dragSizes.get(p.id)
             const o = this._dragSelectionOffsets.get(p.id)
             let _b:BoundingBox = {x:bounds.x + o.x, y:bounds.y + o.y, w:s.w, h:s.h}
+
+            let x = _b.x, y = _b.y
+
+            // TODO this is duplicated in the onStop of element DragHandler
+            if (p.jel._jsPlumbParentGroup && p.jel._jsPlumbParentGroup.constrain) {
+
+                const constrainRect = {
+                    w: p.jel.parentNode.offsetWidth + p.jel.parentNode.scrollLeft,
+                    h: p.jel.parentNode.offsetHeight + p.jel.parentNode.scrollTop
+                };
+
+                x = Math.max(_b.x, 0)
+                y = Math.max(_b.y, 0)
+                x = Math.min(x, constrainRect.w - s.w)
+                y = Math.min(y, constrainRect.h - s.h)
+
+                _b.x = x
+                _b.y = y
+            }
+
+
             p.jel.style.left = _b.x + "px"
             p.jel.style.top = _b.y + "px"
 
