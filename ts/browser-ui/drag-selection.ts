@@ -1,4 +1,4 @@
-import {jsPlumbDOMElement} from "@jsplumb/browser-ui/element-facade"
+import {jsPlumbDOMElement} from "./element-facade"
 import {BoundingBox, findWithFunction, forEach, PointXY, Size} from "@jsplumb/util"
 import { BrowserJsPlumbInstance } from "./browser-jsplumb-instance"
 
@@ -10,10 +10,29 @@ export class DragSelection {
     private _dragSizes:Map<string, Size> = new Map()
     private _dragElements:Map<string, jsPlumbDOMElement> = new Map()
 
+    private __activeSet:Array<{id:string, jel:jsPlumbDOMElement}>
+
+    private get _activeSet():Array<{id:string, jel:jsPlumbDOMElement}> {
+        if (this.__activeSet == null) {
+            return this._dragSelection
+        } else {
+            return this.__activeSet
+        }
+    }
+
     constructor(private instance:BrowserJsPlumbInstance) {}
 
     get length() {
         return this._dragSelection.length
+    }
+
+    filterActiveSet(fn:(p:{id:string, jel:jsPlumbDOMElement})=>boolean) {
+        this.__activeSet = []
+        forEach(this._dragSelection, (p) => {
+            if(fn(p)) {
+                this.__activeSet.push(p)
+            }
+        })
     }
 
     /**
@@ -34,6 +53,7 @@ export class DragSelection {
         this._dragSelectionOffsets.clear()
         this._dragSizes.clear()
         this._dragElements.clear()
+        this.__activeSet = null
     }
 
     /**
@@ -41,7 +61,7 @@ export class DragSelection {
      * @param origin
      */
     refreshOffsets(origin:PointXY) {
-        forEach(this._dragSelection, (p:{id:string, jel:jsPlumbDOMElement}) => {
+        forEach(this._activeSet, (p:{id:string, jel:jsPlumbDOMElement}) => {
             let off = this.instance.getOffset(p.jel)
             this._dragSelectionOffsets.set(p.id, { x:off.x- origin.x, y:off.y - origin.y })
             this._dragSizes.set(p.id, this.instance.getSize(p.jel))
@@ -53,7 +73,7 @@ export class DragSelection {
      * @param f
      */
     each(f:(el:jsPlumbDOMElement, id:string, o:PointXY, s:Size)=> any) {
-        forEach(this._dragSelection, (p:{id:string, jel:jsPlumbDOMElement}) => {
+        forEach(this._activeSet, (p:{id:string, jel:jsPlumbDOMElement}) => {
             const s = this._dragSizes.get(p.id)
             const o = this._dragSelectionOffsets.get(p.id)
             f(p.jel, p.id, o, s)
@@ -61,7 +81,7 @@ export class DragSelection {
     }
 
     positionElements(bounds:BoundingBox, callback:(el:jsPlumbDOMElement, id:string, s:Size, b:BoundingBox)=>any) {
-        forEach(this._dragSelection, (p:{id:string, jel:jsPlumbDOMElement}) => {
+        forEach(this._activeSet, (p:{id:string, jel:jsPlumbDOMElement}) => {
             const s = this._dragSizes.get(p.id)
             const o = this._dragSelectionOffsets.get(p.id)
             let _b:BoundingBox = {x:bounds.x + o.x, y:bounds.y + o.y, w:s.w, h:s.h}
