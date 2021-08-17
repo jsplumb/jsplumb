@@ -106,6 +106,16 @@ function isActiveDragGroupMember(dragGroup:DragGroup, el:HTMLElement): boolean {
     }
 }
 
+function getAncestors(el:jsPlumbDOMElement):Array<Element> {
+    const ancestors:Array<Element> = []
+    let p = el._jsPlumbParentGroup
+    while (p != null) {
+        ancestors.push(p.el)
+        p = p.group
+    }
+    return ancestors
+}
+
 export class ElementDragHandler implements DragHandler {
 
     selector: string = "> " + SELECTOR_MANAGED_ELEMENT + ":not(" + cls(CLASS_OVERLAY) + ")"
@@ -428,13 +438,15 @@ export class ElementDragHandler implements DragHandler {
             this._intersectingGroups.length = 0
             this.instance.hoverSuspended = true
 
-            // get the drag element and find its descendants. then filter the drag selection to mark any descendant inactive,
+            // get the drag element and find its descendants + ancestors. then filter the drag selection to mark any descendant or ancestor inactive,
             // as they should not drag when an ancestor of theirs is being dragged.
             const originalElement = params.drag.getDragElement(true),
                 descendants = originalElement.querySelectorAll(SELECTOR_MANAGED_ELEMENT),
+                ancestors = getAncestors(originalElement),
                 a:Array<Element> = []
 
             Array.prototype.push.apply(a, descendants)
+            Array.prototype.push.apply(a, ancestors)
 
             this._dragSelection.filterActiveSet((p:{id:string, jel:jsPlumbDOMElement}) => {
                 return a.indexOf(p.jel) === -1
