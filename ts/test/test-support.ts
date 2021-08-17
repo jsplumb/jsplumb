@@ -9,11 +9,6 @@ import {
 import {Connection, Endpoint, Overlay, UIGroup} from "@jsplumb/core"
 import { uuid } from "@jsplumb/util"
 
-// var mottle = new jsPlumbBrowserUI.EventManager();
-// var _t = function(el, evt, x, y) {
-//     mottle.trigger(el, evt, { pageX:x, pageY:y, screenX:x, screenY:y, clientX:x, clientY:y});
-// };
-
 function _randomEvent ():any {
     const x = Math.floor(Math.random() * 2000), y = Math.floor(Math.random() * 2000);
     return {
@@ -511,7 +506,6 @@ export class BrowserUITestSupport {
             epElCount = container.querySelectorAll(".jtk-endpoint").length,
             connElCount = container.querySelectorAll(".jtk-connector").length;
 
-        //console.log(container.__ta);
         for (var k in container.__ta) {
             for (var kk in container.__ta[k]) {
                 throw "Container event bindings not empty for key " + k;
@@ -552,12 +546,6 @@ export class BrowserUITestSupport {
     }
 
     uuid():string {
-//         var d0 = Math.random() * 0xffffffff | 0;
-//         var d1 = Math.random() * 0xffffffff | 0;
-//         var d2 = Math.random() * 0xffffffff | 0;
-//         var d3 = Math.random() * 0xffffffff | 0;
-//         var u = lut[d0 & 0xff] + lut[d0 >> 8 & 0xff] + lut[d0 >> 16 & 0xff] + lut[d0 >> 24 & 0xff] + '-' + lut[d1 & 0xff] + lut[d1 >> 8 & 0xff] + '-' + lut[d1 >> 16 & 0x0f | 0x40] + lut[d1 >> 24 & 0xff] + '-' + lut[d2 & 0x3f | 0x80] + lut[d2 >> 8 & 0xff] + '-' + lut[d2 >> 16 & 0xff] + lut[d2 >> 24 & 0xff] + lut[d3 & 0xff] + lut[d3 >> 8 & 0xff] + lut[d3 >> 16 & 0xff] + lut[d3 >> 24 & 0xff];
-//         return "j" + u.replace(/-/g, "")
         return uuid()
      }
  }
