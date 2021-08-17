@@ -2130,20 +2130,22 @@ var testSuite = function () {
     });
 
     test("nested groups, one group can't be dropped on another if allowNestedGroups is false", function() {
+        support.cleanup()
         var j = jsPlumbBrowserUI.newInstance({
             container:container,
             allowNestedGroups:false
-        });
+        }),
+            support2 = jsPlumbTestSupport.getInstanceQUnit(j)
 
         var groupA = _addGroupAndContainer(400,400, j),
             groupB = _addGroupAndContainer(100,100, j);
 
-        support.dragToGroup(j, groupB.el, groupA);
+        support2.dragToGroup(groupB.el, groupA);
 
         equal(j.getContainer(), groupB.el.parentNode, "groupB is child of jsplumb container in the DOM (it wasnt dropped because allowNestedGroups is false)");
         equal(groupA.getGroups().length, 0, "groupA has no child groups");
 
-        j.destroy();
+        support2.cleanup()
     });
 
     test("nested groups, remove a group that has child groups, with deleteMembers true - should remove child groups too", function() {
