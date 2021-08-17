@@ -1,0 +1,36 @@
+{
+  "name": "@jsplumb/test",
+  "version": "5.0.0-RC20",
+  "description": "",
+  "main": "js/jsplumb.test.cjs.js",
+  "module": "js/jsplumb.test.es.js",
+  "directories": {
+    "doc": "doc",
+    "test": "tests"
+  },
+  "files": [
+    "**/*.d.ts",
+    "js/jsplumb.test.umd.js",
+    "js/jsplumb.test.cjs.js",
+    "js/jsplumb.test.es.js"
+  ],
+  "types": "types/index.d.ts",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jsplumb/jsplumb.git",
+    "directory": "ts/test"
+  },
+  "keywords": [
+    "javascript",
+    "svg",
+    "visual",
+    "connectivity"
+  ],
+  "author": "jsPlumb (hello@jsplumbtoolkit.com)",
+  "license": "(MIT OR GPL-2.0)",
+  "dependencies": {
+    "@jsplumb/browser-ui": "5.0.0-RC20"
+  },
+  "devDependencies": {}
+}
