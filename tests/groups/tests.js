@@ -398,7 +398,7 @@ var testSuite = function () {
 
     });
 
-    test("adding to/removing from group programnmatically, test that elements are managed correctly and their `group` flag is set - nested groups", function() {
+    test("adding to/removing from group programmatically, test that elements are managed correctly and their `group` flag is set - nested groups", function() {
         var gg = support.addDiv("group1")
         gg.style.width = "600px";
         gg.style.height = "600px";
@@ -2111,6 +2111,68 @@ var testSuite = function () {
         equal(parseInt(nodeA.style.top, 10), 0, "Node A at top 0")
         equal(0, groupB.children.length, "groupB has no children")
         equal(1, groupA.children.length, "groupA has one child")
+    });
+
+    test("nested groups, a nested group is in the drag selection, should not drag when its parent is dragged.", function() {
+        var groupA = _addGroupAndContainer(400,400),
+            groupB = _addGroupAndContainer(100,100),
+            n2_1 = _addNodeToGroup(groupB);
+
+        groupA.orphan = true;
+
+        support.dragToGroup( groupB.el, groupA);
+
+        equal(_jsPlumb.getGroupContentArea(groupA), groupB.el.parentNode, "groupB is child of groupA in the DOM");
+        equal(groupA.getGroups().length, 1, "groupA has one child group");
+
+        equal(parseInt(groupB.el.style.left, 10), 200, "group b at left 200")
+        equal(parseInt(groupB.el.style.top, 10), 200, "group b at top 200")
+
+        equal(parseInt(n2_1.style.left, 10), 30, "n2_1 at left 30")
+        equal(parseInt(n2_1.style.top, 10), 30, "n2_1 at top 30")
+
+        _jsPlumb.addToDragSelection(groupB.el)
+        _jsPlumb.addToDragSelection(n2_1)
+
+        support.dragNodeBy(groupA.el, 100, 100)
+
+        equal(parseInt(groupB.el.style.left, 10), 200, "group b still at left 200")
+        equal(parseInt(groupB.el.style.top, 10), 200, "group b still at top 200")
+        equal(parseInt(n2_1.style.left, 10), 30, "n2_1 still at left 30")
+        equal(parseInt(n2_1.style.top, 10), 30, "n2_1 still at top 30")
+
+    });
+
+    test("nested groups, a group is in the drag selection, should not drag when one of its descendants is dragged.", function() {
+        var groupA = _addGroupAndContainer(400,400),
+            groupB = _addGroupAndContainer(100,100),
+            n2_1 = _addNodeToGroup(groupB);
+
+        groupA.orphan = true;
+
+        support.dragToGroup( groupB.el, groupA);
+
+        equal(_jsPlumb.getGroupContentArea(groupA), groupB.el.parentNode, "groupB is child of groupA in the DOM");
+        equal(groupA.getGroups().length, 1, "groupA has one child group");
+
+        equal(parseInt(groupB.el.style.left, 10), 200, "group b at left 200")
+        equal(parseInt(groupB.el.style.top, 10), 200, "group b at top 200")
+
+        equal(parseInt(n2_1.style.left, 10), 30, "n2_1 at left 30")
+        equal(parseInt(n2_1.style.top, 10), 30, "n2_1 at top 30")
+
+        const gaLeft = parseInt(groupA.el.style.left, 10)
+        const gaTop = parseInt(groupA.el.style.top, 10)
+
+        _jsPlumb.addToDragSelection(groupB.el)
+        _jsPlumb.addToDragSelection(groupA.el)
+
+        support.dragNodeBy(n2_1, -20, -20)
+
+        equal(parseInt(groupB.el.style.left, 10), 200, "group b still at left 200")
+        equal(parseInt(groupB.el.style.top, 10), 200, "group b still at top 200")
+        equal(parseInt(groupA.el.style.left, 10), gaLeft, "group a still at left " + gaLeft)
+        equal(parseInt(groupA.el.style.top, 10), gaTop, "group a still at top " + gaTop)
     });
 
     test("nested groups, support allowNestedGroups flag on jsplumb constructor (defaults to true)", function() {
