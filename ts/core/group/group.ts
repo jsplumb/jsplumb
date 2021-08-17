@@ -174,7 +174,7 @@ export class UIGroup<E = any> extends UINode<E> {
 
         for (let i = 0; i < this.children.length; i++) {
             let newPosition = this.manager.orphan(this.children[i].el, false)
-            orphanedPositions[newPosition[0]] = newPosition[1]
+            orphanedPositions[newPosition.id] = newPosition.pos
         }
         this.children.length = 0
 
