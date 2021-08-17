@@ -63,14 +63,16 @@ export interface DragPayload {
     payload?:Record<string, any>
 }
 
+export type DraggedElement = {el:jsPlumbDOMElement, id:string, pos:PointXY, originalPos:PointXY, originalGroup:UIGroup, draggedOutOfGroup:boolean, redrawResult:RedrawResult, reverted:boolean}
+
 /**
  * Payload for `drag:stop` event. In addition to the base payload, contains a redraw result object, listing all the connections and endpoints that were affected by the drag.
  */
-export interface DragStopPayload extends DragPayload {
-    r:RedrawResult
-    dropGroup?:UIGroup<Element>
-    originalGroup?:UIGroup<Element>
-    //draggedOutOfGroup:boolean
+export interface DragStopPayload {
+    elements:Array<DraggedElement>
+    e:Event
+    el:Element
+    payload?:Record<string, any>
 }
 
 /**
@@ -155,7 +157,7 @@ export class ElementDragHandler implements DragHandler {
         return dropGroup
     }
 
-    onStop(params:DragStopEventParams, daggedOutOfGroup?:boolean, originalGoup?:UIGroup, dropGoup?:IntersectingGroup):void {
+    onStop(params:DragStopEventParams):void {
 
         const jel = params.drag.getDragElement() as unknown as jsPlumbDOMElement
 
@@ -165,7 +167,7 @@ export class ElementDragHandler implements DragHandler {
         we have `dropGroup`, which is the group that the focus element was perhaps dropped on. we now need to create a list of
         elements to process, with their element, id, and offset.
          */
-        const elementsToProcess:Array<{el:jsPlumbDOMElement, id:string, pos:PointXY, originalPos:PointXY, originalGroup:UIGroup, draggedOutOfGroup:boolean, redrawResult:RedrawResult, reverted:boolean}> = []
+        const elementsToProcess:Array<DraggedElement> = []
         elementsToProcess.push({
             el:jel,
             id:this.instance.getId(jel),
@@ -183,6 +185,26 @@ export class ElementDragHandler implements DragHandler {
                     x:params.finalPos.x + o.x,
                     y:params.finalPos.y + o.y
                 }
+                let x = pp.x, y = pp.y
+
+                // TODO this is duplicated in dragSelection's update offsets method.
+                // and of course in the group drag constrain args in the jsplumb constructor
+                if (el._jsPlumbParentGroup && el._jsPlumbParentGroup.constrain) {
+
+                    const constrainRect = {
+                        w: el.parentNode.offsetWidth + el.parentNode.scrollLeft,
+                        h: el.parentNode.offsetHeight + el.parentNode.scrollTop
+                    };
+
+                    x = Math.max(x, 0)
+                    y = Math.max(y, 0)
+                    x = Math.min(x, constrainRect.w - s.w)
+                    y = Math.min(y, constrainRect.h - s.h)
+
+                    pp.x = x
+                    pp.y = y
+                }
+
                 const op = {
                     x:params.originalPos.x + o.x,
                     y:params.originalPos.y + o.y
@@ -195,13 +217,11 @@ export class ElementDragHandler implements DragHandler {
 
         // now we have a list of all the elements that have been dragged.
 
-        forEach(elementsToProcess, (p:{el:jsPlumbDOMElement, id:string, pos:PointXY, originalPos:PointXY,
-                                            originalGroup:UIGroup, draggedOutOfGroup:boolean,
-                                            redrawResult:RedrawResult, reverted:boolean})=> {
+        forEach(elementsToProcess, (p:DraggedElement)=> {
             let wasInGroup = p.originalGroup != null,
-                isInGroup = wasInGroup && isInsideParent(this.instance, p.el, p.pos)
+                isInOriginalGroup = wasInGroup && isInsideParent(this.instance, p.el, p.pos)
 
-            if (wasInGroup && !isInGroup) {
+            if (wasInGroup && !isInOriginalGroup) {
                 if (dropGroup == null) {
                     // the element may be pruned or orphaned by its group
                     const orphanedPosition = this._pruneOrOrphan(p, true, true)
@@ -220,7 +240,7 @@ export class ElementDragHandler implements DragHandler {
                 }
             }
 
-            if (dropGroup != null) {
+            if (dropGroup != null && !isInOriginalGroup) {
                 this.instance.groupManager.addToGroup(dropGroup.groupLoc.group, false, p.el)
             }
 
@@ -271,7 +291,7 @@ export class ElementDragHandler implements DragHandler {
             }
         }
 
-        this.instance.fire(EVENT_DRAG_STOP, {
+        this.instance.fire<DragStopPayload>(EVENT_DRAG_STOP, {
             elements:elementsToProcess,
             e:params.e,
             el:jel,
