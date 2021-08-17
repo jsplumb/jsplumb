@@ -67,7 +67,7 @@ var testSuite = function () {
             consoleOutput = null
             makeContainer()
             _jsPlumb = jsPlumbBrowserUI.newInstance({container:container});
-            support = jsPlumbTestSupport.getInstance(_jsPlumb);
+            support = jsPlumbTestSupport.getInstanceQUnit(_jsPlumb);
             defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
         }
     });
@@ -3077,7 +3077,7 @@ var testSuite = function () {
 
         ok(_jsPlumb.defaults.anchors[0] == null, "still no anchors set after providing Anchors to an instance");
 
-        jsPlumbTestSupport.getInstance(j).cleanup();
+        jsPlumbTestSupport.getInstanceQUnit(j).cleanup();
         foo.parentNode.removeChild(foo);
 
     });

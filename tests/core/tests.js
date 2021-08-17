@@ -25,7 +25,7 @@ var testSuite = function () {
         setup: function () {
             makeContainer()
             _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
-            support = jsPlumbTestSupport.getInstance(_jsPlumb);
+            support = jsPlumbTestSupport.getInstanceQUnit(_jsPlumb);
             defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
         }
     });
@@ -165,7 +165,7 @@ var testSuite = function () {
     //     document.body.appendChild(foo);
     //     var d1 = support.addDiv("d1"),
     //         _jsp2 = jsPlumbBrowserUI.newInstance({container:foo}),
-    //         support2 = jsPlumbTestSupport.getInstance(_jsp2),
+    //         support2 = jsPlumbTestSupport.getInstanceQUnit(_jsp2),
     //         d2 = support2.addDiv("d2");
     //
     //     d1.removeAttribute("data-jtk-managed");

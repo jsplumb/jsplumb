@@ -25,7 +25,7 @@ var reinit = function(defaults) {
     support.cleanup()
 
     _jsPlumb = jsPlumbBrowserUI.newInstance((d));
-    support = jsPlumbTestSupport.getInstance(_jsPlumb);
+    support = jsPlumbTestSupport.getInstanceQUnit(_jsPlumb);
     defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
 }
 
@@ -78,7 +78,7 @@ var testSuite = function () {
             makeContainer()
 
             _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
-            support = jsPlumbTestSupport.getInstance(_jsPlumb);
+            support = jsPlumbTestSupport.getInstanceQUnit(_jsPlumb);
             defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
 
             var epElCount = document.querySelectorAll(".jtk-endpoint").length,
@@ -507,7 +507,7 @@ var testSuite = function () {
         // Use jsplumb.hasClass here; IE11 doesnt have `classList` on SVG element
         ok(!_jsPlumb.hasClass(cc, "jtk-dragging"), "jtk-dragging class removed from connection after drag");
 
-        support.dragtoDistantLand(e2);
+        support.dragToDistantLand(e2);
 
         ok(!ec1.classList.contains("endpointDrag"), "endpointDrag class removed from endpoint after drag");
         ok(!ec1.classList.contains("jtk-dragging"), "jtk-dragging class removed from endpoint after drag");

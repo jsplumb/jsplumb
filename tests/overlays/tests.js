@@ -26,7 +26,7 @@ var testSuite = function () {
         setup: function () {
             makeContainer()
             _jsPlumb = jsPlumbBrowserUI.newInstance({container:container});
-            support = jsPlumbTestSupport.getInstance(_jsPlumb);
+            support = jsPlumbTestSupport.getInstanceQUnit(_jsPlumb);
         }
     });
 

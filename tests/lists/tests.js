@@ -79,7 +79,7 @@ var testSuite = function () {
             container = document.createElement("j" + jsPlumbUtil.uuid().replace(/-/g, ""))
             document.body.appendChild(container)
             _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
-            support = jsPlumbTestSupport.getInstance(_jsPlumb);
+            support = jsPlumbTestSupport.getInstanceQUnit(_jsPlumb);
             defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
             listManager = jsPlumbBrowserUILists.newInstance(_jsPlumb)
         }

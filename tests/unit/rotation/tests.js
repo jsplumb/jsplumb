@@ -30,7 +30,7 @@ var defaults = null, support,
 var testSuite = function (_jsPlumb) {
 
     var renderMode = jsPlumb.SVG;
-    support = jsPlumbTestSupport.getInstance(_jsPlumb);
+    support = jsPlumbTestSupport.getInstanceQUnit(_jsPlumb);
 
     module("Rotations", {
         teardown: function () {

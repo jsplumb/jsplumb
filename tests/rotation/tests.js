@@ -35,7 +35,7 @@ var testSuite = function () {
         },
         setup: function () {
             _jsPlumb = jsPlumbBrowserUI.newInstance({container:document.getElementById("container")});
-            support = jsPlumbTestSupport.getInstance(_jsPlumb);
+            support = jsPlumbTestSupport.getInstanceQUnit(_jsPlumb);
             defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
         }
     });

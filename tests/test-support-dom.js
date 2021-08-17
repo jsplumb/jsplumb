@@ -227,6 +227,16 @@ if (Array.prototype.forEach == null) {
         _jsPlumb.trigger(document, "mouseup", _distantPointEvent);
     };
 
+    var _dragToGroup = function(_jsPlumb, el, targetGroup, events) {
+        targetGroup = _jsPlumb.getGroup(targetGroup);
+        var tgo = _jsPlumb.getOffset(targetGroup.el),
+            tgs = _jsPlumb.getSize(targetGroup.el),
+            tx = tgo.x + (tgs.w / 2),
+            ty = tgo.y + (tgs.h / 2);
+
+        _dragNodeTo(_jsPlumb, el, tx, ty, events);
+    };
+
     //
     // helper method to cause a connection to be detached via the mouse, but programmatically.
     var _detachConnection = function (_jsPlumb, e, connIndex) {
@@ -330,7 +340,7 @@ if (Array.prototype.forEach == null) {
                 return d1;
             };
 
-            var _addDraggableDiv = function (_jsPlumb, id, parent, className, x, y, w, h) {
+            var _addDiv = function (_jsPlumb, id, parent, className, x, y, w, h) {
                 var d = _addDiv.apply(null, [id, parent, className, x, y, w, h]);
                 //_jsPlumb.draggable(d);
                 return d;
@@ -382,6 +392,8 @@ if (Array.prototype.forEach == null) {
 
                 dragNodeTo:_dragNodeTo.bind(null, _jsPlumb),
 
+                dragToGroup:_dragToGroup.bind(null, _jsPlumb),
+
                 aSyncDragNodeBy:_aSyncDragNodeBy.bind(null, _jsPlumb),
 
                 dragANodeAround:_dragANodeAround.bind(null, _jsPlumb),
@@ -412,7 +424,7 @@ if (Array.prototype.forEach == null) {
 
                 addDiv:_addDiv,
                 addDivs:_addDivs,
-                addDraggableDiv:_addDraggableDiv.bind(null, _jsPlumb),
+                addDiv:_addDiv.bind(null, _jsPlumb),
                 assertEndpointCount:_assertEndpointCount.bind(null, _jsPlumb),
 
                 assertManagedEndpointCount:_assertManagedEndpointCount.bind(null, _jsPlumb),

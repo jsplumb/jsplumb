@@ -25,7 +25,7 @@ var reinit = function(defaults) {
     support.cleanup()
 
     _jsPlumb = jsPlumbBrowserUI.newInstance((d));
-    support = jsPlumbTestSupport.getInstance(_jsPlumb);
+    support = jsPlumbTestSupport.getInstanceQUnit(_jsPlumb);
     defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
 }
 
@@ -78,7 +78,7 @@ var testSuite = function () {
             makeContainer()
 
             _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
-            support = jsPlumbTestSupport.getInstance(_jsPlumb);
+            support = jsPlumbTestSupport.getInstanceQUnit(_jsPlumb);
             defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
 
             var epElCount = document.querySelectorAll(".jtk-endpoint").length,
@@ -274,9 +274,9 @@ var testSuite = function () {
 
     test("drag multiple elements and ensure their connections are painted correctly at the end", function() {
 
-        var d1 = support.addDraggableDiv ('d1', null, null,50, 50, 100, 100);
-        var d2 = support.addDraggableDiv ('d2', null, null,250, 250, 100, 100);
-        var d3 = support.addDraggableDiv ('d3', null, null,500, 500, 100, 100);
+        var d1 = support.addDiv ('d1', null, null,50, 50, 100, 100);
+        var d2 = support.addDiv ('d2', null, null,250, 250, 100, 100);
+        var d3 = support.addDiv ('d3', null, null,500, 500, 100, 100);
 
         var e1 = _jsPlumb.addEndpoint(d1, {
             anchor:"TopLeft"
@@ -335,9 +335,9 @@ var testSuite = function () {
 
     test("drag selection, add/remove", function() {
 
-        var d1 = support.addDraggableDiv('d1', null, null, 50, 50, 100, 100);
-        var d2 = support.addDraggableDiv('d2', null, null, 250, 250, 100, 100);
-        var d3 = support.addDraggableDiv('d3', null, null, 500, 500, 100, 100);
+        var d1 = support.addDiv('d1', null, null, 50, 50, 100, 100);
+        var d2 = support.addDiv('d2', null, null, 250, 250, 100, 100);
+        var d3 = support.addDiv('d3', null, null, 500, 500, 100, 100);
 
         equal(_jsPlumb.dragSelection.length, 0, "drag selection is empty");
 
@@ -367,9 +367,9 @@ var testSuite = function () {
 
     test("drag selection, css classes", function() {
 
-        var d1 = support.addDraggableDiv('d1', null, null, 50, 50, 100, 100);
-        var d2 = support.addDraggableDiv('d2', null, null, 250, 250, 100, 100);
-        var d3 = support.addDraggableDiv('d3', null, null, 500, 500, 100, 100);
+        var d1 = support.addDiv('d1', null, null, 50, 50, 100, 100);
+        var d2 = support.addDiv('d2', null, null, 250, 250, 100, 100);
+        var d3 = support.addDiv('d3', null, null, 500, 500, 100, 100);
 
         equal(_jsPlumb.dragSelection.length, 0, "drag selection is empty");
 
@@ -384,9 +384,9 @@ var testSuite = function () {
 
     test("drag selection, unmanage event removes from selection", function() {
 
-        var d1 = support.addDraggableDiv('d1', null, null, 50, 50, 100, 100);
-        var d2 = support.addDraggableDiv('d2', null, null, 250, 250, 100, 100);
-        var d3 = support.addDraggableDiv('d3', null, null, 500, 500, 100, 100);
+        var d1 = support.addDiv('d1', null, null, 50, 50, 100, 100);
+        var d2 = support.addDiv('d2', null, null, 250, 250, 100, 100);
+        var d3 = support.addDiv('d3', null, null, 500, 500, 100, 100);
 
         equal(_jsPlumb.dragSelection.length, 0, "drag selection is empty");
 
@@ -401,9 +401,9 @@ var testSuite = function () {
 
     test("drag selection, instance destroy clears selection", function() {
 
-        var d1 = support.addDraggableDiv('d1', null, null, 50, 50, 100, 100);
-        var d2 = support.addDraggableDiv('d2', null, null, 250, 250, 100, 100);
-        var d3 = support.addDraggableDiv('d3', null, null, 500, 500, 100, 100);
+        var d1 = support.addDiv('d1', null, null, 50, 50, 100, 100);
+        var d2 = support.addDiv('d2', null, null, 250, 250, 100, 100);
+        var d3 = support.addDiv('d3', null, null, 500, 500, 100, 100);
 
         equal(_jsPlumb.dragSelection.length, 0, "drag selection is empty");
 

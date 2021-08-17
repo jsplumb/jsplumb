@@ -47,7 +47,7 @@ var testSuite = function () {
         setup: function () {
             makeContainer()
             _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
-            support = jsPlumbTestSupport.getInstance(_jsPlumb);
+            support = jsPlumbTestSupport.getInstanceQUnit(_jsPlumb);
             defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
 
         }
@@ -72,19 +72,19 @@ var testSuite = function () {
         return g;
     };
 
-    var _dragToGroup = function(_jsPlumb, el, targetGroup) {
-        targetGroup = _jsPlumb.getGroup(targetGroup);
-        var tgo = _jsPlumb.getOffset(targetGroup.el),
-            tgs = _jsPlumb.getSize(targetGroup.el),
-            tx = tgo.x + (tgs.w / 2),
-            ty = tgo.y + (tgs.h / 2);
-
-        //
-        //
-        support.dragNodeTo(el, tx, ty);
-        // _jsPlumb.getContainer().appendChild(el);
-        // support.dragNodeTo(el, tx, ty);
-    };
+    // var support.dragToGroup = function(_jsPlumb, el, targetGroup) {
+    //     targetGroup = _jsPlumb.getGroup(targetGroup);
+    //     var tgo = _jsPlumb.getOffset(targetGroup.el),
+    //         tgs = _jsPlumb.getSize(targetGroup.el),
+    //         tx = tgo.x + (tgs.w / 2),
+    //         ty = tgo.y + (tgs.h / 2);
+    //
+    //     //
+    //     //
+    //     support.dragNodeTo(el, tx, ty);
+    //     // _jsPlumb.getContainer().appendChild(el);
+    //     // support.dragNodeTo(el, tx, ty);
+    // };
     var c1,c2,c3,c4,c5,c6,c1_1,c1_2,c2_1,c2_2,c3_1,c3_2,c4_1,c4_2,c5_1,c5_2, c6_1, c6_2, c_noparent;
     var c1Id, c2Id, c3Id, c4Id, c5Id, c6Id;
     var g1, g2, g3, g4, g5, g6;
@@ -450,7 +450,7 @@ var testSuite = function () {
         equal(group.children.length, 0, "0 members in group at start");
 
 
-        _dragToGroup(_jsPlumb, child1, "one");
+        support.dragToGroup( child1, "one");
 
         equal(group.children.length, 1, "1 member in group after node drag/drop");
 
@@ -470,7 +470,7 @@ var testSuite = function () {
         // add child2 to the drag selection. when child1 is dragged it will be dragged too, and it should be dropped into the group also.
         _jsPlumb.addToDragSelection(child2)
 
-        _dragToGroup(_jsPlumb, child1, "one");
+        support.dragToGroup( child1, "one");
 
         equal(group.children.length, 2, " 2 members in group after node drag/drop because 2 members in the drag selection");
 
@@ -482,13 +482,13 @@ var testSuite = function () {
         equal(_jsPlumb.getGroup("four").children.length, 2, "2 members in group four at start");
 
         // drag 4_1 to group 3
-        _dragToGroup(_jsPlumb, c4_1, "three");
+        support.dragToGroup( c4_1, "three");
         equal(_jsPlumb.getGroup("four").children.length, 1, "1 member in group four after moving a node out");
         equal(_jsPlumb.getGroup("three").children.length, 3, "3 members in group three");
 
         // drag 4_2 to group 5 (which is not droppable)
         equal(_jsPlumb.getGroup("five").children.length, 2, "2 members in group five before drop attempt");
-        _dragToGroup(_jsPlumb, c4_2, "five");
+        support.dragToGroup( c4_2, "five");
         equal(_jsPlumb.getGroup("four").children.length, 0, "move to group 5 fails, not droppable: 0 members in group four because it prunes");
         equal(_jsPlumb.getGroup("five").children.length, 2, "but still only 2 members in group five");
 
@@ -530,31 +530,119 @@ var testSuite = function () {
 
     });
 
-    test("groups, dragging between groups, take 2", function() {
+    test("groups, dragging between groups, single nodes, take 2", function() {
         _setupGroups();
 
         // drag 4_2 to group 1 (which is not droppable)
         equal(_jsPlumb.getGroup("one").children.length, 2, "2 members in group one before attempted drop from group 1");
-        _dragToGroup(_jsPlumb, c4_2, "one");
+        support.dragToGroup( c4_2, "one");
         equal(_jsPlumb.getGroup("four").children.length, 1, "1 member in group four (it prunes on drop outside)");
         equal(_jsPlumb.getGroup("one").children.length, 2, "2 members in group one after failed drop: group 1 not droppable");
 
         // drag 4_1 to group 2 (which is droppable)
         equal(_jsPlumb.getGroup("two").children.length, 2, "2 members in group two before drop from group 4");
-        _dragToGroup(_jsPlumb, c4_1, "two");
+        support.dragToGroup( c4_1, "two");
         equal(_jsPlumb.getGroup("four").children.length, 0, "0 members in group four after dropping el on group 2");
         equal(_jsPlumb.getGroup("two").children.length, 3, "3 members in group two after dropping el from group 4");
 
         // drag 1_2 to group 2 (group 1 has constrain switched on; should not drop even though 2 is droppable)
-        _dragToGroup(_jsPlumb, c1_2, "two");
+        support.dragToGroup( c1_2, "two");
         equal(_jsPlumb.getGroup("two").children.length, 3, "3 members in group two after attempting drop from group 1");
         equal(_jsPlumb.getGroup("one").children.length, 2, "2 members in group one after drop on group 2 failed due to constraint");
 
-        // drag 2_1 to group 3. should not work, as group 2 has overrideDrop set.
-        equal(_jsPlumb.getGroup("three").children.length, 2, "2 members in group three before attempted drop");
-        _dragToGroup(_jsPlumb, c1_2, "three");
-        equal(_jsPlumb.getGroup("two").children.length, 3, "3 members in group two after attempting to drag one out");
+        // drag 1_2 to group 3. should not work, as group 1 has constrain set.
+        // equal(_jsPlumb.getGroup("three").children.length, 2, "2 members in group three before attempted drop");
+        // support.dragToGroup( c1_2, "three");
+        // equal(_jsPlumb.getGroup("one").children.length, 2, "2 members in group one after attempting to drag one out");
+        // equal(_jsPlumb.getGroup("three").children.length, 2, "still 2 members in group three after attempted drop");
+
+    });
+
+
+    test("groups, dragging between groups, multiple nodes", function() {
+
+        _setupGroups();
+
+        _jsPlumb.addToDragSelection(c4_1)
+
+        // drag 4_2 to group 1 (which is not droppable)
+        equal(_jsPlumb.getGroup("one").children.length, 2, "2 members in group one before attempted drop from group 1");
+        support.dragToGroup( c4_2, "one");
+        equal(_jsPlumb.getGroup("four").children.length, 0, "0 members in group four (it prunes on drop outside and both of its nodes were dragged)");
+        equal(_jsPlumb.getGroup("one").children.length, 2, "2 members in group one after failed drop: group 1 not droppable");
+
+
+        // drag 3_1 (and 3_2, because it's in the selection) to group 2 (which is droppable)
+        _jsPlumb.clearDragSelection()
+        _jsPlumb.addToDragSelection(c3_2)
+        equal(_jsPlumb.getGroup("two").children.length, 2, "2 members in group two before drop from group 4");
+        support.dragToGroup( c3_1, "two");
+        equal(_jsPlumb.getGroup("three").children.length, 0, "0 members in group three after dropping elements on group 2");
+        equal(_jsPlumb.getGroup("two").children.length, 4, "4 members in group two after dropping elements from group 3");
+
+        // drag 1_2 and 1_1 to group 2 (group 1 has constrain switched on; should not drop even though 2 is droppable)
+        _jsPlumb.clearDragSelection()
+        _jsPlumb.addToDragSelection(c1_1)
+        support.dragToGroup( c1_2, "two");
+        equal(_jsPlumb.getGroup("two").children.length, 4, "still 4 members in group two after failed at attempting drop from group 1");
+        equal(_jsPlumb.getGroup("one").children.length, 2, "2 members in group one after drop on group 2 failed due to constraint");
+
+        // drag 5_1 and 5_2 to group 3. should work
+        _jsPlumb.clearDragSelection()
+        _jsPlumb.addToDragSelection(c5_1)
+        equal(_jsPlumb.getGroup("five").children.length, 2, "2 members in group five before attempted drop");
+        support.dragToGroup( c5_2, "three");
+        equal(_jsPlumb.getGroup("five").children.length, 0, "0 members in group five after dragging both out");
         equal(_jsPlumb.getGroup("three").children.length, 2, "still 2 members in group three after attempted drop");
+
+    });
+
+    test("groups, dragging between groups, multiple nodes across multiple groups", function() {
+
+        _setupGroups();
+
+        _jsPlumb.addToDragSelection(c4_1)
+        // drag 3_1 and 4_1 to group 1 (which is not droppable); it will fail
+        equal(_jsPlumb.getGroup("one").children.length, 2, "2 members in group one before attempted drop from groups 3 and 4");
+        equal(_jsPlumb.getGroup("three").children.length, 2, "2 members in group three before attempted drop from groups 3 and 4");
+        equal(_jsPlumb.getGroup("four").children.length, 2, "2 members in group four before attempted drop from groups 3 and 4");
+        support.dragToGroup( c4_2, "one");
+        equal(_jsPlumb.getGroup("four").children.length, 0, "0 members in group four (it prunes on drop outside)");
+        equal(_jsPlumb.getGroup("one").children.length, 2, "2 members in group one after failed drop: group 1 not droppable");
+        equal(_jsPlumb.getGroup("three").children.length, 2, "2 members in group three (it reverts on drop outside)");
+
+
+        // drag 3_1 (and 5_2 and 1_1 because it's in the selection although in a different group) to group 2 (which is droppable)
+        // group 1 has 'constrain' switched on and so its node should never leave the group.
+        _jsPlumb.clearDragSelection()
+        _jsPlumb.addToDragSelection(c5_2)
+        _jsPlumb.addToDragSelection(c1_1)
+        equal(_jsPlumb.getGroup("two").children.length, 2, "2 members in group two before drop from groups 5 and 3 and 1");
+        equal(_jsPlumb.getGroup("five").children.length, 2, "2 members in group five before drop from groups 5 and 3 and 1");
+        equal(_jsPlumb.getGroup("three").children.length, 2, "2 members in group three before drop from groups 5 and 3 and 1");
+        equal(_jsPlumb.getGroup("one").children.length, 2, "2 members in group one before drop from groups 5 and 3 and 1");
+        support.dragToGroup( c3_1, "two", {
+            
+        });
+        equal(_jsPlumb.getGroup("three").children.length, 1, "1 member in group three after dropping element on group 2");
+        equal(_jsPlumb.getGroup("five").children.length, 1, "1 member in group five after dropping element on group 2");
+        equal(_jsPlumb.getGroup("one").children.length, 2, "2 members in group one after failing to drop element on group 2 due to group 1's constrain flag");
+        equal(_jsPlumb.getGroup("two").children.length, 4, "4 members in group two after dropping elements from groups 3 and 5");
+
+        // // drag 1_2 and 1_1 to group 2 (group 1 has constrain switched on; should not drop even though 2 is droppable)
+        // _jsPlumb.clearDragSelection()
+        // _jsPlumb.addToDragSelection(c1_1)
+        // support.dragToGroup( c1_2, "two");
+        // equal(_jsPlumb.getGroup("two").children.length, 4, "still 4 members in group two after failed at attempting drop from group 1");
+        // equal(_jsPlumb.getGroup("one").children.length, 2, "2 members in group one after drop on group 2 failed due to constraint");
+        //
+        // // drag 5_1 and 5_2 to group 3. should work
+        // _jsPlumb.clearDragSelection()
+        // _jsPlumb.addToDragSelection(c5_1)
+        // equal(_jsPlumb.getGroup("five").children.length, 2, "2 members in group five before attempted drop");
+        // support.dragToGroup( c5_2, "three");
+        // equal(_jsPlumb.getGroup("five").children.length, 0, "0 members in group five after dragging both out");
+        // equal(_jsPlumb.getGroup("three").children.length, 2, "still 2 members in group three after attempted drop");
 
     });
 
@@ -569,7 +657,7 @@ var testSuite = function () {
         // try dragging 1_2 right out of the box and dropping it. it should not work: c1 has constrain switched on.
         // 1_2 will end up in the bottom right corner of the group.
         //var c12o = _jsPlumb.getOffset(c1_2);
-        support.dragtoDistantLand(c1_2);
+        support.dragToDistantLand(c1_2);
         equal(_jsPlumb.getGroup("one").children.length, 2, "2 members in group one");
         // check the node has not actually moved.
         var c1_2_pos = getNodePosition(c1_2);
@@ -579,7 +667,7 @@ var testSuite = function () {
         // try dragging 2_2 right out of the box and dropping it.
         //var c22o = _jsPlumb.getOffset(c2_2);
         var c2_2_pos = getNodePosition(c2_2);
-        support.dragtoDistantLand(c2_2);
+        support.dragToDistantLand(c2_2);
         equal(_jsPlumb.getGroup("two").children.length, 2, "2 members in group two");
         // check the node position
         var c2_2_pos2 = getNodePosition(c2_2);
@@ -587,23 +675,26 @@ var testSuite = function () {
 
         // c3, should also allow nodes to be dropped outside
         var c32o = getNodePosition(c3_2);
-        support.dragtoDistantLand(c3_2);
+        support.dragToDistantLand(c3_2);
         equal(_jsPlumb.getGroup("three").children.length, 2, "2 members in group three");
         // check the node has moved. but just not removed from the group.
         var c32o2 = getNodePosition(c3_2);
         ok(positionsNotEqual(c32o, c32o2), "left and top positions changed");
 
         // c4 prunes nodes on drop outside
-        support.dragtoDistantLand(c4_2);
+        support.dragToDistantLand(c4_2);
         equal(_jsPlumb.getGroup("four").children.length, 1, "1 member in group four");
         ok(c4_2.parentNode == null, "c4_2 removed from DOM");
 
         // c5 orphans nodes on drop outside (remove from group but not from DOM)
-        support.dragtoDistantLand(c5_2);
+        support.dragToDistantLand(c5_2);
         equal(_jsPlumb.getGroup("five").children.length, 1, "1 member in group five");
         ok(c5_2.parentNode != null, "c5_2 still in DOM");
     });
 
+    //
+    // this test only tests dragging nodes out of groups and dropping them in whitespace. It does nto test dragging between groups.
+    //
     test("dragging nodes out of groups, multiple nodes", function() {
         _setupGroups();
 
@@ -617,7 +708,7 @@ var testSuite = function () {
         // try dragging 1_2 (and 1_1) right out of the box and dropping it. it should not work: c1 has constrain switched on.
         // 1_2 will end up in the bottom right corner of the group.
         //var c12o = _jsPlumb.getOffset(c1_2);
-        support.dragtoDistantLand(c1_2);
+        support.dragToDistantLand(c1_2);
         equal(_jsPlumb.getGroup("one").children.length, 2, "2 members in group one");
         // check the nodes have not actually moved.
         var c1_2_pos = getNodePosition(c1_2);
@@ -633,7 +724,7 @@ var testSuite = function () {
         // try dragging 2_2 right out of the box and dropping it. g2 has dropOverride:true so this should not be possible.
         var c2_2_pos = getNodePosition(c2_2);
         var c2_1_pos = getNodePosition(c2_1);
-        support.dragtoDistantLand(c2_2);
+        support.dragToDistantLand(c2_2);
         equal(_jsPlumb.getGroup("two").children.length, 2, "2 members in group two");
         // check the node position
         var c2_2_pos2 = getNodePosition(c2_2);
@@ -646,7 +737,7 @@ var testSuite = function () {
         _jsPlumb.addToDragSelection(c3_1)
         var c32o = getNodePosition(c3_2);
         var c31o = getNodePosition(c3_1);
-        support.dragtoDistantLand(c3_2);
+        support.dragToDistantLand(c3_2);
         equal(_jsPlumb.getGroup("three").children.length, 2, "2 members in group three");
         // check the node has moved. but just not removed from the group.
         var c32o2 = getNodePosition(c3_2);
@@ -658,7 +749,7 @@ var testSuite = function () {
         _jsPlumb.clearDragSelection()
         _jsPlumb.addToDragSelection(c4_1)
         //var c32o = getNodePosition(c3_2);
-        support.dragtoDistantLand(c4_2);
+        support.dragToDistantLand(c4_2);
         equal(_jsPlumb.getGroup("four").children.length, 0, "0 members in group four - they were both dragged out.");
         ok(c4_2.parentNode == null, "c4_2 removed from DOM");
         ok(c4_1.parentNode == null, "c4_1 removed from DOM");
@@ -666,7 +757,7 @@ var testSuite = function () {
         // c5 orphans nodes on drop outside (remove from group but not from DOM)
         _jsPlumb.clearDragSelection()
         _jsPlumb.addToDragSelection(c5_1)
-        support.dragtoDistantLand(c5_2);
+        support.dragToDistantLand(c5_2);
         equal(_jsPlumb.getGroup("five").children.length, 0, "0 members in group five - they were both dragged out");
         ok(c5_2.parentNode != null, "c5_2 still in DOM");
         ok(c5_1.parentNode != null, "c5_1 still in DOM");
@@ -688,7 +779,7 @@ var testSuite = function () {
         equal(c3_1._jsPlumbParentGroup.id, "three", "group three is parent of c3_1");
 
         // 2. drag its source to group 1
-        _dragToGroup(_jsPlumb, c3_1, "four");
+        support.dragToGroup( c3_1, "four");
         equal(_jsPlumb.getGroup("three").connections.internal.length, 0, "zero internal connections in group 3");
         equal(_jsPlumb.getGroup("four").connections.source.length, 1, "one source connection in group 4");
         equal(_jsPlumb.getGroup("three").connections.target.length, 1, "one target connection in group 3");
@@ -888,7 +979,7 @@ var testSuite = function () {
         equal(c2.proxies[0].originalEp.element.id, "c3_2", "source connection has been correctly proxied");
         ok(c2.proxies[1] == null, "target connection has been correctly proxied");
 
-        _dragToGroup(_jsPlumb, c4_2, "three");
+        support.dragToGroup( c4_2, "three");
 
         equal(_jsPlumb.getGroup("three").children.length, 3, "there are 3 members in group 3 after node c4_1 dropped in it");
         equal(_jsPlumb.getGroup("four").children.length, 1, "there is 1 member in group 4 after node c4_1 moved out");
@@ -902,7 +993,7 @@ var testSuite = function () {
         equal(c.endpoints[0].element.id, "c4_2", "source endpoint reset to original");
         equal(c.endpoints[1].element.id, "c3_1", "target endpoint reset to original");
 
-        _dragToGroup(_jsPlumb, c5_1, "three");
+        support.dragToGroup( c5_1, "three");
         equal(_jsPlumb.getGroup("three").children.length, 4, "there are 4 members in group 3 after node moved dropped ");
         equal(_jsPlumb.getGroup("five").children.length, 1, "there is 1 member in group 5 after node moved out");
         ok(c3.proxies[0] == null, "source in connection dropped on collapsed group did not need to be proxied");
@@ -1160,8 +1251,8 @@ var testSuite = function () {
             constrain:false
         });
 
-        // _dragToGroup(_jsPlumb, d3, group)
-        // _dragToGroup(_jsPlumb, d1, group)
+        // support.dragToGroup( d3, group)
+        // support.dragToGroup( d1, group)
         _jsPlumb.addToGroup(group, d1, d3)
 
         _jsPlumb.connect({source:d1, target:g, anchor:"Continuous", endpoint:"Blank"})
@@ -1975,7 +2066,7 @@ var testSuite = function () {
         var groupA = _addGroupAndContainer(400,400),
             groupB = _addGroupAndContainer(100,100);
 
-        _dragToGroup(_jsPlumb, groupB.el, groupA);
+        support.dragToGroup( groupB.el, groupA);
 
         equal(_jsPlumb.getGroupContentArea(groupA), groupB.el.parentNode, "groupB is child of groupA in the DOM");
         equal(groupA.getGroups().length, 1, "groupA has one child group");
@@ -1988,12 +2079,12 @@ var testSuite = function () {
 
         groupA.orphan = true;
 
-        _dragToGroup(_jsPlumb, groupB.el, groupA);
+        support.dragToGroup( groupB.el, groupA);
 
         equal(_jsPlumb.getGroupContentArea(groupA), groupB.el.parentNode, "groupB is child of groupA in the DOM");
         equal(groupA.getGroups().length, 1, "groupA has one child group");
 
-        support.dragtoDistantLand(groupB.el);
+        support.dragToDistantLand(groupB.el);
         equal(_jsPlumb.getContainer(), groupB.el.parentNode, "groupB is no longer a child of groupA in the DOM after being dragged out");
         equal(groupA.getGroups().length, 0, "groupA has zero child groups");
         ok(groupB.group == null, "groupB has no parent group");
@@ -2007,7 +2098,7 @@ var testSuite = function () {
         groupA.orphan = true;
         groupB.orphan = true;
 
-        _dragToGroup(_jsPlumb, groupB.el, groupA);
+        support.dragToGroup( groupB.el, groupA);
 
         equal(_jsPlumb.getGroupContentArea(groupA), groupB.el.parentNode, "groupB is child of groupA in the DOM");
         equal(groupA.getGroups().length, 1, "groupA has one child group");
@@ -2047,7 +2138,7 @@ var testSuite = function () {
         var groupA = _addGroupAndContainer(400,400, j),
             groupB = _addGroupAndContainer(100,100, j);
 
-        _dragToGroup(j, groupB.el, groupA);
+        support.dragToGroup(j, groupB.el, groupA);
 
         equal(j.getContainer(), groupB.el.parentNode, "groupB is child of jsplumb container in the DOM (it wasnt dropped because allowNestedGroups is false)");
         equal(groupA.getGroups().length, 0, "groupA has no child groups");
@@ -2116,7 +2207,7 @@ var testSuite = function () {
         equal(_jsPlumb.groupManager.getGroups().length, 2, "2 groups in the instance");
         equal(groupB.getGroups().length, 1, "groupB reports one child group");
 
-        support.dragtoDistantLand(groupA.el);
+        support.dragToDistantLand(groupA.el);
 
         equal(_jsPlumb.groupManager.getGroups().length, 1, "1 group in the instance after nested group dragged out of parent that has prune:true set on it");
         equal(groupB.getGroups().length, 0, "groupB reports zero child groups");
@@ -2160,7 +2251,7 @@ var testSuite = function () {
         var g1 = _addGroupAndContainer(100,100),
             g2 = _addGroupAndContainer(400,400);
 
-        _dragToGroup(_jsPlumb, g1.el, g2);
+        support.dragToGroup( g1.el, g2);
 
         g2.orphan = true;
 
@@ -2168,10 +2259,10 @@ var testSuite = function () {
 
         // drag a node onto the nested group
         var d1 = _addNode(50, 50, 50, 50)
-        _dragToGroup(_jsPlumb, d1, g1)
+        support.dragToGroup( d1, g1)
         equal(g1.children.length, 1, "1 member in the nested group")
 
-        support.dragtoDistantLand(g1.el);
+        support.dragToDistantLand(g1.el);
         equal(true, nestedRemoved, "nested group removed event");
     });
 
