@@ -1861,19 +1861,40 @@
       _defineProperty(this, "_dragSelectionOffsets", new Map());
       _defineProperty(this, "_dragSizes", new Map());
       _defineProperty(this, "_dragElements", new Map());
+      _defineProperty(this, "__activeSet", void 0);
     }
     _createClass(DragSelection, [{
+      key: "_activeSet",
+      get: function get() {
+        if (this.__activeSet == null) {
+          return this._dragSelection;
+        } else {
+          return this.__activeSet;
+        }
+      }
+    }, {
       key: "length",
       get: function get() {
         return this._dragSelection.length;
       }
     }, {
+      key: "filterActiveSet",
+      value: function filterActiveSet(fn) {
+        var _this = this;
+        this.__activeSet = [];
+        util.forEach(this._dragSelection, function (p) {
+          if (fn(p)) {
+            _this.__activeSet.push(p);
+          }
+        });
+      }
+    }, {
       key: "clear",
       value: function clear() {
-        var _this = this;
+        var _this2 = this;
         this.reset();
         util.forEach(this._dragSelection, function (p) {
-          return _this.instance.removeClass(p.jel, CLASS_DRAG_SELECTED);
+          return _this2.instance.removeClass(p.jel, CLASS_DRAG_SELECTED);
         });
         this._dragSelection.length = 0;
       }
@@ -1883,37 +1904,38 @@
         this._dragSelectionOffsets.clear();
         this._dragSizes.clear();
         this._dragElements.clear();
+        this.__activeSet = null;
       }
     }, {
       key: "refreshOffsets",
       value: function refreshOffsets(origin) {
-        var _this2 = this;
-        util.forEach(this._dragSelection, function (p) {
-          var off = _this2.instance.getOffset(p.jel);
-          _this2._dragSelectionOffsets.set(p.id, {
+        var _this3 = this;
+        util.forEach(this._activeSet, function (p) {
+          var off = _this3.instance.getOffset(p.jel);
+          _this3._dragSelectionOffsets.set(p.id, {
             x: off.x - origin.x,
             y: off.y - origin.y
           });
-          _this2._dragSizes.set(p.id, _this2.instance.getSize(p.jel));
+          _this3._dragSizes.set(p.id, _this3.instance.getSize(p.jel));
         });
       }
     }, {
       key: "each",
       value: function each(f) {
-        var _this3 = this;
-        util.forEach(this._dragSelection, function (p) {
-          var s = _this3._dragSizes.get(p.id);
-          var o = _this3._dragSelectionOffsets.get(p.id);
+        var _this4 = this;
+        util.forEach(this._activeSet, function (p) {
+          var s = _this4._dragSizes.get(p.id);
+          var o = _this4._dragSelectionOffsets.get(p.id);
           f(p.jel, p.id, o, s);
         });
       }
     }, {
       key: "positionElements",
       value: function positionElements(bounds, callback) {
-        var _this4 = this;
-        util.forEach(this._dragSelection, function (p) {
-          var s = _this4._dragSizes.get(p.id);
-          var o = _this4._dragSelectionOffsets.get(p.id);
+        var _this5 = this;
+        util.forEach(this._activeSet, function (p) {
+          var s = _this5._dragSizes.get(p.id);
+          var o = _this5._dragSelectionOffsets.get(p.id);
           var _b = {
             x: bounds.x + o.x,
             y: bounds.y + o.y,
@@ -1958,12 +1980,12 @@
     }, {
       key: "remove",
       value: function remove(el) {
-        var _this5 = this;
+        var _this6 = this;
         var jel = el;
         this._dragSelection = this._dragSelection.filter(function (p) {
           var out = p.jel !== jel;
           if (!out) {
-            _this5.instance.removeClass(p.jel, CLASS_DRAG_SELECTED);
+            _this6.instance.removeClass(p.jel, CLASS_DRAG_SELECTED);
           }
           return out;
         });
@@ -2188,6 +2210,15 @@
       return false;
     }
   }
+  function getAncestors(el) {
+    var ancestors = [];
+    var p = el._jsPlumbParentGroup;
+    while (p != null) {
+      ancestors.push(p.el);
+      p = p.group;
+    }
+    return ancestors;
+  }
   var ElementDragHandler = function () {
     function ElementDragHandler(instance, _dragSelection) {
       _classCallCheck(this, ElementDragHandler);
@@ -2248,7 +2279,8 @@
           draggedOutOfGroup: false,
           redrawResult: null,
           originalPos: params.originalPos,
-          reverted: false
+          reverted: false,
+          dropGroup: dropGroup != null ? dropGroup.groupLoc.group : null
         });
         this._dragSelection.each(function (el, id, o, s) {
           if (el !== params.el) {
@@ -2282,7 +2314,8 @@
               originalGroup: el._jsPlumbParentGroup,
               draggedOutOfGroup: false,
               redrawResult: null,
-              reverted: false
+              reverted: false,
+              dropGroup: dropGroup != null ? dropGroup.groupLoc.group : null
             });
           }
         });
@@ -2306,6 +2339,8 @@
           }
           if (dropGroup != null && !isInOriginalGroup) {
             _this.instance.groupManager.addToGroup(dropGroup.groupLoc.group, false, p.el);
+          } else {
+            p.dropGroup = null;
           }
           if (p.reverted) {
             _this.instance.setPosition(p.el, p.pos);
@@ -2463,6 +2498,15 @@
           this._groupLocations.length = 0;
           this._intersectingGroups.length = 0;
           this.instance.hoverSuspended = true;
+          var originalElement = params.drag.getDragElement(true),
+              descendants = originalElement.querySelectorAll(core.SELECTOR_MANAGED_ELEMENT),
+              ancestors = getAncestors(originalElement),
+              a = [];
+          Array.prototype.push.apply(a, descendants);
+          Array.prototype.push.apply(a, ancestors);
+          this._dragSelection.filterActiveSet(function (p) {
+            return a.indexOf(p.jel) === -1;
+          });
           this._dragSelection.refreshOffsets(elOffset);
           var _one = function _one(_el) {
             if (!_el._isJsPlumbGroup || _this4.instance.allowNestedGroups) {
