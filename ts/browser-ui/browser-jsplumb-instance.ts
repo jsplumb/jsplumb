@@ -229,6 +229,19 @@ function getCustomElement(o:CustomOverlay):jsPlumbDOMElement {
     }) as jsPlumbDOMElement
 }
 
+export function groupDragConstrain (desiredLoc:PointXY, dragEl:jsPlumbDOMElement, constrainRect:BoundingBox, size:Size):PointXY {
+    let x = desiredLoc.x, y = desiredLoc.y
+
+    if (dragEl._jsPlumbParentGroup && dragEl._jsPlumbParentGroup.constrain) {
+        x = Math.max(desiredLoc.x, 0)
+        y = Math.max(desiredLoc.y, 0)
+        x = Math.min(x, constrainRect.w - size.w)
+        y = Math.min(y, constrainRect.h - size.h)
+    }
+
+    return {x, y}
+}
+
 // ------------------------------------------------------------------------------------------------------------
 
 /**
@@ -311,18 +324,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
         this.dragManager.addHandler(new EndpointDragHandler(this))
         this.groupDragOptions = {
-            constrainFunction: (desiredLoc:PointXY, dragEl:jsPlumbDOMElement, constrainRect:BoundingBox, size:Size):PointXY=> {
-                let x = desiredLoc.x, y = desiredLoc.y
-
-                if (dragEl._jsPlumbParentGroup && dragEl._jsPlumbParentGroup.constrain) {
-                    x = Math.max(desiredLoc.x, 0)
-                    y = Math.max(desiredLoc.y, 0)
-                    x = Math.min(x, constrainRect.w - size.w)
-                    y = Math.min(y, constrainRect.h - size.h)
-                }
-
-                return {x, y}
-            }
+            constrainFunction: groupDragConstrain
         }
         this.dragManager.addHandler(new GroupDragHandler(this, this.dragSelection), this.groupDragOptions)
 
