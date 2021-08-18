@@ -650,13 +650,10 @@ var testSuite = function () {
         _setupGroups();
 
         var groupOneSize = getGroupSize("one");
-        var groupTwoSize = getGroupSize("two");
         var c1_2_size = getNodeSize(c1_2);
-        var c2_2_size = getNodeSize(c2_2);
 
         // try dragging 1_2 right out of the box and dropping it. it should not work: c1 has constrain switched on.
         // 1_2 will end up in the bottom right corner of the group.
-        //var c12o = _jsPlumb.getOffset(c1_2);
         support.dragToDistantLand(c1_2);
         equal(_jsPlumb.getGroup("one").children.length, 2, "2 members in group one");
         // check the node has not actually moved.
@@ -665,7 +662,6 @@ var testSuite = function () {
         equal(groupOneSize.h - c1_2_size.h, c1_2_pos[1], "c1_2 top position constrained by parent");
 
         // try dragging 2_2 right out of the box and dropping it.
-        //var c22o = _jsPlumb.getOffset(c2_2);
         var c2_2_pos = getNodePosition(c2_2);
         support.dragToDistantLand(c2_2);
         equal(_jsPlumb.getGroup("two").children.length, 2, "2 members in group two");
@@ -681,15 +677,24 @@ var testSuite = function () {
         var c32o2 = getNodePosition(c3_2);
         ok(positionsNotEqual(c32o, c32o2), "left and top positions changed");
 
+        let eventPosted = false
+        _jsPlumb.bind("group:member:removed", function(p) {
+            eventPosted = true
+        })
+
         // c4 prunes nodes on drop outside
+
         support.dragToDistantLand(c4_2);
         equal(_jsPlumb.getGroup("four").children.length, 1, "1 member in group four");
         ok(c4_2.parentNode == null, "c4_2 removed from DOM");
+        ok(eventPosted, "group:member:removed event was posted")
 
         // c5 orphans nodes on drop outside (remove from group but not from DOM)
+        eventPosted = false
         support.dragToDistantLand(c5_2);
         equal(_jsPlumb.getGroup("five").children.length, 1, "1 member in group five");
         ok(c5_2.parentNode != null, "c5_2 still in DOM");
+        ok(eventPosted, "group:member:removed event was posted")
     });
 
     //
@@ -761,6 +766,33 @@ var testSuite = function () {
         equal(_jsPlumb.getGroup("five").children.length, 0, "0 members in group five - they were both dragged out");
         ok(c5_2.parentNode != null, "c5_2 still in DOM");
         ok(c5_1.parentNode != null, "c5_1 still in DOM");
+    });
+
+    test("dragging groups out of groups, single groups", function() {
+
+        var groupA = _addGroupAndContainer(400,400),
+            groupB = _addGroupAndContainer(100,100);
+
+        groupA.orphan = true;
+
+        let eventPosted = false
+        _jsPlumb.bind("group:nested:removed", function(p) {
+            eventPosted = true
+        })
+
+        support.dragToGroup( groupB.el, groupA);
+
+        equal(_jsPlumb.getGroupContentArea(groupA), groupB.el.parentNode, "groupB is child of groupA in the DOM");
+        equal(groupA.getGroups().length, 1, "groupA has one child group");
+
+        support.dragNodeBy(groupB.el, 500, 500)
+
+        equal(_jsPlumb.getContainer(), groupB.el.parentNode, "groupB is child of the container in the DOM");
+        equal(groupA.getGroups().length, 0, "groupA has zero children");
+
+        ok(eventPosted, "group:nested:removed event was posted")
+
+
     });
 
     /**
