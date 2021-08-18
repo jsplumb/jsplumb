@@ -1969,7 +1969,7 @@ var testSuite = function () {
         g2.el.style.width="700px";
         g2.el.style.height="700px";
 
-        equal(g3.el._jsPlumbParentGroup.id, "101", "g2 marked as parent group on g3's element");
+        equal(g3.el._jsPlumbParentGroup.id, g2.id, "g2 marked as parent group on g3's element");
 
         // STATE 1: g3 is a child of g2. both g3 and g2 expanded. connection goes from n3 (child of g3) to n4 (not a group child)
         equal(1, g2.getGroups().length, "g2 now has one child group");
