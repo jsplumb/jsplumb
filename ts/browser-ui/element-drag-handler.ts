@@ -190,11 +190,11 @@ export class ElementDragHandler implements DragHandler {
             dropGroup:dropGroup != null ? dropGroup.groupLoc.group : null
         })
 
-        this._dragSelection.each((el, id, o, s) => {
+        this._dragSelection.each((el, id, o, s, orig) => {
             if (el !== params.el) {
                 const pp = {
-                    x:params.finalPos.x + o.x,
-                    y:params.finalPos.y + o.y
+                    x:o.x,
+                    y:o.y
                 }
                 let x = pp.x, y = pp.y
 
@@ -216,12 +216,8 @@ export class ElementDragHandler implements DragHandler {
                     pp.y = y
                 }
 
-                const op = {
-                    x:params.originalPos.x + o.x,
-                    y:params.originalPos.y + o.y
-                }
                 elementsToProcess.push({
-                    el, id, pos:pp, originalPos:op, originalGroup:el._jsPlumbParentGroup, draggedOutOfGroup:false, redrawResult:null, reverted:false, dropGroup:dropGroup != null ? dropGroup.groupLoc.group : null
+                    el, id, pos:pp, originalPos:orig, originalGroup:el._jsPlumbParentGroup, draggedOutOfGroup:false, redrawResult:null, reverted:false, dropGroup:dropGroup != null ? dropGroup.groupLoc.group : null
                 })
             }
         })
@@ -236,16 +232,16 @@ export class ElementDragHandler implements DragHandler {
                 if (dropGroup == null) {
                     // the element may be pruned or orphaned by its group
                     const orphanedPosition = this._pruneOrOrphan(p, true, true)
-                    p.draggedOutOfGroup = true
+                    p.draggedOutOfGroup = false
                     if (orphanedPosition.pos != null) {
                         // if orphaned, update the drag end position.
                         p.pos = orphanedPosition.pos.pos
+                        p.draggedOutOfGroup = true
                     } else {
                         if (!orphanedPosition.pruned && p.originalGroup.revert) {
                             // if not pruned and the original group has revert set, revert the element.
                             p.pos = p.originalPos
                             p.reverted = true
-                            p.draggedOutOfGroup = false
                         }
                     }
                 }
@@ -356,35 +352,37 @@ export class ElementDragHandler implements DragHandler {
             ui.y += this._dragOffset.y
         }
 
-        const _one = (el:HTMLElement, bounds:BoundingBox, e:Event) => {
+        const _one = (el:HTMLElement, bounds:BoundingBox, findIntersectingGroups:boolean) => {
 
-            // keep track of the ancestors of each intersecting group we find.
-            const ancestorsOfIntersectingGroups = new Set<string>()
+            if (findIntersectingGroups) {
+                // keep track of the ancestors of each intersecting group we find.
+                const ancestorsOfIntersectingGroups = new Set<string>()
 
-            forEach(this._groupLocations,(groupLoc:GroupLocation) => {
-                if (!ancestorsOfIntersectingGroups.has(groupLoc.group.id) && intersects(bounds, groupLoc.r)) {
+                forEach(this._groupLocations, (groupLoc: GroupLocation) => {
+                    if (!ancestorsOfIntersectingGroups.has(groupLoc.group.id) && intersects(bounds, groupLoc.r)) {
 
-                    // when a group intersects it should only get the hover class if one of its descendants does not also intersect.
-                    // groupLocations is already sorted by level of nesting
+                        // when a group intersects it should only get the hover class if one of its descendants does not also intersect.
+                        // groupLocations is already sorted by level of nesting
 
-                    // we don't add the css class to the current group (but we do still add the group to the list of intersecting groups)
-                    if (groupLoc.group !== this._currentDragParentGroup) {
-                        this.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER)
+                        // we don't add the css class to the current group (but we do still add the group to the list of intersecting groups)
+                        if (groupLoc.group !== this._currentDragParentGroup) {
+                            this.instance.addClass(groupLoc.el, CLASS_DRAG_HOVER)
+                        }
+
+                        this._intersectingGroups.push({
+                            groupLoc,
+                            intersectingElement: params.drag.getDragElement(true),
+                            d: 0
+                        })
+
+                        // store all this group's ancestor ids in a set, which will preclude them from being added as an intersecting group
+                        forEach(this.instance.groupManager.getAncestors(groupLoc.group), (g: UIGroup<Element>) => ancestorsOfIntersectingGroups.add(g.id))
+
+                    } else {
+                        this.instance.removeClass(groupLoc.el, CLASS_DRAG_HOVER)
                     }
-
-                    this._intersectingGroups.push({
-                        groupLoc,
-                        intersectingElement:params.drag.getDragElement(true),
-                        d:0
-                    })
-
-                    // store all this group's ancestor ids in a set, which will preclude them from being added as an intersecting group
-                    forEach(this.instance.groupManager.getAncestors(groupLoc.group),(g:UIGroup<Element>) => ancestorsOfIntersectingGroups.add(g.id))
-
-                } else {
-                    this.instance.removeClass(groupLoc.el, CLASS_DRAG_HOVER)
-                }
-            })
+                })
+            }
 
             this.instance.setElementPosition(el, bounds.x, bounds.y)
 
@@ -398,10 +396,10 @@ export class ElementDragHandler implements DragHandler {
         }
 
         const elBounds:BoundingBox = { x:ui.x, y:ui.y, w:elSize.w, h:elSize.h }
-        _one(el, elBounds, params.e)
+        _one(el, elBounds, true)
 
-        this._dragSelection.positionElements(elBounds, (el:jsPlumbDOMElement, id:string, s:Size, b:BoundingBox)=>{
-            _one(el, b, params.e)
+        this._dragSelection.updatePositions(finalPos, this.originalPosition, (el:jsPlumbDOMElement, id:string, s:Size, b:BoundingBox)=>{
+            _one(el, b, false)
         })
 
         this._currentDragGroupOffsets.forEach((v:[PointXY, jsPlumbDOMElement], k:string) => {
@@ -409,7 +407,7 @@ export class ElementDragHandler implements DragHandler {
             let _b:BoundingBox = {x:elBounds.x + v[0].x, y:elBounds.y + v[0].y, w:s.w, h:s.h}
             v[1].style.left = _b.x + "px"
             v[1].style.top = _b.y + "px"
-            _one(v[1], _b, params.e)
+            _one(v[1], _b, false)
         })
 
     }
@@ -454,8 +452,8 @@ export class ElementDragHandler implements DragHandler {
 
             // ---------------
 
-            // refresh the drag selection offsets
-            this._dragSelection.refreshOffsets(elOffset)
+            // init the drag selection positions
+            this._dragSelection.initialisePositions()
 
             const _one = (_el:jsPlumbDOMElement):any => {
 
