@@ -30,10 +30,6 @@ export declare class DragSelection {
     initialisePositions(): void;
     updatePositions(currentPosition: PointXY, originalPosition: PointXY, callback: (el: jsPlumbDOMElement, id: string, s: Size, b: BoundingBox) => any): void;
     /**
-     * Refresh the absolute positions of each element in the selection by adding their respective offsets to the given origin.
-     * @param origin
-     */
-    /**
      * Iterate through the contents of the drag selection and execute the given function on each entry.
      * @param f
      */

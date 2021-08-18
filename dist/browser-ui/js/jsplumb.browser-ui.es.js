@@ -1864,8 +1864,7 @@ var DragSelection = function () {
   }
   _createClass(DragSelection, [{
     key: "_activeSet",
-    get:
-    function get() {
+    get: function get() {
       if (this.__activeSet == null) {
         return this._dragSelection;
       } else {
