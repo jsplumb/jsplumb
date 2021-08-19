@@ -33,11 +33,10 @@ export type Quadrant = 1 | 2 | 3 | 4
 const segmentMultipliers = [null, [1, -1], [1, 1], [-1, 1], [-1, -1] ]
 const inverseSegmentMultipliers = [null, [-1, -1], [-1, 1], [1, 1], [1, -1] ]
 
+/**
+ * Definition of 2 PI
+ */
 export const TWO_PI = 2 * Math.PI
-
-// export function pointXYFromArray(a: Array<number>): PointXY {
-//     return {x: a[0], y: a[1]}
-// }
 
 /**
  * Adds the x and y values of the two points and returns a new point.
@@ -58,9 +57,9 @@ export function subtract(p1:PointXY, p2:PointXY):PointXY {
 }
 
 /**
+ * Calculates the gradient of a line between the two points.
  * @name gradient
  * @function
- * @desc Calculates the gradient of a line between the two points.
  * @param {PointXY} p1 First point in the line
  * @param {PointXY} p2 Second point in the line
  * @return {number} The gradient of a line between the two points.
@@ -75,9 +74,9 @@ export function gradient(p1: PointXY, p2: PointXY): number {
 }
 
 /**
+ * Calculates the gradient of a normal to a line between the two points.
  * @name normal
  * @function
- * @desc Calculates the gradient of a normal to a line between the two points.
  * @param {PointXY} p1 First point in the line
  * @param {PointXY} p2 Second point in the line
  * @return {number} The gradient of a normal to a line between the two points.
@@ -87,9 +86,9 @@ export function normal(p1: PointXY, p2: PointXY): number {
 }
 
 /**
+ * Calculates the length of a line between the two points.
  * @name lineLength
  * @function
- * @desc Calculates the length of a line between the two points.
  * @param {PointXY} p1 First point in the line
  * @param {PointXY} p2 Second point in the line
  * @return {number} The length of a line between the two points.
@@ -99,9 +98,9 @@ export function lineLength(p1: PointXY, p2: PointXY): number {
 }
 
 /**
+ * Calculates the quadrant in which the angle between the two points lies.
  * @name quadrant
  * @function
- * @desc Calculates the quadrant in which the angle between the two points lies.
  * @param {PointXY} p1 First point in the line
  * @param {PointXY} p2 Second point in the line
  * @return {Quadrant} The quadrant - 1 for upper right, 2 for lower right, 3 for lower left, 4 for upper left.
@@ -118,9 +117,9 @@ export function quadrant(p1: PointXY, p2: PointXY): Quadrant {
 }
 
 /**
+ * Calculates the angle between the two points.
  * @name theta
  * @function
- * @desc Calculates the angle between the two points.
  * @param {PointXY} p1 First point
  * @param {PointXY} p2 Second point
  * @return {number} The angle between the two points.
@@ -139,9 +138,9 @@ export function theta(p1: PointXY, p2: PointXY): number {
 }
 
 /**
+ * Calculates whether or not the two rectangles intersect.
  * @name intersects
  * @function
- * @desc Calculates whether or not the two rectangles intersect.
  * @param {RectangleXY} r1 First rectangle
  * @param {RectangleXY} r2 Second rectangle
  * @return {boolean} True if the rectangles intersect, false otherwise.
