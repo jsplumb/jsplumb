@@ -18,12 +18,12 @@
     "copy-css": "node ./scripts/copy-css.js",
     "copy-package-json": "echo \"\n--- Copying package jsons into distribution directories...\n\"; node ./scripts/copy-package-json.js",
     "copy-defs": "echo \"\n--- Copying typescript definitions into distribution directories...\n\"; node ./scripts/copy-typescript-defs.js",
-    "create-distribution": "set -e;npm run package;echo \"\n-- Building distribution packages...\n\";node ./scripts/create-packages.js;npm run build:bundle",
+    "create-distribution": "set -e;npm run package;echo \"\n-- Building apidocs...\n\";npm run apidocs; echo \"\n-- Building distribution packages...\n\";node ./scripts/create-packages.js;npm run build:bundle",
     "build:bundle": "node ./bundle/build.js",
     "rollup": "echo \"\n--- Running Rollup...\n\"; rollup -c",
     "rollup-dev": "rollup -c -w",
     "link": "node scripts/link.js",
-    "apidocs": "npx api-documenter markdown -i ./temp -o ./apidocs"
+    "apidocs": "node scripts/create-apidocs.js"
   },
   "repository": {
     "type": "git",
