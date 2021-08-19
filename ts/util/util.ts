@@ -518,6 +518,14 @@ export function addWithFunction<T>(list: Array<T>, item: T, hashFunction: (_a: T
     }
 }
 
+/**
+ * Adds an item to a dictionary whose values consists of array of some type. This method is used internally by jsPlumb and is not intended as part of the public API,
+ * and will likely be removed at some point in the future when the code that depends upon it has been refactored.
+ * @param map
+ * @param key
+ * @param value
+ * @param insertAtStart
+ */
 export function addToDictionary<T>(map: Dictionary<Array<T>>, key: string, value: any, insertAtStart?: boolean): Array<any> {
     let l = map[key]
     if (l == null) {
@@ -627,6 +635,12 @@ export function fastTrim(s: string): string {
     return str.slice(0, i + 1)
 }
 
+/**
+ * Iterates through the given `obj` and applies the given function. if `obj` is not ArrayLike then the function is
+ * executed directly on `obj`.
+ * @param obj
+ * @param fn
+ */
 export function each(obj: any, fn: Function) {
     obj = obj.length == null || typeof obj === "string" ? [obj] : obj
     for (let i = 0; i < obj.length; i++) {
@@ -634,6 +648,11 @@ export function each(obj: any, fn: Function) {
     }
 }
 
+/**
+ * Maps some ArrayLike object. This is of course a copy of a method that typescript offers. It will likely fall out of use in the jsPlumb codebase.
+ * @param obj
+ * @param fn
+ */
 export function map(obj: any, fn: Function) {
     let o = []
     for (let i = 0; i < obj.length; i++) {
@@ -642,8 +661,15 @@ export function map(obj: any, fn: Function) {
     return o
 }
 
+/**
+ * Determines whether or not logging is currently enabled.
+ */
 export const logEnabled: boolean = true
 
+/**
+ * Logs a console message.
+ * @param args
+ */
 export function log(...args: string[]): void {
     if (logEnabled && typeof console !== "undefined") {
         try {
@@ -689,19 +715,24 @@ export function wrap(wrappedFunction: Function, newFunction: Function, returnOnT
     }
 }
 
+/**
+ * Sorts an array. Seems quite unnecessary. Only used in one place in the codebase. Marking deprecated.
+ * @param _array
+ * @param _fn
+ */
 export function sortHelper<T> (_array:Array<T>, _fn:SortFunction<T>):Array<T> {
     return _array.sort(_fn)
 }
 
-export function _mergeOverrides (def:any, values:any):any {
-    let m = extend({}, def)
-    for (let i in values) {
-        if (values[i]) {
-            m[i] = values[i]
-        }
-    }
-    return m
-}
+// export function _mergeOverrides (def:any, values:any):any {
+//     let m = extend({}, def)
+//     for (let i in values) {
+//         if (values[i]) {
+//             m[i] = values[i]
+//         }
+//     }
+//     return m
+// }
 
 /**
  * Get, or insert then get, a value from the map.
@@ -734,6 +765,13 @@ export function isAssignableFrom(object:any, cls:any) {
     return false
 }
 
+/**
+ * Inserts the given value into the given array at a sorted location.
+ * @param value Value to insert
+ * @param array Array to insert into
+ * @param comparator Function to use when determining sort order.
+ * @param sortDescending Defaults to false; if true, the insertion is sorted in reverse order.
+ */
 export function insertSorted<T>(value:T, array:Array<T>, comparator:(v1:T, v2:T) => number, sortDescending?:boolean) {
 
     if (array.length === 0) {
@@ -757,32 +795,80 @@ export function insertSorted<T>(value:T, array:Array<T>, comparator:(v1:T, v2:T)
     }
 }
 
+/**
+ * A copy of a concept from a later version of Typescript than jsPlumb can currently use.
+ */
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
+/**
+ * A copy of a concept from a later version of Typescript than jsPlumb can currently use.
+ */
 export type Merge<M, N> = Omit<M, Extract<keyof M, keyof N>> & N;
 
+/**
+ * Simple definition of a map.  This construct is being replaced across the codebase with `Record<string, T>` and also `Map<..>`
+ * @deprecated
+ */
 export interface Dictionary<T> {
     [Key: string]: T
 }
 
+/**
+ * Defines a function that can be used to sort an array.
+ */
 export type SortFunction<T> = (a:T,b:T) => number
 
+/**
+ * Defines an object that has a constructor. Used internally to create endpoints/connectors/overlays from their names.
+ */
 export type Constructable<T> = { new(...args: any[]): T }
 
+/**
+ * Defines an x/y location.
+ */
 export interface PointXY { x:number, y:number, theta?:number }
+
+/**
+ * Defines the bounding box for some element - its x/y location, width and height, and optionally the computed center, but
+ * that can of course be calculated from the other values. Internally there are times when the code has this to hand so we include
+ * it here.
+ */
 export type BoundingBox = { x:number, y:number, w:number, h:number, center?:PointXY }
+/**
+ * This is an alias for BoundingBox.
+ */
 export type RectangleXY = BoundingBox
+/**
+ * Defines a line from some point to another.
+ */
 export type LineXY = [ PointXY, PointXY ]
 
+/**
+ * Definition of a grid - the width/height of each cell, and, optionally, a threshold value for each axis to use when
+ * trying to snap some coordinate to the grid.
+ */
 export interface Grid extends Size {
     thresholdX?:number
     thresholdY?:number
 }
 
+/**
+ * Defines the width and height of some element.
+ */
 export interface Size { w:number, h:number }
 
+/**
+ * Defines the current rotation of some element - its rotation (in degrees) and the center point around which it is rotated.
+ */
 export interface Rotation {r:number, c:PointXY}
+
+/**
+ * A set of compound rotations - used when nesting elements/groups inside other groups.
+ */
 export type Rotations = Array<Rotation>
 
+/**
+ * Definition of the extends of some set of elements: the min/max values in each axis.
+ */
 export interface Extents {
     xmin:number
     ymin:number
