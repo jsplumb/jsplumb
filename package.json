@@ -22,7 +22,8 @@
     "build:bundle": "node ./bundle/build.js",
     "rollup": "echo \"\n--- Running Rollup...\n\"; rollup -c",
     "rollup-dev": "rollup -c -w",
-    "link": "node scripts/link.js"
+    "link": "node scripts/link.js",
+    "apidocs": "npx api-documenter markdown -i ./temp -o ./apidocs"
   },
   "repository": {
     "type": "git",
@@ -64,6 +65,8 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.4.4",
     "@babel/preset-env": "^7.4.4",
     "@babel/preset-typescript": "^7.3.3",
+    "@microsoft/api-documenter": "^7.13.39",
+    "@microsoft/api-extractor": "^7.18.5",
     "@rollup/plugin-babel": "^5.2.1",
     "@rollup/plugin-commonjs": "^15.0.0",
     "@rollup/plugin-node-resolve": "^9.0.0",
