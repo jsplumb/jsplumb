@@ -6,6 +6,7 @@
     "moduleResolution": "node",
     "sourceMap": false,
     "declaration":true,
+    "declarationMap": true,
     "emitDecoratorMetadata": false,
     "experimentalDecorators": false,
     "lib": [ "esnext", "dom" ],
