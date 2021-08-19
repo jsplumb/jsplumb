@@ -100,18 +100,35 @@ export abstract class EventGenerator {
         return this
     }
 
+    /**
+     * gets all listeners for the given named event.
+     * @param forEvent
+     */
     getListener (forEvent: string): Array<any> {
         return this._listeners[forEvent] || []
     }
 
+    /**
+     * Returns whether not event firing is currently suspended
+     */
     isSuspendEvents(): boolean {
         return this.eventsSuspended
     }
 
+    /**
+     * Sets whether not event firing is currently suspended
+     */
     setSuspendEvents (val: boolean) {
         this.eventsSuspended = val
     }
 
+    /**
+     * Bind an event listener. This method can be used with a type parameter by call sites; although it's not necessary it can be
+     * helpful to use this to ensure you've thought about what the payload to your event handler is going to be.
+     * @param event Name of the event(s) to bind to.
+     * @param listener Function to bind to the given event(s)
+     * @param insertAtStart Whether or not to insert this listener at the head of the listener queue. Defaults to false.
+     */
     bind<T=any>(event: string | Array<String>, listener: (a:T, e?:any) => any, insertAtStart?: boolean): EventGenerator {
         const _one = (evt: string) => {
             addToDictionary(this._listeners, evt, listener, insertAtStart)
