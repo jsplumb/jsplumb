@@ -1,0 +1,18 @@
+/**
+ * Config file for API Extractor.  For more info, please visit: https://api-extractor.com
+ */
+{
+  "extends": "../../api-extractor-common.json",
+  /**
+   * (REQUIRED) Specifies the .d.ts file to be used as the starting point for analysis.  API Extractor
+   * analyzes the symbols exported by this module.
+   *
+   * The file extension must be ".d.ts" and not ".ts".
+   *
+   * The path is resolved relative to the folder of the config file that contains the setting; to change this,
+   * prepend a folder token such as "<projectFolder>".
+   *
+   * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>
+   */
+  "mainEntryPointFilePath": "../../dist/<unscopedPackageName>/types/index.d.ts"
+}
