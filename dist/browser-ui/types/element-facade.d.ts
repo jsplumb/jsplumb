@@ -11,3 +11,4 @@ export interface jsPlumbDOMElement extends HTMLElement, jsPlumbElement<Element> 
     _katavorioDrag?: Drag;
     cloneNode: (deep?: boolean) => jsPlumbDOMElement;
 }
+//# sourceMappingURL=element-facade.d.ts.map

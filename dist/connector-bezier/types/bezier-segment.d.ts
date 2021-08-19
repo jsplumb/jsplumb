@@ -37,3 +37,4 @@ export declare class BezierSegment extends AbstractSegment {
     findClosestPointOnPath(x: number, y: number): PointNearPath;
     lineIntersection(x1: number, y1: number, x2: number, y2: number): Array<PointXY>;
 }
+//# sourceMappingURL=bezier-segment.d.ts.map

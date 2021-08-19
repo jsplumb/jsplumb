@@ -12,3 +12,4 @@ export declare class CustomOverlay extends Overlay {
     updateFrom(d: any): void;
 }
 export declare function isCustomOverlay(o: Overlay): o is CustomOverlay;
+//# sourceMappingURL=custom-overlay.d.ts.map

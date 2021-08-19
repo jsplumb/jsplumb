@@ -99,3 +99,4 @@ export declare class ElementDragHandler implements DragHandler {
      */
     private _pruneOrOrphan;
 }
+//# sourceMappingURL=element-drag-handler.d.ts.map

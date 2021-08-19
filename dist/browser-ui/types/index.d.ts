@@ -9,3 +9,4 @@ export * from './element-facade';
 export * from './element-drag-handler';
 export declare function newInstance(defaults?: BrowserJsPlumbDefaults): BrowserJsPlumbInstance;
 export declare function ready(f: Function): void;
+//# sourceMappingURL=index.d.ts.map

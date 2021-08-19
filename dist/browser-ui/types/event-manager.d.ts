@@ -24,3 +24,4 @@ export declare class EventManager {
 }
 export declare function setForceTouchEvents(value: boolean): void;
 export declare function setForceMouseEvents(value: boolean): void;
+//# sourceMappingURL=event-manager.d.ts.map

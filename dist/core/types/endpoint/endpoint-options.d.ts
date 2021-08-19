@@ -127,3 +127,4 @@ export interface EndpointOptions<E = any> {
      */
     deleteOnEmpty?: boolean;
 }
+//# sourceMappingURL=endpoint-options.d.ts.map

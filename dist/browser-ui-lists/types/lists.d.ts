@@ -120,3 +120,4 @@ export declare class JsPlumbList {
      */
     destroy(): void;
 }
+//# sourceMappingURL=lists.d.ts.map

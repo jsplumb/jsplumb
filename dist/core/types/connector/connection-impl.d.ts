@@ -80,3 +80,4 @@ export declare class Connection<E = any> extends Component {
      */
     replaceEndpoint(idx: number, endpointDef: EndpointSpec): void;
 }
+//# sourceMappingURL=connection-impl.d.ts.map

@@ -25,3 +25,4 @@ export declare class FlowchartConnector extends AbstractConnector {
     private writeSegments;
     _compute(paintInfo: PaintGeometry, params: ConnectorComputeParams): void;
 }
+//# sourceMappingURL=flowchart-connector.d.ts.map

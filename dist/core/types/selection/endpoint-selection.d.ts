@@ -7,3 +7,4 @@ export declare class EndpointSelection extends SelectionBase<Endpoint> {
     deleteEveryConnection(): EndpointSelection;
     deleteAll(): EndpointSelection;
 }
+//# sourceMappingURL=endpoint-selection.d.ts.map

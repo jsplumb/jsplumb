@@ -143,3 +143,4 @@ export declare abstract class AbstractConnector implements Connector {
     setAnchorOrientation(idx: number, orientation: number[]): void;
 }
 export {};
+//# sourceMappingURL=abstract-connector.d.ts.map

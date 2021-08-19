@@ -27,6 +27,9 @@
  */
 import { Grid, LineXY, PointXY, RectangleXY } from "./util";
 export declare type Quadrant = 1 | 2 | 3 | 4;
+/**
+ * Definition of 2 PI
+ */
 export declare const TWO_PI: number;
 /**
  * Adds the x and y values of the two points and returns a new point.
@@ -41,54 +44,54 @@ export declare function add(p1: PointXY, p2: PointXY): PointXY;
  */
 export declare function subtract(p1: PointXY, p2: PointXY): PointXY;
 /**
+ * Calculates the gradient of a line between the two points.
  * @name gradient
  * @function
- * @desc Calculates the gradient of a line between the two points.
  * @param {PointXY} p1 First point in the line
  * @param {PointXY} p2 Second point in the line
  * @return {number} The gradient of a line between the two points.
  */
 export declare function gradient(p1: PointXY, p2: PointXY): number;
 /**
+ * Calculates the gradient of a normal to a line between the two points.
  * @name normal
  * @function
- * @desc Calculates the gradient of a normal to a line between the two points.
  * @param {PointXY} p1 First point in the line
  * @param {PointXY} p2 Second point in the line
  * @return {number} The gradient of a normal to a line between the two points.
  */
 export declare function normal(p1: PointXY, p2: PointXY): number;
 /**
+ * Calculates the length of a line between the two points.
  * @name lineLength
  * @function
- * @desc Calculates the length of a line between the two points.
  * @param {PointXY} p1 First point in the line
  * @param {PointXY} p2 Second point in the line
  * @return {number} The length of a line between the two points.
  */
 export declare function lineLength(p1: PointXY, p2: PointXY): number;
 /**
+ * Calculates the quadrant in which the angle between the two points lies.
  * @name quadrant
  * @function
- * @desc Calculates the quadrant in which the angle between the two points lies.
  * @param {PointXY} p1 First point in the line
  * @param {PointXY} p2 Second point in the line
  * @return {Quadrant} The quadrant - 1 for upper right, 2 for lower right, 3 for lower left, 4 for upper left.
  */
 export declare function quadrant(p1: PointXY, p2: PointXY): Quadrant;
 /**
+ * Calculates the angle between the two points.
  * @name theta
  * @function
- * @desc Calculates the angle between the two points.
  * @param {PointXY} p1 First point
  * @param {PointXY} p2 Second point
  * @return {number} The angle between the two points.
  */
 export declare function theta(p1: PointXY, p2: PointXY): number;
 /**
+ * Calculates whether or not the two rectangles intersect.
  * @name intersects
  * @function
- * @desc Calculates whether or not the two rectangles intersect.
  * @param {RectangleXY} r1 First rectangle
  * @param {RectangleXY} r2 Second rectangle
  * @return {boolean} True if the rectangles intersect, false otherwise.
@@ -147,3 +150,4 @@ export declare function perpendicularLineTo(fromPoint: PointXY, toPoint: PointXY
  * @param thresholdY Defines how close to a grid line in the y axis a value must be in order to be snapped to it.
  */
 export declare function snapToGrid(pos: PointXY, grid: Grid, thresholdX?: number, thresholdY?: number): PointXY;
+//# sourceMappingURL=geom.d.ts.map

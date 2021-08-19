@@ -141,3 +141,4 @@ export declare class Viewport<T extends {
      */
     isEmpty(): boolean;
 }
+//# sourceMappingURL=viewport.d.ts.map

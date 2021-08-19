@@ -18,3 +18,4 @@ export interface Geometry {
     source: any;
     target: any;
 }
+//# sourceMappingURL=connector.d.ts.map

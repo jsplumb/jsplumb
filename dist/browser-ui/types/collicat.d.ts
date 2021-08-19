@@ -195,3 +195,4 @@ export declare class Collicat implements jsPlumbDragManager {
     destroyDraggable(el: jsPlumbDOMElement): void;
 }
 export {};
+//# sourceMappingURL=collicat.d.ts.map

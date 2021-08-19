@@ -95,3 +95,4 @@ export declare class LightweightRouter<T extends {
     anchorsEqual(a1: LightweightAnchor, a2: LightweightAnchor): boolean;
 }
 export {};
+//# sourceMappingURL=lightweight-router.d.ts.map

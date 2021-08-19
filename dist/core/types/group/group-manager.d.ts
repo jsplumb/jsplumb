@@ -57,3 +57,4 @@ export declare class GroupManager<E> {
     isDescendant(possibleDescendant: UIGroup<E>, ancestor: UIGroup<E>): boolean;
     reset(): void;
 }
+//# sourceMappingURL=group-manager.d.ts.map

@@ -15,3 +15,4 @@ export declare function createElement(tag: string, style?: Dictionary<any>, claz
 export declare function createElementNS(ns: string, tag: string, style?: Dictionary<any>, clazz?: string, atts?: Dictionary<string | number>): jsPlumbDOMElement;
 export declare function offsetRelativeToRoot(el: Element): PointXY;
 export declare function size(el: Element): Size;
+//# sourceMappingURL=browser-util.d.ts.map

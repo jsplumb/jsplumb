@@ -45,3 +45,4 @@ export declare type FullAnchorSpec = {
 };
 export declare type SingleAnchorSpec = AnchorId | FullAnchorSpec | AnchorPlacement | Array<AnchorPlacement>;
 export declare type AnchorSpec = SingleAnchorSpec | Array<SingleAnchorSpec>;
+//# sourceMappingURL=anchor.d.ts.map

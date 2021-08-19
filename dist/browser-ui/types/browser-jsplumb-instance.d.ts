@@ -261,3 +261,4 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     addSourceSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): SourceSelector;
     removeSourceSelector(selector: SourceSelector): void;
 }
+//# sourceMappingURL=browser-jsplumb-instance.d.ts.map

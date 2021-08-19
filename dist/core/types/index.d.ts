@@ -34,3 +34,4 @@ export * from "./factory/overlay-factory";
 export * from './router/router';
 export * from "./factory/anchor-record-factory";
 export * from './router/lightweight-router';
+//# sourceMappingURL=index.d.ts.map

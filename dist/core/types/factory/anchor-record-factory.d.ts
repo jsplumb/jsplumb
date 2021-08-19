@@ -9,6 +9,9 @@ export declare type Face = "top" | "right" | "bottom" | "left";
 export declare type Axis = [Face, Face];
 export declare const X_AXIS_FACES: Axis;
 export declare const Y_AXIS_FACES: Axis;
+/**
+ * @internal
+ */
 export declare type AnchorComputeParams = {
     xy?: PointXY;
     wh?: Size;
@@ -23,6 +26,9 @@ export declare type AnchorComputeParams = {
     rotation?: Rotations;
     tRotation?: Rotations;
 };
+/**
+ * @internal
+ */
 export interface AnchorRecord {
     x: number;
     y: number;
@@ -34,6 +40,9 @@ export interface AnchorRecord {
     ioy: AnchorOrientationHint;
     cls: string;
 }
+/**
+ * @internal
+ */
 export interface ComputedPosition {
     curX: number;
     curY: number;
@@ -112,3 +121,4 @@ export declare const LEFT = "left";
 export declare const RIGHT = "right";
 export declare function createFloatingAnchor(instance: JsPlumbInstance, element: any): LightweightFloatingAnchor;
 export declare function makeLightweightAnchorFromSpec(spec: AnchorSpec | Array<AnchorSpec>): LightweightAnchor;
+//# sourceMappingURL=anchor-record-factory.d.ts.map

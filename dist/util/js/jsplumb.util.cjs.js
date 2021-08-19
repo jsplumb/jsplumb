@@ -438,15 +438,6 @@ function wrap(wrappedFunction, newFunction, returnOnThisValue) {
 function sortHelper(_array, _fn) {
   return _array.sort(_fn);
 }
-function _mergeOverrides(def, values) {
-  var m = extend({}, def);
-  for (var _i3 in values) {
-    if (values[_i3]) {
-      m[_i3] = values[_i3];
-    }
-  }
-  return m;
-}
 function getsert(map, key, valueGenerator) {
   if (!map.has(key)) {
     map.set(key, valueGenerator());
@@ -920,7 +911,6 @@ exports.EventGenerator = EventGenerator;
 exports.IS = IS;
 exports.OptimisticEventGenerator = OptimisticEventGenerator;
 exports.TWO_PI = TWO_PI;
-exports._mergeOverrides = _mergeOverrides;
 exports.add = add;
 exports.addToDictionary = addToDictionary;
 exports.addToList = addToList;

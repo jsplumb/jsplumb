@@ -33,3 +33,4 @@ export declare class SelectionBase<T extends Component> {
     unbind(evt: string, handler: Function): SelectionBase<T>;
     setHover(h: boolean): SelectionBase<T>;
 }
+//# sourceMappingURL=common.d.ts.map

@@ -14,3 +14,4 @@ export declare function _pos(d: [number, number]): string;
 export declare function _applyStyles(parent: any, node: SVGElement, style: any): void;
 export declare function _appendAtIndex(svg: SVGElement, path: SVGElement, idx: number): void;
 export declare function _size(svg: SVGElement, x: number, y: number, w: number, h: number): void;
+//# sourceMappingURL=svg-util.d.ts.map

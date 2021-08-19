@@ -21,3 +21,4 @@ export interface RectangleEndpointParams extends EndpointRepresentationParams {
 }
 export interface BlankEndpointParams extends EndpointRepresentationParams {
 }
+//# sourceMappingURL=endpoint.d.ts.map

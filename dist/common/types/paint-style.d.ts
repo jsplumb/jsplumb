@@ -6,3 +6,4 @@ export interface PaintStyle {
     outlineWidth?: number;
     dashstyle?: string;
 }
+//# sourceMappingURL=paint-style.d.ts.map

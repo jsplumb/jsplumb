@@ -9,12 +9,12 @@
     "test": "tests"
   },
   "files": [
-    "**/*.d.ts",
+    "core.d.ts",
     "js/jsplumb.core.umd.js",
     "js/jsplumb.core.cjs.js",
     "js/jsplumb.core.es.js"
   ],
-  "types": "types/index.d.ts",
+  "types": "core.d.ts",
   "scripts": {},
   "repository": {
     "type": "git",

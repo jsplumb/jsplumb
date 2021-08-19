@@ -73,3 +73,4 @@ export interface SourceDefinition extends SourceOrTargetDefinition {
 }
 export interface TargetDefinition extends SourceOrTargetDefinition {
 }
+//# sourceMappingURL=type-descriptors.d.ts.map

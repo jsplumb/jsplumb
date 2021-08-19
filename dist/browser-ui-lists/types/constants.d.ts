@@ -9,3 +9,4 @@ export declare const DEFAULT_LIST_OPTIONS: {
 export declare const ATTR_SCROLLABLE_LIST = "jtk-scrollable-list";
 export declare const SELECTOR_SCROLLABLE_LIST: string;
 export declare const EVENT_SCROLL = "scroll";
+//# sourceMappingURL=constants.d.ts.map

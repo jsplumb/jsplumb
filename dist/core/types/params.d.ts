@@ -131,3 +131,4 @@ export interface UpdateOffsetOptions {
     recalc?: boolean;
     elId?: string;
 }
+//# sourceMappingURL=params.d.ts.map

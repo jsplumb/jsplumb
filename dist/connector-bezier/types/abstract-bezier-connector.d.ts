@@ -31,3 +31,4 @@ export declare abstract class AbstractBezierConnector extends AbstractConnector 
     importGeometry(geometry: any): boolean;
     abstract _computeBezier(paintInfo: PaintGeometry, p: ConnectorComputeParams, sp: PointXY, tp: PointXY, _w: number, _h: number): void;
 }
+//# sourceMappingURL=abstract-bezier-connector.d.ts.map

@@ -10,3 +10,4 @@ export declare class PlainArrowOverlay extends ArrowOverlay {
     constructor(instance: JsPlumbInstance, component: Component, p: ArrowOverlayOptions);
 }
 export declare function isPlainArrowOverlay(o: Overlay): o is PlainArrowOverlay;
+//# sourceMappingURL=plain-arrow-overlay.d.ts.map

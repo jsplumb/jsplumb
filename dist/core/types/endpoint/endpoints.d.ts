@@ -25,3 +25,4 @@ export declare abstract class EndpointRepresentation<C> {
     compute(anchorPoint: AnchorPlacement, orientation: Orientation, endpointStyle: any): void;
     setVisible(v: boolean): void;
 }
+//# sourceMappingURL=endpoints.d.ts.map

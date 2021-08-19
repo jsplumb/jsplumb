@@ -126,3 +126,4 @@ export declare abstract class Component extends EventGenerator {
     getLabelOverlay(): LabelOverlay;
     setLabel(l: string | Function | LabelOverlay): void;
 }
+//# sourceMappingURL=component.d.ts.map

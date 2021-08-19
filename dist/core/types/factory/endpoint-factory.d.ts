@@ -16,3 +16,4 @@ export interface EndpointHandler<E, T> {
     getParams(endpoint: E): Record<string, any>;
     cls: Constructable<EndpointRepresentation<T>>;
 }
+//# sourceMappingURL=endpoint-factory.d.ts.map

@@ -30,3 +30,4 @@ export declare class TargetSelector extends ConnectionDragSelector {
     def: TargetDefinition;
     constructor(selector: string, def: TargetDefinition, exclude: boolean);
 }
+//# sourceMappingURL=source-selector.d.ts.map

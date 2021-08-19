@@ -68,3 +68,4 @@ export declare class BrowserUITestSupport {
     head(obj: any): any;
     uuid(): string;
 }
+//# sourceMappingURL=test-support.d.ts.map

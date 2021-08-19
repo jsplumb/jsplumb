@@ -50,3 +50,4 @@ export declare class DragManager {
     reset(): Array<[string, boolean]>;
     setOption(handler: DragHandler, options: DragHandlerOptions): void;
 }
+//# sourceMappingURL=drag-manager.d.ts.map

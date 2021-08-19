@@ -10,3 +10,4 @@ export declare class DiamondOverlay extends ArrowOverlay {
     constructor(instance: JsPlumbInstance, component: Component, p: ArrowOverlayOptions);
 }
 export declare function isDiamondOverlay(o: Overlay): o is DiamondOverlay;
+//# sourceMappingURL=diamond-overlay.d.ts.map

@@ -20,3 +20,4 @@ export declare class ArrowOverlay extends Overlay {
     updateFrom(d: any): void;
 }
 export declare function isArrowOverlay(o: Overlay): o is ArrowOverlay;
+//# sourceMappingURL=arrow-overlay.d.ts.map

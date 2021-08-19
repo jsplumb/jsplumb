@@ -5,3 +5,4 @@ export declare class StraightConnector extends AbstractConnector {
     getDefaultStubs(): [number, number];
     _compute(paintInfo: PaintGeometry, p: ConnectorComputeParams): void;
 }
+//# sourceMappingURL=straight-connector.d.ts.map

@@ -16,3 +16,4 @@ export declare class HTMLElementOverlay {
     static _getDimensions(o: HTMLElementOverlayHolder, forceRefresh?: boolean): Size;
 }
 export {};
+//# sourceMappingURL=html-element-overlay.d.ts.map

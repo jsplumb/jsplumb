@@ -31,3 +31,4 @@ export interface Router<T extends {
         y: number;
     }): boolean;
 }
+//# sourceMappingURL=router.d.ts.map

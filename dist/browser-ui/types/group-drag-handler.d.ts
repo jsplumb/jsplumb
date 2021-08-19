@@ -20,3 +20,4 @@ export declare class GroupDragHandler extends ElementDragHandler implements Ghos
      */
     makeGhostProxy(el: Element): Element;
 }
+//# sourceMappingURL=group-drag-handler.d.ts.map

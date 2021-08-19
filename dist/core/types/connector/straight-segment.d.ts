@@ -68,3 +68,4 @@ export declare class StraightSegment extends AbstractSegment {
      */
     boxIntersection(x: number, y: number, w: number, h: number): Array<PointXY>;
 }
+//# sourceMappingURL=straight-segment.d.ts.map

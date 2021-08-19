@@ -37,3 +37,4 @@ export declare class ArcSegment extends AbstractSegment {
     gradientAtPoint(location: number, absolute?: boolean): number;
     pointAlongPathFrom(location: number, distance: number, absolute?: boolean): PointXY;
 }
+//# sourceMappingURL=arc-segment.d.ts.map

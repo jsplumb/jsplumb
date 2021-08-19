@@ -86,3 +86,4 @@ export declare abstract class AbstractSegment implements Segment {
      */
     boundingBoxIntersection(box: BoundingBox): Array<PointXY>;
 }
+//# sourceMappingURL=abstract-segment.d.ts.map

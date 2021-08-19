@@ -12,3 +12,4 @@ export declare class DotEndpoint extends EndpointRepresentation<ComputedDotEndpo
     type: string;
 }
 export declare const DotEndpointHandler: EndpointHandler<DotEndpoint, ComputedDotEndpoint>;
+//# sourceMappingURL=dot-endpoint.d.ts.map

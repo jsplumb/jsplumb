@@ -109,3 +109,4 @@ export declare class EndpointDragHandler implements DragHandler {
     private _getFloatingAnchorIndex;
 }
 export {};
+//# sourceMappingURL=endpoint-drag-handler.d.ts.map

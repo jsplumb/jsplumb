@@ -17,3 +17,4 @@ export declare class BezierConnector extends AbstractBezierConnector {
     protected _findControlPoint(point: any, sourceAnchorPosition: any, targetAnchorPosition: any, soo: any, too: any): any[];
     _computeBezier(paintInfo: PaintGeometry, p: ConnectorComputeParams, sp: AnchorPlacement, tp: AnchorPlacement, _w: number, _h: number): void;
 }
+//# sourceMappingURL=bezier-connector.d.ts.map

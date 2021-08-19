@@ -12,3 +12,4 @@ export declare class StateMachineConnector extends AbstractBezierConnector {
     constructor(connection: Connection, params: StateMachineOptions);
     _computeBezier(paintInfo: PaintGeometry, params: ConnectorComputeParams, sp: AnchorPlacement, tp: AnchorPlacement, w: number, h: number): void;
 }
+//# sourceMappingURL=statemachine-connector.d.ts.map

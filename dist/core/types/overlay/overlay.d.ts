@@ -31,3 +31,4 @@ export interface OverlayMouseEventParams {
     e: Event;
     overlay: Overlay;
 }
+//# sourceMappingURL=overlay.d.ts.map

@@ -26,3 +26,4 @@ export declare type FullOverlaySpec = {
     options: OverlayOptions;
 };
 export declare type OverlaySpec = string | FullOverlaySpec;
+//# sourceMappingURL=overlay.d.ts.map

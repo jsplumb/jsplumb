@@ -9,3 +9,4 @@ export declare class BlankEndpoint extends EndpointRepresentation<ComputedBlankE
     type: string;
 }
 export declare const BlankEndpointHandler: EndpointHandler<BlankEndpoint, ComputedBlankEndpoint>;
+//# sourceMappingURL=blank-endpoint.d.ts.map

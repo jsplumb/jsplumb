@@ -8,3 +8,4 @@ export declare class ConnectionSelection extends SelectionBase<Connection> {
     deleteAll(): void;
     repaint(): ConnectionSelection;
 }
+//# sourceMappingURL=connection-selection.d.ts.map

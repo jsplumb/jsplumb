@@ -522,3 +522,4 @@ export declare abstract class JsPlumbInstance<T extends {
     abstract getEndpointClass(ep: Endpoint<T>): string;
     abstract setEndpointHover(endpoint: Endpoint<T>, h: boolean, doNotCascade?: boolean): void;
 }
+//# sourceMappingURL=core.d.ts.map

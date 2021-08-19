@@ -18,3 +18,4 @@ export declare class LabelOverlay extends Overlay {
     updateFrom(d: any): void;
 }
 export declare function isLabelOverlay(o: Overlay): o is LabelOverlay;
+//# sourceMappingURL=label-overlay.d.ts.map

@@ -38,3 +38,4 @@ export declare class DragSelection {
     remove(el: Element): void;
     toggle(el: Element): void;
 }
+//# sourceMappingURL=drag-selection.d.ts.map

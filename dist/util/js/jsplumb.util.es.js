@@ -434,15 +434,6 @@ function wrap(wrappedFunction, newFunction, returnOnThisValue) {
 function sortHelper(_array, _fn) {
   return _array.sort(_fn);
 }
-function _mergeOverrides(def, values) {
-  var m = extend({}, def);
-  for (var _i3 in values) {
-    if (values[_i3]) {
-      m[_i3] = values[_i3];
-    }
-  }
-  return m;
-}
 function getsert(map, key, valueGenerator) {
   if (!map.has(key)) {
     map.set(key, valueGenerator());
@@ -912,4 +903,4 @@ function snapToGrid(pos, grid, thresholdX, thresholdY) {
   };
 }
 
-export { EventGenerator, IS, OptimisticEventGenerator, TWO_PI, _mergeOverrides, add, addToDictionary, addToList, addWithFunction, clone, each, encloses, extend, fastTrim, filterList, filterNull, findAllWithFunction, findWithFunction, forEach, fromArray, functionChain, getAllWithFunction, getFromSetWithFunction, getWithFunction, getsert, gradient, insertSorted, intersects, isArray, isAssignableFrom, isBoolean, isDate, isEmpty, isFunction, isNamedFunction, isNull, isNumber, isObject, isString, lineIntersection, lineLength, lineRectangleIntersection, log, logEnabled, map, merge, normal, perpendicularLineTo, pointOnLine, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, snapToGrid, sortHelper, subtract, suggest, theta, uuid, wrap };
+export { EventGenerator, IS, OptimisticEventGenerator, TWO_PI, add, addToDictionary, addToList, addWithFunction, clone, each, encloses, extend, fastTrim, filterList, filterNull, findAllWithFunction, findWithFunction, forEach, fromArray, functionChain, getAllWithFunction, getFromSetWithFunction, getWithFunction, getsert, gradient, insertSorted, intersects, isArray, isAssignableFrom, isBoolean, isDate, isEmpty, isFunction, isNamedFunction, isNull, isNumber, isObject, isString, lineIntersection, lineLength, lineRectangleIntersection, log, logEnabled, map, merge, normal, perpendicularLineTo, pointOnLine, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, snapToGrid, sortHelper, subtract, suggest, theta, uuid, wrap };

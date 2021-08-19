@@ -161,3 +161,4 @@ export declare function boxIntersection(x: number, y: number, w: number, h: numb
  * @returns {Array}
  */
 export declare function boundingBoxIntersection(boundingBox: BoundingBox, curve: Curve): Array<PointXY>;
+//# sourceMappingURL=bezier.d.ts.map

@@ -3,3 +3,4 @@ import { ListManagerOptions, JsPlumbListManager } from "./lists";
 export * from './constants';
 export * from './lists';
 export declare function newInstance(instance: BrowserJsPlumbInstance, params?: ListManagerOptions): JsPlumbListManager;
+//# sourceMappingURL=index.d.ts.map

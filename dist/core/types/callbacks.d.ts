@@ -46,3 +46,4 @@ export interface ManageElementParams<E = any> {
 export interface UnmanageElementParams<E = any> {
     el: E;
 }
+//# sourceMappingURL=callbacks.d.ts.map

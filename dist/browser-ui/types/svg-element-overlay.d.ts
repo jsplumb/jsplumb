@@ -11,3 +11,4 @@ export declare abstract class SVGElementOverlay extends Overlay {
     static paint(o: SVGElementOverlay, path: string, params: SvgOverlayPaintParams, extents: Extents): void;
     static destroy(o: Overlay, force?: boolean): void;
 }
+//# sourceMappingURL=svg-element-overlay.d.ts.map

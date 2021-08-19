@@ -93,3 +93,4 @@ export declare class Endpoint<E = any> extends Component {
     addClass(clazz: string, cascade?: boolean): void;
     removeClass(clazz: string, cascade?: boolean): void;
 }
+//# sourceMappingURL=endpoint.d.ts.map

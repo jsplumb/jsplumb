@@ -12,3 +12,4 @@ export declare class RectangleEndpoint extends EndpointRepresentation<ComputedRe
     static _getParams(ep: RectangleEndpoint): Record<string, any>;
 }
 export declare const RectangleEndpointHandler: EndpointHandler<RectangleEndpoint, ComputedRectangleEndpoint>;
+//# sourceMappingURL=rectangle-endpoint.d.ts.map

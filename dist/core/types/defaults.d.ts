@@ -25,3 +25,4 @@ export interface JsPlumbDefaults<E> {
     hoverClass?: string;
     allowNestedGroups?: boolean;
 }
+//# sourceMappingURL=defaults.d.ts.map
