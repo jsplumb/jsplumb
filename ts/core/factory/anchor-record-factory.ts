@@ -13,6 +13,9 @@ export type Axis = [ Face, Face ]
 export const X_AXIS_FACES:Axis = ["left", "right"]
 export const Y_AXIS_FACES:Axis = ["top", "bottom"]
 
+/**
+ * @internal
+ */
 export type AnchorComputeParams = {
     xy?: PointXY
     wh?: Size
@@ -28,6 +31,9 @@ export type AnchorComputeParams = {
     tRotation?:Rotations
 }
 
+/**
+ * @internal
+ */
 export interface AnchorRecord {
     x:number
     y:number
@@ -40,6 +46,9 @@ export interface AnchorRecord {
     cls:string
 }
 
+/**
+ * @internal
+ */
 export interface ComputedPosition {curX:number,curY:number,ox:number,oy:number,x:number,y:number}
 
 export interface LightweightAnchor {
