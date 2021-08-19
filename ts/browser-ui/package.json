@@ -9,18 +9,18 @@
     "test": "tests"
   },
   "files": [
-    "**/*.d.ts",
+    "browser-ui.d.ts",
     "js/jsplumb.browser-ui.umd.js",
     "js/jsplumb.browser-ui.cjs.js",
     "js/jsplumb.browser-ui.es.js",
     "css/jsplumbtoolkit.css"
   ],
-  "types": "types/index.d.ts",
+  "types": "browser-ui.d.ts",
   "scripts": {},
   "repository": {
     "type": "git",
     "url": "git://github.com/jsplumb/jsplumb.git",
-    "directory": "ts/dom"
+    "directory": "ts/browser-ui"
   },
   "keywords": [
     "javascript",

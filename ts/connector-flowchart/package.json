@@ -9,12 +9,12 @@
     "test": "tests"
   },
   "files": [
-    "**/*.d.ts",
+    "connector-flowchart.d.ts",
     "js/jsplumb.connector-flowchart.umd.js",
     "js/jsplumb.connector-flowchart.cjs.js",
     "js/jsplumb.connector-flowchart.es.js"
   ],
-  "types": "types/index.d.ts",
+  "types": "connector-flowchart.d.ts",
   "scripts": {},
   "repository": {
     "type": "git",

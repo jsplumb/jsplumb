@@ -9,12 +9,12 @@
     "test": "tests"
   },
   "files": [
-    "**/*.d.ts",
+    "connector-bezier.d.ts",
     "js/jsplumb.connector-bezier.umd.js",
     "js/jsplumb.connector-bezier.cjs.js",
     "js/jsplumb.connector-bezier.es.js"
   ],
-  "types": "types/index.d.ts",
+  "types": "connector-bezier.d.ts",
   "scripts": {},
   "repository": {
     "type": "git",
