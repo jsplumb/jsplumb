@@ -1,3 +1,8 @@
+/**
+ * This package contains common declarations and definitions for use by both jsPlumb Community and Toolkit editions.
+ *
+ * @packageDocumentation
+ */
 
 export const UNDEFINED = "undefined"
 export const DEFAULT = "default"

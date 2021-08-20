@@ -34,6 +34,10 @@ function noSuchPoint():PointNearPath {
 
 export function EMPTY_BOUNDS():Extents { return  { xmin:Infinity, xmax:-Infinity, ymin:Infinity, ymax:-Infinity }; }
 
+/**
+ * Definition of a segment.
+ * @private
+ */
 export interface Segment {
 
     x1:number
@@ -56,6 +60,11 @@ export interface Segment {
     getPath(isFirstSegment:boolean):string
 }
 
+/**
+ * Base class for segments in connectors.
+ *
+ * @private
+ */
 export abstract class AbstractSegment implements Segment {
 
     x1:number
@@ -81,13 +90,11 @@ export abstract class AbstractSegment implements Segment {
     }
 
     /**
-     * Function: findClosestPointOnPath
-     * Finds the closest point on this segment to the given [x, y],
-     * returning both the x and y of the point plus its distance from
-     * the supplied point, and its location along the length of the
-     * path inscribed by the segment.  This implementation returns
-     * Infinity for distance and null values for everything else
-     * subclasses are expected to override.
+     * Finds the closest point on this segment to the given [x, y], returning both the x and y of the point plus its distance from
+     * the supplied point, and its location along the length of the path inscribed by the segment.  This implementation returns
+     * Infinity for distance and null values for everything else subclasses are expected to override.
+     * @param x X location to find closest point to
+     * @param y Y location to find closest point to
      */
     findClosestPointOnPath (x:number, y:number):PointNearPath {
         return noSuchPoint()
@@ -95,12 +102,11 @@ export abstract class AbstractSegment implements Segment {
 
     /**
      * Computes the list of points on the segment that intersect the given line.
-     * @method lineIntersection
      * @param {number} x1
      * @param {number} y1
      * @param {number} x2
      * @param {number} y2
-     * @returns {Array<PointXY>}
+     * @return {Array<PointXY>}
      */
     lineIntersection (x1:number, y1:number, x2:number, y2:number):Array<PointXY> {
         return []
@@ -108,12 +114,11 @@ export abstract class AbstractSegment implements Segment {
 
     /**
      * Computes the list of points on the segment that intersect the box with the given origin and size.
-     * @method boxIntersection
      * @param {number} x
      * @param {number} y
      * @param {number} w
      * @param {number} h
-     * @returns {Array<PointXY>}
+     * @return {Array<PointXY>}
      */
     boxIntersection (x:number, y:number, w:number, h:number):Array<PointXY> {
         let a:Array<PointXY> = []
@@ -126,9 +131,8 @@ export abstract class AbstractSegment implements Segment {
 
     /**
      * Computes the list of points on the segment that intersect the given bounding box, which is an object of the form { x:.., y:.., w:.., h:.. }.
-     * @method lineIntersection
      * @param {BoundingBox} box
-     * @returns {Array<[number, number]>}
+     * @return {Array<PointXY>}
      */
     boundingBoxIntersection (box:BoundingBox):Array<PointXY> {
         return this.boxIntersection(box.x, box.y, box.w, box.h)
