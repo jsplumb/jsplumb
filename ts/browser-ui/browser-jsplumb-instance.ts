@@ -35,9 +35,7 @@ import {
 import {
     forEach,
     fromArray,
-    isArray,
     log,
-    IS,
     isFunction,
     isString,
     uuid,
@@ -1088,14 +1086,14 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
                 if (absolutePosition) {
                     cxy = {x: absolutePosition.x, y: absolutePosition.y}
                 } else if (component instanceof EndpointRepresentation) {
-                    let locToUse:Array<number> = isArray(o.location) ? o.location as Array<number> : [o.location, o.location] as Array<number>
+                    let locToUse:Array<number> = Array.isArray(o.location) ? o.location as Array<number> : [o.location, o.location] as Array<number>
                     cxy = {
                         x: locToUse[0] * component.w,
                         y: locToUse[1] * component.h
                     }
                 } else {
                     let loc = o.location, absolute = false
-                    if (IS.aString(o.location) || o.location < 0 || o.location > 1) {
+                    if (isString(o.location) || o.location < 0 || o.location > 1) {
                         loc = parseInt("" + o.location, 10)
                         absolute = true
                     }
