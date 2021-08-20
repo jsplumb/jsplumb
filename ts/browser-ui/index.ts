@@ -1,3 +1,13 @@
+/**
+ * This package is a renderer for the jsPlumb Community edition that uses a single SVG element per connection, and can
+ * connect HTML/SVG elements in the DOM.  For users of version of jsPlumb prior to 5.x, this package is the equivalent to
+ * what used to just be known as "jsPlumb".
+ *
+ * In actual fact only this renderer exists for the 5.x Community edition, but the code in 5.x is now architected in such a way
+ * that alternative renderers could be implemented.
+ *
+ * @packageDocumentation
+ */
 
 import {BrowserJsPlumbDefaults, BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
 

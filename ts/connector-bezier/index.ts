@@ -1,3 +1,9 @@
+/**
+ * This package contains the Bezier and StateMachine connectors. Prior to version 5.x these connectors were shipped
+ * along with the core.
+ *
+ * @packageDocumentation
+ */
 
 import {BezierConnector} from "./bezier-connector"
 import {Connectors} from "@jsplumb/core"

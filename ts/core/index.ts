@@ -1,3 +1,10 @@
+/**
+ * This package is the core of the jsPlumb Community Edition.
+ *
+ *
+ * @packageDocumentation
+ */
+
 import {DotEndpointHandler} from "./endpoint/dot-endpoint"
 import {BlankEndpointHandler} from "./endpoint/blank-endpoint"
 import {RectangleEndpointHandler} from "./endpoint/rectangle-endpoint"
