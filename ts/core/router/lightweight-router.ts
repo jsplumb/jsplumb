@@ -821,7 +821,7 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
      * one declared location. This method provides a means for setting the active location based upon matching its x/y values.
      * @param a
      * @param coords
-     * @return true if a matching location was found and activated, false if not.
+     * @returns true if a matching location was found and activated, false if not.
      */
     selectAnchorLocation(a:LightweightAnchor, coords:{x:number, y:number}):boolean {
         const idx = findWithFunction(a.locations, (loc) => {
