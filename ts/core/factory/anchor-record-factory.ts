@@ -1,4 +1,4 @@
-import {Dictionary, PointXY, Rotations, Size, extend, isArray, isNumber, isString, uuid, map} from "@jsplumb/util"
+import {Dictionary, PointXY, Rotations, Size, extend, isNumber, isString, uuid, map} from "@jsplumb/util"
 import { Connection } from "../connector/connection-impl"
 import { Endpoint } from "../endpoint/endpoint"
 import { JsPlumbInstance } from "../core"
@@ -305,7 +305,7 @@ export function makeLightweightAnchorFromSpec(spec:AnchorSpec|Array<AnchorSpec>)
         return getNamedAnchor(spec as string, null)
 
     }
-    else if (isArray(spec)) {
+    else if (Array.isArray(spec)) {
 
         // // if its an array then it can be either:
         // // - a DynamicAnchor, which is a series of Anchor specs
@@ -313,17 +313,18 @@ export function makeLightweightAnchorFromSpec(spec:AnchorSpec|Array<AnchorSpec>)
         //
         // // if all values are numbers (or all numbers and an optional css class as the 7th arg) its a low level create
         if(isPrimitiveAnchorSpec(spec as Array<AnchorSpec>)) {
+            const _spec = spec as Array<any>
             return _createAnchor(null, [{
-                x:spec[0],
-                y:spec[1],
-                ox:spec[2] as AnchorOrientationHint,
-                oy:spec[3] as AnchorOrientationHint,
-                offx:spec[4] == null ? 0 : spec[4],
-                offy:spec[5] == null ? 0 : spec[5],
-                iox:spec[2] as AnchorOrientationHint,
-                ioy:spec[3] as AnchorOrientationHint,
-                cls:spec[6] || ""
-            }], {cssClass:spec[6] || ""})
+                x:_spec[0],
+                y:_spec[1],
+                ox:_spec[2] as AnchorOrientationHint,
+                oy:_spec[3] as AnchorOrientationHint,
+                offx:_spec[4] == null ? 0 : _spec[4],
+                offy:_spec[5] == null ? 0 : _spec[5],
+                iox:_spec[2] as AnchorOrientationHint,
+                ioy:_spec[3] as AnchorOrientationHint,
+                cls:_spec[6] || ""
+            }], {cssClass:_spec[6] || ""})
         }
         else {
             const locations:Array<AnchorRecord> = map(spec as Array<AnchorSpec>, (aSpec:AnchorSpec) => {
