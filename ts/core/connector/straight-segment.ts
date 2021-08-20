@@ -170,7 +170,7 @@ export class StraightSegment extends AbstractSegment {
      * @param _y1
      * @param _x2
      * @param _y2
-     * @returns {Array}
+     * @returns Array of intersecting points.
      */
     lineIntersection (_x1:number, _y1:number, _x2:number, _y2:number):Array<PointXY> {
         let m2 = Math.abs(gradient({x: _x1, y: _y1}, {x: _x2, y: _y2})),
@@ -236,7 +236,7 @@ export class StraightSegment extends AbstractSegment {
      * @param y Y position of top left corner of box
      * @param w width of box
      * @param h height of box
-     * @returns {Array}
+     * @returns Array of intersecting points
      */
     boxIntersection (x:number, y:number, w:number, h:number):Array<PointXY> {
         let a:Array<PointXY> = []
