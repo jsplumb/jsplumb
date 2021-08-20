@@ -6,7 +6,7 @@ import {AbstractConnector} from "./abstract-connector"
 import {Endpoint} from "../endpoint/endpoint"
 
 import {Component} from "../component/component"
-import {extend, IS, isString, merge, uuid, Merge, Dictionary} from "@jsplumb/util"
+import {extend, isString, merge, uuid, Merge, Dictionary, isObject} from "@jsplumb/util"
 import {Overlay} from "../overlay/overlay"
 import {makeLightweightAnchorFromSpec} from "../factory/anchor-record-factory"
 
@@ -265,7 +265,7 @@ export class Connection<E = any> extends Component {
 
         this.setConnector(this.endpoints[0].connector || this.endpoints[1].connector || params.connector || this.instance.defaults.connector, true)
 
-        let data = params.data == null || !IS.anObject(params.data) ? {} : params.data
+        let data = params.data == null || !isObject(params.data) ? {} : params.data
         this.setData(data)
 
         // the very last thing we do is apply types, if there are any.
