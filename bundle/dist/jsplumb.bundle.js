@@ -24,9 +24,6 @@ var jsPlumbBrowserUI = (function (exports) {
     }
     return o1;
   }
-  function isArray(a) {
-    return Array.isArray(a);
-  }
   function isNumber(n) {
     return Object.prototype.toString.call(n) === "[object Number]";
   }
@@ -59,14 +56,6 @@ var jsPlumbBrowserUI = (function (exports) {
     }
     return true;
   }
-  var IS = {
-    anObject: function anObject(o) {
-      return o == null ? false : Object.prototype.toString.call(o) === "[object Object]";
-    },
-    aString: function aString(o) {
-      return isString(o);
-    }
-  };
   function clone(a) {
     if (isString(a)) {
       return "" + a;
@@ -76,13 +65,13 @@ var jsPlumbBrowserUI = (function (exports) {
       return new Date(a.getTime());
     } else if (isFunction(a)) {
       return a;
-    } else if (isArray(a)) {
+    } else if (Array.isArray(a)) {
       var _b = [];
       for (var i = 0; i < a.length; i++) {
         _b.push(clone(a[i]));
       }
       return _b;
-    } else if (IS.anObject(a)) {
+    } else if (isObject(a)) {
       var c = {};
       for (var j in a) {
         c[j] = clone(a[j]);
@@ -120,21 +109,21 @@ var jsPlumbBrowserUI = (function (exports) {
         c[i] = b[i];
       } else if (cMap[i]) {
         ar = [];
-        ar.push.apply(ar, isArray(c[i]) ? c[i] : [c[i]]);
+        ar.push.apply(ar, Array.isArray(c[i]) ? c[i] : [c[i]]);
         ar.push(b[i]);
         c[i] = ar;
       } else if (isString(b[i]) || isBoolean(b[i]) || isFunction(b[i]) || isNumber(b[i])) {
         c[i] = b[i];
       } else {
-        if (isArray(b[i])) {
+        if (Array.isArray(b[i])) {
           ar = [];
-          if (isArray(c[i])) {
+          if (Array.isArray(c[i])) {
             ar.push.apply(ar, c[i]);
           }
           ar.push.apply(ar, b[i]);
           c[i] = ar;
-        } else if (IS.anObject(b[i])) {
-          if (!IS.anObject(c[i])) {
+        } else if (isObject(b[i])) {
+          if (!isObject(c[i])) {
             c[i] = {};
           }
           for (var j in b[i]) {
@@ -212,13 +201,13 @@ var jsPlumbBrowserUI = (function (exports) {
           return getValue(d);
         } else if (isFunction(d) && !doNotExpandFunctions && (functionPrefix == null || (d.name || "").indexOf(functionPrefix) === 0)) {
           return d(values);
-        } else if (isArray(d)) {
+        } else if (Array.isArray(d)) {
           var r = [];
           for (var i = 0; i < d.length; i++) {
             r.push(_one(d[i]));
           }
           return r;
-        } else if (IS.anObject(d)) {
+        } else if (isObject(d)) {
           var s = {};
           for (var j in d) {
             s[j] = _one(d[j]);
@@ -250,11 +239,11 @@ var jsPlumbBrowserUI = (function (exports) {
     }
     return -1;
   }
-  function findAllWithFunction(a, f) {
+  function findAllWithFunction(a, predicate) {
     var o = [];
     if (a) {
       for (var i = 0; i < a.length; i++) {
-        if (f(a[i])) {
+        if (predicate(a[i])) {
           o.push(i);
         }
       }
@@ -1500,11 +1489,11 @@ var jsPlumbBrowserUI = (function (exports) {
       _defineProperty$3(this, "hoverClass", void 0);
       _defineProperty$3(this, "geometry", void 0);
       this.stub = params.stub || this.getDefaultStubs();
-      this.sourceStub = isArray(this.stub) ? this.stub[0] : this.stub;
-      this.targetStub = isArray(this.stub) ? this.stub[1] : this.stub;
+      this.sourceStub = Array.isArray(this.stub) ? this.stub[0] : this.stub;
+      this.targetStub = Array.isArray(this.stub) ? this.stub[1] : this.stub;
       this.gap = params.gap || 0;
-      this.sourceGap = isArray(this.gap) ? this.gap[0] : this.gap;
-      this.targetGap = isArray(this.gap) ? this.gap[1] : this.gap;
+      this.sourceGap = Array.isArray(this.gap) ? this.gap[0] : this.gap;
+      this.targetGap = Array.isArray(this.gap) ? this.gap[1] : this.gap;
       this.maxStub = Math.max(this.sourceStub, this.targetStub);
       this.cssClass = params.cssClass || "";
       this.hoverClass = params.hoverClass || "";
@@ -3256,20 +3245,21 @@ var jsPlumbBrowserUI = (function (exports) {
   function makeLightweightAnchorFromSpec(spec) {
     if (isString(spec)) {
       return getNamedAnchor(spec, null);
-    } else if (isArray(spec)) {
+    } else if (Array.isArray(spec)) {
       if (isPrimitiveAnchorSpec(spec)) {
+        var _spec = spec;
         return _createAnchor(null, [{
-          x: spec[0],
-          y: spec[1],
-          ox: spec[2],
-          oy: spec[3],
-          offx: spec[4] == null ? 0 : spec[4],
-          offy: spec[5] == null ? 0 : spec[5],
-          iox: spec[2],
-          ioy: spec[3],
-          cls: spec[6] || ""
+          x: _spec[0],
+          y: _spec[1],
+          ox: _spec[2],
+          oy: _spec[3],
+          offx: _spec[4] == null ? 0 : _spec[4],
+          offy: _spec[5] == null ? 0 : _spec[5],
+          iox: _spec[2],
+          ioy: _spec[3],
+          cls: _spec[6] || ""
         }], {
-          cssClass: spec[6] || ""
+          cssClass: _spec[6] || ""
         });
       } else {
         var locations = map(spec, function (aSpec) {
@@ -3480,7 +3470,7 @@ var jsPlumbBrowserUI = (function (exports) {
       _this.parameters = _p;
       _this.paintStyleInUse = _this.getPaintStyle() || {};
       _this.setConnector(_this.endpoints[0].connector || _this.endpoints[1].connector || params.connector || _this.instance.defaults.connector, true);
-      var data = params.data == null || !IS.anObject(params.data) ? {} : params.data;
+      var data = params.data == null || !isObject(params.data) ? {} : params.data;
       _this.setData(data);
       var _types = [DEFAULT, _this.endpoints[0].edgeType, _this.endpoints[1].edgeType, params.type].join(" ");
       if (/[^\s]/.test(_types)) {
@@ -4436,7 +4426,7 @@ var jsPlumbBrowserUI = (function (exports) {
       key: "getGroup",
       value: function getGroup(groupId) {
         var group = groupId;
-        if (IS.aString(groupId)) {
+        if (isString(groupId)) {
           group = this.groupMap[groupId];
           if (group == null) {
             throw new Error("No such group [" + groupId + "]");
@@ -8149,7 +8139,7 @@ var jsPlumbBrowserUI = (function (exports) {
       _this.paintStyle = p.paintStyle || {
         "strokeWidth": 1
       };
-      _this.location = p.location == null ? _this.location : isArray(p.location) ? p.location[0] : p.location;
+      _this.location = p.location == null ? _this.location : Array.isArray(p.location) ? p.location[0] : p.location;
       return _this;
     }
     _createClass$3(ArrowOverlay, [{
@@ -10059,8 +10049,8 @@ var jsPlumbBrowserUI = (function (exports) {
     return el.className != null ? typeof el.className.baseVal === "undefined" ? el.className : el.className.baseVal : "";
   }
   function _classManip(el, classesToAdd, classesToRemove) {
-    var cta = classesToAdd == null ? [] : isArray(classesToAdd) ? classesToAdd : classesToAdd.split(/\s+/);
-    var ctr = classesToRemove == null ? [] : isArray(classesToRemove) ? classesToRemove : classesToRemove.split(/\s+/);
+    var cta = classesToAdd == null ? [] : Array.isArray(classesToAdd) ? classesToAdd : classesToAdd.split(/\s+/);
+    var ctr = classesToRemove == null ? [] : Array.isArray(classesToRemove) ? classesToRemove : classesToRemove.split(/\s+/);
     var className = _getClassName(el),
         curClasses = className.split(/\s+/);
     var _oneSet = function _oneSet(add, classes) {
@@ -10887,7 +10877,7 @@ var jsPlumbBrowserUI = (function (exports) {
   var _devNull = function _devNull() {};
   var _each = function _each(obj, fn) {
     if (obj == null) return;
-    obj = !IS.aString(obj) && obj.tagName == null && obj.length != null ? obj : [obj];
+    obj = !isString(obj) && obj.tagName == null && obj.length != null ? obj : [obj];
     for (var i = 0; i < obj.length; i++) {
       fn.apply(obj[i], [obj[i]]);
     }
@@ -11500,7 +11490,7 @@ var jsPlumbBrowserUI = (function (exports) {
           this._filters[key] = [function (e) {
             var t = e.srcElement || e.target;
             var m;
-            if (IS.aString(f)) {
+            if (isString(f)) {
               m = matchesSelector$1(t, f, _this2.el);
             } else if (typeof f === "function") {
               m = f(e, _this2.el);
@@ -12056,7 +12046,6 @@ var jsPlumbBrowserUI = (function (exports) {
           id: this.instance.getId(jel),
           pos: params.finalPos,
           originalGroup: jel._jsPlumbParentGroup,
-          draggedOutOfGroup: false,
           redrawResult: null,
           originalPos: params.originalPos,
           reverted: false,
@@ -12088,7 +12077,6 @@ var jsPlumbBrowserUI = (function (exports) {
               pos: pp,
               originalPos: orig,
               originalGroup: el._jsPlumbParentGroup,
-              draggedOutOfGroup: false,
               redrawResult: null,
               reverted: false,
               dropGroup: dropGroup != null ? dropGroup.groupLoc.group : null
@@ -12101,10 +12089,8 @@ var jsPlumbBrowserUI = (function (exports) {
           if (wasInGroup && !isInOriginalGroup) {
             if (dropGroup == null) {
               var orphanedPosition = _this._pruneOrOrphan(p, true, true);
-              p.draggedOutOfGroup = false;
               if (orphanedPosition.pos != null) {
                 p.pos = orphanedPosition.pos.pos;
-                p.draggedOutOfGroup = true;
               } else {
                 if (!orphanedPosition.pruned && p.originalGroup.revert) {
                   p.pos = p.originalPos;
@@ -13274,7 +13260,7 @@ var jsPlumbBrowserUI = (function (exports) {
           this.jpc.endpoints[0] = this.jpc.endpoints[0].finalEndpoint;
           this.jpc.endpoints[0].addConnection(this.jpc);
         }
-        if (IS.anObject(optionalData)) {
+        if (isObject(optionalData)) {
           this.jpc.mergeData(optionalData);
         }
         if (this._originalAnchor) {
@@ -14461,7 +14447,7 @@ var jsPlumbBrowserUI = (function (exports) {
                 y: absolutePosition.y
               };
             } else if (component instanceof EndpointRepresentation) {
-              var locToUse = isArray(o.location) ? o.location : [o.location, o.location];
+              var locToUse = Array.isArray(o.location) ? o.location : [o.location, o.location];
               cxy = {
                 x: locToUse[0] * component.w,
                 y: locToUse[1] * component.h
@@ -14469,7 +14455,7 @@ var jsPlumbBrowserUI = (function (exports) {
             } else {
               var loc = o.location,
                   absolute = false;
-              if (IS.aString(o.location) || o.location < 0 || o.location > 1) {
+              if (isString(o.location) || o.location < 0 || o.location > 1) {
                 loc = parseInt("" + o.location, 10);
                 absolute = true;
               }
@@ -14945,7 +14931,6 @@ var jsPlumbBrowserUI = (function (exports) {
   exports.INTERCEPT_BEFORE_DRAG = INTERCEPT_BEFORE_DRAG;
   exports.INTERCEPT_BEFORE_DROP = INTERCEPT_BEFORE_DROP;
   exports.INTERCEPT_BEFORE_START_DETACH = INTERCEPT_BEFORE_START_DETACH;
-  exports.IS = IS;
   exports.IS_DETACH_ALLOWED = IS_DETACH_ALLOWED;
   exports.JsPlumbInstance = JsPlumbInstance;
   exports.KEY_CONNECTION_OVERLAYS = KEY_CONNECTION_OVERLAYS;
@@ -15041,7 +15026,6 @@ var jsPlumbBrowserUI = (function (exports) {
   exports.hasClass = hasClass;
   exports.insertSorted = insertSorted;
   exports.intersects = intersects;
-  exports.isArray = isArray;
   exports.isArrayLike = isArrayLike;
   exports.isArrowOverlay = isArrowOverlay;
   exports.isAssignableFrom = isAssignableFrom;
