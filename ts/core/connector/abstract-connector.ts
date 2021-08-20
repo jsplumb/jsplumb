@@ -1,5 +1,5 @@
 
-import {quadrant, isArray, log, PointXY, Extents, Constructable} from "@jsplumb/util"
+import {quadrant, log, PointXY, Extents, Constructable} from "@jsplumb/util"
 
 import { Connection} from '../connector/connection-impl'
 import { Orientation} from '../factory/anchor-record-factory'
@@ -88,11 +88,11 @@ export abstract class AbstractConnector implements Connector {
 
     constructor(public connection:Connection, params:ConnectorOptions) {
         this.stub = params.stub || this.getDefaultStubs()
-        this.sourceStub = isArray(this.stub) ? this.stub[0] : this.stub
-        this.targetStub = isArray(this.stub) ? this.stub[1] : this.stub
+        this.sourceStub = Array.isArray(this.stub) ? this.stub[0] : this.stub
+        this.targetStub = Array.isArray(this.stub) ? this.stub[1] : this.stub
         this.gap = params.gap || 0
-        this.sourceGap = isArray(this.gap) ? this.gap[0] : this.gap
-        this.targetGap = isArray(this.gap) ? this.gap[1] : this.gap
+        this.sourceGap = Array.isArray(this.gap) ? this.gap[0] : this.gap
+        this.targetGap = Array.isArray(this.gap) ? this.gap[1] : this.gap
         this.maxStub = Math.max(this.sourceStub, this.targetStub)
         this.cssClass = params.cssClass || ""
         this.hoverClass = params.hoverClass || ""
