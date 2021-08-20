@@ -1,4 +1,4 @@
-import {Dictionary, extend, IS, uuid, PointXY, Size, snapToGrid, Grid} from '@jsplumb/util'
+import {Dictionary, extend, uuid, PointXY, Size, snapToGrid, Grid, isString} from '@jsplumb/util'
 import {addClass, consume, matchesSelector, removeClass, offsetRelativeToRoot} from "./browser-util"
 import {EventManager, pageLocation} from "./event-manager"
 import { jsPlumbDOMElement} from './element-facade'
@@ -90,7 +90,7 @@ export function isInsideParent(instance:BrowserJsPlumbInstance, _el:HTMLElement,
  * @param availableSelectors
  * @param parentElement
  * @param childElement
- * @returns {*}
+ * @returns
  */
 function findMatchingSelector(availableSelectors:Array<DragParams>, parentElement:jsPlumbDOMElement, childElement:jsPlumbDOMElement):[DragParams, HTMLElement] {
     let el = null
@@ -148,7 +148,7 @@ const _devNull = function() {}
 
 const _each = function(obj:any, fn:any) {
     if (obj == null) return
-    obj = !IS.aString(obj) && (obj.tagName == null && obj.length != null) ? obj : [ obj ]
+    obj = !isString(obj) && (obj.tagName == null && obj.length != null) ? obj : [ obj ]
     for (let i = 0; i < obj.length; i++)
         fn.apply(obj[i], [ obj[i] ])
 }
@@ -805,7 +805,7 @@ export class Drag extends Base {
                 (e:any) => {
                     const t = e.srcElement || e.target
                     let m
-                    if (IS.aString(f)) {
+                    if (isString(f)) {
                         m = matchesSelector(t, f as string, this.el)
                     }
                     else if (typeof f === "function") {
@@ -913,16 +913,14 @@ export class Collicat implements jsPlumbDragManager {
 
     /**
      * Gets the selector identifying which input elements to filter from drag events.
-     * @method getInputFilterSelector
-     * @return {String} Current input filter selector.
+     * @returns Current input filter selector.
      */
     getInputFilterSelector () { return this.inputFilterSelector; }
 
     /**
      * Sets the selector identifying which input elements to filter from drag events.
-     * @method setInputFilterSelector
-     * @param {String} selector Input filter selector to set.
-     * @return {Collicat} Current instance; method may be chained.
+     * @param selector Input filter selector to set.
+     * @returns Current instance; method may be chained.
      */
     setInputFilterSelector (selector:string) {
         this.inputFilterSelector = selector
