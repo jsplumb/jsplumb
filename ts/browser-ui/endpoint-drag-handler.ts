@@ -57,12 +57,11 @@ import {
     Size,
     extend,
     functionChain,
-    IS,
     Dictionary,
     each,
     intersects,
     addToDictionary,
-    BoundingBox
+    BoundingBox, isObject
 } from "@jsplumb/util"
 import {ATTRIBUTE_JTK_ENABLED, ELEMENT_DIV} from "./constants"
 
@@ -1153,7 +1152,7 @@ export class EndpointDragHandler implements DragHandler {
         }
 
         // if optionalData was given, merge it onto the connection's data.
-        if (IS.anObject(optionalData)) {
+        if (isObject(optionalData)) {
             this.jpc.mergeData(optionalData)
         }
 
