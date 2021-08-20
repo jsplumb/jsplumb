@@ -8,7 +8,7 @@ import { JsPlumbInstance, jsPlumbElement } from "../core"
 
 import {UIGroup, GroupOptions, UINode} from "./group"
 import * as Constants from "../constants"
-import {PointXY,IS, removeWithFunction, Dictionary, suggest, forEach } from "@jsplumb/util"
+import {PointXY, removeWithFunction, Dictionary, suggest, forEach, isString} from "@jsplumb/util"
 import { WILDCARD } from "@jsplumb/common"
 import {Connection} from "../connector/connection-impl"
 import {ConnectionSelection} from "../selection/connection-selection"
@@ -168,7 +168,7 @@ export class GroupManager<E> {
 
     getGroup (groupId:string | UIGroup<E>):UIGroup<E> {
         let group = groupId
-        if (IS.aString(groupId)) {
+        if (isString(groupId)) {
             group = this.groupMap[groupId as string]
             if (group == null) {
                 throw new Error("No such group [" + groupId + "]")
