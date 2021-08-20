@@ -1,5 +1,5 @@
 import { jsPlumbDOMElement} from './element-facade'
-import {Dictionary, fastTrim, forEach, isArray, isString, log, PointXY, Size} from "@jsplumb/util"
+import {Dictionary, fastTrim, forEach, isString, log, PointXY, Size} from "@jsplumb/util"
 
 // These are utility functions for use inside a Browser.
 
@@ -84,8 +84,8 @@ function _getClassName (el:Element):string {
 }
 
 function _classManip(el:Element, classesToAdd:string | Array<string>, classesToRemove?:string | Array<String>) {
-    const cta:Array<string> = classesToAdd == null ? [] : isArray(classesToAdd) ? classesToAdd as string[] : (classesToAdd as string).split(/\s+/)
-    const ctr:Array<string> = classesToRemove == null ? [] : isArray(classesToRemove) ? classesToRemove as string[] : (classesToRemove as string).split(/\s+/)
+    const cta:Array<string> = classesToAdd == null ? [] : Array.isArray(classesToAdd) ? classesToAdd as string[] : (classesToAdd as string).split(/\s+/)
+    const ctr:Array<string> = classesToRemove == null ? [] : Array.isArray(classesToRemove) ? classesToRemove as string[] : (classesToRemove as string).split(/\s+/)
 
     let className = _getClassName(el),
         curClasses = className.split(/\s+/)
