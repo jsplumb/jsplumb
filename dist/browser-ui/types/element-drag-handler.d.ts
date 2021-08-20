@@ -31,7 +31,6 @@ export declare type DraggedElement = {
     pos: PointXY;
     originalPos: PointXY;
     originalGroup: UIGroup;
-    draggedOutOfGroup: boolean;
     redrawResult: RedrawResult;
     reverted: boolean;
     dropGroup: UIGroup;

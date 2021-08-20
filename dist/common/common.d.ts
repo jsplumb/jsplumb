@@ -1,9 +1,20 @@
+/**
+ * This package contains common declarations and definitions for use by both jsPlumb Community and Toolkit editions.
+ *
+ * @packageDocumentation
+ */
+
 import { BoundingBox } from '@jsplumb/util';
 import { Component } from '@jsplumb/core';
 import { Dictionary } from '@jsplumb/util';
 import { Extents } from '@jsplumb/util';
 import { PointXY } from '@jsplumb/util';
 
+/**
+ * Base class for segments in connectors.
+ *
+ * @private
+ */
 export declare abstract class AbstractSegment implements Segment {
     protected params: SegmentParams;
     x1: number;
@@ -12,6 +23,9 @@ export declare abstract class AbstractSegment implements Segment {
     y2: number;
     extents: Extents;
     abstract type: string;
+    /**
+     * Abstract method that subclasses are required to implement. Returns the length of the segment.
+     */
     abstract getLength(): number;
     abstract pointOnPath(location: number, absolute?: boolean): PointXY;
     abstract gradientAtPoint(location: number, absolute?: boolean): number;
@@ -19,72 +33,138 @@ export declare abstract class AbstractSegment implements Segment {
     abstract getPath(isFirstSegment: boolean): string;
     constructor(params: SegmentParams);
     /**
-     * Function: findClosestPointOnPath
-     * Finds the closest point on this segment to the given [x, y],
-     * returning both the x and y of the point plus its distance from
-     * the supplied point, and its location along the length of the
-     * path inscribed by the segment.  This implementation returns
-     * Infinity for distance and null values for everything else
-     * subclasses are expected to override.
+     * Finds the closest point on this segment to the given x/y, returning both the x and y of the point plus its distance from
+     * the supplied point, and its location along the length of the path inscribed by the segment.  This implementation returns
+     * Infinity for distance and null values for everything else subclasses are expected to override.
+     * @param x X location to find closest point to
+     * @param y Y location to find closest point to
+     * @returns a `PointNearPath` object, which contains the location of the closest point plus other useful information.
      */
     findClosestPointOnPath(x: number, y: number): PointNearPath;
     /**
      * Computes the list of points on the segment that intersect the given line.
-     * @method lineIntersection
-     * @param {number} x1
-     * @param {number} y1
-     * @param {number} x2
-     * @param {number} y2
-     * @returns {Array<PointXY>}
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @returns A list of intersecting points
      */
     lineIntersection(x1: number, y1: number, x2: number, y2: number): Array<PointXY>;
     /**
      * Computes the list of points on the segment that intersect the box with the given origin and size.
-     * @method boxIntersection
-     * @param {number} x
-     * @param {number} y
-     * @param {number} w
-     * @param {number} h
-     * @returns {Array<PointXY>}
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     * @returns A list of intersecting points
      */
     boxIntersection(x: number, y: number, w: number, h: number): Array<PointXY>;
     /**
-     * Computes the list of points on the segment that intersect the given bounding box, which is an object of the form { x:.., y:.., w:.., h:.. }.
-     * @method lineIntersection
-     * @param {BoundingBox} box
-     * @returns {Array<[number, number]>}
+     * Computes the list of points on the segment that intersect the given bounding box.
+     * @param box
+     * @returns A list of intersecting points
      */
     boundingBoxIntersection(box: BoundingBox): Array<PointXY>;
 }
 
+/**
+ * List of entries in the AnchorLocations enum
+ */
 export declare type AnchorId = keyof typeof AnchorLocations;
 
+/**
+ * Default anchor locations.
+ */
 export declare enum AnchorLocations {
     Assign = "Assign",
+    /**
+     * Chooses from Top, Left, Bottom or Right, depending on which is closest to the anchor at the other end of the connection.
+     */
     AutoDefault = "AutoDefault",
+    /**
+     * Bottom middle of the element.
+     */
     Bottom = "Bottom",
+    /**
+     * Bottom left corner of the element.
+     */
     BottomLeft = "BottomLeft",
+    /**
+     * Bottom right corner of the element.
+     */
     BottomRight = "BottomRight",
+    /**
+     * Center of the element.
+     */
     Center = "Center",
+    /**
+     * Assigns a separate anchor point for each endpoint, choosing whichever face is closest to the element at the other end of each connection.
+     */
     Continuous = "Continuous",
+    /**
+     * As with Continuous, but only use the bottom face.
+     */
     ContinuousBottom = "ContinuousBottom",
+    /**
+     * As with Continuous, but only use the left face.
+     */
     ContinuousLeft = "ContinuousLeft",
+    /**
+     * As with Continuous, but only use the right face.
+     */
     ContinuousRight = "ContinuousRight",
+    /**
+     * As with Continuous, but only use the top face.
+     */
     ContinuousTop = "ContinuousTop",
+    /**
+     * As with Continuous, but only use the left and right faces.
+     */
     ContinuousLeftRight = "ContinuousLeftRight",
+    /**
+     * As with Continuous, but only use the top and bottom faces.
+     */
     ContinuousTopBottom = "ContinuousTopBottom",
+    /**
+     * Center of the left edge of the element.
+     */
     Left = "Left",
+    /**
+     * Tracks the perimeter of some shape.
+     */
     Perimeter = "Perimeter",
+    /**
+     * Center of the right edge of the element.
+     */
     Right = "Right",
+    /**
+     * Center of the top edge of the element.
+     */
     Top = "Top",
+    /**
+     * Top left corner of the element.
+     */
     TopLeft = "TopLeft",
+    /**
+     * Top right corner of the element.
+     */
     TopRight = "TopRight"
 }
 
+/**
+ * Common options for anchors.
+ */
 export declare interface AnchorOptions extends Record<string, any> {
+    /**
+     * Optional css class that will be applied to any DOM element for an endpoint using this anchor.
+     */
     cssClass?: string;
 }
 
+/**
+ * Defines the current location that an anchor is placed at.
+ * @internal
+ */
 export declare type AnchorPlacement = {
     curX: number;
     curY: number;
@@ -94,6 +174,9 @@ export declare type AnchorPlacement = {
     oy: number;
 };
 
+/**
+ * Models the specification of anchor - which may be a SingleAnchorSpec, or an array of SingleAnchorSpec objects.
+ */
 export declare type AnchorSpec = SingleAnchorSpec | Array<SingleAnchorSpec>;
 
 export declare interface ArrowOverlayOptions extends OverlayOptions {
@@ -107,21 +190,51 @@ export declare interface ArrowOverlayOptions extends OverlayOptions {
 export declare interface BlankEndpointParams extends EndpointRepresentationParams {
 }
 
+/**
+ * High level definition of a Connector.
+ */
 export declare interface Connector {
+    /**
+     * The connector's type.
+     */
     type: string;
 }
 
+/**
+ * Alias for the use case that a Connector is referenced just by its `type`.
+ */
 export declare type ConnectorId = string;
 
+/**
+ * Common options for connectors.
+ */
 export declare interface ConnectorOptions extends Record<string, any> {
+    /**
+     * Stub defines a number of pixels that the connector travels away from its element before the connector's actual path begins.
+     */
     stub?: number | number[];
+    /**
+     * Defines a number of pixels between the end of the connector and its anchor point. Defaults to zero.
+     */
     gap?: number;
+    /**
+     * Optional class to set on the element used to render the connector.
+     */
     cssClass?: string;
+    /**
+     * Optional class to set on the element used to render the connector when the mouse is hovering over the connector.
+     */
     hoverClass?: string;
 }
 
+/**
+ * Specification of a connector - either the type id of some Connector, a type+options object.
+ */
 export declare type ConnectorSpec = ConnectorId | ConnectorWithOptions;
 
+/**
+ * Connector spec in the form `{type:.., options:{.. }}`
+ */
 export declare type ConnectorWithOptions = {
     type: ConnectorId;
     options: ConnectorOptions;
@@ -131,12 +244,19 @@ export declare interface CustomOverlayOptions extends OverlayOptions {
     create: (c: Component) => any;
 }
 
+/**
+ * Constant used im various places internally, and in the Toolkit edition used as the key for default node, edge, port and group definitions.
+ */
 export declare const DEFAULT = "default";
 
 export declare interface DotEndpointParams extends EndpointRepresentationParams {
     radius?: number;
 }
 
+/**
+ * Returns an empty bounds object, used in certain initializers internally.
+ * @internal
+ */
 export declare function EMPTY_BOUNDS(): Extents;
 
 export declare type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndpointId;
@@ -152,8 +272,14 @@ export declare type EndpointSpec = EndpointId | FullEndpointSpec;
 export declare interface EndpointStyle extends PaintStyle, Record<string, any> {
 }
 
+/**
+ * Constant for the term "false"
+ */
 export declare const FALSE = "false";
 
+/**
+ * An anchor spec in the form `{type:..., options:{ ... }}`
+ */
 export declare type FullAnchorSpec = {
     type: AnchorId;
     options: AnchorOptions;
@@ -169,6 +295,9 @@ export declare type FullOverlaySpec = {
     options: OverlayOptions;
 };
 
+/**
+ * Geometry defines the path along which a connector travels. The internal contents of a Geometry vary widely between connectors.
+ */
 export declare interface Geometry {
     source: any;
     target: any;
@@ -188,6 +317,10 @@ export declare interface OverlayOptions extends Record<string, any> {
 
 export declare type OverlaySpec = string | FullOverlaySpec;
 
+/**
+ * Used internally by connectors.
+ * @internal
+ */
 export declare type PaintAxis = "y" | "x";
 
 export declare interface PaintStyle {
@@ -225,6 +358,10 @@ export declare interface RectangleEndpointParams extends EndpointRepresentationP
     height?: number;
 }
 
+/**
+ * Definition of a segment. This is an internal class that users of the API need not access.
+ * @internal
+ */
 export declare interface Segment {
     x1: number;
     x2: number;
@@ -250,14 +387,26 @@ export declare interface SegmentParams {
     y2: number;
 }
 
+/**
+ * Models the specification of a single anchor.
+ */
 export declare type SingleAnchorSpec = AnchorId | FullAnchorSpec | AnchorPlacement | Array<AnchorPlacement>;
 
+/**
+ * Constant for the term "true"
+ */
 export declare const TRUE = "true";
 
+/**
+ * Constant for matching JS 'undefined'.
+ */
 export declare const UNDEFINED = "undefined";
 
 export declare type UserDefinedEndpointId = string;
 
+/**
+ * Constant representing the wildcard used in several places in the API.
+ */
 export declare const WILDCARD = "*";
 
 export { }

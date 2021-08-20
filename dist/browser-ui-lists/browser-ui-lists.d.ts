@@ -1,3 +1,9 @@
+/**
+ * This package is a list manager that works with the `browser-ui` renderer.
+ *
+ * @packageDocumentation
+ */
+
 import { AnchorSpec } from '@jsplumb/common';
 import { BrowserJsPlumbInstance } from '@jsplumb/browser-ui';
 import { Connection } from '@jsplumb/core';

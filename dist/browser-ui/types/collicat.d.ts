@@ -180,15 +180,13 @@ export declare class Collicat implements jsPlumbDragManager {
     private _prepareParams;
     /**
      * Gets the selector identifying which input elements to filter from drag events.
-     * @method getInputFilterSelector
-     * @return {String} Current input filter selector.
+     * @returns Current input filter selector.
      */
     getInputFilterSelector(): string;
     /**
      * Sets the selector identifying which input elements to filter from drag events.
-     * @method setInputFilterSelector
-     * @param {String} selector Input filter selector to set.
-     * @return {Collicat} Current instance; method may be chained.
+     * @param selector Input filter selector to set.
+     * @returns Current instance; method may be chained.
      */
     setInputFilterSelector(selector: string): this;
     draggable(el: jsPlumbDOMElement, params: DragParams): Drag;

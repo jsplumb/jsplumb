@@ -1,3 +1,14 @@
+/**
+ * This package is a renderer for the jsPlumb Community edition that uses a single SVG element per connection, and can
+ * connect HTML/SVG elements in the DOM.  For users of version of jsPlumb prior to 5.x, this package is the equivalent to
+ * what used to just be known as "jsPlumb".
+ *
+ * In actual fact only this renderer exists for the 5.x Community edition, but the code in 5.x is now architected in such a way
+ * that alternative renderers could be implemented.
+ *
+ * @packageDocumentation
+ */
+
 import { AbstractConnector } from '@jsplumb/core';
 import { BehaviouralTypeDescriptor } from '@jsplumb/core';
 import { BoundingBox } from '@jsplumb/util';
@@ -286,15 +297,13 @@ export declare class Collicat implements jsPlumbDragManager {
     private _prepareParams;
     /**
      * Gets the selector identifying which input elements to filter from drag events.
-     * @method getInputFilterSelector
-     * @return {String} Current input filter selector.
+     * @returns Current input filter selector.
      */
     getInputFilterSelector(): string;
     /**
      * Sets the selector identifying which input elements to filter from drag events.
-     * @method setInputFilterSelector
-     * @param {String} selector Input filter selector to set.
-     * @return {Collicat} Current instance; method may be chained.
+     * @param selector Input filter selector to set.
+     * @returns Current instance; method may be chained.
      */
     setInputFilterSelector(selector: string): this;
     draggable(el: jsPlumbDOMElement, params: DragParams): Drag;
@@ -407,7 +416,6 @@ export declare type DraggedElement = {
     pos: PointXY;
     originalPos: PointXY;
     originalGroup: UIGroup;
-    draggedOutOfGroup: boolean;
     redrawResult: RedrawResult;
     reverted: boolean;
     dropGroup: UIGroup;

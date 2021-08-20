@@ -469,11 +469,11 @@ var AbstractConnector = function () {
     _defineProperty(this, "hoverClass", void 0);
     _defineProperty(this, "geometry", void 0);
     this.stub = params.stub || this.getDefaultStubs();
-    this.sourceStub = util.isArray(this.stub) ? this.stub[0] : this.stub;
-    this.targetStub = util.isArray(this.stub) ? this.stub[1] : this.stub;
+    this.sourceStub = Array.isArray(this.stub) ? this.stub[0] : this.stub;
+    this.targetStub = Array.isArray(this.stub) ? this.stub[1] : this.stub;
     this.gap = params.gap || 0;
-    this.sourceGap = util.isArray(this.gap) ? this.gap[0] : this.gap;
-    this.targetGap = util.isArray(this.gap) ? this.gap[1] : this.gap;
+    this.sourceGap = Array.isArray(this.gap) ? this.gap[0] : this.gap;
+    this.targetGap = Array.isArray(this.gap) ? this.gap[1] : this.gap;
     this.maxStub = Math.max(this.sourceStub, this.targetStub);
     this.cssClass = params.cssClass || "";
     this.hoverClass = params.hoverClass || "";
@@ -2225,20 +2225,21 @@ function isPrimitiveAnchorSpec(sa) {
 function makeLightweightAnchorFromSpec(spec) {
   if (util.isString(spec)) {
     return getNamedAnchor(spec, null);
-  } else if (util.isArray(spec)) {
+  } else if (Array.isArray(spec)) {
     if (isPrimitiveAnchorSpec(spec)) {
+      var _spec = spec;
       return _createAnchor(null, [{
-        x: spec[0],
-        y: spec[1],
-        ox: spec[2],
-        oy: spec[3],
-        offx: spec[4] == null ? 0 : spec[4],
-        offy: spec[5] == null ? 0 : spec[5],
-        iox: spec[2],
-        ioy: spec[3],
-        cls: spec[6] || ""
+        x: _spec[0],
+        y: _spec[1],
+        ox: _spec[2],
+        oy: _spec[3],
+        offx: _spec[4] == null ? 0 : _spec[4],
+        offy: _spec[5] == null ? 0 : _spec[5],
+        iox: _spec[2],
+        ioy: _spec[3],
+        cls: _spec[6] || ""
       }], {
-        cssClass: spec[6] || ""
+        cssClass: _spec[6] || ""
       });
     } else {
       var locations = util.map(spec, function (aSpec) {
@@ -2449,7 +2450,7 @@ var Connection = function (_Component) {
     _this.parameters = _p;
     _this.paintStyleInUse = _this.getPaintStyle() || {};
     _this.setConnector(_this.endpoints[0].connector || _this.endpoints[1].connector || params.connector || _this.instance.defaults.connector, true);
-    var data = params.data == null || !util.IS.anObject(params.data) ? {} : params.data;
+    var data = params.data == null || !util.isObject(params.data) ? {} : params.data;
     _this.setData(data);
     var _types = [common.DEFAULT, _this.endpoints[0].edgeType, _this.endpoints[1].edgeType, params.type].join(" ");
     if (/[^\s]/.test(_types)) {
@@ -3405,7 +3406,7 @@ var GroupManager = function () {
     key: "getGroup",
     value: function getGroup(groupId) {
       var group = groupId;
-      if (util.IS.aString(groupId)) {
+      if (util.isString(groupId)) {
         group = this.groupMap[groupId];
         if (group == null) {
           throw new Error("No such group [" + groupId + "]");
@@ -7118,7 +7119,7 @@ var ArrowOverlay = function (_Overlay) {
     _this.paintStyle = p.paintStyle || {
       "strokeWidth": 1
     };
-    _this.location = p.location == null ? _this.location : util.isArray(p.location) ? p.location[0] : p.location;
+    _this.location = p.location == null ? _this.location : Array.isArray(p.location) ? p.location[0] : p.location;
     return _this;
   }
   _createClass(ArrowOverlay, [{

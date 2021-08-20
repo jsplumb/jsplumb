@@ -16,7 +16,15 @@ export declare type PointNearPath = {
     y1: number;
     y2: number;
 };
+/**
+ * Returns an empty bounds object, used in certain initializers internally.
+ * @internal
+ */
 export declare function EMPTY_BOUNDS(): Extents;
+/**
+ * Definition of a segment. This is an internal class that users of the API need not access.
+ * @internal
+ */
 export interface Segment {
     x1: number;
     x2: number;
@@ -34,6 +42,11 @@ export interface Segment {
     findClosestPointOnPath(x: number, y: number): PointNearPath;
     getPath(isFirstSegment: boolean): string;
 }
+/**
+ * Base class for segments in connectors.
+ *
+ * @private
+ */
 export declare abstract class AbstractSegment implements Segment {
     protected params: SegmentParams;
     x1: number;
@@ -42,6 +55,9 @@ export declare abstract class AbstractSegment implements Segment {
     y2: number;
     extents: Extents;
     abstract type: string;
+    /**
+     * Abstract method that subclasses are required to implement. Returns the length of the segment.
+     */
     abstract getLength(): number;
     abstract pointOnPath(location: number, absolute?: boolean): PointXY;
     abstract gradientAtPoint(location: number, absolute?: boolean): number;
@@ -49,40 +65,36 @@ export declare abstract class AbstractSegment implements Segment {
     abstract getPath(isFirstSegment: boolean): string;
     constructor(params: SegmentParams);
     /**
-     * Function: findClosestPointOnPath
-     * Finds the closest point on this segment to the given [x, y],
-     * returning both the x and y of the point plus its distance from
-     * the supplied point, and its location along the length of the
-     * path inscribed by the segment.  This implementation returns
-     * Infinity for distance and null values for everything else
-     * subclasses are expected to override.
+     * Finds the closest point on this segment to the given x/y, returning both the x and y of the point plus its distance from
+     * the supplied point, and its location along the length of the path inscribed by the segment.  This implementation returns
+     * Infinity for distance and null values for everything else subclasses are expected to override.
+     * @param x X location to find closest point to
+     * @param y Y location to find closest point to
+     * @returns a `PointNearPath` object, which contains the location of the closest point plus other useful information.
      */
     findClosestPointOnPath(x: number, y: number): PointNearPath;
     /**
      * Computes the list of points on the segment that intersect the given line.
-     * @method lineIntersection
-     * @param {number} x1
-     * @param {number} y1
-     * @param {number} x2
-     * @param {number} y2
-     * @returns {Array<PointXY>}
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @returns A list of intersecting points
      */
     lineIntersection(x1: number, y1: number, x2: number, y2: number): Array<PointXY>;
     /**
      * Computes the list of points on the segment that intersect the box with the given origin and size.
-     * @method boxIntersection
-     * @param {number} x
-     * @param {number} y
-     * @param {number} w
-     * @param {number} h
-     * @returns {Array<PointXY>}
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     * @returns A list of intersecting points
      */
     boxIntersection(x: number, y: number, w: number, h: number): Array<PointXY>;
     /**
-     * Computes the list of points on the segment that intersect the given bounding box, which is an object of the form { x:.., y:.., w:.., h:.. }.
-     * @method lineIntersection
-     * @param {BoundingBox} box
-     * @returns {Array<[number, number]>}
+     * Computes the list of points on the segment that intersect the given bounding box.
+     * @param box
+     * @returns A list of intersecting points
      */
     boundingBoxIntersection(box: BoundingBox): Array<PointXY>;
 }

@@ -1,3 +1,10 @@
+/**
+ * This package contains the Flowchart connector. Prior to version 5.x this connector was shipped
+ * along with the core.
+ *
+ * @packageDocumentation
+ */
+
 import { AbstractConnector } from '@jsplumb/core';
 import { Connection } from '@jsplumb/core';
 import { ConnectorComputeParams } from '@jsplumb/core';

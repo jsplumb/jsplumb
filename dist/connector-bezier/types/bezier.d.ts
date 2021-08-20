@@ -79,7 +79,7 @@ export declare type AxisCoefficients = [number, number, number, number];
  * @param point a point in the form {x:567, y:3342}
  * @param curve a Bezier curve in the form [{x:..., y:...}, {x:..., y:...}, {x:..., y:...}, {x:..., y:...}].  note that this is currently
  * hardcoded to assume cubiz beziers, but would be better off supporting any degree.
- * @return a JS object literal containing location and distance, for example: {location:0.35, distance:10}.  Location is analogous to the location
+ * @returns a JS object literal containing location and distance, for example: {location:0.35, distance:10}.  Location is analogous to the location
  * argument you pass to the pointOnPath function: it is a ratio of distance travelled along the curve.  Distance is the distance in pixels from
  * the point to the curve.
  */
@@ -141,7 +141,7 @@ export declare function perpendicularToPathAt(curve: Curve, location: number, le
  * @param x2
  * @param y2
  * @param curve
- * @returns {Array}
+ * @returns Array of intersecting points.
  */
 export declare function bezierLineIntersection(x1: number, y1: number, x2: number, y2: number, curve: Curve): Array<PointXY>;
 /**
@@ -151,14 +151,14 @@ export declare function bezierLineIntersection(x1: number, y1: number, x2: numbe
  * @param w width of box
  * @param h height of box
  * @param curve
- * @returns {Array}
+ * @returns Array of intersecting points.
  */
 export declare function boxIntersection(x: number, y: number, w: number, h: number, curve: Curve): Array<PointXY>;
 /**
  * Calculates all intersections of the given bounding box with the given curve.
  * @param boundingBox Bounding box, in { x:.., y:..., w:..., h:... } format.
  * @param curve
- * @returns {Array}
+ * @returns Array of intersecting points.
  */
 export declare function boundingBoxIntersection(boundingBox: BoundingBox, curve: Curve): Array<PointXY>;
 //# sourceMappingURL=bezier.d.ts.map

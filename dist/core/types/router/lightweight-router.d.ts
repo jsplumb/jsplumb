@@ -79,7 +79,7 @@ export declare class LightweightRouter<T extends {
      * one declared location. This method provides a means for setting the active location based upon matching its x/y values.
      * @param a
      * @param coords
-     * @return true if a matching location was found and activated, false if not.
+     * @returns true if a matching location was found and activated, false if not.
      */
     selectAnchorLocation(a: LightweightAnchor, coords: {
         x: number;

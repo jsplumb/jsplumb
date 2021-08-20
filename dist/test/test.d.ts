@@ -1,3 +1,10 @@
+/**
+ * This package contains the test helper that is used internally by jsPlumb. There is a vague notion that this package
+ * could be made useful for others, so all feedback on that topic is welcome.
+ *
+ * @packageDocumentation
+ */
+
 import { BrowserJsPlumbInstance } from '@jsplumb/browser-ui';
 import { Connection } from '@jsplumb/core';
 import { Endpoint } from '@jsplumb/core';

@@ -1,4 +1,10 @@
 /**
+ * This package contains various utility functions used by both the Community and Toolkit editions of jsPlumb.
+ *
+ * @packageDocumentation
+ */
+
+/**
  * Adds the x and y values of the two points and returns a new point.
  * @param p1
  * @param p2
@@ -45,6 +51,10 @@ export declare type BoundingBox = {
     center?: PointXY;
 };
 
+/**
+ * Makes a copy of the given object.
+ * @param a
+ */
 export declare function clone(a: any): any;
 
 /**
@@ -72,17 +82,18 @@ export declare function each(obj: any, fn: Function): void;
 
 /**
  * Calculates whether or not r2 is completely enclosed by r1.
- * @name encloses
- * @param {RectangleXY} r1 First rectangle
- * @param {RectangleXY} r2 Second rectangle
- * @param {boolean} [allowSharedEdges=false] If true, the concept of enclosure allows for one or more edges to be shared by the two rectangles.
- * @return {boolean} True if r1 encloses r2, false otherwise.
+ * @param r1 First rectangle
+ * @param r2 Second rectangle
+ * @param [allowSharedEdges=false] If true, the concept of enclosure allows for one or more edges to be shared by the two rectangles.
+ * @returns True if r1 encloses r2, false otherwise.
  */
 export declare function encloses(r1: RectangleXY, r2: RectangleXY, allowSharedEdges?: boolean): boolean;
 
 /**
- * Base class for classes that wish to support binding and firing of events. You need to implement the `shouldFireEvent` method
- * in your concrete subclasses of this class.
+ * Base class for classes that wish to support binding and firing of events.
+ *
+ * @remarks You need to implement the `shouldFireEvent` method in your concrete subclasses of this class, or you can
+ * instead extend from `OptimisticEventGenerator`, which has a default implementation of `shouldFireEvent` that returns true.
  */
 export declare abstract class EventGenerator {
     private _listeners;
@@ -93,7 +104,7 @@ export declare abstract class EventGenerator {
     protected abstract shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
     constructor();
     /**
-     * Fire the named event
+     * Fire the named event.
      * @param event Event to fire
      * @param value Value to pass to event handlers
      * @param originalEvent Optional original event that caused this event to be fired.
@@ -112,7 +123,7 @@ export declare abstract class EventGenerator {
      */
     unbind(eventOrListener?: string | Function, listener?: Function): EventGenerator;
     /**
-     * gets all listeners for the given named event.
+     * Gets all listeners for the given named event.
      * @param forEvent
      */
     getListener(forEvent: string): Array<any>;
@@ -139,6 +150,12 @@ export declare abstract class EventGenerator {
     silently(fn: Function): void;
 }
 
+/**
+ * Equivalent of Object.assign, which IE11 does not support.
+ * @param o1
+ * @param o2
+ * @param keys Optional list of keys to use to copy values from `o2` to `o1`. If this is not provided, all values are copied.
+ */
 export declare function extend<T>(o1: T, o2: T, keys?: string[]): T;
 
 /**
@@ -151,8 +168,18 @@ export declare interface Extents {
     ymax: number;
 }
 
+/**
+ * Trims whitespace from the given string.
+ * @param s
+ */
 export declare function fastTrim(s: string): string;
 
+/**
+ * Internal method used to filter lists, supporting wildcards.
+ * @param list
+ * @param value
+ * @param missingIsFalse
+ */
 export declare function filterList(list: Array<any> | string, value: any, missingIsFalse?: boolean): boolean;
 
 /**
@@ -161,14 +188,19 @@ export declare function filterList(list: Array<any> | string, value: any, missin
  */
 export declare function filterNull(obj: Record<string, any>): Record<string, any>;
 
-export declare function findAllWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): Array<number>;
+/**
+ * Find all entries in the given array like object for which the given predicate returns true.
+ * @param a
+ * @param predicate
+ */
+export declare function findAllWithFunction<T>(a: ArrayLike<T>, predicate: (_a: T) => boolean): Array<number>;
 
 /**
  * Search each entry in the given array for an entry for which the function `f` returns true. This is a stand-in replacement for the
  * `findIndex` method which is available on `Array` in modern browsers, but not IE11.
  * @param a Array to search
  * @param f Predicate to use to test each entry
- * @return The index of the entry for which the predicate returned true, -1 if not found.
+ * @returns The index of the entry for which the predicate returned true, -1 if not found.
  */
 export declare function findWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): number;
 
@@ -182,17 +214,25 @@ export declare function forEach<T>(a: ArrayLike<T>, f: (_a: T) => any): void;
 /**
  * A shim for the `fromArray` method, which is not present in IE11.  This method falls back to `fromArray` if it is present.
  * @param a Array-like object to convert into an Array
- * @return An Array
+ * @returns An Array
  */
 export declare function fromArray<T>(a: ArrayLike<T>): Array<T>;
 
+/**
+ * Chain a list of functions, supplied by [ object, method name, args ], and return on the first one that returns the failValue.
+ * If none return the failValue, return the successValue. This is an internal method.
+ * @param successValue
+ * @param failValue
+ * @param fns
+ * @private
+ */
 export declare function functionChain(successValue: any, failValue: any, fns: Array<Array<any>>): any;
 
 /**
  * Find all entries in the given array for which the function `f` returns true
  * @param a Array to search
  * @param f Predicate to use to test each entry
- * @return The entries for which the predicate returned true, empty array if not found.
+ * @returns The entries for which the predicate returned true, empty array if not found.
  */
 export declare function getAllWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): Array<T>;
 
@@ -216,17 +256,15 @@ export declare function getsert<K, V>(map: Map<K, V>, key: K, valueGenerator: ()
  * `find` method which is available on `Array` in modern browsers, but not IE11.
  * @param a Array to search
  * @param f Predicate to use to test each entry
- * @return The entry for which the predicate returned true, null if not found.
+ * @returns The entry for which the predicate returned true, null if not found.
  */
 export declare function getWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): T;
 
 /**
  * Calculates the gradient of a line between the two points.
- * @name gradient
- * @function
- * @param {PointXY} p1 First point in the line
- * @param {PointXY} p2 Second point in the line
- * @return {number} The gradient of a line between the two points.
+ * @param p1 First point in the line
+ * @param p2 Second point in the line
+ * @returns The gradient of a line between the two points.
  */
 export declare function gradient(p1: PointXY, p2: PointXY): number;
 
@@ -250,20 +288,11 @@ export declare function insertSorted<T>(value: T, array: Array<T>, comparator: (
 
 /**
  * Calculates whether or not the two rectangles intersect.
- * @name intersects
- * @function
- * @param {RectangleXY} r1 First rectangle
- * @param {RectangleXY} r2 Second rectangle
- * @return {boolean} True if the rectangles intersect, false otherwise.
+ * @param r1 First rectangle
+ * @param r2 Second rectangle
+ * @returns True if the rectangles intersect, false otherwise.
  */
 export declare function intersects(r1: RectangleXY, r2: RectangleXY): boolean;
-
-export declare const IS: {
-    anObject: (o: any) => boolean;
-    aString: (o: any) => boolean;
-};
-
-export declare function isArray(a: any): boolean;
 
 /**
  * Returns true if the given `object` can be considered to be an instance of the class `cls`.  This is done by
@@ -273,50 +302,81 @@ export declare function isArray(a: any): boolean;
  */
 export declare function isAssignableFrom(object: any, cls: any): boolean;
 
+/**
+ * Returns whether or not the given value is of `boolean` type.
+ * @param s
+ */
 export declare function isBoolean(s: any): boolean;
 
+/**
+ * Returns whether or not the given value is of type `Date`
+ * @param o
+ */
 export declare function isDate(o: any): o is Date;
 
+/**
+ * Returns whether or not the given object - which may be ArrayLike, or an object - is empty.
+ * @param o
+ */
 export declare function isEmpty(o: any): boolean;
 
+/**
+ * Returns whether or not the given value is of type `Function`
+ * @param o
+ */
 export declare function isFunction(o: any): o is Function;
 
+/**
+ * Returns whether or not the given value is of type `Function` and is a named Function.
+ * @param o
+ */
 export declare function isNamedFunction(o: any): boolean;
 
+/**
+ * Returns whether or not the given value is null.
+ * @param s
+ */
 export declare function isNull(s: any): boolean;
 
+/**
+ * Returns whether or not the given value is of `number` type.
+ * @param n
+ */
 export declare function isNumber(n: any): boolean;
 
+/**
+ * Returns whether or not the given value is of type `object`
+ * @param o
+ */
 export declare function isObject(o: any): boolean;
 
+/**
+ * Returns whether or not the given value is of `string` type.
+ * @param s
+ */
 export declare function isString(s: any): boolean;
 
 /**
  * Compute the intersection of the two lines.
- * @name lineIntersection
- * @function
  * @param l1
  * @param l2
- * @return A point if an intersection found, null otherwise.
+ * @returns A point if an intersection found, null otherwise.
  */
 export declare function lineIntersection(l1: LineXY, l2: LineXY): PointXY | null;
 
 /**
  * Calculates the length of a line between the two points.
- * @name lineLength
- * @function
- * @param {PointXY} p1 First point in the line
- * @param {PointXY} p2 Second point in the line
- * @return {number} The length of a line between the two points.
+ * @param p1 First point in the line
+ * @param p2 Second point in the line
+ * @returns The length of a line between the two points.
  */
 export declare function lineLength(p1: PointXY, p2: PointXY): number;
 
 /**
  * Finds all points where the given line intersects the given rectangle.
- * @name lineRectangleIntersection
- * @function
  * @param line
  * @param r
+ * @returns An array of intersection points. If there are no intersection points the array will be empty, but never null.
  */
 export declare function lineRectangleIntersection(line: LineXY, r: RectangleXY): Array<PointXY>;
 
@@ -352,6 +412,8 @@ export declare type Merge<M, N> = Omit_2<M, Extract<keyof M, keyof N>> & N;
  * Merge the values from `b` into the values from `a`, resulting in `c`.  `b` and `a` are unchanged by this method.
  * Not every datatype can be merged - arrays can, and objects can, but primitives (strings/booleans/numbers/functions)
  * cannot, and are overwritten in `c` by the value from `b`, if present.
+ *
+ * @remarks
  *
  * Collating Values
  * ----------------
@@ -421,11 +483,9 @@ export declare function merge(a: Record<string, any>, b: Record<string, any>, co
 
 /**
  * Calculates the gradient of a normal to a line between the two points.
- * @name normal
- * @function
- * @param {PointXY} p1 First point in the line
- * @param {PointXY} p2 Second point in the line
- * @return {number} The gradient of a normal to a line between the two points.
+ * @param p1 First point in the line
+ * @param p2 Second point in the line
+ * @returns The gradient of a normal to a line between the two points.
  */
 export declare function normal(p1: PointXY, p2: PointXY): number;
 
@@ -444,21 +504,19 @@ export declare class OptimisticEventGenerator extends EventGenerator {
 
 /**
  * Calculates a line of length `length` that is perpendicular to the line from `fromPoint` to `toPoint` and passes through `toPoint`.
- * @name perpendicularLineTo
- * @param {PointXY} fromPoint First point
- * @param {PointXY} toPoint Second point
- * @param {number} length Length of the line to generate
- * @return {LineXY} Perpendicular line, in the form `[ { x:..., y:... }, { x:..., y:... } ]`.
+ * @param fromPoint First point
+ * @param toPoint Second point
+ * @param length Length of the line to generate
+ * @returns Perpendicular line of the required length.
  */
 export declare function perpendicularLineTo(fromPoint: PointXY, toPoint: PointXY, length: number): LineXY;
 
 /**
  * Calculates a point on the line from `fromPoint` to `toPoint` that is `distance` units along the length of the line.
- * @name pointOnLine
- * @param {PointXY} fromPoint First point
- * @param {PointXY} toPoint Second point
- * @param {number} distance Distance along the length that the point should be located.
- * @return {PointXY} Point on the line, in the form `{ x:..., y:... }`.
+ * @param fromPoint First point
+ * @param toPoint Second point
+ * @param distance Distance along the length that the point should be located.
+ * @returns Point on the line, in the form `{ x:..., y:... }`.
  */
 export declare function pointOnLine(fromPoint: PointXY, toPoint: PointXY, distance: number): PointXY;
 
@@ -473,16 +531,16 @@ export declare interface PointXY {
 
 /**
  *
- * Take the given model and expand out any parameters. 'functionPrefix' is optional, and if present, helps jsplumb figure out what to do if a value is a Function.
- * if you do not provide it (and doNotExpandFunctions is null, or false), jsplumb will run the given values through any functions it finds, and use the function's
+ * Take the given model and expand out any parameters.
+ *
+ * @param model Object to populate with values.
+ * @param values Object containing values to populate
+ * @param functionPrefix This is optional, and if present, helps jsplumb figure out what to do if a value is a Function.
+ * if you do not provide it (and `doNotExpandFunctions` is null, or false), jsplumb will run the given values through any functions it finds, and use the function's
  * output as the value in the result. if you do provide the prefix, only functions that are named and have this prefix
  * will be executed; other functions will be passed as values to the output.
- *
- * @param model
- * @param values
- * @param functionPrefix
- * @param doNotExpandFunctions
- * @returns {any}
+ * @param doNotExpandFunctions Defaults to false. If true, Functions will be passed directly from `values` to `model` without being executed.
+ * @returns
  */
 export declare function populate(model: any, values: any, functionPrefix?: string, doNotExpandFunctions?: boolean): any;
 
@@ -490,11 +548,9 @@ export declare type Quadrant = 1 | 2 | 3 | 4;
 
 /**
  * Calculates the quadrant in which the angle between the two points lies.
- * @name quadrant
- * @function
- * @param {PointXY} p1 First point in the line
- * @param {PointXY} p2 Second point in the line
- * @return {Quadrant} The quadrant - 1 for upper right, 2 for lower right, 3 for lower left, 4 for upper left.
+ * @param p1 First point in the line
+ * @param p2 Second point in the line
+ * @returns The quadrant - 1 for upper right, 2 for lower right, 3 for lower left, 4 for upper left.
  */
 export declare function quadrant(p1: PointXY, p2: PointXY): Quadrant;
 
@@ -507,7 +563,7 @@ export declare type RectangleXY = BoundingBox;
  * Remove an item from an array
  * @param l Array to remove the item from
  * @param v Item to remove.
- * @return true if the item was removed, false otherwise.
+ * @returns true if the item was removed, false otherwise.
  */
 export declare function remove<T>(l: Array<T>, v: T): boolean;
 
@@ -515,14 +571,31 @@ export declare function remove<T>(l: Array<T>, v: T): boolean;
  * Remove the entry from the array for which the function `f` returns true.
  * @param a
  * @param f
- * @return true if an element was removed, false if not.
+ * @returns true if an element was removed, false if not.
  */
 export declare function removeWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): boolean;
 
+/**
+ * Replace a value inside some object with another value.
+ * @param inObj Object within which to make the replacement.
+ * @param path Path to the value to replace. Supports dotted and bracket notation. Eg "foo" means a value with key `foo` in the root. "foo.bar" means a value
+ * with key `bar` inside a value with key `foo`. "foo[1]" means the object at index 1 inside a value with key `foo`.
+ * @param value Value to replace the original value with.
+ */
 export declare function replace(inObj: any, path: string, value: any): any;
 
+/**
+ * Internal method used to rotate an anchor orientation.
+ * @param orientation
+ * @param rotation
+ * @private
+ */
 export declare function rotateAnchorOrientation(orientation: [number, number], rotation: any): [number, number];
 
+/**
+ * Extension of PointXY used internally to track extra information about the rotation.
+ * @private
+ */
 export declare interface RotatedPointXY extends PointXY {
     cr: number;
     sr: number;
@@ -533,7 +606,7 @@ export declare interface RotatedPointXY extends PointXY {
  * @param point
  * @param center
  * @param rotation
- * @return An object consisting of the rotated point, followed by cos theta and sin theta.
+ * @returns An object consisting of the rotated point, followed by cos theta and sin theta.
  */
 export declare function rotatePoint(point: PointXY, center: PointXY, rotation: number): RotatedPointXY;
 
@@ -566,11 +639,11 @@ export declare interface Size {
 
 /**
  * Snap the given x,y to a point on the grid defined by gridX and gridY, using the given thresholds to calculate proximity to the grid.
- * @name snapToGrid
  * @param pos Position to transform
  * @param grid Definition of the grid
  * @param thresholdX Defines how close to a grid line in the x axis a value must be in order to be snapped to it.
  * @param thresholdY Defines how close to a grid line in the y axis a value must be in order to be snapped to it.
+ * @returns The point to which the position was snapped, given the constraints of the grid.
  */
 export declare function snapToGrid(pos: PointXY, grid: Grid, thresholdX?: number, thresholdY?: number): PointXY;
 
@@ -590,6 +663,7 @@ export declare function sortHelper<T>(_array: Array<T>, _fn: SortFunction<T>): A
  * Subtracts p2 from p1, returning a new point.
  * @param p1
  * @param p2
+ * @returns a new Point, with p2 subtracted from p1.
  */
 export declare function subtract(p1: PointXY, p2: PointXY): PointXY;
 
@@ -603,11 +677,9 @@ export declare function suggest(list: Array<any>, item: any, insertAtHead?: bool
 
 /**
  * Calculates the angle between the two points.
- * @name theta
- * @function
- * @param {PointXY} p1 First point
- * @param {PointXY} p2 Second point
- * @return {number} The angle between the two points.
+ * @param p1 First point
+ * @param p2 Second point
+ * @returns The angle between the two points.
  */
 export declare function theta(p1: PointXY, p2: PointXY): number;
 
@@ -618,7 +690,7 @@ export declare const TWO_PI: number;
 
 /**
  * Generate a v4 UUID.
- * @return String representation of a UUID
+ * @returns String representation of a UUID
  */
 export declare function uuid(): string;
 
@@ -628,10 +700,9 @@ export declare function uuid(): string;
  * drag/drop event functions - to allow jsPlumb to be notified of
  * important lifecycle events without imposing itself on the user's
  * drag/drop functionality.
- * @method wrap
- * @param {Function} wrappedFunction original function to wrap; may be null.
- * @param {Function} newFunction function to wrap the original with.
- * @param {Object} [returnOnThisValue] Optional. Indicates that the wrappedFunction should
+ * @param wrappedFunction original function to wrap; may be null.
+ * @param newFunction function to wrap the original with.
+ * @param [returnOnThisValue] Optional. Indicates that the wrappedFunction should
  * not be executed if the newFunction returns a value matching 'returnOnThisValue'.
  * note that this is a simple comparison and only works for primitives right now.
  */

@@ -291,8 +291,8 @@ function _getClassName(el) {
   return el.className != null ? typeof el.className.baseVal === "undefined" ? el.className : el.className.baseVal : "";
 }
 function _classManip(el, classesToAdd, classesToRemove) {
-  var cta = classesToAdd == null ? [] : util.isArray(classesToAdd) ? classesToAdd : classesToAdd.split(/\s+/);
-  var ctr = classesToRemove == null ? [] : util.isArray(classesToRemove) ? classesToRemove : classesToRemove.split(/\s+/);
+  var cta = classesToAdd == null ? [] : Array.isArray(classesToAdd) ? classesToAdd : classesToAdd.split(/\s+/);
+  var ctr = classesToRemove == null ? [] : Array.isArray(classesToRemove) ? classesToRemove : classesToRemove.split(/\s+/);
   var className = _getClassName(el),
       curClasses = className.split(/\s+/);
   var _oneSet = function _oneSet(add, classes) {
@@ -1119,7 +1119,7 @@ var _events = [EVENT_STOP, EVENT_START, EVENT_DRAG, EVENT_DROP, EVENT_OVER, EVEN
 var _devNull = function _devNull() {};
 var _each = function _each(obj, fn) {
   if (obj == null) return;
-  obj = !util.IS.aString(obj) && obj.tagName == null && obj.length != null ? obj : [obj];
+  obj = !util.isString(obj) && obj.tagName == null && obj.length != null ? obj : [obj];
   for (var i = 0; i < obj.length; i++) {
     fn.apply(obj[i], [obj[i]]);
   }
@@ -1732,7 +1732,7 @@ var Drag = function (_Base) {
         this._filters[key] = [function (e) {
           var t = e.srcElement || e.target;
           var m;
-          if (util.IS.aString(f)) {
+          if (util.isString(f)) {
             m = matchesSelector$1(t, f, _this2.el);
           } else if (typeof f === "function") {
             m = f(e, _this2.el);
@@ -2288,7 +2288,6 @@ var ElementDragHandler = function () {
         id: this.instance.getId(jel),
         pos: params.finalPos,
         originalGroup: jel._jsPlumbParentGroup,
-        draggedOutOfGroup: false,
         redrawResult: null,
         originalPos: params.originalPos,
         reverted: false,
@@ -2320,7 +2319,6 @@ var ElementDragHandler = function () {
             pos: pp,
             originalPos: orig,
             originalGroup: el._jsPlumbParentGroup,
-            draggedOutOfGroup: false,
             redrawResult: null,
             reverted: false,
             dropGroup: dropGroup != null ? dropGroup.groupLoc.group : null
@@ -2333,10 +2331,8 @@ var ElementDragHandler = function () {
         if (wasInGroup && !isInOriginalGroup) {
           if (dropGroup == null) {
             var orphanedPosition = _this._pruneOrOrphan(p, true, true);
-            p.draggedOutOfGroup = false;
             if (orphanedPosition.pos != null) {
               p.pos = orphanedPosition.pos.pos;
-              p.draggedOutOfGroup = true;
             } else {
               if (!orphanedPosition.pruned && p.originalGroup.revert) {
                 p.pos = p.originalPos;
@@ -3506,7 +3502,7 @@ var EndpointDragHandler = function () {
         this.jpc.endpoints[0] = this.jpc.endpoints[0].finalEndpoint;
         this.jpc.endpoints[0].addConnection(this.jpc);
       }
-      if (util.IS.anObject(optionalData)) {
+      if (util.isObject(optionalData)) {
         this.jpc.mergeData(optionalData);
       }
       if (this._originalAnchor) {
@@ -4693,7 +4689,7 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
               y: absolutePosition.y
             };
           } else if (component instanceof core.EndpointRepresentation) {
-            var locToUse = util.isArray(o.location) ? o.location : [o.location, o.location];
+            var locToUse = Array.isArray(o.location) ? o.location : [o.location, o.location];
             cxy = {
               x: locToUse[0] * component.w,
               y: locToUse[1] * component.h
@@ -4701,7 +4697,7 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
           } else {
             var loc = o.location,
                 absolute = false;
-            if (util.IS.aString(o.location) || o.location < 0 || o.location > 1) {
+            if (util.isString(o.location) || o.location < 0 || o.location > 1) {
               loc = parseInt("" + o.location, 10);
               absolute = true;
             }

@@ -1,3 +1,8 @@
+/**
+ * This package is a list manager that works with the `browser-ui` renderer.
+ *
+ * @packageDocumentation
+ */
 import { BrowserJsPlumbInstance } from "@jsplumb/browser-ui";
 import { ListManagerOptions, JsPlumbListManager } from "./lists";
 export * from './constants';

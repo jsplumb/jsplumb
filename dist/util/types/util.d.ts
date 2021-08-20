@@ -1,19 +1,66 @@
+/**
+ * Internal method used to filter lists, supporting wildcards.
+ * @param list
+ * @param value
+ * @param missingIsFalse
+ */
 export declare function filterList(list: Array<any> | string, value: any, missingIsFalse?: boolean): boolean;
+/**
+ * Equivalent of Object.assign, which IE11 does not support.
+ * @param o1
+ * @param o2
+ * @param keys Optional list of keys to use to copy values from `o2` to `o1`. If this is not provided, all values are copied.
+ */
 export declare function extend<T>(o1: T, o2: T, keys?: string[]): T;
-export declare function isArray(a: any): boolean;
+/**
+ * Returns whether or not the given value is of `number` type.
+ * @param n
+ */
 export declare function isNumber(n: any): boolean;
+/**
+ * Returns whether or not the given value is of `string` type.
+ * @param s
+ */
 export declare function isString(s: any): boolean;
+/**
+ * Returns whether or not the given value is of `boolean` type.
+ * @param s
+ */
 export declare function isBoolean(s: any): boolean;
+/**
+ * Returns whether or not the given value is null.
+ * @param s
+ */
 export declare function isNull(s: any): boolean;
+/**
+ * Returns whether or not the given value is of type `object`
+ * @param o
+ */
 export declare function isObject(o: any): boolean;
+/**
+ * Returns whether or not the given value is of type `Date`
+ * @param o
+ */
 export declare function isDate(o: any): o is Date;
+/**
+ * Returns whether or not the given value is of type `Function`
+ * @param o
+ */
 export declare function isFunction(o: any): o is Function;
+/**
+ * Returns whether or not the given value is of type `Function` and is a named Function.
+ * @param o
+ */
 export declare function isNamedFunction(o: any): boolean;
+/**
+ * Returns whether or not the given object - which may be ArrayLike, or an object - is empty.
+ * @param o
+ */
 export declare function isEmpty(o: any): boolean;
-export declare const IS: {
-    anObject: (o: any) => boolean;
-    aString: (o: any) => boolean;
-};
+/**
+ * Makes a copy of the given object.
+ * @param a
+ */
 export declare function clone(a: any): any;
 /**
  * Returns a copy of the given object that has no null values. Note this only operates one level deep.
@@ -24,6 +71,8 @@ export declare function filterNull(obj: Record<string, any>): Record<string, any
  * Merge the values from `b` into the values from `a`, resulting in `c`.  `b` and `a` are unchanged by this method.
  * Not every datatype can be merged - arrays can, and objects can, but primitives (strings/booleans/numbers/functions)
  * cannot, and are overwritten in `c` by the value from `b`, if present.
+ *
+ * @remarks
  *
  * Collating Values
  * ----------------
@@ -90,20 +139,35 @@ export declare function filterNull(obj: Record<string, any>): Record<string, any
  * @param overwrites Optional list of parameters to overwrite, rather than merging.
  */
 export declare function merge(a: Record<string, any>, b: Record<string, any>, collations?: Array<string>, overwrites?: Array<string>): any;
+/**
+ * Replace a value inside some object with another value.
+ * @param inObj Object within which to make the replacement.
+ * @param path Path to the value to replace. Supports dotted and bracket notation. Eg "foo" means a value with key `foo` in the root. "foo.bar" means a value
+ * with key `bar` inside a value with key `foo`. "foo[1]" means the object at index 1 inside a value with key `foo`.
+ * @param value Value to replace the original value with.
+ */
 export declare function replace(inObj: any, path: string, value: any): any;
+/**
+ * Chain a list of functions, supplied by [ object, method name, args ], and return on the first one that returns the failValue.
+ * If none return the failValue, return the successValue. This is an internal method.
+ * @param successValue
+ * @param failValue
+ * @param fns
+ * @private
+ */
 export declare function functionChain(successValue: any, failValue: any, fns: Array<Array<any>>): any;
 /**
  *
- * Take the given model and expand out any parameters. 'functionPrefix' is optional, and if present, helps jsplumb figure out what to do if a value is a Function.
- * if you do not provide it (and doNotExpandFunctions is null, or false), jsplumb will run the given values through any functions it finds, and use the function's
+ * Take the given model and expand out any parameters.
+ *
+ * @param model Object to populate with values.
+ * @param values Object containing values to populate
+ * @param functionPrefix This is optional, and if present, helps jsplumb figure out what to do if a value is a Function.
+ * if you do not provide it (and `doNotExpandFunctions` is null, or false), jsplumb will run the given values through any functions it finds, and use the function's
  * output as the value in the result. if you do provide the prefix, only functions that are named and have this prefix
  * will be executed; other functions will be passed as values to the output.
- *
- * @param model
- * @param values
- * @param functionPrefix
- * @param doNotExpandFunctions
- * @returns {any}
+ * @param doNotExpandFunctions Defaults to false. If true, Functions will be passed directly from `values` to `model` without being executed.
+ * @returns
  */
 export declare function populate(model: any, values: any, functionPrefix?: string, doNotExpandFunctions?: boolean): any;
 /**
@@ -117,23 +181,28 @@ export declare function forEach<T>(a: ArrayLike<T>, f: (_a: T) => any): void;
  * `findIndex` method which is available on `Array` in modern browsers, but not IE11.
  * @param a Array to search
  * @param f Predicate to use to test each entry
- * @return The index of the entry for which the predicate returned true, -1 if not found.
+ * @returns The index of the entry for which the predicate returned true, -1 if not found.
  */
 export declare function findWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): number;
-export declare function findAllWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): Array<number>;
+/**
+ * Find all entries in the given array like object for which the given predicate returns true.
+ * @param a
+ * @param predicate
+ */
+export declare function findAllWithFunction<T>(a: ArrayLike<T>, predicate: (_a: T) => boolean): Array<number>;
 /**
  * Find the entry in the given array for which the function `f` returns true. This is a stand-in replacement for the
  * `find` method which is available on `Array` in modern browsers, but not IE11.
  * @param a Array to search
  * @param f Predicate to use to test each entry
- * @return The entry for which the predicate returned true, null if not found.
+ * @returns The entry for which the predicate returned true, null if not found.
  */
 export declare function getWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): T;
 /**
  * Find all entries in the given array for which the function `f` returns true
  * @param a Array to search
  * @param f Predicate to use to test each entry
- * @return The entries for which the predicate returned true, empty array if not found.
+ * @returns The entries for which the predicate returned true, empty array if not found.
  */
 export declare function getAllWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): Array<T>;
 /**
@@ -151,20 +220,20 @@ export declare function setToArray<T>(s: Set<T>): Array<T>;
  * Remove the entry from the array for which the function `f` returns true.
  * @param a
  * @param f
- * @return true if an element was removed, false if not.
+ * @returns true if an element was removed, false if not.
  */
 export declare function removeWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): boolean;
 /**
  * A shim for the `fromArray` method, which is not present in IE11.  This method falls back to `fromArray` if it is present.
  * @param a Array-like object to convert into an Array
- * @return An Array
+ * @returns An Array
  */
 export declare function fromArray<T>(a: ArrayLike<T>): Array<T>;
 /**
  * Remove an item from an array
  * @param l Array to remove the item from
  * @param v Item to remove.
- * @return true if the item was removed, false otherwise.
+ * @returns true if the item was removed, false otherwise.
  */
 export declare function remove<T>(l: Array<T>, v: T): boolean;
 /**
@@ -200,7 +269,7 @@ export declare function addToList<T>(map: Map<string, Array<T>>, key: string, va
 export declare function suggest(list: Array<any>, item: any, insertAtHead?: boolean): boolean;
 /**
  * Generate a v4 UUID.
- * @return String representation of a UUID
+ * @returns String representation of a UUID
  */
 export declare function uuid(): string;
 /**
@@ -208,14 +277,28 @@ export declare function uuid(): string;
  * @param point
  * @param center
  * @param rotation
- * @return An object consisting of the rotated point, followed by cos theta and sin theta.
+ * @returns An object consisting of the rotated point, followed by cos theta and sin theta.
  */
 export declare function rotatePoint(point: PointXY, center: PointXY, rotation: number): RotatedPointXY;
+/**
+ * Extension of PointXY used internally to track extra information about the rotation.
+ * @private
+ */
 export interface RotatedPointXY extends PointXY {
     cr: number;
     sr: number;
 }
+/**
+ * Internal method used to rotate an anchor orientation.
+ * @param orientation
+ * @param rotation
+ * @private
+ */
 export declare function rotateAnchorOrientation(orientation: [number, number], rotation: any): [number, number];
+/**
+ * Trims whitespace from the given string.
+ * @param s
+ */
 export declare function fastTrim(s: string): string;
 /**
  * Iterates through the given `obj` and applies the given function. if `obj` is not ArrayLike then the function is
@@ -245,10 +328,9 @@ export declare function log(...args: string[]): void;
  * drag/drop event functions - to allow jsPlumb to be notified of
  * important lifecycle events without imposing itself on the user's
  * drag/drop functionality.
- * @method wrap
- * @param {Function} wrappedFunction original function to wrap; may be null.
- * @param {Function} newFunction function to wrap the original with.
- * @param {Object} [returnOnThisValue] Optional. Indicates that the wrappedFunction should
+ * @param wrappedFunction original function to wrap; may be null.
+ * @param newFunction function to wrap the original with.
+ * @param [returnOnThisValue] Optional. Indicates that the wrappedFunction should
  * not be executed if the newFunction returns a value matching 'returnOnThisValue'.
  * note that this is a simple comparison and only works for primitives right now.
  */

@@ -27,9 +27,6 @@
       }
       return o1;
     }
-    function isArray(a) {
-      return Array.isArray(a);
-    }
     function isNumber(n) {
       return Object.prototype.toString.call(n) === "[object Number]";
     }
@@ -62,14 +59,6 @@
       }
       return true;
     }
-    var IS = {
-      anObject: function anObject(o) {
-        return o == null ? false : Object.prototype.toString.call(o) === "[object Object]";
-      },
-      aString: function aString(o) {
-        return isString(o);
-      }
-    };
     function clone(a) {
       if (isString(a)) {
         return "" + a;
@@ -79,13 +68,13 @@
         return new Date(a.getTime());
       } else if (isFunction(a)) {
         return a;
-      } else if (isArray(a)) {
+      } else if (Array.isArray(a)) {
         var _b = [];
         for (var i = 0; i < a.length; i++) {
           _b.push(clone(a[i]));
         }
         return _b;
-      } else if (IS.anObject(a)) {
+      } else if (isObject(a)) {
         var c = {};
         for (var j in a) {
           c[j] = clone(a[j]);
@@ -123,21 +112,21 @@
           c[i] = b[i];
         } else if (cMap[i]) {
           ar = [];
-          ar.push.apply(ar, isArray(c[i]) ? c[i] : [c[i]]);
+          ar.push.apply(ar, Array.isArray(c[i]) ? c[i] : [c[i]]);
           ar.push(b[i]);
           c[i] = ar;
         } else if (isString(b[i]) || isBoolean(b[i]) || isFunction(b[i]) || isNumber(b[i])) {
           c[i] = b[i];
         } else {
-          if (isArray(b[i])) {
+          if (Array.isArray(b[i])) {
             ar = [];
-            if (isArray(c[i])) {
+            if (Array.isArray(c[i])) {
               ar.push.apply(ar, c[i]);
             }
             ar.push.apply(ar, b[i]);
             c[i] = ar;
-          } else if (IS.anObject(b[i])) {
-            if (!IS.anObject(c[i])) {
+          } else if (isObject(b[i])) {
+            if (!isObject(c[i])) {
               c[i] = {};
             }
             for (var j in b[i]) {
@@ -215,13 +204,13 @@
             return getValue(d);
           } else if (isFunction(d) && !doNotExpandFunctions && (functionPrefix == null || (d.name || "").indexOf(functionPrefix) === 0)) {
             return d(values);
-          } else if (isArray(d)) {
+          } else if (Array.isArray(d)) {
             var r = [];
             for (var i = 0; i < d.length; i++) {
               r.push(_one(d[i]));
             }
             return r;
-          } else if (IS.anObject(d)) {
+          } else if (isObject(d)) {
             var s = {};
             for (var j in d) {
               s[j] = _one(d[j]);
@@ -253,11 +242,11 @@
       }
       return -1;
     }
-    function findAllWithFunction(a, f) {
+    function findAllWithFunction(a, predicate) {
       var o = [];
       if (a) {
         for (var i = 0; i < a.length; i++) {
-          if (f(a[i])) {
+          if (predicate(a[i])) {
             o.push(i);
           }
         }
@@ -910,7 +899,6 @@
     }
 
     exports.EventGenerator = EventGenerator;
-    exports.IS = IS;
     exports.OptimisticEventGenerator = OptimisticEventGenerator;
     exports.TWO_PI = TWO_PI;
     exports.add = add;
@@ -936,7 +924,6 @@
     exports.gradient = gradient;
     exports.insertSorted = insertSorted;
     exports.intersects = intersects;
-    exports.isArray = isArray;
     exports.isAssignableFrom = isAssignableFrom;
     exports.isBoolean = isBoolean;
     exports.isDate = isDate;
