@@ -1,4 +1,4 @@
-import { perpendicularLineTo, pointOnLine, PointXY, Size , isArray } from '@jsplumb/util'
+import { perpendicularLineTo, pointOnLine, PointXY, Size } from '@jsplumb/util'
 
 import {Overlay} from "./overlay"
 import {JsPlumbInstance} from "../core"
@@ -38,7 +38,7 @@ export class ArrowOverlay extends Overlay {
         this.foldback = p.foldback || 0.623
         this.paintStyle = p.paintStyle || { "strokeWidth": 1 }
 
-        this.location = p.location == null ? this.location : isArray(p.location) ? (p.location as number[])[0] : p.location as number
+        this.location = p.location == null ? this.location : Array.isArray(p.location) ? (p.location as number[])[0] : p.location as number
     }
 
     draw(component:Component, currentConnectionPaintStyle:PaintStyle, absolutePosition?: PointXY): any {
