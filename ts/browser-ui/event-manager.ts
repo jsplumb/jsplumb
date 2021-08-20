@@ -19,7 +19,7 @@ import { EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEOUT, EVE
  * @param screenY
  * @param clientX
  * @param clientY
- * @returns {Touch}
+ * @returns
  * @private
  */
 function _touch(target:any, pageX:number, pageY:number, screenX:number, screenY:number, clientX:number, clientY:number):Touch {
@@ -38,7 +38,7 @@ function _touch(target:any, pageX:number, pageY:number, screenX:number, screenY:
 
 /**
  * Create a synthetic touch list from the given list of Touch objects.
- * @returns {Array}
+ * @returns
  * @private
  */
 function _touchList(...touches:Array<Touch>) {
@@ -57,7 +57,7 @@ function _touchList(...touches:Array<Touch>) {
  * @param screenY
  * @param clientX
  * @param clientY
- * @returns {Array}
+ * @returns
  * @private
  */
 function _touchAndList(target:any, pageX:number, pageY:number, screenX:number,
