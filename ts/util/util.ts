@@ -1,4 +1,9 @@
-
+/**
+ * Internal method used to filter lists, supporting wildcards.
+ * @param list
+ * @param value
+ * @param missingIsFalse
+ */
 export function filterList (list:Array<any> | string, value:any, missingIsFalse?:boolean):boolean {
     if (list === "*") {
         return true
@@ -6,6 +11,12 @@ export function filterList (list:Array<any> | string, value:any, missingIsFalse?
     return (<any>list).length > 0 ? (<any>list).indexOf(value) !== -1 : !missingIsFalse
 }
 
+/**
+ * Equivalent of Object.assign, which IE11 does not support.
+ * @param o1
+ * @param o2
+ * @param keys Optional list of keys to use to copy values from `o2` to `o1`. If this is not provided, all values are copied.
+ */
 export function extend<T>(o1:T, o2:T, keys?:string[]):T {
     let i
     o1 = o1 || {} as T
@@ -27,42 +38,74 @@ export function extend<T>(o1:T, o2:T, keys?:string[]):T {
     return o1
 }
 
-export function isArray(a: any): boolean {
-    return Array.isArray(a)
-}
-
+/**
+ * Returns whether or not the given value is of `number` type.
+ * @param n
+ */
 export function isNumber(n: any): boolean {
     return Object.prototype.toString.call(n) === "[object Number]"
 }
 
+/**
+ * Returns whether or not the given value is of `string` type.
+ * @param s
+ */
 export function isString(s: any): boolean {
     return typeof s === "string"
 }
 
+/**
+ * Returns whether or not the given value is of `boolean` type.
+ * @param s
+ */
 export function isBoolean(s: any): boolean {
     return typeof s === "boolean"
 }
 
+/**
+ * Returns whether or not the given value is null.
+ * @param s
+ */
 export function isNull(s: any): boolean {
     return s == null
 }
 
+/**
+ * Returns whether or not the given value is of type `object`
+ * @param o
+ */
 export function isObject(o: any): boolean {
     return o == null ? false : Object.prototype.toString.call(o) === "[object Object]"
 }
 
+/**
+ * Returns whether or not the given value is of type `Date`
+ * @param o
+ */
 export function isDate(o: any): o is Date {
     return Object.prototype.toString.call(o) === "[object Date]"
 }
 
+/**
+ * Returns whether or not the given value is of type `Function`
+ * @param o
+ */
 export function isFunction(o: any): o is Function {
     return Object.prototype.toString.call(o) === "[object Function]"
 }
 
+/**
+ * Returns whether or not the given value is of type `Function` and is a named Function.
+ * @param o
+ */
 export function isNamedFunction(o: any): boolean {
     return isFunction(o) && o.name != null && o.name.length > 0
 }
 
+/**
+ * Returns whether or not the given object - which may be ArrayLike, or an object - is empty.
+ * @param o
+ */
 export function isEmpty(o: any): boolean {
     for (let i in o) {
         if (o.hasOwnProperty(i)) {
@@ -72,13 +115,10 @@ export function isEmpty(o: any): boolean {
     return true
 }
 
-export const IS = {
-    anObject: (o: any): boolean => {
-        return o == null ? false : Object.prototype.toString.call(o) === "[object Object]"
-    },
-    aString:(o:any):boolean => isString(o)
-}
-
+/**
+ * Makes a copy of the given object.
+ * @param a
+ */
 export function clone(a: any): any {
     if (isString(a)) {
         return "" + a
@@ -92,14 +132,14 @@ export function clone(a: any): any {
     else if (isFunction(a)) {
         return a
     }
-    else if (isArray(a)) {
+    else if (Array.isArray(a)) {
         let b = []
         for (let i = 0; i < a.length; i++) {
             b.push(clone(a[i]))
         }
         return b
     }
-    else if (IS.anObject(a)) {
+    else if (isObject(a)) {
         let c = {}
         for (let j in a) {
             c[j] = clone(a[j])
@@ -129,6 +169,8 @@ export function filterNull(obj:Record<string, any>):Record<string, any> {
  * Merge the values from `b` into the values from `a`, resulting in `c`.  `b` and `a` are unchanged by this method.
  * Not every datatype can be merged - arrays can, and objects can, but primitives (strings/booleans/numbers/functions)
  * cannot, and are overwritten in `c` by the value from `b`, if present.
+ *
+ * @remarks
  *
  * Collating Values
  * ----------------
@@ -214,7 +256,7 @@ export function merge(a: Record<string, any>, b: Record<string, any>, collations
         else if (cMap[i]) {
             ar = []
             // if c's object is also an array we can keep its values.
-            ar.push.apply(ar, isArray(c[i]) ? c[i] : [c[i]])
+            ar.push.apply(ar, Array.isArray(c[i]) ? c[i] : [c[i]])
             ar.push(b[i])
             c[i] = ar
         }
@@ -222,18 +264,18 @@ export function merge(a: Record<string, any>, b: Record<string, any>, collations
             c[i] = b[i]
         }
         else {
-            if (isArray(b[i])) {
+            if (Array.isArray(b[i])) {
                 ar = []
                 // if c's object is also an array we can keep its values.
-                if (isArray(c[i])) {
+                if (Array.isArray(c[i])) {
                     ar.push.apply(ar, c[i])
                 }
                 ar.push.apply(ar, b[i])
                 c[i] = ar
             }
-            else if (IS.anObject(b[i])) {
+            else if (isObject(b[i])) {
                 // overwrite c's value with an object if it is not already one.
-                if (!IS.anObject(c[i])) {
+                if (!isObject(c[i])) {
                     c[i] = {}
                 }
                 for (let j in b[i]) {
@@ -246,6 +288,13 @@ export function merge(a: Record<string, any>, b: Record<string, any>, collations
     return c
 }
 
+/**
+ * Replace a value inside some object with another value.
+ * @param inObj Object within which to make the replacement.
+ * @param path Path to the value to replace. Supports dotted and bracket notation. Eg "foo" means a value with key `foo` in the root. "foo.bar" means a value
+ * with key `bar` inside a value with key `foo`. "foo[1]" means the object at index 1 inside a value with key `foo`.
+ * @param value Value to replace the original value with.
+ */
 export function replace(inObj: any, path: string, value: any) {
     if (inObj == null) {
         return
@@ -293,10 +342,14 @@ export function replace(inObj: any, path: string, value: any) {
     return inObj
 }
 
-//
-// chain a list of functions, supplied by [ object, method name, args ], and return on the first
-// one that returns the failValue. if none return the failValue, return the successValue.
-//
+/**
+ * Chain a list of functions, supplied by [ object, method name, args ], and return on the first one that returns the failValue.
+ * If none return the failValue, return the successValue. This is an internal method.
+ * @param successValue
+ * @param failValue
+ * @param fns
+ * @private
+ */
 export function functionChain(successValue: any, failValue: any, fns: Array<Array<any>>): any {
     for (let i = 0; i < fns.length; i++) {
         const o = fns[i][0][fns[i][1]].apply(fns[i][0], fns[i][2])
@@ -309,15 +362,15 @@ export function functionChain(successValue: any, failValue: any, fns: Array<Arra
 
 /**
  *
- * Take the given model and expand out any parameters. 'functionPrefix' is optional, and if present, helps jsplumb figure out what to do if a value is a Function.
- * if you do not provide it (and doNotExpandFunctions is null, or false), jsplumb will run the given values through any functions it finds, and use the function's
+ * Take the given model and expand out any parameters.
+ *
+ * @param model Object to populate with values.
+ * @param values Object containing values to populate
+ * @param functionPrefix This is optional, and if present, helps jsplumb figure out what to do if a value is a Function.
+ * if you do not provide it (and `doNotExpandFunctions` is null, or false), jsplumb will run the given values through any functions it finds, and use the function's
  * output as the value in the result. if you do provide the prefix, only functions that are named and have this prefix
  * will be executed; other functions will be passed as values to the output.
- *
- * @param model
- * @param values
- * @param functionPrefix
- * @param doNotExpandFunctions
+ * @param doNotExpandFunctions Defaults to false. If true, Functions will be passed directly from `values` to `model` without being executed.
  * @returns {any}
  */
 export function populate(model: any, values: any, functionPrefix?: string, doNotExpandFunctions?: boolean): any {
@@ -344,14 +397,14 @@ export function populate(model: any, values: any, functionPrefix?: string, doNot
             else if (isFunction(d) && !doNotExpandFunctions && (functionPrefix == null || (d.name || "").indexOf(functionPrefix) === 0)) {
                 return d(values)
             }
-            else if (isArray(d)) {
+            else if (Array.isArray(d)) {
                 let r = []
                 for (let i = 0; i < d.length; i++) {
                     r.push(_one(d[i]))
                 }
                 return r
             }
-            else if (IS.anObject(d)) {
+            else if (isObject(d)) {
                 let s = {}
                 for (let j in d) {
                     s[j] = _one(d[j])
@@ -401,11 +454,16 @@ export function findWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): num
     return -1
 }
 
-export function findAllWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): Array<number> {
+/**
+ * Find all entries in the given array like object for which the given predicate returns true.
+ * @param a
+ * @param predicate
+ */
+export function findAllWithFunction<T>(a: ArrayLike<T>, predicate: (_a: T) => boolean): Array<number> {
     let o:Array<number> = []
     if (a) {
         for (let i = 0; i < a.length; i++) {
-            if (f(a[i])) {
+            if (predicate(a[i])) {
                 o.push(i)
             }
         }
@@ -610,11 +668,21 @@ export function rotatePoint(point:PointXY, center:PointXY, rotation:number):Rota
     }
 }
 
+/**
+ * Extension of PointXY used internally to track extra information about the rotation.
+ * @private
+ */
 export interface RotatedPointXY extends PointXY {
     cr:number
     sr:number
 }
 
+/**
+ * Internal method used to rotate an anchor orientation.
+ * @param orientation
+ * @param rotation
+ * @private
+ */
 export function rotateAnchorOrientation(orientation:[number, number], rotation:any):[number, number] {
     const r = rotatePoint({x:orientation[0], y:orientation[1]}, {x:0, y:0}, rotation)
     return [
@@ -623,6 +691,10 @@ export function rotateAnchorOrientation(orientation:[number, number], rotation:a
     ]
 }
 
+/**
+ * Trims whitespace from the given string.
+ * @param s
+ */
 export function fastTrim(s: string): string {
     if (s == null) {
         return null
@@ -690,7 +762,7 @@ export function log(...args: string[]): void {
  * @method wrap
  * @param {Function} wrappedFunction original function to wrap; may be null.
  * @param {Function} newFunction function to wrap the original with.
- * @param {Object} [returnOnThisValue] Optional. Indicates that the wrappedFunction should
+ * @param {object} [returnOnThisValue] Optional. Indicates that the wrappedFunction should
  * not be executed if the newFunction returns a value matching 'returnOnThisValue'.
  * note that this is a simple comparison and only works for primitives right now.
  */
@@ -723,16 +795,6 @@ export function wrap(wrappedFunction: Function, newFunction: Function, returnOnT
 export function sortHelper<T> (_array:Array<T>, _fn:SortFunction<T>):Array<T> {
     return _array.sort(_fn)
 }
-
-// export function _mergeOverrides (def:any, values:any):any {
-//     let m = extend({}, def)
-//     for (let i in values) {
-//         if (values[i]) {
-//             m[i] = values[i]
-//         }
-//     }
-//     return m
-// }
 
 /**
  * Get, or insert then get, a value from the map.

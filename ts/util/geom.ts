@@ -51,6 +51,7 @@ export function add(p1:PointXY, p2:PointXY):PointXY {
  * Subtracts p2 from p1, returning a new point.
  * @param p1
  * @param p2
+ * @return a new Point, with p2 subtracted from p1.
  */
 export function subtract(p1:PointXY, p2:PointXY):PointXY {
     return { x:p1.x - p2.x, y:p1.y - p2.y }
@@ -58,8 +59,6 @@ export function subtract(p1:PointXY, p2:PointXY):PointXY {
 
 /**
  * Calculates the gradient of a line between the two points.
- * @name gradient
- * @function
  * @param {PointXY} p1 First point in the line
  * @param {PointXY} p2 Second point in the line
  * @return {number} The gradient of a line between the two points.
@@ -75,8 +74,6 @@ export function gradient(p1: PointXY, p2: PointXY): number {
 
 /**
  * Calculates the gradient of a normal to a line between the two points.
- * @name normal
- * @function
  * @param {PointXY} p1 First point in the line
  * @param {PointXY} p2 Second point in the line
  * @return {number} The gradient of a normal to a line between the two points.
@@ -87,8 +84,6 @@ export function normal(p1: PointXY, p2: PointXY): number {
 
 /**
  * Calculates the length of a line between the two points.
- * @name lineLength
- * @function
  * @param {PointXY} p1 First point in the line
  * @param {PointXY} p2 Second point in the line
  * @return {number} The length of a line between the two points.
@@ -99,8 +94,6 @@ export function lineLength(p1: PointXY, p2: PointXY): number {
 
 /**
  * Calculates the quadrant in which the angle between the two points lies.
- * @name quadrant
- * @function
  * @param {PointXY} p1 First point in the line
  * @param {PointXY} p2 Second point in the line
  * @return {Quadrant} The quadrant - 1 for upper right, 2 for lower right, 3 for lower left, 4 for upper left.
@@ -118,8 +111,6 @@ export function quadrant(p1: PointXY, p2: PointXY): Quadrant {
 
 /**
  * Calculates the angle between the two points.
- * @name theta
- * @function
  * @param {PointXY} p1 First point
  * @param {PointXY} p2 Second point
  * @return {number} The angle between the two points.
@@ -139,8 +130,6 @@ export function theta(p1: PointXY, p2: PointXY): number {
 
 /**
  * Calculates whether or not the two rectangles intersect.
- * @name intersects
- * @function
  * @param {RectangleXY} r1 First rectangle
  * @param {RectangleXY} r2 Second rectangle
  * @return {boolean} True if the rectangles intersect, false otherwise.
@@ -160,8 +149,9 @@ export function intersects(r1: RectangleXY, r2: RectangleXY): boolean {
 }
 
 /**
- * Get the A B C components of the given line.
+ * Get the A B C components of the given line (given that any line can be represented via the equation Ax + By = C)
  * @param line
+ * @return A,B and C that satisfy Ax + By = C for the given line.
  */
 function toABC(line:LineXY):{A:number,B:number, C:number} {
     const A = line[1].y - line[0].y
@@ -175,8 +165,6 @@ function toABC(line:LineXY):{A:number,B:number, C:number} {
 
 /**
  * Compute the intersection of the two lines.
- * @name lineIntersection
- * @function
  * @param l1
  * @param l2
  * @return A point if an intersection found, null otherwise.
@@ -218,10 +206,9 @@ export function lineIntersection(l1:LineXY, l2:LineXY):PointXY|null {
 
 /**
  * Finds all points where the given line intersects the given rectangle.
- * @name lineRectangleIntersection
- * @function
  * @param line
  * @param r
+ * @return An array of intersection points. If there are no intersection points the array will be empty, but never null.
  */
 export function lineRectangleIntersection(line:LineXY, r:RectangleXY):Array<PointXY> {
     const out:Array<PointXY> = [],
@@ -244,7 +231,6 @@ export function lineRectangleIntersection(line:LineXY, r:RectangleXY):Array<Poin
 
 /**
  * Calculates whether or not r2 is completely enclosed by r1.
- * @name encloses
  * @param {RectangleXY} r1 First rectangle
  * @param {RectangleXY} r2 Second rectangle
  * @param {boolean} [allowSharedEdges=false] If true, the concept of enclosure allows for one or more edges to be shared by the two rectangles.
@@ -262,7 +248,6 @@ export function encloses(r1: RectangleXY, r2: RectangleXY, allowSharedEdges?: bo
 
 /**
  * Calculates a point on the line from `fromPoint` to `toPoint` that is `distance` units along the length of the line.
- * @name pointOnLine
  * @param {PointXY} fromPoint First point
  * @param {PointXY} toPoint Second point
  * @param {number} distance Distance along the length that the point should be located.
@@ -280,7 +265,6 @@ export function pointOnLine(fromPoint: PointXY, toPoint: PointXY, distance: numb
 
 /**
  * Calculates a line of length `length` that is perpendicular to the line from `fromPoint` to `toPoint` and passes through `toPoint`.
- * @name perpendicularLineTo
  * @param {PointXY} fromPoint First point
  * @param {PointXY} toPoint Second point
  * @param {number} length Length of the line to generate
@@ -296,11 +280,11 @@ export function perpendicularLineTo(fromPoint: PointXY, toPoint: PointXY, length
 
 /**
  * Snap the given x,y to a point on the grid defined by gridX and gridY, using the given thresholds to calculate proximity to the grid.
- * @name snapToGrid
  * @param pos Position to transform
  * @param grid Definition of the grid
  * @param thresholdX Defines how close to a grid line in the x axis a value must be in order to be snapped to it.
  * @param thresholdY Defines how close to a grid line in the y axis a value must be in order to be snapped to it.
+ * @return The point to which the position was snapped, given the constraints of the grid.
  */
 export function snapToGrid(pos:PointXY, grid:Grid, thresholdX?:number, thresholdY?:number):PointXY {
 

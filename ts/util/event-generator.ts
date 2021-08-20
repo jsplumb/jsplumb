@@ -2,8 +2,10 @@ import {Dictionary, addToDictionary, log, remove, uuid} from "./util"
 
 
 /**
- * Base class for classes that wish to support binding and firing of events. You need to implement the `shouldFireEvent` method
- * in your concrete subclasses of this class.
+ * Base class for classes that wish to support binding and firing of events.
+ *
+ * @remarks You need to implement the `shouldFireEvent` method in your concrete subclasses of this class, or you can
+ * instead extend from `OptimisticEventGenerator`, which has a default implementation of `shouldFireEvent` that returns true.
  */
 export abstract class EventGenerator {
 
@@ -19,7 +21,7 @@ export abstract class EventGenerator {
     constructor() { }
 
     /**
-     * Fire the named event
+     * Fire the named event.
      * @param event Event to fire
      * @param value Value to pass to event handlers
      * @param originalEvent Optional original event that caused this event to be fired.
@@ -101,7 +103,7 @@ export abstract class EventGenerator {
     }
 
     /**
-     * gets all listeners for the given named event.
+     * Gets all listeners for the given named event.
      * @param forEvent
      */
     getListener (forEvent: string): Array<any> {
