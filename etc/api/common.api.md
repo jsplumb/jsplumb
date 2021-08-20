@@ -10,7 +10,9 @@ import { Dictionary } from '@jsplumb/util';
 import { Extents } from '@jsplumb/util';
 import { PointXY } from '@jsplumb/util';
 
-// @public (undocumented)
+// Warning: (ae-incompatible-release-tags) The symbol "AbstractSegment" is marked as @public, but its signature references "Segment" which is marked as @internal
+//
+// @public
 export abstract class AbstractSegment implements Segment {
     constructor(params: SegmentParams);
     boundingBoxIntersection(box: BoundingBox): Array<PointXY>;
@@ -18,7 +20,6 @@ export abstract class AbstractSegment implements Segment {
     // (undocumented)
     extents: Extents;
     findClosestPointOnPath(x: number, y: number): PointNearPath;
-    // (undocumented)
     abstract getLength(): number;
     // (undocumented)
     abstract getPath(isFirstSegment: boolean): string;
@@ -43,58 +44,41 @@ export abstract class AbstractSegment implements Segment {
     y2: number;
 }
 
-// @public (undocumented)
+// @public
 export type AnchorId = keyof typeof AnchorLocations;
 
-// @public (undocumented)
+// @public
 export enum AnchorLocations {
     // (undocumented)
     Assign = "Assign",
-    // (undocumented)
     AutoDefault = "AutoDefault",
-    // (undocumented)
     Bottom = "Bottom",
-    // (undocumented)
     BottomLeft = "BottomLeft",
-    // (undocumented)
     BottomRight = "BottomRight",
-    // (undocumented)
     Center = "Center",
-    // (undocumented)
     Continuous = "Continuous",
-    // (undocumented)
     ContinuousBottom = "ContinuousBottom",
-    // (undocumented)
     ContinuousLeft = "ContinuousLeft",
-    // (undocumented)
     ContinuousLeftRight = "ContinuousLeftRight",
-    // (undocumented)
     ContinuousRight = "ContinuousRight",
-    // (undocumented)
     ContinuousTop = "ContinuousTop",
-    // (undocumented)
     ContinuousTopBottom = "ContinuousTopBottom",
-    // (undocumented)
     Left = "Left",
-    // (undocumented)
     Perimeter = "Perimeter",
-    // (undocumented)
     Right = "Right",
-    // (undocumented)
     Top = "Top",
-    // (undocumented)
     TopLeft = "TopLeft",
-    // (undocumented)
     TopRight = "TopRight"
 }
 
-// @public (undocumented)
+// @public
 export interface AnchorOptions extends Record<string, any> {
-    // (undocumented)
     cssClass?: string;
 }
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "AnchorPlacement" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export type AnchorPlacement = {
     curX: number;
     curY: number;
@@ -104,7 +88,7 @@ export type AnchorPlacement = {
     oy: number;
 };
 
-// @public (undocumented)
+// @public
 export type AnchorSpec = SingleAnchorSpec | Array<SingleAnchorSpec>;
 
 // @public (undocumented)
@@ -125,31 +109,26 @@ export interface ArrowOverlayOptions extends OverlayOptions {
 export interface BlankEndpointParams extends EndpointRepresentationParams {
 }
 
-// @public (undocumented)
+// @public
 export interface Connector {
-    // (undocumented)
     type: string;
 }
 
-// @public (undocumented)
+// @public
 export type ConnectorId = string;
 
-// @public (undocumented)
+// @public
 export interface ConnectorOptions extends Record<string, any> {
-    // (undocumented)
     cssClass?: string;
-    // (undocumented)
     gap?: number;
-    // (undocumented)
     hoverClass?: string;
-    // (undocumented)
     stub?: number | number[];
 }
 
-// @public (undocumented)
+// @public
 export type ConnectorSpec = ConnectorId | ConnectorWithOptions;
 
-// @public (undocumented)
+// @public
 export type ConnectorWithOptions = {
     type: ConnectorId;
     options: ConnectorOptions;
@@ -161,7 +140,7 @@ export interface CustomOverlayOptions extends OverlayOptions {
     create: (c: Component) => any;
 }
 
-// @public (undocumented)
+// @public
 export const DEFAULT = "default";
 
 // @public (undocumented)
@@ -170,7 +149,9 @@ export interface DotEndpointParams extends EndpointRepresentationParams {
     radius?: number;
 }
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "EMPTY_BOUNDS" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function EMPTY_BOUNDS(): Extents;
 
 // @public (undocumented)
@@ -192,10 +173,10 @@ export type EndpointSpec = EndpointId | FullEndpointSpec;
 export interface EndpointStyle extends PaintStyle, Record<string, any> {
 }
 
-// @public (undocumented)
+// @public
 export const FALSE = "false";
 
-// @public (undocumented)
+// @public
 export type FullAnchorSpec = {
     type: AnchorId;
     options: AnchorOptions;
@@ -213,7 +194,7 @@ export type FullOverlaySpec = {
     options: OverlayOptions;
 };
 
-// @public (undocumented)
+// @public
 export interface Geometry {
     // (undocumented)
     source: any;
@@ -244,7 +225,9 @@ export interface OverlayOptions extends Record<string, any> {
 // @public (undocumented)
 export type OverlaySpec = string | FullOverlaySpec;
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "PaintAxis" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export type PaintAxis = "y" | "x";
 
 // @public (undocumented)
@@ -294,7 +277,9 @@ export interface RectangleEndpointParams extends EndpointRepresentationParams {
     width?: number;
 }
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "Segment" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export interface Segment {
     // (undocumented)
     boundingBoxIntersection(box: BoundingBox): Array<PointXY>;
@@ -340,21 +325,25 @@ export interface SegmentParams {
     y2: number;
 }
 
-// @public (undocumented)
+// Warning: (ae-incompatible-release-tags) The symbol "SingleAnchorSpec" is marked as @public, but its signature references "AnchorPlacement" which is marked as @internal
+//
+// @public
 export type SingleAnchorSpec = AnchorId | FullAnchorSpec | AnchorPlacement | Array<AnchorPlacement>;
 
-// @public (undocumented)
+// @public
 export const TRUE = "true";
 
-// @public (undocumented)
+// @public
 export const UNDEFINED = "undefined";
 
 // @public (undocumented)
 export type UserDefinedEndpointId = string;
 
-// @public (undocumented)
+// @public
 export const WILDCARD = "*";
 
-// (No @packageDocumentation comment for this package)
+// Warnings were encountered during analysis:
+//
+// /Users/simon/programming/jsplumb/jsplumb/dist/common/types/abstract-segment.d.ts:9:5 - (ae-incompatible-release-tags) The symbol "s" is marked as @public, but its signature references "Segment" which is marked as @internal
 
 ```

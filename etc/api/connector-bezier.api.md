@@ -237,6 +237,4 @@ export class StateMachineConnector extends AbstractBezierConnector {
 export interface StateMachineOptions extends AbstractBezierOptions {
 }
 
-// (No @packageDocumentation comment for this package)
-
 ```

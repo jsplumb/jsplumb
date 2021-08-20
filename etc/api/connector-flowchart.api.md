@@ -53,6 +53,4 @@ export interface FlowchartConnectorOptions extends ConnectorOptions {
     midpoint?: number;
 }
 
-// (No @packageDocumentation comment for this package)
-
 ```

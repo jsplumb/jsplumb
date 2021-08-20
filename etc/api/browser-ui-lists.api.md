@@ -78,6 +78,4 @@ export enum SupportedEdge {
     top = 0
 }
 
-// (No @packageDocumentation comment for this package)
-
 ```

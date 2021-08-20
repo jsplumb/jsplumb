@@ -145,6 +145,4 @@ export function getInstance(instance: BrowserJsPlumbInstance, ok: (b: boolean, m
 // @public (undocumented)
 export function getInstanceQUnit(instance: BrowserJsPlumbInstance): BrowserUITestSupport;
 
-// (No @packageDocumentation comment for this package)
-
 ```

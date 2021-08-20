@@ -413,7 +413,6 @@ export type DraggedElement = {
     pos: PointXY;
     originalPos: PointXY;
     originalGroup: UIGroup;
-    draggedOutOfGroup: boolean;
     redrawResult: RedrawResult;
     reverted: boolean;
     dropGroup: UIGroup;
@@ -948,7 +947,5 @@ export interface UIComponent {
     // (undocumented)
     svg: SVGElement;
 }
-
-// (No @packageDocumentation comment for this package)
 
 ```

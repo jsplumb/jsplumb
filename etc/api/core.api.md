@@ -2617,6 +2617,4 @@ export const X_AXIS_FACES: Axis;
 // @public (undocumented)
 export const Y_AXIS_FACES: Axis;
 
-// (No @packageDocumentation comment for this package)
-
 ```

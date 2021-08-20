@@ -25,7 +25,7 @@ export type BoundingBox = {
     center?: PointXY;
 };
 
-// @public (undocumented)
+// @public
 export function clone(a: any): any;
 
 // @public
@@ -59,7 +59,7 @@ export abstract class EventGenerator {
     unbind(eventOrListener?: string | Function, listener?: Function): EventGenerator;
 }
 
-// @public (undocumented)
+// @public
 export function extend<T>(o1: T, o2: T, keys?: string[]): T;
 
 // @public
@@ -74,17 +74,17 @@ export interface Extents {
     ymin: number;
 }
 
-// @public (undocumented)
+// @public
 export function fastTrim(s: string): string;
 
-// @public (undocumented)
+// @public
 export function filterList(list: Array<any> | string, value: any, missingIsFalse?: boolean): boolean;
 
 // @public
 export function filterNull(obj: Record<string, any>): Record<string, any>;
 
-// @public (undocumented)
-export function findAllWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): Array<number>;
+// @public
+export function findAllWithFunction<T>(a: ArrayLike<T>, predicate: (_a: T) => boolean): Array<number>;
 
 // @public
 export function findWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): number;
@@ -95,7 +95,7 @@ export function forEach<T>(a: ArrayLike<T>, f: (_a: T) => any): void;
 // @public
 export function fromArray<T>(a: ArrayLike<T>): Array<T>;
 
-// @public (undocumented)
+// @public
 export function functionChain(successValue: any, failValue: any, fns: Array<Array<any>>): any;
 
 // @public
@@ -127,43 +127,34 @@ export function insertSorted<T>(value: T, array: Array<T>, comparator: (v1: T, v
 // @public
 export function intersects(r1: RectangleXY, r2: RectangleXY): boolean;
 
-// @public (undocumented)
-export const IS: {
-    anObject: (o: any) => boolean;
-    aString: (o: any) => boolean;
-};
-
-// @public (undocumented)
-export function isArray(a: any): boolean;
-
 // @public
 export function isAssignableFrom(object: any, cls: any): boolean;
 
-// @public (undocumented)
+// @public
 export function isBoolean(s: any): boolean;
 
-// @public (undocumented)
+// @public
 export function isDate(o: any): o is Date;
 
-// @public (undocumented)
+// @public
 export function isEmpty(o: any): boolean;
 
-// @public (undocumented)
+// @public
 export function isFunction(o: any): o is Function;
 
-// @public (undocumented)
+// @public
 export function isNamedFunction(o: any): boolean;
 
-// @public (undocumented)
+// @public
 export function isNull(s: any): boolean;
 
-// @public (undocumented)
+// @public
 export function isNumber(n: any): boolean;
 
-// @public (undocumented)
+// @public
 export function isObject(o: any): boolean;
 
-// @public (undocumented)
+// @public
 export function isString(s: any): boolean;
 
 // @public
@@ -240,13 +231,13 @@ export function remove<T>(l: Array<T>, v: T): boolean;
 // @public
 export function removeWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): boolean;
 
-// @public (undocumented)
+// @public
 export function replace(inObj: any, path: string, value: any): any;
 
-// @public (undocumented)
+// @public
 export function rotateAnchorOrientation(orientation: [number, number], rotation: any): [number, number];
 
-// @public (undocumented)
+// @public
 export interface RotatedPointXY extends PointXY {
     // (undocumented)
     cr: number;
@@ -305,7 +296,5 @@ export function uuid(): string;
 
 // @public
 export function wrap(wrappedFunction: Function, newFunction: Function, returnOnThisValue?: any): () => any;
-
-// (No @packageDocumentation comment for this package)
 
 ```
