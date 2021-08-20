@@ -63,7 +63,7 @@ export interface DragPayload {
     payload?:Record<string, any>
 }
 
-export type DraggedElement = {el:jsPlumbDOMElement, id:string, pos:PointXY, originalPos:PointXY, originalGroup:UIGroup, draggedOutOfGroup:boolean, redrawResult:RedrawResult, reverted:boolean, dropGroup:UIGroup}
+export type DraggedElement = {el:jsPlumbDOMElement, id:string, pos:PointXY, originalPos:PointXY, originalGroup:UIGroup, /*draggedOutOfGroup:boolean, */redrawResult:RedrawResult, reverted:boolean, dropGroup:UIGroup}
 
 /**
  * Payload for `drag:stop` event. In addition to the base payload, contains a redraw result object, listing all the connections and endpoints that were affected by the drag.
@@ -183,7 +183,6 @@ export class ElementDragHandler implements DragHandler {
             id:this.instance.getId(jel),
             pos:params.finalPos,
             originalGroup:jel._jsPlumbParentGroup,
-            draggedOutOfGroup:false,
             redrawResult:null,
             originalPos:params.originalPos,
             reverted:false,
@@ -217,7 +216,7 @@ export class ElementDragHandler implements DragHandler {
                 }
 
                 elementsToProcess.push({
-                    el, id, pos:pp, originalPos:orig, originalGroup:el._jsPlumbParentGroup, draggedOutOfGroup:false, redrawResult:null, reverted:false, dropGroup:dropGroup != null ? dropGroup.groupLoc.group : null
+                    el, id, pos:pp, originalPos:orig, originalGroup:el._jsPlumbParentGroup, redrawResult:null, reverted:false, dropGroup:dropGroup != null ? dropGroup.groupLoc.group : null
                 })
             }
         })
@@ -232,11 +231,9 @@ export class ElementDragHandler implements DragHandler {
                 if (dropGroup == null) {
                     // the element may be pruned or orphaned by its group
                     const orphanedPosition = this._pruneOrOrphan(p, true, true)
-                    p.draggedOutOfGroup = false
                     if (orphanedPosition.pos != null) {
                         // if orphaned, update the drag end position.
                         p.pos = orphanedPosition.pos.pos
-                        p.draggedOutOfGroup = true
                     } else {
                         if (!orphanedPosition.pruned && p.originalGroup.revert) {
                             // if not pruned and the original group has revert set, revert the element.
