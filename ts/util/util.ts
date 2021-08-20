@@ -371,7 +371,7 @@ export function functionChain(successValue: any, failValue: any, fns: Array<Arra
  * output as the value in the result. if you do provide the prefix, only functions that are named and have this prefix
  * will be executed; other functions will be passed as values to the output.
  * @param doNotExpandFunctions Defaults to false. If true, Functions will be passed directly from `values` to `model` without being executed.
- * @returns {any}
+ * @returns
  */
 export function populate(model: any, values: any, functionPrefix?: string, doNotExpandFunctions?: boolean): any {
     // for a string, see if it has parameter matches, and if so, try to make the substitutions.
@@ -441,7 +441,7 @@ export function forEach<T>(a:ArrayLike<T>, f:(_a:T) => any):void {
  * `findIndex` method which is available on `Array` in modern browsers, but not IE11.
  * @param a Array to search
  * @param f Predicate to use to test each entry
- * @return The index of the entry for which the predicate returned true, -1 if not found.
+ * @returns The index of the entry for which the predicate returned true, -1 if not found.
  */
 export function findWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): number {
     if (a) {
@@ -476,7 +476,7 @@ export function findAllWithFunction<T>(a: ArrayLike<T>, predicate: (_a: T) => bo
  * `find` method which is available on `Array` in modern browsers, but not IE11.
  * @param a Array to search
  * @param f Predicate to use to test each entry
- * @return The entry for which the predicate returned true, null if not found.
+ * @returns The entry for which the predicate returned true, null if not found.
  */
 export function getWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): T {
     const idx = findWithFunction(a, f)
@@ -487,7 +487,7 @@ export function getWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): T {
  * Find all entries in the given array for which the function `f` returns true
  * @param a Array to search
  * @param f Predicate to use to test each entry
- * @return The entries for which the predicate returned true, empty array if not found.
+ * @returns The entries for which the predicate returned true, empty array if not found.
  */
 export function getAllWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): Array<T> {
     const indexes = findAllWithFunction(a, f)
@@ -525,7 +525,7 @@ export function setToArray<T>(s:Set<T>):Array<T> {
  * Remove the entry from the array for which the function `f` returns true.
  * @param a
  * @param f
- * @return true if an element was removed, false if not.
+ * @returns true if an element was removed, false if not.
  */
 export function removeWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): boolean {
     const idx = findWithFunction(a, f)
@@ -538,7 +538,7 @@ export function removeWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): boole
 /**
  * A shim for the `fromArray` method, which is not present in IE11.  This method falls back to `fromArray` if it is present.
  * @param a Array-like object to convert into an Array
- * @return An Array
+ * @returns An Array
  */
 export function fromArray<T>(a:ArrayLike<T>):Array<T> {
     if ((Array as any).fromArray != null) {
@@ -554,7 +554,7 @@ export function fromArray<T>(a:ArrayLike<T>):Array<T> {
  * Remove an item from an array
  * @param l Array to remove the item from
  * @param v Item to remove.
- * @return true if the item was removed, false otherwise.
+ * @returns true if the item was removed, false otherwise.
  */
 export function remove<T>(l: Array<T>, v: T): boolean {
     const idx = l.indexOf(v)
@@ -635,7 +635,7 @@ for (let i=0; i<256; i++) { lut[i] = (i<16?'0':'')+(i).toString(16); }
 
 /**
  * Generate a v4 UUID.
- * @return String representation of a UUID
+ * @returns String representation of a UUID
  */
 export function uuid():string {
     const d0 = Math.random()*0xffffffff|0
@@ -653,7 +653,7 @@ export function uuid():string {
  * @param point
  * @param center
  * @param rotation
- * @return An object consisting of the rotated point, followed by cos theta and sin theta.
+ * @returns An object consisting of the rotated point, followed by cos theta and sin theta.
  */
 export function rotatePoint(point:PointXY, center:PointXY, rotation:number):RotatedPointXY {
     const radial = {x:point.x - center.x, y:point.y - center.y},
@@ -759,10 +759,9 @@ export function log(...args: string[]): void {
  * drag/drop event functions - to allow jsPlumb to be notified of
  * important lifecycle events without imposing itself on the user's
  * drag/drop functionality.
- * @method wrap
- * @param {Function} wrappedFunction original function to wrap; may be null.
- * @param {Function} newFunction function to wrap the original with.
- * @param {object} [returnOnThisValue] Optional. Indicates that the wrappedFunction should
+ * @param wrappedFunction original function to wrap; may be null.
+ * @param newFunction function to wrap the original with.
+ * @param [returnOnThisValue] Optional. Indicates that the wrappedFunction should
  * not be executed if the newFunction returns a value matching 'returnOnThisValue'.
  * note that this is a simple comparison and only works for primitives right now.
  */
