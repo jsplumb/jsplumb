@@ -644,7 +644,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     /**
      * Update the cached offset information for some element.
      * @param params
-     * @return an UpdateOffsetResult containing the offset information for the given element.
+     * @returns an UpdateOffsetResult containing the offset information for the given element.
      */
     updateOffset(params?:UpdateOffsetOptions):ViewportElement<T["E"]> {
 
@@ -839,7 +839,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     /**
      * Stops managing the given element.
-     * @method unmanage
      * @param el Element, or ID of the element to stop managing.
      * @param removeElement If true, also remove the element from the renderer.
      */
@@ -872,7 +871,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     /**
      * Sets rotation for the element to the given number of degrees (not radians). A value of null is treated as a
      * rotation of 0 degrees.
-     * @method rotate
      * @param element Element to rotate
      * @param rotation Amount to totate
      * @param _doNotRepaint For internal use.
@@ -1029,7 +1027,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      * Updates position/size information for the given element and redraws its Endpoints and their Connections. Use this method when you've
      * made a change to some element that may have caused the element to change its position or size and you want to ensure the connections are
      * in the right place.
-     * @method revalidate
      * @param el Element to revalidate.
      * @param timestamp Optional, used internally to avoid recomputing position/size information if it has already been computed.
      */
@@ -1041,7 +1038,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     /**
      * Repaint every connection and endpoint in the instance.
-     * @method repaintEverything
      */
     repaintEverything ():JsPlumbInstance {
         let timestamp = uuid(), elId:string
@@ -1061,11 +1057,10 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     /**
      * Sets the position of the given element to be [x,y].
-     * @method setElementPosition
      * @param el Element to set the position for
      * @param x Position in X axis
      * @param y Position in Y axis
-     * @return The result of the redraw operation that follows the update of the viewport.
+     * @returns The result of the redraw operation that follows the update of the viewport.
      */
     setElementPosition(el:T["E"], x:number, y:number):RedrawResult {
         const id = this.getId(el)
@@ -1077,7 +1072,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     /**
      * Repaints all connections and endpoints associated with the given element, _without recomputing the element
      * size and position_. If you want to first recompute element size and position you should call `revalidate(el)` instead,
-     * @method repaint
      * @param el
      * @param timestamp Optional parameter used internally to avoid recalculating offsets multiple times in one paint.
      * @param offsetsWereJustCalculated If true, we don't recalculate the offsets of child elements of the element we're repainting.
@@ -1179,7 +1173,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     /**
      * Delete the given endpoint.
-     * @method deleteEndpoint
      * @param object Either an Endpoint, or the UUID of an Endpoint.
      */
     deleteEndpoint(object:string | Endpoint):JsPlumbInstance {
@@ -1214,7 +1207,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     /**
      * Add an Endpoint to the given element.
-     * @method addEndpoint
      * @param el Element to add the endpoint to.
      * @param params
      * @param referenceParams
@@ -1422,10 +1414,9 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     /**
      * Adds the connection to the backing model, fires an event if necessary and then redraws. This is a package-private method, not intended to be
      * called by external code.
-     * @method _finaliseConnection
-     * @param {Connection} jpc Connection to finalise
+     * @param jpc Connection to finalise
      * @param params
-     * @param {Event} [originalEvent] Optional original event that resulted in the creation of this connection.
+     * @param [originalEvent] Optional original event that resulted in the creation of this connection.
      * @private
      */
     _finaliseConnection(jpc:Connection, params?:any, originalEvent?:Event):void {
@@ -1462,7 +1453,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     /**
      * Remove every endpoint registered to the given element.
-     * @method removeAllEndpoints
      * @param el Element to remove endpoints for.
      * @param recurse If true, also remove endpoints for elements that are descendants of this element.
      */
