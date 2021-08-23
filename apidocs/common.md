@@ -17,6 +17,7 @@ This package contains common declarations and definitions for use by both jsPlum
 |  Enumeration | Description |
 |  --- | --- |
 |  [AnchorLocations](./common.anchorlocations.md) | Default anchor locations. |
+|  [PerimeterAnchorShapes](./common.perimeteranchorshapes.md) |  |
 
 ## Interfaces
 

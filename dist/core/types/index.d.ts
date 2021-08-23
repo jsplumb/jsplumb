@@ -1,9 +1,6 @@
 /**
  * This package is the core of the jsPlumb Community Edition.
  *
- * @remarks
- * The `widget-lib` defines the {@link IWidget} interface and {@link Widget} class,
- * which are used to build widgets.
  *
  * @packageDocumentation
  */

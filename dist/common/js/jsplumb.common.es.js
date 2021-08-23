@@ -1,3 +1,12 @@
+var PerimeterAnchorShapes;
+(function (PerimeterAnchorShapes) {
+  PerimeterAnchorShapes["Circle"] = "Circle";
+  PerimeterAnchorShapes["Ellipse"] = "Ellipse";
+  PerimeterAnchorShapes["Triangle"] = "Triangle";
+  PerimeterAnchorShapes["Diamond"] = "Diamond";
+  PerimeterAnchorShapes["Rectangle"] = "Rectangle";
+  PerimeterAnchorShapes["Square"] = "Square";
+})(PerimeterAnchorShapes || (PerimeterAnchorShapes = {}));
 var AnchorLocations;
 (function (AnchorLocations) {
   AnchorLocations["Assign"] = "Assign";
@@ -128,4 +137,4 @@ var TRUE = "true";
 var FALSE = "false";
 var WILDCARD = "*";
 
-export { AbstractSegment, AnchorLocations, DEFAULT, EMPTY_BOUNDS, FALSE, TRUE, UNDEFINED, WILDCARD };
+export { AbstractSegment, AnchorLocations, DEFAULT, EMPTY_BOUNDS, FALSE, PerimeterAnchorShapes, TRUE, UNDEFINED, WILDCARD };

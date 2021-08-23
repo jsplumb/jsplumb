@@ -336,9 +336,18 @@ export declare interface PaintStyle {
  * Constructor options for a Perimeter Anchor.
  */
 export declare interface PerimeterAnchorOptions extends AnchorOptions {
-    shape: string;
+    shape: keyof PerimeterAnchorShapes;
     rotation?: number;
     anchorCount?: number;
+}
+
+export declare enum PerimeterAnchorShapes {
+    Circle = "Circle",
+    Ellipse = "Ellipse",
+    Triangle = "Triangle",
+    Diamond = "Diamond",
+    Rectangle = "Rectangle",
+    Square = "Square"
 }
 
 export declare type PointNearPath = {

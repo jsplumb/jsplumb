@@ -19,5 +19,5 @@ export interface PerimeterAnchorOptions extends AnchorOptions
 |  --- | --- | --- |
 |  [anchorCount?](./common.perimeteranchoroptions.anchorcount.md) | number | <i>(Optional)</i> |
 |  [rotation?](./common.perimeteranchoroptions.rotation.md) | number | <i>(Optional)</i> |
-|  [shape](./common.perimeteranchoroptions.shape.md) | string |  |
+|  [shape](./common.perimeteranchoroptions.shape.md) | keyof [PerimeterAnchorShapes](./common.perimeteranchorshapes.md) |  |
 

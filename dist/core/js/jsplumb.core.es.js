@@ -1,5 +1,5 @@
 import { log, quadrant, gradient, pointOnLine, lineLength, uuid, isString, EventGenerator, isFunction, clone, extend, merge, setToArray, populate, isNumber, map, isObject, isAssignableFrom, getWithFunction, removeWithFunction, suggest, forEach, getsert, insertSorted, findWithFunction, rotatePoint, sortHelper, filterList, functionChain, addToDictionary, TWO_PI, theta, normal, perpendicularLineTo } from '@jsplumb/util';
-import { EMPTY_BOUNDS, AbstractSegment, DEFAULT, AnchorLocations, WILDCARD } from '@jsplumb/common';
+import { EMPTY_BOUNDS, AbstractSegment, PerimeterAnchorShapes, AnchorLocations, DEFAULT, WILDCARD } from '@jsplumb/common';
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -2153,6 +2153,9 @@ var namedContinuousValues = {
 };
 function getNamedAnchor(name, params) {
   params = params || {};
+  if (name === AnchorLocations.Perimeter) {
+    return _createPerimeterAnchor(params);
+  }
   var a = namedValues[name];
   if (a != null) {
     return _createAnchor(name, map(a, function (_a) {
@@ -2268,6 +2271,118 @@ function makeLightweightAnchorFromSpec(spec) {
     var sa = spec;
     return getNamedAnchor(sa.type, sa.options);
   }
+}
+function circleGenerator(anchorCount) {
+  var r = 0.5,
+      step = Math.PI * 2 / anchorCount,
+      a = [];
+  var current = 0;
+  for (var i = 0; i < anchorCount; i++) {
+    var x = r + r * Math.sin(current),
+        y = r + r * Math.cos(current);
+    a.push({
+      x: x,
+      y: y,
+      ox: 0,
+      oy: 0,
+      offx: 0,
+      offy: 0,
+      iox: 0,
+      ioy: 0,
+      cls: ''
+    });
+    current += step;
+  }
+  return a;
+}
+function _path(segments, anchorCount) {
+  var anchorsPerFace = anchorCount / segments.length,
+      a = [],
+      _computeFace = function _computeFace(x1, y1, x2, y2, fractionalLength, ox, oy) {
+    anchorsPerFace = anchorCount * fractionalLength;
+    var dx = (x2 - x1) / anchorsPerFace,
+        dy = (y2 - y1) / anchorsPerFace;
+    for (var i = 0; i < anchorsPerFace; i++) {
+      a.push({
+        x: x1 + dx * i,
+        y: y1 + dy * i,
+        ox: ox == null ? 0 : ox,
+        oy: oy == null ? 0 : oy,
+        offx: 0,
+        offy: 0,
+        iox: 0,
+        ioy: 0,
+        cls: ''
+      });
+    }
+  };
+  for (var i = 0; i < segments.length; i++) {
+    _computeFace.apply(null, segments[i]);
+  }
+  return a;
+}
+function shapeGenerator(faces, anchorCount) {
+  var s = [];
+  for (var i = 0; i < faces.length; i++) {
+    s.push([faces[i][0], faces[i][1], faces[i][2], faces[i][3], 1 / faces.length, faces[i][4], faces[i][5]]);
+  }
+  return _path(s, anchorCount);
+}
+function rectangleGenerator(anchorCount) {
+  return shapeGenerator([[0, 0, 1, 0, 0, -1], [1, 0, 1, 1, 1, 0], [1, 1, 0, 1, 0, 1], [0, 1, 0, 0, -1, 0]], anchorCount);
+}
+function diamondGenerator(anchorCount) {
+  return shapeGenerator([[0.5, 0, 1, 0.5], [1, 0.5, 0.5, 1], [0.5, 1, 0, 0.5], [0, 0.5, 0.5, 0]], anchorCount);
+}
+function triangleGenerator(anchorCount) {
+  return shapeGenerator([[0.5, 0, 1, 1], [1, 1, 0, 1], [0, 1, 0.5, 0]], anchorCount);
+}
+function rotate$1(points, amountInDegrees) {
+  var o = [],
+      theta = amountInDegrees / 180 * Math.PI;
+  for (var i = 0; i < points.length; i++) {
+    var _x = points[i].x - 0.5,
+        _y = points[i].y - 0.5;
+    o.push({
+      x: 0.5 + (_x * Math.cos(theta) - _y * Math.sin(theta)),
+      y: 0.5 + (_x * Math.sin(theta) + _y * Math.cos(theta)),
+      ox: points[i].ox,
+      oy: points[i].oy,
+      offx: 0,
+      offy: 0,
+      iox: 0,
+      ioy: 0,
+      cls: ''
+    });
+  }
+  return o;
+}
+var anchorGenerators = new Map();
+anchorGenerators.set(PerimeterAnchorShapes.Circle, circleGenerator);
+anchorGenerators.set(PerimeterAnchorShapes.Ellipse, circleGenerator);
+anchorGenerators.set(PerimeterAnchorShapes.Rectangle, rectangleGenerator);
+anchorGenerators.set(PerimeterAnchorShapes.Square, rectangleGenerator);
+anchorGenerators.set(PerimeterAnchorShapes.Diamond, diamondGenerator);
+anchorGenerators.set(PerimeterAnchorShapes.Triangle, triangleGenerator);
+function _createPerimeterAnchor(params) {
+  params = params || {};
+  var anchorCount = params.anchorCount || 60,
+      shape = params.shape;
+  if (!shape) {
+    throw new Error("no shape supplied to Perimeter Anchor type");
+  }
+  if (!anchorGenerators.has(shape)) {
+    throw new Error("Shape [" + shape + "] is unknown by Perimeter Anchor type");
+  }
+  var da = anchorGenerators.get(shape)(anchorCount);
+  if (params.rotation) {
+    da = rotate$1(da, params.rotation);
+  }
+  var a = _createAnchor(AnchorLocations.Perimeter, da, params);
+  var aa = extend(a, {
+    shape: shape
+  });
+  return aa;
 }
 
 var TYPE_ITEM_ANCHORS = "anchors";
@@ -7259,4 +7374,4 @@ EndpointFactory.registerHandler(RectangleEndpointHandler);
 EndpointFactory.registerHandler(BlankEndpointHandler);
 Connectors.register(StraightConnector.type, StraightConnector);
 
-export { ABSOLUTE, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SCOPE, ATTRIBUTE_SCOPE_PREFIX, ATTRIBUTE_TABINDEX, AbstractConnector, ArcSegment, ArrowOverlay, BLOCK, BOTTOM, BlankEndpoint, BlankEndpointHandler, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTED, CLASS_CONNECTOR, CLASS_CONNECTOR_OUTLINE, CLASS_ENDPOINT, CLASS_ENDPOINT_ANCHOR_PREFIX, CLASS_ENDPOINT_CONNECTED, CLASS_ENDPOINT_DROP_ALLOWED, CLASS_ENDPOINT_DROP_FORBIDDEN, CLASS_ENDPOINT_FULL, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, CustomOverlay, DiamondOverlay, DotEndpoint, DotEndpointHandler, ERROR_SOURCE_DOES_NOT_EXIST, ERROR_SOURCE_ENDPOINT_FULL, ERROR_TARGET_DOES_NOT_EXIST, ERROR_TARGET_ENDPOINT_FULL, EVENT_ANCHOR_CHANGED, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_ENDPOINT_REPLACED, EVENT_GROUP_ADDED, EVENT_GROUP_COLLAPSE, EVENT_GROUP_EXPAND, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_UNMANAGE_ELEMENT, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, FIXED, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_DROP, INTERCEPT_BEFORE_START_DETACH, IS_DETACH_ALLOWED, JsPlumbInstance, KEY_CONNECTION_OVERLAYS, LEFT, LabelOverlay, LightweightFloatingAnchor, LightweightRouter, NONE, Overlay, OverlayFactory, PlainArrowOverlay, REDROP_POLICY_ANY, REDROP_POLICY_STRICT, RIGHT, RectangleEndpoint, RectangleEndpointHandler, SELECTOR_MANAGED_ELEMENT, SOURCE, SOURCE_INDEX, STATIC, SourceSelector, StraightConnector, StraightSegment, TARGET, TARGET_INDEX, TOP, TargetSelector, UIGroup, UINode, Viewport, X_AXIS_FACES, Y_AXIS_FACES, _removeTypeCssHelper, _updateHoverStyle, att, classList, cls, convertToFullOverlaySpec, createFloatingAnchor, getDefaultFace, isArrowOverlay, isContinuous, isCustomOverlay, isDiamondOverlay, isDynamic, isEdgeSupported, _isFloating as isFloating, isFullOverlaySpec, isLabelOverlay, isPlainArrowOverlay, makeLightweightAnchorFromSpec };
+export { ABSOLUTE, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SCOPE, ATTRIBUTE_SCOPE_PREFIX, ATTRIBUTE_TABINDEX, AbstractConnector, ArcSegment, ArrowOverlay, BLOCK, BOTTOM, BlankEndpoint, BlankEndpointHandler, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTED, CLASS_CONNECTOR, CLASS_CONNECTOR_OUTLINE, CLASS_ENDPOINT, CLASS_ENDPOINT_ANCHOR_PREFIX, CLASS_ENDPOINT_CONNECTED, CLASS_ENDPOINT_DROP_ALLOWED, CLASS_ENDPOINT_DROP_FORBIDDEN, CLASS_ENDPOINT_FULL, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, CustomOverlay, DiamondOverlay, DotEndpoint, DotEndpointHandler, ERROR_SOURCE_DOES_NOT_EXIST, ERROR_SOURCE_ENDPOINT_FULL, ERROR_TARGET_DOES_NOT_EXIST, ERROR_TARGET_ENDPOINT_FULL, EVENT_ANCHOR_CHANGED, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_ENDPOINT_REPLACED, EVENT_GROUP_ADDED, EVENT_GROUP_COLLAPSE, EVENT_GROUP_EXPAND, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_UNMANAGE_ELEMENT, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, FIXED, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_DROP, INTERCEPT_BEFORE_START_DETACH, IS_DETACH_ALLOWED, JsPlumbInstance, KEY_CONNECTION_OVERLAYS, LEFT, LabelOverlay, LightweightFloatingAnchor, LightweightRouter, NONE, Overlay, OverlayFactory, PlainArrowOverlay, REDROP_POLICY_ANY, REDROP_POLICY_STRICT, RIGHT, RectangleEndpoint, RectangleEndpointHandler, SELECTOR_MANAGED_ELEMENT, SOURCE, SOURCE_INDEX, STATIC, SourceSelector, StraightConnector, StraightSegment, TARGET, TARGET_INDEX, TOP, TargetSelector, UIGroup, UINode, Viewport, X_AXIS_FACES, Y_AXIS_FACES, _createPerimeterAnchor, _removeTypeCssHelper, _updateHoverStyle, att, classList, cls, convertToFullOverlaySpec, createFloatingAnchor, getDefaultFace, isArrowOverlay, isContinuous, isCustomOverlay, isDiamondOverlay, isDynamic, isEdgeSupported, _isFloating as isFloating, isFullOverlaySpec, isLabelOverlay, isPlainArrowOverlay, makeLightweightAnchorFromSpec };

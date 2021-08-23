@@ -29,6 +29,7 @@ import { OverlayOptions } from '@jsplumb/common';
 import { OverlaySpec } from '@jsplumb/common';
 import { PaintAxis } from '@jsplumb/common';
 import { PaintStyle } from '@jsplumb/common';
+import { PerimeterAnchorShapes } from '@jsplumb/common';
 import { PointNearPath } from '@jsplumb/common';
 import { PointXY } from '@jsplumb/util';
 import { RectangleEndpointParams } from '@jsplumb/common';
@@ -931,6 +932,9 @@ export function convertToFullOverlaySpec(spec: string | OverlaySpec): FullOverla
 
 // @public (undocumented)
 export function createFloatingAnchor(instance: JsPlumbInstance, element: any): LightweightFloatingAnchor;
+
+// @public (undocumented)
+export function _createPerimeterAnchor(params: Record<string, any>): LightweightPerimeterAnchor;
 
 // @public (undocumented)
 export class CustomOverlay extends Overlay {
@@ -1958,6 +1962,12 @@ export class LightweightFloatingAnchor implements LightweightAnchor {
     timestamp: string;
     // (undocumented)
     type: string;
+}
+
+// @public (undocumented)
+export interface LightweightPerimeterAnchor extends LightweightAnchor {
+    // (undocumented)
+    shape: PerimeterAnchorShapes;
 }
 
 // @public (undocumented)

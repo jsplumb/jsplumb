@@ -2,7 +2,7 @@ import { PointXY, Rotations, Size } from "@jsplumb/util";
 import { Connection } from "../connector/connection-impl";
 import { Endpoint } from "../endpoint/endpoint";
 import { JsPlumbInstance } from "../core";
-import { AnchorSpec } from "@jsplumb/common";
+import { AnchorSpec, PerimeterAnchorShapes } from "@jsplumb/common";
 export declare type AnchorOrientationHint = -1 | 0 | 1;
 export declare type Orientation = [number, number];
 export declare type Face = "top" | "right" | "bottom" | "left";
@@ -64,6 +64,9 @@ export interface LightweightAnchor {
     type: string;
     computedPosition?: ComputedPosition;
 }
+export interface LightweightPerimeterAnchor extends LightweightAnchor {
+    shape: PerimeterAnchorShapes;
+}
 export interface LightweightContinuousAnchor extends LightweightAnchor {
     faces: Array<Face>;
     lockedFace: Face;
@@ -121,4 +124,5 @@ export declare const LEFT = "left";
 export declare const RIGHT = "right";
 export declare function createFloatingAnchor(instance: JsPlumbInstance, element: any): LightweightFloatingAnchor;
 export declare function makeLightweightAnchorFromSpec(spec: AnchorSpec | Array<AnchorSpec>): LightweightAnchor;
+export declare function _createPerimeterAnchor(params: Record<string, any>): LightweightPerimeterAnchor;
 //# sourceMappingURL=anchor-record-factory.d.ts.map

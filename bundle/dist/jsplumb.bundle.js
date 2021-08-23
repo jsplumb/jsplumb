@@ -895,6 +895,15 @@ var jsPlumbBrowserUI = (function (exports) {
     };
   }
 
+  exports.PerimeterAnchorShapes = void 0;
+  (function (PerimeterAnchorShapes) {
+    PerimeterAnchorShapes["Circle"] = "Circle";
+    PerimeterAnchorShapes["Ellipse"] = "Ellipse";
+    PerimeterAnchorShapes["Triangle"] = "Triangle";
+    PerimeterAnchorShapes["Diamond"] = "Diamond";
+    PerimeterAnchorShapes["Rectangle"] = "Rectangle";
+    PerimeterAnchorShapes["Square"] = "Square";
+  })(exports.PerimeterAnchorShapes || (exports.PerimeterAnchorShapes = {}));
   exports.AnchorLocations = void 0;
   (function (AnchorLocations) {
     AnchorLocations["Assign"] = "Assign";
@@ -3177,6 +3186,9 @@ var jsPlumbBrowserUI = (function (exports) {
   };
   function getNamedAnchor(name, params) {
     params = params || {};
+    if (name === exports.AnchorLocations.Perimeter) {
+      return _createPerimeterAnchor(params);
+    }
     var a = namedValues[name];
     if (a != null) {
       return _createAnchor(name, map(a, function (_a) {
@@ -3292,6 +3304,118 @@ var jsPlumbBrowserUI = (function (exports) {
       var sa = spec;
       return getNamedAnchor(sa.type, sa.options);
     }
+  }
+  function circleGenerator(anchorCount) {
+    var r = 0.5,
+        step = Math.PI * 2 / anchorCount,
+        a = [];
+    var current = 0;
+    for (var i = 0; i < anchorCount; i++) {
+      var x = r + r * Math.sin(current),
+          y = r + r * Math.cos(current);
+      a.push({
+        x: x,
+        y: y,
+        ox: 0,
+        oy: 0,
+        offx: 0,
+        offy: 0,
+        iox: 0,
+        ioy: 0,
+        cls: ''
+      });
+      current += step;
+    }
+    return a;
+  }
+  function _path(segments, anchorCount) {
+    var anchorsPerFace = anchorCount / segments.length,
+        a = [],
+        _computeFace = function _computeFace(x1, y1, x2, y2, fractionalLength, ox, oy) {
+      anchorsPerFace = anchorCount * fractionalLength;
+      var dx = (x2 - x1) / anchorsPerFace,
+          dy = (y2 - y1) / anchorsPerFace;
+      for (var i = 0; i < anchorsPerFace; i++) {
+        a.push({
+          x: x1 + dx * i,
+          y: y1 + dy * i,
+          ox: ox == null ? 0 : ox,
+          oy: oy == null ? 0 : oy,
+          offx: 0,
+          offy: 0,
+          iox: 0,
+          ioy: 0,
+          cls: ''
+        });
+      }
+    };
+    for (var i = 0; i < segments.length; i++) {
+      _computeFace.apply(null, segments[i]);
+    }
+    return a;
+  }
+  function shapeGenerator(faces, anchorCount) {
+    var s = [];
+    for (var i = 0; i < faces.length; i++) {
+      s.push([faces[i][0], faces[i][1], faces[i][2], faces[i][3], 1 / faces.length, faces[i][4], faces[i][5]]);
+    }
+    return _path(s, anchorCount);
+  }
+  function rectangleGenerator(anchorCount) {
+    return shapeGenerator([[0, 0, 1, 0, 0, -1], [1, 0, 1, 1, 1, 0], [1, 1, 0, 1, 0, 1], [0, 1, 0, 0, -1, 0]], anchorCount);
+  }
+  function diamondGenerator(anchorCount) {
+    return shapeGenerator([[0.5, 0, 1, 0.5], [1, 0.5, 0.5, 1], [0.5, 1, 0, 0.5], [0, 0.5, 0.5, 0]], anchorCount);
+  }
+  function triangleGenerator(anchorCount) {
+    return shapeGenerator([[0.5, 0, 1, 1], [1, 1, 0, 1], [0, 1, 0.5, 0]], anchorCount);
+  }
+  function rotate$1(points, amountInDegrees) {
+    var o = [],
+        theta = amountInDegrees / 180 * Math.PI;
+    for (var i = 0; i < points.length; i++) {
+      var _x = points[i].x - 0.5,
+          _y = points[i].y - 0.5;
+      o.push({
+        x: 0.5 + (_x * Math.cos(theta) - _y * Math.sin(theta)),
+        y: 0.5 + (_x * Math.sin(theta) + _y * Math.cos(theta)),
+        ox: points[i].ox,
+        oy: points[i].oy,
+        offx: 0,
+        offy: 0,
+        iox: 0,
+        ioy: 0,
+        cls: ''
+      });
+    }
+    return o;
+  }
+  var anchorGenerators = new Map();
+  anchorGenerators.set(exports.PerimeterAnchorShapes.Circle, circleGenerator);
+  anchorGenerators.set(exports.PerimeterAnchorShapes.Ellipse, circleGenerator);
+  anchorGenerators.set(exports.PerimeterAnchorShapes.Rectangle, rectangleGenerator);
+  anchorGenerators.set(exports.PerimeterAnchorShapes.Square, rectangleGenerator);
+  anchorGenerators.set(exports.PerimeterAnchorShapes.Diamond, diamondGenerator);
+  anchorGenerators.set(exports.PerimeterAnchorShapes.Triangle, triangleGenerator);
+  function _createPerimeterAnchor(params) {
+    params = params || {};
+    var anchorCount = params.anchorCount || 60,
+        shape = params.shape;
+    if (!shape) {
+      throw new Error("no shape supplied to Perimeter Anchor type");
+    }
+    if (!anchorGenerators.has(shape)) {
+      throw new Error("Shape [" + shape + "] is unknown by Perimeter Anchor type");
+    }
+    var da = anchorGenerators.get(shape)(anchorCount);
+    if (params.rotation) {
+      da = rotate$1(da, params.rotation);
+    }
+    var a = _createAnchor(exports.AnchorLocations.Perimeter, da, params);
+    var aa = extend(a, {
+      shape: shape
+    });
+    return aa;
   }
 
   var TYPE_ITEM_ANCHORS = "anchors";
@@ -14975,6 +15099,7 @@ var jsPlumbBrowserUI = (function (exports) {
   exports.WILDCARD = WILDCARD;
   exports.X_AXIS_FACES = X_AXIS_FACES;
   exports.Y_AXIS_FACES = Y_AXIS_FACES;
+  exports._createPerimeterAnchor = _createPerimeterAnchor;
   exports._removeTypeCssHelper = _removeTypeCssHelper;
   exports._updateHoverStyle = _updateHoverStyle;
   exports.add = add;

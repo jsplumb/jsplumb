@@ -253,7 +253,23 @@ export interface PerimeterAnchorOptions extends AnchorOptions {
     // (undocumented)
     rotation?: number;
     // (undocumented)
-    shape: string;
+    shape: keyof PerimeterAnchorShapes;
+}
+
+// @public (undocumented)
+export enum PerimeterAnchorShapes {
+    // (undocumented)
+    Circle = "Circle",
+    // (undocumented)
+    Diamond = "Diamond",
+    // (undocumented)
+    Ellipse = "Ellipse",
+    // (undocumented)
+    Rectangle = "Rectangle",
+    // (undocumented)
+    Square = "Square",
+    // (undocumented)
+    Triangle = "Triangle"
 }
 
 // @public (undocumented)

@@ -7,5 +7,5 @@
 <b>Signature:</b>
 
 ```typescript
-shape: string;
+shape: keyof PerimeterAnchorShapes;
 ```

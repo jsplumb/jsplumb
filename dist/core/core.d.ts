@@ -1,9 +1,6 @@
 /**
  * This package is the core of the jsPlumb Community Edition.
  *
- * @remarks
- * The `widget-lib` defines the {@link IWidget} interface and {@link Widget} class,
- * which are used to build widgets.
  *
  * @packageDocumentation
  */
@@ -33,6 +30,7 @@ import { OverlayOptions } from '@jsplumb/common';
 import { OverlaySpec } from '@jsplumb/common';
 import { PaintAxis } from '@jsplumb/common';
 import { PaintStyle } from '@jsplumb/common';
+import { PerimeterAnchorShapes } from '@jsplumb/common';
 import { PointNearPath } from '@jsplumb/common';
 import { PointXY } from '@jsplumb/util';
 import { RectangleEndpointParams } from '@jsplumb/common';
@@ -760,6 +758,8 @@ export declare interface ConnectParams<E> {
 export declare function convertToFullOverlaySpec(spec: string | OverlaySpec): FullOverlaySpec;
 
 export declare function createFloatingAnchor(instance: JsPlumbInstance, element: any): LightweightFloatingAnchor;
+
+export declare function _createPerimeterAnchor(params: Record<string, any>): LightweightPerimeterAnchor;
 
 export declare class CustomOverlay extends Overlay {
     instance: JsPlumbInstance;
@@ -1813,6 +1813,10 @@ export declare class LightweightFloatingAnchor implements LightweightAnchor {
      * orientation as we normally do.
      */
     out(): void;
+}
+
+export declare interface LightweightPerimeterAnchor extends LightweightAnchor {
+    shape: PerimeterAnchorShapes;
 }
 
 export declare class LightweightRouter<T extends {

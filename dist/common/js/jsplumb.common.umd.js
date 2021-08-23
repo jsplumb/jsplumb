@@ -4,6 +4,15 @@
     (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.jsPlumbCommon = {}));
 }(this, (function (exports) { 'use strict';
 
+    exports.PerimeterAnchorShapes = void 0;
+    (function (PerimeterAnchorShapes) {
+      PerimeterAnchorShapes["Circle"] = "Circle";
+      PerimeterAnchorShapes["Ellipse"] = "Ellipse";
+      PerimeterAnchorShapes["Triangle"] = "Triangle";
+      PerimeterAnchorShapes["Diamond"] = "Diamond";
+      PerimeterAnchorShapes["Rectangle"] = "Rectangle";
+      PerimeterAnchorShapes["Square"] = "Square";
+    })(exports.PerimeterAnchorShapes || (exports.PerimeterAnchorShapes = {}));
     exports.AnchorLocations = void 0;
     (function (AnchorLocations) {
       AnchorLocations["Assign"] = "Assign";

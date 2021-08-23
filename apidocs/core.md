@@ -6,10 +6,6 @@
 
 This package is the core of the jsPlumb Community Edition.
 
-## Remarks
-
-The `widget-lib` defines the  interface and  class, which are used to build widgets.
-
 ## Classes
 
 |  Class | Description |
@@ -48,6 +44,7 @@ The `widget-lib` defines the  interface and  class, which are used to build widg
 
 |  Function | Description |
 |  --- | --- |
+|  [\_createPerimeterAnchor(params)](./core._createperimeteranchor.md) |  |
 |  [\_removeTypeCssHelper(component, typeIndex)](./core._removetypecsshelper.md) |  |
 |  [\_updateHoverStyle(component)](./core._updatehoverstyle.md) |  |
 |  [att(attName)](./core.att.md) |  |
@@ -95,6 +92,7 @@ The `widget-lib` defines the  interface and  class, which are used to build widg
 |  [jsPlumbElement](./core.jsplumbelement.md) |  |
 |  [LightweightAnchor](./core.lightweightanchor.md) |  |
 |  [LightweightContinuousAnchor](./core.lightweightcontinuousanchor.md) |  |
+|  [LightweightPerimeterAnchor](./core.lightweightperimeteranchor.md) |  |
 |  [ListSpec](./core.listspec.md) |  |
 |  [ManageElementParams](./core.manageelementparams.md) |  |
 |  [OverlayMouseEventParams](./core.overlaymouseeventparams.md) |  |
