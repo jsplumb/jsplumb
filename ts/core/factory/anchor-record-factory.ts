@@ -2,7 +2,7 @@ import {Dictionary, PointXY, Rotations, Size, extend, isNumber, isString, uuid, 
 import { Connection } from "../connector/connection-impl"
 import { Endpoint } from "../endpoint/endpoint"
 import { JsPlumbInstance } from "../core"
-import {AnchorSpec, FullAnchorSpec} from "@jsplumb/common"
+import {AnchorLocations, AnchorSpec, FullAnchorSpec, PerimeterAnchorShapes} from "@jsplumb/common"
 
 export type AnchorOrientationHint = -1 | 0 | 1
 export type Orientation = [  number, number ]
@@ -65,6 +65,10 @@ export interface LightweightAnchor {
     computedPosition?:ComputedPosition
 }
 
+export interface LightweightPerimeterAnchor extends LightweightAnchor {
+    shape:PerimeterAnchorShapes
+}
+
 export interface LightweightContinuousAnchor extends LightweightAnchor {
     faces:Array<Face>
     lockedFace:Face
@@ -125,10 +129,6 @@ export class LightweightFloatingAnchor implements LightweightAnchor {
 const opposites:Dictionary<Face> = {"top": "bottom", "right": "left", "left": "right", "bottom": "top"}
 const clockwiseOptions:Dictionary<Face> = {"top": "right", "right": "bottom", "left": "top", "bottom": "left"}
 const antiClockwiseOptions:Dictionary<Face> = {"top": "left", "right": "top", "left": "bottom", "bottom": "right"}
-
-// function getCurrentFace(a:LightweightContinuousAnchor):Face {
-//     return a.currentFace
-// }
 
 /**
  *
@@ -229,6 +229,11 @@ const namedContinuousValues = {
 
 function getNamedAnchor(name:string, params?:Record<string, any>):LightweightAnchor {
     params = params || {}
+
+    if (name === AnchorLocations.Perimeter) {
+        return _createPerimeterAnchor(params)
+    }
+
     let a = namedValues[name]
     if (a != null) {
         return _createAnchor(name, map(a, (_a:any) => extend({iox:_a.ox, ioy:_a.oy}, _a)), params)
@@ -356,6 +361,144 @@ export function makeLightweightAnchorFromSpec(spec:AnchorSpec|Array<AnchorSpec>)
         const sa = spec as FullAnchorSpec
         return getNamedAnchor(sa.type, sa.options)
     }
+}
+
+
+// --------------- perimeter anchors ----------------------
+
+function circleGenerator(anchorCount:number):Array<AnchorRecord> {
+    const r = 0.5, step = Math.PI * 2 / anchorCount, a:Array<AnchorRecord> = []
+    let current = 0
+    for (let i = 0; i < anchorCount; i++) {
+        const x = r + (r * Math.sin(current)),
+            y = r + (r * Math.cos(current))
+
+        a.push({
+            x, y,
+            ox:0,
+            oy:0,
+            offx:0,
+            offy:0,
+            iox:0,
+            ioy:0,
+            cls:''
+        })
+        current += step
+    }
+    return a
+}
+
+function _path (segments:Array<any>, anchorCount:number):Array<AnchorRecord> {
+    let anchorsPerFace = anchorCount / segments.length, a:Array<AnchorRecord> = [],
+        _computeFace = (x1:number, y1:number, x2:number, y2:number, fractionalLength:number, ox:AnchorOrientationHint, oy:AnchorOrientationHint) => {
+            anchorsPerFace = anchorCount * fractionalLength;
+            const dx = (x2 - x1) / anchorsPerFace, dy = (y2 - y1) / anchorsPerFace;
+            for (let i = 0; i < anchorsPerFace; i++) {
+                a.push({
+                    x:x1 +(dx * i),
+                    y:y1 +(dy * i),
+                    ox:ox == null ? 0 : ox,
+                    oy:oy == null ? 0 : oy,
+                    offx:0, offy:0, iox:0, ioy:0, cls:''
+                })
+            }
+        };
+
+    for (let i = 0; i < segments.length; i++) {
+        _computeFace.apply(null, segments[i])
+    }
+
+    return a;
+}
+
+function shapeGenerator(faces:Array<any>, anchorCount:number):Array<AnchorRecord> {
+    const s:Array<any> = []
+
+    for (let i = 0; i < faces.length; i++) {
+        s.push([faces[i][0], faces[i][1], faces[i][2], faces[i][3], 1 / faces.length, faces[i][4], faces[i][5]])
+    }
+
+    return _path(s, anchorCount)
+}
+
+function rectangleGenerator(anchorCount:number):Array<AnchorRecord> {
+    return shapeGenerator([
+        [ 0, 0, 1, 0, 0, -1 ],
+        [ 1, 0, 1, 1, 1, 0 ],
+        [ 1, 1, 0, 1, 0, 1 ],
+        [ 0, 1, 0, 0, -1, 0 ]
+    ], anchorCount);
+}
+
+function diamondGenerator(anchorCount:number):Array<AnchorRecord> {
+    return shapeGenerator([
+        [ 0.5, 0, 1, 0.5 ],
+        [ 1, 0.5, 0.5, 1 ],
+        [ 0.5, 1, 0, 0.5 ],
+        [ 0, 0.5, 0.5, 0 ]
+    ], anchorCount)
+}
+
+function triangleGenerator(anchorCount:number):Array<AnchorRecord> {
+    return shapeGenerator([
+        [ 0.5, 0, 1, 1 ],
+        [ 1, 1, 0, 1 ],
+        [ 0, 1, 0.5, 0]
+    ], anchorCount)
+}
+
+function rotate (points:Array<AnchorRecord>, amountInDegrees:number):Array<AnchorRecord> {
+    const o:Array<AnchorRecord> = [], theta = amountInDegrees / 180 * Math.PI
+    for (let i = 0; i < points.length; i++) {
+        const  _x = points[i].x - 0.5,
+            _y = points[i].y - 0.5
+
+        o.push({
+            x:0.5 + ((_x * Math.cos(theta)) - (_y * Math.sin(theta))),
+            y:0.5 + ((_x * Math.sin(theta)) + (_y * Math.cos(theta))),
+            ox:points[i].ox,
+            oy:points[i].oy,
+            offx:0,
+            offy:0,
+            iox:0,
+            ioy:0,
+            cls:''
+        })
+    }
+    return o
+}
+
+const anchorGenerators:Map<PerimeterAnchorShapes, (anchorCount:number)=>Array<AnchorRecord>> = new Map()
+anchorGenerators.set(PerimeterAnchorShapes.Circle, circleGenerator)
+anchorGenerators.set(PerimeterAnchorShapes.Ellipse, circleGenerator)
+anchorGenerators.set(PerimeterAnchorShapes.Rectangle, rectangleGenerator)
+anchorGenerators.set(PerimeterAnchorShapes.Square, rectangleGenerator)
+anchorGenerators.set(PerimeterAnchorShapes.Diamond, diamondGenerator)
+anchorGenerators.set(PerimeterAnchorShapes.Triangle, triangleGenerator)
+
+export function _createPerimeterAnchor(params:Record<string, any>):LightweightPerimeterAnchor {
+
+    params = params || {}
+    const anchorCount = params.anchorCount || 60,
+        shape:PerimeterAnchorShapes = params.shape
+
+    if (!shape) {
+        throw new Error("no shape supplied to Perimeter Anchor type");
+    }
+
+    if (!anchorGenerators.has(shape)) {
+        throw new Error("Shape [" + shape + "] is unknown by Perimeter Anchor type");
+    }
+
+    let da = anchorGenerators.get(shape)(anchorCount)
+    if (params.rotation) {
+        da = rotate(da, params.rotation)
+    }
+
+    const a = _createAnchor(AnchorLocations.Perimeter, da, params)
+    const aa = extend(a as any, { shape }) as LightweightPerimeterAnchor
+
+    return aa
 }
 
 
