@@ -140,6 +140,27 @@ var testSuite = function () {
         equal(sa.type, "ContinuousTop")
         equal(ta.type, "ContinuousBottom")
     })
+    
+    test("perimeter anchors, circle", function () {
+        var d1 = _addDiv("one", 50, 50, 100, 100), d2 = _addDiv("two", 550, 550, 100, 100)
+        var ep1 = _jsPlumb.addEndpoint(d1, {
+            anchor:{ type:"Perimeter", options:{shape:"Circle"}}
+        })
+
+        var ep2 = _jsPlumb.addEndpoint(d2, {
+            anchor:{ type:"Perimeter", options:{shape:"Circle"}}
+        })
+
+        var conn = _jsPlumb.connect({source:ep1, target:ep2}),
+            sa = conn.endpoints[0]._anchor,
+            ta = conn.endpoints[1]._anchor
+
+        equal(sa.type, "Perimeter", "source anchor is of type Perimeter")
+        equal(ta.type, "Perimeter", "target anchor is of type Perimeter")
+
+        equal(sa.shape, "Circle", "shape is correct on source anchor")
+        equal(ta.shape, "Circle", "shape is correct on target anchor")
+    })
 
 
 
