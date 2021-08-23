@@ -8,11 +8,20 @@ export interface AnchorOptions extends Record<string, any> {
     cssClass?:string
 }
 
+export enum PerimeterAnchorShapes {
+    Circle= "Circle",
+    Ellipse = "Ellipse",
+    Triangle = "Triangle",
+    Diamond = "Diamond",
+    Rectangle = "Rectangle",
+    Square = "Square"
+}
+
 /**
  * Constructor options for a Perimeter Anchor.
  */
 export interface PerimeterAnchorOptions extends AnchorOptions {
-    shape:string
+    shape:keyof PerimeterAnchorShapes
     rotation?:number
     anchorCount?:number
 }
