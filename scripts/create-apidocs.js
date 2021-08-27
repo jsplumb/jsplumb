@@ -18,7 +18,7 @@ packages.forEach(pkg => {
 
 // api-documented
 
-cp.execSync("npx api-documenter markdown -i ./temp -o ./apidocs", {cwd:".", env: process.env, stdio: 'inherit' })
+cp.execSync("npx api-documenter markdown -i ./_apidoc_models -o ./apidocs", {cwd:".", env: process.env, stdio: 'inherit' })
 
 packages.forEach(pkg => {
     g.remove(`ts/${pkg}/api-extractor.json`)
