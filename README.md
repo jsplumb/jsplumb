@@ -90,9 +90,13 @@ And/or if you want the `Flowchart` connector you will also need:
 
 ## Documentation
 
-For the Community edition the documentation can now be found here:
+For the Community edition the documentation for version 5.x is here:
 
 [https://docs.jsplumbtoolkit.com/community/](https://docs.jsplumbtoolkit.com/community/)
+
+For the previous - 2.x - version of jsPlumb, docs are here:
+
+[https://docs.jsplumbtoolkit.com/community-2.x/current/](https://docs.jsplumbtoolkit.com/community-2.x/current/)
 
 
 ## Issues
