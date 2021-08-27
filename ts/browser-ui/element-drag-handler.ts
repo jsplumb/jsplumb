@@ -63,7 +63,7 @@ export interface DragPayload {
     payload?:Record<string, any>
 }
 
-export type DraggedElement = {el:jsPlumbDOMElement, id:string, pos:PointXY, originalPos:PointXY, originalGroup:UIGroup, /*draggedOutOfGroup:boolean, */redrawResult:RedrawResult, reverted:boolean, dropGroup:UIGroup}
+export type DraggedElement = {el:jsPlumbDOMElement, id:string, pos:PointXY, originalPos:PointXY, originalGroup:UIGroup, redrawResult:RedrawResult, reverted:boolean, dropGroup:UIGroup}
 
 /**
  * Payload for `drag:stop` event. In addition to the base payload, contains a redraw result object, listing all the connections and endpoints that were affected by the drag.
