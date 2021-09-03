@@ -23,13 +23,6 @@ const packages = require("./package.json").packages
 // as are names for the packages.
 const packageNames = require("./package.json").packageNames
 
-//
-// gets the list of packages considered external to the current one, which is every package except the current one
-//
-function getExternalsList(current) {
-    return packages.filter(p => p !== current).map(p => `@jsplumb/${p}`)
-}
-
 const out = []
 packages.filter(p => {
     const name = packageNames[`@jsplumb/${p}`]
@@ -38,7 +31,8 @@ packages.filter(p => {
     }
     out.push({
         input: `./ts/${p}/index.ts`,
-        external:getExternalsList(p),
+        // every package except the current one is considered external.
+        external: moduleId => moduleId.indexOf("@jsplumb") === 0 && moduleId !== `@jsplumb/${p}`,
         output: [
             {
                 name: name,
