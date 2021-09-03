@@ -54,7 +54,7 @@ packages.filter(p => {
         plugins: [
             resolve({ extensions }),
             commonjs(),
-            babel({ extensions, include: [`ts/${p}/**/*`] }),
+            babel({ extensions, include: [`ts/${p}/**/*`], babelHelpers:"bundled" }),
             cleanup({ extensions:['ts', 'js']})
         ],
         onwarn:ON_WARN
