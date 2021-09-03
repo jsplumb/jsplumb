@@ -134,14 +134,6 @@ export class BezierSegment extends AbstractSegment {
     static segmentType: string;
     // (undocumented)
     type: string;
-    // (undocumented)
-    x1: number;
-    // (undocumented)
-    x2: number;
-    // (undocumented)
-    y1: number;
-    // (undocumented)
-    y2: number;
 }
 
 // @public (undocumented)

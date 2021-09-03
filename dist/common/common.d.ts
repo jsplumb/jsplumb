@@ -13,7 +13,7 @@ import { PointXY } from '@jsplumb/util';
 /**
  * Base class for segments in connectors.
  *
- * @private
+ * @internal
  */
 export declare abstract class AbstractSegment implements Segment {
     protected params: SegmentParams;
@@ -69,11 +69,13 @@ export declare abstract class AbstractSegment implements Segment {
 
 /**
  * List of entries in the AnchorLocations enum
+ * @public
  */
 export declare type AnchorId = keyof typeof AnchorLocations;
 
 /**
  * Default anchor locations.
+ * @public
  */
 export declare enum AnchorLocations {
     Assign = "Assign",
@@ -153,6 +155,7 @@ export declare enum AnchorLocations {
 
 /**
  * Common options for anchors.
+ * @public
  */
 export declare interface AnchorOptions extends Record<string, any> {
     /**
@@ -176,9 +179,13 @@ export declare type AnchorPlacement = {
 
 /**
  * Models the specification of anchor - which may be a SingleAnchorSpec, or an array of SingleAnchorSpec objects.
+ * @public
  */
 export declare type AnchorSpec = SingleAnchorSpec | Array<SingleAnchorSpec>;
 
+/**
+ * @public
+ */
 export declare interface ArrowOverlayOptions extends OverlayOptions {
     width?: number;
     length?: number;
@@ -187,11 +194,15 @@ export declare interface ArrowOverlayOptions extends OverlayOptions {
     paintStyle?: PaintStyle;
 }
 
+/**
+ * @public
+ */
 export declare interface BlankEndpointParams extends EndpointRepresentationParams {
 }
 
 /**
  * High level definition of a Connector.
+ * @public
  */
 export declare interface Connector {
     /**
@@ -202,11 +213,13 @@ export declare interface Connector {
 
 /**
  * Alias for the use case that a Connector is referenced just by its `type`.
+ * @public
  */
 export declare type ConnectorId = string;
 
 /**
  * Common options for connectors.
+ * @public
  */
 export declare interface ConnectorOptions extends Record<string, any> {
     /**
@@ -229,26 +242,35 @@ export declare interface ConnectorOptions extends Record<string, any> {
 
 /**
  * Specification of a connector - either the type id of some Connector, a type+options object.
+ * @public
  */
 export declare type ConnectorSpec = ConnectorId | ConnectorWithOptions;
 
 /**
  * Connector spec in the form `{type:.., options:{.. }}`
+ * @public
  */
 export declare type ConnectorWithOptions = {
     type: ConnectorId;
     options: ConnectorOptions;
 };
 
+/**
+ * @public
+ */
 export declare interface CustomOverlayOptions extends OverlayOptions {
     create: (c: Component) => any;
 }
 
 /**
  * Constant used im various places internally, and in the Toolkit edition used as the key for default node, edge, port and group definitions.
+ * @public
  */
 export declare const DEFAULT = "default";
 
+/**
+ * @public
+ */
 export declare interface DotEndpointParams extends EndpointRepresentationParams {
     radius?: number;
 }
@@ -259,37 +281,60 @@ export declare interface DotEndpointParams extends EndpointRepresentationParams 
  */
 export declare function EMPTY_BOUNDS(): Extents;
 
+/**
+ * @public
+ */
 export declare type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndpointId;
 
+/**
+ * @public
+ */
 export declare type EndpointParams = any;
 
+/**
+ * @public
+ */
 export declare interface EndpointRepresentationParams {
     cssClass?: string;
 }
 
+/**
+ * @public
+ */
 export declare type EndpointSpec = EndpointId | FullEndpointSpec;
 
+/**
+ * @public
+ */
 export declare interface EndpointStyle extends PaintStyle, Record<string, any> {
 }
 
 /**
  * Constant for the term "false"
+ * @public
  */
 export declare const FALSE = "false";
 
 /**
  * An anchor spec in the form `{type:..., options:{ ... }}`
+ * @public
  */
 export declare type FullAnchorSpec = {
     type: AnchorId;
     options: AnchorOptions;
 };
 
+/**
+ * @public
+ */
 export declare type FullEndpointSpec = {
     type: EndpointId;
     options: EndpointParams;
 };
 
+/**
+ * @public
+ */
 export declare type FullOverlaySpec = {
     type: string;
     options: OverlayOptions;
@@ -297,17 +342,24 @@ export declare type FullOverlaySpec = {
 
 /**
  * Geometry defines the path along which a connector travels. The internal contents of a Geometry vary widely between connectors.
+ * @public
  */
 export declare interface Geometry {
     source: any;
     target: any;
 }
 
+/**
+ * @public
+ */
 export declare interface LabelOverlayOptions extends OverlayOptions {
     label: string | Function;
     labelLocationAttribute?: string;
 }
 
+/**
+ * @public
+ */
 export declare interface OverlayOptions extends Record<string, any> {
     id?: string;
     cssClass?: string;
@@ -315,6 +367,9 @@ export declare interface OverlayOptions extends Record<string, any> {
     events?: Dictionary<(value: any, event?: any) => any>;
 }
 
+/**
+ * @public
+ */
 export declare type OverlaySpec = string | FullOverlaySpec;
 
 /**
@@ -334,6 +389,7 @@ export declare interface PaintStyle {
 
 /**
  * Constructor options for a Perimeter Anchor.
+ * @public
  */
 export declare interface PerimeterAnchorOptions extends AnchorOptions {
     shape: keyof PerimeterAnchorShapes;
@@ -341,6 +397,10 @@ export declare interface PerimeterAnchorOptions extends AnchorOptions {
     anchorCount?: number;
 }
 
+/**
+ * Supported shapes for a Perimeter anchor.
+ * @public
+ */
 export declare enum PerimeterAnchorShapes {
     Circle = "Circle",
     Ellipse = "Ellipse",
@@ -350,6 +410,9 @@ export declare enum PerimeterAnchorShapes {
     Square = "Square"
 }
 
+/**
+ * @internal
+ */
 export declare type PointNearPath = {
     s?: Segment;
     d: number;
@@ -362,6 +425,9 @@ export declare type PointNearPath = {
     y2: number;
 };
 
+/**
+ * @public
+ */
 export declare interface RectangleEndpointParams extends EndpointRepresentationParams {
     width?: number;
     height?: number;
@@ -389,6 +455,9 @@ export declare interface Segment {
     getPath(isFirstSegment: boolean): string;
 }
 
+/**
+ * @internal
+ */
 export declare interface SegmentParams {
     x1: number;
     x2: number;
@@ -398,23 +467,30 @@ export declare interface SegmentParams {
 
 /**
  * Models the specification of a single anchor.
+ * @public
  */
 export declare type SingleAnchorSpec = AnchorId | FullAnchorSpec | AnchorPlacement | Array<AnchorPlacement>;
 
 /**
  * Constant for the term "true"
+ * @public
  */
 export declare const TRUE = "true";
 
 /**
  * Constant for matching JS 'undefined'.
+ * @public
  */
 export declare const UNDEFINED = "undefined";
 
+/**
+ * @public
+ */
 export declare type UserDefinedEndpointId = string;
 
 /**
  * Constant representing the wildcard used in several places in the API.
+ * @public
  */
 export declare const WILDCARD = "*";
 

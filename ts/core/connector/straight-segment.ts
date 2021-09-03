@@ -2,19 +2,24 @@
 import {gradient, lineLength, pointOnLine, PointXY} from '@jsplumb/util'
 import {AbstractSegment, PointNearPath, SegmentParams} from "@jsplumb/common"
 
+/**
+ * @internal
+ */
 export type StraightSegmentCoordinates = { x1:number, y1:number, x2:number, y2:number}
 
+/**
+ * @internal
+ */
 export interface StraightSegmentParams extends SegmentParams {}
 
+/**
+ * @internal
+ */
 export class StraightSegment extends AbstractSegment {
 
     length:number
     m:number
     m2:number
-    x1:number
-    x2:number
-    y1:number
-    y2:number
 
     constructor(params:StraightSegmentParams) {
         super(params)
@@ -90,13 +95,6 @@ export class StraightSegment extends AbstractSegment {
         let p = this.pointOnPath(location, absolute),
             farAwayPoint = distance <= 0 ? {x: this.x1, y: this.y1} : {x: this.x2, y: this.y2 }
 
-        /*
-         location == 1 ? {
-         x:x1 + ((x2 - x1) * 10),
-         y:y1 + ((y1 - y2) * 10)
-         } :
-         */
-
         if (distance <= 0 && Math.abs(distance) > 1) {
             distance *= -1
         }
@@ -115,9 +113,8 @@ export class StraightSegment extends AbstractSegment {
     }
 
     /**
-     Function: findClosestPointOnPath
-     Finds the closest point on this segment to [x,y]. See
-     notes on this method in AbstractSegment.
+     * Finds the closest point on this segment to [x,y]. See
+     * notes on this method in AbstractSegment.
      */
     findClosestPointOnPath (x:number, y:number):PointNearPath {
         let out:PointNearPath = {

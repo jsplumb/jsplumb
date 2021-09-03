@@ -10,9 +10,9 @@ import { Dictionary } from '@jsplumb/util';
 import { Extents } from '@jsplumb/util';
 import { PointXY } from '@jsplumb/util';
 
-// Warning: (ae-incompatible-release-tags) The symbol "AbstractSegment" is marked as @public, but its signature references "Segment" which is marked as @internal
+// Warning: (ae-internal-missing-underscore) The name "AbstractSegment" should be prefixed with an underscore because the declaration is marked as @internal
 //
-// @public
+// @internal
 export abstract class AbstractSegment implements Segment {
     constructor(params: SegmentParams);
     boundingBoxIntersection(box: BoundingBox): Array<PointXY>;
@@ -256,7 +256,7 @@ export interface PerimeterAnchorOptions extends AnchorOptions {
     shape: keyof PerimeterAnchorShapes;
 }
 
-// @public (undocumented)
+// @public
 export enum PerimeterAnchorShapes {
     // (undocumented)
     Circle = "Circle",
@@ -272,7 +272,9 @@ export enum PerimeterAnchorShapes {
     Triangle = "Triangle"
 }
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "PointNearPath" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
 export type PointNearPath = {
     s?: Segment;
     d: number;
@@ -329,7 +331,9 @@ export interface Segment {
     y2: number;
 }
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "SegmentParams" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
 export interface SegmentParams {
     // (undocumented)
     x1: number;
@@ -357,9 +361,5 @@ export type UserDefinedEndpointId = string;
 
 // @public
 export const WILDCARD = "*";
-
-// Warnings were encountered during analysis:
-//
-// /Users/simon/programming/jsplumb/jsplumb/dist/common/types/abstract-segment.d.ts:9:5 - (ae-incompatible-release-tags) The symbol "s" is marked as @public, but its signature references "Segment" which is marked as @internal
 
 ```

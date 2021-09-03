@@ -1,5 +1,8 @@
 import {Extents , BoundingBox, PointXY} from "@jsplumb/util"
 
+/**
+ * @internal
+ */
 export interface SegmentParams {
     x1:number
     x2:number
@@ -7,6 +10,9 @@ export interface SegmentParams {
     y2:number
 }
 
+/**
+ * @internal
+ */
 export type PointNearPath = {
     s?:Segment
     d:number
@@ -68,7 +74,7 @@ export interface Segment {
 /**
  * Base class for segments in connectors.
  *
- * @private
+ * @internal
  */
 export abstract class AbstractSegment implements Segment {
 

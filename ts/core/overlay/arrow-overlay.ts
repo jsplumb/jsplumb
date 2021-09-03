@@ -17,7 +17,7 @@ export class ArrowOverlay extends Overlay {
     length:number
     foldback:number
     direction:number
-    location:number
+    location:number = 0.5
 
     paintStyle:PaintStyle
 

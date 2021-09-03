@@ -766,10 +766,6 @@ var BezierSegment = function (_AbstractSegment) {
     _defineProperty(_assertThisInitialized(_this), "cp1y", void 0);
     _defineProperty(_assertThisInitialized(_this), "cp2x", void 0);
     _defineProperty(_assertThisInitialized(_this), "cp2y", void 0);
-    _defineProperty(_assertThisInitialized(_this), "x1", void 0);
-    _defineProperty(_assertThisInitialized(_this), "x2", void 0);
-    _defineProperty(_assertThisInitialized(_this), "y1", void 0);
-    _defineProperty(_assertThisInitialized(_this), "y2", void 0);
     _defineProperty(_assertThisInitialized(_this), "length", 0);
     _defineProperty(_assertThisInitialized(_this), "type", BezierSegment.segmentType);
     _this.cp1x = params.cp1x;

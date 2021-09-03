@@ -13,7 +13,13 @@ import {makeLightweightAnchorFromSpec} from "../factory/anchor-record-factory"
 import * as Constants from "../constants"
 import {ConnectorSpec, ConnectorWithOptions, AnchorSpec, EndpointSpec, DEFAULT, PaintStyle} from "@jsplumb/common"
 
+/**
+ * @internal
+ */
 const TYPE_ITEM_ANCHORS = "anchors"
+/**
+ * @internal
+ */
 const TYPE_ITEM_CONNECTOR = "connector"
 
 function prepareEndpoint<E>(conn:Connection<E>, existing:Endpoint, index:number, anchor?:AnchorSpec, element?:E, elementId?:string, endpoint?:EndpointSpec):Endpoint {
@@ -78,6 +84,9 @@ function prepareEndpoint<E>(conn:Connection<E>, existing:Endpoint, index:number,
     return e
 }
 
+/**
+ * @internal
+ */
 export type ConnectionOptions<E = any>  =  Merge<ConnectParams<E>,  {
 
     source?:E
@@ -90,6 +99,9 @@ export type ConnectionOptions<E = any>  =  Merge<ConnectParams<E>,  {
     geometry?:any
 }>
 
+/**
+ * @public
+ */
 export class Connection<E = any> extends Component {
 
     connector:AbstractConnector
@@ -106,19 +118,62 @@ export class Connection<E = any> extends Component {
 
     previousConnection:Connection
 
+    /**
+     * The id of the source of the connection
+     * @public
+     */
     sourceId:string
+    /**
+     * The id of the target of the connection
+     * @public
+     */
     targetId:string
+    /**
+     * The element that is the source of the connection
+     * @public
+     */
     source:E
+    /**
+     * The element that is the target of the connection
+     * @public
+     */
     target:E
 
+    /**
+     * Whether or not this connection is detachable
+     * @public
+     */
     detachable:boolean = true
+
+    /**
+     * Whether or not this connection should be reattached if it were detached via the mouse
+     * @public
+     */
     reattach:boolean = false
 
-    uuids:[string, string]
+    /**
+     * UUIDs of the endpoints. If this is not specifically provided in the constructor of the connection it will
+     * be null.
+     * @public
+     */
+    readonly uuids:[string, string]
 
+    /**
+     * Connection's cost.
+     * @public
+     */
     cost:number = 1
+
+    /**
+     * Whether or not the connection is directed.
+     * @public
+     */
     directed:boolean
 
+    /**
+     * Source and target endpoints.
+     * @public
+     */
     endpoints:[Endpoint<E>, Endpoint<E>] = [null, null]
     endpointStyles:[PaintStyle, PaintStyle]
 
@@ -128,19 +183,53 @@ export class Connection<E = any> extends Component {
     endpointHoverStyle:PaintStyle = {}
     readonly endpointHoverStyles:[PaintStyle, PaintStyle]
 
+    /**
+     * @internal
+     */
     suspendedEndpoint:Endpoint<E>
+    /**
+     * @internal
+     */
     suspendedIndex:number
+    /**
+     * @internal
+     */
     suspendedElement:E
+    /**
+     * @internal
+     */
     suspendedElementId:string
+    /**
+     * @internal
+     */
     suspendedElementType:string
 
+    /**
+     * @internal
+     */
     _forceReattach:boolean
+    /**
+     * @internal
+     */
     _forceDetach:boolean
 
+    /**
+     * List of current proxies for this connection. Used when collapsing groups and when dealing with scrolling lists.
+     * @internal
+     */
     proxies:Array<{ ep:Endpoint<E>, originalEp: Endpoint<E> }> = []
-    
+
+    /**
+     * @internal
+     */
     pending:boolean = false
 
+    /**
+     * Connections should never be constructed directly by users of the library.
+     * @internal
+     * @param instance
+     * @param params
+     */
     constructor(public instance:JsPlumbInstance, params:ConnectionOptions<E>) {
 
         super(instance, params)
@@ -358,6 +447,13 @@ export class Connection<E = any> extends Component {
         this.instance.applyConnectorType(this.connector, t)
     }
 
+    /**
+     * Adds the given class to the UI elements being used to represent this connection's connector, and optionally to
+     * the UI elements representing the connection's endpoints.
+     * @param c class to add
+     * @param cascade If true, also add the class to the connection's endpoints.
+     * @public
+     */
     addClass(c:string, cascade?:boolean) {
         super.addClass(c)
 
@@ -374,6 +470,13 @@ export class Connection<E = any> extends Component {
         }
     }
 
+    /**
+     * Removes the given class from the UI elements being used to represent this connection's connector, and optionally from
+     * the UI elements representing the connection's endpoints.
+     * @param c class to remove
+     * @param cascade If true, also remove the class from the connection's endpoints.
+     * @public
+     */
     removeClass(c:string, cascade?:boolean) {
         super.removeClass(c)
 
@@ -390,6 +493,11 @@ export class Connection<E = any> extends Component {
         }
     }
 
+    /**
+     * Sets the visible state of the connection.
+     * @param v
+     * @public
+     */
     setVisible(v:boolean) {
         super.setVisible(v)
         if (this.connector) {
@@ -398,6 +506,9 @@ export class Connection<E = any> extends Component {
         this.instance.paintConnection(this)
     }
 
+    /**
+     * @internal
+     */
     destroy() {
         super.destroy()
 
@@ -419,6 +530,9 @@ export class Connection<E = any> extends Component {
         return [ this.endpoints[0].getUuid(), this.endpoints[1].getUuid() ]
     }
 
+    /**
+     * @internal
+     */
     prepareConnector(connectorSpec:ConnectorSpec, typeId?:string):AbstractConnector {
         let connectorArgs = {
                 cssClass: this.params.cssClass,
@@ -440,6 +554,9 @@ export class Connection<E = any> extends Component {
         return connector
     }
 
+    /**
+     * @internal
+     */
     setPreparedConnector(connector:AbstractConnector, doNotRepaint?:boolean, doNotChangeListenerComponent?:boolean, typeId?:string) {
 
         if (this.connector !== connector) {
@@ -484,6 +601,7 @@ export class Connection<E = any> extends Component {
      * cause a change in Endpoint.
      * @param idx 0 for source, 1 for target
      * @param endpointDef Spec for the new Endpoint.
+     * @public
      */
     replaceEndpoint(idx:number, endpointDef:EndpointSpec) {
 

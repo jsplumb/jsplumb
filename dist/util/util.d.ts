@@ -8,6 +8,7 @@
  * Adds the x and y values of the two points and returns a new point.
  * @param p1
  * @param p2
+ * @public
  */
 export declare function add(p1: PointXY, p2: PointXY): PointXY;
 
@@ -86,6 +87,7 @@ export declare function each(obj: any, fn: Function): void;
  * @param r2 Second rectangle
  * @param [allowSharedEdges=false] If true, the concept of enclosure allows for one or more edges to be shared by the two rectangles.
  * @returns True if r1 encloses r2, false otherwise.
+ * @public
  */
 export declare function encloses(r1: RectangleXY, r2: RectangleXY, allowSharedEdges?: boolean): boolean;
 
@@ -94,6 +96,8 @@ export declare function encloses(r1: RectangleXY, r2: RectangleXY, allowSharedEd
  *
  * @remarks You need to implement the `shouldFireEvent` method in your concrete subclasses of this class, or you can
  * instead extend from `OptimisticEventGenerator`, which has a default implementation of `shouldFireEvent` that returns true.
+ *
+ * @public
  */
 export declare abstract class EventGenerator {
     private _listeners;
@@ -108,11 +112,12 @@ export declare abstract class EventGenerator {
      * @param event Event to fire
      * @param value Value to pass to event handlers
      * @param originalEvent Optional original event that caused this event to be fired.
+     * @public
      */
     fire<T>(event: string, value?: T, originalEvent?: Event): any;
     /**
      * Drain the queue of pending event notifications
-     * @private
+     * @internal
      */
     private _drain;
     /**
@@ -120,19 +125,23 @@ export declare abstract class EventGenerator {
      * listeners are unbound.
      * @param eventOrListener Either an event name, or an event handler function
      * @param listener If `eventOrListener` is defined, this is the event handler to unbind.
+     * @public
      */
     unbind(eventOrListener?: string | Function, listener?: Function): EventGenerator;
     /**
      * Gets all listeners for the given named event.
      * @param forEvent
+     * @public
      */
     getListener(forEvent: string): Array<any>;
     /**
      * Returns whether not event firing is currently suspended
+     * @public
      */
     isSuspendEvents(): boolean;
     /**
      * Sets whether not event firing is currently suspended
+     * @public
      */
     setSuspendEvents(val: boolean): void;
     /**
@@ -141,11 +150,13 @@ export declare abstract class EventGenerator {
      * @param event Name of the event(s) to bind to.
      * @param listener Function to bind to the given event(s)
      * @param insertAtStart Whether or not to insert this listener at the head of the listener queue. Defaults to false.
+     * @public
      */
     bind<T = any>(event: string | Array<String>, listener: (a: T, e?: any) => any, insertAtStart?: boolean): EventGenerator;
     /**
      * Run the given function without firing any events.
      * @param fn
+     * @public
      */
     silently(fn: Function): void;
 }
@@ -265,6 +276,7 @@ export declare function getWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolea
  * @param p1 First point in the line
  * @param p2 Second point in the line
  * @returns The gradient of a line between the two points.
+ * @public
  */
 export declare function gradient(p1: PointXY, p2: PointXY): number;
 
@@ -291,6 +303,7 @@ export declare function insertSorted<T>(value: T, array: Array<T>, comparator: (
  * @param r1 First rectangle
  * @param r2 Second rectangle
  * @returns True if the rectangles intersect, false otherwise.
+ * @public
  */
 export declare function intersects(r1: RectangleXY, r2: RectangleXY): boolean;
 
@@ -361,6 +374,7 @@ export declare function isString(s: any): boolean;
  * @param l1
  * @param l2
  * @returns A point if an intersection found, null otherwise.
+ * @public
  */
 export declare function lineIntersection(l1: LineXY, l2: LineXY): PointXY | null;
 
@@ -369,6 +383,7 @@ export declare function lineIntersection(l1: LineXY, l2: LineXY): PointXY | null
  * @param p1 First point in the line
  * @param p2 Second point in the line
  * @returns The length of a line between the two points.
+ * @public
  */
 export declare function lineLength(p1: PointXY, p2: PointXY): number;
 
@@ -377,6 +392,7 @@ export declare function lineLength(p1: PointXY, p2: PointXY): number;
  * @param line
  * @param r
  * @returns An array of intersection points. If there are no intersection points the array will be empty, but never null.
+ * @public
  */
 export declare function lineRectangleIntersection(line: LineXY, r: RectangleXY): Array<PointXY>;
 
@@ -486,6 +502,7 @@ export declare function merge(a: Record<string, any>, b: Record<string, any>, co
  * @param p1 First point in the line
  * @param p2 Second point in the line
  * @returns The gradient of a normal to a line between the two points.
+ * @public
  */
 export declare function normal(p1: PointXY, p2: PointXY): number;
 
@@ -497,6 +514,7 @@ export { Omit_2 as Omit }
 
 /**
  * Subclass of EventGenerator with a default implementation of `shouldFireEvent`, which returns true always.
+ * @public
  */
 export declare class OptimisticEventGenerator extends EventGenerator {
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
@@ -508,6 +526,7 @@ export declare class OptimisticEventGenerator extends EventGenerator {
  * @param toPoint Second point
  * @param length Length of the line to generate
  * @returns Perpendicular line of the required length.
+ * @public
  */
 export declare function perpendicularLineTo(fromPoint: PointXY, toPoint: PointXY, length: number): LineXY;
 
@@ -517,6 +536,7 @@ export declare function perpendicularLineTo(fromPoint: PointXY, toPoint: PointXY
  * @param toPoint Second point
  * @param distance Distance along the length that the point should be located.
  * @returns Point on the line, in the form `{ x:..., y:... }`.
+ * @public
  */
 export declare function pointOnLine(fromPoint: PointXY, toPoint: PointXY, distance: number): PointXY;
 
@@ -544,6 +564,9 @@ export declare interface PointXY {
  */
 export declare function populate(model: any, values: any, functionPrefix?: string, doNotExpandFunctions?: boolean): any;
 
+/**
+ * @public
+ */
 export declare type Quadrant = 1 | 2 | 3 | 4;
 
 /**
@@ -551,6 +574,7 @@ export declare type Quadrant = 1 | 2 | 3 | 4;
  * @param p1 First point in the line
  * @param p2 Second point in the line
  * @returns The quadrant - 1 for upper right, 2 for lower right, 3 for lower left, 4 for upper left.
+ * @public
  */
 export declare function quadrant(p1: PointXY, p2: PointXY): Quadrant;
 
@@ -644,6 +668,7 @@ export declare interface Size {
  * @param thresholdX Defines how close to a grid line in the x axis a value must be in order to be snapped to it.
  * @param thresholdY Defines how close to a grid line in the y axis a value must be in order to be snapped to it.
  * @returns The point to which the position was snapped, given the constraints of the grid.
+ * @public
  */
 export declare function snapToGrid(pos: PointXY, grid: Grid, thresholdX?: number, thresholdY?: number): PointXY;
 
@@ -664,6 +689,7 @@ export declare function sortHelper<T>(_array: Array<T>, _fn: SortFunction<T>): A
  * @param p1
  * @param p2
  * @returns a new Point, with p2 subtracted from p1.
+ * @public
  */
 export declare function subtract(p1: PointXY, p2: PointXY): PointXY;
 
@@ -680,11 +706,13 @@ export declare function suggest(list: Array<any>, item: any, insertAtHead?: bool
  * @param p1 First point
  * @param p2 Second point
  * @returns The angle between the two points.
+ * @public
  */
 export declare function theta(p1: PointXY, p2: PointXY): number;
 
 /**
  * Definition of 2 PI
+ * @public
  */
 export declare const TWO_PI: number;
 

@@ -1823,10 +1823,6 @@ var jsPlumbBrowserUI = (function (exports) {
       _defineProperty$3(_assertThisInitialized$3(_this), "length", void 0);
       _defineProperty$3(_assertThisInitialized$3(_this), "m", void 0);
       _defineProperty$3(_assertThisInitialized$3(_this), "m2", void 0);
-      _defineProperty$3(_assertThisInitialized$3(_this), "x1", void 0);
-      _defineProperty$3(_assertThisInitialized$3(_this), "x2", void 0);
-      _defineProperty$3(_assertThisInitialized$3(_this), "y1", void 0);
-      _defineProperty$3(_assertThisInitialized$3(_this), "y2", void 0);
       _defineProperty$3(_assertThisInitialized$3(_this), "type", StraightSegment.segmentType);
       _this._setCoordinates({
         x1: params.x1,
@@ -8251,7 +8247,7 @@ var jsPlumbBrowserUI = (function (exports) {
       _defineProperty$3(_assertThisInitialized$3(_this), "length", void 0);
       _defineProperty$3(_assertThisInitialized$3(_this), "foldback", void 0);
       _defineProperty$3(_assertThisInitialized$3(_this), "direction", void 0);
-      _defineProperty$3(_assertThisInitialized$3(_this), "location", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "location", 0.5);
       _defineProperty$3(_assertThisInitialized$3(_this), "paintStyle", void 0);
       _defineProperty$3(_assertThisInitialized$3(_this), "type", ArrowOverlay.type);
       _defineProperty$3(_assertThisInitialized$3(_this), "cachedDimensions", void 0);
@@ -9563,10 +9559,6 @@ var jsPlumbBrowserUI = (function (exports) {
       _defineProperty$1(_assertThisInitialized$1(_this), "cp1y", void 0);
       _defineProperty$1(_assertThisInitialized$1(_this), "cp2x", void 0);
       _defineProperty$1(_assertThisInitialized$1(_this), "cp2y", void 0);
-      _defineProperty$1(_assertThisInitialized$1(_this), "x1", void 0);
-      _defineProperty$1(_assertThisInitialized$1(_this), "x2", void 0);
-      _defineProperty$1(_assertThisInitialized$1(_this), "y1", void 0);
-      _defineProperty$1(_assertThisInitialized$1(_this), "y2", void 0);
       _defineProperty$1(_assertThisInitialized$1(_this), "length", 0);
       _defineProperty$1(_assertThisInitialized$1(_this), "type", BezierSegment.segmentType);
       _this.cp1x = params.cp1x;

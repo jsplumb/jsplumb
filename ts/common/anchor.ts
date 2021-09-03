@@ -1,5 +1,6 @@
 /**
  * Common options for anchors.
+ * @public
  */
 export interface AnchorOptions extends Record<string, any> {
     /**
@@ -8,6 +9,10 @@ export interface AnchorOptions extends Record<string, any> {
     cssClass?:string
 }
 
+/**
+ * Supported shapes for a Perimeter anchor.
+ * @public
+ */
 export enum PerimeterAnchorShapes {
     Circle= "Circle",
     Ellipse = "Ellipse",
@@ -19,6 +24,7 @@ export enum PerimeterAnchorShapes {
 
 /**
  * Constructor options for a Perimeter Anchor.
+ * @public
  */
 export interface PerimeterAnchorOptions extends AnchorOptions {
     shape:keyof PerimeterAnchorShapes
@@ -41,6 +47,7 @@ export type AnchorPlacement = {
 
 /**
  * Default anchor locations.
+ * @public
  */
 export enum AnchorLocations {
     Assign = "Assign",
@@ -120,20 +127,24 @@ export enum AnchorLocations {
 
 /**
  * List of entries in the AnchorLocations enum
+ * @public
  */
 export type AnchorId = keyof typeof AnchorLocations
 
 /**
  * An anchor spec in the form `{type:..., options:{ ... }}`
+ * @public
  */
 export type FullAnchorSpec = {type:AnchorId, options:AnchorOptions}
 
 /**
  * Models the specification of a single anchor.
+ * @public
  */
 export type SingleAnchorSpec = AnchorId | FullAnchorSpec | AnchorPlacement | Array<AnchorPlacement>
 
 /**
  * Models the specification of anchor - which may be a SingleAnchorSpec, or an array of SingleAnchorSpec objects.
+ * @public
  */
 export type AnchorSpec = SingleAnchorSpec | Array<SingleAnchorSpec>

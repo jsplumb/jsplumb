@@ -3,6 +3,8 @@
  *
  * @remarks You need to implement the `shouldFireEvent` method in your concrete subclasses of this class, or you can
  * instead extend from `OptimisticEventGenerator`, which has a default implementation of `shouldFireEvent` that returns true.
+ *
+ * @public
  */
 export declare abstract class EventGenerator {
     private _listeners;
@@ -17,11 +19,12 @@ export declare abstract class EventGenerator {
      * @param event Event to fire
      * @param value Value to pass to event handlers
      * @param originalEvent Optional original event that caused this event to be fired.
+     * @public
      */
     fire<T>(event: string, value?: T, originalEvent?: Event): any;
     /**
      * Drain the queue of pending event notifications
-     * @private
+     * @internal
      */
     private _drain;
     /**
@@ -29,19 +32,23 @@ export declare abstract class EventGenerator {
      * listeners are unbound.
      * @param eventOrListener Either an event name, or an event handler function
      * @param listener If `eventOrListener` is defined, this is the event handler to unbind.
+     * @public
      */
     unbind(eventOrListener?: string | Function, listener?: Function): EventGenerator;
     /**
      * Gets all listeners for the given named event.
      * @param forEvent
+     * @public
      */
     getListener(forEvent: string): Array<any>;
     /**
      * Returns whether not event firing is currently suspended
+     * @public
      */
     isSuspendEvents(): boolean;
     /**
      * Sets whether not event firing is currently suspended
+     * @public
      */
     setSuspendEvents(val: boolean): void;
     /**
@@ -50,16 +57,19 @@ export declare abstract class EventGenerator {
      * @param event Name of the event(s) to bind to.
      * @param listener Function to bind to the given event(s)
      * @param insertAtStart Whether or not to insert this listener at the head of the listener queue. Defaults to false.
+     * @public
      */
     bind<T = any>(event: string | Array<String>, listener: (a: T, e?: any) => any, insertAtStart?: boolean): EventGenerator;
     /**
      * Run the given function without firing any events.
      * @param fn
+     * @public
      */
     silently(fn: Function): void;
 }
 /**
  * Subclass of EventGenerator with a default implementation of `shouldFireEvent`, which returns true always.
+ * @public
  */
 export declare class OptimisticEventGenerator extends EventGenerator {
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;

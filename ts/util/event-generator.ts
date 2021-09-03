@@ -1,11 +1,12 @@
 import {Dictionary, addToDictionary, log, remove, uuid} from "./util"
 
-
 /**
  * Base class for classes that wish to support binding and firing of events.
  *
  * @remarks You need to implement the `shouldFireEvent` method in your concrete subclasses of this class, or you can
  * instead extend from `OptimisticEventGenerator`, which has a default implementation of `shouldFireEvent` that returns true.
+ *
+ * @public
  */
 export abstract class EventGenerator {
 
@@ -25,6 +26,7 @@ export abstract class EventGenerator {
      * @param event Event to fire
      * @param value Value to pass to event handlers
      * @param originalEvent Optional original event that caused this event to be fired.
+     * @public
      */
     fire<T>(event: string, value?: T, originalEvent?: Event): any {
         let ret = null
@@ -63,7 +65,7 @@ export abstract class EventGenerator {
 
     /**
      * Drain the queue of pending event notifications
-     * @private
+     * @internal
      */
     private _drain (): void {
         let n = this.queue.pop()
@@ -77,6 +79,7 @@ export abstract class EventGenerator {
      * listeners are unbound.
      * @param eventOrListener Either an event name, or an event handler function
      * @param listener If `eventOrListener` is defined, this is the event handler to unbind.
+     * @public
      */
     unbind (eventOrListener?: string | Function, listener?: Function): EventGenerator {
 
@@ -105,6 +108,7 @@ export abstract class EventGenerator {
     /**
      * Gets all listeners for the given named event.
      * @param forEvent
+     * @public
      */
     getListener (forEvent: string): Array<any> {
         return this._listeners[forEvent] || []
@@ -112,6 +116,7 @@ export abstract class EventGenerator {
 
     /**
      * Returns whether not event firing is currently suspended
+     * @public
      */
     isSuspendEvents(): boolean {
         return this.eventsSuspended
@@ -119,6 +124,7 @@ export abstract class EventGenerator {
 
     /**
      * Sets whether not event firing is currently suspended
+     * @public
      */
     setSuspendEvents (val: boolean) {
         this.eventsSuspended = val
@@ -130,6 +136,7 @@ export abstract class EventGenerator {
      * @param event Name of the event(s) to bind to.
      * @param listener Function to bind to the given event(s)
      * @param insertAtStart Whether or not to insert this listener at the head of the listener queue. Defaults to false.
+     * @public
      */
     bind<T=any>(event: string | Array<String>, listener: (a:T, e?:any) => any, insertAtStart?: boolean): EventGenerator {
         const _one = (evt: string) => {
@@ -153,6 +160,7 @@ export abstract class EventGenerator {
     /**
      * Run the given function without firing any events.
      * @param fn
+     * @public
      */
     silently (fn: Function) {
         this.setSuspendEvents(true)
@@ -168,6 +176,7 @@ export abstract class EventGenerator {
 
 /**
  * Subclass of EventGenerator with a default implementation of `shouldFireEvent`, which returns true always.
+ * @public
  */
 export class OptimisticEventGenerator extends EventGenerator {
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean {

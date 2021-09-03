@@ -2,6 +2,9 @@ import {Dictionary} from "@jsplumb/util"
 import {Component} from "@jsplumb/core"
 import { PaintStyle } from './paint-style'
 
+/**
+ * @public
+ */
 export interface OverlayOptions extends Record<string, any> {
     id?:string
     cssClass?: string
@@ -9,6 +12,9 @@ export interface OverlayOptions extends Record<string, any> {
     events?:Dictionary<(value:any, event?:any)=>any>
 }
 
+/**
+ * @public
+ */
 export interface ArrowOverlayOptions extends OverlayOptions {
     width?: number; // 20
     length?: number; // 20
@@ -17,14 +23,26 @@ export interface ArrowOverlayOptions extends OverlayOptions {
     paintStyle?: PaintStyle
 }
 
+/**
+ * @public
+ */
 export interface LabelOverlayOptions extends OverlayOptions {
     label: string|Function
     labelLocationAttribute?:string
 }
 
+/**
+ * @public
+ */
 export interface CustomOverlayOptions extends OverlayOptions {
     create:(c:Component) => any
 }
 
+/**
+ * @public
+ */
 export type FullOverlaySpec = { type:string, options:OverlayOptions }
+/**
+ * @public
+ */
 export type OverlaySpec = string | FullOverlaySpec

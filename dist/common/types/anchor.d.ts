@@ -1,5 +1,6 @@
 /**
  * Common options for anchors.
+ * @public
  */
 export interface AnchorOptions extends Record<string, any> {
     /**
@@ -7,6 +8,10 @@ export interface AnchorOptions extends Record<string, any> {
      */
     cssClass?: string;
 }
+/**
+ * Supported shapes for a Perimeter anchor.
+ * @public
+ */
 export declare enum PerimeterAnchorShapes {
     Circle = "Circle",
     Ellipse = "Ellipse",
@@ -17,6 +22,7 @@ export declare enum PerimeterAnchorShapes {
 }
 /**
  * Constructor options for a Perimeter Anchor.
+ * @public
  */
 export interface PerimeterAnchorOptions extends AnchorOptions {
     shape: keyof PerimeterAnchorShapes;
@@ -37,6 +43,7 @@ export declare type AnchorPlacement = {
 };
 /**
  * Default anchor locations.
+ * @public
  */
 export declare enum AnchorLocations {
     Assign = "Assign",
@@ -115,10 +122,12 @@ export declare enum AnchorLocations {
 }
 /**
  * List of entries in the AnchorLocations enum
+ * @public
  */
 export declare type AnchorId = keyof typeof AnchorLocations;
 /**
  * An anchor spec in the form `{type:..., options:{ ... }}`
+ * @public
  */
 export declare type FullAnchorSpec = {
     type: AnchorId;
@@ -126,10 +135,12 @@ export declare type FullAnchorSpec = {
 };
 /**
  * Models the specification of a single anchor.
+ * @public
  */
 export declare type SingleAnchorSpec = AnchorId | FullAnchorSpec | AnchorPlacement | Array<AnchorPlacement>;
 /**
  * Models the specification of anchor - which may be a SingleAnchorSpec, or an array of SingleAnchorSpec objects.
+ * @public
  */
 export declare type AnchorSpec = SingleAnchorSpec | Array<SingleAnchorSpec>;
 //# sourceMappingURL=anchor.d.ts.map

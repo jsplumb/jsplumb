@@ -8,6 +8,9 @@ import { Endpoint} from '../endpoint/endpoint'
 import { ViewportElement } from "../viewport"
 import {AnchorPlacement, ConnectorOptions, PaintAxis, EMPTY_BOUNDS, Segment, Connector, Geometry} from "@jsplumb/common"
 
+/**
+ * @internal
+ */
 type SegmentForPoint = { d: number, s: Segment, x: number, y: number, l: number, x1:number, y1:number, x2:number, y2:number, index:number, connectorLocation: number }
 
 export type ConnectorComputeParams = {
@@ -20,6 +23,9 @@ export type ConnectorComputeParams = {
     targetInfo: ViewportElement<any>
 }
 
+/**
+ * @internal
+ */
 export interface PaintGeometry {
     sx: number
     sy: number
@@ -51,6 +57,9 @@ export interface PaintGeometry {
     anchorOrientation?:string
 }
 
+/**
+ * @internal
+ */
 export abstract class AbstractConnector implements Connector {
 
     abstract type:string

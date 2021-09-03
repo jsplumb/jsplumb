@@ -42,7 +42,9 @@ import { Size } from '@jsplumb/util';
 // @public (undocumented)
 export const ABSOLUTE = "absolute";
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "AbstractConnector" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
 export abstract class AbstractConnector implements Connector {
     constructor(connection: Connection, params: ConnectorOptions);
     // (undocumented)
@@ -211,7 +213,9 @@ export interface AnchorRecord {
     y: number;
 }
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "ArcSegment" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
 export class ArcSegment extends AbstractSegment {
     constructor(params: ArcSegmentParams);
     // (undocumented)
@@ -248,7 +252,9 @@ export class ArcSegment extends AbstractSegment {
     type: string;
 }
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "ArcSegmentParams" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
 export interface ArcSegmentParams extends SegmentParams {
     // (undocumented)
     ac: boolean;
@@ -665,28 +671,26 @@ export type ComputedRectangleEndpoint = [number, number, number, number];
 
 // @public (undocumented)
 export class Connection<E = any> extends Component {
+    // @internal
     constructor(instance: JsPlumbInstance, params: ConnectionOptions<E>);
-    // (undocumented)
     addClass(c: string, cascade?: boolean): void;
     // (undocumented)
     applyType(t: ConnectionTypeDescriptor, typeMap: any): void;
+    // Warning: (ae-incompatible-release-tags) The symbol "connector" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
+    //
     // (undocumented)
     connector: AbstractConnector;
-    // (undocumented)
     cost: number;
     // (undocumented)
     defaultLabelLocation: number;
-    // (undocumented)
+    // @internal (undocumented)
     destroy(): void;
-    // (undocumented)
     detachable: boolean;
-    // (undocumented)
     directed: boolean;
     // (undocumented)
     endpointHoverStyle: PaintStyle;
     // (undocumented)
     readonly endpointHoverStyles: [PaintStyle, PaintStyle];
-    // (undocumented)
     endpoints: [Endpoint<E>, Endpoint<E>];
     // (undocumented)
     readonly endpointSpec: EndpointSpec;
@@ -696,9 +700,9 @@ export class Connection<E = any> extends Component {
     endpointStyle: PaintStyle;
     // (undocumented)
     endpointStyles: [PaintStyle, PaintStyle];
-    // (undocumented)
+    // @internal (undocumented)
     _forceDetach: boolean;
-    // (undocumented)
+    // @internal (undocumented)
     _forceReattach: boolean;
     // (undocumented)
     getDefaultOverlayKey(): string;
@@ -721,20 +725,18 @@ export class Connection<E = any> extends Component {
     isReattach(): boolean;
     // (undocumented)
     makeEndpoint(isSource: boolean, el: any, elId: string, anchor?: AnchorSpec, ep?: Endpoint): Endpoint;
-    // (undocumented)
+    // @internal (undocumented)
     pending: boolean;
-    // (undocumented)
+    // @internal (undocumented)
     prepareConnector(connectorSpec: ConnectorSpec, typeId?: string): AbstractConnector;
     // (undocumented)
     previousConnection: Connection;
-    // (undocumented)
+    // @internal
     proxies: Array<{
         ep: Endpoint<E>;
         originalEp: Endpoint<E>;
     }>;
-    // (undocumented)
     reattach: boolean;
-    // (undocumented)
     removeClass(c: string, cascade?: boolean): void;
     replaceEndpoint(idx: number, endpointDef: EndpointSpec): void;
     // (undocumented)
@@ -743,36 +745,30 @@ export class Connection<E = any> extends Component {
     setConnector(connectorSpec: ConnectorSpec, doNotRepaint?: boolean, doNotChangeListenerComponent?: boolean, typeId?: string): void;
     // (undocumented)
     setDetachable(detachable: boolean): void;
-    // (undocumented)
+    // @internal (undocumented)
     setPreparedConnector(connector: AbstractConnector, doNotRepaint?: boolean, doNotChangeListenerComponent?: boolean, typeId?: string): void;
     // (undocumented)
     setReattach(reattach: boolean): void;
-    // (undocumented)
     setVisible(v: boolean): void;
-    // (undocumented)
     source: E;
-    // (undocumented)
     sourceId: string;
-    // (undocumented)
+    // @internal (undocumented)
     suspendedElement: E;
-    // (undocumented)
+    // @internal (undocumented)
     suspendedElementId: string;
-    // (undocumented)
+    // @internal (undocumented)
     suspendedElementType: string;
-    // (undocumented)
+    // @internal (undocumented)
     suspendedEndpoint: Endpoint<E>;
-    // (undocumented)
+    // @internal (undocumented)
     suspendedIndex: number;
-    // (undocumented)
     target: E;
-    // (undocumented)
     targetId: string;
     // (undocumented)
     static type: string;
     // (undocumented)
     typeId: string;
-    // (undocumented)
-    uuids: [string, string];
+    readonly uuids: [string, string];
 }
 
 // @public
@@ -832,7 +828,9 @@ export interface ConnectionMovedParams<E = any> {
     originalTargetId: string;
 }
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "ConnectionOptions" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
 export type ConnectionOptions<E = any> = Merge<ConnectParams<E>, {
     source?: E;
     target?: E;
@@ -1555,6 +1553,8 @@ export abstract class JsPlumbInstance<T extends {
     constructor(_instanceIndex: number, defaults?: JsPlumbDefaults<T["E"]>);
     // (undocumented)
     abstract addClass(el: T["E"] | ArrayLike<T["E"]>, clazz: string): void;
+    // Warning: (ae-incompatible-release-tags) The symbol "addConnectorClass" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
+    //
     // (undocumented)
     abstract addConnectorClass(connector: AbstractConnector, clazz: string): void;
     addEndpoint(el: T["E"], params?: EndpointOptions<T["E"]>, referenceParams?: EndpointOptions<T["E"]>): Endpoint;
@@ -1573,6 +1573,8 @@ export abstract class JsPlumbInstance<T extends {
     allowNestedGroups: boolean;
     // (undocumented)
     abstract _appendElement(el: T["E"], parent: T["E"]): void;
+    // Warning: (ae-incompatible-release-tags) The symbol "applyConnectorType" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
+    //
     // (undocumented)
     abstract applyConnectorType(connector: AbstractConnector, t: TypeDescriptor): void;
     // (undocumented)
@@ -1650,6 +1652,8 @@ export abstract class JsPlumbInstance<T extends {
     getConnections(options?: SelectOptions<T["E"]>, flat?: boolean): Dictionary<Connection> | Array<Connection>;
     // (undocumented)
     getConnectionType(id: string): ConnectionTypeDescriptor;
+    // Warning: (ae-incompatible-release-tags) The symbol "getConnectorClass" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
+    //
     // (undocumented)
     abstract getConnectorClass(connector: AbstractConnector): string;
     // (undocumented)
@@ -1675,6 +1679,8 @@ export abstract class JsPlumbInstance<T extends {
     abstract getOffset(el: T["E"]): PointXY;
     // (undocumented)
     abstract getOffsetRelativeToRoot(el: T["E"] | string): PointXY;
+    // Warning: (ae-incompatible-release-tags) The symbol "getPathData" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
+    //
     // (undocumented)
     getPathData(connector: AbstractConnector): any;
     _getRotation(elementId: string): number;
@@ -1707,6 +1713,8 @@ export abstract class JsPlumbInstance<T extends {
     // (undocumented)
     isConnectionBeingDragged: boolean;
     isHoverSuspended(): boolean;
+    // Warning: (ae-incompatible-release-tags) The symbol "makeConnector" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
+    //
     // (undocumented)
     makeConnector(connection: Connection<T["E"]>, name: string, args: any): AbstractConnector;
     manage(element: T["E"], internalId?: string, _recalc?: boolean): ManagedElement<T["E"]>;
@@ -1714,6 +1722,7 @@ export abstract class JsPlumbInstance<T extends {
     // (undocumented)
     protected _managedElements: Dictionary<ManagedElement<T["E"]>>;
     _maybePruneEndpoint(endpoint: Endpoint): boolean;
+    // Warning: (ae-incompatible-release-tags) The symbol "_newConnection" is marked as @public, but its signature references "ConnectionOptions" which is marked as @internal
     _newConnection(params: ConnectionOptions<T["E"]>): Connection;
     // (undocumented)
     abstract off(el: Document | T["E"] | ArrayLike<T["E"]>, event: string, callback: Function): void;
@@ -1725,6 +1734,8 @@ export abstract class JsPlumbInstance<T extends {
     paintConnection(connection: Connection, params?: {
         timestamp?: string;
     }): void;
+    // Warning: (ae-incompatible-release-tags) The symbol "paintConnector" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
+    //
     // (undocumented)
     abstract paintConnector(connector: AbstractConnector, paintStyle: PaintStyle, extents?: Extents): void;
     // (undocumented)
@@ -1759,6 +1770,8 @@ export abstract class JsPlumbInstance<T extends {
     abstract removeAttribute(el: T["E"], attName: string): void;
     // (undocumented)
     abstract removeClass(el: T["E"] | ArrayLike<T["E"]>, clazz: string): void;
+    // Warning: (ae-incompatible-release-tags) The symbol "removeConnectorClass" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
+    //
     // (undocumented)
     abstract removeConnectorClass(connector: AbstractConnector, clazz: string): void;
     // (undocumented)
@@ -1792,8 +1805,12 @@ export abstract class JsPlumbInstance<T extends {
     abstract setAttribute(el: T["E"], name: string, value: string): void;
     // (undocumented)
     abstract setAttributes(el: T["E"], atts: Dictionary<string>): void;
+    // Warning: (ae-incompatible-release-tags) The symbol "setConnectorHover" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
+    //
     // (undocumented)
     abstract setConnectorHover(connector: AbstractConnector, h: boolean, doNotCascade?: boolean): void;
+    // Warning: (ae-incompatible-release-tags) The symbol "setConnectorVisible" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
+    //
     // (undocumented)
     abstract setConnectorVisible(connector: AbstractConnector, v: boolean): void;
     // (undocumented)
@@ -2047,7 +2064,7 @@ export type ManagedElement<E> = {
     group?: string;
 };
 
-// @public (undocumented)
+// @public
 export interface ManageElementParams<E = any> {
     // (undocumented)
     el: E;
@@ -2102,7 +2119,9 @@ export interface OverlayMouseEventParams {
     overlay: Overlay;
 }
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "PaintGeometry" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
 export interface PaintGeometry {
     // (undocumented)
     anchorOrientation?: string;
@@ -2315,8 +2334,12 @@ export class SourceSelector extends ConnectionDragSelector {
 // @public (undocumented)
 export const STATIC = "static";
 
+// Warning: (ae-incompatible-release-tags) The symbol "StraightConnector" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
+//
 // @public (undocumented)
 export class StraightConnector extends AbstractConnector {
+    // Warning: (ae-incompatible-release-tags) The symbol "_compute" is marked as @public, but its signature references "PaintGeometry" which is marked as @internal
+    //
     // (undocumented)
     _compute(paintInfo: PaintGeometry, p: ConnectorComputeParams): void;
     // (undocumented)
@@ -2327,7 +2350,9 @@ export class StraightConnector extends AbstractConnector {
     type: string;
 }
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "StraightSegment" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
 export class StraightSegment extends AbstractSegment {
     constructor(params: StraightSegmentParams);
     boxIntersection(x: number, y: number, w: number, h: number): Array<PointXY>;
@@ -2352,17 +2377,11 @@ export class StraightSegment extends AbstractSegment {
     static segmentType: string;
     // (undocumented)
     type: string;
-    // (undocumented)
-    x1: number;
-    // (undocumented)
-    x2: number;
-    // (undocumented)
-    y1: number;
-    // (undocumented)
-    y2: number;
 }
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "StraightSegmentCoordinates" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
 export type StraightSegmentCoordinates = {
     x1: number;
     y1: number;
@@ -2370,7 +2389,9 @@ export type StraightSegmentCoordinates = {
     y2: number;
 };
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "StraightSegmentParams" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
 export interface StraightSegmentParams extends SegmentParams {
 }
 
@@ -2517,7 +2538,7 @@ export class UINode<E> {
     instance: JsPlumbInstance;
 }
 
-// @public (undocumented)
+// @public
 export interface UnmanageElementParams<E = any> {
     // (undocumented)
     el: E;
@@ -2626,5 +2647,10 @@ export const X_AXIS_FACES: Axis;
 
 // @public (undocumented)
 export const Y_AXIS_FACES: Axis;
+
+// Warnings were encountered during analysis:
+//
+// /Users/simon/programming/jsplumb/jsplumb/dist/core/types/connector/connectors.d.ts:5:5 - (ae-incompatible-release-tags) The symbol "get" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
+// /Users/simon/programming/jsplumb/jsplumb/dist/core/types/connector/connectors.d.ts:6:5 - (ae-incompatible-release-tags) The symbol "register" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
 
 ```

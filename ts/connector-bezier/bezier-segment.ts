@@ -26,10 +26,6 @@ export class BezierSegment extends AbstractSegment {
     cp1y:number
     cp2x:number
     cp2y:number
-    x1:number
-    x2:number
-    y1:number
-    y2:number
 
     length:number = 0
 

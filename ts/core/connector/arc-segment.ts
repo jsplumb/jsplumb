@@ -14,6 +14,9 @@ function gentleRound (n:number):number {
     return n
 }
 
+/**
+ * @internal
+ */
 export interface ArcSegmentParams extends SegmentParams {
     cx:number
     cy:number
@@ -23,6 +26,9 @@ export interface ArcSegmentParams extends SegmentParams {
     endAngle?:number
 }
 
+/**
+ * @internal
+ */
 export class ArcSegment extends AbstractSegment {
 
     static segmentType:string = "Arc"

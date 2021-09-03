@@ -28,13 +28,23 @@
 
 import {forEach, Grid, LineXY, PointXY, RectangleXY} from "./util"
 
+/**
+ * @public
+ */
 export type Quadrant = 1 | 2 | 3 | 4
 
+/**
+ * @internal
+ */
 const segmentMultipliers = [null, [1, -1], [1, 1], [-1, 1], [-1, -1] ]
+/**
+ * @internal
+ */
 const inverseSegmentMultipliers = [null, [-1, -1], [-1, 1], [1, 1], [1, -1] ]
 
 /**
  * Definition of 2 PI
+ * @public
  */
 export const TWO_PI = 2 * Math.PI
 
@@ -42,6 +52,7 @@ export const TWO_PI = 2 * Math.PI
  * Adds the x and y values of the two points and returns a new point.
  * @param p1
  * @param p2
+ * @public
  */
 export function add(p1:PointXY, p2:PointXY):PointXY {
     return { x:p1.x + p2.x, y:p1.y + p2.y }
@@ -52,6 +63,7 @@ export function add(p1:PointXY, p2:PointXY):PointXY {
  * @param p1
  * @param p2
  * @returns a new Point, with p2 subtracted from p1.
+ * @public
  */
 export function subtract(p1:PointXY, p2:PointXY):PointXY {
     return { x:p1.x - p2.x, y:p1.y - p2.y }
@@ -62,6 +74,7 @@ export function subtract(p1:PointXY, p2:PointXY):PointXY {
  * @param p1 First point in the line
  * @param p2 Second point in the line
  * @returns The gradient of a line between the two points.
+ * @public
  */
 export function gradient(p1: PointXY, p2: PointXY): number {
     if (p2.x === p1.x)
@@ -77,6 +90,7 @@ export function gradient(p1: PointXY, p2: PointXY): number {
  * @param p1 First point in the line
  * @param p2 Second point in the line
  * @returns The gradient of a normal to a line between the two points.
+ * @public
  */
 export function normal(p1: PointXY, p2: PointXY): number {
     return -1 / gradient(p1, p2)
@@ -87,6 +101,7 @@ export function normal(p1: PointXY, p2: PointXY): number {
  * @param p1 First point in the line
  * @param p2 Second point in the line
  * @returns The length of a line between the two points.
+ * @public
  */
 export function lineLength(p1: PointXY, p2: PointXY): number {
     return Math.sqrt(Math.pow(p2.y - p1.y, 2) + Math.pow(p2.x - p1.x, 2))
@@ -97,6 +112,7 @@ export function lineLength(p1: PointXY, p2: PointXY): number {
  * @param p1 First point in the line
  * @param p2 Second point in the line
  * @returns The quadrant - 1 for upper right, 2 for lower right, 3 for lower left, 4 for upper left.
+ * @public
  */
 export function quadrant(p1: PointXY, p2: PointXY): Quadrant {
 
@@ -114,6 +130,7 @@ export function quadrant(p1: PointXY, p2: PointXY): Quadrant {
  * @param p1 First point
  * @param p2 Second point
  * @returns The angle between the two points.
+ * @public
  */
 export function theta(p1: PointXY, p2: PointXY): number {
 
@@ -133,6 +150,7 @@ export function theta(p1: PointXY, p2: PointXY): number {
  * @param r1 First rectangle
  * @param r2 Second rectangle
  * @returns True if the rectangles intersect, false otherwise.
+ * @public
  */
 export function intersects(r1: RectangleXY, r2: RectangleXY): boolean {
     let x1 = r1.x, x2 = r1.x + r1.w, y1 = r1.y, y2 = r1.y + r1.h,
@@ -152,6 +170,7 @@ export function intersects(r1: RectangleXY, r2: RectangleXY): boolean {
  * Get the A B C components of the given line (given that any line can be represented via the equation Ax + By = C)
  * @param line
  * @returns A,B and C that satisfy Ax + By = C for the given line.
+ * @public
  */
 function toABC(line:LineXY):{A:number,B:number, C:number} {
     const A = line[1].y - line[0].y
@@ -168,6 +187,7 @@ function toABC(line:LineXY):{A:number,B:number, C:number} {
  * @param l1
  * @param l2
  * @returns A point if an intersection found, null otherwise.
+ * @public
  */
 export function lineIntersection(l1:LineXY, l2:LineXY):PointXY|null {
 
@@ -209,6 +229,7 @@ export function lineIntersection(l1:LineXY, l2:LineXY):PointXY|null {
  * @param line
  * @param r
  * @returns An array of intersection points. If there are no intersection points the array will be empty, but never null.
+ * @public
  */
 export function lineRectangleIntersection(line:LineXY, r:RectangleXY):Array<PointXY> {
     const out:Array<PointXY> = [],
@@ -235,6 +256,7 @@ export function lineRectangleIntersection(line:LineXY, r:RectangleXY):Array<Poin
  * @param r2 Second rectangle
  * @param [allowSharedEdges=false] If true, the concept of enclosure allows for one or more edges to be shared by the two rectangles.
  * @returns True if r1 encloses r2, false otherwise.
+ * @public
  */
 export function encloses(r1: RectangleXY, r2: RectangleXY, allowSharedEdges?: boolean): boolean {
     const x1 = r1.x, x2 = r1.x + r1.w, y1 = r1.y, y2 = r1.y + r1.h,
@@ -252,6 +274,7 @@ export function encloses(r1: RectangleXY, r2: RectangleXY, allowSharedEdges?: bo
  * @param toPoint Second point
  * @param distance Distance along the length that the point should be located.
  * @returns Point on the line, in the form `{ x:..., y:... }`.
+ * @public
  */
 export function pointOnLine(fromPoint: PointXY, toPoint: PointXY, distance: number): PointXY {
     const m = gradient(fromPoint, toPoint),
@@ -269,6 +292,7 @@ export function pointOnLine(fromPoint: PointXY, toPoint: PointXY, distance: numb
  * @param toPoint Second point
  * @param length Length of the line to generate
  * @returns Perpendicular line of the required length.
+ * @public
  */
 export function perpendicularLineTo(fromPoint: PointXY, toPoint: PointXY, length: number): LineXY {
     const m = gradient(fromPoint, toPoint),
@@ -285,6 +309,7 @@ export function perpendicularLineTo(fromPoint: PointXY, toPoint: PointXY, length
  * @param thresholdX Defines how close to a grid line in the x axis a value must be in order to be snapped to it.
  * @param thresholdY Defines how close to a grid line in the y axis a value must be in order to be snapped to it.
  * @returns The point to which the position was snapped, given the constraints of the grid.
+ * @public
  */
 export function snapToGrid(pos:PointXY, grid:Grid, thresholdX?:number, thresholdY?:number):PointXY {
 

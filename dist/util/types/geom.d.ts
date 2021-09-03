@@ -26,15 +26,20 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 import { Grid, LineXY, PointXY, RectangleXY } from "./util";
+/**
+ * @public
+ */
 export declare type Quadrant = 1 | 2 | 3 | 4;
 /**
  * Definition of 2 PI
+ * @public
  */
 export declare const TWO_PI: number;
 /**
  * Adds the x and y values of the two points and returns a new point.
  * @param p1
  * @param p2
+ * @public
  */
 export declare function add(p1: PointXY, p2: PointXY): PointXY;
 /**
@@ -42,6 +47,7 @@ export declare function add(p1: PointXY, p2: PointXY): PointXY;
  * @param p1
  * @param p2
  * @returns a new Point, with p2 subtracted from p1.
+ * @public
  */
 export declare function subtract(p1: PointXY, p2: PointXY): PointXY;
 /**
@@ -49,6 +55,7 @@ export declare function subtract(p1: PointXY, p2: PointXY): PointXY;
  * @param p1 First point in the line
  * @param p2 Second point in the line
  * @returns The gradient of a line between the two points.
+ * @public
  */
 export declare function gradient(p1: PointXY, p2: PointXY): number;
 /**
@@ -56,6 +63,7 @@ export declare function gradient(p1: PointXY, p2: PointXY): number;
  * @param p1 First point in the line
  * @param p2 Second point in the line
  * @returns The gradient of a normal to a line between the two points.
+ * @public
  */
 export declare function normal(p1: PointXY, p2: PointXY): number;
 /**
@@ -63,6 +71,7 @@ export declare function normal(p1: PointXY, p2: PointXY): number;
  * @param p1 First point in the line
  * @param p2 Second point in the line
  * @returns The length of a line between the two points.
+ * @public
  */
 export declare function lineLength(p1: PointXY, p2: PointXY): number;
 /**
@@ -70,6 +79,7 @@ export declare function lineLength(p1: PointXY, p2: PointXY): number;
  * @param p1 First point in the line
  * @param p2 Second point in the line
  * @returns The quadrant - 1 for upper right, 2 for lower right, 3 for lower left, 4 for upper left.
+ * @public
  */
 export declare function quadrant(p1: PointXY, p2: PointXY): Quadrant;
 /**
@@ -77,6 +87,7 @@ export declare function quadrant(p1: PointXY, p2: PointXY): Quadrant;
  * @param p1 First point
  * @param p2 Second point
  * @returns The angle between the two points.
+ * @public
  */
 export declare function theta(p1: PointXY, p2: PointXY): number;
 /**
@@ -84,6 +95,7 @@ export declare function theta(p1: PointXY, p2: PointXY): number;
  * @param r1 First rectangle
  * @param r2 Second rectangle
  * @returns True if the rectangles intersect, false otherwise.
+ * @public
  */
 export declare function intersects(r1: RectangleXY, r2: RectangleXY): boolean;
 /**
@@ -91,6 +103,7 @@ export declare function intersects(r1: RectangleXY, r2: RectangleXY): boolean;
  * @param l1
  * @param l2
  * @returns A point if an intersection found, null otherwise.
+ * @public
  */
 export declare function lineIntersection(l1: LineXY, l2: LineXY): PointXY | null;
 /**
@@ -98,6 +111,7 @@ export declare function lineIntersection(l1: LineXY, l2: LineXY): PointXY | null
  * @param line
  * @param r
  * @returns An array of intersection points. If there are no intersection points the array will be empty, but never null.
+ * @public
  */
 export declare function lineRectangleIntersection(line: LineXY, r: RectangleXY): Array<PointXY>;
 /**
@@ -106,6 +120,7 @@ export declare function lineRectangleIntersection(line: LineXY, r: RectangleXY):
  * @param r2 Second rectangle
  * @param [allowSharedEdges=false] If true, the concept of enclosure allows for one or more edges to be shared by the two rectangles.
  * @returns True if r1 encloses r2, false otherwise.
+ * @public
  */
 export declare function encloses(r1: RectangleXY, r2: RectangleXY, allowSharedEdges?: boolean): boolean;
 /**
@@ -114,6 +129,7 @@ export declare function encloses(r1: RectangleXY, r2: RectangleXY, allowSharedEd
  * @param toPoint Second point
  * @param distance Distance along the length that the point should be located.
  * @returns Point on the line, in the form `{ x:..., y:... }`.
+ * @public
  */
 export declare function pointOnLine(fromPoint: PointXY, toPoint: PointXY, distance: number): PointXY;
 /**
@@ -122,6 +138,7 @@ export declare function pointOnLine(fromPoint: PointXY, toPoint: PointXY, distan
  * @param toPoint Second point
  * @param length Length of the line to generate
  * @returns Perpendicular line of the required length.
+ * @public
  */
 export declare function perpendicularLineTo(fromPoint: PointXY, toPoint: PointXY, length: number): LineXY;
 /**
@@ -131,6 +148,7 @@ export declare function perpendicularLineTo(fromPoint: PointXY, toPoint: PointXY
  * @param thresholdX Defines how close to a grid line in the x axis a value must be in order to be snapped to it.
  * @param thresholdY Defines how close to a grid line in the y axis a value must be in order to be snapped to it.
  * @returns The point to which the position was snapped, given the constraints of the grid.
+ * @public
  */
 export declare function snapToGrid(pos: PointXY, grid: Grid, thresholdX?: number, thresholdY?: number): PointXY;
 //# sourceMappingURL=geom.d.ts.map

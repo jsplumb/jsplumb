@@ -4,6 +4,9 @@ import { Orientation } from '../factory/anchor-record-factory';
 import { Endpoint } from '../endpoint/endpoint';
 import { ViewportElement } from "../viewport";
 import { AnchorPlacement, ConnectorOptions, PaintAxis, Segment, Connector, Geometry } from "@jsplumb/common";
+/**
+ * @internal
+ */
 declare type SegmentForPoint = {
     d: number;
     s: Segment;
@@ -26,6 +29,9 @@ export declare type ConnectorComputeParams = {
     sourceInfo: ViewportElement<any>;
     targetInfo: ViewportElement<any>;
 };
+/**
+ * @internal
+ */
 export interface PaintGeometry {
     sx: number;
     sy: number;
@@ -56,6 +62,9 @@ export interface PaintGeometry {
     stubs: [number, number];
     anchorOrientation?: string;
 }
+/**
+ * @internal
+ */
 export declare abstract class AbstractConnector implements Connector {
     connection: Connection;
     abstract type: string;

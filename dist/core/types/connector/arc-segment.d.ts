@@ -1,5 +1,8 @@
 import { AbstractSegment, SegmentParams } from "@jsplumb/common";
 import { PointXY } from '@jsplumb/util';
+/**
+ * @internal
+ */
 export interface ArcSegmentParams extends SegmentParams {
     cx: number;
     cy: number;
@@ -8,6 +11,9 @@ export interface ArcSegmentParams extends SegmentParams {
     startAngle?: number;
     endAngle?: number;
 }
+/**
+ * @internal
+ */
 export declare class ArcSegment extends AbstractSegment {
     static segmentType: string;
     type: string;

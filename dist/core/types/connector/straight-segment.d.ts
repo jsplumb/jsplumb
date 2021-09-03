@@ -1,21 +1,26 @@
 import { PointXY } from '@jsplumb/util';
 import { AbstractSegment, PointNearPath, SegmentParams } from "@jsplumb/common";
+/**
+ * @internal
+ */
 export declare type StraightSegmentCoordinates = {
     x1: number;
     y1: number;
     x2: number;
     y2: number;
 };
+/**
+ * @internal
+ */
 export interface StraightSegmentParams extends SegmentParams {
 }
+/**
+ * @internal
+ */
 export declare class StraightSegment extends AbstractSegment {
     length: number;
     m: number;
     m2: number;
-    x1: number;
-    x2: number;
-    y1: number;
-    y2: number;
     constructor(params: StraightSegmentParams);
     getPath(isFirstSegment: boolean): string;
     private _recalc;
@@ -42,9 +47,8 @@ export declare class StraightSegment extends AbstractSegment {
     private within;
     private closest;
     /**
-     Function: findClosestPointOnPath
-     Finds the closest point on this segment to [x,y]. See
-     notes on this method in AbstractSegment.
+     * Finds the closest point on this segment to [x,y]. See
+     * notes on this method in AbstractSegment.
      */
     findClosestPointOnPath(x: number, y: number): PointNearPath;
     private _pointLiesBetween;

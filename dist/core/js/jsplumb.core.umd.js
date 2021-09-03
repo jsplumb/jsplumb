@@ -793,10 +793,6 @@
       _defineProperty(_assertThisInitialized(_this), "length", void 0);
       _defineProperty(_assertThisInitialized(_this), "m", void 0);
       _defineProperty(_assertThisInitialized(_this), "m2", void 0);
-      _defineProperty(_assertThisInitialized(_this), "x1", void 0);
-      _defineProperty(_assertThisInitialized(_this), "x2", void 0);
-      _defineProperty(_assertThisInitialized(_this), "y1", void 0);
-      _defineProperty(_assertThisInitialized(_this), "y2", void 0);
       _defineProperty(_assertThisInitialized(_this), "type", StraightSegment.segmentType);
       _this._setCoordinates({
         x1: params.x1,
@@ -7221,7 +7217,7 @@
       _defineProperty(_assertThisInitialized(_this), "length", void 0);
       _defineProperty(_assertThisInitialized(_this), "foldback", void 0);
       _defineProperty(_assertThisInitialized(_this), "direction", void 0);
-      _defineProperty(_assertThisInitialized(_this), "location", void 0);
+      _defineProperty(_assertThisInitialized(_this), "location", 0.5);
       _defineProperty(_assertThisInitialized(_this), "paintStyle", void 0);
       _defineProperty(_assertThisInitialized(_this), "type", ArrowOverlay.type);
       _defineProperty(_assertThisInitialized(_this), "cachedDimensions", void 0);

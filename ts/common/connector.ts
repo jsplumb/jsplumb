@@ -1,5 +1,6 @@
 /**
  * Common options for connectors.
+ * @public
  */
 export interface ConnectorOptions extends Record<string, any> {
     /**
@@ -22,14 +23,17 @@ export interface ConnectorOptions extends Record<string, any> {
 
 /**
  * Alias for the use case that a Connector is referenced just by its `type`.
+ * @public
  */
 export type ConnectorId = string
 /**
  * Connector spec in the form `{type:.., options:{.. }}`
+ * @public
  */
 export type ConnectorWithOptions = { type:ConnectorId, options:ConnectorOptions}
 /**
  * Specification of a connector - either the type id of some Connector, a type+options object.
+ * @public
  */
 export type ConnectorSpec = ConnectorId | ConnectorWithOptions
 /**
@@ -40,6 +44,7 @@ export type PaintAxis = "y" | "x"
 
 /**
  * High level definition of a Connector.
+ * @public
  */
 export interface Connector {
     /**
@@ -50,6 +55,7 @@ export interface Connector {
 
 /**
  * Geometry defines the path along which a connector travels. The internal contents of a Geometry vary widely between connectors.
+ * @public
  */
 export interface Geometry {
     source:any,
