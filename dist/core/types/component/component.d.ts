@@ -1,6 +1,6 @@
-import { Extents, EventGenerator, Merge, PointXY, Dictionary } from "@jsplumb/util";
+import { Extents, EventGenerator, PointXY, Dictionary } from "@jsplumb/util";
 import { Overlay } from '../overlay/overlay';
-import { TypeDescriptor } from '../type-descriptors';
+import { ComponentTypeDescriptor } from '../type-descriptors';
 import { JsPlumbInstance } from "../core";
 import { Connection } from "../connector/connection-impl";
 import { Endpoint } from "../endpoint/endpoint";
@@ -59,9 +59,7 @@ export declare abstract class Component extends EventGenerator {
     _hover: boolean;
     lastPaintedAt: string;
     data: Record<string, any>;
-    _defaultType: Merge<TypeDescriptor, {
-        overlays: Dictionary<OverlaySpec>;
-    }>;
+    _defaultType: ComponentTypeDescriptor;
     events: any;
     parameters: ComponentParameters;
     _types: string[];
@@ -73,7 +71,7 @@ export declare abstract class Component extends EventGenerator {
     protected constructor(instance: JsPlumbInstance, params?: ComponentOptions);
     isDetachAllowed(connection: Connection): boolean;
     isDropAllowed(sourceId: string, targetId: string, scope: string, connection: Connection, dropEndpoint: Endpoint): boolean;
-    getDefaultType(): TypeDescriptor;
+    getDefaultType(): ComponentTypeDescriptor;
     appendToDefaultType(obj: Record<string, any>): void;
     getId(): string;
     cacheTypeItem(key: string, item: any, typeId: string): void;

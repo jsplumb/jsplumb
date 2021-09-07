@@ -6,12 +6,11 @@ import { PaintStyle, OverlaySpec, ConnectorSpec, EndpointSpec, AnchorSpec } from
 import { Dictionary } from "@jsplumb/util";
 import { RedropPolicy } from "./source-selector";
 import { Endpoint } from "./endpoint/endpoint";
-export interface TypeDescriptor {
+interface TypeDescriptorBase {
     cssClass?: string;
     paintStyle?: PaintStyle;
     hoverPaintStyle?: PaintStyle;
     parameters?: any;
-    overlays?: Array<OverlaySpec>;
     anchors?: [AnchorSpec, AnchorSpec];
     anchor?: AnchorSpec;
     scope?: string;
@@ -21,6 +20,18 @@ export interface TypeDescriptor {
     connectorHoverStyle?: PaintStyle;
     connector?: ConnectorSpec;
     connectorClass?: string;
+}
+/**
+ * @public
+ */
+export interface TypeDescriptor extends TypeDescriptorBase {
+    overlays?: Array<OverlaySpec>;
+}
+/**
+ * @internal
+ */
+export interface ComponentTypeDescriptor extends TypeDescriptorBase {
+    overlays: Dictionary<OverlaySpec>;
 }
 /**
  * Definition of an endpoint type.
@@ -73,4 +84,5 @@ export interface SourceDefinition extends SourceOrTargetDefinition {
 }
 export interface TargetDefinition extends SourceOrTargetDefinition {
 }
+export {};
 //# sourceMappingURL=type-descriptors.d.ts.map

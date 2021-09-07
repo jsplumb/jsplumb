@@ -470,10 +470,10 @@ export abstract class Component extends EventGenerator {
     data: Record<string, any>;
     // (undocumented)
     defaultLabelLocation: number | [number, number];
+    // Warning: (ae-incompatible-release-tags) The symbol "_defaultType" is marked as @public, but its signature references "ComponentTypeDescriptor" which is marked as @internal
+    //
     // (undocumented)
-    _defaultType: Merge<TypeDescriptor, {
-        overlays: Dictionary<OverlaySpec>;
-    }>;
+    _defaultType: ComponentTypeDescriptor;
     // (undocumented)
     deleted: boolean;
     // (undocumented)
@@ -490,8 +490,10 @@ export abstract class Component extends EventGenerator {
     getData(): Record<string, any>;
     // (undocumented)
     abstract getDefaultOverlayKey(): string;
+    // Warning: (ae-incompatible-release-tags) The symbol "getDefaultType" is marked as @public, but its signature references "ComponentTypeDescriptor" which is marked as @internal
+    //
     // (undocumented)
-    getDefaultType(): TypeDescriptor;
+    getDefaultType(): ComponentTypeDescriptor;
     // (undocumented)
     getHoverPaintStyle(): PaintStyle;
     // (undocumented)
@@ -641,6 +643,15 @@ export interface ComponentOptions {
 
 // @public (undocumented)
 export type ComponentParameters = Record<string, any>;
+
+// Warning: (ae-forgotten-export) The symbol "TypeDescriptorBase" needs to be exported by the entry point index.d.ts
+// Warning: (ae-internal-missing-underscore) The name "ComponentTypeDescriptor" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export interface ComponentTypeDescriptor extends TypeDescriptorBase {
+    // (undocumented)
+    overlays: Dictionary<OverlaySpec>;
+}
 
 // @public (undocumented)
 export type ComputedBlankEndpoint = [number, number, number, number];
@@ -2427,35 +2438,9 @@ export interface TranslatedViewportElementBase<E> extends ViewportElementBase<E>
 }
 
 // @public (undocumented)
-export interface TypeDescriptor {
-    // (undocumented)
-    anchor?: AnchorSpec;
-    // (undocumented)
-    anchors?: [AnchorSpec, AnchorSpec];
-    // (undocumented)
-    connector?: ConnectorSpec;
-    // (undocumented)
-    connectorClass?: string;
-    // (undocumented)
-    connectorHoverStyle?: PaintStyle;
-    // (undocumented)
-    connectorStyle?: PaintStyle;
-    // (undocumented)
-    cssClass?: string;
-    // (undocumented)
-    endpoint?: EndpointSpec;
-    // (undocumented)
-    hoverPaintStyle?: PaintStyle;
-    // (undocumented)
-    mergeStrategy?: string;
+export interface TypeDescriptor extends TypeDescriptorBase {
     // (undocumented)
     overlays?: Array<OverlaySpec>;
-    // (undocumented)
-    paintStyle?: PaintStyle;
-    // (undocumented)
-    parameters?: any;
-    // (undocumented)
-    scope?: string;
 }
 
 // @public (undocumented)

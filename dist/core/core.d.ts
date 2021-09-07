@@ -392,9 +392,7 @@ export declare abstract class Component extends EventGenerator {
     _hover: boolean;
     lastPaintedAt: string;
     data: Record<string, any>;
-    _defaultType: Merge<TypeDescriptor, {
-        overlays: Dictionary<OverlaySpec>;
-    }>;
+    _defaultType: ComponentTypeDescriptor;
     events: any;
     parameters: ComponentParameters;
     _types: string[];
@@ -406,7 +404,7 @@ export declare abstract class Component extends EventGenerator {
     protected constructor(instance: JsPlumbInstance, params?: ComponentOptions);
     isDetachAllowed(connection: Connection): boolean;
     isDropAllowed(sourceId: string, targetId: string, scope: string, connection: Connection, dropEndpoint: Endpoint): boolean;
-    getDefaultType(): TypeDescriptor;
+    getDefaultType(): ComponentTypeDescriptor;
     appendToDefaultType(obj: Record<string, any>): void;
     getId(): string;
     cacheTypeItem(key: string, item: any, typeId: string): void;
@@ -476,6 +474,13 @@ export declare interface ComponentOptions {
 }
 
 export declare type ComponentParameters = Record<string, any>;
+
+/**
+ * @internal
+ */
+export declare interface ComponentTypeDescriptor extends TypeDescriptorBase {
+    overlays: Dictionary<OverlaySpec>;
+}
 
 export declare type ComputedBlankEndpoint = [number, number, number, number];
 
@@ -2353,12 +2358,18 @@ export declare interface TranslatedViewportElementBase<E> extends ViewportElemen
     sr: number;
 }
 
-export declare interface TypeDescriptor {
+/**
+ * @public
+ */
+export declare interface TypeDescriptor extends TypeDescriptorBase {
+    overlays?: Array<OverlaySpec>;
+}
+
+declare interface TypeDescriptorBase {
     cssClass?: string;
     paintStyle?: PaintStyle;
     hoverPaintStyle?: PaintStyle;
     parameters?: any;
-    overlays?: Array<OverlaySpec>;
     anchors?: [AnchorSpec, AnchorSpec];
     anchor?: AnchorSpec;
     scope?: string;
