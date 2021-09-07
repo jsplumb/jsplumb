@@ -1,7 +1,7 @@
 import {Extents, EventGenerator,clone, extend, isFunction, isString, log, Merge, merge, populate, setToArray, uuid, PointXY, Dictionary} from "@jsplumb/util"
 
 import { Overlay } from '../overlay/overlay'
-import {TypeDescriptor} from '../type-descriptors'
+import {ComponentTypeDescriptor, TypeDescriptor} from '../type-descriptors'
 import { JsPlumbInstance } from "../core"
 import {Connection} from "../connector/connection-impl"
 import {Endpoint} from "../endpoint/endpoint"
@@ -45,7 +45,7 @@ function _applyTypes<E>(component:Component, params?:any) {
         let td = component.getTypeDescriptor(), map = {}
         let defType = component.getDefaultType()
 
-        let o = extend({}, defType)
+        let o = extend({} as any, defType)
 
         _mapType(map, defType, DEFAULT_TYPE_KEY)
         for (let i = 0, j = component._types.length; i < j; i++) {
@@ -197,7 +197,7 @@ export abstract class Component extends EventGenerator {
 
     data:Record<string, any>
 
-    _defaultType:Merge<TypeDescriptor, { overlays:Dictionary<OverlaySpec>}>
+    _defaultType:ComponentTypeDescriptor
 
     events:any
 
@@ -325,7 +325,7 @@ export abstract class Component extends EventGenerator {
         return r
     }
 
-    getDefaultType():TypeDescriptor {
+    getDefaultType():ComponentTypeDescriptor {
         return this._defaultType
     }
 
