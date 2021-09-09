@@ -1,19 +1,20 @@
 import {Extents, EventGenerator,clone, extend, isFunction, isString, log, Merge, merge, populate, setToArray, uuid, PointXY, Dictionary} from "@jsplumb/util"
 
 import { Overlay } from '../overlay/overlay'
-import {ComponentTypeDescriptor, TypeDescriptor} from '../type-descriptors'
+import {ComponentTypeDescriptor} from '../type-descriptors'
 import { JsPlumbInstance } from "../core"
 import {Connection} from "../connector/connection-impl"
 import {Endpoint} from "../endpoint/endpoint"
 import { INTERCEPT_BEFORE_DROP } from '../constants'
+import { BeforeDropParams } from '../callbacks'
 import {
     convertToFullOverlaySpec
 } from "../overlay/overlay"
 import { LabelOverlay } from "../overlay/label-overlay"
 import { OverlayFactory } from "../factory/overlay-factory"
-import { FullOverlaySpec,
+import {
+    FullOverlaySpec,
     LabelOverlayOptions,
-
     OverlaySpec, PaintStyle } from "@jsplumb/common"
 
 export type ComponentParameters = Record<string, any>
@@ -96,15 +97,50 @@ export function  _updateHoverStyle<E> (component:Component) {
     }
 }
 
+/**
+ * Defines the method signature for the callback to the `beforeDetach` interceptor. Returning false from this method
+ * prevents the connection from being detached. The interceptor is fired by the core, meaning that it will be invoked
+ * regardless of whether the detach occurred programmatically, or via the mouse.
+ */
 export type BeforeDetachInterceptor = (c:Connection) => boolean
 
-export type BeforeDropInterceptor = (params:{
-    sourceId: string,
-    targetId: string,
-    scope: string,
-    connection: Connection,
-    dropEndpoint: Endpoint
-}) => boolean
+/**
+ * Defines the method signature for the callback to the `beforeDrop` interceptor.
+ * @public
+ */
+export type BeforeDropInterceptor = (params:BeforeDropParams) => boolean
+
+/**
+ * The parameters passed to a `beforeDrag` interceptor.
+ * @public
+ */
+export interface BeforeDragParams<E> {
+    endpoint:Endpoint
+    source:E
+    sourceId:string
+    connection:Connection
+}
+
+/**
+ * The parameters passed to a `beforeStartDetach` interceptor.
+ * @public
+ */
+export interface BeforeStartDetachParams<E> extends BeforeDragParams<E> {}
+
+/**
+ * Defines the method signature for the callback to the `beforeDrag` interceptor. This method can return boolean `false` to
+ * abort the connection drag, or it can return an object containing values that will be used as the `data` for the connection
+ * that is created.
+ * @public
+ */
+export type BeforeDragInterceptor<E = any> = (params:BeforeDragParams<E>) => boolean|Record<string, any>
+
+/**
+ * Defines the method signature for the callback to the `beforeStartDetach` interceptor.
+ * @public
+ */
+export type BeforeStartDetachInterceptor<E = any> = (params:BeforeStartDetachParams<E>) => boolean
+
 
 export interface ComponentOptions {
     parameters?:Record<string, any>
@@ -296,13 +332,7 @@ export abstract class Component extends EventGenerator {
     }
 
     isDropAllowed(sourceId:string, targetId:string, scope:string, connection:Connection, dropEndpoint:Endpoint):boolean {
-        // let r = this.instance.checkCondition(INTERCEPT_BEFORE_DROP, {
-        //     sourceId: sourceId,
-        //     targetId: targetId,
-        //     scope: scope,
-        //     connection: connection,
-        //     dropEndpoint: dropEndpoint
-        // })
+
         let r:boolean
         let payload = {
             sourceId: sourceId,
@@ -320,7 +350,7 @@ export abstract class Component extends EventGenerator {
                 log("jsPlumb: beforeDrop callback failed", e)
             }
         } else {
-            r = this.instance.checkCondition(INTERCEPT_BEFORE_DROP, payload)
+            r = this.instance.checkCondition<boolean>(INTERCEPT_BEFORE_DROP, payload)
         }
         return r
     }
