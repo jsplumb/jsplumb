@@ -33,10 +33,10 @@ export interface JsPlumbListOptions {
     anchor?:AnchorSpec
     /**
      * Optional function to use to get an anchor spec when parking a connection.
-     * @param edge The edge of the element on which the connection is to be parked - top or bottom.
-     * @param index Index of the endpoint that is being parked - 0 if source endpoint, 1 if target endpoint.
-     * @param ep The endpoint that is being parked
-     * @param conn The connection that is being parked
+     * @param edge - The edge of the element on which the connection is to be parked - top or bottom.
+     * @param index - Index of the endpoint that is being parked - 0 if source endpoint, 1 if target endpoint.
+     * @param ep - The endpoint that is being parked
+     * @param conn - The connection that is being parked
      */
     deriveAnchor?:(edge:SupportedEdge, index:number, ep:Endpoint, conn:Connection) => AnchorSpec
     /**
@@ -45,10 +45,10 @@ export interface JsPlumbListOptions {
     endpoint?:EndpointSpec
     /**
      * Optional function to use to get an endpoint spec when parking a connection.
-     * @param edge The edge of the element on which the connection is to be parked - top or bottom.
-     * @param index Index of the endpoint that is being parked - 0 if source endpoint, 1 if target endpoint.
-     * @param ep The endpoint that is being parked
-     * @param conn The connection that is being parked
+     * @param edge - The edge of the element on which the connection is to be parked - top or bottom.
+     * @param index - Index of the endpoint that is being parked - 0 if source endpoint, 1 if target endpoint.
+     * @param ep - The endpoint that is being parked
+     * @param conn - The connection that is being parked
      */
     deriveEndpoint?:(edge:SupportedEdge, index:number, ep:Endpoint, conn:Connection) => EndpointSpec
 }
@@ -111,8 +111,8 @@ export class JsPlumbListManager {
 
     /**
      * Configure the given element as a scrollable list.
-     * @param el Element to configure as a list.
-     * @param options Options for the list.
+     * @param el - Element to configure as a list.
+     * @param options - Options for the list.
      */
     addList(el:Element, options?:JsPlumbListOptions):JsPlumbList {
         const dp = extend({} as any, DEFAULT_LIST_OPTIONS)
@@ -189,10 +189,10 @@ export class JsPlumbList {
      * Derive an anchor to use for the current situation. In contrast to the way we derive an endpoint, here we use `anchor` from the options, if present, as
      * our first choice, and then `deriveAnchor` as our next choice. There is a default `deriveAnchor` implementation that uses TopRight/TopLeft for top and
      * BottomRight/BottomLeft for bottom.
-     * @param edge Edge to find an anchor for - top or bottom
-     * @param index 0 when endpoint is connection source, 1 when endpoint is connection target
-     * @param ep the endpoint that is being proxied
-     * @param conn the connection that is being proxied
+     * @param edge - Edge to find an anchor for - top or bottom
+     * @param index - 0 when endpoint is connection source, 1 when endpoint is connection target
+     * @param ep - the endpoint that is being proxied
+     * @param conn - the connection that is being proxied
      */
     private deriveAnchor(edge:SupportedEdge, index:number, ep:Endpoint, conn:Connection):AnchorSpec {
         return this.options.anchor ? this.options.anchor : this.options.deriveAnchor(edge, index, ep, conn)
@@ -201,10 +201,10 @@ export class JsPlumbList {
     /**
      * Derive an endpoint to use for the current situation. We'll use a `deriveEndpoint` function passed in to the options as our first choice,
      * followed by `endpoint` (an endpoint spec) from the options, and failing either of those we just use the `type` of the endpoint that is being proxied.
-     * @param edge Edge to find an endpoint for - top or bottom
-     * @param index 0 when endpoint is connection source, 1 when endpoint is connection target
-     * @param ep the endpoint that is being proxied
-     * @param conn the connection that is being proxied
+     * @param edge - Edge to find an endpoint for - top or bottom
+     * @param index - 0 when endpoint is connection source, 1 when endpoint is connection target
+     * @param ep - the endpoint that is being proxied
+     * @param conn - the connection that is being proxied
      */
     private deriveEndpoint(edge:SupportedEdge, index:number, ep:Endpoint, conn:Connection):EndpointSpec {
         return this.options.deriveEndpoint ? this.options.deriveEndpoint(edge, index, ep, conn) : this.options.endpoint ? this.options.endpoint : ep.endpoint.type
@@ -213,9 +213,9 @@ export class JsPlumbList {
     /**
      * Notification that a new connection concerning this list has been added. This is not a method that should be
      * called as part of the public API; it is for the list manager to call.
-     * @param c New connection
-     * @param el The element which is either the source or target of the connection
-     * @param index 0 if the element is connection source, 1 if it is connection target.
+     * @param c - New connection
+     * @param el - The element which is either the source or target of the connection
+     * @param index - 0 if the element is connection source, 1 if it is connection target.
      */
     newConnection(c:Connection, el:jsPlumbDOMElement, index:number) {
 
@@ -273,11 +273,11 @@ export class JsPlumbList {
 
     /**
      * Configure a proxy for a connection.
-     * @param el The element the connection is attached to.
-     * @param conn The connection to proxy.
-     * @param index 0 if the element is connection source, 1 if it is connection target
-     * @param edge List edge to proxy the connection to - top or bottom.
-     * @private
+     * @param el - The element the connection is attached to.
+     * @param conn - The connection to proxy.
+     * @param index - 0 if the element is connection source, 1 if it is connection target
+     * @param edge - List edge to proxy the connection to - top or bottom.
+     * @internal
      */
     private _proxyConnection(el:Element, conn:Connection, index:number, edge:SupportedEdge) {
         this.instance.proxyConnection(conn, index, this.domElement, (c:Connection, index:number) => {

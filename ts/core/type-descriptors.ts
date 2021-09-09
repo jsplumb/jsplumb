@@ -1,12 +1,14 @@
-/**
- * Base interface for endpoint/connection types, which are registered via `registerConnectionType` and `registerEndpointType`. This interface
- * contains parameters that are common between the two types.
- */
+
 import {PaintStyle, OverlaySpec, ConnectorSpec, EndpointSpec, AnchorSpec} from "@jsplumb/common"
 import {Dictionary} from "@jsplumb/util"
 import {RedropPolicy} from "./source-selector"
 import {Endpoint} from "./endpoint/endpoint"
 
+/**
+ * Base interface for endpoint/connection types, which are registered via `registerConnectionType` and `registerEndpointType`. This interface
+ * contains parameters that are common between the two types, and is shared by internal methods and public methods.
+ * @public
+ */
 interface TypeDescriptorBase {
     cssClass?:string
     paintStyle?:PaintStyle
@@ -26,6 +28,7 @@ interface TypeDescriptorBase {
 }
 
 /**
+ * Base interface for type descriptors for public methods.
  * @public
  */
 export interface TypeDescriptor extends TypeDescriptorBase {
@@ -33,6 +36,7 @@ export interface TypeDescriptor extends TypeDescriptorBase {
 }
 
 /**
+ * Base interface for type descriptors for internal methods.
  * @internal
  */
 export interface ComponentTypeDescriptor extends TypeDescriptorBase {
@@ -41,6 +45,7 @@ export interface ComponentTypeDescriptor extends TypeDescriptorBase {
 
 /**
  * Definition of an endpoint type.
+ * @public
  */
 export interface EndpointTypeDescriptor extends TypeDescriptor {
     connectionsDetachable?:boolean
@@ -50,6 +55,7 @@ export interface EndpointTypeDescriptor extends TypeDescriptor {
 
 /**
  * Definition of a connection type.
+ * @public
  */
 export interface ConnectionTypeDescriptor extends TypeDescriptor {
     detachable?:boolean
@@ -57,8 +63,18 @@ export interface ConnectionTypeDescriptor extends TypeDescriptor {
     endpoints?:[ EndpointSpec, EndpointSpec ]
 }
 
+/**
+ * Extends EndpointTypeDescriptor to add the options supported by an `addSourceSelector` or `addTargetSelector` call.
+ * @public
+ */
 export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescriptor {
 
+    /**
+     * A function that can be used to extract a set of parameters pertinent to the connection that is being dragged
+     * from a given source.
+     * @param el - The element that is the drag source
+     * @param eventTarget - The element that captured the event that started the connection drag.
+     */
     parameterExtractor?:(el:T, eventTarget:T) => Dictionary<string>
     redrop?:RedropPolicy
 
@@ -89,6 +105,10 @@ export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescript
     parentSelector?:string
 }
 
+/**
+ * Base interface for source/target definitions
+ * @public
+ */
 export interface SourceOrTargetDefinition {
     enabled?:boolean
     def:BehaviouralTypeDescriptor
@@ -97,7 +117,14 @@ export interface SourceOrTargetDefinition {
     uniqueEndpoint?:boolean
 }
 
-export interface SourceDefinition extends SourceOrTargetDefinition {
-}
-export interface TargetDefinition extends SourceOrTargetDefinition {
-}
+/**
+ * Defines the supported options on an `addSourceSelector` call.
+ * @public
+ */
+export interface SourceDefinition extends SourceOrTargetDefinition { }
+
+/**
+ * Defines the supported options on an `addTargetSelector` call.
+ * @public
+ */
+export interface TargetDefinition extends SourceOrTargetDefinition { }

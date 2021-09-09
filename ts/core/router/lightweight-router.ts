@@ -238,7 +238,7 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
      * original `Anchor` class.
      * @param anchor
      * @param params
-     * @private
+     * @internal
      */
     private _singleAnchorCompute(anchor:LightweightAnchor, params:AnchorComputeParams):AnchorPlacement {
 

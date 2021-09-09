@@ -3,6 +3,10 @@ import {PointXY, log} from "@jsplumb/util"
 import {Connection, ArcSegment, AbstractConnector, ConnectorComputeParams, PaintGeometry } from "@jsplumb/core"
 import { AnchorPlacement, ConnectorOptions } from "@jsplumb/common"
 
+/**
+ * Base options interface for StateMachine and Bezier connectors.
+ * @public
+ */
 export interface AbstractBezierOptions extends ConnectorOptions {
     showLoopback?:boolean
     curviness?:number
@@ -12,6 +16,9 @@ export interface AbstractBezierOptions extends ConnectorOptions {
     loopbackRadius?:number
 }
 
+/**
+ * @internal
+ */
 export abstract class AbstractBezierConnector extends AbstractConnector {
 
     showLoopback:boolean

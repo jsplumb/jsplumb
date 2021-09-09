@@ -348,7 +348,7 @@ export function replace(inObj: any, path: string, value: any) {
  * @param successValue
  * @param failValue
  * @param fns
- * @private
+ * @internal
  */
 export function functionChain(successValue: any, failValue: any, fns: Array<Array<any>>): any {
     for (let i = 0; i < fns.length; i++) {
@@ -670,7 +670,7 @@ export function rotatePoint(point:PointXY, center:PointXY, rotation:number):Rota
 
 /**
  * Extension of PointXY used internally to track extra information about the rotation.
- * @private
+ * @internal
  */
 export interface RotatedPointXY extends PointXY {
     cr:number
@@ -681,7 +681,7 @@ export interface RotatedPointXY extends PointXY {
  * Internal method used to rotate an anchor orientation.
  * @param orientation
  * @param rotation
- * @private
+ * @internal
  */
 export function rotateAnchorOrientation(orientation:[number, number], rotation:any):[number, number] {
     const r = rotatePoint({x:orientation[0], y:orientation[1]}, {x:0, y:0}, rotation)

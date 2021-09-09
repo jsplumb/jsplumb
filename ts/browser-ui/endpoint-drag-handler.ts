@@ -348,7 +348,7 @@ export class EndpointDragHandler implements DragHandler {
      * ends.
      * @param ipco
      * @param ips
-     * @private
+     * @internal
      */
     private _makeDraggablePlaceholder(ipco:PointXY, ips:Size):HTMLElement {
         this.placeholderInfo = this.placeholderInfo || {}
@@ -449,7 +449,7 @@ export class EndpointDragHandler implements DragHandler {
 
     /**
      * Returns whether or not a connection drag should start, and, if so, optionally returns a payload to associate with the drag.
-     * @private
+     * @internal
      */
     private _shouldStartDrag():[boolean, any] {
         let _continue = true
@@ -479,7 +479,8 @@ export class EndpointDragHandler implements DragHandler {
             }
         }
 
-        let beforeDrag:any = this.instance.checkCondition(this.jpc == null ? INTERCEPT_BEFORE_DRAG : INTERCEPT_BEFORE_START_DETACH, {
+        let payload:Record<string, any> = {}
+        let beforeDrag:boolean|Record<string, any> = this.instance.checkCondition<boolean|Record<string, any>>(this.jpc == null ? INTERCEPT_BEFORE_DRAG : INTERCEPT_BEFORE_START_DETACH, {
             endpoint:this.ep,
             source:this.ep.element,
             sourceId:this.ep.elementId,
@@ -491,20 +492,21 @@ export class EndpointDragHandler implements DragHandler {
         // else we might have been given some data. we'll pass it in to a new connection as 'data'.
         // here we also merge in the optional payload we were given on mousedown.
         else if (typeof beforeDrag === "object") {
-            extend(beforeDrag, this.payload || {})
+            payload = beforeDrag
+            extend(payload, this.payload || {})
         }
         else {
             // or if no beforeDrag data, maybe use the payload on its own.
-            beforeDrag = this.payload || {}
+            payload = this.payload || {}
         }
 
-        return [ _continue, beforeDrag ]
+        return [ _continue, payload ]
     }
 
     /**
      * Creates the floating endpoint used in a connection drag.
      * @param canvasElement
-     * @private
+     * @internal
      */
     private _createFloatingEndpoint(canvasElement:Element) {
         let endpointToFloat:EndpointSpec|EndpointRepresentation<any> = this.ep.endpoint
@@ -524,7 +526,7 @@ export class EndpointDragHandler implements DragHandler {
     /**
      * Populate the list of drop targets based upon what is being dragged.
      * @param canvasElement
-     * @private
+     * @internal
      */
     private _populateTargets(canvasElement:Element) {
         const isSourceDrag = this.jpc && this.jpc.endpoints[0] === this.ep
@@ -961,7 +963,7 @@ export class EndpointDragHandler implements DragHandler {
     /**
      * Looks for a source selector on the instance that matches the target of the given event.
      * @param evt
-     * @private
+     * @internal
      */
     private _getSourceDefinition(evt:Event):SourceDefinition {
         let selector
@@ -980,7 +982,7 @@ export class EndpointDragHandler implements DragHandler {
      * Create - or retrieve - an appropriate endpoint for a connection drop.
      * @param p
      * @param jpc
-     * @private
+     * @internal
      */
     private _getDropEndpoint(p:DragStopEventParams, jpc:Connection):Endpoint {
         let dropEndpoint:Endpoint

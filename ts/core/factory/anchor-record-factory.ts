@@ -133,7 +133,7 @@ const antiClockwiseOptions:Dictionary<Face> = {"top": "left", "right": "top", "l
 /**
  *
  * @param a
- * @private
+ * @internal
  */
 export function getDefaultFace(a:LightweightContinuousAnchor):Face {
     return a.faces.length === 0 ? "top" : a.faces[0]
@@ -155,7 +155,7 @@ function _lastChoice(a:LightweightContinuousAnchor, edge:Face):Face {
  *
  * @param a
  * @param edge
- * @private
+ * @internal
  */
 export function isEdgeSupported (a:LightweightContinuousAnchor, edge:Face):boolean {
     return  a.lockedAxis == null ?

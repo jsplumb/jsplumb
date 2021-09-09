@@ -1,6 +1,10 @@
 import {EventGenerator,findWithFunction, getsert, forEach, insertSorted, Size, PointXY} from '@jsplumb/util'
 import {JsPlumbInstance} from "./core"
 
+/**
+ * Definition of some element's location and rotation in the viewport.
+ * @public
+ */
 export interface ViewportPosition extends PointXY {
     w:number
     h:number
@@ -8,6 +12,9 @@ export interface ViewportPosition extends PointXY {
     c:PointXY
 }
 
+/**
+ * @internal
+ */
 export interface ViewportElementBase<E> extends ViewportPosition {
 
     x2:number
@@ -15,10 +22,16 @@ export interface ViewportElementBase<E> extends ViewportPosition {
     dirty:boolean
 }
 
+/**
+ * @internal
+ */
 export interface ViewportElement<E> extends ViewportElementBase<E> {
     t:TranslatedViewportElement<E>
 }
 
+/**
+ * @internal
+ */
 export interface TranslatedViewportElementBase<E> extends ViewportElementBase<E> {
     cr:number
     sr:number
@@ -28,17 +41,27 @@ export interface TranslatedViewportElementBase<E> extends ViewportElementBase<E>
 //export type TranslatedViewportElement<E> = Omit<TranslatedViewportElementBase<E>, "dirty">
 export type TranslatedViewportElement<E> = Pick<TranslatedViewportElementBase<E>, Exclude<keyof TranslatedViewportElementBase<E>, "dirty">>
 
+/**
+ * Captures a set of elements affected by some given operation. For internal use.
+ * @internal
+ */
 class Transaction {
     affectedElements:Set<string> = new Set()
 }
 
+/**
+ * @internal
+ * @constructor
+ */
 function EMPTY_POSITION<E>():ViewportElement<E> {
     return { x:0, y:0, w:0, h:0, r:0, c:{x:0,y:0}, x2:0, y2:0, t:{x:0, y:0, c:{x:0,y:0}, w:0, h:0, r:0, x2:0, y2:0, cr:0, sr:0 }, dirty:true }
 }
 
-//
-// rotate the given rectangle around its center, and return the new bounds, plus new center.
-//
+/**
+ * rotate the given rectangle around its center, and return the new bounds, plus new center.
+ * @internal
+ */
+
 function rotate<E>(x:number, y:number, w:number, h:number, r:number):TranslatedViewportElement<E> {
 
     const center={x:x + (w/2), y:y + (h/2)},
@@ -75,6 +98,11 @@ function rotate<E>(x:number, y:number, w:number, h:number, r:number):TranslatedV
     }
 }
 
+/**
+ * @internal
+ * @param value
+ * @param arrayEntry
+ */
 const entryComparator = (value:[string, any], arrayEntry:[string, any]) => {
 
     let c = 0
@@ -88,14 +116,31 @@ const entryComparator = (value:[string, any], arrayEntry:[string, any]) => {
     return c
 }
 
+/**
+ * @internal
+ * @param value
+ * @param arrayEntry
+ */
 const reverseEntryComparator = (value:[string, any], arrayEntry:[string, any]) => {
     return entryComparator(value, arrayEntry) * -1
 }
 
+/**
+ * @internal
+ * @param id
+ * @param value
+ * @param array
+ * @param sortDescending
+ */
 function _updateElementIndex(id:string, value:number, array:Array<[string, number]>, sortDescending?:boolean) {
     insertSorted<[string, number]>([id, value], array, entryComparator, sortDescending)
 }
 
+/**
+ * @internal
+ * @param id
+ * @param array
+ */
 function _clearElementIndex<T>(id:string, array:Array<T>) {
     const idx = findWithFunction(array, (entry) => {
         return entry[0] === id
@@ -106,6 +151,11 @@ function _clearElementIndex<T>(id:string, array:Array<T>) {
     }
 }
 
+/**
+ * Models the positions of the elements a given jsPlumb instance is tracking. Users of the API should not need to interact directly
+ * with a Viewport.
+ * @public
+ */
 export class Viewport<T extends{E:unknown}> extends EventGenerator {
 
 // --------------- PRIVATE  ------------------------------------------
