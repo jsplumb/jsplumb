@@ -141,7 +141,7 @@ export type FullAnchorSpec = {type:AnchorId, options:AnchorOptions}
  * Models the specification of a single anchor.
  * @public
  */
-export type SingleAnchorSpec = AnchorId | FullAnchorSpec | AnchorPlacement | Array<AnchorPlacement>
+export type SingleAnchorSpec = AnchorId | FullAnchorSpec
 
 /**
  * Models the specification of anchor - which may be a SingleAnchorSpec, or an array of SingleAnchorSpec objects.
