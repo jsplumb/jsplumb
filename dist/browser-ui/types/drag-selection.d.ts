@@ -24,7 +24,7 @@ export declare class DragSelection {
     /**
      * Reset all computed values. Does not remove elements from the selection. Use `clear()` for that. This method is intended for
      * use after (or before) a drag.
-     * @private
+     * @internal
      */
     reset(): void;
     initialisePositions(): void;

@@ -95,7 +95,9 @@ export function forEach<T>(a: ArrayLike<T>, f: (_a: T) => any): void;
 // @public
 export function fromArray<T>(a: ArrayLike<T>): Array<T>;
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "functionChain" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function functionChain(successValue: any, failValue: any, fns: Array<Array<any>>): any;
 
 // @public
@@ -234,10 +236,14 @@ export function removeWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): boole
 // @public
 export function replace(inObj: any, path: string, value: any): any;
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "rotateAnchorOrientation" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function rotateAnchorOrientation(orientation: [number, number], rotation: any): [number, number];
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "RotatedPointXY" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export interface RotatedPointXY extends PointXY {
     // (undocumented)
     cr: number;
@@ -245,6 +251,8 @@ export interface RotatedPointXY extends PointXY {
     sr: number;
 }
 
+// Warning: (ae-incompatible-release-tags) The symbol "rotatePoint" is marked as @public, but its signature references "RotatedPointXY" which is marked as @internal
+//
 // @public
 export function rotatePoint(point: PointXY, center: PointXY, rotation: number): RotatedPointXY;
 

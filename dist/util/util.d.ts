@@ -235,7 +235,7 @@ export declare function fromArray<T>(a: ArrayLike<T>): Array<T>;
  * @param successValue
  * @param failValue
  * @param fns
- * @private
+ * @internal
  */
 export declare function functionChain(successValue: any, failValue: any, fns: Array<Array<any>>): any;
 
@@ -612,13 +612,13 @@ export declare function replace(inObj: any, path: string, value: any): any;
  * Internal method used to rotate an anchor orientation.
  * @param orientation
  * @param rotation
- * @private
+ * @internal
  */
 export declare function rotateAnchorOrientation(orientation: [number, number], rotation: any): [number, number];
 
 /**
  * Extension of PointXY used internally to track extra information about the rotation.
- * @private
+ * @internal
  */
 export declare interface RotatedPointXY extends PointXY {
     cr: number;

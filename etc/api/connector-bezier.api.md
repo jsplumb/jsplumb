@@ -17,7 +17,9 @@ import { PointNearPath } from '@jsplumb/common';
 import { PointXY } from '@jsplumb/util';
 import { SegmentParams } from '@jsplumb/common';
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "AbstractBezierConnector" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
 export abstract class AbstractBezierConnector extends AbstractConnector {
     constructor(connection: Connection, params: any);
     // (undocumented)
@@ -56,7 +58,7 @@ export abstract class AbstractBezierConnector extends AbstractConnector {
     showLoopback: boolean;
 }
 
-// @public (undocumented)
+// @public
 export interface AbstractBezierOptions extends ConnectorOptions {
     // (undocumented)
     curviness?: number;
@@ -75,6 +77,8 @@ export interface AbstractBezierOptions extends ConnectorOptions {
 // @public (undocumented)
 export type AxisCoefficients = [number, number, number, number];
 
+// Warning: (ae-incompatible-release-tags) The symbol "BezierConnector" is marked as @public, but its signature references "AbstractBezierConnector" which is marked as @internal
+//
 // @public (undocumented)
 export class BezierConnector extends AbstractBezierConnector {
     constructor(connection: Connection, params: BezierOptions);
@@ -208,6 +212,8 @@ export type PointOnPath = {
     location: number;
 };
 
+// Warning: (ae-incompatible-release-tags) The symbol "StateMachineConnector" is marked as @public, but its signature references "AbstractBezierConnector" which is marked as @internal
+//
 // @public (undocumented)
 export class StateMachineConnector extends AbstractBezierConnector {
     constructor(connection: Connection, params: StateMachineOptions);

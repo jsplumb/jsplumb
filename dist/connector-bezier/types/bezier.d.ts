@@ -23,9 +23,7 @@
  *
  * distanceFromCurve(point, curve)
  *
- * 	Calculates the distance that the given point lies from the given Bezier.  Note that it is computed relative to the center of the Bezier,
- * so if you have stroked the curve with a wide pen you may wish to take that into account!  The distance returned is relative to the values
- * of the curve and the point - it will most likely be pixels.
+
  *
  * gradientAtPoint(curve, location)
  *
@@ -33,12 +31,11 @@
  *
  * gradientAtPointAlongCurveFrom (curve, location)
  *
- *	Calculates the gradient at the point on the given curve that is 'distance' units from location.
+ *
  *
  * nearestPointOnCurve(point, curve)
  *
- *	Calculates the nearest point to the given point on the given curve.  The return value of this is a JS object literal, containing both the
- *point's coordinates and also the 'location' of the point (see above), for example:  { point:{x:551,y:150}, location:0.263365 }.
+ *
  *
  * pointOnCurve(curve, location)
  *
@@ -74,18 +71,23 @@ export declare type DistanceFromCurve = {
 };
 export declare type AxisCoefficients = [number, number, number, number];
 /**
- * Calculates the distance that the point lies from the curve.
+ * Calculates the distance that the given point lies from the given Bezier.  Note that it is computed relative to the center of the Bezier,
+ * so if you have stroked the curve with a wide pen you may wish to take that into account!  The distance returned is relative to the values
+ * of the curve and the point - it will most likely be pixels.
  *
- * @param point a point in the form {x:567, y:3342}
- * @param curve a Bezier curve in the form [{x:..., y:...}, {x:..., y:...}, {x:..., y:...}, {x:..., y:...}].  note that this is currently
- * hardcoded to assume cubiz beziers, but would be better off supporting any degree.
- * @returns a JS object literal containing location and distance, for example: {location:0.35, distance:10}.  Location is analogous to the location
+ * @param point - a point in the form {x:567, y:3342}
+ * @param curve - a Bezier curve: an Array of PointXY objects. Note that this is currently
+ * hardcoded to assume cubix beziers, but would be better off supporting any degree.
+ * @returns a JS object literal containing location and distance. Location is analogous to the location
  * argument you pass to the pointOnPath function: it is a ratio of distance travelled along the curve.  Distance is the distance in pixels from
  * the point to the curve.
+ * @public
  */
 export declare function distanceFromCurve(point: PointXY, curve: Curve): DistanceFromCurve;
 /**
- * finds the nearest point on the curve to the given point.
+ * Calculates the nearest point to the given point on the given curve.  The return value of this is a JS object literal, containing both the
+ * point's coordinates and also the 'location' of the point (see above).
+ * @public
  */
 export declare function nearestPointOnCurve(point: PointXY, curve: Curve): {
     point: PointXY;
@@ -111,27 +113,32 @@ export declare function isPoint(curve: Curve): boolean;
 export declare function pointAlongPath(curve: Curve, location: number, distance: number): PointOnPath;
 /**
  * finds the point that is 'distance' along the path from 'location'.
+ * @publix
  */
 export declare function pointAlongCurveFrom(curve: Curve, location: number, distance: number): PointXY;
 /**
  * finds the location that is 'distance' along the path from 'location'.
+ * @public
  */
 export declare function locationAlongCurveFrom(curve: Curve, location: number, distance: number): number;
 /**
- * returns the gradient of the curve at the given location, which is a decimal between 0 and 1 inclusive.
- *
- * thanks // http://bimixual.org/AnimationLibrary/beziertangents.html
+ * Calculates the gradient at the point on the given curve at the given location
+ * @returns a decimal between 0 and 1 inclusive.
+ * @public
  */
 export declare function gradientAtPoint(curve: Curve, location: number): number;
 /**
- returns the gradient of the curve at the point which is 'distance' from the given location.
- if this point is greater than location 1, the gradient at location 1 is returned.
- if this point is less than location 0, the gradient at location 0 is returned.
+ * Returns the gradient of the curve at the point which is 'distance' from the given location.
+ * if this point is greater than location 1, the gradient at location 1 is returned.
+ * if this point is less than location 0, the gradient at location 0 is returned.
+ * @returns a decimal between 0 and 1 inclusive.
+ * @public
  */
 export declare function gradientAtPointAlongPathFrom(curve: Curve, location: number, distance: number): number;
 /**
  * calculates a line that is 'length' pixels long, perpendicular to, and centered on, the path at 'distance' pixels from the given location.
  * if distance is not supplied, the perpendicular for the given location is computed (ie. we set distance to zero).
+ * @public
  */
 export declare function perpendicularToPathAt(curve: Curve, location: number, length: number, distance: number): LineXY;
 /**
@@ -152,13 +159,15 @@ export declare function bezierLineIntersection(x1: number, y1: number, x2: numbe
  * @param h height of box
  * @param curve
  * @returns Array of intersecting points.
+ * @public
  */
 export declare function boxIntersection(x: number, y: number, w: number, h: number, curve: Curve): Array<PointXY>;
 /**
  * Calculates all intersections of the given bounding box with the given curve.
- * @param boundingBox Bounding box, in { x:.., y:..., w:..., h:... } format.
+ * @param boundingBox Bounding box to test for intersections.
  * @param curve
  * @returns Array of intersecting points.
+ * @public
  */
 export declare function boundingBoxIntersection(boundingBox: BoundingBox, curve: Curve): Array<PointXY>;
 //# sourceMappingURL=bezier.d.ts.map

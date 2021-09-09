@@ -2985,6 +2985,7 @@ var EndpointDragHandler = function () {
           this.jpc = null;
         }
       }
+      var payload = {};
       var beforeDrag = this.instance.checkCondition(this.jpc == null ? INTERCEPT_BEFORE_DRAG : INTERCEPT_BEFORE_START_DETACH, {
         endpoint: this.ep,
         source: this.ep.element,
@@ -2995,11 +2996,12 @@ var EndpointDragHandler = function () {
         _continue = false;
       }
       else if (_typeof(beforeDrag) === "object") {
-        extend(beforeDrag, this.payload || {});
+        payload = beforeDrag;
+        extend(payload, this.payload || {});
       } else {
-        beforeDrag = this.payload || {};
+        payload = this.payload || {};
       }
-      return [_continue, beforeDrag];
+      return [_continue, payload];
     }
   }, {
     key: "_createFloatingEndpoint",

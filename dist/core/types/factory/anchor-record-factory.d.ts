@@ -108,14 +108,14 @@ export declare class LightweightFloatingAnchor implements LightweightAnchor {
 /**
  *
  * @param a
- * @private
+ * @internal
  */
 export declare function getDefaultFace(a: LightweightContinuousAnchor): Face;
 /**
  *
  * @param a
  * @param edge
- * @private
+ * @internal
  */
 export declare function isEdgeSupported(a: LightweightContinuousAnchor, edge: Face): boolean;
 export declare const TOP = "top";

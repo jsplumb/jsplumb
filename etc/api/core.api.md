@@ -325,17 +325,26 @@ export const ATTRIBUTE_TABINDEX = "tabindex";
 // @public (undocumented)
 export type Axis = [Face, Face];
 
-// @public (undocumented)
+// @public
 export type BeforeDetachInterceptor = (c: Connection) => boolean;
 
-// @public (undocumented)
-export type BeforeDropInterceptor = (params: {
-    sourceId: string;
-    targetId: string;
-    scope: string;
+// @public
+export type BeforeDragInterceptor<E = any> = (params: BeforeDragParams<E>) => boolean | Record<string, any>;
+
+// @public
+export interface BeforeDragParams<E> {
+    // (undocumented)
     connection: Connection;
-    dropEndpoint: Endpoint;
-}) => boolean;
+    // (undocumented)
+    endpoint: Endpoint;
+    // (undocumented)
+    source: E;
+    // (undocumented)
+    sourceId: string;
+}
+
+// @public
+export type BeforeDropInterceptor = (params: BeforeDropParams) => boolean;
 
 // @public
 export interface BeforeDropParams {
@@ -351,7 +360,14 @@ export interface BeforeDropParams {
     targetId: string;
 }
 
-// @public (undocumented)
+// @public
+export type BeforeStartDetachInterceptor<E = any> = (params: BeforeStartDetachParams<E>) => boolean;
+
+// @public
+export interface BeforeStartDetachParams<E> extends BeforeDragParams<E> {
+}
+
+// @public
 export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescriptor {
     allowLoopback?: boolean;
     // (undocumented)
@@ -359,7 +375,6 @@ export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescript
     // (undocumented)
     extract?: Dictionary<string>;
     onMaxConnections?: (value: any, event?: any) => any;
-    // (undocumented)
     parameterExtractor?: (el: T, eventTarget: T) => Dictionary<string>;
     parentSelector?: string;
     // (undocumented)
@@ -647,7 +662,7 @@ export type ComponentParameters = Record<string, any>;
 // Warning: (ae-forgotten-export) The symbol "TypeDescriptorBase" needs to be exported by the entry point index.d.ts
 // Warning: (ae-internal-missing-underscore) The name "ComponentTypeDescriptor" should be prefixed with an underscore because the declaration is marked as @internal
 //
-// @internal (undocumented)
+// @internal
 export interface ComponentTypeDescriptor extends TypeDescriptorBase {
     // (undocumented)
     overlays: Dictionary<OverlaySpec>;
@@ -1315,7 +1330,9 @@ export type Face = "top" | "right" | "bottom" | "left";
 // @public (undocumented)
 export const FIXED = "fixed";
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "getDefaultFace" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
 export function getDefaultFace(a: LightweightContinuousAnchor): Face;
 
 // @public (undocumented)
@@ -1482,7 +1499,9 @@ export function isDiamondOverlay(o: Overlay): o is DiamondOverlay;
 // @public (undocumented)
 export function isDynamic(a: LightweightAnchor): boolean;
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "isEdgeSupported" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
 export function isEdgeSupported(a: LightweightContinuousAnchor, edge: Face): boolean;
 
 // @public (undocumented)
@@ -1590,11 +1609,13 @@ export abstract class JsPlumbInstance<T extends {
     abstract applyConnectorType(connector: AbstractConnector, t: TypeDescriptor): void;
     // (undocumented)
     abstract applyEndpointType(ep: Endpoint<T>, t: TypeDescriptor): void;
+    // @internal
     _applyRotations(point: [number, number, number, number], rotations: Rotations): RotatedPointXY;
+    // @internal
     _applyRotationsXY(point: PointXY, rotations: Rotations): PointXY;
     batch(fn: Function, doNotRepaintAfterwards?: boolean): void;
     // (undocumented)
-    checkCondition(conditionName: string, args?: any): boolean;
+    checkCondition<RetVal>(conditionName: string, args?: any): RetVal;
     // (undocumented)
     collapseGroup(group: string | UIGroup<T["E"]>): void;
     connect(params: ConnectParams<T["E"]>, referenceParams?: ConnectParams<T["E"]>): Connection;
@@ -1621,6 +1642,7 @@ export abstract class JsPlumbInstance<T extends {
     deleteEndpoint(object: string | Endpoint): JsPlumbInstance;
     // (undocumented)
     deleteEveryConnection(params?: DeleteConnectionOptions): number;
+    // @internal
     _deriveEndpointAndAnchorSpec(type: string, dontPrependDefault?: boolean): {
         endpoints: [EndpointSpec, EndpointSpec];
         anchors: [AnchorSpec, AnchorSpec];
@@ -1651,9 +1673,11 @@ export abstract class JsPlumbInstance<T extends {
     endpointsByElement: Dictionary<Array<Endpoint>>;
     // (undocumented)
     expandGroup(group: string | UIGroup<T["E"]>): void;
+    // @internal
     _finaliseConnection(jpc: Connection, params?: any, originalEvent?: Event): void;
     // (undocumented)
     fireMoveEvent(params?: ConnectionMovedParams, evt?: Event): void;
+    // @internal
     abstract _getAssociatedElements(el: T["E"]): Array<T["E"]>;
     // (undocumented)
     abstract getAttribute(el: T["E"], name: string): string;
@@ -1694,7 +1718,9 @@ export abstract class JsPlumbInstance<T extends {
     //
     // (undocumented)
     getPathData(connector: AbstractConnector): any;
+    // @internal
     _getRotation(elementId: string): number;
+    // @internal
     _getRotations(elementId: string): Rotations;
     // (undocumented)
     abstract getSelector(ctx: string | T["E"], spec?: string): ArrayLike<T["E"]>;
@@ -1720,6 +1746,7 @@ export abstract class JsPlumbInstance<T extends {
     importDefaults(d: JsPlumbDefaults<T["E"]>): JsPlumbInstance;
     // (undocumented)
     readonly _instanceIndex: number;
+    // @internal
     _internal_newEndpoint(params: InternalEndpointOptions<T["E"]>): Endpoint;
     // (undocumented)
     isConnectionBeingDragged: boolean;
@@ -1732,8 +1759,9 @@ export abstract class JsPlumbInstance<T extends {
     manageAll(elements: ArrayLike<T["E"]> | string, recalc?: boolean): void;
     // (undocumented)
     protected _managedElements: Dictionary<ManagedElement<T["E"]>>;
+    // @internal
     _maybePruneEndpoint(endpoint: Endpoint): boolean;
-    // Warning: (ae-incompatible-release-tags) The symbol "_newConnection" is marked as @public, but its signature references "ConnectionOptions" which is marked as @internal
+    // @internal
     _newConnection(params: ConnectionOptions<T["E"]>): Connection;
     // (undocumented)
     abstract off(el: Document | T["E"] | ArrayLike<T["E"]>, event: string, callback: Function): void;
@@ -1871,6 +1899,7 @@ export abstract class JsPlumbInstance<T extends {
     unproxyConnection(connection: Connection, index: number): void;
     // (undocumented)
     abstract updateLabel(o: LabelOverlay): void;
+    // Warning: (ae-incompatible-release-tags) The symbol "updateOffset" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
     updateOffset(params?: UpdateOffsetOptions): ViewportElement<T["E"]>;
     // (undocumented)
     readonly viewport: Viewport<T>;
@@ -2315,11 +2344,11 @@ export const SOURCE = "source";
 // @public (undocumented)
 export const SOURCE_INDEX = 0;
 
-// @public (undocumented)
+// @public
 export interface SourceDefinition extends SourceOrTargetDefinition {
 }
 
-// @public (undocumented)
+// @public
 export interface SourceOrTargetDefinition {
     // (undocumented)
     def: BehaviouralTypeDescriptor;
@@ -2412,7 +2441,7 @@ export const TARGET = "target";
 // @public (undocumented)
 export const TARGET_INDEX = 1;
 
-// @public (undocumented)
+// @public
 export interface TargetDefinition extends SourceOrTargetDefinition {
 }
 
@@ -2426,10 +2455,14 @@ export class TargetSelector extends ConnectionDragSelector {
 // @public (undocumented)
 export const TOP = "top";
 
+// Warning: (ae-incompatible-release-tags) The symbol "TranslatedViewportElement" is marked as @public, but its signature references "TranslatedViewportElementBase" which is marked as @internal
+//
 // @public (undocumented)
 export type TranslatedViewportElement<E> = Pick<TranslatedViewportElementBase<E>, Exclude<keyof TranslatedViewportElementBase<E>, "dirty">>;
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "TranslatedViewportElementBase" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
 export interface TranslatedViewportElementBase<E> extends ViewportElementBase<E> {
     // (undocumented)
     cr: number;
@@ -2437,7 +2470,7 @@ export interface TranslatedViewportElementBase<E> extends ViewportElementBase<E>
     sr: number;
 }
 
-// @public (undocumented)
+// @public
 export interface TypeDescriptor extends TypeDescriptorBase {
     // (undocumented)
     overlays?: Array<OverlaySpec>;
@@ -2545,23 +2578,28 @@ export interface UpdateOffsetOptions {
 // @public (undocumented)
 export type UUID = string;
 
-// @public (undocumented)
+// @public
 export class Viewport<T extends {
     E: unknown;
 }> extends EventGenerator {
     constructor(instance: JsPlumbInstance<T>);
+    // Warning: (ae-incompatible-release-tags) The symbol "addElement" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
     addElement(id: string, x: number, y: number, width: number, height: number, rotation: number): ViewportElement<T["E"]>;
     // (undocumented)
     _bounds: Record<string, number>;
+    // Warning: (ae-incompatible-release-tags) The symbol "_elementMap" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
+    //
     // (undocumented)
     _elementMap: Map<string, ViewportElement<T["E"]>>;
     // (undocumented)
     endTransaction(): void;
     getBoundsHeight(): number;
     getBoundsWidth(): number;
+    // Warning: (ae-incompatible-release-tags) The symbol "getElements" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
     getElements(): Map<string, ViewportElement<T["E"]>>;
     // (undocumented)
     protected getOffset(el: T["E"]): PointXY;
+    // Warning: (ae-incompatible-release-tags) The symbol "getPosition" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
     getPosition(id: string): ViewportElement<T["E"]>;
     // (undocumented)
     protected getSize(el: T["E"]): Size;
@@ -2572,12 +2610,17 @@ export class Viewport<T extends {
     isEmpty(): boolean;
     // (undocumented)
     recomputeBounds(): void;
+    // Warning: (ae-incompatible-release-tags) The symbol "refreshElement" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
     refreshElement(elId: string, doNotRecalculateBounds?: boolean): ViewportElement<T["E"]>;
+    // Warning: (ae-incompatible-release-tags) The symbol "registerElement" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
     registerElement(id: string, doNotRecalculateBounds?: boolean): ViewportElement<T["E"]>;
     remove(id: string): void;
     reset(): void;
+    // Warning: (ae-incompatible-release-tags) The symbol "rotateElement" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
     rotateElement(id: string, rotation: number): ViewportElement<T["E"]>;
+    // Warning: (ae-incompatible-release-tags) The symbol "setPosition" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
     setPosition(id: string, x: number, y: number): ViewportElement<T["E"]>;
+    // Warning: (ae-incompatible-release-tags) The symbol "setSize" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
     setSize(id: string, w: number, h: number): ViewportElement<T["E"]>;
     // (undocumented)
     shouldFireEvent(event: string, value: unknown, originalEvent?: Event): boolean;
@@ -2587,6 +2630,7 @@ export class Viewport<T extends {
     startTransaction(): void;
     // (undocumented)
     _transformedElementMap: Map<string, TranslatedViewportElement<T["E"]>>;
+    // Warning: (ae-incompatible-release-tags) The symbol "updateElement" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
     updateElement(id: string, x: number, y: number, width: number, height: number, rotation: number, doNotRecalculateBounds?: boolean): ViewportElement<T["E"]>;
     // (undocumented)
     updateElements(entries: Array<{
@@ -2599,13 +2643,17 @@ export class Viewport<T extends {
     }>): void;
 }
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "ViewportElement" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
 export interface ViewportElement<E> extends ViewportElementBase<E> {
     // (undocumented)
     t: TranslatedViewportElement<E>;
 }
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "ViewportElementBase" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
 export interface ViewportElementBase<E> extends ViewportPosition {
     // (undocumented)
     dirty: boolean;
@@ -2615,7 +2663,7 @@ export interface ViewportElementBase<E> extends ViewportPosition {
     y2: number;
 }
 
-// @public (undocumented)
+// @public
 export interface ViewportPosition extends PointXY {
     // (undocumented)
     c: PointXY;
@@ -2635,7 +2683,11 @@ export const Y_AXIS_FACES: Axis;
 
 // Warnings were encountered during analysis:
 //
+// /Users/simon/programming/jsplumb/jsplumb/dist/core/types/connector/abstract-connector.d.ts:29:5 - (ae-incompatible-release-tags) The symbol "sourceInfo" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
+// /Users/simon/programming/jsplumb/jsplumb/dist/core/types/connector/abstract-connector.d.ts:30:5 - (ae-incompatible-release-tags) The symbol "targetInfo" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
 // /Users/simon/programming/jsplumb/jsplumb/dist/core/types/connector/connectors.d.ts:5:5 - (ae-incompatible-release-tags) The symbol "get" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
 // /Users/simon/programming/jsplumb/jsplumb/dist/core/types/connector/connectors.d.ts:6:5 - (ae-incompatible-release-tags) The symbol "register" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
+// /Users/simon/programming/jsplumb/jsplumb/dist/core/types/core.d.ts:68:5 - (ae-incompatible-release-tags) The symbol "viewportElement" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
+// /Users/simon/programming/jsplumb/jsplumb/dist/core/types/core.d.ts:447:9 - (ae-incompatible-release-tags) The symbol "offset" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
 
 ```

@@ -4,19 +4,51 @@ import { ComponentTypeDescriptor } from '../type-descriptors';
 import { JsPlumbInstance } from "../core";
 import { Connection } from "../connector/connection-impl";
 import { Endpoint } from "../endpoint/endpoint";
+import { BeforeDropParams } from '../callbacks';
 import { LabelOverlay } from "../overlay/label-overlay";
 import { OverlaySpec, PaintStyle } from "@jsplumb/common";
 export declare type ComponentParameters = Record<string, any>;
 export declare function _removeTypeCssHelper<E>(component: Component, typeIndex: number): void;
 export declare function _updateHoverStyle<E>(component: Component): void;
+/**
+ * Defines the method signature for the callback to the `beforeDetach` interceptor. Returning false from this method
+ * prevents the connection from being detached. The interceptor is fired by the core, meaning that it will be invoked
+ * regardless of whether the detach occurred programmatically, or via the mouse.
+ */
 export declare type BeforeDetachInterceptor = (c: Connection) => boolean;
-export declare type BeforeDropInterceptor = (params: {
+/**
+ * Defines the method signature for the callback to the `beforeDrop` interceptor.
+ * @public
+ */
+export declare type BeforeDropInterceptor = (params: BeforeDropParams) => boolean;
+/**
+ * The parameters passed to a `beforeDrag` interceptor.
+ * @public
+ */
+export interface BeforeDragParams<E> {
+    endpoint: Endpoint;
+    source: E;
     sourceId: string;
-    targetId: string;
-    scope: string;
     connection: Connection;
-    dropEndpoint: Endpoint;
-}) => boolean;
+}
+/**
+ * The parameters passed to a `beforeStartDetach` interceptor.
+ * @public
+ */
+export interface BeforeStartDetachParams<E> extends BeforeDragParams<E> {
+}
+/**
+ * Defines the method signature for the callback to the `beforeDrag` interceptor. This method can return boolean `false` to
+ * abort the connection drag, or it can return an object containing values that will be used as the `data` for the connection
+ * that is created.
+ * @public
+ */
+export declare type BeforeDragInterceptor<E = any> = (params: BeforeDragParams<E>) => boolean | Record<string, any>;
+/**
+ * Defines the method signature for the callback to the `beforeStartDetach` interceptor.
+ * @public
+ */
+export declare type BeforeStartDetachInterceptor<E = any> = (params: BeforeStartDetachParams<E>) => boolean;
 export interface ComponentOptions {
     parameters?: Record<string, any>;
     beforeDetach?: BeforeDetachInterceptor;

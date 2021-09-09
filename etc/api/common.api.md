@@ -345,10 +345,8 @@ export interface SegmentParams {
     y2: number;
 }
 
-// Warning: (ae-incompatible-release-tags) The symbol "SingleAnchorSpec" is marked as @public, but its signature references "AnchorPlacement" which is marked as @internal
-//
 // @public
-export type SingleAnchorSpec = AnchorId | FullAnchorSpec | AnchorPlacement | Array<AnchorPlacement>;
+export type SingleAnchorSpec = AnchorId | FullAnchorSpec;
 
 // @public
 export const TRUE = "true";

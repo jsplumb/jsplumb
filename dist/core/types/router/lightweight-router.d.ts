@@ -45,7 +45,7 @@ export declare class LightweightRouter<T extends {
      * original `Anchor` class.
      * @param anchor
      * @param params
-     * @private
+     * @internal
      */
     private _singleAnchorCompute;
     /**

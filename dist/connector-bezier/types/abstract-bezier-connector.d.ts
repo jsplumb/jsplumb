@@ -1,6 +1,10 @@
 import { PointXY } from "@jsplumb/util";
 import { Connection, AbstractConnector, ConnectorComputeParams, PaintGeometry } from "@jsplumb/core";
 import { AnchorPlacement, ConnectorOptions } from "@jsplumb/common";
+/**
+ * Base options interface for StateMachine and Bezier connectors.
+ * @public
+ */
 export interface AbstractBezierOptions extends ConnectorOptions {
     showLoopback?: boolean;
     curviness?: number;
@@ -9,6 +13,9 @@ export interface AbstractBezierOptions extends ConnectorOptions {
     orientation?: string;
     loopbackRadius?: number;
 }
+/**
+ * @internal
+ */
 export declare abstract class AbstractBezierConnector extends AbstractConnector {
     connection: Connection;
     showLoopback: boolean;

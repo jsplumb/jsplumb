@@ -1,24 +1,42 @@
 import { EventGenerator, Size, PointXY } from '@jsplumb/util';
 import { JsPlumbInstance } from "./core";
+/**
+ * Definition of some element's location and rotation in the viewport.
+ * @public
+ */
 export interface ViewportPosition extends PointXY {
     w: number;
     h: number;
     r: number;
     c: PointXY;
 }
+/**
+ * @internal
+ */
 export interface ViewportElementBase<E> extends ViewportPosition {
     x2: number;
     y2: number;
     dirty: boolean;
 }
+/**
+ * @internal
+ */
 export interface ViewportElement<E> extends ViewportElementBase<E> {
     t: TranslatedViewportElement<E>;
 }
+/**
+ * @internal
+ */
 export interface TranslatedViewportElementBase<E> extends ViewportElementBase<E> {
     cr: number;
     sr: number;
 }
 export declare type TranslatedViewportElement<E> = Pick<TranslatedViewportElementBase<E>, Exclude<keyof TranslatedViewportElementBase<E>, "dirty">>;
+/**
+ * Models the positions of the elements a given jsPlumb instance is tracking. Users of the API should not need to interact directly
+ * with a Viewport.
+ * @public
+ */
 export declare class Viewport<T extends {
     E: unknown;
 }> extends EventGenerator {

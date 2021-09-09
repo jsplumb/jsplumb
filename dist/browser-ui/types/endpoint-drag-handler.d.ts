@@ -57,7 +57,7 @@ export declare class EndpointDragHandler implements DragHandler {
      * ends.
      * @param ipco
      * @param ips
-     * @private
+     * @internal
      */
     private _makeDraggablePlaceholder;
     private _cleanupDraggablePlaceholder;
@@ -67,19 +67,19 @@ export declare class EndpointDragHandler implements DragHandler {
     private startExistingConnectionDrag;
     /**
      * Returns whether or not a connection drag should start, and, if so, optionally returns a payload to associate with the drag.
-     * @private
+     * @internal
      */
     private _shouldStartDrag;
     /**
      * Creates the floating endpoint used in a connection drag.
      * @param canvasElement
-     * @private
+     * @internal
      */
     private _createFloatingEndpoint;
     /**
      * Populate the list of drop targets based upon what is being dragged.
      * @param canvasElement
-     * @private
+     * @internal
      */
     private _populateTargets;
     onStart(p: DragStartEventParams): boolean;
@@ -91,14 +91,14 @@ export declare class EndpointDragHandler implements DragHandler {
     /**
      * Looks for a source selector on the instance that matches the target of the given event.
      * @param evt
-     * @private
+     * @internal
      */
     private _getSourceDefinition;
     /**
      * Create - or retrieve - an appropriate endpoint for a connection drop.
      * @param p
      * @param jpc
-     * @private
+     * @internal
      */
     private _getDropEndpoint;
     private _doForceReattach;

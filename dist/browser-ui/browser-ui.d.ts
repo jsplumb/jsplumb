@@ -553,7 +553,7 @@ declare class DragSelection {
     /**
      * Reset all computed values. Does not remove elements from the selection. Use `clear()` for that. This method is intended for
      * use after (or before) a drag.
-     * @private
+     * @internal
      */
     reset(): void;
     initialisePositions(): void;
@@ -641,7 +641,7 @@ export declare class ElementDragHandler implements DragHandler {
      * @param doNotTransferToAncestor Used when dealing with nested groups. When true, it means remove the element from any groups; when false, which is
      * the default, elements that are orphaned will be added to this group's ancestor, if it has one.
      * @param isDefinitelyNotInsideParent Used internally when this method is called and we've already done an intersections test. This flag saves us repeating the calculation.
-     * @private
+     * @internal
      */
     private _pruneOrOrphan;
 }
