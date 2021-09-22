@@ -60,7 +60,6 @@ export abstract class AbstractBezierConnector extends AbstractConnector {
 
 // @public
 export interface AbstractBezierOptions extends ConnectorOptions {
-    // (undocumented)
     curviness?: number;
     // (undocumented)
     loopbackRadius?: number;
@@ -70,7 +69,6 @@ export interface AbstractBezierOptions extends ConnectorOptions {
     orientation?: string;
     // (undocumented)
     proximityLimit?: number;
-    // (undocumented)
     showLoopback?: boolean;
 }
 
