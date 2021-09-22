@@ -8,7 +8,13 @@ import { AnchorPlacement, ConnectorOptions } from "@jsplumb/common"
  * @public
  */
 export interface AbstractBezierOptions extends ConnectorOptions {
+    /**
+     * Whether or not to show connections whose source and target is the same element.
+     */
     showLoopback?:boolean
+    /**
+     * A measure of how "curvy" the bezier is. In terms of maths what this translates to is how far from the curve the control points are positioned.
+     */
     curviness?:number
     margin?:number
     proximityLimit?:number
