@@ -184,6 +184,11 @@ export declare type AnchorPlacement = {
 export declare type AnchorSpec = SingleAnchorSpec | Array<SingleAnchorSpec>;
 
 /**
+ * An anchor spec in the form [ x, y, ox, oy ]
+ */
+export declare type ArrayAnchorSpec = [number, number, number, number, number?, number?];
+
+/**
  * @public
  */
 export declare interface ArrowOverlayOptions extends OverlayOptions {
@@ -469,7 +474,7 @@ export declare interface SegmentParams {
  * Models the specification of a single anchor.
  * @public
  */
-export declare type SingleAnchorSpec = AnchorId | FullAnchorSpec;
+export declare type SingleAnchorSpec = AnchorId | FullAnchorSpec | ArrayAnchorSpec;
 
 /**
  * Constant for the term "true"

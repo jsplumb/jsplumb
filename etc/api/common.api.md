@@ -91,6 +91,9 @@ export type AnchorPlacement = {
 // @public
 export type AnchorSpec = SingleAnchorSpec | Array<SingleAnchorSpec>;
 
+// @public
+export type ArrayAnchorSpec = [number, number, number, number, number?, number?];
+
 // @public (undocumented)
 export interface ArrowOverlayOptions extends OverlayOptions {
     // (undocumented)
@@ -346,7 +349,7 @@ export interface SegmentParams {
 }
 
 // @public
-export type SingleAnchorSpec = AnchorId | FullAnchorSpec;
+export type SingleAnchorSpec = AnchorId | FullAnchorSpec | ArrayAnchorSpec;
 
 // @public
 export const TRUE = "true";

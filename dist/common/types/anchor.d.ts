@@ -134,10 +134,14 @@ export declare type FullAnchorSpec = {
     options: AnchorOptions;
 };
 /**
+ * An anchor spec in the form [ x, y, ox, oy ]
+ */
+export declare type ArrayAnchorSpec = [number, number, number, number, number?, number?];
+/**
  * Models the specification of a single anchor.
  * @public
  */
-export declare type SingleAnchorSpec = AnchorId | FullAnchorSpec;
+export declare type SingleAnchorSpec = AnchorId | FullAnchorSpec | ArrayAnchorSpec;
 /**
  * Models the specification of anchor - which may be a SingleAnchorSpec, or an array of SingleAnchorSpec objects.
  * @public
