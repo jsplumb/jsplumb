@@ -531,7 +531,7 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
                             sourceId = conn.sourceId,
                             targetId = conn.targetId,
                             sourceContinuous = isContinuous(conn.endpoints[0]._anchor),
-                            targetContinuous = isContinuous(conn.endpoints[0]._anchor)
+                            targetContinuous = isContinuous(conn.endpoints[1]._anchor)
 
                         if (sourceContinuous || targetContinuous) {
                             let oKey = sourceId + "_" + targetId,
