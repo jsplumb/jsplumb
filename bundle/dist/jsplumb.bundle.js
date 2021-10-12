@@ -6234,7 +6234,7 @@ var jsPlumbBrowserUI = (function (exports) {
                     sourceId = conn.sourceId,
                     targetId = conn.targetId,
                     sourceContinuous = isContinuous(conn.endpoints[0]._anchor),
-                    targetContinuous = isContinuous(conn.endpoints[0]._anchor);
+                    targetContinuous = isContinuous(conn.endpoints[1]._anchor);
                 if (sourceContinuous || targetContinuous) {
                   var oKey = sourceId + "_" + targetId,
                       o = orientationCache[oKey],
