@@ -2338,6 +2338,10 @@
                 }
               }
             }
+          } else if (wasInGroup && isInOriginalGroup) {
+            var parentPos = _this.instance.viewport.getPosition(p.originalGroup.elId);
+            p.pos.x += parentPos.x;
+            p.pos.y += parentPos.y;
           }
           if (dropGroup != null && !isInOriginalGroup) {
             _this.instance.groupManager.addToGroup(dropGroup.groupLoc.group, false, p.el);
