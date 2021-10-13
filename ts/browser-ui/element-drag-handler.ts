@@ -242,6 +242,10 @@ export class ElementDragHandler implements DragHandler {
                         }
                     }
                 }
+            } else if (wasInGroup && isInOriginalGroup) {
+                const parentPos = this.instance.viewport.getPosition(p.originalGroup.elId)
+                p.pos.x += parentPos.x;
+                p.pos.y += parentPos.y;
             }
 
             if (dropGroup != null && !isInOriginalGroup) {
