@@ -646,6 +646,49 @@ var testSuite = function () {
 
     });
 
+    test("dragging nodes inside groups, single nodes", function() {
+        _setupGroups();
+
+        var c1_2_pos = getNodePosition(c1_2)
+        var anchorPos = _jsPlumb.endpointsByElement["c1_2"][0]._anchor.computedPosition
+
+        // try dragging 1_2 right out of the box and dropping it. it should not work: c1 has constrain switched on.
+        // 1_2 will end up in the bottom right corner of the group.
+        support.dragNodeBy(c1_2, 50, 60);
+
+        var c1_2_newPos = getNodePosition(c1_2)
+        equal(c1_2_newPos[0] - c1_2_pos[0], 50, "node has moved by 50 pixels in x axis")
+        equal(c1_2_newPos[1] - c1_2_pos[1], 60, "node has moved by 60 pixels in x axis")
+
+        // also test the anchor position has moved by the same amount.  this is a test for the code added to element-drag-handler in
+        // commit af5fae4: its purpose is to ensure that an element dragged inside of some parent group has its location
+        // correctly set at drag end.
+        var newAnchorPos = _jsPlumb.endpointsByElement["c1_2"][0]._anchor.computedPosition
+        equal(newAnchorPos.curX - anchorPos.curX, 50, "anchor has moved by 50 pixels in x axis")
+        equal(newAnchorPos.curY - anchorPos.curY, 60, "anchor has moved by 60 pixels in x axis")
+    })
+
+    test("dragging nodes inside groups, multiple nodes", function() {
+        _setupGroups();
+
+        var c1_2_pos = getNodePosition(c1_2)
+        var c1_1_pos = getNodePosition(c1_1)
+
+        _jsPlumb.addToDragSelection(c1_1)
+
+        // try dragging 1_2 right out of the box and dropping it. it should not work: c1 has constrain switched on.
+        // 1_2 will end up in the bottom right corner of the group.
+        support.dragNodeBy(c1_2, 50, 60);
+
+        var c1_2_newPos = getNodePosition(c1_2)
+        equal(c1_2_newPos[0] - c1_2_pos[0], 50, "c1_2, the dragged node, has moved by 50 pixels in x axis")
+        equal(c1_2_newPos[1] - c1_2_pos[1], 60, "c1_2, the dragged node, has moved by 60 pixels in x axis")
+
+        var c1_1_newPos = getNodePosition(c1_1)
+        equal(c1_1_newPos[0] - c1_1_pos[0], 50, "c1_1, a node in the drag selection, has moved by 50 pixels in x axis")
+        equal(c1_1_newPos[1] - c1_1_pos[1], 60, "c1_1, a node in the drag selection,has moved by 60 pixels in x axis")
+    })
+
     test("dragging nodes out of groups, single nodes", function() {
         _setupGroups();
 
@@ -766,6 +809,68 @@ var testSuite = function () {
         equal(_jsPlumb.getGroup("five").children.length, 0, "0 members in group five - they were both dragged out");
         ok(c5_2.parentNode != null, "c5_2 still in DOM");
         ok(c5_1.parentNode != null, "c5_1 still in DOM");
+    });
+
+    /**
+    * Another test related to the update in commit af5fae4. Here we test nested group drag stop, plus we also test drag stop
+     * when an element is inside a group that does not allow orphaning: the element goes back into the group, and the drag position
+     * needs to have the parent group's offset added in order for anchors to be positioned correctly.
+     */
+    test("dragging groups inside groups, single groups", function() {
+
+        var groupA = _addGroupAndContainer(1000,1000),
+            groupB = _addGroupAndContainer(100,100),
+            groupC = _addGroupAndContainer(100,100);
+
+        // groupC.orphan = true
+
+        _jsPlumb.setPosition(groupA.el, {x:20, y:30})
+        _jsPlumb.revalidate(groupA.el)
+
+        var n = _addNode(1200, 0, 100, 100)
+
+        support.dragToGroup( groupB.el, groupA);
+        support.dragToGroup(n, groupC);
+
+        equal(_jsPlumb.getGroupContentArea(groupA), groupB.el.parentNode, "groupB is child of groupA in the DOM");
+        equal(groupA.getGroups().length, 1, "groupA has one child group");
+
+        // connect the node to the now nested group
+        _jsPlumb.connect({source:n, target:groupB.el})
+
+        var groupBPos = getNodePosition(groupB.el)
+        var anchorPos = _jsPlumb.endpointsByElement[groupB.el.getAttribute("data-jtk-managed")][0]._anchor.computedPosition
+
+        support.dragNodeBy(groupB.el, 50, 60)
+
+        var groupBNewPos = getNodePosition(groupB.el)
+
+        equal(groupBNewPos[0] - groupBPos[0], 50, "group b has moved by 50 pixels in the x axis")
+        equal(groupBNewPos[1] - groupBPos[1], 60, "group b has moved by 60 pixels in the y axis")
+
+        var newAnchorPos = _jsPlumb.endpointsByElement[groupB.el.getAttribute("data-jtk-managed")][0]._anchor.computedPosition
+
+        equal(newAnchorPos.curX - anchorPos.curX, 50, "anchor has moved by 50 pixels in x axis")
+        equal(newAnchorPos.curY - anchorPos.curY, 60, "anchor has moved by 60 pixels in y axis")
+
+        var nodeAnchorPos = _jsPlumb.endpointsByElement[n.getAttribute("data-jtk-managed")][0]._anchor.computedPosition
+        support.dragNodeBy(n, 0, 260)
+        var newnewAnchorPos = _jsPlumb.endpointsByElement[groupB.el.getAttribute("data-jtk-managed")][0]._anchor.computedPosition
+        equal(newnewAnchorPos.curX - newAnchorPos.curX, 0, "anchor has not moved in x axis")
+        equal(newnewAnchorPos.curY - newAnchorPos.curY, 0, "anchor has not moved in y axis")
+        var newNodeAnchorPos = _jsPlumb.endpointsByElement[n.getAttribute("data-jtk-managed")][0]._anchor.computedPosition
+        equal(newNodeAnchorPos.curX - nodeAnchorPos.curX, 0, "anchor has not moved in x axis - groupC doesnt allow orphaning")
+        equal(newNodeAnchorPos.curY - nodeAnchorPos.curY, 0, "anchor has not moved in y axis - groupC doesnt allow orphaning")
+
+        groupC.orphan = true
+
+        support.dragNodeBy(n, 10, 260)
+        var newnewNodeAnchorPos = _jsPlumb.endpointsByElement[n.getAttribute("data-jtk-managed")][0]._anchor.computedPosition
+        // note that here we add groupC's offset values to the anchor delta we expect, since the node is now not a child of the
+        // group anymore and is a child of the container.
+        equal(newnewNodeAnchorPos.curX - newNodeAnchorPos.curX, 10 + groupC.el.offsetLeft, "anchor has moved 10 pixels in x axis ")
+        equal(newnewNodeAnchorPos.curY - newNodeAnchorPos.curY, 260 + groupC.el.offsetTop, "anchor has moved 260 in y axis")
+
     });
 
     test("dragging groups out of groups, single groups", function() {
