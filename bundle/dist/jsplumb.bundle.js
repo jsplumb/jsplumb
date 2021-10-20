@@ -12201,7 +12201,11 @@ var jsPlumbBrowserUI = (function (exports) {
         });
         forEach(elementsToProcess, function (p) {
           var wasInGroup = p.originalGroup != null,
-              isInOriginalGroup = wasInGroup && isInsideParent(_this.instance, p.el, p.pos);
+              isInOriginalGroup = wasInGroup && isInsideParent(_this.instance, p.el, p.pos),
+              parentOffset = {
+            x: 0,
+            y: 0
+          };
           if (wasInGroup && !isInOriginalGroup) {
             if (dropGroup == null) {
               var orphanedPosition = _this._pruneOrOrphan(p, true, true);
@@ -12215,9 +12219,7 @@ var jsPlumbBrowserUI = (function (exports) {
               }
             }
           } else if (wasInGroup && isInOriginalGroup) {
-            var parentPos = _this.instance.viewport.getPosition(p.originalGroup.elId);
-            p.pos.x += parentPos.x;
-            p.pos.y += parentPos.y;
+            parentOffset = _this.instance.viewport.getPosition(p.originalGroup.elId);
           }
           if (dropGroup != null && !isInOriginalGroup) {
             _this.instance.groupManager.addToGroup(dropGroup.groupLoc.group, false, p.el);
@@ -12227,7 +12229,7 @@ var jsPlumbBrowserUI = (function (exports) {
           if (p.reverted) {
             _this.instance.setPosition(p.el, p.pos);
           }
-          p.redrawResult = _this.instance.setElementPosition(p.el, p.pos.x, p.pos.y);
+          p.redrawResult = _this.instance.setElementPosition(p.el, p.pos.x + parentOffset.x, p.pos.y + parentOffset.y);
           _this.instance.removeClass(p.el, CLASS_DRAGGED);
           _this.instance.select({
             source: p.el
