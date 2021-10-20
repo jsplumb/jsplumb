@@ -859,10 +859,8 @@ var testSuite = function () {
 
         support.dragNodeBy(n, 10, 260)
         var newNodeAnchorPos = _jsPlumb.endpointsByElement[n.getAttribute("data-jtk-managed")][0]._anchor.computedPosition
-        // note that here we add groupC's offset values to the anchor delta we expect, since the node is now not a child of the
-        // group anymore and is a child of the container.
-        equal(newNodeAnchorPos.curX - nodeAnchorPos.curX, 10 + groupC.el.offsetLeft, "anchor has moved 10 pixels in x axis ")
-        equal(newNodeAnchorPos.curY - nodeAnchorPos.curY, 260 + groupC.el.offsetTop, "anchor has moved 260 in y axis")
+        equal(newNodeAnchorPos.curX - nodeAnchorPos.curX, 10, "anchor has moved 10 pixels in x axis ")
+        equal(newNodeAnchorPos.curY - nodeAnchorPos.curY, 260, "anchor has moved 260 in y axis")
 
     });
 
