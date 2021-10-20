@@ -854,22 +854,15 @@ var testSuite = function () {
         equal(newAnchorPos.curY - anchorPos.curY, 60, "anchor has moved by 60 pixels in y axis")
 
         var nodeAnchorPos = _jsPlumb.endpointsByElement[n.getAttribute("data-jtk-managed")][0]._anchor.computedPosition
-        support.dragNodeBy(n, 0, 260)
-        var newnewAnchorPos = _jsPlumb.endpointsByElement[groupB.el.getAttribute("data-jtk-managed")][0]._anchor.computedPosition
-        equal(newnewAnchorPos.curX - newAnchorPos.curX, 0, "anchor has not moved in x axis")
-        equal(newnewAnchorPos.curY - newAnchorPos.curY, 0, "anchor has not moved in y axis")
-        var newNodeAnchorPos = _jsPlumb.endpointsByElement[n.getAttribute("data-jtk-managed")][0]._anchor.computedPosition
-        equal(newNodeAnchorPos.curX - nodeAnchorPos.curX, 0, "anchor has not moved in x axis - groupC doesnt allow orphaning")
-        equal(newNodeAnchorPos.curY - nodeAnchorPos.curY, 0, "anchor has not moved in y axis - groupC doesnt allow orphaning")
 
         groupC.orphan = true
 
         support.dragNodeBy(n, 10, 260)
-        var newnewNodeAnchorPos = _jsPlumb.endpointsByElement[n.getAttribute("data-jtk-managed")][0]._anchor.computedPosition
+        var newNodeAnchorPos = _jsPlumb.endpointsByElement[n.getAttribute("data-jtk-managed")][0]._anchor.computedPosition
         // note that here we add groupC's offset values to the anchor delta we expect, since the node is now not a child of the
         // group anymore and is a child of the container.
-        equal(newnewNodeAnchorPos.curX - newNodeAnchorPos.curX, 10 + groupC.el.offsetLeft, "anchor has moved 10 pixels in x axis ")
-        equal(newnewNodeAnchorPos.curY - newNodeAnchorPos.curY, 260 + groupC.el.offsetTop, "anchor has moved 260 in y axis")
+        equal(newNodeAnchorPos.curX - nodeAnchorPos.curX, 10 + groupC.el.offsetLeft, "anchor has moved 10 pixels in x axis ")
+        equal(newNodeAnchorPos.curY - nodeAnchorPos.curY, 260 + groupC.el.offsetTop, "anchor has moved 260 in y axis")
 
     });
 
