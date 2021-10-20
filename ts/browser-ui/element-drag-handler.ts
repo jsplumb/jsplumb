@@ -239,9 +239,6 @@ export class ElementDragHandler implements DragHandler {
                             // if not pruned and the original group has revert set, revert the element.
                             p.pos = p.originalPos
                             p.reverted = true
-                            const parentPos = this.instance.viewport.getPosition(p.originalGroup.elId)
-                            p.pos.x += parentPos.x
-                            p.pos.y += parentPos.y
                         }
                     }
                 }
