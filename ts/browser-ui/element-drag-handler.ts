@@ -225,7 +225,9 @@ export class ElementDragHandler implements DragHandler {
 
         forEach(elementsToProcess, (p:DraggedElement)=> {
             let wasInGroup = p.originalGroup != null,
-                isInOriginalGroup = wasInGroup && isInsideParent(this.instance, p.el, p.pos)
+                isInOriginalGroup = wasInGroup && isInsideParent(this.instance, p.el, p.pos),
+                parentOffset = {x:0, y:0}
+
 
             if (wasInGroup && !isInOriginalGroup) {
                 if (dropGroup == null) {
@@ -243,9 +245,7 @@ export class ElementDragHandler implements DragHandler {
                     }
                 }
             } else if (wasInGroup && isInOriginalGroup) {
-                const parentPos = this.instance.viewport.getPosition(p.originalGroup.elId)
-                p.pos.x += parentPos.x;
-                p.pos.y += parentPos.y;
+                parentOffset = this.instance.viewport.getPosition(p.originalGroup.elId)
             }
 
             if (dropGroup != null && !isInOriginalGroup) {
@@ -259,7 +259,7 @@ export class ElementDragHandler implements DragHandler {
                 this.instance.setPosition(p.el, p.pos)
             }
             // in all cases we update the viewport.
-            p.redrawResult = this.instance.setElementPosition(p.el, p.pos.x, p.pos.y)
+            p.redrawResult = this.instance.setElementPosition(p.el, p.pos.x + parentOffset.x, p.pos.y + parentOffset.y)
 
             this.instance.removeClass(p.el, CLASS_DRAGGED)
             this.instance.select({source: p.el}).removeClass(this.instance.elementDraggingClass + " " + this.instance.sourceElementDraggingClass, true)
