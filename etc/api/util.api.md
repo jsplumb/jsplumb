@@ -16,6 +16,11 @@ export function addToList<T>(map: Map<string, Array<T>>, key: string, value: any
 // @public
 export function addWithFunction<T>(list: Array<T>, item: T, hashFunction: (_a: T) => boolean): void;
 
+// Warning: (ae-internal-missing-underscore) The name "arraysEqual" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function arraysEqual(a: Array<any>, b: Array<any>): boolean;
+
 // @public
 export type BoundingBox = {
     x: number;
@@ -189,6 +194,11 @@ export function merge(a: Record<string, any>, b: Record<string, any>, collations
 // @public
 export function normal(p1: PointXY, p2: PointXY): number;
 
+// Warning: (ae-internal-missing-underscore) The name "objectsEqual" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function objectsEqual(a: Record<string, any>, b: Record<string, any>): boolean;
+
 // @public
 type Omit_2<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export { Omit_2 as Omit }
@@ -233,7 +243,9 @@ export function remove<T>(l: Array<T>, v: T): boolean;
 // @public
 export function removeWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): boolean;
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "replace" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function replace(inObj: any, path: string, value: any): any;
 
 // Warning: (ae-internal-missing-underscore) The name "rotateAnchorOrientation" should be prefixed with an underscore because the declaration is marked as @internal

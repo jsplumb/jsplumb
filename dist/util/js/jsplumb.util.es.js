@@ -131,6 +131,56 @@ function merge(a, b, collations, overwrites) {
   }
   return c;
 }
+function _areEqual(a, b) {
+  if (a != null && b == null) {
+    return false;
+  } else {
+    if ((a == null || isString(a) || isBoolean(a) || isNumber(a)) && a !== b) {
+      return false;
+    } else {
+      if (Array.isArray(a)) {
+        if (!Array.isArray(b)) {
+          return false;
+        } else {
+          if (!arraysEqual(a, b)) {
+            return false;
+          }
+        }
+      } else if (isObject(a)) {
+        if (!isObject(a)) {
+          return false;
+        } else {
+          if (!objectsEqual(a, b)) {
+            return false;
+          }
+        }
+      }
+    }
+  }
+  return true;
+}
+function arraysEqual(a, b) {
+  if (a.length !== b.length) {
+    return false;
+  } else {
+    for (var i = 0; i < a.length; i++) {
+      if (!_areEqual(a[i], b[i])) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+function objectsEqual(a, b) {
+  for (var key in a) {
+    var va = a[key],
+        vb = b[key];
+    if (!_areEqual(va, vb)) {
+      return false;
+    }
+  }
+  return true;
+}
 function replace(inObj, path, value) {
   if (inObj == null) {
     return;
@@ -892,4 +942,4 @@ function snapToGrid(pos, grid, thresholdX, thresholdY) {
   };
 }
 
-export { EventGenerator, OptimisticEventGenerator, TWO_PI, add, addToDictionary, addToList, addWithFunction, clone, each, encloses, extend, fastTrim, filterList, filterNull, findAllWithFunction, findWithFunction, forEach, fromArray, functionChain, getAllWithFunction, getFromSetWithFunction, getWithFunction, getsert, gradient, insertSorted, intersects, isAssignableFrom, isBoolean, isDate, isEmpty, isFunction, isNamedFunction, isNull, isNumber, isObject, isString, lineIntersection, lineLength, lineRectangleIntersection, log, logEnabled, map, merge, normal, perpendicularLineTo, pointOnLine, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, snapToGrid, sortHelper, subtract, suggest, theta, uuid, wrap };
+export { EventGenerator, OptimisticEventGenerator, TWO_PI, add, addToDictionary, addToList, addWithFunction, arraysEqual, clone, each, encloses, extend, fastTrim, filterList, filterNull, findAllWithFunction, findWithFunction, forEach, fromArray, functionChain, getAllWithFunction, getFromSetWithFunction, getWithFunction, getsert, gradient, insertSorted, intersects, isAssignableFrom, isBoolean, isDate, isEmpty, isFunction, isNamedFunction, isNull, isNumber, isObject, isString, lineIntersection, lineLength, lineRectangleIntersection, log, logEnabled, map, merge, normal, objectsEqual, perpendicularLineTo, pointOnLine, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, snapToGrid, sortHelper, subtract, suggest, theta, uuid, wrap };

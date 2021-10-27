@@ -140,11 +140,26 @@ export declare function filterNull(obj: Record<string, any>): Record<string, any
  */
 export declare function merge(a: Record<string, any>, b: Record<string, any>, collations?: Array<string>, overwrites?: Array<string>): any;
 /**
+ * Returns whether or not the two arrays are identical, ie. they have the same length and every value is the same
+ * @param a
+ * @param b
+ * @internal
+ */
+export declare function arraysEqual(a: Array<any>, b: Array<any>): boolean;
+/**
+ * Returns whether or not the two objects are identical, ie. there are no keys in o1 that do not exist in o2 and vice versa.
+ * @param a
+ * @param b
+ * @internal
+ */
+export declare function objectsEqual(a: Record<string, any>, b: Record<string, any>): boolean;
+/**
  * Replace a value inside some object with another value.
  * @param inObj Object within which to make the replacement.
  * @param path Path to the value to replace. Supports dotted and bracket notation. Eg "foo" means a value with key `foo` in the root. "foo.bar" means a value
  * with key `bar` inside a value with key `foo`. "foo[1]" means the object at index 1 inside a value with key `foo`.
  * @param value Value to replace the original value with.
+ * @internal
  */
 export declare function replace(inObj: any, path: string, value: any): any;
 /**

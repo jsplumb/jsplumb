@@ -134,6 +134,56 @@ var jsPlumbBrowserUI = (function (exports) {
     }
     return c;
   }
+  function _areEqual(a, b) {
+    if (a != null && b == null) {
+      return false;
+    } else {
+      if ((a == null || isString(a) || isBoolean(a) || isNumber(a)) && a !== b) {
+        return false;
+      } else {
+        if (Array.isArray(a)) {
+          if (!Array.isArray(b)) {
+            return false;
+          } else {
+            if (!arraysEqual(a, b)) {
+              return false;
+            }
+          }
+        } else if (isObject(a)) {
+          if (!isObject(a)) {
+            return false;
+          } else {
+            if (!objectsEqual(a, b)) {
+              return false;
+            }
+          }
+        }
+      }
+    }
+    return true;
+  }
+  function arraysEqual(a, b) {
+    if (a.length !== b.length) {
+      return false;
+    } else {
+      for (var i = 0; i < a.length; i++) {
+        if (!_areEqual(a[i], b[i])) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+  function objectsEqual(a, b) {
+    for (var key in a) {
+      var va = a[key],
+          vb = b[key];
+      if (!_areEqual(va, vb)) {
+        return false;
+      }
+    }
+    return true;
+  }
   function replace(inObj, path, value) {
     if (inObj == null) {
       return;
@@ -15107,6 +15157,7 @@ var jsPlumbBrowserUI = (function (exports) {
   exports.addToDictionary = addToDictionary;
   exports.addToList = addToList;
   exports.addWithFunction = addWithFunction;
+  exports.arraysEqual = arraysEqual;
   exports.att = att;
   exports.bezierLineIntersection = bezierLineIntersection;
   exports.boundingBoxIntersection = boundingBoxIntersection;
@@ -15188,6 +15239,7 @@ var jsPlumbBrowserUI = (function (exports) {
   exports.nearestPointOnCurve = nearestPointOnCurve;
   exports.newInstance = newInstance;
   exports.normal = normal;
+  exports.objectsEqual = objectsEqual;
   exports.offsetRelativeToRoot = offsetRelativeToRoot;
   exports.pageLocation = pageLocation;
   exports.perpendicularLineTo = perpendicularLineTo;

@@ -40,6 +40,14 @@ export declare function addToList<T>(map: Map<string, Array<T>>, key: string, va
 export declare function addWithFunction<T>(list: Array<T>, item: T, hashFunction: (_a: T) => boolean): void;
 
 /**
+ * Returns whether or not the two arrays are identical, ie. they have the same length and every value is the same
+ * @param a
+ * @param b
+ * @internal
+ */
+export declare function arraysEqual(a: Array<any>, b: Array<any>): boolean;
+
+/**
  * Defines the bounding box for some element - its x/y location, width and height, and optionally the computed center, but
  * that can of course be calculated from the other values. Internally there are times when the code has this to hand so we include
  * it here.
@@ -507,6 +515,14 @@ export declare function merge(a: Record<string, any>, b: Record<string, any>, co
 export declare function normal(p1: PointXY, p2: PointXY): number;
 
 /**
+ * Returns whether or not the two objects are identical, ie. there are no keys in o1 that do not exist in o2 and vice versa.
+ * @param a
+ * @param b
+ * @internal
+ */
+export declare function objectsEqual(a: Record<string, any>, b: Record<string, any>): boolean;
+
+/**
  * A copy of a concept from a later version of Typescript than jsPlumb can currently use.
  */
 declare type Omit_2<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
@@ -605,6 +621,7 @@ export declare function removeWithFunction<T>(a: Array<T>, f: (_a: T) => boolean
  * @param path Path to the value to replace. Supports dotted and bracket notation. Eg "foo" means a value with key `foo` in the root. "foo.bar" means a value
  * with key `bar` inside a value with key `foo`. "foo[1]" means the object at index 1 inside a value with key `foo`.
  * @param value Value to replace the original value with.
+ * @internal
  */
 export declare function replace(inObj: any, path: string, value: any): any;
 
