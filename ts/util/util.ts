@@ -289,11 +289,88 @@ export function merge(a: Record<string, any>, b: Record<string, any>, collations
 }
 
 /**
+ * Returns whether or not the two values are identical. Values may be a string, boolean, number, array of any of these or
+ * object containing any of these.
+ * @param a
+ * @param b
+ * @internal
+ */
+function _areEqual(a:any, b:any):boolean {
+    // if `a` has a value and `b` has no such value, they dont match
+    if (a != null && b == null) {
+        return false
+    } else {
+        // if `a` has a null value, a String, or a Boolean, a strict comparison can be made with the value from `b`
+        if ((a == null || isString(a) || isBoolean(a) || isNumber(a) ) && a !== b) {
+            return false
+        } else {
+            if (Array.isArray(a)) {
+                if (!Array.isArray(b)) {
+                    return false
+                } else {
+                    if (!arraysEqual(a, b)) {
+                        return false
+                    }
+                }
+            } else if (isObject(a)) {
+                if (!isObject(a)) {
+                    return false
+                } else {
+                    if (!objectsEqual(a, b)) {
+                        return false
+                    }
+                }
+            }
+        }
+    }
+
+    return true
+}
+
+/**
+ * Returns whether or not the two arrays are identical, ie. they have the same length and every value is the same
+ * @param a
+ * @param b
+ * @internal
+ */
+export function arraysEqual(a: Array<any>, b: Array<any>):boolean {
+    if (a.length !== b.length) {
+        return false
+    } else {
+        for(let i = 0; i < a.length; i++) {
+            if (!_areEqual(a[i], b[i])) {
+                return false
+            }
+        }
+    }
+    return true
+}
+
+
+/**
+ * Returns whether or not the two objects are identical, ie. there are no keys in o1 that do not exist in o2 and vice versa.
+ * @param a
+ * @param b
+ * @internal
+ */
+export function objectsEqual(a: Record<string, any>, b: Record<string, any>):boolean {
+    for (let key in a) {
+        let va = a[key], vb = b[key]
+        if (!_areEqual(va, vb)) {
+            return false
+        }
+    }
+    return true
+}
+
+
+/**
  * Replace a value inside some object with another value.
  * @param inObj Object within which to make the replacement.
  * @param path Path to the value to replace. Supports dotted and bracket notation. Eg "foo" means a value with key `foo` in the root. "foo.bar" means a value
  * with key `bar` inside a value with key `foo`. "foo[1]" means the object at index 1 inside a value with key `foo`.
  * @param value Value to replace the original value with.
+ * @internal
  */
 export function replace(inObj: any, path: string, value: any) {
     if (inObj == null) {
