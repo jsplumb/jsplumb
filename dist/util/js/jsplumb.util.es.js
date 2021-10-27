@@ -160,6 +160,13 @@ function _areEqual(a, b) {
   return true;
 }
 function arraysEqual(a, b) {
+  if (a == null && b == null) {
+    return true;
+  } else if (a == null && b != null) {
+    return false;
+  } else if (a != null && b == null) {
+    return false;
+  }
   if (a.length !== b.length) {
     return false;
   } else {
@@ -172,6 +179,13 @@ function arraysEqual(a, b) {
   return true;
 }
 function objectsEqual(a, b) {
+  if (a == null && b == null) {
+    return true;
+  } else if (a == null && b != null) {
+    return false;
+  } else if (a != null && b == null) {
+    return false;
+  }
   for (var key in a) {
     var va = a[key],
         vb = b[key];
