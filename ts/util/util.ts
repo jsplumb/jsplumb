@@ -334,6 +334,15 @@ function _areEqual(a:any, b:any):boolean {
  * @internal
  */
 export function arraysEqual(a: Array<any>, b: Array<any>):boolean {
+
+    if (a == null && b == null) {
+        return true
+    } else if (a == null && b != null) {
+        return false
+    } else if (a != null && b == null) {
+        return false
+    }
+
     if (a.length !== b.length) {
         return false
     } else {
@@ -354,6 +363,15 @@ export function arraysEqual(a: Array<any>, b: Array<any>):boolean {
  * @internal
  */
 export function objectsEqual(a: Record<string, any>, b: Record<string, any>):boolean {
+
+    if (a == null && b == null) {
+        return true
+    } else if (a == null && b != null) {
+        return false
+    } else if (a != null && b == null) {
+        return false
+    }
+
     for (let key in a) {
         let va = a[key], vb = b[key]
         if (!_areEqual(va, vb)) {
