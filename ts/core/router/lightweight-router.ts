@@ -34,6 +34,7 @@ import {
 
 import {ViewportElement} from "../viewport"
 import {AnchorPlacement, AnchorSpec} from "@jsplumb/common"
+import {SOURCE, TARGET} from "../constants"
 
 
 // -------------------- internal data structures --------------------------------------
@@ -96,24 +97,11 @@ function _leftAndTopSort(a:AnchorListEntry, b:AnchorListEntry):number {
 
 // used by placeAnchors
 const edgeSortFunctions:Dictionary<SortFunction<AnchorListEntry>> = {
-    "top": _leftAndTopSort,
-    "right": _rightAndBottomSort,
-    "bottom": _rightAndBottomSort,
-    "left": _leftAndTopSort
+    [TOP]: _leftAndTopSort,
+    [RIGHT]: _rightAndBottomSort,
+    [BOTTOM]: _rightAndBottomSort,
+    [LEFT]: _leftAndTopSort
 }
-
-
-
-
-// function getSupportedFaces (a:LightweightContinuousAnchor):Array<Face> {
-//     let af:Array<Face> = []
-//     for (let k in this.availableFaces) {
-//         if (this.availableFaces[k]) {
-//             af.push(k as Face)
-//         }
-//     }
-//     return af
-// }
 
 // -------------------- / internal data structures --------------------------------------
 
@@ -132,7 +120,6 @@ export function isDynamic(a:LightweightAnchor):boolean {
 function getCurrentLocation(anchor:LightweightAnchor):[number, AnchorRecord] {
     return [anchor.currentLocation, anchor.locations[anchor.currentLocation]]
 }
-
 
 export class LightweightRouter<T extends {E:unknown}> implements Router<T, LightweightAnchor>  {
 
@@ -222,7 +209,6 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
         } else {
             loc.ox = loc.iox
             loc.oy = loc.ioy
-            //pos = candidate
             pos = extend({
                 ox:loc.iox,
                 oy:loc.ioy
@@ -452,7 +438,7 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
 
     getEndpointLocation(endpoint: Endpoint<any>, params: AnchorComputeParams): AnchorPlacement {
         params = params || {}
-        const anchor = endpoint._anchor//anchorMap.get(endpoint.id)
+        const anchor = endpoint._anchor
         let pos = this.anchorLocations.get(anchor.id)
         if (pos == null || (params.timestamp != null && anchor.timestamp !== params.timestamp)) {
             pos = this.computeAnchorLocation(anchor, params)
@@ -462,19 +448,16 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
     }
 
     getEndpointOrientation(ep: Endpoint<any>): [number, number] {
-        //const a = this.getAnchor(endpoint)
         return ep._anchor ? this.getAnchorOrientation(ep._anchor) : [0,0]
     }
 
     // TODO this method should not need to be called. for now, a placeholder implementation, which
     // returns whether or not the endpoint is not continuous and has more than one placement
     isDynamicAnchor(ep: Endpoint<any>): boolean {
-        //const a = this.getAnchor(ep)
         return ep._anchor ? !isContinuous(ep._anchor) && ep._anchor.locations.length > 1 : false
     }
 
     isFloating(ep: Endpoint<any>): boolean {
-        //const a = this.getAnchor(ep)
         return ep._anchor ? isFloating(ep._anchor) : false
     }
 
@@ -552,16 +535,14 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
                                 // to put the connector on.  ideally, when drawing, the face should be calculated
                                 // by determining which face is closest to the point at which the mouse button
                                 // was released.  for now, we're putting it on the top face.
-                                this._updateAnchorList(this.anchorLists.get(sourceId), -Math.PI / 2, 0, conn, false, targetId, 0, false, "top", connectionsToPaint, endpointsToPaint)
-                                this._updateAnchorList(this.anchorLists.get(targetId), -Math.PI / 2, 0, conn, false, sourceId, 1, false, "top", connectionsToPaint, endpointsToPaint)
+                                this._updateAnchorList(this.anchorLists.get(sourceId), -Math.PI / 2, 0, conn, false, targetId, 0, false, TOP, connectionsToPaint, endpointsToPaint)
+                                this._updateAnchorList(this.anchorLists.get(targetId), -Math.PI / 2, 0, conn, false, sourceId, 1, false, TOP, connectionsToPaint, endpointsToPaint)
                             } else {
                                 const sourceRotation = this.instance._getRotations(sourceId)
                                 const targetRotation = this.instance._getRotations(targetId)
 
                                 if (!o) {
                                     o = this._calculateOrientation(sourceId, targetId, sd, td,
-                                        // anchorMap.get(conn.endpoints[0].id) as LightweightContinuousAnchor,
-                                        // anchorMap.get(conn.endpoints[1].id) as LightweightContinuousAnchor,
                                         conn.endpoints[0]._anchor as LightweightContinuousAnchor,
                                         conn.endpoints[1]._anchor as LightweightContinuousAnchor,
                                         sourceRotation,
@@ -591,7 +572,6 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
                             }
                         } else {
                             let otherEndpoint = anEndpoint.connections[i].endpoints[conn.sourceId === elementId ? 1 : 0],
-                                //otherAnchor = anchorMap.get(otherEndpoint.id)
                                 otherAnchor = otherEndpoint._anchor
 
                             if (isDynamic(otherAnchor)) {
@@ -615,7 +595,6 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
                         }
                     }
                 }
-                //})
             }
 
             // now place all the continuous anchors we need to
@@ -642,14 +621,12 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
     }
 
     reset(): void {
-        //anchorMap.clear()
         this.anchorLocations.clear()
         this.anchorLists.clear()
     }
 
     setAnchor(endpoint: Endpoint<any>, anchor: LightweightAnchor): void {
         if(anchor != null) {
-          //  anchorMap.set(endpoint.id, anchor)
             endpoint._anchor = anchor
         }
     }
@@ -657,8 +634,6 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
     setConnectionAnchors(conn: Connection<any>, anchors: [LightweightAnchor, LightweightAnchor]): void {
         conn.endpoints[0]._anchor = anchors[0]
         conn.endpoints[1]._anchor = anchors[1]
-        // anchorMap.set(conn.endpoints[0].id, anchors[0])
-        // anchorMap.set(conn.endpoints[1].id, anchors[1])
     }
 
     private _calculateOrientation (sourceId:string, targetId:string,
@@ -674,7 +649,7 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
         if (sourceId === targetId) {
             return {
                 orientation: Orientation.IDENTITY,
-                a: ["top", "top"]
+                a: [TOP, TOP]
             }
         }
 
@@ -697,12 +672,11 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
         ;( (types:Array<string>, dim:Array<[ViewportElement<T["E"]>, Rotations]>) => {
             for (let i = 0; i < types.length; i++) {
                 midpoints[types[i]] = {
-                    "left": {x:dim[i][0].x, y:dim[i][0].c.y },
-                    "right": {x:dim[i][0].x + dim[i][0].w, y:dim[i][0].c.y },
-                    "top": {x:dim[i][0].c.x, y:dim[i][0].y },
-                    "bottom": {x:dim[i][0].c.x, y:dim[i][0].y + dim[i][0].h}
+                    [LEFT]: {x:dim[i][0].x, y:dim[i][0].c.y },
+                    [RIGHT]: {x:dim[i][0].x + dim[i][0].w, y:dim[i][0].c.y },
+                    [TOP]: {x:dim[i][0].c.x, y:dim[i][0].y },
+                    [BOTTOM]: {x:dim[i][0].c.x, y:dim[i][0].y + dim[i][0].h}
                 }
-
 
                 if (dim[i][1] != null && dim[i][1].length > 0) {
                     for (let axis in midpoints[types[i]]) {
@@ -711,9 +685,9 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
                 }
 
             }
-        })([ "source", "target" ], [ [ sd, sourceRotation], [td, targetRotation] ])
+        })([ SOURCE, TARGET ], [ [ sd, sourceRotation], [td, targetRotation] ])
 
-        let FACES:Array<Face> = [ "top", "right", "left", "bottom" ]
+        let FACES:Array<Face> = [ TOP, LEFT, RIGHT, BOTTOM ]
 
         for (let sf = 0; sf < FACES.length; sf++) {
             for (let tf = 0; tf < FACES.length; tf++) {
@@ -732,10 +706,10 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
                 return 1
             } else {
                 const axisIndices = {
-                        "left":0,
-                        "top":1,
-                        "right":2,
-                        "bottom":3
+                        [LEFT]:0,
+                        [TOP]:1,
+                        [RIGHT]:2,
+                        [BOTTOM]:3
                     },
                     ais = axisIndices[a.source],
                     bis = axisIndices[b.source],
@@ -793,6 +767,12 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
         }
     }
 
+    /**
+     * @internal
+     * @param a
+     * @param face
+     * @param overrideLock
+     */
     setCurrentFace (a:LightweightContinuousAnchor, face:Face, overrideLock?:boolean) {
         a.currentFace = face
         // if currently locked, and the user wants to override, do that.
@@ -801,6 +781,10 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
         }
     }
 
+    /**
+     * @internal
+     * @param a
+     */
     lock(a:LightweightAnchor) {
         a.locked = true
         if (isContinuous(a)) {
@@ -808,6 +792,10 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
         }
     }
 
+    /**
+     * @internal
+     * @param a
+     */
     unlock(a:LightweightAnchor):void {
         a.locked = false
         if (isContinuous(a)) {
@@ -821,6 +809,7 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
      * @param a
      * @param coords
      * @returns true if a matching location was found and activated, false if not.
+     * @internal
      */
     selectAnchorLocation(a:LightweightAnchor, coords:{x:number, y:number}):boolean {
         const idx = findWithFunction(a.locations, (loc) => {
@@ -834,20 +823,29 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
         }
     }
 
+    /**
+     * @internal
+     * @param a
+     */
     lockCurrentAxis(a:LightweightContinuousAnchor) {
         if (a.currentFace != null) {
             a.lockedAxis = (a.currentFace ===  LEFT || a.currentFace === RIGHT) ? X_AXIS_FACES : Y_AXIS_FACES
         }
     }
 
+    /**
+     * @internal
+     * @param a
+     */
     unlockCurrentAxis(a:LightweightContinuousAnchor):void {
         a.lockedAxis = null
     }
 
     /**
-     * Returns whether or not
+     * Returns whether or not the two anchors represent the same location.
      * @param a1
      * @param a2
+     * @internal
      */
     anchorsEqual(a1:LightweightAnchor, a2:LightweightAnchor):boolean {
         if (!a1 || !a2) {
