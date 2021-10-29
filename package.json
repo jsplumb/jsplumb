@@ -1,6 +1,6 @@
 {
   "private" : true,
-  "version" : "5.0.0-RC47",
+  "version" : "5.0.0-RC48",
   "workspaces" : [ "ts/*" ],
   "description" : "Visual connectivity for webapps",
   "directories" : {
