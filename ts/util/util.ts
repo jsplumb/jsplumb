@@ -3,6 +3,7 @@
  * @param list
  * @param value
  * @param missingIsFalse
+ * @internal
  */
 export function filterList (list:Array<any> | string, value:any, missingIsFalse?:boolean):boolean {
     if (list === "*") {
@@ -16,6 +17,7 @@ export function filterList (list:Array<any> | string, value:any, missingIsFalse?
  * @param o1
  * @param o2
  * @param keys Optional list of keys to use to copy values from `o2` to `o1`. If this is not provided, all values are copied.
+ * @public
  */
 export function extend<T>(o1:T, o2:T, keys?:string[]):T {
     let i
@@ -41,6 +43,7 @@ export function extend<T>(o1:T, o2:T, keys?:string[]):T {
 /**
  * Returns whether or not the given value is of `number` type.
  * @param n
+ * @public
  */
 export function isNumber(n: any): boolean {
     return Object.prototype.toString.call(n) === "[object Number]"
@@ -49,6 +52,7 @@ export function isNumber(n: any): boolean {
 /**
  * Returns whether or not the given value is of `string` type.
  * @param s
+ * @public
  */
 export function isString(s: any): boolean {
     return typeof s === "string"
@@ -57,22 +61,16 @@ export function isString(s: any): boolean {
 /**
  * Returns whether or not the given value is of `boolean` type.
  * @param s
+ * @public
  */
 export function isBoolean(s: any): boolean {
     return typeof s === "boolean"
 }
 
 /**
- * Returns whether or not the given value is null.
- * @param s
- */
-export function isNull(s: any): boolean {
-    return s == null
-}
-
-/**
  * Returns whether or not the given value is of type `object`
  * @param o
+ * @public
  */
 export function isObject(o: any): boolean {
     return o == null ? false : Object.prototype.toString.call(o) === "[object Object]"
@@ -81,6 +79,7 @@ export function isObject(o: any): boolean {
 /**
  * Returns whether or not the given value is of type `Date`
  * @param o
+ * @public
  */
 export function isDate(o: any): o is Date {
     return Object.prototype.toString.call(o) === "[object Date]"
@@ -89,6 +88,7 @@ export function isDate(o: any): o is Date {
 /**
  * Returns whether or not the given value is of type `Function`
  * @param o
+ * @public
  */
 export function isFunction(o: any): o is Function {
     return Object.prototype.toString.call(o) === "[object Function]"
@@ -97,6 +97,7 @@ export function isFunction(o: any): o is Function {
 /**
  * Returns whether or not the given value is of type `Function` and is a named Function.
  * @param o
+ * @public
  */
 export function isNamedFunction(o: any): boolean {
     return isFunction(o) && o.name != null && o.name.length > 0
@@ -105,6 +106,7 @@ export function isNamedFunction(o: any): boolean {
 /**
  * Returns whether or not the given object - which may be ArrayLike, or an object - is empty.
  * @param o
+ * @public
  */
 export function isEmpty(o: any): boolean {
     for (let i in o) {
@@ -118,6 +120,7 @@ export function isEmpty(o: any): boolean {
 /**
  * Makes a copy of the given object.
  * @param a
+ * @internal
  */
 export function clone(a: any): any {
     if (isString(a)) {
@@ -154,6 +157,7 @@ export function clone(a: any): any {
 /**
  * Returns a copy of the given object that has no null values. Note this only operates one level deep.
  * @param obj
+ * @internal
  */
 export function filterNull(obj:Record<string, any>):Record<string, any> {
     let o:Record<string, any> = {}
@@ -235,6 +239,7 @@ export function filterNull(obj:Record<string, any>):Record<string, any> {
  * @param b Child object
  * @param collations Optional list of parameters to collate, rather than merging or overwriting.
  * @param overwrites Optional list of parameters to overwrite, rather than merging.
+ * @internal
  */
 export function merge(a: Record<string, any>, b: Record<string, any>, collations?: Array<string>, overwrites?:Array<string>) {
     // first change the collations array - if present - into a lookup table, because its faster.
@@ -467,6 +472,7 @@ export function functionChain(successValue: any, failValue: any, fns: Array<Arra
  * will be executed; other functions will be passed as values to the output.
  * @param doNotExpandFunctions Defaults to false. If true, Functions will be passed directly from `values` to `model` without being executed.
  * @returns
+ * @internal
  */
 export function populate(model: any, values: any, functionPrefix?: string, doNotExpandFunctions?: boolean): any {
     // for a string, see if it has parameter matches, and if so, try to make the substitutions.
@@ -520,6 +526,7 @@ export function populate(model: any, values: any, functionPrefix?: string, doNot
  * Stand-in for the `forEach` method which is available on modern browsers but not on IE11.
  * @param a
  * @param f
+ * @internal
  */
 export function forEach<T>(a:ArrayLike<T>, f:(_a:T) => any):void {
     if (a) {
@@ -537,6 +544,7 @@ export function forEach<T>(a:ArrayLike<T>, f:(_a:T) => any):void {
  * @param a Array to search
  * @param f Predicate to use to test each entry
  * @returns The index of the entry for which the predicate returned true, -1 if not found.
+ * @internal
  */
 export function findWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): number {
     if (a) {
@@ -553,6 +561,7 @@ export function findWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): num
  * Find all entries in the given array like object for which the given predicate returns true.
  * @param a
  * @param predicate
+ * @internal
  */
 export function findAllWithFunction<T>(a: ArrayLike<T>, predicate: (_a: T) => boolean): Array<number> {
     let o:Array<number> = []
@@ -572,6 +581,7 @@ export function findAllWithFunction<T>(a: ArrayLike<T>, predicate: (_a: T) => bo
  * @param a Array to search
  * @param f Predicate to use to test each entry
  * @returns The entry for which the predicate returned true, null if not found.
+ * @internal
  */
 export function getWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): T {
     const idx = findWithFunction(a, f)
@@ -583,6 +593,7 @@ export function getWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): T {
  * @param a Array to search
  * @param f Predicate to use to test each entry
  * @returns The entries for which the predicate returned true, empty array if not found.
+ * @internal
  */
 export function getAllWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): Array<T> {
     const indexes = findAllWithFunction(a, f)
@@ -593,6 +604,7 @@ export function getAllWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): A
  * Extract a value from the set where the given predicate returns true for that value.
  * @param s
  * @param f
+ * @internal
  */
 export function getFromSetWithFunction<T>(s:Set<T>, f:(_a:T) => boolean) : T {
     let out:T = null
@@ -607,6 +619,7 @@ export function getFromSetWithFunction<T>(s:Set<T>, f:(_a:T) => boolean) : T {
 /**
  * Convert a set into an array. This is not needed for modern browsers but for IE11 compatibility we use this in jsplumb.
  * @param s
+ * @internal
  */
 export function setToArray<T>(s:Set<T>):Array<T> {
     const a:Array<T> = []
@@ -621,6 +634,7 @@ export function setToArray<T>(s:Set<T>):Array<T> {
  * @param a
  * @param f
  * @returns true if an element was removed, false if not.
+ * @internal
  */
 export function removeWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): boolean {
     const idx = findWithFunction(a, f)
@@ -634,6 +648,7 @@ export function removeWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): boole
  * A shim for the `fromArray` method, which is not present in IE11.  This method falls back to `fromArray` if it is present.
  * @param a Array-like object to convert into an Array
  * @returns An Array
+ * @internal
  */
 export function fromArray<T>(a:ArrayLike<T>):Array<T> {
     if ((Array as any).fromArray != null) {
@@ -650,6 +665,7 @@ export function fromArray<T>(a:ArrayLike<T>):Array<T> {
  * @param l Array to remove the item from
  * @param v Item to remove.
  * @returns true if the item was removed, false otherwise.
+ * @internal
  */
 export function remove<T>(l: Array<T>, v: T): boolean {
     const idx = l.indexOf(v)
@@ -664,6 +680,7 @@ export function remove<T>(l: Array<T>, v: T): boolean {
  * @param list List to add to
  * @param item Item to add
  * @param hashFunction Function to use to check the current items of the list; if this function returns true for any current list item, the insertion does not proceed.
+ * @internal
  */
 export function addWithFunction<T>(list: Array<T>, item: T, hashFunction: (_a: T) => boolean): void {
     if (findWithFunction(list, hashFunction) === -1) {
@@ -678,6 +695,7 @@ export function addWithFunction<T>(list: Array<T>, item: T, hashFunction: (_a: T
  * @param key
  * @param value
  * @param insertAtStart
+ * @internal
  */
 export function addToDictionary<T>(map: Dictionary<Array<T>>, key: string, value: any, insertAtStart?: boolean): Array<any> {
     let l = map[key]
@@ -695,6 +713,7 @@ export function addToDictionary<T>(map: Dictionary<Array<T>>, key: string, value
  * @param key The ID of the list to search for in the map
  * @param value The value to add to the list, if found
  * @param insertAtStart If true, inserts the new item at the head of the list. Defaults to false.
+ * @internal
  */
 export function addToList<T>(map: Map<string, Array<T>>, key: string, value: any, insertAtStart?: boolean): Array<any> {
     let l = map.get(key)
@@ -708,9 +727,10 @@ export function addToList<T>(map: Map<string, Array<T>>, key: string, value: any
 
 /**
  * Add the given item to the given list if it does not exist on the list already.
- * @param list List to add to
- * @param item Item to add
- * @param insertAtHead If true, insert new item at head. Defaults to false.
+ * @param list - List to add to
+ * @param item - Item to add
+ * @param insertAtHead - If true, insert new item at head. Defaults to false.
+ * @internal
  */
 export function suggest(list: Array<any>, item: any, insertAtHead?: boolean): boolean {
     if (list.indexOf(item) === -1) {
@@ -731,6 +751,7 @@ for (let i=0; i<256; i++) { lut[i] = (i<16?'0':'')+(i).toString(16); }
 /**
  * Generate a v4 UUID.
  * @returns String representation of a UUID
+ * @public
  */
 export function uuid():string {
     const d0 = Math.random()*0xffffffff|0
@@ -789,6 +810,7 @@ export function rotateAnchorOrientation(orientation:[number, number], rotation:a
 /**
  * Trims whitespace from the given string.
  * @param s
+ * @public
  */
 export function fastTrim(s: string): string {
     if (s == null) {
@@ -807,6 +829,7 @@ export function fastTrim(s: string): string {
  * executed directly on `obj`.
  * @param obj
  * @param fn
+ * @internal
  */
 export function each(obj: any, fn: Function) {
     obj = obj.length == null || typeof obj === "string" ? [obj] : obj
@@ -819,6 +842,7 @@ export function each(obj: any, fn: Function) {
  * Maps some ArrayLike object. This is of course a copy of a method that typescript offers. It will likely fall out of use in the jsPlumb codebase.
  * @param obj
  * @param fn
+ * @internal
  */
 export function map(obj: any, fn: Function) {
     let o = []
@@ -830,12 +854,14 @@ export function map(obj: any, fn: Function) {
 
 /**
  * Determines whether or not logging is currently enabled.
+ * @public
  */
 export const logEnabled: boolean = true
 
 /**
  * Logs a console message.
  * @param args
+ * @internal
  */
 export function log(...args: string[]): void {
     if (logEnabled && typeof console !== "undefined") {
@@ -854,11 +880,12 @@ export function log(...args: string[]): void {
  * drag/drop event functions - to allow jsPlumb to be notified of
  * important lifecycle events without imposing itself on the user's
  * drag/drop functionality.
- * @param wrappedFunction original function to wrap; may be null.
- * @param newFunction function to wrap the original with.
- * @param [returnOnThisValue] Optional. Indicates that the wrappedFunction should
+ * @param wrappedFunction - original function to wrap; may be null.
+ * @param newFunction - function to wrap the original with.
+ * @param returnOnThisValue - Optional. Indicates that the wrappedFunction should
  * not be executed if the newFunction returns a value matching 'returnOnThisValue'.
  * note that this is a simple comparison and only works for primitives right now.
+ * @internal
  */
 export function wrap(wrappedFunction: Function, newFunction: Function, returnOnThisValue?: any) {
     return function () {
@@ -882,19 +909,11 @@ export function wrap(wrappedFunction: Function, newFunction: Function, returnOnT
 }
 
 /**
- * Sorts an array. Seems quite unnecessary. Only used in one place in the codebase. Marking deprecated.
- * @param _array
- * @param _fn
- */
-export function sortHelper<T> (_array:Array<T>, _fn:SortFunction<T>):Array<T> {
-    return _array.sort(_fn)
-}
-
-/**
  * Get, or insert then get, a value from the map.
  * @param map Map to get the value from.
  * @param key Key of the value to retrieve
  * @param valueGenerator Method used to generate a value for the key if it is not currently in the map.
+ * @public
  */
 export function getsert<K,V>(map:Map<K,V>, key:K, valueGenerator:() => V):V {
     if (!map.has(key)) {
@@ -908,6 +927,7 @@ export function getsert<K,V>(map:Map<K,V>, key:K, valueGenerator:() => V):V {
  * testing the proto chain of the object and checking at each level to see if the proto is an instance of the given class.
  * @param object Object to test
  * @param cls Class to test for.
+ * @public
  */
 export function isAssignableFrom(object:any, cls:any) {
     let proto = object.__proto__
@@ -927,6 +947,7 @@ export function isAssignableFrom(object:any, cls:any) {
  * @param array Array to insert into
  * @param comparator Function to use when determining sort order.
  * @param sortDescending Defaults to false; if true, the insertion is sorted in reverse order.
+ * @public
  */
 export function insertSorted<T>(value:T, array:Array<T>, comparator:(v1:T, v2:T) => number, sortDescending?:boolean) {
 
@@ -953,15 +974,19 @@ export function insertSorted<T>(value:T, array:Array<T>, comparator:(v1:T, v2:T)
 
 /**
  * A copy of a concept from a later version of Typescript than jsPlumb can currently use.
+ * @internal
  */
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
+
 /**
  * A copy of a concept from a later version of Typescript than jsPlumb can currently use.
+ * @internal
  */
 export type Merge<M, N> = Omit<M, Extract<keyof M, keyof N>> & N;
 
 /**
  * Simple definition of a map.  This construct is being replaced across the codebase with `Record<string, T>` and also `Map<..>`
+ * @public
  * @deprecated
  */
 export interface Dictionary<T> {
@@ -970,16 +995,20 @@ export interface Dictionary<T> {
 
 /**
  * Defines a function that can be used to sort an array.
+ * @internal
  */
 export type SortFunction<T> = (a:T,b:T) => number
 
 /**
  * Defines an object that has a constructor. Used internally to create endpoints/connectors/overlays from their names.
+ * Exposed as public for people to create their own endpoints/connectors/overlays.
+ * @public
  */
 export type Constructable<T> = { new(...args: any[]): T }
 
 /**
  * Defines an x/y location.
+ * @public
  */
 export interface PointXY { x:number, y:number, theta?:number }
 
@@ -987,20 +1016,24 @@ export interface PointXY { x:number, y:number, theta?:number }
  * Defines the bounding box for some element - its x/y location, width and height, and optionally the computed center, but
  * that can of course be calculated from the other values. Internally there are times when the code has this to hand so we include
  * it here.
+ * @public
  */
 export type BoundingBox = { x:number, y:number, w:number, h:number, center?:PointXY }
 /**
  * This is an alias for BoundingBox.
+ * @public
  */
 export type RectangleXY = BoundingBox
 /**
  * Defines a line from some point to another.
+ * @public
  */
 export type LineXY = [ PointXY, PointXY ]
 
 /**
  * Definition of a grid - the width/height of each cell, and, optionally, a threshold value for each axis to use when
  * trying to snap some coordinate to the grid.
+ * @public
  */
 export interface Grid extends Size {
     thresholdX?:number
@@ -1009,21 +1042,25 @@ export interface Grid extends Size {
 
 /**
  * Defines the width and height of some element.
+ * @public
  */
 export interface Size { w:number, h:number }
 
 /**
  * Defines the current rotation of some element - its rotation (in degrees) and the center point around which it is rotated.
+ * @internal
  */
 export interface Rotation {r:number, c:PointXY}
 
 /**
  * A set of compound rotations - used when nesting elements/groups inside other groups.
+ * @internal
  */
 export type Rotations = Array<Rotation>
 
 /**
  * Definition of the extends of some set of elements: the min/max values in each axis.
+ * @internal
  */
 export interface Extents {
     xmin:number
