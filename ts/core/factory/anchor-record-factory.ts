@@ -7,11 +7,19 @@ import {AnchorLocations, AnchorSpec, FullAnchorSpec, PerimeterAnchorShapes} from
 export type AnchorOrientationHint = -1 | 0 | 1
 export type Orientation = [  number, number ]
 
-export type Face = "top" | "right" | "bottom" | "left"
+
+enum FaceValues { top="top", left="left", right="right", bottom="bottom" }
+export const TOP = FaceValues.top
+export const LEFT = FaceValues.left
+export const RIGHT = FaceValues.right
+export const BOTTOM  = FaceValues.bottom
+
+export type Face = keyof typeof FaceValues
+
 export type Axis = [ Face, Face ]
 
-export const X_AXIS_FACES:Axis = ["left", "right"]
-export const Y_AXIS_FACES:Axis = ["top", "bottom"]
+export const X_AXIS_FACES:Axis = [ LEFT, RIGHT]
+export const Y_AXIS_FACES:Axis = [TOP, BOTTOM]
 
 /**
  * @internal
@@ -126,9 +134,9 @@ export class LightweightFloatingAnchor implements LightweightAnchor {
     }
 }
 
-const opposites:Dictionary<Face> = {"top": "bottom", "right": "left", "left": "right", "bottom": "top"}
-const clockwiseOptions:Dictionary<Face> = {"top": "right", "right": "bottom", "left": "top", "bottom": "left"}
-const antiClockwiseOptions:Dictionary<Face> = {"top": "left", "right": "top", "left": "bottom", "bottom": "right"}
+const opposites:Dictionary<Face> = {[TOP]: BOTTOM, [RIGHT]: LEFT, [LEFT]: RIGHT, [BOTTOM]: TOP}
+const clockwiseOptions:Dictionary<Face> = {[TOP]: RIGHT, [RIGHT]: BOTTOM, [LEFT]: TOP, [BOTTOM]: LEFT}
+const antiClockwiseOptions:Dictionary<Face> = {[TOP]: LEFT, [RIGHT]: TOP, [LEFT]: BOTTOM, [BOTTOM]: RIGHT}
 
 /**
  *
@@ -136,7 +144,7 @@ const antiClockwiseOptions:Dictionary<Face> = {"top": "left", "right": "top", "l
  * @internal
  */
 export function getDefaultFace(a:LightweightContinuousAnchor):Face {
-    return a.faces.length === 0 ? "top" : a.faces[0]
+    return a.faces.length === 0 ? TOP : a.faces[0]
 }
 
 function _isFaceAvailable(a:LightweightContinuousAnchor, face:Face):boolean {
@@ -186,11 +194,6 @@ function verifyFace (a:LightweightContinuousAnchor, edge:Face):Face {
     }
     return edge // we have to give them something.
 }
-
-export const TOP = "top"
-export const BOTTOM = "bottom"
-export const LEFT = "left"
-export const RIGHT = "right"
 
 const _top = {x:0.5, y:0, ox:0, oy:-1, offx:0, offy:0 },
     _bottom = {x:0.5, y:1, ox:0, oy:1, offx:0, offy:0 },
