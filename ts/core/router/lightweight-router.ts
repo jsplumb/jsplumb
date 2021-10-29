@@ -28,7 +28,6 @@ import {
     removeWithFunction,
     RotatedPointXY,
     rotatePoint,
-    sortHelper,
     uuid,
     Dictionary, PointXY, SortFunction, Rotations, Size, lineLength
 } from "@jsplumb/util"
@@ -294,7 +293,7 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
         let cd:ViewportElement<any> = this.instance.viewport.getPosition(elementId),
             placeSomeAnchors = (desc:string, element:ViewportElement<any>, unsortedConnections:Array<AnchorListEntry>, isHorizontal:boolean, otherMultiplier:number, orientation:Orientation) => {
                 if (unsortedConnections.length > 0) {
-                    let sc = sortHelper(unsortedConnections, edgeSortFunctions[desc]), // puts them in order based on the target element's pos on screen
+                    let sc = unsortedConnections.sort(edgeSortFunctions[desc]), // puts them in order based on the target element's pos on screen
                         reverse = desc === RIGHT || desc === TOP,
                         anchors = _placeAnchorsOnLine(cd, sc,
                             isHorizontal,
