@@ -5,7 +5,17 @@ import { JsPlumbInstance } from "../core";
 import { AnchorSpec, PerimeterAnchorShapes } from "@jsplumb/common";
 export declare type AnchorOrientationHint = -1 | 0 | 1;
 export declare type Orientation = [number, number];
-export declare type Face = "top" | "right" | "bottom" | "left";
+declare enum FaceValues {
+    top = "top",
+    left = "left",
+    right = "right",
+    bottom = "bottom"
+}
+export declare const TOP = FaceValues.top;
+export declare const LEFT = FaceValues.left;
+export declare const RIGHT = FaceValues.right;
+export declare const BOTTOM = FaceValues.bottom;
+export declare type Face = keyof typeof FaceValues;
 export declare type Axis = [Face, Face];
 export declare const X_AXIS_FACES: Axis;
 export declare const Y_AXIS_FACES: Axis;
@@ -118,11 +128,8 @@ export declare function getDefaultFace(a: LightweightContinuousAnchor): Face;
  * @internal
  */
 export declare function isEdgeSupported(a: LightweightContinuousAnchor, edge: Face): boolean;
-export declare const TOP = "top";
-export declare const BOTTOM = "bottom";
-export declare const LEFT = "left";
-export declare const RIGHT = "right";
 export declare function createFloatingAnchor(instance: JsPlumbInstance, element: any): LightweightFloatingAnchor;
 export declare function makeLightweightAnchorFromSpec(spec: AnchorSpec | Array<AnchorSpec>): LightweightAnchor;
 export declare function _createPerimeterAnchor(params: Record<string, any>): LightweightPerimeterAnchor;
+export {};
 //# sourceMappingURL=anchor-record-factory.d.ts.map

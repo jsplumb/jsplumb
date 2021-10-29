@@ -3,6 +3,7 @@
  * @param list
  * @param value
  * @param missingIsFalse
+ * @internal
  */
 export declare function filterList(list: Array<any> | string, value: any, missingIsFalse?: boolean): boolean;
 /**
@@ -10,61 +11,67 @@ export declare function filterList(list: Array<any> | string, value: any, missin
  * @param o1
  * @param o2
  * @param keys Optional list of keys to use to copy values from `o2` to `o1`. If this is not provided, all values are copied.
+ * @public
  */
 export declare function extend<T>(o1: T, o2: T, keys?: string[]): T;
 /**
  * Returns whether or not the given value is of `number` type.
  * @param n
+ * @public
  */
 export declare function isNumber(n: any): boolean;
 /**
  * Returns whether or not the given value is of `string` type.
  * @param s
+ * @public
  */
 export declare function isString(s: any): boolean;
 /**
  * Returns whether or not the given value is of `boolean` type.
  * @param s
+ * @public
  */
 export declare function isBoolean(s: any): boolean;
 /**
- * Returns whether or not the given value is null.
- * @param s
- */
-export declare function isNull(s: any): boolean;
-/**
  * Returns whether or not the given value is of type `object`
  * @param o
+ * @public
  */
 export declare function isObject(o: any): boolean;
 /**
  * Returns whether or not the given value is of type `Date`
  * @param o
+ * @public
  */
 export declare function isDate(o: any): o is Date;
 /**
  * Returns whether or not the given value is of type `Function`
  * @param o
+ * @public
  */
 export declare function isFunction(o: any): o is Function;
 /**
  * Returns whether or not the given value is of type `Function` and is a named Function.
  * @param o
+ * @public
  */
 export declare function isNamedFunction(o: any): boolean;
 /**
  * Returns whether or not the given object - which may be ArrayLike, or an object - is empty.
  * @param o
+ * @public
  */
 export declare function isEmpty(o: any): boolean;
 /**
  * Makes a copy of the given object.
  * @param a
+ * @internal
  */
 export declare function clone(a: any): any;
 /**
  * Returns a copy of the given object that has no null values. Note this only operates one level deep.
  * @param obj
+ * @internal
  */
 export declare function filterNull(obj: Record<string, any>): Record<string, any>;
 /**
@@ -137,6 +144,7 @@ export declare function filterNull(obj: Record<string, any>): Record<string, any
  * @param b Child object
  * @param collations Optional list of parameters to collate, rather than merging or overwriting.
  * @param overwrites Optional list of parameters to overwrite, rather than merging.
+ * @internal
  */
 export declare function merge(a: Record<string, any>, b: Record<string, any>, collations?: Array<string>, overwrites?: Array<string>): any;
 /**
@@ -183,12 +191,14 @@ export declare function functionChain(successValue: any, failValue: any, fns: Ar
  * will be executed; other functions will be passed as values to the output.
  * @param doNotExpandFunctions Defaults to false. If true, Functions will be passed directly from `values` to `model` without being executed.
  * @returns
+ * @internal
  */
 export declare function populate(model: any, values: any, functionPrefix?: string, doNotExpandFunctions?: boolean): any;
 /**
  * Stand-in for the `forEach` method which is available on modern browsers but not on IE11.
  * @param a
  * @param f
+ * @internal
  */
 export declare function forEach<T>(a: ArrayLike<T>, f: (_a: T) => any): void;
 /**
@@ -197,12 +207,14 @@ export declare function forEach<T>(a: ArrayLike<T>, f: (_a: T) => any): void;
  * @param a Array to search
  * @param f Predicate to use to test each entry
  * @returns The index of the entry for which the predicate returned true, -1 if not found.
+ * @internal
  */
 export declare function findWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): number;
 /**
  * Find all entries in the given array like object for which the given predicate returns true.
  * @param a
  * @param predicate
+ * @internal
  */
 export declare function findAllWithFunction<T>(a: ArrayLike<T>, predicate: (_a: T) => boolean): Array<number>;
 /**
@@ -211,6 +223,7 @@ export declare function findAllWithFunction<T>(a: ArrayLike<T>, predicate: (_a: 
  * @param a Array to search
  * @param f Predicate to use to test each entry
  * @returns The entry for which the predicate returned true, null if not found.
+ * @internal
  */
 export declare function getWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): T;
 /**
@@ -218,17 +231,20 @@ export declare function getWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolea
  * @param a Array to search
  * @param f Predicate to use to test each entry
  * @returns The entries for which the predicate returned true, empty array if not found.
+ * @internal
  */
 export declare function getAllWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): Array<T>;
 /**
  * Extract a value from the set where the given predicate returns true for that value.
  * @param s
  * @param f
+ * @internal
  */
 export declare function getFromSetWithFunction<T>(s: Set<T>, f: (_a: T) => boolean): T;
 /**
  * Convert a set into an array. This is not needed for modern browsers but for IE11 compatibility we use this in jsplumb.
  * @param s
+ * @internal
  */
 export declare function setToArray<T>(s: Set<T>): Array<T>;
 /**
@@ -236,12 +252,14 @@ export declare function setToArray<T>(s: Set<T>): Array<T>;
  * @param a
  * @param f
  * @returns true if an element was removed, false if not.
+ * @internal
  */
 export declare function removeWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): boolean;
 /**
  * A shim for the `fromArray` method, which is not present in IE11.  This method falls back to `fromArray` if it is present.
  * @param a Array-like object to convert into an Array
  * @returns An Array
+ * @internal
  */
 export declare function fromArray<T>(a: ArrayLike<T>): Array<T>;
 /**
@@ -249,6 +267,7 @@ export declare function fromArray<T>(a: ArrayLike<T>): Array<T>;
  * @param l Array to remove the item from
  * @param v Item to remove.
  * @returns true if the item was removed, false otherwise.
+ * @internal
  */
 export declare function remove<T>(l: Array<T>, v: T): boolean;
 /**
@@ -256,6 +275,7 @@ export declare function remove<T>(l: Array<T>, v: T): boolean;
  * @param list List to add to
  * @param item Item to add
  * @param hashFunction Function to use to check the current items of the list; if this function returns true for any current list item, the insertion does not proceed.
+ * @internal
  */
 export declare function addWithFunction<T>(list: Array<T>, item: T, hashFunction: (_a: T) => boolean): void;
 /**
@@ -265,6 +285,7 @@ export declare function addWithFunction<T>(list: Array<T>, item: T, hashFunction
  * @param key
  * @param value
  * @param insertAtStart
+ * @internal
  */
 export declare function addToDictionary<T>(map: Dictionary<Array<T>>, key: string, value: any, insertAtStart?: boolean): Array<any>;
 /**
@@ -273,18 +294,21 @@ export declare function addToDictionary<T>(map: Dictionary<Array<T>>, key: strin
  * @param key The ID of the list to search for in the map
  * @param value The value to add to the list, if found
  * @param insertAtStart If true, inserts the new item at the head of the list. Defaults to false.
+ * @internal
  */
 export declare function addToList<T>(map: Map<string, Array<T>>, key: string, value: any, insertAtStart?: boolean): Array<any>;
 /**
  * Add the given item to the given list if it does not exist on the list already.
- * @param list List to add to
- * @param item Item to add
- * @param insertAtHead If true, insert new item at head. Defaults to false.
+ * @param list - List to add to
+ * @param item - Item to add
+ * @param insertAtHead - If true, insert new item at head. Defaults to false.
+ * @internal
  */
 export declare function suggest(list: Array<any>, item: any, insertAtHead?: boolean): boolean;
 /**
  * Generate a v4 UUID.
  * @returns String representation of a UUID
+ * @public
  */
 export declare function uuid(): string;
 /**
@@ -313,6 +337,7 @@ export declare function rotateAnchorOrientation(orientation: [number, number], r
 /**
  * Trims whitespace from the given string.
  * @param s
+ * @public
  */
 export declare function fastTrim(s: string): string;
 /**
@@ -320,21 +345,25 @@ export declare function fastTrim(s: string): string;
  * executed directly on `obj`.
  * @param obj
  * @param fn
+ * @internal
  */
 export declare function each(obj: any, fn: Function): void;
 /**
  * Maps some ArrayLike object. This is of course a copy of a method that typescript offers. It will likely fall out of use in the jsPlumb codebase.
  * @param obj
  * @param fn
+ * @internal
  */
 export declare function map(obj: any, fn: Function): any[];
 /**
  * Determines whether or not logging is currently enabled.
+ * @public
  */
 export declare const logEnabled: boolean;
 /**
  * Logs a console message.
  * @param args
+ * @internal
  */
 export declare function log(...args: string[]): void;
 /**
@@ -343,24 +372,20 @@ export declare function log(...args: string[]): void;
  * drag/drop event functions - to allow jsPlumb to be notified of
  * important lifecycle events without imposing itself on the user's
  * drag/drop functionality.
- * @param wrappedFunction original function to wrap; may be null.
- * @param newFunction function to wrap the original with.
- * @param [returnOnThisValue] Optional. Indicates that the wrappedFunction should
+ * @param wrappedFunction - original function to wrap; may be null.
+ * @param newFunction - function to wrap the original with.
+ * @param returnOnThisValue - Optional. Indicates that the wrappedFunction should
  * not be executed if the newFunction returns a value matching 'returnOnThisValue'.
  * note that this is a simple comparison and only works for primitives right now.
+ * @internal
  */
 export declare function wrap(wrappedFunction: Function, newFunction: Function, returnOnThisValue?: any): () => any;
-/**
- * Sorts an array. Seems quite unnecessary. Only used in one place in the codebase. Marking deprecated.
- * @param _array
- * @param _fn
- */
-export declare function sortHelper<T>(_array: Array<T>, _fn: SortFunction<T>): Array<T>;
 /**
  * Get, or insert then get, a value from the map.
  * @param map Map to get the value from.
  * @param key Key of the value to retrieve
  * @param valueGenerator Method used to generate a value for the key if it is not currently in the map.
+ * @public
  */
 export declare function getsert<K, V>(map: Map<K, V>, key: K, valueGenerator: () => V): V;
 /**
@@ -368,6 +393,7 @@ export declare function getsert<K, V>(map: Map<K, V>, key: K, valueGenerator: ()
  * testing the proto chain of the object and checking at each level to see if the proto is an instance of the given class.
  * @param object Object to test
  * @param cls Class to test for.
+ * @public
  */
 export declare function isAssignableFrom(object: any, cls: any): boolean;
 /**
@@ -376,18 +402,22 @@ export declare function isAssignableFrom(object: any, cls: any): boolean;
  * @param array Array to insert into
  * @param comparator Function to use when determining sort order.
  * @param sortDescending Defaults to false; if true, the insertion is sorted in reverse order.
+ * @public
  */
 export declare function insertSorted<T>(value: T, array: Array<T>, comparator: (v1: T, v2: T) => number, sortDescending?: boolean): void;
 /**
  * A copy of a concept from a later version of Typescript than jsPlumb can currently use.
+ * @internal
  */
 export declare type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 /**
  * A copy of a concept from a later version of Typescript than jsPlumb can currently use.
+ * @internal
  */
 export declare type Merge<M, N> = Omit<M, Extract<keyof M, keyof N>> & N;
 /**
  * Simple definition of a map.  This construct is being replaced across the codebase with `Record<string, T>` and also `Map<..>`
+ * @public
  * @deprecated
  */
 export interface Dictionary<T> {
@@ -395,16 +425,20 @@ export interface Dictionary<T> {
 }
 /**
  * Defines a function that can be used to sort an array.
+ * @internal
  */
 export declare type SortFunction<T> = (a: T, b: T) => number;
 /**
  * Defines an object that has a constructor. Used internally to create endpoints/connectors/overlays from their names.
+ * Exposed as public for people to create their own endpoints/connectors/overlays.
+ * @public
  */
 export declare type Constructable<T> = {
     new (...args: any[]): T;
 };
 /**
  * Defines an x/y location.
+ * @public
  */
 export interface PointXY {
     x: number;
@@ -415,6 +449,7 @@ export interface PointXY {
  * Defines the bounding box for some element - its x/y location, width and height, and optionally the computed center, but
  * that can of course be calculated from the other values. Internally there are times when the code has this to hand so we include
  * it here.
+ * @public
  */
 export declare type BoundingBox = {
     x: number;
@@ -425,15 +460,18 @@ export declare type BoundingBox = {
 };
 /**
  * This is an alias for BoundingBox.
+ * @public
  */
 export declare type RectangleXY = BoundingBox;
 /**
  * Defines a line from some point to another.
+ * @public
  */
 export declare type LineXY = [PointXY, PointXY];
 /**
  * Definition of a grid - the width/height of each cell, and, optionally, a threshold value for each axis to use when
  * trying to snap some coordinate to the grid.
+ * @public
  */
 export interface Grid extends Size {
     thresholdX?: number;
@@ -441,6 +479,7 @@ export interface Grid extends Size {
 }
 /**
  * Defines the width and height of some element.
+ * @public
  */
 export interface Size {
     w: number;
@@ -448,6 +487,7 @@ export interface Size {
 }
 /**
  * Defines the current rotation of some element - its rotation (in degrees) and the center point around which it is rotated.
+ * @internal
  */
 export interface Rotation {
     r: number;
@@ -455,10 +495,12 @@ export interface Rotation {
 }
 /**
  * A set of compound rotations - used when nesting elements/groups inside other groups.
+ * @internal
  */
 export declare type Rotations = Array<Rotation>;
 /**
  * Definition of the extends of some set of elements: the min/max values in each axis.
+ * @internal
  */
 export interface Extents {
     xmin: number;

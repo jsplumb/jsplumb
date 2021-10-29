@@ -1941,8 +1941,20 @@ var Component = function (_EventGenerator) {
   return Component;
 }(util.EventGenerator);
 
-var X_AXIS_FACES = ["left", "right"];
-var Y_AXIS_FACES = ["top", "bottom"];
+var _opposites, _clockwiseOptions, _antiClockwiseOptions;
+var FaceValues;
+(function (FaceValues) {
+  FaceValues["top"] = "top";
+  FaceValues["left"] = "left";
+  FaceValues["right"] = "right";
+  FaceValues["bottom"] = "bottom";
+})(FaceValues || (FaceValues = {}));
+var TOP = FaceValues.top;
+var LEFT = FaceValues.left;
+var RIGHT = FaceValues.right;
+var BOTTOM = FaceValues.bottom;
+var X_AXIS_FACES = [LEFT, RIGHT];
+var Y_AXIS_FACES = [TOP, BOTTOM];
 var LightweightFloatingAnchor = function () {
   function LightweightFloatingAnchor(instance, element) {
     _classCallCheck(this, LightweightFloatingAnchor);
@@ -1989,26 +2001,11 @@ var LightweightFloatingAnchor = function () {
   }]);
   return LightweightFloatingAnchor;
 }();
-var opposites = {
-  "top": "bottom",
-  "right": "left",
-  "left": "right",
-  "bottom": "top"
-};
-var clockwiseOptions = {
-  "top": "right",
-  "right": "bottom",
-  "left": "top",
-  "bottom": "left"
-};
-var antiClockwiseOptions = {
-  "top": "left",
-  "right": "top",
-  "left": "bottom",
-  "bottom": "right"
-};
+var opposites = (_opposites = {}, _defineProperty(_opposites, TOP, BOTTOM), _defineProperty(_opposites, RIGHT, LEFT), _defineProperty(_opposites, LEFT, RIGHT), _defineProperty(_opposites, BOTTOM, TOP), _opposites);
+var clockwiseOptions = (_clockwiseOptions = {}, _defineProperty(_clockwiseOptions, TOP, RIGHT), _defineProperty(_clockwiseOptions, RIGHT, BOTTOM), _defineProperty(_clockwiseOptions, LEFT, TOP), _defineProperty(_clockwiseOptions, BOTTOM, LEFT), _clockwiseOptions);
+var antiClockwiseOptions = (_antiClockwiseOptions = {}, _defineProperty(_antiClockwiseOptions, TOP, LEFT), _defineProperty(_antiClockwiseOptions, RIGHT, TOP), _defineProperty(_antiClockwiseOptions, LEFT, BOTTOM), _defineProperty(_antiClockwiseOptions, BOTTOM, RIGHT), _antiClockwiseOptions);
 function getDefaultFace(a) {
-  return a.faces.length === 0 ? "top" : a.faces[0];
+  return a.faces.length === 0 ? TOP : a.faces[0];
 }
 function _isFaceAvailable(a, face) {
   return a.faces.indexOf(face) !== -1;
@@ -2040,10 +2037,6 @@ function verifyFace(a, edge) {
   }
   return edge;
 }
-var TOP = "top";
-var BOTTOM = "bottom";
-var LEFT = "left";
-var RIGHT = "right";
 var _top = {
   x: 0.5,
   y: 0,
@@ -4749,6 +4742,7 @@ var TargetSelector = function (_ConnectionDragSelect2) {
   return TargetSelector;
 }(ConnectionDragSelector);
 
+var _edgeSortFunctions;
 function _placeAnchorsOnLine(element, connections, horizontal, otherMultiplier, reverse) {
   var sizeInAxis = horizontal ? element.w : element.h;
   var sizeInOtherAxis = horizontal ? element.h : element.w;
@@ -4792,12 +4786,7 @@ function _leftAndTopSort(a, b) {
       p2 = b.theta < 0 ? -Math.PI - b.theta : Math.PI - b.theta;
   return p1 - p2;
 }
-var edgeSortFunctions = {
-  "top": _leftAndTopSort,
-  "right": _rightAndBottomSort,
-  "bottom": _rightAndBottomSort,
-  "left": _leftAndTopSort
-};
+var edgeSortFunctions = (_edgeSortFunctions = {}, _defineProperty(_edgeSortFunctions, TOP, _leftAndTopSort), _defineProperty(_edgeSortFunctions, RIGHT, _rightAndBottomSort), _defineProperty(_edgeSortFunctions, BOTTOM, _rightAndBottomSort), _defineProperty(_edgeSortFunctions, LEFT, _leftAndTopSort), _edgeSortFunctions);
 function isContinuous(a) {
   return a.isContinuous === true;
 }
@@ -4986,7 +4975,7 @@ var LightweightRouter = function () {
       var cd = this.instance.viewport.getPosition(elementId),
           placeSomeAnchors = function placeSomeAnchors(desc, element, unsortedConnections, isHorizontal, otherMultiplier, orientation) {
         if (unsortedConnections.length > 0) {
-          var sc = util.sortHelper(unsortedConnections, edgeSortFunctions[desc]),
+          var sc = unsortedConnections.sort(edgeSortFunctions[desc]),
           reverse = desc === RIGHT || desc === TOP,
               anchors = _placeAnchorsOnLine(cd, sc, isHorizontal, otherMultiplier, reverse);
           for (var i = 0; i < anchors.length; i++) {
@@ -5229,14 +5218,13 @@ var LightweightRouter = function () {
                 var td = this.instance.viewport.getPosition(targetId),
                     sd = this.instance.viewport.getPosition(sourceId);
                 if (targetId === sourceId && (sourceContinuous || targetContinuous)) {
-                  this._updateAnchorList(this.anchorLists.get(sourceId), -Math.PI / 2, 0, conn, false, targetId, 0, false, "top", connectionsToPaint, endpointsToPaint);
-                  this._updateAnchorList(this.anchorLists.get(targetId), -Math.PI / 2, 0, conn, false, sourceId, 1, false, "top", connectionsToPaint, endpointsToPaint);
+                  this._updateAnchorList(this.anchorLists.get(sourceId), -Math.PI / 2, 0, conn, false, targetId, 0, false, TOP, connectionsToPaint, endpointsToPaint);
+                  this._updateAnchorList(this.anchorLists.get(targetId), -Math.PI / 2, 0, conn, false, sourceId, 1, false, TOP, connectionsToPaint, endpointsToPaint);
                 } else {
                   var sourceRotation = this.instance._getRotations(sourceId);
                   var targetRotation = this.instance._getRotations(targetId);
                   if (!o) {
-                    o = this._calculateOrientation(sourceId, targetId, sd, td,
-                    conn.endpoints[0]._anchor, conn.endpoints[1]._anchor, sourceRotation, targetRotation);
+                    o = this._calculateOrientation(sourceId, targetId, sd, td, conn.endpoints[0]._anchor, conn.endpoints[1]._anchor, sourceRotation, targetRotation);
                     orientationCache[oKey] = o;
                   }
                   if (sourceContinuous) {
@@ -5258,7 +5246,7 @@ var LightweightRouter = function () {
                 }
               } else {
                 var otherEndpoint = anEndpoint.connections[_i2].endpoints[conn.sourceId === elementId ? 1 : 0],
-                otherAnchor = otherEndpoint._anchor;
+                    otherAnchor = otherEndpoint._anchor;
                 if (isDynamic(otherAnchor)) {
                   this.instance.paintEndpoint(otherEndpoint, {
                     elementWithPrecedence: elementId,
@@ -5330,7 +5318,7 @@ var LightweightRouter = function () {
       if (sourceId === targetId) {
         return {
           orientation: Orientation.IDENTITY,
-          a: ["top", "top"]
+          a: [TOP, TOP]
         };
       }
       var theta = Math.atan2(td.c.y - sd.c.y, td.c.x - sd.c.x),
@@ -5339,32 +5327,28 @@ var LightweightRouter = function () {
           midpoints = {};
       (function (types, dim) {
         for (var i = 0; i < types.length; i++) {
-          midpoints[types[i]] = {
-            "left": {
-              x: dim[i][0].x,
-              y: dim[i][0].c.y
-            },
-            "right": {
-              x: dim[i][0].x + dim[i][0].w,
-              y: dim[i][0].c.y
-            },
-            "top": {
-              x: dim[i][0].c.x,
-              y: dim[i][0].y
-            },
-            "bottom": {
-              x: dim[i][0].c.x,
-              y: dim[i][0].y + dim[i][0].h
-            }
-          };
+          var _midpoints$types$i;
+          midpoints[types[i]] = (_midpoints$types$i = {}, _defineProperty(_midpoints$types$i, LEFT, {
+            x: dim[i][0].x,
+            y: dim[i][0].c.y
+          }), _defineProperty(_midpoints$types$i, RIGHT, {
+            x: dim[i][0].x + dim[i][0].w,
+            y: dim[i][0].c.y
+          }), _defineProperty(_midpoints$types$i, TOP, {
+            x: dim[i][0].c.x,
+            y: dim[i][0].y
+          }), _defineProperty(_midpoints$types$i, BOTTOM, {
+            x: dim[i][0].c.x,
+            y: dim[i][0].y + dim[i][0].h
+          }), _midpoints$types$i);
           if (dim[i][1] != null && dim[i][1].length > 0) {
             for (var axis in midpoints[types[i]]) {
               midpoints[types[i]][axis] = _this4.instance._applyRotationsXY(midpoints[types[i]][axis], dim[i][1]);
             }
           }
         }
-      })(["source", "target"], [[sd, sourceRotation], [td, targetRotation]]);
-      var FACES = ["top", "right", "left", "bottom"];
+      })([SOURCE, TARGET], [[sd, sourceRotation], [td, targetRotation]]);
+      var FACES = [TOP, LEFT, RIGHT, BOTTOM];
       for (var sf = 0; sf < FACES.length; sf++) {
         for (var tf = 0; tf < FACES.length; tf++) {
           candidates.push({
@@ -5380,12 +5364,8 @@ var LightweightRouter = function () {
         } else if (b.dist < a.dist) {
           return 1;
         } else {
-          var axisIndices = {
-            "left": 0,
-            "top": 1,
-            "right": 2,
-            "bottom": 3
-          },
+          var _axisIndices;
+          var axisIndices = (_axisIndices = {}, _defineProperty(_axisIndices, LEFT, 0), _defineProperty(_axisIndices, TOP, 1), _defineProperty(_axisIndices, RIGHT, 2), _defineProperty(_axisIndices, BOTTOM, 3), _axisIndices),
               ais = axisIndices[a.source],
               bis = axisIndices[b.source],
               ait = axisIndices[a.target],

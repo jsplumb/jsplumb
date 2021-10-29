@@ -71,8 +71,22 @@ export declare class LightweightRouter<T extends {
     setAnchor(endpoint: Endpoint<any>, anchor: LightweightAnchor): void;
     setConnectionAnchors(conn: Connection<any>, anchors: [LightweightAnchor, LightweightAnchor]): void;
     private _calculateOrientation;
+    /**
+     * @internal
+     * @param a
+     * @param face
+     * @param overrideLock
+     */
     setCurrentFace(a: LightweightContinuousAnchor, face: Face, overrideLock?: boolean): void;
+    /**
+     * @internal
+     * @param a
+     */
     lock(a: LightweightAnchor): void;
+    /**
+     * @internal
+     * @param a
+     */
     unlock(a: LightweightAnchor): void;
     /**
      * Attempts to set the location in the given anchor whose x/y matches the coordinates given. An anchor may have more than
@@ -80,17 +94,27 @@ export declare class LightweightRouter<T extends {
      * @param a
      * @param coords
      * @returns true if a matching location was found and activated, false if not.
+     * @internal
      */
     selectAnchorLocation(a: LightweightAnchor, coords: {
         x: number;
         y: number;
     }): boolean;
+    /**
+     * @internal
+     * @param a
+     */
     lockCurrentAxis(a: LightweightContinuousAnchor): void;
+    /**
+     * @internal
+     * @param a
+     */
     unlockCurrentAxis(a: LightweightContinuousAnchor): void;
     /**
-     * Returns whether or not
+     * Returns whether or not the two anchors represent the same location.
      * @param a1
      * @param a2
+     * @internal
      */
     anchorsEqual(a1: LightweightAnchor, a2: LightweightAnchor): boolean;
 }

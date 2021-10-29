@@ -30,9 +30,6 @@ function isString(s) {
 function isBoolean(s) {
   return typeof s === "boolean";
 }
-function isNull(s) {
-  return s == null;
-}
 function isObject(o) {
   return o == null ? false : Object.prototype.toString.call(o) === "[object Object]";
 }
@@ -483,9 +480,6 @@ function wrap(wrappedFunction, newFunction, returnOnThisValue) {
     }
     return r;
   };
-}
-function sortHelper(_array, _fn) {
-  return _array.sort(_fn);
 }
 function getsert(map, key, valueGenerator) {
   if (!map.has(key)) {
@@ -956,4 +950,4 @@ function snapToGrid(pos, grid, thresholdX, thresholdY) {
   };
 }
 
-export { EventGenerator, OptimisticEventGenerator, TWO_PI, add, addToDictionary, addToList, addWithFunction, arraysEqual, clone, each, encloses, extend, fastTrim, filterList, filterNull, findAllWithFunction, findWithFunction, forEach, fromArray, functionChain, getAllWithFunction, getFromSetWithFunction, getWithFunction, getsert, gradient, insertSorted, intersects, isAssignableFrom, isBoolean, isDate, isEmpty, isFunction, isNamedFunction, isNull, isNumber, isObject, isString, lineIntersection, lineLength, lineRectangleIntersection, log, logEnabled, map, merge, normal, objectsEqual, perpendicularLineTo, pointOnLine, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, snapToGrid, sortHelper, subtract, suggest, theta, uuid, wrap };
+export { EventGenerator, OptimisticEventGenerator, TWO_PI, add, addToDictionary, addToList, addWithFunction, arraysEqual, clone, each, encloses, extend, fastTrim, filterList, filterNull, findAllWithFunction, findWithFunction, forEach, fromArray, functionChain, getAllWithFunction, getFromSetWithFunction, getWithFunction, getsert, gradient, insertSorted, intersects, isAssignableFrom, isBoolean, isDate, isEmpty, isFunction, isNamedFunction, isNumber, isObject, isString, lineIntersection, lineLength, lineRectangleIntersection, log, logEnabled, map, merge, normal, objectsEqual, perpendicularLineTo, pointOnLine, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, snapToGrid, subtract, suggest, theta, uuid, wrap };

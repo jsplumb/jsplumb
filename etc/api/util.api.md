@@ -7,13 +7,19 @@
 // @public
 export function add(p1: PointXY, p2: PointXY): PointXY;
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "addToDictionary" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function addToDictionary<T>(map: Dictionary<Array<T>>, key: string, value: any, insertAtStart?: boolean): Array<any>;
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "addToList" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function addToList<T>(map: Map<string, Array<T>>, key: string, value: any, insertAtStart?: boolean): Array<any>;
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "addWithFunction" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function addWithFunction<T>(list: Array<T>, item: T, hashFunction: (_a: T) => boolean): void;
 
 // Warning: (ae-internal-missing-underscore) The name "arraysEqual" should be prefixed with an underscore because the declaration is marked as @internal
@@ -30,7 +36,9 @@ export type BoundingBox = {
     center?: PointXY;
 };
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "clone" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function clone(a: any): any;
 
 // @public
@@ -44,7 +52,9 @@ export interface Dictionary<T> {
     [Key: string]: T;
 }
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "each" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function each(obj: any, fn: Function): void;
 
 // @public
@@ -67,7 +77,9 @@ export abstract class EventGenerator {
 // @public
 export function extend<T>(o1: T, o2: T, keys?: string[]): T;
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "Extents" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export interface Extents {
     // (undocumented)
     xmax: number;
@@ -82,22 +94,34 @@ export interface Extents {
 // @public
 export function fastTrim(s: string): string;
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "filterList" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function filterList(list: Array<any> | string, value: any, missingIsFalse?: boolean): boolean;
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "filterNull" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function filterNull(obj: Record<string, any>): Record<string, any>;
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "findAllWithFunction" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function findAllWithFunction<T>(a: ArrayLike<T>, predicate: (_a: T) => boolean): Array<number>;
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "findWithFunction" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function findWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): number;
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "forEach" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function forEach<T>(a: ArrayLike<T>, f: (_a: T) => any): void;
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "fromArray" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function fromArray<T>(a: ArrayLike<T>): Array<T>;
 
 // Warning: (ae-internal-missing-underscore) The name "functionChain" should be prefixed with an underscore because the declaration is marked as @internal
@@ -105,16 +129,22 @@ export function fromArray<T>(a: ArrayLike<T>): Array<T>;
 // @internal
 export function functionChain(successValue: any, failValue: any, fns: Array<Array<any>>): any;
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "getAllWithFunction" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function getAllWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): Array<T>;
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "getFromSetWithFunction" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function getFromSetWithFunction<T>(s: Set<T>, f: (_a: T) => boolean): T;
 
 // @public
 export function getsert<K, V>(map: Map<K, V>, key: K, valueGenerator: () => V): V;
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "getWithFunction" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function getWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): T;
 
 // @public
@@ -153,9 +183,6 @@ export function isFunction(o: any): o is Function;
 export function isNamedFunction(o: any): boolean;
 
 // @public
-export function isNull(s: any): boolean;
-
-// @public
 export function isNumber(n: any): boolean;
 
 // @public
@@ -176,19 +203,27 @@ export function lineRectangleIntersection(line: LineXY, r: RectangleXY): Array<P
 // @public
 export type LineXY = [PointXY, PointXY];
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "log" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function log(...args: string[]): void;
 
 // @public
 export const logEnabled: boolean;
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "map" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function map(obj: any, fn: Function): any[];
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "Merge" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export type Merge<M, N> = Omit_2<M, Extract<keyof M, keyof N>> & N;
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "merge" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function merge(a: Record<string, any>, b: Record<string, any>, collations?: Array<string>, overwrites?: Array<string>): any;
 
 // @public
@@ -199,8 +234,10 @@ export function normal(p1: PointXY, p2: PointXY): number;
 // @internal
 export function objectsEqual(a: Record<string, any>, b: Record<string, any>): boolean;
 
-// @public
+// @internal
 type Omit_2<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+
+// Warning: (ae-internal-missing-underscore) The name "Omit" should be prefixed with an underscore because the declaration is marked as @internal
 export { Omit_2 as Omit }
 
 // @public
@@ -225,7 +262,9 @@ export interface PointXY {
     y: number;
 }
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "populate" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function populate(model: any, values: any, functionPrefix?: string, doNotExpandFunctions?: boolean): any;
 
 // @public (undocumented)
@@ -237,10 +276,14 @@ export function quadrant(p1: PointXY, p2: PointXY): Quadrant;
 // @public
 export type RectangleXY = BoundingBox;
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "remove" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function remove<T>(l: Array<T>, v: T): boolean;
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "removeWithFunction" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function removeWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): boolean;
 
 // Warning: (ae-internal-missing-underscore) The name "replace" should be prefixed with an underscore because the declaration is marked as @internal
@@ -268,7 +311,9 @@ export interface RotatedPointXY extends PointXY {
 // @public
 export function rotatePoint(point: PointXY, center: PointXY, rotation: number): RotatedPointXY;
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "Rotation" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export interface Rotation {
     // (undocumented)
     c: PointXY;
@@ -276,10 +321,14 @@ export interface Rotation {
     r: number;
 }
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "Rotations" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export type Rotations = Array<Rotation>;
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "setToArray" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function setToArray<T>(s: Set<T>): Array<T>;
 
 // @public
@@ -293,16 +342,17 @@ export interface Size {
 // @public
 export function snapToGrid(pos: PointXY, grid: Grid, thresholdX?: number, thresholdY?: number): PointXY;
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "SortFunction" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export type SortFunction<T> = (a: T, b: T) => number;
-
-// @public
-export function sortHelper<T>(_array: Array<T>, _fn: SortFunction<T>): Array<T>;
 
 // @public
 export function subtract(p1: PointXY, p2: PointXY): PointXY;
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "suggest" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function suggest(list: Array<any>, item: any, insertAtHead?: boolean): boolean;
 
 // @public
@@ -314,7 +364,9 @@ export const TWO_PI: number;
 // @public
 export function uuid(): string;
 
-// @public
+// Warning: (ae-internal-missing-underscore) The name "wrap" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function wrap(wrappedFunction: Function, newFunction: Function, returnOnThisValue?: any): () => any;
 
 ```

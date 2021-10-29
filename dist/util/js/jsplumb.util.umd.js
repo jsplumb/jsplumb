@@ -36,9 +36,6 @@
     function isBoolean(s) {
       return typeof s === "boolean";
     }
-    function isNull(s) {
-      return s == null;
-    }
     function isObject(o) {
       return o == null ? false : Object.prototype.toString.call(o) === "[object Object]";
     }
@@ -489,9 +486,6 @@
         }
         return r;
       };
-    }
-    function sortHelper(_array, _fn) {
-      return _array.sort(_fn);
     }
     function getsert(map, key, valueGenerator) {
       if (!map.has(key)) {
@@ -995,7 +989,6 @@
     exports.isEmpty = isEmpty;
     exports.isFunction = isFunction;
     exports.isNamedFunction = isNamedFunction;
-    exports.isNull = isNull;
     exports.isNumber = isNumber;
     exports.isObject = isObject;
     exports.isString = isString;
@@ -1019,7 +1012,6 @@
     exports.rotatePoint = rotatePoint;
     exports.setToArray = setToArray;
     exports.snapToGrid = snapToGrid;
-    exports.sortHelper = sortHelper;
     exports.subtract = subtract;
     exports.suggest = suggest;
     exports.theta = theta;

@@ -374,7 +374,7 @@ export declare const BlankEndpointHandler: EndpointHandler<BlankEndpoint, Comput
 
 export declare const BLOCK = "block";
 
-export declare const BOTTOM = "bottom";
+export declare const BOTTOM = FaceValues.bottom;
 
 export declare const CHECK_CONDITION = "checkCondition";
 
@@ -1299,7 +1299,14 @@ export declare const EVENT_UNMANAGE_ELEMENT = "element:unmanage";
 
 export declare const EVENT_ZOOM = "zoom";
 
-export declare type Face = "top" | "right" | "bottom" | "left";
+export declare type Face = keyof typeof FaceValues;
+
+declare enum FaceValues {
+    top = "top",
+    left = "left",
+    right = "right",
+    bottom = "bottom"
+}
 
 export declare const FIXED = "fixed";
 
@@ -1935,7 +1942,7 @@ export declare class LabelOverlay extends Overlay {
     updateFrom(d: any): void;
 }
 
-export declare const LEFT = "left";
+export declare const LEFT = FaceValues.left;
 
 export declare interface LightweightAnchor {
     locations: Array<AnchorRecord>;
@@ -2039,8 +2046,22 @@ export declare class LightweightRouter<T extends {
     setAnchor(endpoint: Endpoint<any>, anchor: LightweightAnchor): void;
     setConnectionAnchors(conn: Connection<any>, anchors: [LightweightAnchor, LightweightAnchor]): void;
     private _calculateOrientation;
+    /**
+     * @internal
+     * @param a
+     * @param face
+     * @param overrideLock
+     */
     setCurrentFace(a: LightweightContinuousAnchor, face: Face, overrideLock?: boolean): void;
+    /**
+     * @internal
+     * @param a
+     */
     lock(a: LightweightAnchor): void;
+    /**
+     * @internal
+     * @param a
+     */
     unlock(a: LightweightAnchor): void;
     /**
      * Attempts to set the location in the given anchor whose x/y matches the coordinates given. An anchor may have more than
@@ -2048,17 +2069,27 @@ export declare class LightweightRouter<T extends {
      * @param a
      * @param coords
      * @returns true if a matching location was found and activated, false if not.
+     * @internal
      */
     selectAnchorLocation(a: LightweightAnchor, coords: {
         x: number;
         y: number;
     }): boolean;
+    /**
+     * @internal
+     * @param a
+     */
     lockCurrentAxis(a: LightweightContinuousAnchor): void;
+    /**
+     * @internal
+     * @param a
+     */
     unlockCurrentAxis(a: LightweightContinuousAnchor): void;
     /**
-     * Returns whether or not
+     * Returns whether or not the two anchors represent the same location.
      * @param a1
      * @param a2
+     * @internal
      */
     anchorsEqual(a1: LightweightAnchor, a2: LightweightAnchor): boolean;
 }
@@ -2192,7 +2223,7 @@ export declare type RedropPolicy = typeof REDROP_POLICY_STRICT | typeof REDROP_P
 
 export declare function _removeTypeCssHelper<E>(component: Component, typeIndex: number): void;
 
-export declare const RIGHT = "right";
+export declare const RIGHT = FaceValues.right;
 
 export declare interface Router<T extends {
     E: unknown;
@@ -2409,7 +2440,7 @@ export declare class TargetSelector extends ConnectionDragSelector {
     constructor(selector: string, def: TargetDefinition, exclude: boolean);
 }
 
-export declare const TOP = "top";
+export declare const TOP = FaceValues.top;
 
 export declare type TranslatedViewportElement<E> = Pick<TranslatedViewportElementBase<E>, Exclude<keyof TranslatedViewportElementBase<E>, "dirty">>;
 

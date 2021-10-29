@@ -403,7 +403,7 @@ export const BlankEndpointHandler: EndpointHandler<BlankEndpoint, ComputedBlankE
 export const BLOCK = "block";
 
 // @public (undocumented)
-export const BOTTOM = "bottom";
+export const BOTTOM = FaceValues.bottom;
 
 // @public (undocumented)
 export const CHECK_CONDITION = "checkCondition";
@@ -1324,8 +1324,10 @@ export const EVENT_UNMANAGE_ELEMENT = "element:unmanage";
 // @public (undocumented)
 export const EVENT_ZOOM = "zoom";
 
+// Warning: (ae-forgotten-export) The symbol "FaceValues" needs to be exported by the entry point index.d.ts
+//
 // @public (undocumented)
-export type Face = "top" | "right" | "bottom" | "left";
+export type Face = keyof typeof FaceValues;
 
 // @public (undocumented)
 export const FIXED = "fixed";
@@ -1936,7 +1938,7 @@ export class LabelOverlay extends Overlay {
 }
 
 // @public (undocumented)
-export const LEFT = "left";
+export const LEFT = FaceValues.left;
 
 // @public (undocumented)
 export interface LightweightAnchor {
@@ -2038,6 +2040,7 @@ export class LightweightRouter<T extends {
     anchorLists: Map<string, AnchorLists>;
     // (undocumented)
     anchorLocations: Map<string, AnchorPlacement>;
+    // @internal
     anchorsEqual(a1: LightweightAnchor, a2: LightweightAnchor): boolean;
     // Warning: (ae-incompatible-release-tags) The symbol "computeAnchorLocation" is marked as @public, but its signature references "AnchorComputeParams" which is marked as @internal
     //
@@ -2059,9 +2062,9 @@ export class LightweightRouter<T extends {
     isDynamicAnchor(ep: Endpoint<any>): boolean;
     // (undocumented)
     isFloating(ep: Endpoint<any>): boolean;
-    // (undocumented)
+    // @internal (undocumented)
     lock(a: LightweightAnchor): void;
-    // (undocumented)
+    // @internal (undocumented)
     lockCurrentAxis(a: LightweightContinuousAnchor): void;
     // (undocumented)
     prepareAnchor(endpoint: Endpoint<any>, params: AnchorSpec | Array<AnchorSpec>): LightweightAnchor;
@@ -2069,6 +2072,7 @@ export class LightweightRouter<T extends {
     redraw(elementId: string, timestamp?: string, offsetToUI?: PointXY): RedrawResult;
     // (undocumented)
     reset(): void;
+    // @internal
     selectAnchorLocation(a: LightweightAnchor, coords: {
         x: number;
         y: number;
@@ -2077,11 +2081,11 @@ export class LightweightRouter<T extends {
     setAnchor(endpoint: Endpoint<any>, anchor: LightweightAnchor): void;
     // (undocumented)
     setConnectionAnchors(conn: Connection<any>, anchors: [LightweightAnchor, LightweightAnchor]): void;
-    // (undocumented)
+    // @internal (undocumented)
     setCurrentFace(a: LightweightContinuousAnchor, face: Face, overrideLock?: boolean): void;
-    // (undocumented)
+    // @internal (undocumented)
     unlock(a: LightweightAnchor): void;
-    // (undocumented)
+    // @internal (undocumented)
     unlockCurrentAxis(a: LightweightContinuousAnchor): void;
 }
 
@@ -2271,7 +2275,7 @@ export type RedropPolicy = typeof REDROP_POLICY_STRICT | typeof REDROP_POLICY_AN
 export function _removeTypeCssHelper<E>(component: Component, typeIndex: number): void;
 
 // @public (undocumented)
-export const RIGHT = "right";
+export const RIGHT = FaceValues.right;
 
 // @public (undocumented)
 export interface Router<T extends {
@@ -2453,7 +2457,7 @@ export class TargetSelector extends ConnectionDragSelector {
 }
 
 // @public (undocumented)
-export const TOP = "top";
+export const TOP = FaceValues.top;
 
 // Warning: (ae-incompatible-release-tags) The symbol "TranslatedViewportElement" is marked as @public, but its signature references "TranslatedViewportElementBase" which is marked as @internal
 //

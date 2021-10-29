@@ -34,9 +34,6 @@ function isString(s) {
 function isBoolean(s) {
   return typeof s === "boolean";
 }
-function isNull(s) {
-  return s == null;
-}
 function isObject(o) {
   return o == null ? false : Object.prototype.toString.call(o) === "[object Object]";
 }
@@ -487,9 +484,6 @@ function wrap(wrappedFunction, newFunction, returnOnThisValue) {
     }
     return r;
   };
-}
-function sortHelper(_array, _fn) {
-  return _array.sort(_fn);
 }
 function getsert(map, key, valueGenerator) {
   if (!map.has(key)) {
@@ -993,7 +987,6 @@ exports.isDate = isDate;
 exports.isEmpty = isEmpty;
 exports.isFunction = isFunction;
 exports.isNamedFunction = isNamedFunction;
-exports.isNull = isNull;
 exports.isNumber = isNumber;
 exports.isObject = isObject;
 exports.isString = isString;
@@ -1017,7 +1010,6 @@ exports.rotateAnchorOrientation = rotateAnchorOrientation;
 exports.rotatePoint = rotatePoint;
 exports.setToArray = setToArray;
 exports.snapToGrid = snapToGrid;
-exports.sortHelper = sortHelper;
 exports.subtract = subtract;
 exports.suggest = suggest;
 exports.theta = theta;
