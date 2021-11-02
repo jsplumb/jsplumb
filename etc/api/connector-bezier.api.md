@@ -11,6 +11,7 @@ import { BoundingBox } from '@jsplumb/util';
 import { Connection } from '@jsplumb/core';
 import { ConnectorComputeParams } from '@jsplumb/core';
 import { ConnectorOptions } from '@jsplumb/common';
+import { Geometry } from '@jsplumb/common';
 import { LineXY } from '@jsplumb/util';
 import { PaintGeometry } from '@jsplumb/core';
 import { PointNearPath } from '@jsplumb/common';
@@ -33,17 +34,13 @@ export abstract class AbstractBezierConnector extends AbstractConnector {
     // (undocumented)
     curviness: number;
     // (undocumented)
-    exportGeometry(): any;
+    exportGeometry(): BezierConnectorGeometry;
     // (undocumented)
-    geometry: {
-        controlPoints: [any, any];
-        source: AnchorPlacement;
-        target: AnchorPlacement;
-    };
+    geometry: BezierConnectorGeometry;
     // (undocumented)
     getDefaultStubs(): [number, number];
     // (undocumented)
-    importGeometry(geometry: any): boolean;
+    importGeometry(geometry: BezierConnectorGeometry): boolean;
     // (undocumented)
     isLoopbackCurrently: boolean;
     // (undocumented)
@@ -85,7 +82,7 @@ export class BezierConnector extends AbstractBezierConnector {
     // (undocumented)
     connection: Connection;
     // (undocumented)
-    protected _findControlPoint(point: any, sourceAnchorPosition: any, targetAnchorPosition: any, soo: any, too: any): any[];
+    protected _findControlPoint(point: PointXY, sourceAnchorPosition: AnchorPlacement, targetAnchorPosition: AnchorPlacement, soo: [number, number], too: [number, number]): PointXY;
     // (undocumented)
     getCurviness(): number;
     // (undocumented)
@@ -96,6 +93,16 @@ export class BezierConnector extends AbstractBezierConnector {
     static type: string;
     // (undocumented)
     type: string;
+}
+
+// @public
+export interface BezierConnectorGeometry extends Geometry {
+    // (undocumented)
+    controlPoints: [PointXY, PointXY];
+    // (undocumented)
+    source: AnchorPlacement;
+    // (undocumented)
+    target: AnchorPlacement;
 }
 
 // @public
@@ -220,7 +227,7 @@ export class StateMachineConnector extends AbstractBezierConnector {
     // (undocumented)
     connection: Connection;
     // (undocumented)
-    _controlPoint: [number, number];
+    _controlPoint: PointXY;
     // (undocumented)
     proximityLimit: number;
     // (undocumented)

@@ -76,15 +76,15 @@ export declare abstract class AbstractConnector implements Connector {
     constructor(connection: Connection, params: ConnectorOptions);
     getTypeDescriptor(): string;
     getIdPrefix(): string;
-    protected setGeometry(g: any, internal: boolean): void;
+    protected setGeometry(g: Geometry, internal: boolean): void;
     /**
      * Subclasses can override this. By default we just pass back the geometry we are using internally.
      */
-    exportGeometry(): any;
+    exportGeometry(): Geometry;
     /**
      * Subclasses can override this. By default we just set the given geometry as our internal representation.
      */
-    importGeometry(g: any): boolean;
+    importGeometry(g: Geometry): boolean;
     resetGeometry(): void;
     abstract _compute(geometry: PaintGeometry, params: ConnectorComputeParams): void;
     resetBounds(): void;

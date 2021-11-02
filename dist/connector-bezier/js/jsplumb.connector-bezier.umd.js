@@ -197,18 +197,10 @@
         if (this.geometry == null) {
           return null;
         } else {
-          var s = [],
-              t = [],
-              cp1 = [],
-              cp2 = [];
-          Array.prototype.push.apply(s, this.geometry.source);
-          Array.prototype.push.apply(t, this.geometry.target);
-          Array.prototype.push.apply(cp1, this.geometry.controlPoints[0]);
-          Array.prototype.push.apply(cp2, this.geometry.controlPoints[1]);
           return {
-            source: s,
-            target: t,
-            controlPoints: [cp1, cp2]
+            controlPoints: [util.extend({}, this.geometry.controlPoints[0]), util.extend({}, this.geometry.controlPoints[1])],
+            source: util.extend({}, this.geometry.source),
+            target: util.extend({}, this.geometry.target)
           };
         }
       }
@@ -221,17 +213,17 @@
             this.setGeometry(null, true);
             return false;
           }
-          if (geometry.controlPoints[0].length != 2 || geometry.controlPoints[1].length != 2) {
+          if (geometry.controlPoints[0].x == null || geometry.controlPoints[0].y == null || geometry.controlPoints[1].x == null || geometry.controlPoints[1].y == null) {
             util.log("jsPlumb Bezier: cannot import geometry; controlPoints malformed");
             this.setGeometry(null, true);
             return false;
           }
-          if (geometry.source == null || geometry.source.length != 4) {
+          if (geometry.source == null || geometry.source.curX == null || geometry.source.curY == null) {
             util.log("jsPlumb Bezier: cannot import geometry; source missing or malformed");
             this.setGeometry(null, true);
             return false;
           }
-          if (geometry.target == null || geometry.target.length != 4) {
+          if (geometry.target == null || geometry.target.curX == null || geometry.target.curY == null) {
             util.log("jsPlumb Bezier: cannot import geometry; target missing or malformed");
             this.setGeometry(null, true);
             return false;
@@ -892,28 +884,31 @@
       key: "_findControlPoint",
       value: function _findControlPoint(point, sourceAnchorPosition, targetAnchorPosition, soo, too) {
         var perpendicular = soo[0] !== too[0] || soo[1] === too[1],
-            p = [];
+            p = {
+          x: 0,
+          y: 0
+        };
         if (!perpendicular) {
           if (soo[0] === 0) {
-            p.push(sourceAnchorPosition[0] < targetAnchorPosition[0] ? point[0] + this.minorAnchor : point[0] - this.minorAnchor);
+            p.x = sourceAnchorPosition.curX < targetAnchorPosition.curX ? point.x + this.minorAnchor : point.x - this.minorAnchor;
           } else {
-            p.push(point[0] - this.majorAnchor * soo[0]);
+            p.x = point.x - this.majorAnchor * soo[0];
           }
           if (soo[1] === 0) {
-            p.push(sourceAnchorPosition[1] < targetAnchorPosition[1] ? point[1] + this.minorAnchor : point[1] - this.minorAnchor);
+            p.y = sourceAnchorPosition.curY < targetAnchorPosition.curY ? point.y + this.minorAnchor : point.y - this.minorAnchor;
           } else {
-            p.push(point[1] + this.majorAnchor * too[1]);
+            p.y = point.y + this.majorAnchor * too[1];
           }
         } else {
           if (too[0] === 0) {
-            p.push(targetAnchorPosition[0] < sourceAnchorPosition[0] ? point[0] + this.minorAnchor : point[0] - this.minorAnchor);
+            p.x = targetAnchorPosition.curX < sourceAnchorPosition.curX ? point.x + this.minorAnchor : point.x - this.minorAnchor;
           } else {
-            p.push(point[0] + this.majorAnchor * too[0]);
+            p.x = point.x + this.majorAnchor * too[0];
           }
           if (too[1] === 0) {
-            p.push(targetAnchorPosition[1] < sourceAnchorPosition[1] ? point[1] + this.minorAnchor : point[1] - this.minorAnchor);
+            p.y = targetAnchorPosition.curY < sourceAnchorPosition.curY ? point.y + this.minorAnchor : point.y - this.minorAnchor;
           } else {
-            p.push(point[1] + this.majorAnchor * soo[1]);
+            p.y = point.y + this.majorAnchor * soo[1];
           }
         }
         return p;
@@ -928,8 +923,14 @@
             _tx = sp.curX < tp.curX ? 0 : _w,
             _ty = sp.curY < tp.curY ? 0 : _h;
         if (this.edited !== true) {
-          _CP = this._findControlPoint([_sx, _sy], sp, tp, paintInfo.so, paintInfo.to);
-          _CP2 = this._findControlPoint([_tx, _ty], tp, sp, paintInfo.to, paintInfo.so);
+          _CP = this._findControlPoint({
+            x: _sx,
+            y: _sy
+          }, sp, tp, paintInfo.so, paintInfo.to);
+          _CP2 = this._findControlPoint({
+            x: _tx,
+            y: _ty
+          }, tp, sp, paintInfo.to, paintInfo.so);
         } else {
           _CP = this.geometry.controlPoints[0];
           _CP2 = this.geometry.controlPoints[1];
@@ -944,10 +945,10 @@
           y1: _sy,
           x2: _tx,
           y2: _ty,
-          cp1x: _CP[0],
-          cp1y: _CP[1],
-          cp2x: _CP2[0],
-          cp2y: _CP2[1]
+          cp1x: _CP.x,
+          cp1y: _CP.y,
+          cp2x: _CP2.x,
+          cp2y: _CP2.y
         });
       }
     }]);
@@ -967,39 +968,78 @@
   }
   function _findControlPoint(midx, midy, segment, sourceEdge, targetEdge, dx, dy, distance, proximityLimit) {
     if (distance <= proximityLimit) {
-      return [midx, midy];
+      return {
+        x: midx,
+        y: midy
+      };
     }
     if (segment === 1) {
       if (sourceEdge.curY <= 0 && targetEdge.curY >= 1) {
-        return [midx + (sourceEdge.x < 0.5 ? -1 * dx : dx), midy];
+        return {
+          x: midx + (sourceEdge.x < 0.5 ? -1 * dx : dx),
+          y: midy
+        };
       } else if (sourceEdge.curX >= 1 && targetEdge.curX <= 0) {
-        return [midx, midy + (sourceEdge.y < 0.5 ? -1 * dy : dy)];
+        return {
+          x: midx,
+          y: midy + (sourceEdge.y < 0.5 ? -1 * dy : dy)
+        };
       } else {
-        return [midx + -1 * dx, midy + -1 * dy];
+        return {
+          x: midx + -1 * dx,
+          y: midy + -1 * dy
+        };
       }
     } else if (segment === 2) {
       if (sourceEdge.curY >= 1 && targetEdge.curY <= 0) {
-        return [midx + (sourceEdge.x < 0.5 ? -1 * dx : dx), midy];
+        return {
+          x: midx + (sourceEdge.x < 0.5 ? -1 * dx : dx),
+          y: midy
+        };
       } else if (sourceEdge.curX >= 1 && targetEdge.curX <= 0) {
-        return [midx, midy + (sourceEdge.y < 0.5 ? -1 * dy : dy)];
+        return {
+          x: midx,
+          y: midy + (sourceEdge.y < 0.5 ? -1 * dy : dy)
+        };
       } else {
-        return [midx + dx, midy + -1 * dy];
+        return {
+          x: midx + dx,
+          y: midy + -1 * dy
+        };
       }
     } else if (segment === 3) {
       if (sourceEdge.curY >= 1 && targetEdge.curY <= 0) {
-        return [midx + (sourceEdge.x < 0.5 ? -1 * dx : dx), midy];
+        return {
+          x: midx + (sourceEdge.x < 0.5 ? -1 * dx : dx),
+          y: midy
+        };
       } else if (sourceEdge.curX <= 0 && targetEdge.curX >= 1) {
-        return [midx, midy + (sourceEdge.y < 0.5 ? -1 * dy : dy)];
+        return {
+          x: midx,
+          y: midy + (sourceEdge.y < 0.5 ? -1 * dy : dy)
+        };
       } else {
-        return [midx + -1 * dx, midy + -1 * dy];
+        return {
+          x: midx + -1 * dx,
+          y: midy + -1 * dy
+        };
       }
     } else if (segment === 4) {
       if (sourceEdge.curY <= 0 && targetEdge.curY >= 1) {
-        return [midx + (sourceEdge.x < 0.5 ? -1 * dx : dx), midy];
+        return {
+          x: midx + (sourceEdge.x < 0.5 ? -1 * dx : dx),
+          y: midy
+        };
       } else if (sourceEdge.curX <= 0 && targetEdge.curX >= 1) {
-        return [midx, midy + (sourceEdge.y < 0.5 ? -1 * dy : dy)];
+        return {
+          x: midx,
+          y: midy + (sourceEdge.y < 0.5 ? -1 * dy : dy)
+        };
       } else {
-        return [midx + dx, midy + -1 * dy];
+        return {
+          x: midx + dx,
+          y: midy + -1 * dy
+        };
       }
     }
   }
@@ -1061,10 +1101,10 @@
           this._controlPoint = this.geometry.controlPoints[0];
         }
         var cp1x, cp2x, cp1y, cp2y;
-        cp1x = this._controlPoint[0];
-        cp2x = this._controlPoint[0];
-        cp1y = this._controlPoint[1];
-        cp2y = this._controlPoint[1];
+        cp1x = this._controlPoint.x;
+        cp2x = this._controlPoint.x;
+        cp1y = this._controlPoint.y;
+        cp2y = this._controlPoint.y;
         this.geometry = {
           controlPoints: [this._controlPoint, this._controlPoint],
           source: params.sourcePos,

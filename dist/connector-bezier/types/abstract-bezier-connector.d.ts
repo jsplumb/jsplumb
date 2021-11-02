@@ -1,6 +1,14 @@
 import { PointXY } from "@jsplumb/util";
 import { Connection, AbstractConnector, ConnectorComputeParams, PaintGeometry } from "@jsplumb/core";
-import { AnchorPlacement, ConnectorOptions } from "@jsplumb/common";
+import { AnchorPlacement, ConnectorOptions, Geometry } from "@jsplumb/common";
+/**
+ * The bezier connector's internal representation of a path.
+ */
+export interface BezierConnectorGeometry extends Geometry {
+    controlPoints: [PointXY, PointXY];
+    source: AnchorPlacement;
+    target: AnchorPlacement;
+}
 /**
  * Base options interface for StateMachine and Bezier connectors.
  * @public
@@ -32,16 +40,12 @@ export declare abstract class AbstractBezierConnector extends AbstractConnector 
     loopbackRadius: number;
     clockwise: boolean;
     isLoopbackCurrently: boolean;
-    geometry: {
-        controlPoints: [any, any];
-        source: AnchorPlacement;
-        target: AnchorPlacement;
-    };
+    geometry: BezierConnectorGeometry;
     getDefaultStubs(): [number, number];
     constructor(connection: Connection, params: any);
     _compute(paintInfo: PaintGeometry, p: ConnectorComputeParams): void;
-    exportGeometry(): any;
-    importGeometry(geometry: any): boolean;
+    exportGeometry(): BezierConnectorGeometry;
+    importGeometry(geometry: BezierConnectorGeometry): boolean;
     abstract _computeBezier(paintInfo: PaintGeometry, p: ConnectorComputeParams, sp: PointXY, tp: PointXY, _w: number, _h: number): void;
 }
 //# sourceMappingURL=abstract-bezier-connector.d.ts.map

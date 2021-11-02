@@ -113,7 +113,7 @@ export abstract class AbstractConnector implements Connector {
     
     getIdPrefix () { return  "_jsplumb_connector"; }
 
-    protected setGeometry(g:any, internal:boolean) {
+    protected setGeometry(g:Geometry, internal:boolean) {
         this.geometry = g
         this.edited = g != null && !internal
     }
@@ -121,14 +121,14 @@ export abstract class AbstractConnector implements Connector {
     /**
      * Subclasses can override this. By default we just pass back the geometry we are using internally.
      */
-    exportGeometry():any {
+    exportGeometry():Geometry {
         return this.geometry
     }
 
     /**
      * Subclasses can override this. By default we just set the given geometry as our internal representation.
      */
-    importGeometry(g:any):boolean {
+    importGeometry(g:Geometry):boolean {
         this.geometry = g
         return true
     }

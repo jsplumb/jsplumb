@@ -67,7 +67,7 @@ export abstract class AbstractConnector implements Connector {
     cssClass: string;
     // (undocumented)
     edited: boolean;
-    exportGeometry(): any;
+    exportGeometry(): Geometry;
     _findSegmentForLocation(location: number, absolute?: boolean): {
         segment: Segment;
         proportion: number;
@@ -93,7 +93,7 @@ export abstract class AbstractConnector implements Connector {
     h: number;
     // (undocumented)
     hoverClass: string;
-    importGeometry(g: any): boolean;
+    importGeometry(g: Geometry): boolean;
     // (undocumented)
     lineIntersection(x1: number, y1: number, x2: number, y2: number): Array<PointXY>;
     // (undocumented)
@@ -119,7 +119,7 @@ export abstract class AbstractConnector implements Connector {
     // (undocumented)
     setAnchorOrientation(idx: number, orientation: number[]): void;
     // (undocumented)
-    protected setGeometry(g: any, internal: boolean): void;
+    protected setGeometry(g: Geometry, internal: boolean): void;
     // (undocumented)
     sourceGap: number;
     // (undocumented)

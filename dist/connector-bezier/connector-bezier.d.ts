@@ -12,6 +12,7 @@ import { BoundingBox } from '@jsplumb/util';
 import { Connection } from '@jsplumb/core';
 import { ConnectorComputeParams } from '@jsplumb/core';
 import { ConnectorOptions } from '@jsplumb/common';
+import { Geometry } from '@jsplumb/common';
 import { LineXY } from '@jsplumb/util';
 import { PaintGeometry } from '@jsplumb/core';
 import { PointNearPath } from '@jsplumb/common';
@@ -31,16 +32,12 @@ export declare abstract class AbstractBezierConnector extends AbstractConnector 
     loopbackRadius: number;
     clockwise: boolean;
     isLoopbackCurrently: boolean;
-    geometry: {
-        controlPoints: [any, any];
-        source: AnchorPlacement;
-        target: AnchorPlacement;
-    };
+    geometry: BezierConnectorGeometry;
     getDefaultStubs(): [number, number];
     constructor(connection: Connection, params: any);
     _compute(paintInfo: PaintGeometry, p: ConnectorComputeParams): void;
-    exportGeometry(): any;
-    importGeometry(geometry: any): boolean;
+    exportGeometry(): BezierConnectorGeometry;
+    importGeometry(geometry: BezierConnectorGeometry): boolean;
     abstract _computeBezier(paintInfo: PaintGeometry, p: ConnectorComputeParams, sp: PointXY, tp: PointXY, _w: number, _h: number): void;
 }
 
@@ -73,8 +70,17 @@ export declare class BezierConnector extends AbstractBezierConnector {
     minorAnchor: number;
     constructor(connection: Connection, params: BezierOptions);
     getCurviness(): number;
-    protected _findControlPoint(point: any, sourceAnchorPosition: any, targetAnchorPosition: any, soo: any, too: any): any[];
+    protected _findControlPoint(point: PointXY, sourceAnchorPosition: AnchorPlacement, targetAnchorPosition: AnchorPlacement, soo: [number, number], too: [number, number]): PointXY;
     _computeBezier(paintInfo: PaintGeometry, p: ConnectorComputeParams, sp: AnchorPlacement, tp: AnchorPlacement, _w: number, _h: number): void;
+}
+
+/**
+ * The bezier connector's internal representation of a path.
+ */
+export declare interface BezierConnectorGeometry extends Geometry {
+    controlPoints: [PointXY, PointXY];
+    source: AnchorPlacement;
+    target: AnchorPlacement;
 }
 
 /**
@@ -248,7 +254,7 @@ export declare class StateMachineConnector extends AbstractBezierConnector {
     connection: Connection;
     static type: string;
     type: string;
-    _controlPoint: [number, number];
+    _controlPoint: PointXY;
     proximityLimit: number;
     constructor(connection: Connection, params: StateMachineOptions);
     _computeBezier(paintInfo: PaintGeometry, params: ConnectorComputeParams, sp: AnchorPlacement, tp: AnchorPlacement, w: number, h: number): void;
