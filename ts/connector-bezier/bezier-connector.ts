@@ -3,6 +3,7 @@ import {Connection, PaintGeometry, ConnectorComputeParams} from "@jsplumb/core"
 import { AnchorPlacement } from "@jsplumb/common"
 
 import {BezierSegment} from "./bezier-segment"
+import {PointXY} from "@jsplumb/util"
 
 /**
  * Options for the Bezier connector.
@@ -28,40 +29,40 @@ export class BezierConnector extends AbstractBezierConnector {
         return this.majorAnchor
     }
 
-    protected _findControlPoint (point:any, sourceAnchorPosition:any, targetAnchorPosition:any, soo:any, too:any) {
+    protected _findControlPoint (point:PointXY, sourceAnchorPosition:AnchorPlacement, targetAnchorPosition:AnchorPlacement, soo:[number, number], too:[number, number]):PointXY {
         // determine if the two anchors are perpendicular to each other in their orientation.  we swap the control
         // points around if so (code could be tightened up)
         let perpendicular = soo[0] !== too[0] || soo[1] === too[1],
-            p = []
+            p:PointXY = {x:0,y:0}
 
         if (!perpendicular) {
             if (soo[0] === 0) {
-                p.push(sourceAnchorPosition[0] < targetAnchorPosition[0] ? point[0] + this.minorAnchor : point[0] - this.minorAnchor)
+                p.x = (sourceAnchorPosition.curX < targetAnchorPosition.curX ? point.x + this.minorAnchor : point.x - this.minorAnchor)
             }
             else {
-                p.push(point[0] - (this.majorAnchor * soo[0]))
+                p.x = (point.x - (this.majorAnchor * soo[0]))
             }
 
             if (soo[1] === 0) {
-                p.push(sourceAnchorPosition[1] < targetAnchorPosition[1] ? point[1] + this.minorAnchor : point[1] - this.minorAnchor)
+                p.y = (sourceAnchorPosition.curY < targetAnchorPosition.curY ? point.y + this.minorAnchor : point.y - this.minorAnchor)
             }
             else {
-                p.push(point[1] + (this.majorAnchor * too[1]))
+                p.y = (point.y + (this.majorAnchor * too[1]))
             }
         }
         else {
             if (too[0] === 0) {
-                p.push(targetAnchorPosition[0] < sourceAnchorPosition[0] ? point[0] + this.minorAnchor : point[0] - this.minorAnchor)
+                p.x = (targetAnchorPosition.curX < sourceAnchorPosition.curX ? point.x + this.minorAnchor : point.x - this.minorAnchor)
             }
             else {
-                p.push(point[0] + (this.majorAnchor * too[0]))
+                p.x = (point.x + (this.majorAnchor * too[0]))
             }
 
             if (too[1] === 0) {
-                p.push(targetAnchorPosition[1] < sourceAnchorPosition[1] ? point[1] + this.minorAnchor : point[1] - this.minorAnchor)
+                p.y = (targetAnchorPosition.curY < sourceAnchorPosition.curY ? point.y + this.minorAnchor : point.y - this.minorAnchor)
             }
             else {
-                p.push(point[1] + (this.majorAnchor * soo[1]))
+                p.y = (point.y + (this.majorAnchor * soo[1]))
             }
         }
 
@@ -77,8 +78,8 @@ export class BezierConnector extends AbstractBezierConnector {
             _ty = sp.curY < tp.curY ? 0 : _h
 
         if (this.edited !== true) {
-            _CP = this._findControlPoint([_sx, _sy], sp, tp, paintInfo.so, paintInfo.to)
-            _CP2 = this._findControlPoint([_tx, _ty], tp, sp, paintInfo.to, paintInfo.so)
+            _CP = this._findControlPoint({x:_sx, y:_sy}, sp, tp, paintInfo.so, paintInfo.to)
+            _CP2 = this._findControlPoint({x:_tx, y:_ty}, tp, sp, paintInfo.to, paintInfo.so)
 
         } else {
             _CP = this.geometry.controlPoints[0]
@@ -94,7 +95,7 @@ export class BezierConnector extends AbstractBezierConnector {
 
         this._addSegment(BezierSegment, {
             x1: _sx, y1: _sy, x2: _tx, y2: _ty,
-            cp1x: _CP[0], cp1y: _CP[1], cp2x: _CP2[0], cp2y: _CP2[1]
+            cp1x: _CP.x, cp1y: _CP.y, cp2x: _CP2.x, cp2y: _CP2.y
         })
     }
 

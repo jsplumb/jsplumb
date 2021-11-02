@@ -2,6 +2,7 @@ import {AbstractBezierConnector, AbstractBezierOptions} from "./abstract-bezier-
 import {BezierSegment} from "./bezier-segment"
 import {Connection, ConnectorComputeParams, PaintGeometry} from "@jsplumb/core"
 import { AnchorPlacement } from "@jsplumb/common"
+import {PointXY} from "@jsplumb/util"
 
 function _segment (x1:number, y1:number, x2:number, y2:number):number {
     if (x1 <= x2 && y2 <= y1) {
@@ -30,55 +31,55 @@ function _segment (x1:number, y1:number, x2:number, y2:number):number {
 // 2 - proportional x in element (0 is left edge, 1 is right edge)
 // 3 - proportional y in element (0 is top edge, 1 is bottom edge)
 //
-function _findControlPoint (midx:number, midy:number, segment:number, sourceEdge:AnchorPlacement, targetEdge:AnchorPlacement, dx:number, dy:number, distance:number, proximityLimit:number):[ number, number ] {
+function _findControlPoint (midx:number, midy:number, segment:number, sourceEdge:AnchorPlacement, targetEdge:AnchorPlacement, dx:number, dy:number, distance:number, proximityLimit:number):PointXY {
     // TODO (maybe)
     // - if anchor pos is 0.5, make the control point take into account the relative position of the elements.
     if (distance <= proximityLimit) {
-        return [midx, midy]
+        return {x:midx, y:midy}
     }
 
     if (segment === 1) {
         if (sourceEdge.curY <= 0 && targetEdge.curY >= 1) {
-            return [ midx + (sourceEdge.x < 0.5 ? -1 * dx : dx), midy ]
+            return {x:midx + (sourceEdge.x < 0.5 ? -1 * dx : dx), y:midy }
         }
         else if (sourceEdge.curX >= 1 && targetEdge.curX <= 0) {
-            return [ midx, midy + (sourceEdge.y < 0.5 ? -1 * dy : dy) ]
+            return {x:midx, y:midy + (sourceEdge.y < 0.5 ? -1 * dy : dy) }
         }
         else {
-            return [ midx + (-1 * dx) , midy + (-1 * dy) ]
+            return {x:midx + (-1 * dx) , y:midy + (-1 * dy) }
         }
     }
     else if (segment === 2) {
         if (sourceEdge.curY >= 1 && targetEdge.curY <= 0) {
-            return [ midx + (sourceEdge.x < 0.5 ? -1 * dx : dx), midy ]
+            return {x:midx + (sourceEdge.x < 0.5 ? -1 * dx : dx), y:midy }
         }
         else if (sourceEdge.curX >= 1 && targetEdge.curX <= 0) {
-            return [ midx, midy + (sourceEdge.y < 0.5 ? -1 * dy : dy) ]
+            return {x:midx, y:midy + (sourceEdge.y < 0.5 ? -1 * dy : dy) }
         }
         else {
-            return [ midx + dx, midy + (-1 * dy) ]
+            return {x:midx + dx, y:midy + (-1 * dy) }
         }
     }
     else if (segment === 3) {
         if (sourceEdge.curY >= 1 && targetEdge.curY <= 0) {
-            return [ midx + (sourceEdge.x < 0.5 ? -1 * dx : dx), midy ]
+            return {x:midx + (sourceEdge.x < 0.5 ? -1 * dx : dx), y:midy }
         }
         else if (sourceEdge.curX <= 0 && targetEdge.curX >= 1) {
-            return [ midx, midy + (sourceEdge.y < 0.5 ? -1 * dy : dy) ]
+            return {x:midx, y:midy + (sourceEdge.y < 0.5 ? -1 * dy : dy) }
         }
         else {
-            return [ midx + (-1 * dx) , midy + (-1 * dy) ]
+            return {x:midx + (-1 * dx) , y:midy + (-1 * dy) }
         }
     }
     else if (segment === 4) {
         if (sourceEdge.curY <= 0 && targetEdge.curY >= 1) {
-            return [ midx + (sourceEdge.x < 0.5 ? -1 * dx : dx), midy ]
+            return {x:midx + (sourceEdge.x < 0.5 ? -1 * dx : dx), y:midy }
         }
         else if (sourceEdge.curX <= 0 && targetEdge.curX >= 1) {
-            return [ midx, midy + (sourceEdge.y < 0.5 ? -1 * dy : dy) ]
+            return {x:midx, y:midy + (sourceEdge.y < 0.5 ? -1 * dy : dy) }
         }
         else {
-            return [ midx + dx , midy + (-1 * dy) ]
+            return {x:midx + dx , y:midy + (-1 * dy) }
         }
     }
 }
@@ -90,7 +91,7 @@ export class StateMachineConnector extends AbstractBezierConnector {
     static type = "StateMachine"
     type = StateMachineConnector.type
 
-    _controlPoint:[ number, number ]
+    _controlPoint:PointXY
     proximityLimit:number
 
     constructor(public connection:Connection, params:StateMachineOptions) {
@@ -178,10 +179,10 @@ export class StateMachineConnector extends AbstractBezierConnector {
 
         let cp1x, cp2x, cp1y, cp2y
 
-        cp1x = this._controlPoint[0]
-        cp2x = this._controlPoint[0]
-        cp1y = this._controlPoint[1]
-        cp2y = this._controlPoint[1]
+        cp1x = this._controlPoint.x
+        cp2x = this._controlPoint.x
+        cp1y = this._controlPoint.y
+        cp2y = this._controlPoint.y
 
         this.geometry = {
             controlPoints:[this._controlPoint, this._controlPoint],

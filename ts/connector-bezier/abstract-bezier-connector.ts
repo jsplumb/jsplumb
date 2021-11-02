@@ -1,7 +1,19 @@
-import {PointXY, log} from "@jsplumb/util"
+import {PointXY, log, extend} from "@jsplumb/util"
 
 import {Connection, ArcSegment, AbstractConnector, ConnectorComputeParams, PaintGeometry } from "@jsplumb/core"
-import { AnchorPlacement, ConnectorOptions } from "@jsplumb/common"
+import {AnchorPlacement, ConnectorOptions, Geometry} from "@jsplumb/common"
+import {Bezier} from "../../_build_es6/connector/bezier-connector"
+
+/**
+ * The bezier connector's internal representation of a path.
+ */
+export interface BezierConnectorGeometry extends Geometry {
+    controlPoints:[
+        PointXY, PointXY
+    ],
+    source:AnchorPlacement,
+    target:AnchorPlacement
+}
 
 /**
  * Base options interface for StateMachine and Bezier connectors.
@@ -36,11 +48,7 @@ export abstract class AbstractBezierConnector extends AbstractConnector {
     clockwise:boolean
     isLoopbackCurrently:boolean
 
-    geometry:{
-        controlPoints:[any, any],
-        source:AnchorPlacement,
-        target:AnchorPlacement
-    }
+    geometry: BezierConnectorGeometry
 
     getDefaultStubs():[number, number] {
         return [0,0]
@@ -104,24 +112,22 @@ export abstract class AbstractBezierConnector extends AbstractConnector {
         }
     }
 
-    exportGeometry():any {
+    exportGeometry():BezierConnectorGeometry {
         if (this.geometry == null) {
             return null
         } else {
-            const s:Array<any> = [], t:Array<any> = [], cp1:Array<any> = [], cp2:Array<any> = []
-            Array.prototype.push.apply(s, this.geometry.source)
-            Array.prototype.push.apply(t, this.geometry.target)
-            Array.prototype.push.apply(cp1, this.geometry.controlPoints[0])
-            Array.prototype.push.apply(cp2, this.geometry.controlPoints[1])
             return {
-                source:s,
-                target:t,
-                controlPoints:[ cp1, cp2 ]
+                controlPoints:[
+                    extend({} as any, this.geometry.controlPoints[0]),
+                    extend({} as any, this.geometry.controlPoints[1])
+                ],
+                source:extend({} as any, this.geometry.source),
+                target:extend({} as any, this.geometry.target)
             }
         }
     }
 
-    importGeometry(geometry:any):boolean {
+    importGeometry(geometry:BezierConnectorGeometry):boolean {
         if (geometry != null) {
 
             if (geometry.controlPoints == null || geometry.controlPoints.length != 2) {
@@ -130,19 +136,19 @@ export abstract class AbstractBezierConnector extends AbstractConnector {
                 return false
             }
 
-            if (geometry.controlPoints[0].length != 2 || geometry.controlPoints[1].length != 2) {
+            if (geometry.controlPoints[0].x == null || geometry.controlPoints[0].y == null || geometry.controlPoints[1].x == null || geometry.controlPoints[1].y == null) {
                 log("jsPlumb Bezier: cannot import geometry; controlPoints malformed")
                 this.setGeometry(null, true)
                 return false
             }
 
-            if (geometry.source == null || geometry.source.length != 4) {
+            if (geometry.source == null || geometry.source.curX == null || geometry.source.curY == null) {
                 log("jsPlumb Bezier: cannot import geometry; source missing or malformed")
                 this.setGeometry(null, true)
                 return false
             }
 
-            if (geometry.target == null || geometry.target.length != 4) {
+            if (geometry.target == null || geometry.target.curX == null || geometry.target.curY == null) {
                 log("jsPlumb Bezier: cannot import geometry; target missing or malformed")
                 this.setGeometry(null, true)
                 return false
