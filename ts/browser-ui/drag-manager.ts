@@ -104,7 +104,10 @@ export class DragManager {
         o.start = wrap(o.start, (p:DragStartEventParams) => { return handler.onStart(p); })
         o.drag = wrap(o.drag, (p:DragEventParams) => { return handler.onDrag(p); })
         o.stop = wrap(o.stop, (p:DragStopEventParams) => { return handler.onStop(p); })
-        o.beforeStart = (handler.onBeforeStart || function(p:any) {}).bind(handler)
+
+        const handlerBeforeStart = (handler.onBeforeStart || ((p:BeforeStartEventParams) =>  {})).bind(handler)
+        o.beforeStart = wrap(o.beforeStart, (p:BeforeStartEventParams) => { return handlerBeforeStart(p) })
+
         o.dragInit = (el:Element) => handler.onDragInit(el)
         o.dragAbort = (el:Element) => handler.onDragAbort(el)
 

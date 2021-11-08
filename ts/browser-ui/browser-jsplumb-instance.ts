@@ -79,7 +79,7 @@ import {
     DragEventParams,
     DragStopEventParams,
     ContainmentType,
-    isInsideParent
+    BeforeStartEventParams
 } from './collicat'
 
 import {HTMLElementOverlay} from "./html-element-overlay"
@@ -104,8 +104,6 @@ import {
     EVENT_MOUSEOUT,
     EVENT_MOUSEOVER,
     EVENT_TAP,
-    EVENT_ENDPOINT_DBL_TAP,
-    EVENT_ENDPOINT_TAP,
     EVENT_ELEMENT_DBL_CLICK,
     EVENT_MOUSEENTER,
     EVENT_MOUSEEXIT,
@@ -163,6 +161,7 @@ export interface DragOptions {
     start?: (params:DragStartEventParams) => void
     drag?: (params:DragEventParams) => void
     stop?: (params:DragStopEventParams) => void
+    beforeStart?:(params:BeforeStartEventParams) => void
     cursor?: string
     zIndex?: number
     grid?:Grid
@@ -278,7 +277,6 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     _elementMouseexit:Function
 
     eventManager:EventManager
-    //listManager:JsPlumbListManager
 
     draggingClass = "jtk-dragging"
 
@@ -309,7 +307,6 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         super(_instanceIndex, defaults)
 
 
-
         // by default, elements are draggable
         this.elementsDraggable = defaults && defaults.elementsDraggable !== false
 
@@ -318,7 +315,6 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         this.eventManager = new EventManager()
         this.dragSelection = new DragSelection(this)
         this.dragManager = new DragManager(this, this.dragSelection,defaults && defaults.dragOptions ? defaults.dragOptions : null)
-        //this.listManager = new JsPlumbListManager(this)
 
         this.dragManager.addHandler(new EndpointDragHandler(this))
         this.groupDragOptions = {

@@ -15,8 +15,10 @@ import {
 
 import {consume, createElement, findParent} from "./browser-util"
 
-import {Drag, DragStartEventParams,
-    DragStopEventParams, DragEventParams} from "./collicat"
+import {
+    Drag, DragStartEventParams,
+    DragStopEventParams, DragEventParams, BeforeStartEventParams
+} from "./collicat"
 
 import {
     INTERCEPT_BEFORE_DETACH,
@@ -727,8 +729,8 @@ export class EndpointDragHandler implements DragHandler {
         this.instance.currentlyDragging = true
     }
 
-    onBeforeStart (beforeStartParams:any):void {
-        this.payload = beforeStartParams.e.payload || {}
+    onBeforeStart (beforeStartParams:BeforeStartEventParams):void {
+        this.payload = (beforeStartParams.e as any).payload || {}
     }
     
     onDrag (params:DragEventParams) {
