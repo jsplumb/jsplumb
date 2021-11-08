@@ -2076,7 +2076,10 @@ var DragManager = function () {
       o.stop = util.wrap(o.stop, function (p) {
         return handler.onStop(p);
       });
-      o.beforeStart = (handler.onBeforeStart || function (p) {}).bind(handler);
+      var handlerBeforeStart = (handler.onBeforeStart || function (p) {}).bind(handler);
+      o.beforeStart = util.wrap(o.beforeStart, function (p) {
+        return handlerBeforeStart(p);
+      });
       o.dragInit = function (el) {
         return handler.onDragInit(el);
       };

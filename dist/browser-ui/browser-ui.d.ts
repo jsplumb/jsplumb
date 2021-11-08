@@ -514,6 +514,7 @@ export declare interface DragOptions {
     start?: (params: DragStartEventParams) => void;
     drag?: (params: DragEventParams) => void;
     stop?: (params: DragStopEventParams) => void;
+    beforeStart?: (params: BeforeStartEventParams) => void;
     cursor?: string;
     zIndex?: number;
     grid?: Grid;

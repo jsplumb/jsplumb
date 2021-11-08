@@ -4,7 +4,7 @@ import { PaintStyle } from "@jsplumb/common";
 import { DragManager } from "./drag-manager";
 import { jsPlumbDOMElement } from './element-facade';
 import { EventManager } from "./event-manager";
-import { DragStartEventParams, DragEventParams, DragStopEventParams, ContainmentType } from './collicat';
+import { DragStartEventParams, DragEventParams, DragStopEventParams, ContainmentType, BeforeStartEventParams } from './collicat';
 export interface UIComponent {
     canvas: HTMLElement;
     svg: SVGElement;
@@ -20,6 +20,7 @@ export interface DragOptions {
     start?: (params: DragStartEventParams) => void;
     drag?: (params: DragEventParams) => void;
     stop?: (params: DragStopEventParams) => void;
+    beforeStart?: (params: BeforeStartEventParams) => void;
     cursor?: string;
     zIndex?: number;
     grid?: Grid;

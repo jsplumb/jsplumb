@@ -473,6 +473,8 @@ export interface DragMovePayload extends DragPayload {
 // @public (undocumented)
 export interface DragOptions {
     // (undocumented)
+    beforeStart?: (params: BeforeStartEventParams) => void;
+    // (undocumented)
     containment?: ContainmentType;
     // (undocumented)
     cursor?: string;

@@ -12028,7 +12028,10 @@ var jsPlumbBrowserUI = (function (exports) {
         o.stop = wrap(o.stop, function (p) {
           return handler.onStop(p);
         });
-        o.beforeStart = (handler.onBeforeStart || function (p) {}).bind(handler);
+        var handlerBeforeStart = (handler.onBeforeStart || function (p) {}).bind(handler);
+        o.beforeStart = wrap(o.beforeStart, function (p) {
+          return handlerBeforeStart(p);
+        });
         o.dragInit = function (el) {
           return handler.onDragInit(el);
         };

@@ -1,7 +1,7 @@
 import { DragHandler } from "./drag-manager";
 import { BrowserJsPlumbInstance } from "./browser-jsplumb-instance";
 import { jsPlumbDOMElement } from './element-facade';
-import { Drag, DragStartEventParams, DragStopEventParams, DragEventParams } from "./collicat";
+import { Drag, DragStartEventParams, DragStopEventParams, DragEventParams, BeforeStartEventParams } from "./collicat";
 import { Connection, Endpoint, EndpointRepresentation, SourceOrTargetDefinition, LightweightFloatingAnchor } from "@jsplumb/core";
 import { Dictionary, BoundingBox } from "@jsplumb/util";
 declare type EndpointDropTarget = {
@@ -83,7 +83,7 @@ export declare class EndpointDragHandler implements DragHandler {
      */
     private _populateTargets;
     onStart(p: DragStartEventParams): boolean;
-    onBeforeStart(beforeStartParams: any): void;
+    onBeforeStart(beforeStartParams: BeforeStartEventParams): void;
     onDrag(params: DragEventParams): boolean;
     private _maybeCleanup;
     private _reattachOrDiscard;
