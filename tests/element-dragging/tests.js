@@ -581,6 +581,39 @@ var testSuite = function () {
         equal(parseInt(d.style.top, 10), 100);
     });
 
+    test("dragging, lifecycle events", function() {
+
+        var start = false, beforeStart = false, drag = false, stop = false;
+
+        reinit({
+            dragOptions:{
+                start:(p) => start = true,
+                beforeStart:(p) => beforeStart = true,
+                drag:(p) => drag = true,
+                stop:(p) => stop = true
+            }
+        });
+
+        var d = _addDiv("d1");
+        d.style.position = "absolute";
+        d.style.left = "50px";
+        d.style.top = "50px";
+        d.style.width = "100px";
+        d.style.height = "100px";
+
+        // should not be necessary
+        _jsPlumb.manage(d);
+
+        // drag node by 26, 26. it should be snapped to 50,50 by the grid, because the default snap threshold is
+        // > half of the grid size in each axis.
+        support.dragNodeBy(d, 26, 26);
+
+        equal(start, true, "start event fired")
+        equal(beforeStart, true, "beforeStart event fired")
+        equal(drag, true, "drag event fired")
+        equal(stop, true, "stop event fired")
+    });
+
     test("dragging, grid, change at runtime, including set to null", function() {
 
         reinit({
