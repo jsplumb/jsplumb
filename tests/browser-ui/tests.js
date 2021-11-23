@@ -4147,6 +4147,30 @@ var testSuite = function () {
         equal(mm, 1, "1 endpoint mouseover");
     });
 
+    test("endpoint mousedown/mouseup", function() {
+        var d = support.addDiv("d1"),
+            e = _jsPlumb.addEndpoint(d),
+            mm = 0,
+            mo = 0;
+
+        _jsPlumb.bind("endpoint:mousedown", function() {
+            mm++;
+        });
+
+        _jsPlumb.bind("endpoint:mouseup", function() {
+            mo++;
+        });
+
+        // the SVG element
+        _jsPlumb.trigger(support.getEndpointCanvas(e), "mousedown");
+
+        // the path element
+        _jsPlumb.trigger(support.getEndpointCanvas(e), "mouseup");
+
+        equal(mo, 1, "1 endpoint mousedown");
+        equal(mm, 1, "1 endpoint mouseup");
+    });
+
     test("connector click", function() {
         var d = support.addDiv("d1"), d2 = support.addDiv("d2"),
             conn = _jsPlumb.connect({source:d, target:d2}),
@@ -4206,6 +4230,27 @@ var testSuite = function () {
 
         equal(mo, 1, "1 connection mouseout");
         equal(mm, 1, "1 connection mouseover");
+    });
+
+    test("connector mousedown/mouseup", function() {
+        var d = support.addDiv("d1"), d2 = support.addDiv("d2"),
+            conn = _jsPlumb.connect({source:d, target:d2}),
+            mo = 0, mm = 0;
+
+        _jsPlumb.bind("connection:mousedown", function() {
+            mm++;
+        });
+
+        _jsPlumb.bind("connection:mouseup", function() {
+            mo++;
+        });
+
+        _jsPlumb.trigger(support.getConnectionCanvas(conn).childNodes[0], "mousedown");
+
+        _jsPlumb.trigger(support.getConnectionCanvas(conn).childNodes[0], "mouseup");
+
+        equal(mo, 1, "1 connection mousedown");
+        equal(mm, 1, "1 connection mouseup");
     });
 
     test("arrow overlay click", function() {
