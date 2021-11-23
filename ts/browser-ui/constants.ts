@@ -175,6 +175,14 @@ export const EVENT_ENDPOINT_MOUSEOVER = compoundEvent(ENDPOINT, EVENT_MOUSEOVER)
 /**
  * @public
  */
+export const EVENT_ENDPOINT_MOUSEUP = compoundEvent(ENDPOINT, EVENT_MOUSEUP)
+/**
+ * @public
+ */
+export const EVENT_ENDPOINT_MOUSEDOWN = compoundEvent(ENDPOINT, EVENT_MOUSEDOWN)
+/**
+ * @public
+ */
 export const EVENT_ENDPOINT_TAP = compoundEvent(ENDPOINT, EVENT_TAP)
 
 /**
@@ -197,6 +205,14 @@ export const EVENT_CONNECTION_MOUSEOUT = compoundEvent(CONNECTION, EVENT_MOUSEOU
  * @public
  */
 export const EVENT_CONNECTION_MOUSEOVER = compoundEvent(CONNECTION, EVENT_MOUSEOVER)
+/**
+ * @public
+ */
+export const EVENT_CONNECTION_MOUSEUP = compoundEvent(CONNECTION, EVENT_MOUSEUP)
+/**
+ * @public
+ */
+export const EVENT_CONNECTION_MOUSEDOWN = compoundEvent(CONNECTION, EVENT_MOUSEDOWN)
 /**
  * @public
  */
