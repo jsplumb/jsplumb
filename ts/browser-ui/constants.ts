@@ -151,6 +151,22 @@ export const EVENT_ELEMENT_MOUSE_OVER = compoundEvent(ELEMENT, EVENT_MOUSEOVER)
 /**
  * @public
  */
+export const EVENT_ELEMENT_MOUSE_MOVE = compoundEvent(ELEMENT, EVENT_MOUSEMOVE)
+/**
+ * @public
+ */
+export const EVENT_ELEMENT_MOUSE_UP = compoundEvent(ELEMENT, EVENT_MOUSEUP)
+/**
+ * @public
+ */
+export const EVENT_ELEMENT_MOUSE_DOWN = compoundEvent(ELEMENT, EVENT_MOUSEDOWN)
+/**
+ * @public
+ */
+export const EVENT_ELEMENT_CONTEXTMENU = compoundEvent(ELEMENT, EVENT_CONTEXTMENU)
+/**
+ * @public
+ */
 export const EVENT_ELEMENT_TAP = compoundEvent(ELEMENT, EVENT_TAP)
 /**
  * @public
@@ -213,6 +229,10 @@ export const EVENT_CONNECTION_MOUSEUP = compoundEvent(CONNECTION, EVENT_MOUSEUP)
  * @public
  */
 export const EVENT_CONNECTION_MOUSEDOWN = compoundEvent(CONNECTION, EVENT_MOUSEDOWN)
+/**
+ * @public
+ */
+export const EVENT_CONNECTION_CONTEXTMENU = compoundEvent(CONNECTION, EVENT_CONTEXTMENU)
 /**
  * @public
  */
