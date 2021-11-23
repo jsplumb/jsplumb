@@ -107,6 +107,11 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     _connectorMouseout: Function;
     _endpointMouseover: Function;
     _endpointMouseout: Function;
+    _connectorContextmenu: Function;
+    _connectorMousedown: Function;
+    _connectorMouseup: Function;
+    _endpointMousedown: Function;
+    _endpointMouseup: Function;
     _overlayMouseover: Function;
     _overlayMouseout: Function;
     _elementClick: Function;
@@ -114,6 +119,10 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     _elementDblTap: Function;
     _elementMouseenter: Function;
     _elementMouseexit: Function;
+    _elementMousemove: Function;
+    _elementMouseup: Function;
+    _elementMousedown: Function;
+    _elementContextmenu: Function;
     eventManager: EventManager;
     draggingClass: string;
     elementDraggingClass: string;
@@ -702,6 +711,11 @@ export declare const EVENT_CONNECTION_CLICK: string;
 /**
  * @public
  */
+export declare const EVENT_CONNECTION_CONTEXTMENU: string;
+
+/**
+ * @public
+ */
 export declare const EVENT_CONNECTION_DBL_CLICK: string;
 
 /**
@@ -717,12 +731,22 @@ export declare const EVENT_CONNECTION_DRAG = "connection:drag";
 /**
  * @public
  */
+export declare const EVENT_CONNECTION_MOUSEDOWN: string;
+
+/**
+ * @public
+ */
 export declare const EVENT_CONNECTION_MOUSEOUT: string;
 
 /**
  * @public
  */
 export declare const EVENT_CONNECTION_MOUSEOVER: string;
+
+/**
+ * @public
+ */
+export declare const EVENT_CONNECTION_MOUSEUP: string;
 
 /**
  * @public
@@ -771,6 +795,11 @@ export declare const EVENT_ELEMENT_CLICK: string;
 /**
  * @public
  */
+export declare const EVENT_ELEMENT_CONTEXTMENU: string;
+
+/**
+ * @public
+ */
 export declare const EVENT_ELEMENT_DBL_CLICK: string;
 
 /**
@@ -781,12 +810,27 @@ export declare const EVENT_ELEMENT_DBL_TAP: string;
 /**
  * @public
  */
+export declare const EVENT_ELEMENT_MOUSE_DOWN: string;
+
+/**
+ * @public
+ */
+export declare const EVENT_ELEMENT_MOUSE_MOVE: string;
+
+/**
+ * @public
+ */
 export declare const EVENT_ELEMENT_MOUSE_OUT: string;
 
 /**
  * @public
  */
 export declare const EVENT_ELEMENT_MOUSE_OVER: string;
+
+/**
+ * @public
+ */
+export declare const EVENT_ELEMENT_MOUSE_UP: string;
 
 /**
  * @public
@@ -811,12 +855,22 @@ export declare const EVENT_ENDPOINT_DBL_TAP: string;
 /**
  * @public
  */
+export declare const EVENT_ENDPOINT_MOUSEDOWN: string;
+
+/**
+ * @public
+ */
 export declare const EVENT_ENDPOINT_MOUSEOUT: string;
 
 /**
  * @public
  */
 export declare const EVENT_ENDPOINT_MOUSEOVER: string;
+
+/**
+ * @public
+ */
+export declare const EVENT_ENDPOINT_MOUSEUP: string;
 
 /**
  * @public

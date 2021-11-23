@@ -72,6 +72,11 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     _connectorMouseout: Function;
     _endpointMouseover: Function;
     _endpointMouseout: Function;
+    _connectorContextmenu: Function;
+    _connectorMousedown: Function;
+    _connectorMouseup: Function;
+    _endpointMousedown: Function;
+    _endpointMouseup: Function;
     _overlayMouseover: Function;
     _overlayMouseout: Function;
     _elementClick: Function;
@@ -79,6 +84,10 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     _elementDblTap: Function;
     _elementMouseenter: Function;
     _elementMouseexit: Function;
+    _elementMousemove: Function;
+    _elementMouseup: Function;
+    _elementMousedown: Function;
+    _elementContextmenu: Function;
     eventManager: EventManager;
     draggingClass: string;
     elementDraggingClass: string;

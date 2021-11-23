@@ -81,13 +81,19 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     // (undocumented)
     _connectorClick: Function;
     // (undocumented)
+    _connectorContextmenu: Function;
+    // (undocumented)
     _connectorDblClick: Function;
     // (undocumented)
     _connectorDblTap: Function;
     // (undocumented)
+    _connectorMousedown: Function;
+    // (undocumented)
     _connectorMouseout: Function;
     // (undocumented)
     _connectorMouseover: Function;
+    // (undocumented)
+    _connectorMouseup: Function;
     // (undocumented)
     _connectorTap: Function;
     consume(e: Event, doNotPreventDefault?: boolean): void;
@@ -114,13 +120,21 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     // (undocumented)
     _elementClick: Function;
     // (undocumented)
+    _elementContextmenu: Function;
+    // (undocumented)
     _elementDblTap: Function;
     // (undocumented)
     elementDraggingClass: string;
     // (undocumented)
+    _elementMousedown: Function;
+    // (undocumented)
     _elementMouseenter: Function;
     // (undocumented)
     _elementMouseexit: Function;
+    // (undocumented)
+    _elementMousemove: Function;
+    // (undocumented)
+    _elementMouseup: Function;
     elementsDraggable: boolean;
     // (undocumented)
     _elementTap: Function;
@@ -129,9 +143,13 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     // (undocumented)
     _endpointDblClick: Function;
     // (undocumented)
+    _endpointMousedown: Function;
+    // (undocumented)
     _endpointMouseout: Function;
     // (undocumented)
     _endpointMouseover: Function;
+    // (undocumented)
+    _endpointMouseup: Function;
     // (undocumented)
     eventManager: EventManager;
     // (undocumented)
@@ -653,6 +671,9 @@ export const EVENT_CONNECTION_ABORT = "connection:abort";
 export const EVENT_CONNECTION_CLICK: string;
 
 // @public (undocumented)
+export const EVENT_CONNECTION_CONTEXTMENU: string;
+
+// @public (undocumented)
 export const EVENT_CONNECTION_DBL_CLICK: string;
 
 // @public (undocumented)
@@ -662,10 +683,16 @@ export const EVENT_CONNECTION_DBL_TAP: string;
 export const EVENT_CONNECTION_DRAG = "connection:drag";
 
 // @public (undocumented)
+export const EVENT_CONNECTION_MOUSEDOWN: string;
+
+// @public (undocumented)
 export const EVENT_CONNECTION_MOUSEOUT: string;
 
 // @public (undocumented)
 export const EVENT_CONNECTION_MOUSEOVER: string;
+
+// @public (undocumented)
+export const EVENT_CONNECTION_MOUSEUP: string;
 
 // @public (undocumented)
 export const EVENT_CONNECTION_TAP: string;
@@ -698,16 +725,28 @@ export const EVENT_DROP = "drop";
 export const EVENT_ELEMENT_CLICK: string;
 
 // @public (undocumented)
+export const EVENT_ELEMENT_CONTEXTMENU: string;
+
+// @public (undocumented)
 export const EVENT_ELEMENT_DBL_CLICK: string;
 
 // @public (undocumented)
 export const EVENT_ELEMENT_DBL_TAP: string;
 
 // @public (undocumented)
+export const EVENT_ELEMENT_MOUSE_DOWN: string;
+
+// @public (undocumented)
+export const EVENT_ELEMENT_MOUSE_MOVE: string;
+
+// @public (undocumented)
 export const EVENT_ELEMENT_MOUSE_OUT: string;
 
 // @public (undocumented)
 export const EVENT_ELEMENT_MOUSE_OVER: string;
+
+// @public (undocumented)
+export const EVENT_ELEMENT_MOUSE_UP: string;
 
 // @public (undocumented)
 export const EVENT_ELEMENT_TAP: string;
@@ -722,10 +761,16 @@ export const EVENT_ENDPOINT_DBL_CLICK: string;
 export const EVENT_ENDPOINT_DBL_TAP: string;
 
 // @public (undocumented)
+export const EVENT_ENDPOINT_MOUSEDOWN: string;
+
+// @public (undocumented)
 export const EVENT_ENDPOINT_MOUSEOUT: string;
 
 // @public (undocumented)
 export const EVENT_ENDPOINT_MOUSEOVER: string;
+
+// @public (undocumented)
+export const EVENT_ENDPOINT_MOUSEUP: string;
 
 // @public (undocumented)
 export const EVENT_ENDPOINT_TAP: string;

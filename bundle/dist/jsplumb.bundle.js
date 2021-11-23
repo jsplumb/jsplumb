@@ -10495,18 +10495,27 @@ var jsPlumbBrowserUI = (function (exports) {
   var EVENT_ELEMENT_DBL_TAP = compoundEvent(ELEMENT, EVENT_DBL_TAP);
   var EVENT_ELEMENT_MOUSE_OUT = compoundEvent(ELEMENT, EVENT_MOUSEOUT);
   var EVENT_ELEMENT_MOUSE_OVER = compoundEvent(ELEMENT, EVENT_MOUSEOVER);
+  var EVENT_ELEMENT_MOUSE_MOVE = compoundEvent(ELEMENT, EVENT_MOUSEMOVE);
+  var EVENT_ELEMENT_MOUSE_UP = compoundEvent(ELEMENT, EVENT_MOUSEUP);
+  var EVENT_ELEMENT_MOUSE_DOWN = compoundEvent(ELEMENT, EVENT_MOUSEDOWN);
+  var EVENT_ELEMENT_CONTEXTMENU = compoundEvent(ELEMENT, EVENT_CONTEXTMENU);
   var EVENT_ELEMENT_TAP = compoundEvent(ELEMENT, EVENT_TAP);
   var EVENT_ENDPOINT_CLICK = compoundEvent(ENDPOINT, EVENT_CLICK);
   var EVENT_ENDPOINT_DBL_CLICK = compoundEvent(ENDPOINT, EVENT_DBL_CLICK);
   var EVENT_ENDPOINT_DBL_TAP = compoundEvent(ENDPOINT, EVENT_DBL_TAP);
   var EVENT_ENDPOINT_MOUSEOUT = compoundEvent(ENDPOINT, EVENT_MOUSEOUT);
   var EVENT_ENDPOINT_MOUSEOVER = compoundEvent(ENDPOINT, EVENT_MOUSEOVER);
+  var EVENT_ENDPOINT_MOUSEUP = compoundEvent(ENDPOINT, EVENT_MOUSEUP);
+  var EVENT_ENDPOINT_MOUSEDOWN = compoundEvent(ENDPOINT, EVENT_MOUSEDOWN);
   var EVENT_ENDPOINT_TAP = compoundEvent(ENDPOINT, EVENT_TAP);
   var EVENT_CONNECTION_CLICK = compoundEvent(CONNECTION, EVENT_CLICK);
   var EVENT_CONNECTION_DBL_CLICK = compoundEvent(CONNECTION, EVENT_DBL_CLICK);
   var EVENT_CONNECTION_DBL_TAP = compoundEvent(CONNECTION, EVENT_DBL_TAP);
   var EVENT_CONNECTION_MOUSEOUT = compoundEvent(CONNECTION, EVENT_MOUSEOUT);
   var EVENT_CONNECTION_MOUSEOVER = compoundEvent(CONNECTION, EVENT_MOUSEOVER);
+  var EVENT_CONNECTION_MOUSEUP = compoundEvent(CONNECTION, EVENT_MOUSEUP);
+  var EVENT_CONNECTION_MOUSEDOWN = compoundEvent(CONNECTION, EVENT_MOUSEDOWN);
+  var EVENT_CONNECTION_CONTEXTMENU = compoundEvent(CONNECTION, EVENT_CONTEXTMENU);
   var EVENT_CONNECTION_TAP = compoundEvent(CONNECTION, EVENT_TAP);
   var PROPERTY_POSITION = "position";
   var SELECTOR_CONNECTOR = cls(CLASS_CONNECTOR);
@@ -13957,6 +13966,11 @@ var jsPlumbBrowserUI = (function (exports) {
       _defineProperty(_assertThisInitialized(_this), "_connectorMouseout", void 0);
       _defineProperty(_assertThisInitialized(_this), "_endpointMouseover", void 0);
       _defineProperty(_assertThisInitialized(_this), "_endpointMouseout", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_connectorContextmenu", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_connectorMousedown", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_connectorMouseup", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_endpointMousedown", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_endpointMouseup", void 0);
       _defineProperty(_assertThisInitialized(_this), "_overlayMouseover", void 0);
       _defineProperty(_assertThisInitialized(_this), "_overlayMouseout", void 0);
       _defineProperty(_assertThisInitialized(_this), "_elementClick", void 0);
@@ -13964,6 +13978,10 @@ var jsPlumbBrowserUI = (function (exports) {
       _defineProperty(_assertThisInitialized(_this), "_elementDblTap", void 0);
       _defineProperty(_assertThisInitialized(_this), "_elementMouseenter", void 0);
       _defineProperty(_assertThisInitialized(_this), "_elementMouseexit", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_elementMousemove", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_elementMouseup", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_elementMousedown", void 0);
+      _defineProperty(_assertThisInitialized(_this), "_elementContextmenu", void 0);
       _defineProperty(_assertThisInitialized(_this), "eventManager", void 0);
       _defineProperty(_assertThisInitialized(_this), "draggingClass", "jtk-dragging");
       _defineProperty(_assertThisInitialized(_this), "elementDraggingClass", "jtk-element-dragging");
@@ -14021,6 +14039,20 @@ var jsPlumbBrowserUI = (function (exports) {
       };
       _this._connectorMouseover = _connectorHover.bind(_assertThisInitialized(_this), true);
       _this._connectorMouseout = _connectorHover.bind(_assertThisInitialized(_this), false);
+      var _connectorMouseupdown = function _connectorMouseupdown(state, e) {
+        var el = getEventSource(e).parentNode;
+        if (el.jtk && el.jtk.connector) {
+          this.fire(state ? EVENT_CONNECTION_MOUSEUP : EVENT_CONNECTION_MOUSEDOWN, el.jtk.connector.connection, e);
+        }
+      };
+      _this._connectorMouseup = _connectorMouseupdown.bind(_assertThisInitialized(_this), true);
+      _this._connectorMousedown = _connectorMouseupdown.bind(_assertThisInitialized(_this), false);
+      _this._connectorContextmenu = function (e) {
+        var el = getEventSource(e).parentNode;
+        if (el.jtk && el.jtk.connector) {
+          this.fire(EVENT_CONNECTION_CONTEXTMENU, el.jtk.connector.connection, e);
+        }
+      }.bind(_assertThisInitialized(_this));
       var _epClick = function _epClick(event, e, endpointElement) {
         if (!e.defaultPrevented) {
           this.fire(event, endpointElement.jtk.endpoint, e);
@@ -14037,6 +14069,14 @@ var jsPlumbBrowserUI = (function (exports) {
       };
       _this._endpointMouseover = _endpointHover.bind(_assertThisInitialized(_this), true);
       _this._endpointMouseout = _endpointHover.bind(_assertThisInitialized(_this), false);
+      var _endpointMouseupdown = function _endpointMouseupdown(state, e) {
+        var el = getEventSource(e);
+        if (el.jtk && el.jtk.endpoint) {
+          this.fire(state ? EVENT_ENDPOINT_MOUSEUP : EVENT_ENDPOINT_MOUSEDOWN, el.jtk.endpoint, e);
+        }
+      };
+      _this._endpointMouseup = _endpointMouseupdown.bind(_assertThisInitialized(_this), true);
+      _this._endpointMousedown = _endpointMouseupdown.bind(_assertThisInitialized(_this), false);
       var _oClick = function (method, e) {
         consume(e);
         var overlayElement = findParent(getEventSource(e), SELECTOR_OVERLAY, this.getContainer(), true);
@@ -14081,6 +14121,18 @@ var jsPlumbBrowserUI = (function (exports) {
       };
       _this._elementMouseenter = _elementHover.bind(_assertThisInitialized(_this), true);
       _this._elementMouseexit = _elementHover.bind(_assertThisInitialized(_this), false);
+      _this._elementMousemove = function (e) {
+        this.fire(EVENT_ELEMENT_MOUSE_MOVE, getEventSource(e), e);
+      }.bind(_assertThisInitialized(_this));
+      _this._elementMouseup = function (e) {
+        this.fire(EVENT_ELEMENT_MOUSE_UP, getEventSource(e), e);
+      }.bind(_assertThisInitialized(_this));
+      _this._elementMousedown = function (e) {
+        this.fire(EVENT_ELEMENT_MOUSE_DOWN, getEventSource(e), e);
+      }.bind(_assertThisInitialized(_this));
+      _this._elementContextmenu = function (e) {
+        this.fire(EVENT_ELEMENT_CONTEXTMENU, getEventSource(e), e);
+      }.bind(_assertThisInitialized(_this));
       _this._attachEventDelegates();
       return _this;
     }
@@ -14347,12 +14399,21 @@ var jsPlumbBrowserUI = (function (exports) {
         this.eventManager.on(currentContainer, EVENT_DBL_TAP, this.managedElementsSelector, this._elementDblTap);
         this.eventManager.on(currentContainer, EVENT_MOUSEOVER, SELECTOR_CONNECTOR, this._connectorMouseover);
         this.eventManager.on(currentContainer, EVENT_MOUSEOUT, SELECTOR_CONNECTOR, this._connectorMouseout);
+        this.eventManager.on(currentContainer, EVENT_CONTEXTMENU, SELECTOR_CONNECTOR, this._connectorContextmenu);
+        this.eventManager.on(currentContainer, EVENT_MOUSEUP, SELECTOR_CONNECTOR, this._connectorMouseup);
+        this.eventManager.on(currentContainer, EVENT_MOUSEDOWN, SELECTOR_CONNECTOR, this._connectorMousedown);
         this.eventManager.on(currentContainer, EVENT_MOUSEOVER, SELECTOR_ENDPOINT, this._endpointMouseover);
         this.eventManager.on(currentContainer, EVENT_MOUSEOUT, SELECTOR_ENDPOINT, this._endpointMouseout);
+        this.eventManager.on(currentContainer, EVENT_MOUSEUP, SELECTOR_ENDPOINT, this._endpointMouseup);
+        this.eventManager.on(currentContainer, EVENT_MOUSEDOWN, SELECTOR_ENDPOINT, this._endpointMousedown);
         this.eventManager.on(currentContainer, EVENT_MOUSEOVER, SELECTOR_OVERLAY, this._overlayMouseover);
         this.eventManager.on(currentContainer, EVENT_MOUSEOUT, SELECTOR_OVERLAY, this._overlayMouseout);
         this.eventManager.on(currentContainer, EVENT_MOUSEOVER, SELECTOR_MANAGED_ELEMENT, this._elementMouseenter);
         this.eventManager.on(currentContainer, EVENT_MOUSEOUT, SELECTOR_MANAGED_ELEMENT, this._elementMouseexit);
+        this.eventManager.on(currentContainer, EVENT_MOUSEMOVE, SELECTOR_MANAGED_ELEMENT, this._elementMousemove);
+        this.eventManager.on(currentContainer, EVENT_MOUSEUP, SELECTOR_MANAGED_ELEMENT, this._elementMouseup);
+        this.eventManager.on(currentContainer, EVENT_MOUSEDOWN, SELECTOR_MANAGED_ELEMENT, this._elementMousedown);
+        this.eventManager.on(currentContainer, EVENT_CONTEXTMENU, SELECTOR_MANAGED_ELEMENT, this._elementContextmenu);
       }
     }, {
       key: "_detachEventDelegates",
@@ -14374,12 +14435,21 @@ var jsPlumbBrowserUI = (function (exports) {
           this.eventManager.off(currentContainer, EVENT_DBL_TAP, this._elementDblTap);
           this.eventManager.off(currentContainer, EVENT_MOUSEOVER, this._connectorMouseover);
           this.eventManager.off(currentContainer, EVENT_MOUSEOUT, this._connectorMouseout);
+          this.eventManager.off(currentContainer, EVENT_CONTEXTMENU, this._connectorContextmenu);
+          this.eventManager.off(currentContainer, EVENT_MOUSEUP, this._connectorMouseup);
+          this.eventManager.off(currentContainer, EVENT_MOUSEDOWN, this._connectorMousedown);
           this.eventManager.off(currentContainer, EVENT_MOUSEOVER, this._endpointMouseover);
           this.eventManager.off(currentContainer, EVENT_MOUSEOUT, this._endpointMouseout);
+          this.eventManager.off(currentContainer, EVENT_MOUSEUP, this._endpointMouseup);
+          this.eventManager.off(currentContainer, EVENT_MOUSEDOWN, this._endpointMousedown);
           this.eventManager.off(currentContainer, EVENT_MOUSEOVER, this._overlayMouseover);
           this.eventManager.off(currentContainer, EVENT_MOUSEOUT, this._overlayMouseout);
           this.eventManager.off(currentContainer, EVENT_MOUSEENTER, this._elementMouseenter);
           this.eventManager.off(currentContainer, EVENT_MOUSEEXIT, this._elementMouseexit);
+          this.eventManager.off(currentContainer, EVENT_MOUSEMOVE, this._elementMousemove);
+          this.eventManager.off(currentContainer, EVENT_MOUSEUP, this._elementMouseup);
+          this.eventManager.off(currentContainer, EVENT_MOUSEDOWN, this._elementMousedown);
+          this.eventManager.off(currentContainer, EVENT_CONTEXTMENU, this._elementContextmenu);
         }
       }
     }, {
@@ -15062,12 +15132,15 @@ var jsPlumbBrowserUI = (function (exports) {
   exports.EVENT_CONNECTION = EVENT_CONNECTION;
   exports.EVENT_CONNECTION_ABORT = EVENT_CONNECTION_ABORT;
   exports.EVENT_CONNECTION_CLICK = EVENT_CONNECTION_CLICK;
+  exports.EVENT_CONNECTION_CONTEXTMENU = EVENT_CONNECTION_CONTEXTMENU;
   exports.EVENT_CONNECTION_DBL_CLICK = EVENT_CONNECTION_DBL_CLICK;
   exports.EVENT_CONNECTION_DBL_TAP = EVENT_CONNECTION_DBL_TAP;
   exports.EVENT_CONNECTION_DETACHED = EVENT_CONNECTION_DETACHED;
   exports.EVENT_CONNECTION_DRAG = EVENT_CONNECTION_DRAG;
+  exports.EVENT_CONNECTION_MOUSEDOWN = EVENT_CONNECTION_MOUSEDOWN;
   exports.EVENT_CONNECTION_MOUSEOUT = EVENT_CONNECTION_MOUSEOUT;
   exports.EVENT_CONNECTION_MOUSEOVER = EVENT_CONNECTION_MOUSEOVER;
+  exports.EVENT_CONNECTION_MOUSEUP = EVENT_CONNECTION_MOUSEUP;
   exports.EVENT_CONNECTION_MOVED = EVENT_CONNECTION_MOVED;
   exports.EVENT_CONNECTION_TAP = EVENT_CONNECTION_TAP;
   exports.EVENT_CONTAINER_CHANGE = EVENT_CONTAINER_CHANGE;
@@ -15080,16 +15153,22 @@ var jsPlumbBrowserUI = (function (exports) {
   exports.EVENT_DRAG_STOP = EVENT_DRAG_STOP;
   exports.EVENT_DROP = EVENT_DROP;
   exports.EVENT_ELEMENT_CLICK = EVENT_ELEMENT_CLICK;
+  exports.EVENT_ELEMENT_CONTEXTMENU = EVENT_ELEMENT_CONTEXTMENU;
   exports.EVENT_ELEMENT_DBL_CLICK = EVENT_ELEMENT_DBL_CLICK;
   exports.EVENT_ELEMENT_DBL_TAP = EVENT_ELEMENT_DBL_TAP;
+  exports.EVENT_ELEMENT_MOUSE_DOWN = EVENT_ELEMENT_MOUSE_DOWN;
+  exports.EVENT_ELEMENT_MOUSE_MOVE = EVENT_ELEMENT_MOUSE_MOVE;
   exports.EVENT_ELEMENT_MOUSE_OUT = EVENT_ELEMENT_MOUSE_OUT;
   exports.EVENT_ELEMENT_MOUSE_OVER = EVENT_ELEMENT_MOUSE_OVER;
+  exports.EVENT_ELEMENT_MOUSE_UP = EVENT_ELEMENT_MOUSE_UP;
   exports.EVENT_ELEMENT_TAP = EVENT_ELEMENT_TAP;
   exports.EVENT_ENDPOINT_CLICK = EVENT_ENDPOINT_CLICK;
   exports.EVENT_ENDPOINT_DBL_CLICK = EVENT_ENDPOINT_DBL_CLICK;
   exports.EVENT_ENDPOINT_DBL_TAP = EVENT_ENDPOINT_DBL_TAP;
+  exports.EVENT_ENDPOINT_MOUSEDOWN = EVENT_ENDPOINT_MOUSEDOWN;
   exports.EVENT_ENDPOINT_MOUSEOUT = EVENT_ENDPOINT_MOUSEOUT;
   exports.EVENT_ENDPOINT_MOUSEOVER = EVENT_ENDPOINT_MOUSEOVER;
+  exports.EVENT_ENDPOINT_MOUSEUP = EVENT_ENDPOINT_MOUSEUP;
   exports.EVENT_ENDPOINT_REPLACED = EVENT_ENDPOINT_REPLACED;
   exports.EVENT_ENDPOINT_TAP = EVENT_ENDPOINT_TAP;
   exports.EVENT_FOCUS = EVENT_FOCUS;

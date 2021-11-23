@@ -130,6 +130,22 @@ export declare const EVENT_ELEMENT_MOUSE_OVER: string;
 /**
  * @public
  */
+export declare const EVENT_ELEMENT_MOUSE_MOVE: string;
+/**
+ * @public
+ */
+export declare const EVENT_ELEMENT_MOUSE_UP: string;
+/**
+ * @public
+ */
+export declare const EVENT_ELEMENT_MOUSE_DOWN: string;
+/**
+ * @public
+ */
+export declare const EVENT_ELEMENT_CONTEXTMENU: string;
+/**
+ * @public
+ */
 export declare const EVENT_ELEMENT_TAP: string;
 /**
  * @public
@@ -154,6 +170,14 @@ export declare const EVENT_ENDPOINT_MOUSEOVER: string;
 /**
  * @public
  */
+export declare const EVENT_ENDPOINT_MOUSEUP: string;
+/**
+ * @public
+ */
+export declare const EVENT_ENDPOINT_MOUSEDOWN: string;
+/**
+ * @public
+ */
 export declare const EVENT_ENDPOINT_TAP: string;
 /**
  * @public
@@ -175,6 +199,18 @@ export declare const EVENT_CONNECTION_MOUSEOUT: string;
  * @public
  */
 export declare const EVENT_CONNECTION_MOUSEOVER: string;
+/**
+ * @public
+ */
+export declare const EVENT_CONNECTION_MOUSEUP: string;
+/**
+ * @public
+ */
+export declare const EVENT_CONNECTION_MOUSEDOWN: string;
+/**
+ * @public
+ */
+export declare const EVENT_CONNECTION_CONTEXTMENU: string;
 /**
  * @public
  */
