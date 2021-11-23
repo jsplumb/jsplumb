@@ -115,7 +115,13 @@ import {
     EVENT_CONNECTION_CLICK,
     EVENT_CONNECTION_DBL_CLICK,
     EVENT_CONNECTION_DBL_TAP,
-    EVENT_CONNECTION_TAP, EVENT_CLICK, ENDPOINT, CONNECTION, compoundEvent
+    EVENT_CONNECTION_TAP,
+    EVENT_CLICK,
+    ENDPOINT,
+    CONNECTION,
+    compoundEvent,
+    EVENT_CONNECTION_MOUSEUP,
+    EVENT_CONNECTION_MOUSEDOWN, EVENT_ENDPOINT_MOUSEUP, EVENT_ENDPOINT_MOUSEDOWN, EVENT_MOUSEUP, EVENT_MOUSEDOWN
 } from "./constants"
 import {DragSelection} from "./drag-selection"
 
@@ -267,6 +273,11 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     _endpointMouseover:Function
     _endpointMouseout:Function
 
+    _connectorMousedown:Function
+    _connectorMouseup:Function
+    _endpointMousedown:Function
+    _endpointMouseup:Function
+
     _overlayMouseover:Function
     _overlayMouseout:Function
 
@@ -352,6 +363,16 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         this._connectorMouseover = _connectorHover.bind(this, true)
         this._connectorMouseout = _connectorHover.bind(this, false)
 
+        const _connectorMouseupdown = function(state:boolean, e:MouseEvent) {
+            const el = getEventSource(e).parentNode
+            if (el.jtk && el.jtk.connector) {
+                this.fire(state ? EVENT_CONNECTION_MOUSEUP: EVENT_CONNECTION_MOUSEDOWN, el.jtk.connector.connection, e)
+            }
+        }
+
+        this._connectorMouseup = _connectorMouseupdown.bind(this, true)
+        this._connectorMousedown = _connectorMouseupdown.bind(this, false)
+
         // ---
 
         const _epClick = function(event:string, e:MouseEvent, endpointElement:jsPlumbDOMElement) {
@@ -372,6 +393,16 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
         this._endpointMouseover = _endpointHover.bind(this, true)
         this._endpointMouseout = _endpointHover.bind(this, false)
+
+        const _endpointMouseupdown = function(state:boolean, e:MouseEvent) {
+            const el = getEventSource(e)
+            if (el.jtk && el.jtk.endpoint) {
+                this.fire(state ? EVENT_ENDPOINT_MOUSEUP: EVENT_ENDPOINT_MOUSEDOWN, el.jtk.endpoint, e)
+            }
+        }
+
+        this._endpointMouseup = _endpointMouseupdown.bind(this, true)
+        this._endpointMousedown = _endpointMouseupdown.bind(this, false)
 
         // ---
 
@@ -734,8 +765,14 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         this.eventManager.on(currentContainer, EVENT_MOUSEOVER, SELECTOR_CONNECTOR, this._connectorMouseover)
         this.eventManager.on(currentContainer, EVENT_MOUSEOUT, SELECTOR_CONNECTOR, this._connectorMouseout)
 
+        this.eventManager.on(currentContainer, EVENT_MOUSEUP, SELECTOR_CONNECTOR, this._connectorMouseup)
+        this.eventManager.on(currentContainer, EVENT_MOUSEDOWN, SELECTOR_CONNECTOR, this._connectorMousedown)
+
         this.eventManager.on(currentContainer, EVENT_MOUSEOVER, SELECTOR_ENDPOINT, this._endpointMouseover)
         this.eventManager.on(currentContainer, EVENT_MOUSEOUT, SELECTOR_ENDPOINT, this._endpointMouseout)
+
+        this.eventManager.on(currentContainer, EVENT_MOUSEUP, SELECTOR_ENDPOINT, this._endpointMouseup)
+        this.eventManager.on(currentContainer, EVENT_MOUSEDOWN, SELECTOR_ENDPOINT, this._endpointMousedown)
 
         this.eventManager.on(currentContainer, EVENT_MOUSEOVER, SELECTOR_OVERLAY, this._overlayMouseover)
         this.eventManager.on(currentContainer, EVENT_MOUSEOUT, SELECTOR_OVERLAY, this._overlayMouseout)
@@ -768,8 +805,14 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             this.eventManager.off(currentContainer, EVENT_MOUSEOVER, this._connectorMouseover)
             this.eventManager.off(currentContainer, EVENT_MOUSEOUT, this._connectorMouseout)
 
+            this.eventManager.off(currentContainer, EVENT_MOUSEUP, this._connectorMouseup)
+            this.eventManager.off(currentContainer, EVENT_MOUSEDOWN, this._connectorMousedown)
+
             this.eventManager.off(currentContainer, EVENT_MOUSEOVER, this._endpointMouseover)
             this.eventManager.off(currentContainer, EVENT_MOUSEOUT, this._endpointMouseout)
+
+            this.eventManager.off(currentContainer, EVENT_MOUSEUP, this._endpointMouseup)
+            this.eventManager.off(currentContainer, EVENT_MOUSEDOWN, this._endpointMousedown)
 
             this.eventManager.off(currentContainer, EVENT_MOUSEOVER, this._overlayMouseover)
             this.eventManager.off(currentContainer, EVENT_MOUSEOUT, this._overlayMouseout)
