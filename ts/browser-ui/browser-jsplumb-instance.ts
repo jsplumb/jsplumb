@@ -121,7 +121,17 @@ import {
     CONNECTION,
     compoundEvent,
     EVENT_CONNECTION_MOUSEUP,
-    EVENT_CONNECTION_MOUSEDOWN, EVENT_ENDPOINT_MOUSEUP, EVENT_ENDPOINT_MOUSEDOWN, EVENT_MOUSEUP, EVENT_MOUSEDOWN
+    EVENT_CONNECTION_MOUSEDOWN,
+    EVENT_ENDPOINT_MOUSEUP,
+    EVENT_ENDPOINT_MOUSEDOWN,
+    EVENT_MOUSEUP,
+    EVENT_MOUSEDOWN,
+    EVENT_ELEMENT_MOUSE_MOVE,
+    EVENT_MOUSEMOVE,
+    EVENT_ELEMENT_MOUSE_UP,
+    EVENT_ELEMENT_MOUSE_DOWN,
+    EVENT_CONTEXTMENU,
+    EVENT_CONNECTION_CONTEXTMENU, EVENT_ELEMENT_CONTEXTMENU
 } from "./constants"
 import {DragSelection} from "./drag-selection"
 
@@ -273,6 +283,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     _endpointMouseover:Function
     _endpointMouseout:Function
 
+    _connectorContextmenu:Function
+
     _connectorMousedown:Function
     _connectorMouseup:Function
     _endpointMousedown:Function
@@ -286,6 +298,10 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     _elementDblTap:Function
     _elementMouseenter:Function
     _elementMouseexit:Function
+    _elementMousemove:Function
+    _elementMouseup:Function
+    _elementMousedown:Function
+    _elementContextmenu:Function
 
     eventManager:EventManager
 
@@ -372,6 +388,13 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
         this._connectorMouseup = _connectorMouseupdown.bind(this, true)
         this._connectorMousedown = _connectorMouseupdown.bind(this, false)
+
+        this._connectorContextmenu = function(e:MouseEvent) {
+            const el = getEventSource(e).parentNode
+            if (el.jtk && el.jtk.connector) {
+                this.fire(EVENT_CONNECTION_CONTEXTMENU, el.jtk.connector.connection, e)
+            }
+        }.bind(this)
 
         // ---
 
@@ -460,6 +483,22 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
         this._elementMouseenter = _elementHover.bind(this, true)
         this._elementMouseexit = _elementHover.bind(this, false)
+
+        this._elementMousemove = function(e:MouseEvent) {
+            this.fire(EVENT_ELEMENT_MOUSE_MOVE, getEventSource(e), e)
+        }.bind(this)
+
+        this._elementMouseup = function(e:MouseEvent) {
+            this.fire(EVENT_ELEMENT_MOUSE_UP, getEventSource(e), e)
+        }.bind(this)
+
+        this._elementMousedown  = function(e:MouseEvent) {
+            this.fire(EVENT_ELEMENT_MOUSE_DOWN, getEventSource(e), e)
+        }.bind(this)
+
+        this._elementContextmenu = function(e:MouseEvent) {
+            this.fire(EVENT_ELEMENT_CONTEXTMENU, getEventSource(e), e)
+        }.bind(this)
 
         this._attachEventDelegates()
     }
@@ -764,6 +803,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
         this.eventManager.on(currentContainer, EVENT_MOUSEOVER, SELECTOR_CONNECTOR, this._connectorMouseover)
         this.eventManager.on(currentContainer, EVENT_MOUSEOUT, SELECTOR_CONNECTOR, this._connectorMouseout)
+        this.eventManager.on(currentContainer, EVENT_CONTEXTMENU, SELECTOR_CONNECTOR, this._connectorContextmenu)
 
         this.eventManager.on(currentContainer, EVENT_MOUSEUP, SELECTOR_CONNECTOR, this._connectorMouseup)
         this.eventManager.on(currentContainer, EVENT_MOUSEDOWN, SELECTOR_CONNECTOR, this._connectorMousedown)
@@ -779,6 +819,11 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
         this.eventManager.on(currentContainer, EVENT_MOUSEOVER, SELECTOR_MANAGED_ELEMENT, this._elementMouseenter)
         this.eventManager.on(currentContainer, EVENT_MOUSEOUT, SELECTOR_MANAGED_ELEMENT, this._elementMouseexit)
+
+        this.eventManager.on(currentContainer, EVENT_MOUSEMOVE, SELECTOR_MANAGED_ELEMENT, this._elementMousemove)
+        this.eventManager.on(currentContainer, EVENT_MOUSEUP, SELECTOR_MANAGED_ELEMENT, this._elementMouseup)
+        this.eventManager.on(currentContainer, EVENT_MOUSEDOWN, SELECTOR_MANAGED_ELEMENT, this._elementMousedown)
+        this.eventManager.on(currentContainer, EVENT_CONTEXTMENU, SELECTOR_MANAGED_ELEMENT, this._elementContextmenu)
     }
 
     private _detachEventDelegates() {
@@ -805,6 +850,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             this.eventManager.off(currentContainer, EVENT_MOUSEOVER, this._connectorMouseover)
             this.eventManager.off(currentContainer, EVENT_MOUSEOUT, this._connectorMouseout)
 
+            this.eventManager.off(currentContainer, EVENT_CONTEXTMENU, this._connectorContextmenu)
+
             this.eventManager.off(currentContainer, EVENT_MOUSEUP, this._connectorMouseup)
             this.eventManager.off(currentContainer, EVENT_MOUSEDOWN, this._connectorMousedown)
 
@@ -819,6 +866,11 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
             this.eventManager.off(currentContainer, EVENT_MOUSEENTER, this._elementMouseenter)
             this.eventManager.off(currentContainer, EVENT_MOUSEEXIT, this._elementMouseexit)
+
+            this.eventManager.off(currentContainer, EVENT_MOUSEMOVE, this._elementMousemove)
+            this.eventManager.off(currentContainer, EVENT_MOUSEUP, this._elementMouseup)
+            this.eventManager.off(currentContainer, EVENT_MOUSEDOWN, this._elementMousedown)
+            this.eventManager.off(currentContainer, EVENT_CONTEXTMENU, this._elementContextmenu)
         }
     }
 
