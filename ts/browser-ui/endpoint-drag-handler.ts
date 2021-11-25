@@ -260,7 +260,7 @@ export class EndpointDragHandler implements DragHandler {
 
                 // keep a reference to the anchor we want to use if the connection is finalised, and then write a temp anchor
                 // for the drag
-                this._originalAnchor = tempEndpointParams.anchor || this.instance.defaults.anchor
+                this._originalAnchor = tempEndpointParams.anchor || (this.instance.defaults.anchors ? this.instance.defaults.anchors[0] : this.instance.defaults.anchor)
 
                 tempEndpointParams.anchor = [elxy.x, elxy.y, 0, 0]
                 tempEndpointParams.deleteOnEmpty = true
@@ -518,7 +518,7 @@ export class EndpointDragHandler implements DragHandler {
         }
 
         this.floatingEndpoint = _makeFloatingEndpoint(this.ep.getPaintStyle(), endpointToFloat, canvasElement, this.placeholderInfo.element, this.instance, this.ep.scope)
-        this.floatingAnchor = this.floatingEndpoint._anchor as LightweightFloatingAnchor//this.instance.router.getAnchor(this.floatingEndpoint)
+        this.floatingAnchor = this.floatingEndpoint._anchor as LightweightFloatingAnchor
 
         this.floatingEndpoint.deleteOnEmpty = true
         this.floatingElement = (this.floatingEndpoint.endpoint as any).canvas
@@ -1007,9 +1007,13 @@ export class EndpointDragHandler implements DragHandler {
             let pp:any = eps.endpoints ? extend(p as any, {
                 endpoint:targetDefinition.def.endpoint || eps.endpoints[1]
             }) :p
-            if (eps.anchors) {
+
+            // if the definition specified some anchors, use those, or if there are `anchors` specified as defaults on the instance,
+            // use those. otherwise later in the code we'll pick the default anchor.
+            const anchorsToUse = eps.anchors && eps.anchors[0] != null && eps.anchors[1] != null ? eps.anchors : this.instance.defaults.anchors
+            if (anchorsToUse) {
                 pp = extend(pp, {
-                    anchor:targetDefinition.def.anchor || eps.anchors[1]
+                    anchor:targetDefinition.def.anchor || anchorsToUse[1]
                 })
             }
 
