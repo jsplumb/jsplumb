@@ -1615,6 +1615,8 @@ export abstract class JsPlumbInstance<T extends {
     _applyRotations(point: [number, number, number, number], rotations: Rotations): RotatedPointXY;
     // @internal
     _applyRotationsXY(point: PointXY, rotations: Rotations): PointXY;
+    // @internal (undocumented)
+    areDefaultAnchorsSet(): boolean;
     batch(fn: Function, doNotRepaintAfterwards?: boolean): void;
     // (undocumented)
     checkCondition<RetVal>(conditionName: string, args?: any): RetVal;
@@ -1903,6 +1905,8 @@ export abstract class JsPlumbInstance<T extends {
     abstract updateLabel(o: LabelOverlay): void;
     // Warning: (ae-incompatible-release-tags) The symbol "updateOffset" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
     updateOffset(params?: UpdateOffsetOptions): ViewportElement<T["E"]>;
+    // @internal (undocumented)
+    validAnchorsSpec(anchors: [AnchorSpec, AnchorSpec]): boolean;
     // (undocumented)
     readonly viewport: Viewport<T>;
 }
@@ -2692,6 +2696,6 @@ export const Y_AXIS_FACES: Axis;
 // /Users/simon/programming/jsplumb/jsplumb/dist/core/types/connector/connectors.d.ts:5:5 - (ae-incompatible-release-tags) The symbol "get" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
 // /Users/simon/programming/jsplumb/jsplumb/dist/core/types/connector/connectors.d.ts:6:5 - (ae-incompatible-release-tags) The symbol "register" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
 // /Users/simon/programming/jsplumb/jsplumb/dist/core/types/core.d.ts:68:5 - (ae-incompatible-release-tags) The symbol "viewportElement" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
-// /Users/simon/programming/jsplumb/jsplumb/dist/core/types/core.d.ts:447:9 - (ae-incompatible-release-tags) The symbol "offset" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
+// /Users/simon/programming/jsplumb/jsplumb/dist/core/types/core.d.ts:456:9 - (ae-incompatible-release-tags) The symbol "offset" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
 
 ```

@@ -1523,6 +1523,15 @@ export declare abstract class JsPlumbInstance<T extends {
     private _zoom;
     readonly currentZoom: number;
     constructor(_instanceIndex: number, defaults?: JsPlumbDefaults<T["E"]>);
+    /**
+     * @internal
+     */
+    areDefaultAnchorsSet(): boolean;
+    /**
+     * @internal
+     * @param anchors
+     */
+    validAnchorsSpec(anchors: [AnchorSpec, AnchorSpec]): boolean;
     getContainer(): any;
     setZoom(z: number, repaintEverything?: boolean): boolean;
     _idstamp(): string;

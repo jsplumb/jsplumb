@@ -6738,6 +6738,16 @@ var jsPlumbBrowserUI = (function (exports) {
         return this._zoom;
       }
     }, {
+      key: "areDefaultAnchorsSet",
+      value: function areDefaultAnchorsSet() {
+        return this.validAnchorsSpec(this.defaults.anchors);
+      }
+    }, {
+      key: "validAnchorsSpec",
+      value: function validAnchorsSpec(anchors) {
+        return anchors != null && anchors[0] != null && anchors[1] != null;
+      }
+    }, {
       key: "getContainer",
       value: function getContainer() {
         return this._container;
@@ -12805,7 +12815,7 @@ var jsPlumbBrowserUI = (function (exports) {
             }
             var extractedParameters = def.parameterExtractor ? def.parameterExtractor(sourceEl, eventTarget) : {};
             tempEndpointParams = merge(tempEndpointParams, extractedParameters);
-            this._originalAnchor = tempEndpointParams.anchor || this.instance.defaults.anchor;
+            this._originalAnchor = tempEndpointParams.anchor || (this.instance.areDefaultAnchorsSet() ? this.instance.defaults.anchors[0] : this.instance.defaults.anchor);
             tempEndpointParams.anchor = [elxy.x, elxy.y, 0, 0];
             tempEndpointParams.deleteOnEmpty = true;
             this.ep = this.instance._internal_newEndpoint(tempEndpointParams);
@@ -13364,9 +13374,10 @@ var jsPlumbBrowserUI = (function (exports) {
           var pp = eps.endpoints ? extend(p, {
             endpoint: targetDefinition.def.endpoint || eps.endpoints[1]
           }) : p;
-          if (eps.anchors) {
+          var anchorsToUse = this.instance.validAnchorsSpec(eps.anchors) ? eps.anchors : this.instance.areDefaultAnchorsSet() ? this.instance.defaults.anchors : null;
+          if (anchorsToUse) {
             pp = extend(pp, {
-              anchor: targetDefinition.def.anchor || eps.anchors[1]
+              anchor: targetDefinition.def.anchor || anchorsToUse[1]
             });
           }
           if (targetDefinition.def.portId != null) {

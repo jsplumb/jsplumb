@@ -5647,6 +5647,16 @@ var JsPlumbInstance = function (_EventGenerator) {
       return this._zoom;
     }
   }, {
+    key: "areDefaultAnchorsSet",
+    value: function areDefaultAnchorsSet() {
+      return this.validAnchorsSpec(this.defaults.anchors);
+    }
+  }, {
+    key: "validAnchorsSpec",
+    value: function validAnchorsSpec(anchors) {
+      return anchors != null && anchors[0] != null && anchors[1] != null;
+    }
+  }, {
     key: "getContainer",
     value: function getContainer() {
       return this._container;
