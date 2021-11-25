@@ -973,5 +973,55 @@ var testSuite = function () {
 
     })
 
+    test("addSourceSelector, addTargetSelector, `anchor` from defaults honoured", function() {
+
+        _jsPlumb.importDefaults({
+            anchor:"Top"
+        })
+
+        var sourceNode = makeSourceNode()
+        var zone = addZone(sourceNode, "zone1")
+
+        var targetNode = makeTargetNode()
+        var tzone = addZone(targetNode, "zone2")
+
+        _jsPlumb.addSourceSelector(".zone1", {
+            endpoint:"Rectangle",
+            connector:"Flowchart"
+        })
+
+        _jsPlumb.addTargetSelector(".zone2")
+
+        var c = support.dragConnection(zone, tzone, true)
+
+        equal(c.endpoints[0]._anchor.type, "Top", "source anchor correct per defaults");
+        equal(c.endpoints[1]._anchor.type, "Top", "target anchor correct per defaults");
+    });
+
+    test("addSourceSelector, addTargetSelector, `anchors` from defaults honoured", function() {
+
+        _jsPlumb.importDefaults({
+            anchors:["Left", "Right"]
+        })
+
+        var sourceNode = makeSourceNode()
+        var zone = addZone(sourceNode, "zone1")
+
+        var targetNode = makeTargetNode()
+        var tzone = addZone(targetNode, "zone2")
+
+        _jsPlumb.addSourceSelector(".zone1", {
+            endpoint:"Rectangle",
+            connector:"Flowchart"
+        })
+
+        _jsPlumb.addTargetSelector(".zone2")
+
+        var c = support.dragConnection(zone, tzone, true)
+
+        equal(c.endpoints[0]._anchor.type, "Left", "source anchor correct per defaults");
+        equal(c.endpoints[1]._anchor.type, "Right", "target anchor correct per defaults");
+    });
+
 
 };
