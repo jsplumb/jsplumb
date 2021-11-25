@@ -260,7 +260,7 @@ export class EndpointDragHandler implements DragHandler {
 
                 // keep a reference to the anchor we want to use if the connection is finalised, and then write a temp anchor
                 // for the drag
-                this._originalAnchor = tempEndpointParams.anchor || (this.instance.defaults.anchors ? this.instance.defaults.anchors[0] : this.instance.defaults.anchor)
+                this._originalAnchor = tempEndpointParams.anchor || (this.instance.areDefaultAnchorsSet() ? this.instance.defaults.anchors[0] : this.instance.defaults.anchor)
 
                 tempEndpointParams.anchor = [elxy.x, elxy.y, 0, 0]
                 tempEndpointParams.deleteOnEmpty = true
@@ -1010,7 +1010,7 @@ export class EndpointDragHandler implements DragHandler {
 
             // if the definition specified some anchors, use those, or if there are `anchors` specified as defaults on the instance,
             // use those. otherwise later in the code we'll pick the default anchor.
-            const anchorsToUse = eps.anchors && eps.anchors[0] != null && eps.anchors[1] != null ? eps.anchors : this.instance.defaults.anchors
+            const anchorsToUse = this.instance.validAnchorsSpec(eps.anchors) ? eps.anchors : this.instance.areDefaultAnchorsSet() ? this.instance.defaults.anchors : null
             if (anchorsToUse) {
                 pp = extend(pp, {
                     anchor:targetDefinition.def.anchor || anchorsToUse[1]
