@@ -351,6 +351,21 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     }
 
+    /**
+     * @internal
+     */
+    areDefaultAnchorsSet():boolean {
+        return this.validAnchorsSpec(this.defaults.anchors)
+    }
+
+    /**
+     * @internal
+     * @param anchors
+     */
+    validAnchorsSpec(anchors:[ AnchorSpec, AnchorSpec ]):boolean {
+        return anchors != null && anchors[0] != null && anchors[1] != null
+    }
+
     getContainer():any { return this._container; }
 
     setZoom (z:number, repaintEverything?:boolean):boolean {
