@@ -1,6 +1,6 @@
 {
   "name": "@jsplumb/test",
-  "version": "5.1.0",
+  "version": "5.1.1",
   "description": "",
   "main": "js/jsplumb.test.cjs.js",
   "module": "js/jsplumb.test.es.js",
@@ -30,7 +30,7 @@
   "author": "jsPlumb (hello@jsplumbtoolkit.com)",
   "license": "(MIT OR GPL-2.0)",
   "dependencies": {
-    "@jsplumb/browser-ui-vanilla": "5.1.0"
+    "@jsplumb/browser-ui-vanilla": "5.1.1"
   },
   "devDependencies": {}
 }
