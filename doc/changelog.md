@@ -1,8 +1,9 @@
 ## 5.1.0
 
-November 23rd 2021
+November 25th 2021
 
 - support for `connection:mouseup`, `connection:mousedown`, `endpoint:mouseup`, `endpoint:mouseup` events added.
+- fixed issue with dragging via source selector ignoring the `anchors` default, if set.
 
 ## 5.0.0
 
