@@ -29,7 +29,7 @@ import {
     OverlayMouseEventParams,
     UIGroup,
     CLASS_CONNECTOR,
-    CLASS_ENDPOINT
+    CLASS_ENDPOINT, Face
 } from '@jsplumb/core'
 
 import {
@@ -40,7 +40,6 @@ import {
     isString,
     uuid,
     PointXY,
-    Dictionary,
     Size,
     BoundingBox,
     Extents, Grid
@@ -145,7 +144,7 @@ export type EndpointHelperFunctions<E> = {
     updateNode: (ep:E, node:SVGElement) => void
 }
 
-const endpointMap:Dictionary<EndpointHelperFunctions<any>> = {}
+const endpointMap:Record<string, EndpointHelperFunctions<any>> = {}
 export function registerEndpointRenderer<C>(name:string, fns:EndpointHelperFunctions<C>) {
     endpointMap[name] = fns
 }
@@ -182,6 +181,7 @@ export interface DragOptions {
     zIndex?: number
     grid?:Grid
     trackScroll?:boolean
+    filter?:string
 }
 
 export interface BrowserJsPlumbDefaults extends JsPlumbDefaults<Element> {
@@ -333,7 +333,6 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     constructor(public _instanceIndex:number, defaults?:BrowserJsPlumbDefaults) {
         super(_instanceIndex, defaults)
 
-
         // by default, elements are draggable
         this.elementsDraggable = defaults && defaults.elementsDraggable !== false
 
@@ -341,7 +340,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
         this.eventManager = new EventManager()
         this.dragSelection = new DragSelection(this)
-        this.dragManager = new DragManager(this, this.dragSelection,defaults && defaults.dragOptions ? defaults.dragOptions : null)
+        this.dragManager = new DragManager(this, this.dragSelection/*,defaults && defaults.dragOptions ? defaults.dragOptions : null*/)
 
         this.dragManager.addHandler(new EndpointDragHandler(this))
         this.groupDragOptions = {
@@ -355,10 +354,14 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
         this.dragManager.addHandler(this.elementDragHandler, this.elementDragOptions)
 
+        if (defaults && defaults.dragOptions && defaults.dragOptions.filter) {
+            this.dragManager.addFilter(defaults.dragOptions.filter)
+        }
+
         // ---
 
         const _connClick = function(event:string, e:MouseEvent) {
-            if (!e.defaultPrevented) {
+            if (!e.defaultPrevented && (e as any)._jsPlumbOverlay == null) {
                 let connectorElement = findParent(getEventSource(e), SELECTOR_CONNECTOR, this.getContainer(), true)
                 this.fire(event, connectorElement.jtk.connector.connection, e)
             }
@@ -399,7 +402,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         // ---
 
         const _epClick = function(event:string, e:MouseEvent, endpointElement:jsPlumbDOMElement) {
-            if (!e.defaultPrevented) {
+            if (!e.defaultPrevented && (e as any)._jsPlumbOverlay == null) {
                 this.fire(event, endpointElement.jtk.endpoint, e)
             }
         }
@@ -430,7 +433,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         // ---
 
         const _oClick = function(method:string, e:MouseEvent) {
-            consume(e)
+          //  consume(e)
             let overlayElement = findParent(getEventSource(e), SELECTOR_OVERLAY, this.getContainer(), true)
             let overlay = overlayElement.jtk.overlay
             if (overlay) {
@@ -504,18 +507,29 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     }
 
 
-
+    /**
+     * Fire an event for an overlay, and for its related component.
+     * @internal
+     * @param overlay
+     * @param event
+     * @param e
+     */
     private fireOverlayMethod(overlay:Overlay, event:string, e:MouseEvent) {
         const stem = overlay.component instanceof Connection ? CONNECTION : ENDPOINT
         const mappedEvent = compoundEvent(stem, event)
+
+        // set the overlay on the event so that connection/endpoint handlers will know this event has already been fired, and
+        // not to fire the event again
+        ;(e as any)._jsPlumbOverlay = overlay
         overlay.fire<OverlayMouseEventParams>(event, { e, overlay })
         this.fire(mappedEvent, overlay.component, e)
     }
 
     /**
      * Adds a filter to the list of filters used to determine whether or not a given event should start an element drag.
-     * @param filter CSS3 selector, or function that takes an element and returns true/false
-     * @param exclude If true, the filter is inverted: anything _but_ this value.
+     * @param filter - CSS3 selector, or function that takes an element and returns true/false
+     * @param exclude - If true, the filter is inverted: anything _but_ this value.
+     * @public
      */
     addDragFilter(filter:Function|string, exclude?:boolean) {
         this.dragManager.addFilter(filter, exclude)
@@ -523,7 +537,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
     /**
      * Removes a filter from the list of filters used to determine whether or not a given event should start an element drag.
-     * @param filter CSS3 selector, or function that takes an element and returns true/false
+     * @param filter - CSS3 selector, or function that takes an element and returns true/false
+     * @public
      */
     removeDragFilter(filter:Function|string) {
         this.dragManager.removeFilter(filter)
@@ -531,7 +546,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
     /**
      * Sets the grid that should be used when dragging elements.
-     * @param grid [x, y] grid.
+     * @param grid - Grid to use.
+     * @public
      */
     setDragGrid(grid:Grid) {
         this.dragManager.setOption(this.elementDragHandler, {
@@ -539,16 +555,31 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         })
     }
 
+    /**
+     * @internal
+     * @param element
+     */
     _removeElement(element:Element):void {
         element.parentNode && element.parentNode.removeChild(element)
     }
 
+    /**
+     *
+     * @param el
+     * @param parent
+     * @internal
+     */
     _appendElement(el:Element, parent:Element):void {
         if (parent) {
             parent.appendChild(el)
         }
     }
 
+    /**
+     *
+     * @param el
+     * @internal
+     */
     _getAssociatedElements(el: Element): Array<Element> {
         let a:Array<Element> = []
         if ((el as any).nodeType !== 3 && (el as any).nodeType !== 8) {
@@ -562,12 +593,18 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         return true
     }
 
+    /**
+     * Gets the CSS class for the given element.
+     * @param el
+     * @public
+     */
     getClass(el:Element):string { return getClass(el) }
 
     /**
      * Add one or more classes to the given element or list of elements.
      * @param el Element, or list of elements to which to add the class(es)
      * @param clazz A space separated list of classes to add.
+     * @public
      */
     addClass(el:Element | NodeListOf<Element>, clazz:string):void {
         addClass(el, clazz)
@@ -577,6 +614,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
      * Returns whether or not the given element has the given class.
      * @param el
      * @param clazz
+     * @public
      */
     hasClass(el:Element, clazz:string):boolean {
         return hasClass(el, clazz)
@@ -586,6 +624,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
      * Remove one or more classes from the given element or list of elements.
      * @param el Element, or list of elements from which to remove the class(es)
      * @param clazz A space separated list of classes to remove.
+     * @public
      */
     removeClass(el:Element | NodeListOf<Element>, clazz:string):void {
         removeClass(el, clazz)
@@ -595,36 +634,67 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
      * Toggles one or more classes on the given element or list of elements.
      * @param el Element, or list of elements on which to toggle the class(es)
      * @param clazz A space separated list of classes to toggle.
+     * @public
      */
     toggleClass(el:Element | NodeListOf<Element>, clazz:string):void {
         toggleClass(el, clazz)
     }
 
+    /**
+     * Sets an attribute on the given element. Exposed publically but mostly for internal use, to allow the core to abstract out
+     * the details of how the UI is being rendered.
+     * @param el
+     * @param name
+     * @param value
+     * @public
+     */
     setAttribute(el:Element, name:string, value:string):void {
         el.setAttribute(name, value)
     }
 
+    /**
+     * Gets an attribute from the given element. Exposed publically but mostly for internal use, to allow the core to abstract out
+     * the details of how the UI is being rendered.
+     * @param el
+     * @param name
+     * @public
+     */
     getAttribute(el:Element, name:string):string {
         return el.getAttribute(name)
     }
 
-    setAttributes(el:Element, atts:Dictionary<string>) {
+    /**
+     * Sets some attributes on the given element. Exposed publically but mostly for internal use, to allow the core to abstract out
+     * the details of how the UI is being rendered.
+     * @param el - Element to set attributes on
+     * @param atts - Map of attributes to set.
+     * @public
+     */
+    setAttributes(el:Element, atts:Record<string, string>) {
         for (let i in atts) {
             el.setAttribute(i, atts[i])
         }
     }
 
+    /**
+     * Remove an attribute from the given element. Exposed publically but mostly for internal use, to allow the core to abstract out
+     * the details of how the UI is being rendered.
+     * @param el - Element to remove an attribute from
+     * @param attName - Name of the attribute to remove
+     * @public
+     */
     removeAttribute(el:Element, attName:string) {
         el.removeAttribute && el.removeAttribute(attName)
     }
 
     /**
      * Bind an event listener to the given element or elements.
-     * @param el Element, or elements, to bind the event listener to.
-     * @param event Name of the event to bind to.
-     * @param callbackOrSelector Either a callback function, or a CSS 3 selector. When this is a selector the event listener is bound as a "delegate", ie. the event listeners
+     * @param el - Element, or elements, to bind the event listener to.
+     * @param event - Name of the event to bind to.
+     * @param callbackOrSelector - Either a callback function, or a CSS 3 selector. When this is a selector the event listener is bound as a "delegate", ie. the event listeners
      * listens to events on children of the given `el` that match the selector.
-     * @param callback Callback function for event. Only supplied when you're binding a delegated event handler.
+     * @param callback - Callback function for event. Only supplied when you're binding a delegated event handler.
+     * @public
      */
     on (el:Document | Element | NodeListOf<Element>, event:string, callbackOrSelector:Function|string, callback?:Function) {
 
@@ -647,9 +717,10 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
     /**
      * Remove an event binding from the given element or elements.
-     * @param el Element, or elements, from which to remove the event binding.
-     * @param event Name of the event to unbind.
-     * @param callback The function you wish to unbind.
+     * @param el - Element, or elements, from which to remove the event binding.
+     * @param event - Name of the event to unbind.
+     * @param callback - The function you wish to unbind.
+     * @public
      */
     off (el:Document | Element | NodeListOf<Element>, event:string, callback:Function) {
         if (isNodeList(el)) {
@@ -661,20 +732,32 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     }
 
     /**
-     * Trigger an event on the given element.
-     * @param el Element to trigger the event on.
-     * @param event Name of the event to trigger.
-     * @param originalEvent Optional event that gave rise to this method being called.
-     * @param payload Optional `payload` to set on the Event that is created.
+     * Trigger an event on the given element.  Exposed publically but mostly intended for internal use.
+     * @param el - Element to trigger the event on.
+     * @param event - Name of the event to trigger.
+     * @param originalEvent - Optional event that gave rise to this method being called.
+     * @param payload - Optional `payload` to set on the Event that is created.
+     * @param detail - Optional detail for the Event that is created.
+     * @public
      */
     trigger(el:Document | Element, event:string, originalEvent?:Event, payload?:any, detail?:number) {
         this.eventManager.trigger(el, event, originalEvent, payload, detail)
     }
 
+    /**
+     * Exposed on this class to assist core in abstracting out the specifics of the renderer.
+     * @internal
+     * @param el
+     */
     getOffsetRelativeToRoot(el:Element) {
         return offsetRelativeToRoot(el)
     }
 
+    /**
+     * Exposed on this class to assist core in abstracting out the specifics of the renderer.
+     * @internal
+     * @param el
+     */
     getOffset(el:Element):PointXY {
         const jel = el as unknown as jsPlumbDOMElement
         const container = this.getContainer()
@@ -710,10 +793,22 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         return out
     }
 
+    /**
+     * Exposed on this class to assist core in abstracting out the specifics of the renderer.
+     * @internal
+     * @param el
+     */
     getSize(el:Element):Size {
         return size(el as any)
     }
 
+    /**
+     * Gets a style property from some element.
+     * Exposed on this class to assist core in abstracting out the specifics of the renderer.
+     * @internal
+     * @param el Element to get property from
+     * @param prop Property to look up
+     */
     getStyle(el:Element, prop:string):any {
         if (typeof window.getComputedStyle !== UNDEFINED) {
             return getComputedStyle(el, null).getPropertyValue(prop)
@@ -722,12 +817,24 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
     }
 
+    /**
+     * Gets the element representing some group's content area.
+     * Exposed on this class to assist core in abstracting out the specifics of the renderer.
+     * @internal
+     * @param group
+     */
     getGroupContentArea(group: UIGroup<any>): ElementType["E"] {
         let da = this.getSelector(group.el, SELECTOR_GROUP_CONTAINER)
         return da && da.length > 0 ? da[0] : group.el
     }
 
-
+    /**
+     * Exposed on this class to assist core in abstracting out the specifics of the renderer.
+     * @internal
+     * @param ctx Either a string representing a selector, or an element. If a string, the container root is assumed to be the element context. Otherwise
+     * the context is this value and the selector is the second arg to the method.
+     * @param spec If `ctx` is an element, this is the selector
+     */
     getSelector(ctx:string | Element, spec?:string):ArrayLike<jsPlumbDOMElement> {
 
         let sel:Array<jsPlumbDOMElement> = null
@@ -752,6 +859,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
      * Sets the position of the given element.
      * @param el Element to change position for
      * @param p New location for the element.
+     * @internal
      */
     setPosition(el:Element, p:PointXY):void {
         const jel = el as jsPlumbDOMElement
@@ -759,6 +867,12 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         jel.style.top = p.y + "px"
     }
 
+    /**
+     * Helper method to set the draggable state of some element. Under the hood all this does is add/remove the `data-jtk-not-draggable` attribute.
+     * @param element - Element to set draggable state for.
+     * @param draggable
+     * @public
+     */
     setDraggable(element:Element, draggable:boolean) {
         if (draggable) {
             this.removeAttribute(element, ATTRIBUTE_NOT_DRAGGABLE)
@@ -767,14 +881,21 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
     }
 
+    /**
+     * Helper method to get the draggable state of some element. Under the hood all this does is check for the existence of the `data-jtk-not-draggable` attribute.
+     * @param el - Element to get draggable state for.
+     * @public
+     */
     isDraggable(el:Element):boolean {
         let d = this.getAttribute(el, ATTRIBUTE_NOT_DRAGGABLE)
         return d == null || d === FALSE
     }
 
     /*
-     * toggles the draggable state of the given element(s).
+     * Toggles the draggable state of the given element(s).
      * el is either an id, or an element object, or a list of ids/element objects.
+     * @param el - Element to toggle draggable state for.
+     * @public
      */
     toggleDraggable (el:Element):boolean {
         let state = this.isDraggable(el)
@@ -874,7 +995,13 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
     }
 
-
+    /**
+     * Sets the element this instance will use as the container for everything it adds to the UI. In normal use this method is
+     * not expected to be called very often, if at all. The method is used by the instance constructor and also in certain situations by
+     * the Toolkit edition.
+     * @param newContainer
+     * @public
+     */
     setContainer(newContainer: Element): void {
 
         if ((newContainer  as any) === document || newContainer === document.body) {
@@ -919,6 +1046,11 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
     }
 
+    /**
+     * Clears all endpoints and connections and managed elements from the instance of jsplumb. Does not also clear out event listeners, selectors, or
+     * connection/endpoint types - for that, use `destroy()`.
+     * @public
+     */
     reset() {
         super.reset()
         const container = this.getContainer()
@@ -926,6 +1058,11 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         forEach(els,(el:any) => el.parentNode && el.parentNode.removeChild(el))
     }
 
+    /**
+     * Clears the instance and unbinds any listeners on the instance. After you call this method you cannot use this
+     * instance of jsPlumb again.
+     * @public
+     */
     destroy(): void {
 
         this._detachEventDelegates()
@@ -939,23 +1076,48 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         super.destroy()
     }
 
+    /**
+     * Stops managing the given element.
+     * @param el - Element, or ID of the element to stop managing.
+     * @param removeElement - If true, also remove the element from the renderer.
+     * @public
+     */
     unmanage (el:Element, removeElement?:boolean):void {
         this.removeFromDragSelection(el)
         super.unmanage(el, removeElement)
     }
 
+    /**
+     * Adds the given element(s) to the current drag selection.
+     * @param el
+     * @public
+     */
     addToDragSelection(...el:Array<Element>) {
         forEach(el, (_el) => this.dragSelection.add(_el))
     }
 
+    /**
+     * Clears the current drag selection
+     * @public
+     */
     clearDragSelection() {
         this.dragSelection.clear()
     }
 
+    /**
+     * Removes the given element(s) from the current drag selection
+     * @param el
+     * @public
+     */
     removeFromDragSelection(...el:Array<Element>) {
         forEach(el, (_el) => this.dragSelection.remove(_el))
     }
 
+    /**
+     * Toggles membership in the current drag selection of the given element(s)
+     * @param el
+     * @public
+     */
     toggleDragSelection(...el:Array<Element>) {
         forEach(el,(_el) => this.dragSelection.toggle(_el))
     }
@@ -970,6 +1132,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
      * dragging the given element(s) should cause all the elements in the drag group to be dragged. If `active` is false it means the
      * given element(s) is "passive" and should only move when an active member of the drag group is dragged.
      * @param els Elements to add to the drag group.
+     * @public
      */
     addToDragGroup(spec:DragGroupSpec, ...els:Array<Element>) {
         this.elementDragHandler.addToDragGroup(spec, ...els)
@@ -979,16 +1142,18 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
      * Removes the given element(s) from any drag group they may be in. You don't need to supply the drag group id, as elements
      * can only be in one drag group anyway.
      * @param els Elements to remove from drag groups.
+     * @public
      */
     removeFromDragGroup(...els:Array<Element>) {
         this.elementDragHandler.removeFromDragGroup(...els)
     }
 
     /**
-     * Sets the active/passive state for the given element(s).You don't need to supply the drag group id, as elements
+     * Sets the active/passive state for the given element(s) in their respective drag groups (if any). You don't need to supply the drag group id, as elements
      * can only be in one drag group anyway.
      * @param state true for active, false for passive.
      * @param els
+     * @public
      */
     setDragGroupState (state:boolean, ...els:Array<Element>) {
         this.elementDragHandler.setDragGroupState(state, ...els)
@@ -998,28 +1163,21 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
      * Consumes the given event.
      * @param e
      * @param doNotPreventDefault
+     * @public
      */
     consume (e:Event, doNotPreventDefault?:boolean) {
         consume(e, doNotPreventDefault)
     }
 
-    // /**
-    //  * Adds a managed list to the instance.
-    //  * @param el Element containing the list.
-    //  * @param options
-    //  */
-    // addList (el:Element, options?:JsPlumbListOptions):JsPlumbList {
-    //     return this.listManager.addList(el, options)
-    // }
-    //
-    // /**
-    //  * Removes a managed list from the instance
-    //  * @param el Element containing the list.
-    //  */
-    // removeList (el:Element) {
-    //     this.listManager.removeList(el)
-    // }
-
+    /**
+     * Rotates the given element. This method overrides the same method from the superclass: the superclass only makes a note
+     * of the current rotation for the given element, but in this class the element has appropriate CSS transforms applied to it
+     * to effect the rotation in the DOM.
+     * @param element Element to rotate.
+     * @param rotation Rotation, in degrees.
+     * @param doNotRepaint If true, a repaint is not done afterwards. Defaults to false.
+     * @public
+     */
     rotate(element: Element, rotation: number, doNotRepaint?: boolean):RedrawResult {
         const elementId = this.getId(element)
         if (this._managedElements[elementId]) {
@@ -1127,7 +1285,6 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
     setOverlayHover(o: Overlay, hover: boolean): void {
 
-        const method = hover ? "addClass" : "removeClass"
         let canvas:Element
 
         if (isLabelOverlay(o)) {
@@ -1141,7 +1298,11 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
         if (canvas != null) {
             if (this.hoverClass != null) {
-                this[method](canvas, this.hoverClass)
+                if (hover) {
+                    this.addClass(canvas, this.hoverClass)
+                } else {
+                    this.removeClass(canvas, this.hoverClass)
+                }
             }
 
             this.setHover(o.component, hover)
@@ -1251,21 +1412,28 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         paintSvgConnector(this, connector, paintStyle, extents)
     }
 
-    setConnectorHover(connector:AbstractConnector, h:boolean, doNotCascade?:boolean):void {
-        if (h === false || (!this.currentlyDragging && !this.isHoverSuspended())) {
+    setConnectorHover(connector:AbstractConnector, hover:boolean, doNotCascade?:boolean):void {
+        if (hover === false || (!this.currentlyDragging && !this.isHoverSuspended())) {
 
-            const method = h ? "addClass" : "removeClass"
             const canvas = (connector as any).canvas
 
             if (canvas != null) {
                 if (connector.hoverClass != null) {
-                    this[method](canvas, connector.hoverClass)
+                    if (hover) {
+                        this.addClass(canvas, connector.hoverClass)
+                    } else {
+                        this.removeClass(canvas, connector.hoverClass)
+                    }
                 }
 
-                this[method](canvas, this.hoverClass)
+                if (hover) {
+                    this.addClass(canvas, this.hoverClass)
+                } else {
+                    this.removeClass(canvas, this.hoverClass)
+                }
             }
             if (connector.connection.hoverPaintStyle != null) {
-                connector.connection.paintStyleInUse = h ? connector.connection.hoverPaintStyle : connector.connection.paintStyle
+                connector.connection.paintStyleInUse = hover ? connector.connection.hoverPaintStyle : connector.connection.paintStyle
                 if (!this._suspendDrawing) {
                     this.paintConnection(connector.connection)
                 }
@@ -1273,30 +1441,48 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
             if (!doNotCascade) {
 
-                this.setEndpointHover(connector.connection.endpoints[0], h, true)
-                this.setEndpointHover(connector.connection.endpoints[1], h, true)
+                this.setEndpointHover(connector.connection.endpoints[0], hover, true)
+                this.setEndpointHover(connector.connection.endpoints[1], hover, true)
             }
         }
     }
 
+    /**
+     * @internal
+     * @param connection
+     */
     destroyConnector(connection:Connection):void {
         if (connection.connector != null) {
             cleanup(connection.connector as any)
         }
     }
 
+    /**
+     * @internal
+     * @param connector
+     * @param clazz
+     */
     addConnectorClass(connector:AbstractConnector, clazz:string):void {
         if ((connector as any).canvas) {
             this.addClass((connector as any).canvas, clazz)
         }
     }
 
+    /**
+     * @internal
+     * @param connector
+     * @param clazz
+     */
     removeConnectorClass(connector:AbstractConnector, clazz:string):void {
         if ((connector as any).canvas) {
             this.removeClass((connector as any).canvas, clazz)
         }
     }
 
+    /**
+     * @internal
+     * @param connector
+     */
     getConnectorClass(connector: AbstractConnector): string {
         if ((connector as any).canvas) {
             return (connector as any).canvas.className.baseVal
@@ -1305,10 +1491,20 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
     }
 
+    /**
+     * @internal
+     * @param connector
+     * @param v
+     */
     setConnectorVisible(connector:AbstractConnector, v:boolean):void {
         setVisible(connector as any, v)
     }
 
+    /**
+     * @internal
+     * @param connector
+     * @param t
+     */
     applyConnectorType(connector:AbstractConnector, t:TypeDescriptor):void {
         if ((connector as any).canvas && t.cssClass) {
             const classes = Array.isArray(t.cssClass) ? t.cssClass as Array<string> : [ t.cssClass ]
@@ -1316,6 +1512,11 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
     }
 
+    /**
+     * @internal
+     * @param ep
+     * @param c
+     */
     addEndpointClass(ep: Endpoint, c: string): void {
         const canvas = getEndpointCanvas(ep.endpoint)
         if (canvas != null) {
@@ -1323,6 +1524,11 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
     }
 
+    /**
+     * @internal
+     * @param ep
+     * @param t
+     */
     applyEndpointType<C>(ep: Endpoint, t: TypeDescriptor): void {
         if(t.cssClass) {
             const canvas = getEndpointCanvas(ep.endpoint)
@@ -1333,12 +1539,21 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
     }
 
+    /**
+     * @internal
+     * @param ep
+     */
     destroyEndpoint(ep: Endpoint): void {
         let anchorClass = this.endpointAnchorClassPrefix + (ep.currentAnchorClass ? "-" + ep.currentAnchorClass : "")
         this.removeClass(ep.element, anchorClass)
         cleanup(ep.endpoint as any)
     }
 
+    /**
+     * @internal
+     * @param ep
+     * @param paintStyle
+     */
     renderEndpoint(ep: Endpoint, paintStyle: PaintStyle): void {
         const renderer = endpointMap[ep.endpoint.type]
         if (renderer != null) {
@@ -1348,6 +1563,11 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
     }
 
+    /**
+     * @internal
+     * @param ep
+     * @param c
+     */
     removeEndpointClass(ep: Endpoint, c: string): void {
         const canvas = getEndpointCanvas(ep.endpoint)
         if (canvas != null) {
@@ -1355,6 +1575,10 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
     }
 
+    /**
+     * @internal
+     * @param ep
+     */
     getEndpointClass(ep: Endpoint): string {
         const canvas = getEndpointCanvas(ep.endpoint)
         if (canvas != null) {
@@ -1364,20 +1588,29 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
     }
 
-    setEndpointHover(endpoint: Endpoint, h: boolean, doNotCascade?:boolean): void {
+    /**
+     * @internal
+     * @param endpoint
+     * @param hover
+     * @param doNotCascade
+     */
+    setEndpointHover(endpoint: Endpoint, hover: boolean, doNotCascade?:boolean): void {
 
-        if (endpoint != null && (h === false || (!this.currentlyDragging && !this.isHoverSuspended()))) {
+        if (endpoint != null && (hover === false || (!this.currentlyDragging && !this.isHoverSuspended()))) {
 
-            const method = h ? "addClass" : "removeClass"
             const canvas = getEndpointCanvas(endpoint.endpoint)
 
             if (canvas != null) {
                 if (endpoint.hoverClass != null) {
-                    this[method](canvas, endpoint.hoverClass)
+                    if (hover) {
+                        this.addClass(canvas, endpoint.hoverClass)
+                    } else {
+                        this.removeClass(canvas, endpoint.hoverClass)
+                    }
                 }
             }
             if (endpoint.hoverPaintStyle != null) {
-                endpoint.paintStyleInUse = h ? endpoint.hoverPaintStyle : endpoint.paintStyle
+                endpoint.paintStyleInUse = hover ? endpoint.hoverPaintStyle : endpoint.paintStyle
                 if (!this._suspendDrawing) {
                     this.renderEndpoint(endpoint, endpoint.paintStyleInUse)
                 }
@@ -1386,16 +1619,26 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             if (!doNotCascade) {
                 // instruct attached connections to set hover, unless doNotCascade was true.
                 for(let i = 0; i < endpoint.connections.length; i++) {
-                    this.setConnectorHover(endpoint.connections[i].connector, h, true)
+                    this.setConnectorHover(endpoint.connections[i].connector, hover, true)
                 }
             }
         }
     }
 
+    /**
+     * @internal
+     * @param ep
+     * @param v
+     */
     setEndpointVisible(ep: Endpoint, v: boolean): void {
         setVisible(ep.endpoint as any, v)
     }
 
+    /**
+     * @internal
+     * @param group
+     * @param state
+     */
     setGroupVisible(group: UIGroup<Element>, state: boolean): void {
         let m = group.el.querySelectorAll(SELECTOR_MANAGED_ELEMENT)
         for (let i = 0; i < m.length; i++) {
@@ -1407,6 +1650,11 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
     }
 
+    /**
+     * @internal
+     * @param connection
+     * @param params
+     */
     deleteConnection(connection: Connection, params?: DeleteConnectionOptions): boolean {
         if (connection != null && connection.deleted !== true) {
             this.setEndpointHover(connection.endpoints[0], false, true)
