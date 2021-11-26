@@ -423,6 +423,8 @@ export class Drag extends Base {
         }
 
         this.k.eventManager.on(this.el, EVENT_MOUSEDOWN, this.downListener)
+        this.k.eventManager.on(document, EVENT_MOUSEMOVE, this.moveListener)
+        this.k.eventManager.on(document, EVENT_MOUSEUP, this.upListener)
     }
 
     on (evt:string, fn:Function) {
@@ -447,8 +449,6 @@ export class Drag extends Base {
         if (this._downAt) {
 
             this._downAt = null
-            this.k.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener)
-            this.k.eventManager.off(document, EVENT_MOUSEUP, this.upListener)
             removeClass(document.body as any, _classes.noSelect)
             this.unmark(e)
             this.stop(e)
@@ -545,9 +545,6 @@ export class Drag extends Base {
                 this._pagePosAtDown = offsetRelativeToRoot(this._dragEl)
                 this._pageDelta = {x:this._pagePosAtDown.x - this._posAtDown.x, y:this._pagePosAtDown.y - this._posAtDown.y}
                 this._size = _getSize(this._dragEl)
-
-                this.k.eventManager.on(document, EVENT_MOUSEMOVE, this.moveListener)
-                this.k.eventManager.on(document, EVENT_MOUSEUP, this.upListener)
 
                 addClass(document.body as any, _classes.noSelect)
                 this._dispatch<BeforeStartEventParams>(EVENT_BEFORE_START, {el:this.el, pos:this._posAtDown, e:e, drag:this, size:this._size})
