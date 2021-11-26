@@ -1363,6 +1363,8 @@
         _this._availableSelectors.push(params);
       }
       _this.k.eventManager.on(_this.el, EVENT_MOUSEDOWN, _this.downListener);
+      _this.k.eventManager.on(document, EVENT_MOUSEMOVE, _this.moveListener);
+      _this.k.eventManager.on(document, EVENT_MOUSEUP, _this.upListener);
       return _this;
     }
     _createClass(Drag, [{
@@ -1390,8 +1392,6 @@
       value: function _upListener(e) {
         if (this._downAt) {
           this._downAt = null;
-          this.k.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener);
-          this.k.eventManager.off(document, EVENT_MOUSEUP, this.upListener);
           removeClass(document.body, _classes.noSelect);
           this.unmark(e);
           this.stop(e);
@@ -1473,8 +1473,6 @@
               y: this._pagePosAtDown.y - this._posAtDown.y
             };
             this._size = _getSize(this._dragEl);
-            this.k.eventManager.on(document, EVENT_MOUSEMOVE, this.moveListener);
-            this.k.eventManager.on(document, EVENT_MOUSEUP, this.upListener);
             addClass(document.body, _classes.noSelect);
             this._dispatch(EVENT_BEFORE_START, {
               el: this.el,
@@ -2781,7 +2779,7 @@
       this.mousedownHandler = this._mousedownHandler.bind(this);
       this.mouseupHandler = this._mouseupHandler.bind(this);
       instance.on(container, EVENT_MOUSEDOWN, core.SELECTOR_MANAGED_ELEMENT, this.mousedownHandler);
-      instance.on(container, EVENT_MOUSEUP, core.SELECTOR_MANAGED_ELEMENT, this.mouseupHandler);
+      instance.on(container, EVENT_MOUSEUP, [core.SELECTOR_MANAGED_ELEMENT, core.cls(core.CLASS_ENDPOINT)].join(","), this.mouseupHandler);
     }
     _createClass(EndpointDragHandler, [{
       key: "_resolveDragParent",
