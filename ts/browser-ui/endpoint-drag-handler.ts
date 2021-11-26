@@ -74,7 +74,7 @@ function _makeFloatingEndpoint (paintStyle:PaintStyle,
                                 instance:BrowserJsPlumbInstance,
                                 scope?:string)
 {
-    let floatingAnchor = createFloatingAnchor(instance, sourceElement)// { reference: referenceAnchor, referenceCanvas: referenceCanvas })
+    let floatingAnchor = createFloatingAnchor(instance, sourceElement)
 
     const p:InternalEndpointOptions<any> = {
         paintStyle: paintStyle,
@@ -157,7 +157,9 @@ export class EndpointDragHandler implements DragHandler {
         this.mouseupHandler = this._mouseupHandler.bind(this)
 
         instance.on(container , EVENT_MOUSEDOWN, SELECTOR_MANAGED_ELEMENT, this.mousedownHandler)
-        instance.on(container, EVENT_MOUSEUP, SELECTOR_MANAGED_ELEMENT, this.mouseupHandler)
+        // listen for mouseup on managed elements as well as jtk-endpoints (this latter being for the case that a user simply clicks
+        // without moving the mouse at all: the mouseup event occurs on the endpoint that has been newly drawn).
+        instance.on(container, EVENT_MOUSEUP, [SELECTOR_MANAGED_ELEMENT, cls(CLASS_ENDPOINT)].join(","), this.mouseupHandler)
 
     }
 
