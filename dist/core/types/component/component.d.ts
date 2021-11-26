@@ -1,4 +1,4 @@
-import { Extents, EventGenerator, PointXY, Dictionary } from "@jsplumb/util";
+import { Extents, EventGenerator, PointXY } from "@jsplumb/util";
 import { Overlay } from '../overlay/overlay';
 import { ComponentTypeDescriptor } from '../type-descriptors';
 import { JsPlumbInstance } from "../core";
@@ -54,7 +54,7 @@ export interface ComponentOptions {
     beforeDetach?: BeforeDetachInterceptor;
     beforeDrop?: BeforeDropInterceptor;
     hoverClass?: string;
-    events?: Dictionary<(value: any, event: any) => any>;
+    events?: Record<string, (value: any, event: any) => any>;
     scope?: string;
     cssClass?: string;
     data?: any;
@@ -71,9 +71,9 @@ export declare abstract class Component extends EventGenerator {
     abstract getIdPrefix(): string;
     abstract getXY(): PointXY;
     defaultLabelLocation: number | [number, number];
-    overlays: Dictionary<Overlay>;
-    overlayPositions: Dictionary<PointXY>;
-    overlayPlacements: Dictionary<Extents>;
+    overlays: Record<string, Overlay>;
+    overlayPositions: Record<string, PointXY>;
+    overlayPlacements: Record<string, Extents>;
     clone: () => Component;
     deleted: boolean;
     segment: number;
@@ -84,7 +84,7 @@ export declare abstract class Component extends EventGenerator {
     id: string;
     visible: boolean;
     typeId: string;
-    params: Dictionary<any>;
+    params: Record<string, any>;
     paintStyle: PaintStyle;
     hoverPaintStyle: PaintStyle;
     paintStyleInUse: PaintStyle;
@@ -144,7 +144,7 @@ export declare abstract class Component extends EventGenerator {
      * @param id ID of the overlay to retrieve.
      */
     getOverlay<T extends Overlay>(id: string): T;
-    getOverlays(): Dictionary<Overlay>;
+    getOverlays(): Record<string, Overlay>;
     hideOverlay(id: string): void;
     hideOverlays(): void;
     showOverlay(id: string): void;

@@ -1,4 +1,3 @@
-import { Dictionary } from "@jsplumb/util";
 export declare const STROKE_DASHARRAY = "stroke-dasharray";
 export declare const DASHSTYLE = "dashstyle";
 export declare const FILL = "fill";
@@ -7,7 +6,7 @@ export declare const STROKE_WIDTH = "stroke-width";
 export declare const LINE_WIDTH = "strokeWidth";
 export declare const ELEMENT_SVG = "svg";
 export declare const ELEMENT_PATH = "path";
-export declare type ElementAttributes = Dictionary<string | number>;
+export declare type ElementAttributes = Record<string, string | number>;
 export declare function _attr(node: SVGElement, attributes: ElementAttributes): void;
 export declare function _node(name: string, attributes?: ElementAttributes): SVGElement;
 export declare function _pos(d: [number, number]): string;

@@ -8,7 +8,6 @@ import {
     EVENT_UNMANAGE_ELEMENT,
     SELECTOR_MANAGED_ELEMENT,
     INTERCEPT_BEFORE_DROP,
-    att,
     BeforeDropParams,
     ManageElementParams,
     UnmanageElementParams,
@@ -17,7 +16,7 @@ import {
 
 import { AnchorSpec, EndpointSpec } from "@jsplumb/common"
 
-import { extend, Dictionary } from "@jsplumb/util"
+import { extend } from "@jsplumb/util"
 
 import { SupportedEdge, SELECTOR_SCROLLABLE_LIST, EVENT_SCROLL, DEFAULT_LIST_OPTIONS, ATTR_SCROLLABLE_LIST } from'./constants'
 
@@ -61,7 +60,7 @@ export class JsPlumbListManager {
 
     options:ListManagerOptions
     count: number
-    lists: Dictionary<JsPlumbList>
+    lists: Record<string, JsPlumbList>
 
     constructor(private instance:BrowserJsPlumbInstance, params?:ListManagerOptions) {
         this.count = 0

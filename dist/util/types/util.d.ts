@@ -287,7 +287,7 @@ export declare function addWithFunction<T>(list: Array<T>, item: T, hashFunction
  * @param insertAtStart
  * @internal
  */
-export declare function addToDictionary<T>(map: Dictionary<Array<T>>, key: string, value: any, insertAtStart?: boolean): Array<any>;
+export declare function addToDictionary<T>(map: Record<string, Array<T>>, key: string, value: any, insertAtStart?: boolean): Array<any>;
 /**
  * Add an item to a list that is stored inside some map. This method is used internally.
  * @param map A map of <string, Array> entries.
@@ -420,9 +420,6 @@ export declare type Merge<M, N> = Omit<M, Extract<keyof M, keyof N>> & N;
  * @public
  * @deprecated
  */
-export interface Dictionary<T> {
-    [Key: string]: T;
-}
 /**
  * Defines a function that can be used to sort an array.
  * @internal

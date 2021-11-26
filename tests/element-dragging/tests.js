@@ -175,6 +175,40 @@ var testSuite = function () {
 
     });
 
+    /**
+     * Add a CSS3 selector filter to the instance. It should then prevent anything with that selector from being draggable,
+     * even if it would otherwise have been draggable.
+     */
+    test("filter in dragOptions (ignore drag at draggable level)", function() {
+
+        reinit({
+            dragOptions:{
+                filter:".someSelector"
+            }
+        })
+
+        var node = _addDiv("someNode", 50, 50);
+        node.classList.add("someSelector");
+        node.style.position = "absolute";
+        _jsPlumb.manage(node);
+
+        equal(50, parseInt(node.style.left, 10), "child node is left 50");
+        equal(50, parseInt(node.style.top, 10), "child node is top 50");
+
+        support.dragNodeBy(node, 50,50);
+
+        equal(50, parseInt(node.style.left, 10), "child node is still left 50");
+        equal(50, parseInt(node.style.top, 10), "child node is still top 50");
+
+        _jsPlumb.removeDragFilter(".someSelector");
+
+        support.dragNodeBy(node, 50,50); // should drag this time, as its selector has been added to the list to exclude.
+
+        equal(100, parseInt(node.style.left, 10), "child node is left 150 after .someSelector filter removed");
+        equal(100, parseInt(node.style.top, 10), "child node is top 150 after .someSelector filter removed");
+
+    });
+
     test("filter on selector (ignore drag at selector level)", function() {
         expect(0);
         // not sure if this needs to be supported or not.

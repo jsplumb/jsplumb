@@ -3,7 +3,7 @@ import { JsPlumbInstance, jsPlumbElement } from "../core"
 import { Connection } from '../connector/connection-impl'
 import { DotEndpoint } from "../endpoint/dot-endpoint"
 import { GroupManager } from "../group/group-manager"
-import { Dictionary, PointXY, removeWithFunction, uuid, log, getWithFunction} from '@jsplumb/util'
+import { PointXY, removeWithFunction, uuid, log, getWithFunction} from '@jsplumb/util'
 
 import * as Constants from "../constants"
 import { EndpointSpec, AnchorSpec } from "@jsplumb/common"
@@ -168,9 +168,9 @@ export class UIGroup<E = any> extends UINode<E> {
         this.manager._updateConnectionsForGroup(this)
     }
 
-    orphanAll ():Dictionary<PointXY> {
+    orphanAll ():Record<string, PointXY> {
 
-        let orphanedPositions:Dictionary<PointXY> = {}
+        let orphanedPositions:Record<string, PointXY> = {}
 
         for (let i = 0; i < this.children.length; i++) {
             let newPosition = this.manager.orphan(this.children[i].el, false)

@@ -10,7 +10,7 @@ export function add(p1: PointXY, p2: PointXY): PointXY;
 // Warning: (ae-internal-missing-underscore) The name "addToDictionary" should be prefixed with an underscore because the declaration is marked as @internal
 //
 // @internal
-export function addToDictionary<T>(map: Dictionary<Array<T>>, key: string, value: any, insertAtStart?: boolean): Array<any>;
+export function addToDictionary<T>(map: Record<string, Array<T>>, key: string, value: any, insertAtStart?: boolean): Array<any>;
 
 // Warning: (ae-internal-missing-underscore) The name "addToList" should be prefixed with an underscore because the declaration is marked as @internal
 //
@@ -45,12 +45,6 @@ export function clone(a: any): any;
 export type Constructable<T> = {
     new (...args: any[]): T;
 };
-
-// @public @deprecated
-export interface Dictionary<T> {
-    // (undocumented)
-    [Key: string]: T;
-}
 
 // Warning: (ae-internal-missing-underscore) The name "each" should be prefixed with an underscore because the declaration is marked as @internal
 //

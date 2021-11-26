@@ -1,6 +1,5 @@
 
 import {PaintStyle, OverlaySpec, ConnectorSpec, EndpointSpec, AnchorSpec} from "@jsplumb/common"
-import {Dictionary} from "@jsplumb/util"
 import {RedropPolicy} from "./source-selector"
 import {Endpoint} from "./endpoint/endpoint"
 
@@ -40,7 +39,7 @@ export interface TypeDescriptor extends TypeDescriptorBase {
  * @internal
  */
 export interface ComponentTypeDescriptor extends TypeDescriptorBase {
-    overlays:Dictionary<OverlaySpec>
+    overlays:Record<string, OverlaySpec>
 }
 
 /**
@@ -75,10 +74,10 @@ export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescript
      * @param el - The element that is the drag source
      * @param eventTarget - The element that captured the event that started the connection drag.
      */
-    parameterExtractor?:(el:T, eventTarget:T) => Dictionary<string>
+    parameterExtractor?:(el:T, eventTarget:T) => Record<string, string>
     redrop?:RedropPolicy
 
-    extract?:Dictionary<string>
+    extract?:Record<string, string>
     uniqueEndpoint?:boolean
 
     /**

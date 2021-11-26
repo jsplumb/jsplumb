@@ -63,6 +63,7 @@ export declare class LightweightRouter<T extends {
     computePath(connection: Connection<any>, timestamp: string): void;
     getEndpointLocation(endpoint: Endpoint<any>, params: AnchorComputeParams): AnchorPlacement;
     getEndpointOrientation(ep: Endpoint<any>): [number, number];
+    setAnchorOrientation(anchor: LightweightAnchor, orientation: Orientation): void;
     isDynamicAnchor(ep: Endpoint<any>): boolean;
     isFloating(ep: Endpoint<any>): boolean;
     prepareAnchor(endpoint: Endpoint<any>, params: AnchorSpec | Array<AnchorSpec>): LightweightAnchor;

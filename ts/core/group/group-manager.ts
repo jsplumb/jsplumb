@@ -8,7 +8,7 @@ import { JsPlumbInstance, jsPlumbElement } from "../core"
 
 import {UIGroup, GroupOptions, UINode} from "./group"
 import * as Constants from "../constants"
-import {PointXY, removeWithFunction, Dictionary, suggest, forEach, isString} from "@jsplumb/util"
+import {PointXY, removeWithFunction, suggest, forEach, isString} from "@jsplumb/util"
 import { WILDCARD } from "@jsplumb/common"
 import {Connection} from "../connector/connection-impl"
 import {ConnectionSelection} from "../selection/connection-selection"
@@ -42,9 +42,9 @@ export interface AddGroupOptions<E> extends GroupOptions {
 
 export class GroupManager<E> {
 
-    groupMap:Dictionary<UIGroup<E>> = {}
-    _connectionSourceMap:Dictionary<UIGroup<E>> = {}
-    _connectionTargetMap:Dictionary<UIGroup<E>> = {}
+    groupMap:Record<string, UIGroup<E>> = {}
+    _connectionSourceMap:Record<string, UIGroup<E>> = {}
+    _connectionTargetMap:Record<string, UIGroup<E>> = {}
 
     constructor(public instance:JsPlumbInstance) {
 
@@ -207,10 +207,10 @@ export class GroupManager<E> {
         return g
     }
 
-    removeGroup(group:string | UIGroup<E>, deleteMembers?:boolean, manipulateView?:boolean, doNotFireEvent?:boolean):Dictionary<PointXY> {
+    removeGroup(group:string | UIGroup<E>, deleteMembers?:boolean, manipulateView?:boolean, doNotFireEvent?:boolean):Record<string, PointXY> {
         let actualGroup = this.getGroup(group)
         this.expandGroup(actualGroup, true) // this reinstates any original connections and removes all proxies, but does not fire an event.
-        let newPositions:Dictionary<PointXY> = {}
+        let newPositions:Record<string, PointXY> = {}
         // remove `group` from child nodes
         forEach(actualGroup.children,(uiNode:UINode<E>) => {
             const entry = this.instance.getManagedElements()[this.instance.getId(uiNode.el)]

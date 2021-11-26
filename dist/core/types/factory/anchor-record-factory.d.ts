@@ -102,6 +102,7 @@ export declare class LightweightFloatingAnchor implements LightweightAnchor {
     orientation: Orientation;
     size: Size;
     constructor(instance: JsPlumbInstance, element: any);
+    private _updateOrientationInRouter;
     /**
      * notification the endpoint associated with this anchor is hovering
      * over another anchor; we want to assume that anchor's orientation

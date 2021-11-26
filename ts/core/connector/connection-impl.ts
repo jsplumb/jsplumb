@@ -6,7 +6,7 @@ import {AbstractConnector} from "./abstract-connector"
 import {Endpoint} from "../endpoint/endpoint"
 
 import {Component} from "../component/component"
-import {extend, isString, merge, uuid, Merge, Dictionary, isObject} from "@jsplumb/util"
+import {extend, isString, merge, uuid, Merge, isObject} from "@jsplumb/util"
 import {Overlay} from "../overlay/overlay"
 import {makeLightweightAnchorFromSpec} from "../factory/anchor-record-factory"
 
@@ -579,7 +579,7 @@ export class Connection<E = any> extends Component {
             this.addClass(previousClasses)
 
             if (previous != null) {
-                let o:Dictionary<Overlay> = this.getOverlays()
+                let o:Record<string, Overlay> = this.getOverlays()
                 for (let i in o) {
                     this.instance.reattachOverlay(o[i], this)
                 }

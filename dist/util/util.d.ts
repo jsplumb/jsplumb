@@ -21,7 +21,7 @@ export declare function add(p1: PointXY, p2: PointXY): PointXY;
  * @param insertAtStart
  * @internal
  */
-export declare function addToDictionary<T>(map: Dictionary<Array<T>>, key: string, value: any, insertAtStart?: boolean): Array<any>;
+export declare function addToDictionary<T>(map: Record<string, Array<T>>, key: string, value: any, insertAtStart?: boolean): Array<any>;
 
 /**
  * Add an item to a list that is stored inside some map. This method is used internally.
@@ -79,15 +79,6 @@ export declare function clone(a: any): any;
 export declare type Constructable<T> = {
     new (...args: any[]): T;
 };
-
-/**
- * Simple definition of a map.  This construct is being replaced across the codebase with `Record<string, T>` and also `Map<..>`
- * @public
- * @deprecated
- */
-export declare interface Dictionary<T> {
-    [Key: string]: T;
-}
 
 /**
  * Iterates through the given `obj` and applies the given function. if `obj` is not ArrayLike then the function is
@@ -732,6 +723,11 @@ export declare interface Size {
  */
 export declare function snapToGrid(pos: PointXY, grid: Grid, thresholdX?: number, thresholdY?: number): PointXY;
 
+/**
+ * Simple definition of a map.  This construct is being replaced across the codebase with `Record<string, T>` and also `Map<..>`
+ * @public
+ * @deprecated
+ */
 /**
  * Defines a function that can be used to sort an array.
  * @internal

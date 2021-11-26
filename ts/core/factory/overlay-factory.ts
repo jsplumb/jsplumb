@@ -1,8 +1,8 @@
 import {Overlay} from '../overlay/overlay'
-import { Constructable, Dictionary } from '@jsplumb/util'
+import { Constructable} from '@jsplumb/util'
 import { JsPlumbInstance } from "../core"
 import {Component} from '../component/component'
-const overlayMap:Dictionary<Constructable<Overlay>> = {}
+const overlayMap:Record<string, Constructable<Overlay>> = {}
 
 export const OverlayFactory = {
     get:(instance:JsPlumbInstance, name:string, component:Component, params:any):Overlay => {

@@ -1,4 +1,4 @@
-import { Dictionary, PointXY, Size, Grid } from '@jsplumb/util';
+import { PointXY, Size, Grid } from '@jsplumb/util';
 import { EventManager } from "./event-manager";
 import { jsPlumbDOMElement } from './element-facade';
 import { BrowserJsPlumbInstance } from "./browser-jsplumb-instance";
@@ -78,7 +78,7 @@ export interface DragParams extends DragHandlerOptions {
     multipleDrop?: boolean;
     canDrag?: Function;
     consumeFilteredEvents?: boolean;
-    events?: Dictionary<Function>;
+    events?: Record<string, Function>;
     parent?: any;
     ignoreZoom?: boolean;
     scope?: string;
@@ -116,7 +116,7 @@ export declare class Drag extends Base {
     private _consumeFilteredEvents;
     private _parent;
     private _ignoreZoom;
-    _filters: Dictionary<[Function, boolean]>;
+    _filters: Record<string, [Function, boolean]>;
     _constrainRect: {
         w: number;
         h: number;
@@ -125,7 +125,7 @@ export declare class Drag extends Base {
     downListener: (e: MouseEvent) => void;
     moveListener: (e: MouseEvent) => void;
     upListener: (e?: MouseEvent) => void;
-    listeners: Dictionary<Array<Function>>;
+    listeners: Record<string, Array<Function>>;
     constructor(el: jsPlumbDOMElement, params: DragParams, k: Collicat);
     on(evt: string, fn: Function): void;
     off(evt: string, fn: Function): void;
@@ -158,7 +158,7 @@ export declare type ConstrainFunction = (desiredLoc: PointXY, dragEl: HTMLElemen
 export declare type RevertFunction = (dragEl: HTMLElement, pos: PointXY) => boolean;
 export interface CollicatOptions {
     zoom?: number;
-    css?: Dictionary<string>;
+    css?: Record<string, string>;
     inputFilterSelector?: string;
 }
 export interface jsPlumbDragManager {
@@ -172,7 +172,7 @@ export interface jsPlumbDragManager {
 export declare class Collicat implements jsPlumbDragManager {
     eventManager: EventManager;
     private zoom;
-    css: Dictionary<string>;
+    css: Record<string, string>;
     inputFilterSelector: string;
     constructor(options?: CollicatOptions);
     getZoom(): number;

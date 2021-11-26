@@ -1,7 +1,7 @@
 
 import {JsPlumbInstance} from "../core"
 import {Component} from "../component/component"
-import {Dictionary, isString, uuid, EventGenerator} from "@jsplumb/util"
+import {isString, uuid, EventGenerator} from "@jsplumb/util"
 import {OverlaySpec, FullOverlaySpec, OverlayOptions} from "@jsplumb/common"
 
 
@@ -38,7 +38,7 @@ export abstract class Overlay extends EventGenerator {
     visible:boolean = true
     location: number | Array<number>
 
-    events?:Dictionary<(value:any, event?:any)=>any>
+    events?:Record<string, (value:any, event?:any)=>any>
 
     constructor(public instance:JsPlumbInstance, public component:Component, p:OverlayOptions) {
         super()

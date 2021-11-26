@@ -1,4 +1,3 @@
-import { Dictionary } from "@jsplumb/util";
 import { Component } from "@jsplumb/core";
 import { PaintStyle } from './paint-style';
 /**
@@ -8,7 +7,7 @@ export interface OverlayOptions extends Record<string, any> {
     id?: string;
     cssClass?: string;
     location?: number | number[];
-    events?: Dictionary<(value: any, event?: any) => any>;
+    events?: Record<string, (value: any, event?: any) => any>;
 }
 /**
  * @public

@@ -1,6 +1,6 @@
 import { JsPlumbInstance } from "../core";
 import { UIGroup, GroupOptions } from "./group";
-import { PointXY, Dictionary } from "@jsplumb/util";
+import { PointXY } from "@jsplumb/util";
 export interface GroupCollapsedParams<E> {
     group: UIGroup<E>;
 }
@@ -13,16 +13,16 @@ export interface AddGroupOptions<E> extends GroupOptions {
 }
 export declare class GroupManager<E> {
     instance: JsPlumbInstance;
-    groupMap: Dictionary<UIGroup<E>>;
-    _connectionSourceMap: Dictionary<UIGroup<E>>;
-    _connectionTargetMap: Dictionary<UIGroup<E>>;
+    groupMap: Record<string, UIGroup<E>>;
+    _connectionSourceMap: Record<string, UIGroup<E>>;
+    _connectionTargetMap: Record<string, UIGroup<E>>;
     constructor(instance: JsPlumbInstance);
     private _cleanupDetachedConnection;
     addGroup(params: AddGroupOptions<E>): UIGroup<E>;
     getGroup(groupId: string | UIGroup<E>): UIGroup<E>;
     getGroupFor(el: E): UIGroup<E>;
     getGroups(): Array<UIGroup<E>>;
-    removeGroup(group: string | UIGroup<E>, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): Dictionary<PointXY>;
+    removeGroup(group: string | UIGroup<E>, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): Record<string, PointXY>;
     removeAllGroups(deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): void;
     forEach(f: (g: UIGroup<E>) => any): void;
     orphan(el: E, doNotTransferToAncestor: boolean): {

@@ -1,7 +1,6 @@
 import { PaintStyle, OverlaySpec } from '@jsplumb/common';
 import { Component } from "../component/component";
 import { JsPlumbInstance } from "../core";
-import { Dictionary } from "@jsplumb/util";
 export declare class SelectionBase<T extends Component> {
     protected instance: JsPlumbInstance;
     protected entries: Array<T>;
@@ -24,7 +23,7 @@ export declare class SelectionBase<T extends Component> {
     setHoverPaintStyle(style: PaintStyle): SelectionBase<T>;
     setSuspendEvents(suspend: boolean): SelectionBase<T>;
     setParameter(name: string, value: string): SelectionBase<T>;
-    setParameters(p: Dictionary<string>): SelectionBase<T>;
+    setParameters(p: Record<string, string>): SelectionBase<T>;
     setVisible(v: boolean): SelectionBase<T>;
     addType(name: string): SelectionBase<T>;
     toggleType(name: string): SelectionBase<T>;

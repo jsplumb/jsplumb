@@ -1,9 +1,9 @@
 import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
 import {jsPlumbDOMElement} from './element-facade'
 import {EVENT_REVERT} from './constants'
-import {EVENT_ZOOM} from "@jsplumb/core"
+import {EVENT_ZOOM, Face} from "@jsplumb/core"
 
-import {BoundingBox, Dictionary, extend, forEach, getWithFunction, PointXY, Size, wrap} from '@jsplumb/util'
+import {BoundingBox, extend, forEach, getWithFunction, PointXY, Size, wrap} from '@jsplumb/util'
 
 import {
     BeforeStartEventParams,
@@ -60,11 +60,11 @@ export class DragManager {
     private collicat:Collicat
     private drag:Drag
 
-    _draggables:Dictionary<any> = {}
+    _draggables:Record<string, any> = {}
     _dlist:Array<any> = []
-    _elementsWithEndpoints:Dictionary<any> = {}
+    _elementsWithEndpoints:Record<string, any> = {}
     // elementids mapped to the draggable to which they belong.
-    _draggablesForElements:Dictionary<any> = {}
+    _draggablesForElements:Record<string, any> = {}
 
     handlers:Array<{handler:DragHandler, options:DragHandlerOptions}> = []
 

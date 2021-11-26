@@ -1,7 +1,6 @@
 import { jsPlumbDOMElement, BrowserJsPlumbInstance } from "@jsplumb/browser-ui";
 import { Endpoint, Connection } from '@jsplumb/core';
 import { AnchorSpec, EndpointSpec } from "@jsplumb/common";
-import { Dictionary } from "@jsplumb/util";
 import { SupportedEdge } from './constants';
 export interface ListManagerOptions {
 }
@@ -41,7 +40,7 @@ export declare class JsPlumbListManager {
     private instance;
     options: ListManagerOptions;
     count: number;
-    lists: Dictionary<JsPlumbList>;
+    lists: Record<string, JsPlumbList>;
     constructor(instance: BrowserJsPlumbInstance, params?: ListManagerOptions);
     /**
      * Configure the given element as a scrollable list.

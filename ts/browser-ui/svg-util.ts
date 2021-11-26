@@ -1,8 +1,7 @@
 
-
 import {createElementNS} from './browser-util'
 import {NONE} from "@jsplumb/core"
-import { Dictionary, forEach } from "@jsplumb/util"
+import { forEach } from "@jsplumb/util"
 
 const svgAttributeMap = {
         "stroke-linejoin": "stroke-linejoin",
@@ -19,7 +18,7 @@ export const LINE_WIDTH = "strokeWidth"
 export const ELEMENT_SVG = "svg"
 export const ELEMENT_PATH = "path"
 
-export type ElementAttributes = Dictionary<string | number>
+export type ElementAttributes = Record<string, string | number>
 
 const ns = {
     svg: "http://www.w3.org/2000/svg"

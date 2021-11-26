@@ -1,6 +1,6 @@
 import { JsPlumbInstance } from "../core";
 import { Component } from "../component/component";
-import { Dictionary, EventGenerator } from "@jsplumb/util";
+import { EventGenerator } from "@jsplumb/util";
 import { OverlaySpec, FullOverlaySpec, OverlayOptions } from "@jsplumb/common";
 /**
  * Returns whether or not the given overlay spec is a 'full' overlay spec, ie. has a `type` and some `options`, or is just an overlay name.
@@ -20,7 +20,7 @@ export declare abstract class Overlay extends EventGenerator {
     cssClass: string;
     visible: boolean;
     location: number | Array<number>;
-    events?: Dictionary<(value: any, event?: any) => any>;
+    events?: Record<string, (value: any, event?: any) => any>;
     constructor(instance: JsPlumbInstance, component: Component, p: OverlayOptions);
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
     setVisible(v: boolean): void;

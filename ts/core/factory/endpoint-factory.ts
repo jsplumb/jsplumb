@@ -1,12 +1,12 @@
 import {EndpointRepresentation} from "../endpoint/endpoints"
 import {Endpoint} from "../endpoint/endpoint"
 import {Orientation} from "../factory/anchor-record-factory"
-import {Constructable, Dictionary, log} from "@jsplumb/util"
+import {Constructable, log} from "@jsplumb/util"
 import {AnchorPlacement} from "@jsplumb/common"
 
-const endpointMap:Dictionary<Constructable<EndpointRepresentation<any>>> = {}
-const endpointComputers:Dictionary<EndpointComputeFunction<any>> = {}
-const handlers:Dictionary<EndpointHandler<any, any>> = {}
+const endpointMap:Record<string, Constructable<EndpointRepresentation<any>>> = {}
+const endpointComputers:Record<string, EndpointComputeFunction<any>> = {}
+const handlers:Record<string, EndpointHandler<any, any>> = {}
 
 export type EndpointComputeFunction<T> = (endpoint:EndpointRepresentation<T>, anchorPoint:AnchorPlacement, orientation:Orientation, endpointStyle:any) => T
 

@@ -20,14 +20,13 @@ import {
     UIGroup,
     SELECTOR_MANAGED_ELEMENT,
     ATTRIBUTE_NOT_DRAGGABLE,
-    CLASS_OVERLAY, cls
+    CLASS_OVERLAY, cls, Face
 } from "@jsplumb/core"
 
 import { FALSE } from "@jsplumb/common"
 
 import {
     BoundingBox,
-    Dictionary,
     isString,
     forEach,
     getFromSetWithFunction,
@@ -126,8 +125,8 @@ export class ElementDragHandler implements DragHandler {
     protected _intersectingGroups:Array<IntersectingGroup> = []
     private _currentDragParentGroup:UIGroup<Element> = null
 
-    private _dragGroupByElementIdMap:Dictionary<DragGroup> = {}
-    private _dragGroupMap:Dictionary<DragGroup> = {}
+    private _dragGroupByElementIdMap:Record<string, DragGroup> = {}
+    private _dragGroupMap:Record<string, DragGroup> = {}
 
     private _currentDragGroup:DragGroup = null
     private _currentDragGroupOffsets:Map<string, [PointXY, jsPlumbDOMElement]> = new Map()

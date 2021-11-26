@@ -2,7 +2,7 @@ import { JsPlumbDefaults } from "./defaults";
 import { Connection, ConnectionOptions } from "./connector/connection-impl";
 import { Endpoint } from "./endpoint/endpoint";
 import { RedrawResult } from "./router/router";
-import { RotatedPointXY, Rotations, PointXY, Size, Dictionary, Extents, EventGenerator } from "@jsplumb/util";
+import { RotatedPointXY, Rotations, PointXY, Size, Extents, EventGenerator } from "@jsplumb/util";
 import { UpdateOffsetOptions, ConnectParams } from "./params";
 import { SourceDefinition, BehaviouralTypeDescriptor, // <--
 TypeDescriptor, ConnectionTypeDescriptor, EndpointTypeDescriptor } from './type-descriptors';
@@ -93,7 +93,7 @@ export declare abstract class JsPlumbInstance<T extends {
     endpointAnchorClassPrefix: string;
     overlayClass: string;
     readonly connections: Array<Connection>;
-    endpointsByElement: Dictionary<Array<Endpoint>>;
+    endpointsByElement: Record<string, Array<Endpoint>>;
     private readonly endpointsByUUID;
     sourceSelectors: Array<SourceSelector>;
     targetSelectors: Array<TargetSelector>;
@@ -105,7 +105,7 @@ export declare abstract class JsPlumbInstance<T extends {
     private _connectionTypes;
     private _endpointTypes;
     private _container;
-    protected _managedElements: Dictionary<ManagedElement<T["E"]>>;
+    protected _managedElements: Record<string, ManagedElement<T["E"]>>;
     private DEFAULT_SCOPE;
     readonly defaultScope: string;
     private _zoom;
@@ -125,7 +125,7 @@ export declare abstract class JsPlumbInstance<T extends {
     _idstamp(): string;
     checkCondition<RetVal>(conditionName: string, args?: any): RetVal;
     getId(element: T["E"], uuid?: string): string;
-    getConnections(options?: SelectOptions<T["E"]>, flat?: boolean): Dictionary<Connection> | Array<Connection>;
+    getConnections(options?: SelectOptions<T["E"]>, flat?: boolean): Record<string, Connection> | Array<Connection>;
     select(params?: SelectOptions<T["E"]>): ConnectionSelection;
     selectEndpoints(params?: SelectEndpointOptions<T["E"]>): EndpointSelection;
     setContainer(c: T["E"]): void;
@@ -214,6 +214,7 @@ export declare abstract class JsPlumbInstance<T extends {
      * Stops managing the given element.
      * @param el - Element, or ID of the element to stop managing.
      * @param removeElement - If true, also remove the element from the renderer.
+     * @public
      */
     unmanage(el: T["E"], removeElement?: boolean): void;
     /**
@@ -331,11 +332,13 @@ export declare abstract class JsPlumbInstance<T extends {
     /**
      * Clears all endpoints and connections from the instance of jsplumb. Does not also clear out event listeners, selectors, or
      * connection/endpoint types - for that, use `destroy()`.
+     * @public
      */
     reset(): void;
     /**
      * Clears the instance and unbinds any listeners on the instance. After you call this method you cannot use this
      * instance of jsPlumb again.
+     * @public
      */
     destroy(): void;
     /**
@@ -390,22 +393,25 @@ export declare abstract class JsPlumbInstance<T extends {
     protected _createSourceDefinition(params?: BehaviouralTypeDescriptor, referenceParams?: BehaviouralTypeDescriptor): SourceDefinition;
     /**
      * Registers a selector for connection drag on the instance. This is a newer version of the `makeSource` functionality
-     * that has been in jsPlumb since the early days. With this approach, rather than calling `makeSource` on every element, you
+     * that had been in jsPlumb since the early days (and which, in 5.x, has been removed). With this approach, rather than calling `makeSource` on every element, you
      * can register a CSS selector on the instance that identifies something that is common to your elements. This will only respond to
-     * mouse events on elements that are managed by the instance.
+     * mouse/touch events on elements that are managed by the instance.
      * @param selector - CSS3 selector identifying child element(s) of some managed element that should act as a connection source.
      * @param params - Options for the source: connector type, behaviour, etc.
      * @param exclude - If true, the selector defines an 'exclusion': anything _except_ elements that match this.
+     * @public
      */
     addSourceSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): SourceSelector;
     /**
      * Unregister the given source selector.
      * @param selector
+     * @public
      */
     removeSourceSelector(selector: SourceSelector): void;
     /**
      * Unregister the given target selector.
      * @param selector
+     * @public
      */
     removeTargetSelector(selector: TargetSelector): void;
     /**
@@ -416,6 +422,7 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param selector - CSS3 selector identifying child element(s) of some managed element that should act as a connection target.
      * @param params - Options for the target
      * @param exclude - If true, the selector defines an 'exclusion': anything _except_ elements that match this.
+     * @public
      */
     addTargetSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): TargetSelector;
     private _createTargetDefinition;
@@ -428,15 +435,15 @@ export declare abstract class JsPlumbInstance<T extends {
     toggleVisible(el: T["E"], changeEndpoints?: boolean): void;
     private _operation;
     registerConnectionType(id: string, type: ConnectionTypeDescriptor): void;
-    registerConnectionTypes(types: Dictionary<ConnectionTypeDescriptor>): void;
+    registerConnectionTypes(types: Record<string, ConnectionTypeDescriptor>): void;
     registerEndpointType(id: string, type: EndpointTypeDescriptor): void;
-    registerEndpointTypes(types: Dictionary<EndpointTypeDescriptor>): void;
+    registerEndpointTypes(types: Record<string, EndpointTypeDescriptor>): void;
     getType(id: string, typeDescriptor: string): TypeDescriptor;
     getConnectionType(id: string): ConnectionTypeDescriptor;
     getEndpointType(id: string): EndpointTypeDescriptor;
     importDefaults(d: JsPlumbDefaults<T["E"]>): JsPlumbInstance;
     restoreDefaults(): JsPlumbInstance;
-    getManagedElements(): Dictionary<ManagedElement<T["E"]>>;
+    getManagedElements(): Record<string, ManagedElement<T["E"]>>;
     proxyConnection(connection: Connection, index: number, proxyEl: T["E"], endpointGenerator: (c: Connection, idx: number) => EndpointSpec, anchorGenerator: (c: Connection, idx: number) => AnchorSpec): void;
     unproxyConnection(connection: Connection, index: number): void;
     sourceOrTargetChanged(originalId: string, newId: string, connection: Connection, newElement: T["E"], index: number): void;
@@ -448,7 +455,7 @@ export declare abstract class JsPlumbInstance<T extends {
     collapseGroup(group: string | UIGroup<T["E"]>): void;
     expandGroup(group: string | UIGroup<T["E"]>): void;
     toggleGroup(group: string | UIGroup<T["E"]>): void;
-    removeGroup(group: string | UIGroup<T["E"]>, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): Dictionary<PointXY>;
+    removeGroup(group: string | UIGroup<T["E"]>, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): Record<string, PointXY>;
     removeAllGroups(deleteMembers?: boolean, manipulateView?: boolean): void;
     removeFromGroup(group: string | UIGroup<T["E"]>, el: T["E"], doNotFireEvent?: boolean): void;
     paintEndpoint(endpoint: Endpoint, params: {
@@ -481,7 +488,7 @@ export declare abstract class JsPlumbInstance<T extends {
     abstract hasClass(el: T["E"], clazz: string): boolean;
     abstract setAttribute(el: T["E"], name: string, value: string): void;
     abstract getAttribute(el: T["E"], name: string): string;
-    abstract setAttributes(el: T["E"], atts: Dictionary<string>): void;
+    abstract setAttributes(el: T["E"], atts: Record<string, string>): void;
     abstract removeAttribute(el: T["E"], attName: string): void;
     abstract getSelector(ctx: string | T["E"], spec?: string): ArrayLike<T["E"]>;
     abstract getStyle(el: T["E"], prop: string): any;
@@ -504,9 +511,31 @@ export declare abstract class JsPlumbInstance<T extends {
     abstract reattachOverlay(o: Overlay, c: Component): void;
     abstract setOverlayHover(o: Overlay, hover: boolean): void;
     abstract setHover(component: Component, hover: boolean): void;
+    /**
+     * @internal
+     * @param connector
+     * @param paintStyle
+     * @param extents
+     */
     abstract paintConnector(connector: AbstractConnector, paintStyle: PaintStyle, extents?: Extents): void;
+    /**
+     * @internal
+     * @param connection
+     * @param force
+     */
     abstract destroyConnector(connection: Connection, force?: boolean): void;
+    /**
+     * @internal
+     * @param connector
+     * @param h
+     * @param doNotCascade
+     */
     abstract setConnectorHover(connector: AbstractConnector, h: boolean, doNotCascade?: boolean): void;
+    /**
+     * @internal
+     * @param connector
+     * @param clazz
+     */
     abstract addConnectorClass(connector: AbstractConnector, clazz: string): void;
     abstract removeConnectorClass(connector: AbstractConnector, clazz: string): void;
     abstract getConnectorClass(connector: AbstractConnector): string;

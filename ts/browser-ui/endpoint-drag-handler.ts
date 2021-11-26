@@ -43,7 +43,7 @@ import {
     ATTRIBUTE_SCOPE_PREFIX,
     SourceSelector, InternalEndpointOptions,
     BehaviouralTypeDescriptor,
-    createFloatingAnchor, LightweightFloatingAnchor, REDROP_POLICY_ANY
+    createFloatingAnchor, LightweightFloatingAnchor, REDROP_POLICY_ANY, Face
 } from "@jsplumb/core"
 
 import { FALSE,
@@ -59,7 +59,6 @@ import {
     Size,
     extend,
     functionChain,
-    Dictionary,
     each,
     intersects,
     addToDictionary,
@@ -139,7 +138,7 @@ export class EndpointDragHandler implements DragHandler {
     endpointDropTargets:Array<EndpointDropTarget> = []
     currentDropTarget:any = null
     payload:any
-    floatingConnections:Dictionary<Connection> = {}
+    floatingConnections:Record<string, Connection> = {}
 
     _forceReattach:boolean
     _forceDetach:boolean
@@ -795,6 +794,7 @@ export class EndpointDragHandler implements DragHandler {
                         }
 
                         this.floatingAnchor.over(newDropTarget.endpoint)
+                        this.instance.paintConnection(this.jpc)
                     } else {
                         newDropTarget = null
                     }

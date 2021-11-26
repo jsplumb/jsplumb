@@ -7,7 +7,6 @@
 import { AnchorSpec } from '@jsplumb/common';
 import { BrowserJsPlumbInstance } from '@jsplumb/browser-ui';
 import { Connection } from '@jsplumb/core';
-import { Dictionary } from '@jsplumb/util';
 import { Endpoint } from '@jsplumb/core';
 import { EndpointSpec } from '@jsplumb/common';
 import { jsPlumbDOMElement } from '@jsplumb/browser-ui';
@@ -46,7 +45,7 @@ export class JsPlumbListManager {
     findParentList(el: jsPlumbDOMElement): JsPlumbList;
     getList(el: Element): JsPlumbList;
     // (undocumented)
-    lists: Dictionary<JsPlumbList>;
+    lists: Record<string, JsPlumbList>;
     // (undocumented)
     options: ListManagerOptions;
     removeList(el: Element): void;

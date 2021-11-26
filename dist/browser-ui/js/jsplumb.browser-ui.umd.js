@@ -1363,8 +1363,6 @@
         _this._availableSelectors.push(params);
       }
       _this.k.eventManager.on(_this.el, EVENT_MOUSEDOWN, _this.downListener);
-      _this.k.eventManager.on(document, EVENT_MOUSEMOVE, _this.moveListener);
-      _this.k.eventManager.on(document, EVENT_MOUSEUP, _this.upListener);
       return _this;
     }
     _createClass(Drag, [{
@@ -1392,6 +1390,8 @@
       value: function _upListener(e) {
         if (this._downAt) {
           this._downAt = null;
+          this.k.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener);
+          this.k.eventManager.off(document, EVENT_MOUSEUP, this.upListener);
           removeClass(document.body, _classes.noSelect);
           this.unmark(e);
           this.stop(e);
@@ -1473,6 +1473,8 @@
               y: this._pagePosAtDown.y - this._posAtDown.y
             };
             this._size = _getSize(this._dragEl);
+            this.k.eventManager.on(document, EVENT_MOUSEMOVE, this.moveListener);
+            this.k.eventManager.on(document, EVENT_MOUSEUP, this.upListener);
             addClass(document.body, _classes.noSelect);
             this._dispatch(EVENT_BEFORE_START, {
               el: this.el,
@@ -3263,6 +3265,7 @@
                   newDropTarget.endpoint.endpoint.addClass(this.instance.endpointDropForbiddenClass);
                 }
                 this.floatingAnchor.over(newDropTarget.endpoint);
+                this.instance.paintConnection(this.jpc);
               } else {
                 newDropTarget = null;
               }
@@ -4056,7 +4059,8 @@
       _this.managedElementsSelector = defaults ? defaults.managedElementsSelector || core.SELECTOR_MANAGED_ELEMENT : core.SELECTOR_MANAGED_ELEMENT;
       _this.eventManager = new EventManager();
       _this.dragSelection = new DragSelection(_assertThisInitialized(_this));
-      _this.dragManager = new DragManager(_assertThisInitialized(_this), _this.dragSelection, defaults && defaults.dragOptions ? defaults.dragOptions : null);
+      _this.dragManager = new DragManager(_assertThisInitialized(_this), _this.dragSelection
+      );
       _this.dragManager.addHandler(new EndpointDragHandler(_assertThisInitialized(_this)));
       _this.groupDragOptions = {
         constrainFunction: groupDragConstrain
@@ -4065,8 +4069,11 @@
       _this.elementDragHandler = new ElementDragHandler(_assertThisInitialized(_this), _this.dragSelection);
       _this.elementDragOptions = defaults && defaults.dragOptions || {};
       _this.dragManager.addHandler(_this.elementDragHandler, _this.elementDragOptions);
+      if (defaults && defaults.dragOptions && defaults.dragOptions.filter) {
+        _this.dragManager.addFilter(defaults.dragOptions.filter);
+      }
       var _connClick = function _connClick(event, e) {
-        if (!e.defaultPrevented) {
+        if (!e.defaultPrevented && e._jsPlumbOverlay == null) {
           var connectorElement = findParent(getEventSource(e), SELECTOR_CONNECTOR, this.getContainer(), true);
           this.fire(event, connectorElement.jtk.connector.connection, e);
         }
@@ -4099,7 +4106,7 @@
         }
       }.bind(_assertThisInitialized(_this));
       var _epClick = function _epClick(event, e, endpointElement) {
-        if (!e.defaultPrevented) {
+        if (!e.defaultPrevented && e._jsPlumbOverlay == null) {
           this.fire(event, endpointElement.jtk.endpoint, e);
         }
       };
@@ -4123,7 +4130,6 @@
       _this._endpointMouseup = _endpointMouseupdown.bind(_assertThisInitialized(_this), true);
       _this._endpointMousedown = _endpointMouseupdown.bind(_assertThisInitialized(_this), false);
       var _oClick = function (method, e) {
-        consume(e);
         var overlayElement = findParent(getEventSource(e), SELECTOR_OVERLAY, this.getContainer(), true);
         var overlay = overlayElement.jtk.overlay;
         if (overlay) {
@@ -4185,7 +4191,9 @@
       key: "fireOverlayMethod",
       value: function fireOverlayMethod(overlay, event, e) {
         var stem = overlay.component instanceof core.Connection ? CONNECTION : ENDPOINT;
-        var mappedEvent = compoundEvent(stem, event);
+        var mappedEvent = compoundEvent(stem, event)
+        ;
+        e._jsPlumbOverlay = overlay;
         overlay.fire(event, {
           e: e,
           overlay: overlay
@@ -4718,7 +4726,6 @@
     }, {
       key: "setOverlayHover",
       value: function setOverlayHover(o, hover) {
-        var method = hover ? "addClass" : "removeClass";
         var canvas;
         if (core.isLabelOverlay(o)) {
           canvas = getLabelElement(o);
@@ -4729,7 +4736,11 @@
         }
         if (canvas != null) {
           if (this.hoverClass != null) {
-            this[method](canvas, this.hoverClass);
+            if (hover) {
+              this.addClass(canvas, this.hoverClass);
+            } else {
+              this.removeClass(canvas, this.hoverClass);
+            }
           }
           this.setHover(o.component, hover);
         }
@@ -4848,25 +4859,32 @@
       }
     }, {
       key: "setConnectorHover",
-      value: function setConnectorHover(connector, h, doNotCascade) {
-        if (h === false || !this.currentlyDragging && !this.isHoverSuspended()) {
-          var method = h ? "addClass" : "removeClass";
+      value: function setConnectorHover(connector, hover, doNotCascade) {
+        if (hover === false || !this.currentlyDragging && !this.isHoverSuspended()) {
           var canvas = connector.canvas;
           if (canvas != null) {
             if (connector.hoverClass != null) {
-              this[method](canvas, connector.hoverClass);
+              if (hover) {
+                this.addClass(canvas, connector.hoverClass);
+              } else {
+                this.removeClass(canvas, connector.hoverClass);
+              }
             }
-            this[method](canvas, this.hoverClass);
+            if (hover) {
+              this.addClass(canvas, this.hoverClass);
+            } else {
+              this.removeClass(canvas, this.hoverClass);
+            }
           }
           if (connector.connection.hoverPaintStyle != null) {
-            connector.connection.paintStyleInUse = h ? connector.connection.hoverPaintStyle : connector.connection.paintStyle;
+            connector.connection.paintStyleInUse = hover ? connector.connection.hoverPaintStyle : connector.connection.paintStyle;
             if (!this._suspendDrawing) {
               this.paintConnection(connector.connection);
             }
           }
           if (!doNotCascade) {
-            this.setEndpointHover(connector.connection.endpoints[0], h, true);
-            this.setEndpointHover(connector.connection.endpoints[1], h, true);
+            this.setEndpointHover(connector.connection.endpoints[0], hover, true);
+            this.setEndpointHover(connector.connection.endpoints[1], hover, true);
           }
         }
       }
@@ -4969,24 +4987,27 @@
       }
     }, {
       key: "setEndpointHover",
-      value: function setEndpointHover(endpoint, h, doNotCascade) {
-        if (endpoint != null && (h === false || !this.currentlyDragging && !this.isHoverSuspended())) {
-          var method = h ? "addClass" : "removeClass";
+      value: function setEndpointHover(endpoint, hover, doNotCascade) {
+        if (endpoint != null && (hover === false || !this.currentlyDragging && !this.isHoverSuspended())) {
           var canvas = getEndpointCanvas(endpoint.endpoint);
           if (canvas != null) {
             if (endpoint.hoverClass != null) {
-              this[method](canvas, endpoint.hoverClass);
+              if (hover) {
+                this.addClass(canvas, endpoint.hoverClass);
+              } else {
+                this.removeClass(canvas, endpoint.hoverClass);
+              }
             }
           }
           if (endpoint.hoverPaintStyle != null) {
-            endpoint.paintStyleInUse = h ? endpoint.hoverPaintStyle : endpoint.paintStyle;
+            endpoint.paintStyleInUse = hover ? endpoint.hoverPaintStyle : endpoint.paintStyle;
             if (!this._suspendDrawing) {
               this.renderEndpoint(endpoint, endpoint.paintStyleInUse);
             }
           }
           if (!doNotCascade) {
             for (var i = 0; i < endpoint.connections.length; i++) {
-              this.setConnectorHover(endpoint.connections[i].connector, h, true);
+              this.setConnectorHover(endpoint.connections[i].connector, hover, true);
             }
           }
         }

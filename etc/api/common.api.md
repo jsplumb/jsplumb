@@ -6,7 +6,6 @@
 
 import { BoundingBox } from '@jsplumb/util';
 import { Component } from '@jsplumb/core';
-import { Dictionary } from '@jsplumb/util';
 import { Extents } from '@jsplumb/util';
 import { PointXY } from '@jsplumb/util';
 
@@ -218,7 +217,7 @@ export interface OverlayOptions extends Record<string, any> {
     // (undocumented)
     cssClass?: string;
     // (undocumented)
-    events?: Dictionary<(value: any, event?: any) => any>;
+    events?: Record<string, (value: any, event?: any) => any>;
     // (undocumented)
     id?: string;
     // (undocumented)

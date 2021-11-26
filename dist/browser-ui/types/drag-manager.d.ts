@@ -1,5 +1,4 @@
 import { BrowserJsPlumbInstance } from "./browser-jsplumb-instance";
-import { Dictionary } from '@jsplumb/util';
 import { BeforeStartEventParams, Drag, DragEventParams, DragHandlerOptions, DragStartEventParams, DragStopEventParams, GhostProxyGenerator } from "./collicat";
 import { DragSelection } from "./drag-selection";
 export declare const CLASS_DELEGATED_DRAGGABLE = "jtk-delegated-draggable";
@@ -32,10 +31,10 @@ export declare class DragManager {
     protected dragSelection: DragSelection;
     private collicat;
     private drag;
-    _draggables: Dictionary<any>;
+    _draggables: Record<string, any>;
     _dlist: Array<any>;
-    _elementsWithEndpoints: Dictionary<any>;
-    _draggablesForElements: Dictionary<any>;
+    _elementsWithEndpoints: Record<string, any>;
+    _draggablesForElements: Record<string, any>;
     handlers: Array<{
         handler: DragHandler;
         options: DragHandlerOptions;

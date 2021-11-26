@@ -1,8 +1,8 @@
 import {AbstractConnector} from "./abstract-connector"
-import {Constructable, Dictionary} from "@jsplumb/util"
+import {Constructable} from "@jsplumb/util"
 import {Connection} from "./connection-impl"
 
-const connectorMap:Dictionary<Constructable<AbstractConnector>> = {}
+const connectorMap:Record<string, Constructable<AbstractConnector>> = {}
 
 export const Connectors = {
     get:(connection:Connection, name:string, params:any):AbstractConnector => {

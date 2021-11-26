@@ -1,3 +1,5 @@
+import {Face} from "@jsplumb/core"
+
 /**
  * Internal method used to filter lists, supporting wildcards.
  * @param list
@@ -697,7 +699,7 @@ export function addWithFunction<T>(list: Array<T>, item: T, hashFunction: (_a: T
  * @param insertAtStart
  * @internal
  */
-export function addToDictionary<T>(map: Dictionary<Array<T>>, key: string, value: any, insertAtStart?: boolean): Array<any> {
+export function addToDictionary<T>(map: Record<string, Array<T>>, key: string, value: any, insertAtStart?: boolean): Array<any> {
     let l = map[key]
     if (l == null) {
         l = []
@@ -983,15 +985,6 @@ export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
  * @internal
  */
 export type Merge<M, N> = Omit<M, Extract<keyof M, keyof N>> & N;
-
-/**
- * Simple definition of a map.  This construct is being replaced across the codebase with `Record<string, T>` and also `Map<..>`
- * @public
- * @deprecated
- */
-export interface Dictionary<T> {
-    [Key: string]: T
-}
 
 /**
  * Defines a function that can be used to sort an array.

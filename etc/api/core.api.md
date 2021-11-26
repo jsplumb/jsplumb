@@ -14,7 +14,6 @@ import { ConnectorOptions } from '@jsplumb/common';
 import { ConnectorSpec } from '@jsplumb/common';
 import { Constructable } from '@jsplumb/util';
 import { CustomOverlayOptions } from '@jsplumb/common';
-import { Dictionary } from '@jsplumb/util';
 import { DotEndpointParams } from '@jsplumb/common';
 import { EndpointRepresentationParams } from '@jsplumb/common';
 import { EndpointSpec } from '@jsplumb/common';
@@ -373,9 +372,9 @@ export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescript
     // (undocumented)
     edgeType?: string;
     // (undocumented)
-    extract?: Dictionary<string>;
+    extract?: Record<string, string>;
     onMaxConnections?: (value: any, event?: any) => any;
-    parameterExtractor?: (el: T, eventTarget: T) => Dictionary<string>;
+    parameterExtractor?: (el: T, eventTarget: T) => Record<string, string>;
     parentSelector?: string;
     // (undocumented)
     portId?: string;
@@ -521,7 +520,7 @@ export abstract class Component extends EventGenerator {
     getLabelOverlay(): LabelOverlay;
     getOverlay<T extends Overlay>(id: string): T;
     // (undocumented)
-    getOverlays(): Dictionary<Overlay>;
+    getOverlays(): Record<string, Overlay>;
     // (undocumented)
     getPaintStyle(): PaintStyle;
     // (undocumented)
@@ -563,11 +562,11 @@ export abstract class Component extends EventGenerator {
     // (undocumented)
     mergeParameters(p: ComponentParameters): void;
     // (undocumented)
-    overlayPlacements: Dictionary<Extents>;
+    overlayPlacements: Record<string, Extents>;
     // (undocumented)
-    overlayPositions: Dictionary<PointXY>;
+    overlayPositions: Record<string, PointXY>;
     // (undocumented)
-    overlays: Dictionary<Overlay>;
+    overlays: Record<string, Overlay>;
     // (undocumented)
     paintStyle: PaintStyle;
     // (undocumented)
@@ -575,7 +574,7 @@ export abstract class Component extends EventGenerator {
     // (undocumented)
     parameters: ComponentParameters;
     // (undocumented)
-    params: Dictionary<any>;
+    params: Record<string, any>;
     // (undocumented)
     reapplyTypes(params?: any): void;
     // (undocumented)
@@ -639,7 +638,7 @@ export interface ComponentOptions {
     // (undocumented)
     data?: any;
     // (undocumented)
-    events?: Dictionary<(value: any, event: any) => any>;
+    events?: Record<string, (value: any, event: any) => any>;
     // (undocumented)
     hoverClass?: string;
     // (undocumented)
@@ -665,7 +664,7 @@ export type ComponentParameters = Record<string, any>;
 // @internal
 export interface ComponentTypeDescriptor extends TypeDescriptorBase {
     // (undocumented)
-    overlays: Dictionary<OverlaySpec>;
+    overlays: Record<string, OverlaySpec>;
 }
 
 // @public (undocumented)
@@ -1360,9 +1359,9 @@ export class GroupManager<E> {
     // (undocumented)
     collapseGroup(group: string | UIGroup<E>): void;
     // (undocumented)
-    _connectionSourceMap: Dictionary<UIGroup<E>>;
+    _connectionSourceMap: Record<string, UIGroup<E>>;
     // (undocumented)
-    _connectionTargetMap: Dictionary<UIGroup<E>>;
+    _connectionTargetMap: Record<string, UIGroup<E>>;
     // (undocumented)
     expandGroup(group: string | UIGroup<E>, doNotFireEvent?: boolean): void;
     // (undocumented)
@@ -1378,7 +1377,7 @@ export class GroupManager<E> {
     // (undocumented)
     getGroups(): Array<UIGroup<E>>;
     // (undocumented)
-    groupMap: Dictionary<UIGroup<E>>;
+    groupMap: Record<string, UIGroup<E>>;
     // (undocumented)
     instance: JsPlumbInstance;
     isAncestor(group: UIGroup<E>, possibleAncestor: UIGroup<E>): boolean;
@@ -1394,7 +1393,7 @@ export class GroupManager<E> {
     // (undocumented)
     removeFromGroup(group: string | UIGroup<E>, doNotFireEvent: boolean, ...el: Array<E>): void;
     // (undocumented)
-    removeGroup(group: string | UIGroup<E>, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): Dictionary<PointXY>;
+    removeGroup(group: string | UIGroup<E>, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): Record<string, PointXY>;
     // (undocumented)
     repaintGroup(group: string | UIGroup<E>): void;
     // (undocumented)
@@ -1585,9 +1584,7 @@ export abstract class JsPlumbInstance<T extends {
     constructor(_instanceIndex: number, defaults?: JsPlumbDefaults<T["E"]>);
     // (undocumented)
     abstract addClass(el: T["E"] | ArrayLike<T["E"]>, clazz: string): void;
-    // Warning: (ae-incompatible-release-tags) The symbol "addConnectorClass" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
-    //
-    // (undocumented)
+    // @internal (undocumented)
     abstract addConnectorClass(connector: AbstractConnector, clazz: string): void;
     addEndpoint(el: T["E"], params?: EndpointOptions<T["E"]>, referenceParams?: EndpointOptions<T["E"]>): Endpoint;
     // (undocumented)
@@ -1652,7 +1649,7 @@ export abstract class JsPlumbInstance<T extends {
         anchors: [AnchorSpec, AnchorSpec];
     };
     destroy(): void;
-    // (undocumented)
+    // @internal (undocumented)
     abstract destroyConnector(connection: Connection, force?: boolean): void;
     // (undocumented)
     abstract destroyEndpoint(ep: Endpoint<T>): void;
@@ -1674,7 +1671,7 @@ export abstract class JsPlumbInstance<T extends {
     // (undocumented)
     endpointFullClass: string;
     // (undocumented)
-    endpointsByElement: Dictionary<Array<Endpoint>>;
+    endpointsByElement: Record<string, Array<Endpoint>>;
     // (undocumented)
     expandGroup(group: string | UIGroup<T["E"]>): void;
     // @internal
@@ -1688,7 +1685,7 @@ export abstract class JsPlumbInstance<T extends {
     // (undocumented)
     abstract getClass(el: T["E"]): string;
     // (undocumented)
-    getConnections(options?: SelectOptions<T["E"]>, flat?: boolean): Dictionary<Connection> | Array<Connection>;
+    getConnections(options?: SelectOptions<T["E"]>, flat?: boolean): Record<string, Connection> | Array<Connection>;
     // (undocumented)
     getConnectionType(id: string): ConnectionTypeDescriptor;
     // Warning: (ae-incompatible-release-tags) The symbol "getConnectorClass" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
@@ -1713,7 +1710,7 @@ export abstract class JsPlumbInstance<T extends {
     getId(element: T["E"], uuid?: string): string;
     getManagedElement(id: string): T["E"];
     // (undocumented)
-    getManagedElements(): Dictionary<ManagedElement<T["E"]>>;
+    getManagedElements(): Record<string, ManagedElement<T["E"]>>;
     // (undocumented)
     abstract getOffset(el: T["E"]): PointXY;
     // (undocumented)
@@ -1762,7 +1759,7 @@ export abstract class JsPlumbInstance<T extends {
     manage(element: T["E"], internalId?: string, _recalc?: boolean): ManagedElement<T["E"]>;
     manageAll(elements: ArrayLike<T["E"]> | string, recalc?: boolean): void;
     // (undocumented)
-    protected _managedElements: Dictionary<ManagedElement<T["E"]>>;
+    protected _managedElements: Record<string, ManagedElement<T["E"]>>;
     // @internal
     _maybePruneEndpoint(endpoint: Endpoint): boolean;
     // @internal
@@ -1777,9 +1774,7 @@ export abstract class JsPlumbInstance<T extends {
     paintConnection(connection: Connection, params?: {
         timestamp?: string;
     }): void;
-    // Warning: (ae-incompatible-release-tags) The symbol "paintConnector" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
-    //
-    // (undocumented)
+    // @internal (undocumented)
     abstract paintConnector(connector: AbstractConnector, paintStyle: PaintStyle, extents?: Extents): void;
     // (undocumented)
     paintEndpoint(endpoint: Endpoint, params: {
@@ -1801,11 +1796,11 @@ export abstract class JsPlumbInstance<T extends {
     // (undocumented)
     registerConnectionType(id: string, type: ConnectionTypeDescriptor): void;
     // (undocumented)
-    registerConnectionTypes(types: Dictionary<ConnectionTypeDescriptor>): void;
+    registerConnectionTypes(types: Record<string, ConnectionTypeDescriptor>): void;
     // (undocumented)
     registerEndpointType(id: string, type: EndpointTypeDescriptor): void;
     // (undocumented)
-    registerEndpointTypes(types: Dictionary<EndpointTypeDescriptor>): void;
+    registerEndpointTypes(types: Record<string, EndpointTypeDescriptor>): void;
     removeAllEndpoints(el: T["E"], recurse?: boolean): JsPlumbInstance;
     // (undocumented)
     removeAllGroups(deleteMembers?: boolean, manipulateView?: boolean): void;
@@ -1824,7 +1819,7 @@ export abstract class JsPlumbInstance<T extends {
     // (undocumented)
     removeFromGroup(group: string | UIGroup<T["E"]>, el: T["E"], doNotFireEvent?: boolean): void;
     // (undocumented)
-    removeGroup(group: string | UIGroup<T["E"]>, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): Dictionary<PointXY>;
+    removeGroup(group: string | UIGroup<T["E"]>, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): Record<string, PointXY>;
     // (undocumented)
     abstract removeOverlayClass(o: Overlay, clazz: string): void;
     removeSourceSelector(selector: SourceSelector): void;
@@ -1847,10 +1842,8 @@ export abstract class JsPlumbInstance<T extends {
     // (undocumented)
     abstract setAttribute(el: T["E"], name: string, value: string): void;
     // (undocumented)
-    abstract setAttributes(el: T["E"], atts: Dictionary<string>): void;
-    // Warning: (ae-incompatible-release-tags) The symbol "setConnectorHover" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
-    //
-    // (undocumented)
+    abstract setAttributes(el: T["E"], atts: Record<string, string>): void;
+    // @internal (undocumented)
     abstract setConnectorHover(connector: AbstractConnector, h: boolean, doNotCascade?: boolean): void;
     // Warning: (ae-incompatible-release-tags) The symbol "setConnectorVisible" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
     //
@@ -2084,6 +2077,8 @@ export class LightweightRouter<T extends {
     // (undocumented)
     setAnchor(endpoint: Endpoint<any>, anchor: LightweightAnchor): void;
     // (undocumented)
+    setAnchorOrientation(anchor: LightweightAnchor, orientation: Orientation): void;
+    // (undocumented)
     setConnectionAnchors(conn: Connection<any>, anchors: [LightweightAnchor, LightweightAnchor]): void;
     // @internal (undocumented)
     setCurrentFace(a: LightweightContinuousAnchor, face: Face, overrideLock?: boolean): void;
@@ -2132,7 +2127,7 @@ export abstract class Overlay extends EventGenerator {
     // (undocumented)
     cssClass: string;
     // (undocumented)
-    events?: Dictionary<(value: any, event?: any) => any>;
+    events?: Record<string, (value: any, event?: any) => any>;
     // (undocumented)
     id: string;
     // (undocumented)
@@ -2320,6 +2315,8 @@ export interface Router<T extends {
     }): boolean;
     // (undocumented)
     setAnchor(endpoint: Endpoint, anchor: A): void;
+    // (undocumented)
+    setAnchorOrientation(anchor: A, orientation: Orientation): void;
     // (undocumented)
     setConnectionAnchors(conn: Connection, anchors: [A, A]): void;
     // (undocumented)
@@ -2536,7 +2533,7 @@ export class UIGroup<E = any> extends UINode<E> {
     // (undocumented)
     orphan: boolean;
     // (undocumented)
-    orphanAll(): Dictionary<PointXY>;
+    orphanAll(): Record<string, PointXY>;
     // (undocumented)
     overrideDrop(el: any, targetGroup: UIGroup<E>): boolean;
     // (undocumented)
@@ -2696,6 +2693,6 @@ export const Y_AXIS_FACES: Axis;
 // /Users/simon/programming/jsplumb/jsplumb/dist/core/types/connector/connectors.d.ts:5:5 - (ae-incompatible-release-tags) The symbol "get" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
 // /Users/simon/programming/jsplumb/jsplumb/dist/core/types/connector/connectors.d.ts:6:5 - (ae-incompatible-release-tags) The symbol "register" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
 // /Users/simon/programming/jsplumb/jsplumb/dist/core/types/core.d.ts:68:5 - (ae-incompatible-release-tags) The symbol "viewportElement" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
-// /Users/simon/programming/jsplumb/jsplumb/dist/core/types/core.d.ts:456:9 - (ae-incompatible-release-tags) The symbol "offset" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
+// /Users/simon/programming/jsplumb/jsplumb/dist/core/types/core.d.ts:463:9 - (ae-incompatible-release-tags) The symbol "offset" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
 
 ```

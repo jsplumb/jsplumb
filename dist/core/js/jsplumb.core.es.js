@@ -1960,8 +1960,8 @@ var LightweightFloatingAnchor = function () {
     _defineProperty(this, "isContinuous", void 0);
     _defineProperty(this, "isDynamic", void 0);
     _defineProperty(this, "locations", [{
-      x: 0,
-      y: 0,
+      x: 0.5,
+      y: 0.5,
       ox: 0,
       oy: 0,
       offx: 0,
@@ -1981,11 +1981,17 @@ var LightweightFloatingAnchor = function () {
     this.size = instance.getSize(element);
   }
   _createClass(LightweightFloatingAnchor, [{
+    key: "_updateOrientationInRouter",
+    value: function _updateOrientationInRouter() {
+      this.instance.router.setAnchorOrientation(this, [this.locations[0].ox, this.locations[0].oy]);
+    }
+  }, {
     key: "over",
     value: function over(endpoint) {
       this.orientation = this.instance.router.getEndpointOrientation(endpoint);
       this.locations[0].ox = this.orientation[0];
       this.locations[0].oy = this.orientation[1];
+      this._updateOrientationInRouter();
     }
   }, {
     key: "out",
@@ -1993,6 +1999,7 @@ var LightweightFloatingAnchor = function () {
       this.orientation = null;
       this.locations[0].ox = this.locations[0].iox;
       this.locations[0].oy = this.locations[0].ioy;
+      this._updateOrientationInRouter();
     }
   }]);
   return LightweightFloatingAnchor;
@@ -2234,8 +2241,8 @@ function makeLightweightAnchorFromSpec(spec) {
         if (isString(aSpec)) {
           var a = namedValues[aSpec];
           return a != null ? extend({
-            iox: 0,
-            ioy: 0,
+            iox: a[0].ox,
+            ioy: a[0].oy,
             cls: ""
           }, a[0]) : null;
         } else if (isPrimitiveAnchorSpec(aSpec)) {
@@ -5135,6 +5142,15 @@ var LightweightRouter = function () {
     key: "getEndpointOrientation",
     value: function getEndpointOrientation(ep) {
       return ep._anchor ? this.getAnchorOrientation(ep._anchor) : [0, 0];
+    }
+  }, {
+    key: "setAnchorOrientation",
+    value: function setAnchorOrientation(anchor, orientation) {
+      var anchorLoc = this.anchorLocations.get(anchor.id);
+      if (anchorLoc != null) {
+        anchorLoc.ox = orientation[0];
+        anchorLoc.oy = orientation[1];
+      }
     }
   }, {
     key: "isDynamicAnchor",

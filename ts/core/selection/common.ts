@@ -1,7 +1,7 @@
 import { PaintStyle , OverlaySpec } from '@jsplumb/common'
 import {Component } from "../component/component"
 import { JsPlumbInstance } from "../core"
-import { Dictionary, forEach} from "@jsplumb/util"
+import { forEach} from "@jsplumb/util"
 
 export class SelectionBase<T extends Component>{
 
@@ -96,7 +96,7 @@ export class SelectionBase<T extends Component>{
         return this
     }
 
-    setParameters(p:Dictionary<string>):SelectionBase<T> {
+    setParameters(p:Record<string, string>):SelectionBase<T> {
         this.each((c:T) => c.parameters = p)
         return this
     }

@@ -29,7 +29,7 @@ import {
     RotatedPointXY,
     rotatePoint,
     uuid,
-    Dictionary, PointXY, SortFunction, Rotations, Size, lineLength
+    PointXY, SortFunction, Rotations, Size, lineLength
 } from "@jsplumb/util"
 
 import {ViewportElement} from "../viewport"
@@ -96,7 +96,7 @@ function _leftAndTopSort(a:AnchorListEntry, b:AnchorListEntry):number {
 }
 
 // used by placeAnchors
-const edgeSortFunctions:Dictionary<SortFunction<AnchorListEntry>> = {
+const edgeSortFunctions:Record<string, SortFunction<AnchorListEntry>> = {
     [TOP]: _leftAndTopSort,
     [RIGHT]: _rightAndBottomSort,
     [BOTTOM]: _rightAndBottomSort,
@@ -451,6 +451,14 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
         return ep._anchor ? this.getAnchorOrientation(ep._anchor) : [0,0]
     }
 
+    setAnchorOrientation(anchor:LightweightAnchor, orientation:Orientation):void {
+        const anchorLoc = this.anchorLocations.get(anchor.id)
+        if (anchorLoc != null) {
+            anchorLoc.ox = orientation[0]
+            anchorLoc.oy = orientation[1]
+        }
+    }
+
     // TODO this method should not need to be called. for now, a placeholder implementation, which
     // returns whether or not the endpoint is not continuous and has more than one placement
     isDynamicAnchor(ep: Endpoint<any>): boolean {
@@ -663,7 +671,7 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
         // improved face calculation. get midpoints of each face for source and target, then put in an array with all combinations of
         // source/target faces. sort this array by distance between midpoints. the entry at index 0 is our preferred option. we can
         // go through the array one by one until we find an entry in which each requested face is supported.
-        let candidates:Array<{source:Face, target:Face, dist:number}> = [], midpoints:Dictionary<{
+        let candidates:Array<{source:Face, target:Face, dist:number}> = [], midpoints:Record<string, {
                 top:PointXY,
                 left:PointXY,
                 right:PointXY,

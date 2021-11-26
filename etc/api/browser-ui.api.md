@@ -10,7 +10,6 @@ import { BoundingBox } from '@jsplumb/util';
 import { Component } from '@jsplumb/core';
 import { Connection } from '@jsplumb/core';
 import { DeleteConnectionOptions } from '@jsplumb/core';
-import { Dictionary } from '@jsplumb/util';
 import { Endpoint } from '@jsplumb/core';
 import { Extents } from '@jsplumb/util';
 import { Grid } from '@jsplumb/util';
@@ -58,25 +57,23 @@ export interface BrowserJsPlumbDefaults extends JsPlumbDefaults<Element> {
 export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     constructor(_instanceIndex: number, defaults?: BrowserJsPlumbDefaults);
     addClass(el: Element | NodeListOf<Element>, clazz: string): void;
-    // (undocumented)
+    // @internal (undocumented)
     addConnectorClass(connector: AbstractConnector, clazz: string): void;
     addDragFilter(filter: Function | string, exclude?: boolean): void;
-    // (undocumented)
+    // @internal (undocumented)
     addEndpointClass(ep: Endpoint, c: string): void;
     // (undocumented)
     addOverlayClass(o: Overlay, clazz: string): void;
     // (undocumented)
     addSourceSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): SourceSelector;
     addToDragGroup(spec: DragGroupSpec, ...els: Array<Element>): void;
-    // (undocumented)
     addToDragSelection(...el: Array<Element>): void;
-    // (undocumented)
+    // @internal (undocumented)
     _appendElement(el: Element, parent: Element): void;
-    // (undocumented)
+    // @internal (undocumented)
     applyConnectorType(connector: AbstractConnector, t: TypeDescriptor): void;
-    // (undocumented)
+    // @internal (undocumented)
     applyEndpointType<C>(ep: Endpoint, t: TypeDescriptor): void;
-    // (undocumented)
     clearDragSelection(): void;
     // (undocumented)
     _connectorClick: Function;
@@ -97,13 +94,12 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     // (undocumented)
     _connectorTap: Function;
     consume(e: Event, doNotPreventDefault?: boolean): void;
-    // (undocumented)
+    // @internal (undocumented)
     deleteConnection(connection: Connection, params?: DeleteConnectionOptions): boolean;
-    // (undocumented)
     destroy(): void;
-    // (undocumented)
+    // @internal (undocumented)
     destroyConnector(connection: Connection): void;
-    // (undocumented)
+    // @internal (undocumented)
     destroyEndpoint(ep: Endpoint): void;
     // (undocumented)
     destroyOverlay(o: Overlay): void;
@@ -152,27 +148,25 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     _endpointMouseup: Function;
     // (undocumented)
     eventManager: EventManager;
-    // (undocumented)
+    // @internal (undocumented)
     _getAssociatedElements(el: Element): Array<Element>;
-    // (undocumented)
     getAttribute(el: Element, name: string): string;
-    // (undocumented)
     getClass(el: Element): string;
-    // (undocumented)
+    // @internal (undocumented)
     getConnectorClass(connector: AbstractConnector): string;
-    // (undocumented)
+    // @internal (undocumented)
     getEndpointClass(ep: Endpoint): string;
-    // (undocumented)
+    // @internal
     getGroupContentArea(group: UIGroup<any>): ElementType["E"];
-    // (undocumented)
+    // @internal
     getOffset(el: Element): PointXY;
-    // (undocumented)
+    // @internal
     getOffsetRelativeToRoot(el: Element): PointXY;
-    // (undocumented)
+    // @internal
     getSelector(ctx: string | Element, spec?: string): ArrayLike<jsPlumbDOMElement>;
-    // (undocumented)
+    // @internal
     getSize(el: Element): Size;
-    // (undocumented)
+    // @internal
     getStyle(el: Element, prop: string): any;
     hasClass(el: Element, clazz: string): boolean;
     // (undocumented)
@@ -183,7 +177,6 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     hoverTargetClass: string;
     // (undocumented)
     _instanceIndex: number;
-    // (undocumented)
     isDraggable(el: Element): boolean;
     // (undocumented)
     managedElementsSelector: string;
@@ -207,48 +200,40 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     paintOverlay(o: Overlay, params: any, extents: any): void;
     // (undocumented)
     reattachOverlay(o: Overlay, c: Component): void;
-    // (undocumented)
     removeAttribute(el: Element, attName: string): void;
     removeClass(el: Element | NodeListOf<Element>, clazz: string): void;
-    // (undocumented)
+    // @internal (undocumented)
     removeConnectorClass(connector: AbstractConnector, clazz: string): void;
     removeDragFilter(filter: Function | string): void;
-    // (undocumented)
+    // @internal (undocumented)
     _removeElement(element: Element): void;
-    // (undocumented)
+    // @internal (undocumented)
     removeEndpointClass(ep: Endpoint, c: string): void;
     removeFromDragGroup(...els: Array<Element>): void;
-    // (undocumented)
     removeFromDragSelection(...el: Array<Element>): void;
     // (undocumented)
     removeOverlayClass(o: Overlay, clazz: string): void;
     // (undocumented)
     removeSourceSelector(selector: SourceSelector): void;
-    // (undocumented)
+    // @internal (undocumented)
     renderEndpoint(ep: Endpoint, paintStyle: PaintStyle): void;
-    // (undocumented)
     reset(): void;
-    // (undocumented)
     rotate(element: Element, rotation: number, doNotRepaint?: boolean): RedrawResult;
-    // (undocumented)
     setAttribute(el: Element, name: string, value: string): void;
+    setAttributes(el: Element, atts: Record<string, string>): void;
     // (undocumented)
-    setAttributes(el: Element, atts: Dictionary<string>): void;
-    // (undocumented)
-    setConnectorHover(connector: AbstractConnector, h: boolean, doNotCascade?: boolean): void;
-    // (undocumented)
+    setConnectorHover(connector: AbstractConnector, hover: boolean, doNotCascade?: boolean): void;
+    // @internal (undocumented)
     setConnectorVisible(connector: AbstractConnector, v: boolean): void;
-    // (undocumented)
     setContainer(newContainer: Element): void;
-    // (undocumented)
     setDraggable(element: Element, draggable: boolean): void;
     setDragGrid(grid: Grid): void;
     setDragGroupState(state: boolean, ...els: Array<Element>): void;
-    // (undocumented)
-    setEndpointHover(endpoint: Endpoint, h: boolean, doNotCascade?: boolean): void;
-    // (undocumented)
+    // @internal (undocumented)
+    setEndpointHover(endpoint: Endpoint, hover: boolean, doNotCascade?: boolean): void;
+    // @internal (undocumented)
     setEndpointVisible(ep: Endpoint, v: boolean): void;
-    // (undocumented)
+    // @internal (undocumented)
     setGroupVisible(group: UIGroup<Element>, state: boolean): void;
     // (undocumented)
     setHover(component: Component, hover: boolean): void;
@@ -256,6 +241,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     setOverlayHover(o: Overlay, hover: boolean): void;
     // (undocumented)
     setOverlayVisible(o: Overlay, visible: boolean): void;
+    // @internal
     setPosition(el: Element, p: PointXY): void;
     // (undocumented)
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
@@ -263,8 +249,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     sourceElementDraggingClass: string;
     // (undocumented)
     svg: {
-        node: (name: string, attributes?: Dictionary<string | number>) => SVGElement;
-        attr: (node: SVGElement, attributes: Dictionary<string | number>) => void;
+        node: (name: string, attributes?: Record<string, string | number>) => SVGElement;
+        attr: (node: SVGElement, attributes: Record<string, string | number>) => void;
         pos: (d: [number, number]) => string;
     };
     // (undocumented)
@@ -272,10 +258,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     toggleClass(el: Element | NodeListOf<Element>, clazz: string): void;
     // (undocumented)
     toggleDraggable(el: Element): boolean;
-    // (undocumented)
     toggleDragSelection(...el: Array<Element>): void;
     trigger(el: Document | Element, event: string, originalEvent?: Event, payload?: any, detail?: number): void;
-    // (undocumented)
     unmanage(el: Element, removeElement?: boolean): void;
     // (undocumented)
     updateLabel(o: LabelOverlay): void;
@@ -285,7 +269,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 export class Collicat implements jsPlumbDragManager {
     constructor(options?: CollicatOptions);
     // (undocumented)
-    css: Dictionary<string>;
+    css: Record<string, string>;
     // (undocumented)
     destroyDraggable(el: jsPlumbDOMElement): void;
     // (undocumented)
@@ -305,7 +289,7 @@ export class Collicat implements jsPlumbDragManager {
 // @public (undocumented)
 export interface CollicatOptions {
     // (undocumented)
-    css?: Dictionary<string>;
+    css?: Record<string, string>;
     // (undocumented)
     inputFilterSelector?: string;
     // (undocumented)
@@ -335,10 +319,10 @@ export enum ContainmentType {
 }
 
 // @public (undocumented)
-export function createElement(tag: string, style?: Dictionary<any>, clazz?: string, atts?: Dictionary<string>): jsPlumbDOMElement;
+export function createElement(tag: string, style?: Record<string, any>, clazz?: string, atts?: Record<string, string>): jsPlumbDOMElement;
 
 // @public (undocumented)
-export function createElementNS(ns: string, tag: string, style?: Dictionary<any>, clazz?: string, atts?: Dictionary<string | number>): jsPlumbDOMElement;
+export function createElementNS(ns: string, tag: string, style?: Record<string, any>, clazz?: string, atts?: Record<string, string | number>): jsPlumbDOMElement;
 
 // Warning: (ae-forgotten-export) The symbol "Base" needs to be exported by the entry point index.d.ts
 //
@@ -377,7 +361,7 @@ export class Drag extends Base {
     // (undocumented)
     _elementToDrag: jsPlumbDOMElement;
     // (undocumented)
-    _filters: Dictionary<[Function, boolean]>;
+    _filters: Record<string, [Function, boolean]>;
     // (undocumented)
     getDragElement(retrieveOriginalElement?: boolean): jsPlumbDOMElement;
     // (undocumented)
@@ -387,7 +371,7 @@ export class Drag extends Base {
     // (undocumented)
     _isConstrained: boolean;
     // (undocumented)
-    listeners: Dictionary<Array<Function>>;
+    listeners: Record<string, Array<Function>>;
     // (undocumented)
     moveBy(dx: number, dy: number, e?: MouseEvent): void;
     // (undocumented)
@@ -499,6 +483,8 @@ export interface DragOptions {
     // (undocumented)
     drag?: (params: DragEventParams) => void;
     // (undocumented)
+    filter?: string;
+    // (undocumented)
     grid?: Grid;
     // (undocumented)
     start?: (params: DragStartEventParams) => void;
@@ -521,7 +507,7 @@ export interface DragParams extends DragHandlerOptions {
     // (undocumented)
     consumeStartEvent?: boolean;
     // (undocumented)
-    events?: Dictionary<Function>;
+    events?: Record<string, Function>;
     // (undocumented)
     ignoreZoom?: boolean;
     // (undocumented)

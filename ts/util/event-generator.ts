@@ -1,4 +1,4 @@
-import {Dictionary, addToDictionary, log, remove, uuid} from "./util"
+import {addToDictionary, log, remove, uuid} from "./util"
 
 /**
  * Base class for classes that wish to support binding and firing of events.
@@ -10,11 +10,11 @@ import {Dictionary, addToDictionary, log, remove, uuid} from "./util"
  */
 export abstract class EventGenerator {
 
-    private _listeners: Dictionary<Array<Function>> = {}
+    private _listeners: Record<string, Array<Function>> = {}
     private eventsSuspended: boolean = false
     private tick: boolean = false
     // this is a list of events that should re-throw any errors that occur during their dispatch.
-    private eventsToDieOn: Dictionary<boolean> = {"ready": true}
+    private eventsToDieOn: Record<string, boolean> = {"ready": true}
     private queue: Array<any> = []
 
     protected abstract shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean

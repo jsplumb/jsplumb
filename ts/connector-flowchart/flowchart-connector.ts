@@ -1,10 +1,8 @@
 import {
-    Connection, AbstractConnector, ConnectorComputeParams, PaintGeometry, StraightSegment, ArcSegment
+    Connection, AbstractConnector, ConnectorComputeParams, PaintGeometry, StraightSegment, ArcSegment, Face
 } from "@jsplumb/core"
 
 import { ConnectorOptions } from "@jsplumb/common"
-
-import { Dictionary } from '@jsplumb/util'
 
 export interface FlowchartConnectorOptions extends ConnectorOptions {
     alwaysRespectStubs?:boolean
@@ -155,7 +153,7 @@ export class FlowchartConnector extends AbstractConnector {
         let commonStubCalculator = (axis:string):StubPositions => {
                 return [paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY]
             },
-            stubCalculators:Dictionary<(axis:string) => StubPositions> = {
+            stubCalculators:Record<string, (axis:string) => StubPositions> = {
                 perpendicular: commonStubCalculator,
                 orthogonal: commonStubCalculator,
                 opposite:  (axis:string) => {
@@ -227,7 +225,7 @@ export class FlowchartConnector extends AbstractConnector {
             midy = paintInfo.startStubY + ((paintInfo.endStubY - paintInfo.startStubY) * this.midpoint)
 
         let orientations = {x: [0, 1], y: [1, 0]},
-            lineCalculators:Dictionary<(axis:string, ss:number, oss:number, es:number, oes:number) => any> = {
+            lineCalculators:Record<string, (axis:string, ss:number, oss:number, es:number, oes:number) => any> = {
                 perpendicular: (axis:string, ss:number, oss:number, es:number, oes:number) => {
                     let pi = paintInfo,
                         sis = {

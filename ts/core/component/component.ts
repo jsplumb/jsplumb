@@ -1,4 +1,4 @@
-import {Extents, EventGenerator,clone, extend, isFunction, isString, log, Merge, merge, populate, setToArray, uuid, PointXY, Dictionary} from "@jsplumb/util"
+import {Extents, EventGenerator,clone, extend, isFunction, isString, log, merge, populate, setToArray, uuid, PointXY } from "@jsplumb/util"
 
 import { Overlay } from '../overlay/overlay'
 import {ComponentTypeDescriptor} from '../type-descriptors'
@@ -147,7 +147,7 @@ export interface ComponentOptions {
     beforeDetach?:BeforeDetachInterceptor
     beforeDrop?:BeforeDropInterceptor
     hoverClass?:string
-    events?:Dictionary<(value:any, event:any) => any>
+    events?:Record<string, (value:any, event:any) => any>
     scope?:string
     cssClass?:string
     data?:any
@@ -202,9 +202,9 @@ export abstract class Component extends EventGenerator {
 
     defaultLabelLocation:number | [number, number] = 0.5
 
-    overlays:Dictionary<Overlay> = {}
-    overlayPositions:Dictionary<PointXY> = {}
-    overlayPlacements:Dictionary<Extents> = {}
+    overlays:Record<string, Overlay> = {}
+    overlayPositions:Record<string, PointXY> = {}
+    overlayPlacements:Record<string, Extents> = {}
 
     clone: () => Component
 
@@ -221,7 +221,7 @@ export abstract class Component extends EventGenerator {
     
     typeId:string
 
-    params:Dictionary<any> = {}
+    params:Record<string, any> = {}
 
     paintStyle:PaintStyle
     hoverPaintStyle:PaintStyle
@@ -287,7 +287,7 @@ export abstract class Component extends EventGenerator {
         this.overlays = {}
         this.overlayPositions = {}
 
-        let o = params.overlays || [], oo:Dictionary<OverlaySpec> = {}
+        let o = params.overlays || [], oo:Record<string, OverlaySpec> = {}
         let defaultOverlayKey = this.getDefaultOverlayKey()
         if (defaultOverlayKey) {
 
@@ -634,7 +634,7 @@ export abstract class Component extends EventGenerator {
         return this.overlays[id] as T
     }
 
-    getOverlays():Dictionary<Overlay> {
+    getOverlays():Record<string, Overlay> {
         return this.overlays
     }
 

@@ -1,7 +1,7 @@
 import { JsPlumbInstance } from "../core";
 import { Connection } from '../connector/connection-impl';
 import { GroupManager } from "../group/group-manager";
-import { Dictionary, PointXY } from '@jsplumb/util';
+import { PointXY } from '@jsplumb/util';
 import { EndpointSpec, AnchorSpec } from "@jsplumb/common";
 export interface GroupOptions {
     id?: string;
@@ -55,7 +55,7 @@ export declare class UIGroup<E = any> extends UINode<E> {
     remove(el: E, manipulateDOM?: boolean, doNotFireEvent?: boolean, doNotUpdateConnections?: boolean, targetGroup?: UIGroup<E>): void;
     private _doRemove;
     removeAll(manipulateDOM?: boolean, doNotFireEvent?: boolean): void;
-    orphanAll(): Dictionary<PointXY>;
+    orphanAll(): Record<string, PointXY>;
     addGroup(group: UIGroup<E>): boolean;
     removeGroup(group: UIGroup<E>): void;
     getGroups(): Array<UIGroup<E>>;

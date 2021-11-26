@@ -1,5 +1,5 @@
 import { jsPlumbDOMElement} from './element-facade'
-import {Dictionary, fastTrim, forEach, isString, log, PointXY, Size} from "@jsplumb/util"
+import {fastTrim, forEach, isString, log, PointXY, Size} from "@jsplumb/util"
 
 // These are utility functions for use inside a Browser.
 
@@ -196,11 +196,11 @@ export function toggleClass(el:Element | NodeListOf<Element>, clazz:string):void
     }
 }
 
-export function createElement(tag:string, style?:Dictionary<any>, clazz?:string, atts?:Dictionary<string>):jsPlumbDOMElement {
+export function createElement(tag:string, style?:Record<string, any>, clazz?:string, atts?:Record<string, string>):jsPlumbDOMElement {
     return createElementNS(null, tag, style, clazz, atts)
 }
 
-export function createElementNS(ns:string, tag:string, style?:Dictionary<any>, clazz?:string, atts?:Dictionary<string|number>):jsPlumbDOMElement{
+export function createElementNS(ns:string, tag:string, style?:Record<string, any>, clazz?:string, atts?:Record<string, string|number>):jsPlumbDOMElement{
     let e = (ns == null ? document.createElement(tag) : document.createElementNS(ns, tag)) as jsPlumbDOMElement
     let i
 
