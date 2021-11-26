@@ -1,4 +1,4 @@
-import {Dictionary, PointXY, Rotations, Size, extend, isNumber, isString, uuid, map} from "@jsplumb/util"
+import {PointXY, Rotations, Size, extend, isNumber, isString, uuid, map} from "@jsplumb/util"
 import { Connection } from "../connector/connection-impl"
 import { Endpoint } from "../endpoint/endpoint"
 import { JsPlumbInstance } from "../core"
@@ -93,7 +93,7 @@ export class LightweightFloatingAnchor implements LightweightAnchor {
     isContinuous:false
     isDynamic:false
 
-    locations = [ {x:0, y:0, ox:0, oy:0, offx:0, offy:0, iox:0, ioy:0, cls:''} as any]
+    locations = [ {x:0.5, y:0.5, ox:0, oy:0, offx:0, offy:0, iox:0, ioy:0, cls:''} as any]
     currentLocation = 0
     locked = false
     cssClass = ''
@@ -111,6 +111,10 @@ export class LightweightFloatingAnchor implements LightweightAnchor {
         this.size = instance.getSize(element)
     }
 
+    private _updateOrientationInRouter() {
+        this.instance.router.setAnchorOrientation(this, [this.locations[0].ox, this.locations[0].oy])
+    }
+
     /**
      * notification the endpoint associated with this anchor is hovering
      * over another anchor; we want to assume that anchor's orientation
@@ -120,6 +124,7 @@ export class LightweightFloatingAnchor implements LightweightAnchor {
         this.orientation = this.instance.router.getEndpointOrientation(endpoint)
         this.locations[0].ox = this.orientation[0]
         this.locations[0].oy = this.orientation[1]
+        this._updateOrientationInRouter()
     }
 
     /**
@@ -131,12 +136,13 @@ export class LightweightFloatingAnchor implements LightweightAnchor {
         this.orientation = null
         this.locations[0].ox = this.locations[0].iox
         this.locations[0].oy = this.locations[0].ioy
+        this._updateOrientationInRouter()
     }
 }
 
-const opposites:Dictionary<Face> = {[TOP]: BOTTOM, [RIGHT]: LEFT, [LEFT]: RIGHT, [BOTTOM]: TOP}
-const clockwiseOptions:Dictionary<Face> = {[TOP]: RIGHT, [RIGHT]: BOTTOM, [LEFT]: TOP, [BOTTOM]: LEFT}
-const antiClockwiseOptions:Dictionary<Face> = {[TOP]: LEFT, [RIGHT]: TOP, [LEFT]: BOTTOM, [BOTTOM]: RIGHT}
+const opposites:Record<string, Face> = {[TOP]: BOTTOM, [RIGHT]: LEFT, [LEFT]: RIGHT, [BOTTOM]: TOP}
+const clockwiseOptions:Record<string, Face> = {[TOP]: RIGHT, [RIGHT]: BOTTOM, [LEFT]: TOP, [BOTTOM]: LEFT}
+const antiClockwiseOptions:Record<string, Face> = {[TOP]: LEFT, [RIGHT]: TOP, [LEFT]: BOTTOM, [BOTTOM]: RIGHT}
 
 /**
  *
@@ -340,7 +346,7 @@ export function makeLightweightAnchorFromSpec(spec:AnchorSpec|Array<AnchorSpec>)
                     let a = namedValues[aSpec as string]
                     // note here we get the 0th location from the named anchor, making the assumption that it has only one (and that 'AutoDefault' has not been
                     // used as an arg for a multiple location anchor)
-                    return a != null ? extend({iox:0, ioy:0, cls:""}, a[0]) : null
+                    return a != null ? extend({iox:a[0].ox, ioy:a[0].oy, cls:""}, a[0]) : null
                 } else if (isPrimitiveAnchorSpec(aSpec as Array<any>)) {
                     return {
                         x:aSpec[0],
