@@ -1,4 +1,4 @@
-import {Dictionary, extend, uuid, PointXY, Size, snapToGrid, Grid, isString} from '@jsplumb/util'
+import {extend, uuid, PointXY, Size, snapToGrid, Grid, isString} from '@jsplumb/util'
 import {addClass, consume, matchesSelector, removeClass, offsetRelativeToRoot} from "./browser-util"
 import {EventManager, pageLocation} from "./event-manager"
 import { jsPlumbDOMElement} from './element-facade'
@@ -131,7 +131,7 @@ const DEFAULT_GRID_Y = 10
 const TRUE = function() { return true; }
 const FALSE = function() { return false; }
 
-const _classes:Dictionary<string> = {
+const _classes:Record<string, string> = {
     delegatedDraggable:"katavorio-delegated-draggable",  // elements that are the delegated drag handler for a bunch of other elements
     draggable:CLASS_DRAGGABLE,    // draggable elements
     drag : "katavorio-drag",            // elements currently being dragged
@@ -185,7 +185,7 @@ abstract class Base {
     }
 
     addScope (scopes:string) {
-        const m:Dictionary<boolean> = {}
+        const m:Record<string, boolean> = {}
         _each(this.scopes, (s:string) => { m[s] = true;})
         _each(scopes ? scopes.split(/\s+/) : [], (s:string) => { m[s] = true;})
         this.scopes.length = 0
@@ -195,7 +195,7 @@ abstract class Base {
     }
 
     removeScope (scopes:string) {
-        const m:Dictionary<boolean> = {}
+        const m:Record<string, boolean> = {}
         _each(this.scopes, (s:string) => { m[s] = true;})
         _each(scopes ? scopes.split(/\s+/) : [], (s:string) => { delete m[s];})
         this.scopes.length = 0
@@ -205,7 +205,7 @@ abstract class Base {
     }
 
     toggleScope (scopes:string) {
-        const m:Dictionary<boolean> = {}
+        const m:Record<string, boolean> = {}
         _each(this.scopes, (s:string) => { m[s] = true;})
         _each(scopes ? scopes.split(/\s+/) : [], (s:string) => {
             if (m[s]) delete m[s]
@@ -262,7 +262,7 @@ export interface DragParams extends DragHandlerOptions {
 
     canDrag?:Function
     consumeFilteredEvents?:boolean
-    events?:Dictionary<Function>
+    events?:Record<string, Function>
     parent?:any
     ignoreZoom?:boolean
 
@@ -314,7 +314,7 @@ export class Drag extends Base {
     private _ignoreZoom:boolean
 
     // a map of { spec -> [ fn, exclusion ] } entries.
-    _filters:Dictionary<[Function, boolean]> = {}
+    _filters:Record<string, [Function, boolean]> = {}
 
     _constrainRect:{w:number, h:number}
     _elementToDrag:jsPlumbDOMElement
@@ -323,7 +323,7 @@ export class Drag extends Base {
     moveListener:(e:MouseEvent) => void
     upListener:(e?:MouseEvent) => void
 
-    listeners:Dictionary<Array<Function>> = {"start":[], "drag":[], "stop":[], "over":[], "out":[], "beforeStart":[], "revert":[] }
+    listeners:Record<string, Array<Function>> = {"start":[], "drag":[], "stop":[], "over":[], "out":[], "beforeStart":[], "revert":[] }
 
     constructor(el:jsPlumbDOMElement, params: DragParams, k:Collicat) {
 
@@ -423,8 +423,6 @@ export class Drag extends Base {
         }
 
         this.k.eventManager.on(this.el, EVENT_MOUSEDOWN, this.downListener)
-        this.k.eventManager.on(document, EVENT_MOUSEMOVE, this.moveListener)
-        this.k.eventManager.on(document, EVENT_MOUSEUP, this.upListener)
     }
 
     on (evt:string, fn:Function) {
@@ -449,6 +447,8 @@ export class Drag extends Base {
         if (this._downAt) {
 
             this._downAt = null
+            this.k.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener)
+            this.k.eventManager.off(document, EVENT_MOUSEUP, this.upListener)
             removeClass(document.body as any, _classes.noSelect)
             this.unmark(e)
             this.stop(e)
@@ -545,6 +545,9 @@ export class Drag extends Base {
                 this._pagePosAtDown = offsetRelativeToRoot(this._dragEl)
                 this._pageDelta = {x:this._pagePosAtDown.x - this._posAtDown.x, y:this._pagePosAtDown.y - this._posAtDown.y}
                 this._size = _getSize(this._dragEl)
+
+                this.k.eventManager.on(document, EVENT_MOUSEMOVE, this.moveListener)
+                this.k.eventManager.on(document, EVENT_MOUSEUP, this.upListener)
 
                 addClass(document.body as any, _classes.noSelect)
                 this._dispatch<BeforeStartEventParams>(EVENT_BEFORE_START, {el:this.el, pos:this._posAtDown, e:e, drag:this, size:this._size})
@@ -850,7 +853,7 @@ export type RevertFunction = (dragEl:HTMLElement, pos:PointXY) => boolean
 
 export interface CollicatOptions {
     zoom?:number
-    css?:Dictionary<string>
+    css?:Record<string, string>
     inputFilterSelector?:string
 }
 
@@ -870,7 +873,7 @@ export class Collicat implements jsPlumbDragManager {
 
     eventManager:EventManager
     private zoom:number = 1
-    css:Dictionary<string> = {}
+    css:Record<string, string> = {}
     inputFilterSelector:string
 
     constructor(options?:CollicatOptions) {
