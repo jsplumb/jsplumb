@@ -416,11 +416,6 @@ export declare type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
  */
 export declare type Merge<M, N> = Omit<M, Extract<keyof M, keyof N>> & N;
 /**
- * Simple definition of a map.  This construct is being replaced across the codebase with `Record<string, T>` and also `Map<..>`
- * @public
- * @deprecated
- */
-/**
  * Defines a function that can be used to sort an array.
  * @internal
  */

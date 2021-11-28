@@ -724,11 +724,6 @@ export declare interface Size {
 export declare function snapToGrid(pos: PointXY, grid: Grid, thresholdX?: number, thresholdY?: number): PointXY;
 
 /**
- * Simple definition of a map.  This construct is being replaced across the codebase with `Record<string, T>` and also `Map<..>`
- * @public
- * @deprecated
- */
-/**
  * Defines a function that can be used to sort an array.
  * @internal
  */
