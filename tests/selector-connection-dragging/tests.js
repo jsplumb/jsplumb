@@ -229,6 +229,44 @@ var testSuite = function () {
 
     })
 
+    test("addSourceSelector, parameterExtractor returns object with maxConnections set", function() {
+        var sourceNode = makeSourceNode()
+        var zone = addZone(sourceNode, "zone1")
+
+        var d2 = support.addDiv("d2")
+        d2.className = "node"
+        _jsPlumb.manage(d2)
+        _jsPlumb.addTargetSelector("#d2")
+
+        var d3 = support.addDiv("d3")
+        d3.className = "node"
+        _jsPlumb.manage(d3)
+        _jsPlumb.addTargetSelector("#d3")
+
+        var extractorCalled = false
+
+        debugger
+        _jsPlumb.addSourceSelector(".zone1", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart",
+            parameterExtractor:function(el, eventTarget) {
+                extractorCalled = true
+                return { maxConnections: 1}
+            }
+        })
+
+        support.dragConnection(zone, d2, true)
+
+        equal(1, _jsPlumb.select().length, "one connection in the instance")
+        equal(extractorCalled, true, "extractor callback was called")
+
+        support.dragConnection(zone, d3, true)
+
+        equal(1, _jsPlumb.select().length, "one connection in the instance, because maxConnections was reported as 1")
+
+    })
+
     test("addSourceSelector, move source of dragged connection, default redrop policy", function() {
         var sourceNode = makeSourceNode()
         var zone = addZone(sourceNode, "zone1")
