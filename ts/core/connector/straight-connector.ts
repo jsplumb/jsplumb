@@ -1,6 +1,11 @@
 import {AbstractConnector, ConnectorComputeParams, PaintGeometry} from "./abstract-connector"
-import {Connectors} from "./connectors"
 import {StraightSegment} from "./straight-segment"
+import {AnchorPlacement} from "@jsplumb/common"
+
+export interface StraightConnectorGeometry {
+    source:AnchorPlacement
+    target:AnchorPlacement
+}
 
 export class StraightConnector extends AbstractConnector {
 
@@ -17,6 +22,14 @@ export class StraightConnector extends AbstractConnector {
         this._addSegment(StraightSegment, {x1: paintInfo.endStubX, y1: paintInfo.endStubY, x2: paintInfo.tx, y2: paintInfo.ty})
 
         this.geometry = {source:p.sourcePos, target:p.targetPos}
+    }
+
+
+    transformGeometry(g: StraightConnectorGeometry, dx: number, dy: number): StraightConnectorGeometry {
+        return {
+            source:this.transformAnchorPlacement(g.source, dx, dy),
+            target:this.transformAnchorPlacement(g.target, dx, dy)
+        }
     }
 }
 
