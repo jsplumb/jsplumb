@@ -211,21 +211,7 @@ export class EndpointDragHandler implements DragHandler {
                 this._activeDefinition = sourceDef
 
                 // at this point we have a mousedown event on an element that is configured as a drag source.
-
                 def = sourceDef.def
-                // if maxConnections reached
-                let sourceCount = this.instance.select({source: sourceEl}).length
-                if (sourceDef.maxConnections >= 0 && (sourceCount >= sourceDef.maxConnections)) {
-                    consume(e)
-                    if (def.onMaxConnections) {
-                        def.onMaxConnections({
-                            element: sourceEl,
-                            maxConnections: sourceDef.maxConnections
-                        }, e)
-                    }
-                    e.stopImmediatePropagation && e.stopImmediatePropagation()
-                    return false
-                }
 
                 // find the position on the element at which the mouse was pressed; this is where the endpoint
                 // will be located.
@@ -258,6 +244,24 @@ export class EndpointDragHandler implements DragHandler {
                 // perhaps extract some parameters from a parameter extractor
                 const extractedParameters = def.parameterExtractor ? def.parameterExtractor(sourceEl, eventTarget as Element) : {}
                 tempEndpointParams = merge(tempEndpointParams, extractedParameters)
+
+                // if maxConnections reached (maxConnections may have been specified in the addSourceSelector call, or it may also have
+                // been passed back by the parameterExtractor)
+                if (tempEndpointParams.maxConnections != null && tempEndpointParams.maxConnections >= 0) {
+                    let sourceCount = this.instance.select({source: sourceEl}).length
+                    //if (sourceDef.maxConnections >= 0 && (sourceCount >= sourceDef.maxConnections)) {
+                    if (sourceCount >= tempEndpointParams.maxConnections) {
+                        consume(e)
+                        if (def.onMaxConnections) {
+                            def.onMaxConnections({
+                                element: sourceEl,
+                                maxConnections: tempEndpointParams.maxConnections
+                            }, e)
+                        }
+                        e.stopImmediatePropagation && e.stopImmediatePropagation()
+                        return false
+                    }
+                }
 
                 // keep a reference to the anchor we want to use if the connection is finalised, and then write a temp anchor
                 // for the drag
@@ -557,7 +561,7 @@ export class EndpointDragHandler implements DragHandler {
         if (isSourceDrag) {
 
             // look for a source definition on the instance whose scope matches the current endpoint's scope
-            const sourceDef = getWithFunction(this.instance.sourceSelectors,  (sSel:SourceSelector) => {
+            const sourceDef:SourceSelector = getWithFunction(this.instance.sourceSelectors,  (sSel:SourceSelector) => {
                 return sSel.isEnabled() && (sSel.def.def.scope == null || sSel.def.def.scope === this.ep.scope)
             })
 
