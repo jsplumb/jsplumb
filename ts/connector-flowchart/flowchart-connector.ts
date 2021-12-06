@@ -1,8 +1,8 @@
 import {
-    Connection, AbstractConnector, ConnectorComputeParams, PaintGeometry, StraightSegment, ArcSegment, Face
+    Connection, AbstractConnector, ConnectorComputeParams, PaintGeometry, StraightSegment, ArcSegment
 } from "@jsplumb/core"
 
-import { ConnectorOptions } from "@jsplumb/common"
+import {ConnectorOptions, Geometry} from "@jsplumb/common"
 
 export interface FlowchartConnectorOptions extends ConnectorOptions {
     alwaysRespectStubs?:boolean
@@ -369,6 +369,12 @@ export class FlowchartConnector extends AbstractConnector {
         // write out the segments.
         this.writeSegments(paintInfo)
     }
+
+
+    transformGeometry(g: Geometry, dx: number, dy: number): Geometry {
+        return g
+    }
 }
+
 
 
