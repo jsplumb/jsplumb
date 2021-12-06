@@ -53,6 +53,8 @@ export abstract class AbstractBezierConnector extends AbstractConnector {
     proximityLimit: number;
     // (undocumented)
     showLoopback: boolean;
+    // (undocumented)
+    transformGeometry(g: BezierConnectorGeometry, dx: number, dy: number): BezierConnectorGeometry;
 }
 
 // @public

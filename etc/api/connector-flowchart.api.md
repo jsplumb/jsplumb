@@ -8,6 +8,7 @@ import { AbstractConnector } from '@jsplumb/core';
 import { Connection } from '@jsplumb/core';
 import { ConnectorComputeParams } from '@jsplumb/core';
 import { ConnectorOptions } from '@jsplumb/common';
+import { Geometry } from '@jsplumb/common';
 import { PaintGeometry } from '@jsplumb/core';
 
 // @public (undocumented)
@@ -35,6 +36,8 @@ export class FlowchartConnector extends AbstractConnector {
     loopbackRadius: number;
     // (undocumented)
     midpoint: number;
+    // (undocumented)
+    transformGeometry(g: Geometry, dx: number, dy: number): Geometry;
     // (undocumented)
     static type: string;
     // (undocumented)

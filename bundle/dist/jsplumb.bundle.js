@@ -1599,6 +1599,19 @@ var jsPlumbBrowserUI = (function (exports) {
         this.edited = false;
       }
     }, {
+      key: "transformAnchorPlacement",
+      value:
+      function transformAnchorPlacement(a, dx, dy) {
+        return {
+          x: a.x,
+          y: a.y,
+          ox: a.ox,
+          oy: a.oy,
+          curX: a.curX + dx,
+          curY: a.curY + dy
+        };
+      }
+    }, {
       key: "resetBounds",
       value: function resetBounds() {
         this.bounds = EMPTY_BOUNDS();
@@ -2158,6 +2171,14 @@ var jsPlumbBrowserUI = (function (exports) {
         this.geometry = {
           source: p.sourcePos,
           target: p.targetPos
+        };
+      }
+    }, {
+      key: "transformGeometry",
+      value: function transformGeometry(g, dx, dy) {
+        return {
+          source: this.transformAnchorPlacement(g.source, dx, dy),
+          target: this.transformAnchorPlacement(g.target, dx, dy)
         };
       }
     }]);
@@ -8852,6 +8873,11 @@ var jsPlumbBrowserUI = (function (exports) {
         this.addASegment(paintInfo.tx, paintInfo.ty, paintInfo);
         this.writeSegments(paintInfo);
       }
+    }, {
+      key: "transformGeometry",
+      value: function transformGeometry(g, dx, dy) {
+        return g;
+      }
     }]);
     return FlowchartConnector;
   }(AbstractConnector);
@@ -9058,6 +9084,21 @@ var jsPlumbBrowserUI = (function (exports) {
             target: extend({}, this.geometry.target)
           };
         }
+      }
+    }, {
+      key: "transformGeometry",
+      value: function transformGeometry(g, dx, dy) {
+        return {
+          controlPoints: [{
+            x: g.controlPoints[0].x + dx,
+            y: g.controlPoints[0].y + dy
+          }, {
+            x: g.controlPoints[1].x + dx,
+            y: g.controlPoints[1].y + dy
+          }],
+          source: this.transformAnchorPlacement(g.source, dx, dy),
+          target: this.transformAnchorPlacement(g.target, dx, dy)
+        };
       }
     }, {
       key: "importGeometry",
@@ -12801,20 +12842,6 @@ var jsPlumbBrowserUI = (function (exports) {
             consume(e);
             this._activeDefinition = sourceDef;
             def = sourceDef.def;
-            var sourceCount = this.instance.select({
-              source: sourceEl
-            }).length;
-            if (sourceDef.maxConnections >= 0 && sourceCount >= sourceDef.maxConnections) {
-              consume(e);
-              if (def.onMaxConnections) {
-                def.onMaxConnections({
-                  element: sourceEl,
-                  maxConnections: sourceDef.maxConnections
-                }, e);
-              }
-              e.stopImmediatePropagation && e.stopImmediatePropagation();
-              return false;
-            }
             var elxy = getPositionOnElement(e, sourceEl, this.instance.currentZoom);
             var tempEndpointParams = {
               element: sourceEl
@@ -12831,6 +12858,22 @@ var jsPlumbBrowserUI = (function (exports) {
             }
             var extractedParameters = def.parameterExtractor ? def.parameterExtractor(sourceEl, eventTarget) : {};
             tempEndpointParams = merge(tempEndpointParams, extractedParameters);
+            if (tempEndpointParams.maxConnections != null && tempEndpointParams.maxConnections >= 0) {
+              var sourceCount = this.instance.select({
+                source: sourceEl
+              }).length;
+              if (sourceCount >= tempEndpointParams.maxConnections) {
+                consume(e);
+                if (def.onMaxConnections) {
+                  def.onMaxConnections({
+                    element: sourceEl,
+                    maxConnections: tempEndpointParams.maxConnections
+                  }, e);
+                }
+                e.stopImmediatePropagation && e.stopImmediatePropagation();
+                return false;
+              }
+            }
             this._originalAnchor = tempEndpointParams.anchor || (this.instance.areDefaultAnchorsSet() ? this.instance.defaults.anchors[0] : this.instance.defaults.anchor);
             tempEndpointParams.anchor = [elxy.x, elxy.y, 0, 0];
             tempEndpointParams.deleteOnEmpty = true;

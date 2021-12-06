@@ -389,6 +389,11 @@ var FlowchartConnector = function (_AbstractConnector) {
       this.addASegment(paintInfo.tx, paintInfo.ty, paintInfo);
       this.writeSegments(paintInfo);
     }
+  }, {
+    key: "transformGeometry",
+    value: function transformGeometry(g, dx, dy) {
+      return g;
+    }
   }]);
   return FlowchartConnector;
 }(core.AbstractConnector);

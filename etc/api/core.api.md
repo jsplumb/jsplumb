@@ -133,6 +133,9 @@ export abstract class AbstractConnector implements Connector {
     targetStub: number;
     // (undocumented)
     totalLength: number;
+    protected transformAnchorPlacement(a: AnchorPlacement, dx: number, dy: number): AnchorPlacement;
+    // (undocumented)
+    abstract transformGeometry(g: Geometry, dx: number, dy: number): Geometry;
     // (undocumented)
     abstract type: string;
     // (undocumented)
@@ -2390,9 +2393,19 @@ export class StraightConnector extends AbstractConnector {
     // (undocumented)
     getDefaultStubs(): [number, number];
     // (undocumented)
+    transformGeometry(g: StraightConnectorGeometry, dx: number, dy: number): StraightConnectorGeometry;
+    // (undocumented)
     static type: string;
     // (undocumented)
     type: string;
+}
+
+// @public (undocumented)
+export interface StraightConnectorGeometry {
+    // (undocumented)
+    source: AnchorPlacement;
+    // (undocumented)
+    target: AnchorPlacement;
 }
 
 // Warning: (ae-internal-missing-underscore) The name "StraightSegment" should be prefixed with an underscore because the declaration is marked as @internal

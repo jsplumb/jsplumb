@@ -9,6 +9,7 @@ import { AbstractConnector } from '@jsplumb/core';
 import { Connection } from '@jsplumb/core';
 import { ConnectorComputeParams } from '@jsplumb/core';
 import { ConnectorOptions } from '@jsplumb/common';
+import { Geometry } from '@jsplumb/common';
 import { PaintGeometry } from '@jsplumb/core';
 
 export declare class FlowchartConnector extends AbstractConnector {
@@ -29,6 +30,7 @@ export declare class FlowchartConnector extends AbstractConnector {
     private addASegment;
     private writeSegments;
     _compute(paintInfo: PaintGeometry, params: ConnectorComputeParams): void;
+    transformGeometry(g: Geometry, dx: number, dy: number): Geometry;
 }
 
 export declare interface FlowchartConnectorOptions extends ConnectorOptions {

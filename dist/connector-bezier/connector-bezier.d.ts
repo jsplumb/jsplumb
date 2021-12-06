@@ -37,6 +37,7 @@ export declare abstract class AbstractBezierConnector extends AbstractConnector 
     constructor(connection: Connection, params: any);
     _compute(paintInfo: PaintGeometry, p: ConnectorComputeParams): void;
     exportGeometry(): BezierConnectorGeometry;
+    transformGeometry(g: BezierConnectorGeometry, dx: number, dy: number): BezierConnectorGeometry;
     importGeometry(geometry: BezierConnectorGeometry): boolean;
     abstract _computeBezier(paintInfo: PaintGeometry, p: ConnectorComputeParams, sp: PointXY, tp: PointXY, _w: number, _h: number): void;
 }

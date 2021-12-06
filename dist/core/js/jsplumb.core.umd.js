@@ -511,6 +511,19 @@
         this.edited = false;
       }
     }, {
+      key: "transformAnchorPlacement",
+      value:
+      function transformAnchorPlacement(a, dx, dy) {
+        return {
+          x: a.x,
+          y: a.y,
+          ox: a.ox,
+          oy: a.oy,
+          curX: a.curX + dx,
+          curY: a.curY + dy
+        };
+      }
+    }, {
       key: "resetBounds",
       value: function resetBounds() {
         this.bounds = common.EMPTY_BOUNDS();
@@ -1070,6 +1083,14 @@
         this.geometry = {
           source: p.sourcePos,
           target: p.targetPos
+        };
+      }
+    }, {
+      key: "transformGeometry",
+      value: function transformGeometry(g, dx, dy) {
+        return {
+          source: this.transformAnchorPlacement(g.source, dx, dy),
+          target: this.transformAnchorPlacement(g.target, dx, dy)
         };
       }
     }]);

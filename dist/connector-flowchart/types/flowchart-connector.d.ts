@@ -1,5 +1,5 @@
 import { Connection, AbstractConnector, ConnectorComputeParams, PaintGeometry } from "@jsplumb/core";
-import { ConnectorOptions } from "@jsplumb/common";
+import { ConnectorOptions, Geometry } from "@jsplumb/common";
 export interface FlowchartConnectorOptions extends ConnectorOptions {
     alwaysRespectStubs?: boolean;
     midpoint?: number;
@@ -24,5 +24,6 @@ export declare class FlowchartConnector extends AbstractConnector {
     private addASegment;
     private writeSegments;
     _compute(paintInfo: PaintGeometry, params: ConnectorComputeParams): void;
+    transformGeometry(g: Geometry, dx: number, dy: number): Geometry;
 }
 //# sourceMappingURL=flowchart-connector.d.ts.map

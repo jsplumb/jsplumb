@@ -2821,20 +2821,6 @@
             consume(e);
             this._activeDefinition = sourceDef;
             def = sourceDef.def;
-            var sourceCount = this.instance.select({
-              source: sourceEl
-            }).length;
-            if (sourceDef.maxConnections >= 0 && sourceCount >= sourceDef.maxConnections) {
-              consume(e);
-              if (def.onMaxConnections) {
-                def.onMaxConnections({
-                  element: sourceEl,
-                  maxConnections: sourceDef.maxConnections
-                }, e);
-              }
-              e.stopImmediatePropagation && e.stopImmediatePropagation();
-              return false;
-            }
             var elxy = getPositionOnElement(e, sourceEl, this.instance.currentZoom);
             var tempEndpointParams = {
               element: sourceEl
@@ -2851,6 +2837,22 @@
             }
             var extractedParameters = def.parameterExtractor ? def.parameterExtractor(sourceEl, eventTarget) : {};
             tempEndpointParams = util.merge(tempEndpointParams, extractedParameters);
+            if (tempEndpointParams.maxConnections != null && tempEndpointParams.maxConnections >= 0) {
+              var sourceCount = this.instance.select({
+                source: sourceEl
+              }).length;
+              if (sourceCount >= tempEndpointParams.maxConnections) {
+                consume(e);
+                if (def.onMaxConnections) {
+                  def.onMaxConnections({
+                    element: sourceEl,
+                    maxConnections: tempEndpointParams.maxConnections
+                  }, e);
+                }
+                e.stopImmediatePropagation && e.stopImmediatePropagation();
+                return false;
+              }
+            }
             this._originalAnchor = tempEndpointParams.anchor || (this.instance.areDefaultAnchorsSet() ? this.instance.defaults.anchors[0] : this.instance.defaults.anchor);
             tempEndpointParams.anchor = [elxy.x, elxy.y, 0, 0];
             tempEndpointParams.deleteOnEmpty = true;

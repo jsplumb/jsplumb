@@ -205,6 +205,21 @@
         }
       }
     }, {
+      key: "transformGeometry",
+      value: function transformGeometry(g, dx, dy) {
+        return {
+          controlPoints: [{
+            x: g.controlPoints[0].x + dx,
+            y: g.controlPoints[0].y + dy
+          }, {
+            x: g.controlPoints[1].x + dx,
+            y: g.controlPoints[1].y + dy
+          }],
+          source: this.transformAnchorPlacement(g.source, dx, dy),
+          target: this.transformAnchorPlacement(g.target, dx, dy)
+        };
+      }
+    }, {
       key: "importGeometry",
       value: function importGeometry(geometry) {
         if (geometry != null) {

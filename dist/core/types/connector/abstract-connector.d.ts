@@ -106,6 +106,21 @@ export declare abstract class AbstractConnector implements Connector {
      */
     importGeometry(g: Geometry): boolean;
     resetGeometry(): void;
+    /**
+     *
+     * @param g
+     * @param dx
+     * @param dy
+     */
+    abstract transformGeometry(g: Geometry, dx: number, dy: number): Geometry;
+    /**
+     * Helper method for subclasses - AnchorPlacement is a common component of a connector geometry.
+     * @internal
+     * @param a
+     * @param dx
+     * @param dy
+     */
+    protected transformAnchorPlacement(a: AnchorPlacement, dx: number, dy: number): AnchorPlacement;
     abstract _compute(geometry: PaintGeometry, params: ConnectorComputeParams): void;
     resetBounds(): void;
     /**
