@@ -138,6 +138,32 @@ export abstract class AbstractConnector implements Connector {
         this.edited = false
     }
 
+    /**
+     *
+     * @param g
+     * @param dx
+     * @param dy
+     */
+    abstract transformGeometry(g:Geometry, dx:number, dy:number):Geometry
+
+    /**
+     * Helper method for subclasses - AnchorPlacement is a common component of a connector geometry.
+     * @internal
+     * @param a
+     * @param dx
+     * @param dy
+     */
+    protected transformAnchorPlacement(a:AnchorPlacement, dx:number, dy:number):AnchorPlacement {
+        return {
+            x:a.x,
+            y:a.y,
+            ox:a.ox,
+            oy:a.oy,
+            curX:a.curX + dx,
+            curY:a.curY + dy
+        }
+    }
+
     abstract _compute(geometry:PaintGeometry, params:ConnectorComputeParams):void
 
     resetBounds():void {
