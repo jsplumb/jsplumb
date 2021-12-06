@@ -146,6 +146,89 @@ var testSuite = function () {
 
     })
 
+    test("addSourceSelector, maxConnections 1", function() {
+        var sourceNode = makeSourceNode()
+        var zone = addZone(sourceNode, "zone1")
+
+        var d2 = support.addDiv("d2")
+        d2.className = "node"
+        _jsPlumb.manage(d2)
+        _jsPlumb.addTargetSelector("#d2")
+
+        var d3 = support.addDiv("d3")
+        d3.className = "node"
+        _jsPlumb.manage(d3)
+        _jsPlumb.addTargetSelector("#d3")
+
+        var elDragged = false;
+        _jsPlumb.bind("drag:move", function() {
+            elDragged = true
+        })
+
+        _jsPlumb.addSourceSelector(".zone1", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart",
+            maxConnections:1
+        })
+
+        support.dragConnection(zone, d2, true)
+
+        ok(elDragged === false, "element was not dragged")
+
+        equal(1, _jsPlumb.select().length, "one connection in the instance")
+
+        support.dragConnection(zone, d3, true)
+        equal(1, _jsPlumb.select().length, "still only one connection in the instance, as maxConnections was set to 1")
+
+    })
+
+    test("addSourceSelector, maxConnections 2", function() {
+        var sourceNode = makeSourceNode()
+        var zone = addZone(sourceNode, "zone1")
+
+        var d2 = support.addDiv("d2")
+        d2.className = "node"
+        _jsPlumb.manage(d2)
+        _jsPlumb.addTargetSelector("#d2")
+
+        var d3 = support.addDiv("d3")
+        d3.className = "node"
+        _jsPlumb.manage(d3)
+        _jsPlumb.addTargetSelector("#d3")
+
+        var d4 = support.addDiv("d4")
+        d4.className = "node"
+        _jsPlumb.manage(d4)
+        _jsPlumb.addTargetSelector("#d4")
+
+        var elDragged = false;
+        _jsPlumb.bind("drag:move", function() {
+            elDragged = true
+        })
+
+        _jsPlumb.addSourceSelector(".zone1", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart",
+            maxConnections:2
+        })
+
+        support.dragConnection(zone, d2, true)
+
+        ok(elDragged === false, "element was not dragged")
+
+        equal(1, _jsPlumb.select().length, "one connection in the instance")
+
+        support.dragConnection(zone, d3, true)
+        equal(2, _jsPlumb.select().length, "two connections in the instance after drag to d3")
+
+        support.dragConnection(zone, d4, true)
+        equal(2, _jsPlumb.select().length, "still two connections in the instance after drag to d4, as maxConnections was set to 2")
+
+
+    })
+
     test("addSourceSelector, move source of dragged connection, default redrop policy", function() {
         var sourceNode = makeSourceNode()
         var zone = addZone(sourceNode, "zone1")
