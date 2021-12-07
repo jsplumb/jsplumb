@@ -1,8 +1,13 @@
 import {SourceDefinition, SourceOrTargetDefinition, TargetDefinition} from "./type-descriptors"
+import {uuid} from "@jsplumb/util"
 
 export class ConnectionDragSelector {
 
-    constructor(public selector:string, protected def:SourceOrTargetDefinition, public exclude = false) { }
+    readonly id:string
+
+    constructor(public selector:string, public def:SourceOrTargetDefinition, public exclude = false) {
+        this.id = uuid()
+    }
 
     setEnabled(enabled:boolean) {
         this.def.enabled = enabled
@@ -28,6 +33,9 @@ export const REDROP_POLICY_ANY = "any"
  */
 export type RedropPolicy = typeof REDROP_POLICY_STRICT | typeof REDROP_POLICY_ANY
 
+/**
+ * @internal
+ */
 export class SourceSelector extends ConnectionDragSelector {
     redrop:RedropPolicy
     constructor(selector:string, public def:SourceDefinition, exclude:boolean) {
