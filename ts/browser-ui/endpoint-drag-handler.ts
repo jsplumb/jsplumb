@@ -43,7 +43,7 @@ import {
     ATTRIBUTE_SCOPE_PREFIX,
     SourceSelector, InternalEndpointOptions,
     BehaviouralTypeDescriptor,
-    createFloatingAnchor, LightweightFloatingAnchor, REDROP_POLICY_ANY, Face
+    createFloatingAnchor, LightweightFloatingAnchor, REDROP_POLICY_ANY, Face, ConnectionDragSelector
 } from "@jsplumb/core"
 
 import { FALSE,
@@ -111,6 +111,7 @@ function selectorFilter (evt:Event, _el:jsPlumbDOMElement, selector:string, _ins
 }
 
 const SELECTOR_DRAG_ACTIVE_OR_HOVER = cls(CLASS_DRAG_ACTIVE, CLASS_DRAG_HOVER)
+const SOURCE_SELECTOR_UNIQUE_ENDPOINT_DATA = "sourceSelectorEndpoint"
 
 type EndpointDropTarget = {el:jsPlumbDOMElement, endpoint:Endpoint, r:BoundingBox, def?:SourceOrTargetDefinition, targetEl:jsPlumbDOMElement, rank?:number}
 
@@ -123,7 +124,7 @@ export class EndpointDragHandler implements DragHandler {
     ep:Endpoint<Element>
     endpointRepresentation:EndpointRepresentation<any>
     canvasElement:Element
-    private _activeDefinition:SourceOrTargetDefinition
+    private _activeDefinition:ConnectionDragSelector
 
     placeholderInfo:{ id?:string, element?:jsPlumbDOMElement } = { id: null, element: null }
 
@@ -181,7 +182,7 @@ export class EndpointDragHandler implements DragHandler {
     private _mousedownHandler (e:MouseEvent) {
 
         let sourceEl:jsPlumbDOMElement
-        let sourceDef:SourceDefinition
+        let sourceSelector:SourceSelector
 
         if (e.which === 3 || e.button === 2) {
             return
@@ -189,18 +190,18 @@ export class EndpointDragHandler implements DragHandler {
 
         const eventTarget = (e.target || e.srcElement) as jsPlumbDOMElement
 
-        sourceDef = this._getSourceDefinition(e)
+        sourceSelector = this._getSourceDefinition(e)
 
         // first test for a source definition registered on the instance whose selector matches the target of this event
-        if (sourceDef != null) {
+        if (sourceSelector != null) {
             // then get the associated element, using the definition's own `parentSelector`, if provided, or the default.
-            sourceEl = this._resolveDragParent(sourceDef.def, eventTarget)
+            sourceEl = this._resolveDragParent(sourceSelector.def.def, eventTarget)
             if (sourceEl == null || sourceEl.getAttribute(ATTRIBUTE_JTK_ENABLED) === FALSE) {
                 return
             }
         }
 
-        if (sourceDef) {
+        if (sourceSelector) {
 
             let sourceElement = e.currentTarget as jsPlumbDOMElement, def
 
@@ -208,10 +209,10 @@ export class EndpointDragHandler implements DragHandler {
 
                 consume(e)
 
-                this._activeDefinition = sourceDef
+                this._activeDefinition = sourceSelector
 
                 // at this point we have a mousedown event on an element that is configured as a drag source.
-                def = sourceDef.def
+                def = sourceSelector.def.def
 
                 // find the position on the element at which the mouse was pressed; this is where the endpoint
                 // will be located.
@@ -294,13 +295,15 @@ export class EndpointDragHandler implements DragHandler {
 
                 // if unique endpoint and it's already been created, push it onto the endpoint we create. at the end
                 // of a successful connection we'll switch to that endpoint.
-                // TODO this is the same code as the programmatic endpoints create on line 1050 ish
-                if (def.uniqueEndpoint) {
-                    if (!sourceDef.endpoint) {
-                        sourceDef.endpoint = this.ep
+                if (tempEndpointParams.uniqueEndpoint) {
+
+                    const elementId = this.ep.elementId
+                    const existingUniqueEndpoint = this.instance.getManagedData(elementId, SOURCE_SELECTOR_UNIQUE_ENDPOINT_DATA, sourceSelector.id)//sourceSelector.getUniqueEndpoint(elementId)
+                    if (existingUniqueEndpoint == null) {
+                        this.instance.setManagedData(elementId, SOURCE_SELECTOR_UNIQUE_ENDPOINT_DATA, sourceSelector.id, this.ep)
                         this.ep.deleteOnEmpty = false
                     } else {
-                        this.ep.finalEndpoint = sourceDef.endpoint
+                        this.ep.finalEndpoint = existingUniqueEndpoint
                     }
                 }
 
@@ -624,7 +627,7 @@ export class EndpointDragHandler implements DragHandler {
                         }
 
                         // if loopback disallowed on source or target definition and this target is the current element, skip it
-                        if (targetDef.def.def.allowLoopback === false || (this._activeDefinition && this._activeDefinition.def.allowLoopback === false)) {
+                        if (targetDef.def.def.allowLoopback === false || (this._activeDefinition && this._activeDefinition.def.def.allowLoopback === false)) {
                             if (d.targetEl === this.ep.element) {
                                 return
                             }
@@ -973,14 +976,14 @@ export class EndpointDragHandler implements DragHandler {
      * @param evt
      * @internal
      */
-    private _getSourceDefinition(evt:Event):SourceDefinition {
+    private _getSourceDefinition(evt:Event):SourceSelector {
         let selector
         for (let i = 0; i < this.instance.sourceSelectors.length; i++) {
             selector = this.instance.sourceSelectors[i]
             if (selector.isEnabled()) {
                 let r = selectorFilter(evt, this.instance.getContainer(), selector.selector, this.instance, selector.exclude)
                 if (r !== false) {
-                    return selector.def
+                    return selector
                 }
             }
         }
@@ -1154,7 +1157,7 @@ export class EndpointDragHandler implements DragHandler {
             this.instance.sourceOrTargetChanged(this.floatingId, this.jpc.sourceId, this.jpc, this.jpc.source, 0)
         }
 
-        // when makeSource has uniqueEndpoint:true, we want to create connections with new endpoints
+        // when a source def has uniqueEndpoint:true, we want to create connections with new endpoints
         // that are subsequently deleted. So makeSource sets `finalEndpoint`, which is the Endpoint to
         // which the connection should be attached. The `detachFromConnection` call below results in the
         // temporary endpoint being cleaned up.
