@@ -267,6 +267,66 @@ var testSuite = function () {
 
     })
 
+    test("addSourceSelector, uniqueEndpoint", function() {
+        var sourceNode = makeSourceNode()
+        var zone = addZone(sourceNode, "zone1")
+
+        var sourceNode2 = makeSourceNode()
+        var zone2 = addZone(sourceNode2, "zone1")
+
+        var d2 = support.addDiv("d2")
+        d2.className = "node"
+        _jsPlumb.manage(d2)
+        _jsPlumb.addTargetSelector("#d2")
+
+        var d3 = support.addDiv("d3")
+        d3.className = "node"
+        _jsPlumb.manage(d3)
+        _jsPlumb.addTargetSelector("#d3")
+
+        var d4 = support.addDiv("d4")
+        d4.className = "node"
+        _jsPlumb.manage(d4)
+        _jsPlumb.addTargetSelector("#d4")
+
+        var elDragged = false;
+        _jsPlumb.bind("drag:move", function() {
+            elDragged = true
+        })
+
+        _jsPlumb.addSourceSelector(".zone1", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart",
+            uniqueEndpoint:true,
+            maxConnections:2
+        })
+
+        support.dragConnection(zone, d2, true)
+        support.dragConnection(zone2, d2, true)
+
+        equal(2, _jsPlumb.select().length, "two connections in the instance")
+
+        // uniqueEndpoint means unique per managed element, not unique across the instance
+        equal(4, _jsPlumb.selectEndpoints().length, "four endpoints in the instance - two targets on d2 and one on each of two source elements")
+
+        support.dragConnection(zone, d3, true)
+        support.dragConnection(zone2, d3, true)
+
+        equal(4, _jsPlumb.select().length, "4 connections in the instance")
+        // now there should be 6 endpoints: 2 source endpoints, because they have unique endpoint set, and then 2 target endpoints on each of 2 elements.
+        equal(6, _jsPlumb.selectEndpoints().length, "six endpoints in the instance")
+
+        support.dragConnection(zone, d4, true)
+        support.dragConnection(zone2, d4, true)
+
+        // connection and endpoint count should not have changed, because maxConnections is set to 2 for each of these endpoints.
+        equal(4, _jsPlumb.select().length, "4 connections in the instance")
+        // now there should be 6 endpoints: 2 source endpoints, because they have unique endpoint set, and then 2 target endpoints on each of 2 elements.
+        equal(6, _jsPlumb.selectEndpoints().length, "six endpoints in the instance")
+
+    })
+
     test("addSourceSelector, move source of dragged connection, default redrop policy", function() {
         var sourceNode = makeSourceNode()
         var zone = addZone(sourceNode, "zone1")
