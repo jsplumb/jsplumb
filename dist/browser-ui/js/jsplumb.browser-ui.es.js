@@ -2744,6 +2744,7 @@ function selectorFilter(evt, _el, selector, _instance, negate) {
   return negate ? !ok : ok;
 }
 var SELECTOR_DRAG_ACTIVE_OR_HOVER = cls(CLASS_DRAG_ACTIVE, CLASS_DRAG_HOVER);
+var SOURCE_SELECTOR_UNIQUE_ENDPOINT_DATA = "sourceSelectorEndpoint";
 var EndpointDragHandler = function () {
   function EndpointDragHandler(instance) {
     _classCallCheck(this, EndpointDragHandler);
@@ -2800,25 +2801,25 @@ var EndpointDragHandler = function () {
     key: "_mousedownHandler",
     value: function _mousedownHandler(e) {
       var sourceEl;
-      var sourceDef;
+      var sourceSelector;
       if (e.which === 3 || e.button === 2) {
         return;
       }
       var eventTarget = e.target || e.srcElement;
-      sourceDef = this._getSourceDefinition(e);
-      if (sourceDef != null) {
-        sourceEl = this._resolveDragParent(sourceDef.def, eventTarget);
+      sourceSelector = this._getSourceDefinition(e);
+      if (sourceSelector != null) {
+        sourceEl = this._resolveDragParent(sourceSelector.def.def, eventTarget);
         if (sourceEl == null || sourceEl.getAttribute(ATTRIBUTE_JTK_ENABLED) === FALSE$1) {
           return;
         }
       }
-      if (sourceDef) {
+      if (sourceSelector) {
         var sourceElement = e.currentTarget,
             def;
         if (eventTarget.getAttribute(ATTRIBUTE_JTK_ENABLED) !== FALSE$1) {
           consume(e);
-          this._activeDefinition = sourceDef;
-          def = sourceDef.def;
+          this._activeDefinition = sourceSelector;
+          def = sourceSelector.def.def;
           var elxy = getPositionOnElement(e, sourceEl, this.instance.currentZoom);
           var tempEndpointParams = {
             element: sourceEl
@@ -2865,12 +2866,14 @@ var EndpointDragHandler = function () {
             }
             this.ep.mergeParameters(payload);
           }
-          if (def.uniqueEndpoint) {
-            if (!sourceDef.endpoint) {
-              sourceDef.endpoint = this.ep;
+          if (tempEndpointParams.uniqueEndpoint) {
+            var elementId = this.ep.elementId;
+            var existingUniqueEndpoint = this.instance.getManagedData(elementId, SOURCE_SELECTOR_UNIQUE_ENDPOINT_DATA, sourceSelector.id);
+            if (existingUniqueEndpoint == null) {
+              this.instance.setManagedData(elementId, SOURCE_SELECTOR_UNIQUE_ENDPOINT_DATA, sourceSelector.id, this.ep);
               this.ep.deleteOnEmpty = false;
             } else {
-              this.ep.finalEndpoint = sourceDef.endpoint;
+              this.ep.finalEndpoint = existingUniqueEndpoint;
             }
           }
           sourceElement._jsPlumbOrphanedEndpoints = sourceElement._jsPlumbOrphanedEndpoints || [];
@@ -3122,7 +3125,7 @@ var EndpointDragHandler = function () {
               if (d.targetEl == null) {
                 d.targetEl = findParent(el, SELECTOR_MANAGED_ELEMENT, _this.instance.getContainer(), true);
               }
-              if (targetDef.def.def.allowLoopback === false || _this._activeDefinition && _this._activeDefinition.def.allowLoopback === false) {
+              if (targetDef.def.def.allowLoopback === false || _this._activeDefinition && _this._activeDefinition.def.def.allowLoopback === false) {
                 if (d.targetEl === _this.ep.element) {
                   return;
                 }
@@ -3392,7 +3395,7 @@ var EndpointDragHandler = function () {
         if (selector.isEnabled()) {
           var r = selectorFilter(evt, this.instance.getContainer(), selector.selector, this.instance, selector.exclude);
           if (r !== false) {
-            return selector.def;
+            return selector;
           }
         }
       }

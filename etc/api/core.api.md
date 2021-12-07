@@ -807,9 +807,11 @@ export interface ConnectionDetachedParams<E = any> extends ConnectionEstablished
 export class ConnectionDragSelector {
     constructor(selector: string, def: SourceOrTargetDefinition, exclude?: boolean);
     // (undocumented)
-    protected def: SourceOrTargetDefinition;
+    def: SourceOrTargetDefinition;
     // (undocumented)
     exclude: boolean;
+    // (undocumented)
+    readonly id: string;
     // (undocumented)
     isEnabled(): boolean;
     // (undocumented)
@@ -1597,6 +1599,7 @@ export abstract class JsPlumbInstance<T extends {
     addGroup(params: AddGroupOptions<T["E"]>): UIGroup<T["E"]>;
     // (undocumented)
     abstract addOverlayClass(o: Overlay, clazz: string): void;
+    // Warning: (ae-incompatible-release-tags) The symbol "addSourceSelector" is marked as @public, but its signature references "SourceSelector" which is marked as @internal
     addSourceSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): SourceSelector;
     addTargetSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): TargetSelector;
     // (undocumented)
@@ -1711,6 +1714,8 @@ export abstract class JsPlumbInstance<T extends {
     getGroupFor(el: T["E"]): UIGroup<T["E"]>;
     // (undocumented)
     getId(element: T["E"], uuid?: string): string;
+    // @internal
+    getManagedData(elementId: string, dataIdentifier: string, key: string): any;
     getManagedElement(id: string): T["E"];
     // (undocumented)
     getManagedElements(): Record<string, ManagedElement<T["E"]>>;
@@ -1825,6 +1830,7 @@ export abstract class JsPlumbInstance<T extends {
     removeGroup(group: string | UIGroup<T["E"]>, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): Record<string, PointXY>;
     // (undocumented)
     abstract removeOverlayClass(o: Overlay, clazz: string): void;
+    // Warning: (ae-incompatible-release-tags) The symbol "removeSourceSelector" is marked as @public, but its signature references "SourceSelector" which is marked as @internal
     removeSourceSelector(selector: SourceSelector): void;
     removeTargetSelector(selector: TargetSelector): void;
     // (undocumented)
@@ -1864,6 +1870,8 @@ export abstract class JsPlumbInstance<T extends {
     abstract setGroupVisible(group: UIGroup, state: boolean): void;
     // (undocumented)
     abstract setHover(component: Component, hover: boolean): void;
+    // @internal
+    setManagedData(elementId: string, dataIdentifier: string, key: string, data: any): void;
     // (undocumented)
     abstract setOverlayHover(o: Overlay, hover: boolean): void;
     // (undocumented)
@@ -1879,6 +1887,8 @@ export abstract class JsPlumbInstance<T extends {
     show(el: T["E"], changeEndpoints?: boolean): JsPlumbInstance;
     // (undocumented)
     sourceOrTargetChanged(originalId: string, newId: string, connection: Connection, newElement: T["E"], index: number): void;
+    // Warning: (ae-incompatible-release-tags) The symbol "sourceSelectors" is marked as @public, but its signature references "SourceSelector" which is marked as @internal
+    //
     // (undocumented)
     sourceSelectors: Array<SourceSelector>;
     // (undocumented)
@@ -2108,6 +2118,7 @@ export type ManagedElement<E> = {
     connections?: Array<Connection>;
     rotation?: number;
     group?: string;
+    data: Record<string, Record<string, any>>;
 };
 
 // @public
@@ -2370,7 +2381,9 @@ export interface SourceOrTargetDefinition {
     uniqueEndpoint?: boolean;
 }
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "SourceSelector" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
 export class SourceSelector extends ConnectionDragSelector {
     constructor(selector: string, def: SourceDefinition, exclude: boolean);
     // (undocumented)
@@ -2706,6 +2719,6 @@ export const Y_AXIS_FACES: Axis;
 // /Users/simon/programming/jsplumb/jsplumb/dist/core/types/connector/connectors.d.ts:5:5 - (ae-incompatible-release-tags) The symbol "get" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
 // /Users/simon/programming/jsplumb/jsplumb/dist/core/types/connector/connectors.d.ts:6:5 - (ae-incompatible-release-tags) The symbol "register" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
 // /Users/simon/programming/jsplumb/jsplumb/dist/core/types/core.d.ts:68:5 - (ae-incompatible-release-tags) The symbol "viewportElement" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
-// /Users/simon/programming/jsplumb/jsplumb/dist/core/types/core.d.ts:463:9 - (ae-incompatible-release-tags) The symbol "offset" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
+// /Users/simon/programming/jsplumb/jsplumb/dist/core/types/core.d.ts:483:9 - (ae-incompatible-release-tags) The symbol "offset" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
 
 ```

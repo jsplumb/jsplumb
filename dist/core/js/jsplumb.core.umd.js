@@ -4726,6 +4726,8 @@
       this.selector = selector;
       this.def = def;
       this.exclude = exclude;
+      _defineProperty(this, "id", void 0);
+      this.id = util.uuid();
     }
     _createClass(ConnectionDragSelector, [{
       key: "setEnabled",
@@ -6059,7 +6061,8 @@
             el: element,
             endpoints: [],
             connections: [],
-            rotation: 0
+            rotation: 0,
+            data: {}
           };
           this._managedElements[elId] = obj;
           if (this._suspendDrawing) {
@@ -6083,6 +6086,22 @@
           }
         }
         return this._managedElements[elId];
+      }
+    }, {
+      key: "getManagedData",
+      value: function getManagedData(elementId, dataIdentifier, key) {
+        if (this._managedElements[elementId]) {
+          var data = this._managedElements[elementId].data[dataIdentifier];
+          return data != null ? data[key] : null;
+        }
+      }
+    }, {
+      key: "setManagedData",
+      value: function setManagedData(elementId, dataIdentifier, key, data) {
+        if (this._managedElements[elementId]) {
+          this._managedElements[elementId].data[dataIdentifier] = this._managedElements[elementId].data[dataIdentifier] || {};
+          this._managedElements[elementId].data[dataIdentifier][key] = data;
+        }
       }
     }, {
       key: "getManagedElement",

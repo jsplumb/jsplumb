@@ -1,8 +1,9 @@
 import { SourceDefinition, SourceOrTargetDefinition, TargetDefinition } from "./type-descriptors";
 export declare class ConnectionDragSelector {
     selector: string;
-    protected def: SourceOrTargetDefinition;
+    def: SourceOrTargetDefinition;
     exclude: boolean;
+    readonly id: string;
     constructor(selector: string, def: SourceOrTargetDefinition, exclude?: boolean);
     setEnabled(enabled: boolean): void;
     isEnabled(): boolean;
@@ -21,6 +22,9 @@ export declare const REDROP_POLICY_ANY = "any";
  * Defines how redrop of source endpoints can be done.
  */
 export declare type RedropPolicy = typeof REDROP_POLICY_STRICT | typeof REDROP_POLICY_ANY;
+/**
+ * @internal
+ */
 export declare class SourceSelector extends ConnectionDragSelector {
     def: SourceDefinition;
     redrop: RedropPolicy;

@@ -5814,6 +5814,8 @@ var jsPlumbBrowserUI = (function (exports) {
       this.selector = selector;
       this.def = def;
       this.exclude = exclude;
+      _defineProperty$3(this, "id", void 0);
+      this.id = uuid();
     }
     _createClass$3(ConnectionDragSelector, [{
       key: "setEnabled",
@@ -7147,7 +7149,8 @@ var jsPlumbBrowserUI = (function (exports) {
             el: element,
             endpoints: [],
             connections: [],
-            rotation: 0
+            rotation: 0,
+            data: {}
           };
           this._managedElements[elId] = obj;
           if (this._suspendDrawing) {
@@ -7171,6 +7174,22 @@ var jsPlumbBrowserUI = (function (exports) {
           }
         }
         return this._managedElements[elId];
+      }
+    }, {
+      key: "getManagedData",
+      value: function getManagedData(elementId, dataIdentifier, key) {
+        if (this._managedElements[elementId]) {
+          var data = this._managedElements[elementId].data[dataIdentifier];
+          return data != null ? data[key] : null;
+        }
+      }
+    }, {
+      key: "setManagedData",
+      value: function setManagedData(elementId, dataIdentifier, key, data) {
+        if (this._managedElements[elementId]) {
+          this._managedElements[elementId].data[dataIdentifier] = this._managedElements[elementId].data[dataIdentifier] || {};
+          this._managedElements[elementId].data[dataIdentifier][key] = data;
+        }
       }
     }, {
       key: "getManagedElement",
@@ -12767,6 +12786,7 @@ var jsPlumbBrowserUI = (function (exports) {
     return negate ? !ok : ok;
   }
   var SELECTOR_DRAG_ACTIVE_OR_HOVER = cls(CLASS_DRAG_ACTIVE, CLASS_DRAG_HOVER);
+  var SOURCE_SELECTOR_UNIQUE_ENDPOINT_DATA = "sourceSelectorEndpoint";
   var EndpointDragHandler = function () {
     function EndpointDragHandler(instance) {
       _classCallCheck(this, EndpointDragHandler);
@@ -12823,25 +12843,25 @@ var jsPlumbBrowserUI = (function (exports) {
       key: "_mousedownHandler",
       value: function _mousedownHandler(e) {
         var sourceEl;
-        var sourceDef;
+        var sourceSelector;
         if (e.which === 3 || e.button === 2) {
           return;
         }
         var eventTarget = e.target || e.srcElement;
-        sourceDef = this._getSourceDefinition(e);
-        if (sourceDef != null) {
-          sourceEl = this._resolveDragParent(sourceDef.def, eventTarget);
+        sourceSelector = this._getSourceDefinition(e);
+        if (sourceSelector != null) {
+          sourceEl = this._resolveDragParent(sourceSelector.def.def, eventTarget);
           if (sourceEl == null || sourceEl.getAttribute(ATTRIBUTE_JTK_ENABLED) === FALSE$1) {
             return;
           }
         }
-        if (sourceDef) {
+        if (sourceSelector) {
           var sourceElement = e.currentTarget,
               def;
           if (eventTarget.getAttribute(ATTRIBUTE_JTK_ENABLED) !== FALSE$1) {
             consume(e);
-            this._activeDefinition = sourceDef;
-            def = sourceDef.def;
+            this._activeDefinition = sourceSelector;
+            def = sourceSelector.def.def;
             var elxy = getPositionOnElement(e, sourceEl, this.instance.currentZoom);
             var tempEndpointParams = {
               element: sourceEl
@@ -12888,12 +12908,14 @@ var jsPlumbBrowserUI = (function (exports) {
               }
               this.ep.mergeParameters(payload);
             }
-            if (def.uniqueEndpoint) {
-              if (!sourceDef.endpoint) {
-                sourceDef.endpoint = this.ep;
+            if (tempEndpointParams.uniqueEndpoint) {
+              var elementId = this.ep.elementId;
+              var existingUniqueEndpoint = this.instance.getManagedData(elementId, SOURCE_SELECTOR_UNIQUE_ENDPOINT_DATA, sourceSelector.id);
+              if (existingUniqueEndpoint == null) {
+                this.instance.setManagedData(elementId, SOURCE_SELECTOR_UNIQUE_ENDPOINT_DATA, sourceSelector.id, this.ep);
                 this.ep.deleteOnEmpty = false;
               } else {
-                this.ep.finalEndpoint = sourceDef.endpoint;
+                this.ep.finalEndpoint = existingUniqueEndpoint;
               }
             }
             sourceElement._jsPlumbOrphanedEndpoints = sourceElement._jsPlumbOrphanedEndpoints || [];
@@ -13145,7 +13167,7 @@ var jsPlumbBrowserUI = (function (exports) {
                 if (d.targetEl == null) {
                   d.targetEl = findParent(el, SELECTOR_MANAGED_ELEMENT, _this.instance.getContainer(), true);
                 }
-                if (targetDef.def.def.allowLoopback === false || _this._activeDefinition && _this._activeDefinition.def.allowLoopback === false) {
+                if (targetDef.def.def.allowLoopback === false || _this._activeDefinition && _this._activeDefinition.def.def.allowLoopback === false) {
                   if (d.targetEl === _this.ep.element) {
                     return;
                   }
@@ -13415,7 +13437,7 @@ var jsPlumbBrowserUI = (function (exports) {
           if (selector.isEnabled()) {
             var r = selectorFilter(evt, this.instance.getContainer(), selector.selector, this.instance, selector.exclude);
             if (r !== false) {
-              return selector.def;
+              return selector;
             }
           }
         }

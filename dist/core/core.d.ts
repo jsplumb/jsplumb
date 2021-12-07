@@ -743,8 +743,9 @@ export declare interface ConnectionDetachedParams<E = any> extends ConnectionEst
 
 export declare class ConnectionDragSelector {
     selector: string;
-    protected def: SourceOrTargetDefinition;
+    def: SourceOrTargetDefinition;
     exclude: boolean;
+    readonly id: string;
     constructor(selector: string, def: SourceOrTargetDefinition, exclude?: boolean);
     setEnabled(enabled: boolean): void;
     isEnabled(): boolean;
@@ -1632,6 +1633,25 @@ export declare abstract class JsPlumbInstance<T extends {
      */
     manage(element: T["E"], internalId?: string, _recalc?: boolean): ManagedElement<T["E"]>;
     /**
+     * Retrieve some data from the given managed element. Created for internal use, as a way to avoid memory leaks from having data pertaining
+     * to some element spread around the codebase, but could be used by external code.
+     * @internal
+     * @param elementId ID of the element to retrieve the data for
+     * @param dataIdentifier Type of data being retrieved
+     * @param key The key to retrieve the data for
+     */
+    getManagedData(elementId: string, dataIdentifier: string, key: string): any;
+    /**
+     * Attach some data to the given managed element. Created for internal use, as a way to avoid memory leaks from having data pertaining
+     * to some element spread around the codebase, but could be used by external code.
+     * @internal
+     * @param elementId ID of the element to store the data against
+     * @param dataIdentifier Type of data being stored
+     * @param key The key to store the data against
+     * @param data The data to store.
+     */
+    setManagedData(elementId: string, dataIdentifier: string, key: string, data: any): void;
+    /**
      * Gets the element with the given ID from the list managed elements, null if not currently managed.
      * @param id
      */
@@ -2161,6 +2181,7 @@ export declare type ManagedElement<E> = {
     connections?: Array<Connection>;
     rotation?: number;
     group?: string;
+    data: Record<string, Record<string, any>>;
 };
 
 /**
@@ -2389,6 +2410,9 @@ export declare interface SourceOrTargetDefinition {
     uniqueEndpoint?: boolean;
 }
 
+/**
+ * @internal
+ */
 export declare class SourceSelector extends ConnectionDragSelector {
     def: SourceDefinition;
     redrop: RedropPolicy;
