@@ -255,7 +255,8 @@ export type ManagedElement<E> = {
     endpoints?:Array<Endpoint>,
     connections?:Array<Connection>,
     rotation?:number,
-    group?:string
+    group?:string,
+    data:Record<string, Record<string, any>>
 }
 
 export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends EventGenerator {
@@ -821,7 +822,8 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
                 el:element as unknown as jsPlumbElement<T["E"]>,
                 endpoints:[],
                 connections:[],
-                rotation:0
+                rotation:0,
+                data:{}
             }
 
             this._managedElements[elId] = obj
@@ -842,6 +844,37 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         }
 
         return this._managedElements[elId]
+    }
+
+    /**
+     * Retrieve some data from the given managed element. Created for internal use, as a way to avoid memory leaks from having data pertaining
+     * to some element spread around the codebase, but could be used by external code.
+     * @internal
+     * @param elementId ID of the element to retrieve the data for
+     * @param dataIdentifier Type of data being retrieved
+     * @param key The key to retrieve the data for
+     */
+    getManagedData(elementId:string, dataIdentifier:string, key:string):any {
+        if (this._managedElements[elementId]) {
+            const data = this._managedElements[elementId].data[dataIdentifier]
+            return data != null ? data[key] : null
+        }
+    }
+
+    /**
+     * Attach some data to the given managed element. Created for internal use, as a way to avoid memory leaks from having data pertaining
+     * to some element spread around the codebase, but could be used by external code.
+     * @internal
+     * @param elementId ID of the element to store the data against
+     * @param dataIdentifier Type of data being stored
+     * @param key The key to store the data against
+     * @param data The data to store.
+     */
+    setManagedData(elementId:string, dataIdentifier:string, key:string, data:any) {
+        if (this._managedElements[elementId]) {
+            this._managedElements[elementId].data[dataIdentifier] = this._managedElements[elementId].data[dataIdentifier] || {}
+            this._managedElements[elementId].data[dataIdentifier][key] = data
+        }
     }
 
     /**
