@@ -564,25 +564,6 @@ var testSuite = function () {
     });
 
     //
-    //test(" _jsPlumb.hide, two-arg version, endpoints should also be hidden", function() {
-    //var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
-    //e = { source:true, target:true, maxConnections:-1 },
-    //e1 = _jsPlumb.addEndpoint(d1, e),
-    //e2 = _jsPlumb.addEndpoint(d2, e),
-    //c1 = _jsPlumb.connect({source:e1, target:e2});
-
-    //equal(true, c1.isVisible(), "Connection 1 is visible after creation.");
-    //equal(true, e1.isVisible(), "endpoint 1 is visible after creation.");
-    //equal(true, e2.isVisible(), "endpoint 2 is visible after creation.");
-
-    //_jsPlumb.hide("d1", true);
-
-    //equal(false, c1.isVisible(), "Connection 1 is no longer visible.");
-    //equal(false, e1.isVisible(), "endpoint 1 is no longer visible.");
-    //equal(true, e2.isVisible(), "endpoint 2 is still visible.");
-    //});
-
-    //
     //test for issue 132: label leaves its element in the DOM after it has been
     //removed from a connection.
     //
