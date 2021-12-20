@@ -250,7 +250,6 @@ export class EndpointDragHandler implements DragHandler {
                 // been passed back by the parameterExtractor)
                 if (tempEndpointParams.maxConnections != null && tempEndpointParams.maxConnections >= 0) {
                     let sourceCount = this.instance.select({source: sourceEl}).length
-                    //if (sourceDef.maxConnections >= 0 && (sourceCount >= sourceDef.maxConnections)) {
                     if (sourceCount >= tempEndpointParams.maxConnections) {
                         consume(e)
                         if (def.onMaxConnections) {
@@ -283,7 +282,6 @@ export class EndpointDragHandler implements DragHandler {
                 let payload = {}
                 if (def.extract) {
                     for (let att in def.extract) {
-                        //let v = sourceEl.getAttribute(att)
                         let v = eventTarget.getAttribute(att)
                         if (v) {
                             payload[def.extract[att]] = v
@@ -549,7 +547,8 @@ export class EndpointDragHandler implements DragHandler {
         //
         const matchingEndpoints = this.instance.getContainer().querySelectorAll([".", CLASS_ENDPOINT, "[", ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]" ].join(""))
         forEach(matchingEndpoints, (candidate:any) => {
-            if ((this.jpc != null || candidate !== canvasElement) && candidate !== this.floatingElement) {
+
+            if ((this.jpc != null || candidate !== canvasElement) && candidate !== this.floatingElement && !candidate.jtk.endpoint.isFull()) {
                 if ( (isSourceDrag && candidate.jtk.endpoint.isSource) || (!isSourceDrag && candidate.jtk.endpoint.isTarget) ) {
                     const o = this.instance.getOffset(candidate), s = this.instance.getSize(candidate)
                     boundingRect = {x: o.x, y: o.y, w: s.w, h: s.h}
@@ -629,6 +628,13 @@ export class EndpointDragHandler implements DragHandler {
                         // if loopback disallowed on source or target definition and this target is the current element, skip it
                         if (targetDef.def.def.allowLoopback === false || (this._activeDefinition && this._activeDefinition.def.def.allowLoopback === false)) {
                             if (d.targetEl === this.ep.element) {
+                                return
+                            }
+                        }
+
+                        // check for maxConnections
+                        if(targetDef.def.def.maxConnections != null && targetDef.def.def.maxConnections !== -1) {
+                            if (this.instance.select({target:d.targetEl}).length >= targetDef.def.def.maxConnections) {
                                 return
                             }
                         }
