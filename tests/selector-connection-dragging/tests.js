@@ -900,6 +900,89 @@ var testSuite = function () {
 
     })
 
+    test("addTargetSelector, maxConnections 1", function() {
+        var targetNode = makeTargetNode()
+        var zone = addZone(targetNode, "zone1")
+
+        var d2 = support.addDiv("d2")
+        d2.className = "node"
+        _jsPlumb.manage(d2)
+        _jsPlumb.addSourceSelector("#d2")
+
+        var d3 = support.addDiv("d3")
+        d3.className = "node"
+        _jsPlumb.manage(d3)
+        _jsPlumb.addSourceSelector("#d3")
+
+        let elDragged = false;
+        _jsPlumb.bind("drag:move", function() {
+            elDragged = true
+        })
+
+        _jsPlumb.addTargetSelector(".zone1", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart",
+            maxConnections:1
+        })
+
+        support.dragConnection(d2, zone, true)
+        equal(1, _jsPlumb.select().length, "one connection in the instance")
+
+        // try to drag another connection, but the target has a limit of 1 connection
+        support.dragConnection(d3, zone, true)
+        equal(1, _jsPlumb.select().length, "one connection in the instance since the second connection was rejected")
+
+        var targetNode2 = makeTargetNode()
+        var zone2 = addZone(targetNode2, "zone1")
+
+        support.dragConnection(d2, zone2, true)
+        equal(2, _jsPlumb.select().length, "two connections in the instance")
+
+        // try to drag another connection, but the target has a limit of 1 connection
+        support.dragConnection(d3, zone2, true)
+        equal(2, _jsPlumb.select().length, "2 connections in the instance since the second connection to the second target was rejected")
+
+    })
+
+    test("addTargetSelector, maxConnections 2", function() {
+        var targetNode = makeTargetNode()
+        var zone = addZone(targetNode, "zone1")
+
+        var d2 = support.addDiv("d2")
+        d2.className = "node"
+        _jsPlumb.manage(d2)
+        _jsPlumb.addSourceSelector("#d2")
+
+        var d3 = support.addDiv("d3")
+        d3.className = "node"
+        _jsPlumb.manage(d3)
+        _jsPlumb.addSourceSelector("#d3")
+
+        let elDragged = false;
+        _jsPlumb.bind("drag:move", function() {
+            elDragged = true
+        })
+
+        _jsPlumb.addTargetSelector(".zone1", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart",
+            maxConnections:2
+        })
+
+        support.dragConnection(d2, zone, true)
+        equal(1, _jsPlumb.select().length, "one connection in the instance")
+
+        support.dragConnection(d2, zone, true)
+        equal(2, _jsPlumb.select().length, "two connections in the instance")
+
+        // try to drag another connection, but the target has a limit of 1 connection
+        support.dragConnection(d3, zone, true)
+        equal(2, _jsPlumb.select().length, "two connection in the instance since the third connection was rejected")
+
+    })
+
     test("addTargetSelector, move target of dragged connection", function() {
         var targetNode = makeTargetNode()
         var zone = addZone(targetNode, "zone1")
