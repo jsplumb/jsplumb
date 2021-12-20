@@ -632,9 +632,17 @@ export class EndpointDragHandler implements DragHandler {
                             }
                         }
 
+                        let maxConnections:number = targetDef.def.def.maxConnections
+                        if (targetDef.def.def.parameterExtractor) {
+                            const extractedParameters = targetDef.def.def.parameterExtractor(d.targetEl, null)
+                            if (extractedParameters.maxConnections != null) {
+                                 maxConnections = extractedParameters.maxConnections
+                            }
+                        }
+
                         // check for maxConnections
-                        if(targetDef.def.def.maxConnections != null && targetDef.def.def.maxConnections !== -1) {
-                            if (this.instance.select({target:d.targetEl}).length >= targetDef.def.def.maxConnections) {
+                        if(maxConnections != null && maxConnections !== -1) {
+                            if (this.instance.select({target:d.targetEl}).length >= maxConnections) {
                                 return
                             }
                         }
