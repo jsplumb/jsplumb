@@ -377,7 +377,7 @@ export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescript
     // (undocumented)
     extract?: Record<string, string>;
     onMaxConnections?: (value: any, event?: any) => any;
-    parameterExtractor?: (el: T, eventTarget: T) => Record<string, string>;
+    parameterExtractor?: (el: T, eventTarget: T) => Record<string, any>;
     parentSelector?: string;
     // (undocumented)
     portId?: string;

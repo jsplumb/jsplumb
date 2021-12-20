@@ -3050,7 +3050,7 @@
         var boundingRect;
         var matchingEndpoints = this.instance.getContainer().querySelectorAll([".", core.CLASS_ENDPOINT, "[", core.ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]"].join(""));
         util.forEach(matchingEndpoints, function (candidate) {
-          if ((_this.jpc != null || candidate !== canvasElement) && candidate !== _this.floatingElement) {
+          if ((_this.jpc != null || candidate !== canvasElement) && candidate !== _this.floatingElement && !candidate.jtk.endpoint.isFull()) {
             if (isSourceDrag && candidate.jtk.endpoint.isSource || !isSourceDrag && candidate.jtk.endpoint.isTarget) {
               var o = _this.instance.getOffset(candidate),
                   s = _this.instance.getSize(candidate);
@@ -3129,6 +3129,20 @@
                 }
                 if (targetDef.def.def.allowLoopback === false || _this._activeDefinition && _this._activeDefinition.def.def.allowLoopback === false) {
                   if (d.targetEl === _this.ep.element) {
+                    return;
+                  }
+                }
+                var maxConnections = targetDef.def.def.maxConnections;
+                if (targetDef.def.def.parameterExtractor) {
+                  var extractedParameters = targetDef.def.def.parameterExtractor(d.targetEl, null);
+                  if (extractedParameters.maxConnections != null) {
+                    maxConnections = extractedParameters.maxConnections;
+                  }
+                }
+                if (maxConnections != null && maxConnections !== -1) {
+                  if (_this.instance.select({
+                    target: d.targetEl
+                  }).length >= maxConnections) {
                     return;
                   }
                 }

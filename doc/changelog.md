@@ -1,3 +1,9 @@
+## 5.3.1
+
+December 20th 2021
+
+- added support for `maxConnections` in `addTargetSelector` method. 
+
 ## 5.1.0
 
 November 25th 2021
