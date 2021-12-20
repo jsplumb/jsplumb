@@ -74,7 +74,7 @@ export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescript
      * @param el - The element that is the drag source
      * @param eventTarget - The element that captured the event that started the connection drag.
      */
-    parameterExtractor?:(el:T, eventTarget:T) => Record<string, string>
+    parameterExtractor?:(el:T, eventTarget:T) => Record<string, any>
     redrop?:RedropPolicy
 
     extract?:Record<string, string>
