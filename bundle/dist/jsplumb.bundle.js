@@ -15067,6 +15067,15 @@ var jsPlumbBrowserUI = (function (exports) {
           if (!doNotCascade) {
             for (var i = 0; i < endpoint.connections.length; i++) {
               this.setConnectorHover(endpoint.connections[i].connector, hover, true);
+
+              // code to highlight other endpoint.
+              var ctr = endpoint.connections[i].connector;
+              if (ctr.connection.instance._instanceIndex == this._instanceIndex) {
+                  if (ctr.connection.endpoints[0].id !== endpoint.id)
+                      this.setEndpointHover(ctr.connection.endpoints[0], hover, true);
+                  if (ctr.connection.endpoints[1].id !== endpoint.id)
+                      this.setEndpointHover(ctr.connection.endpoints[1], hover, true);
+              }
             }
           }
         }
