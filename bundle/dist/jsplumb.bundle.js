@@ -14919,6 +14919,9 @@ var jsPlumbBrowserUI = (function (exports) {
     }, {
       key: "setConnectorHover",
       value: function setConnectorHover(connector, hover, doNotCascade) {
+
+        if (connector.connection.instance._instanceIndex != this._instanceIndex) { return; }
+
         if (hover === false || !this.currentlyDragging && !this.isHoverSuspended()) {
           var canvas = connector.canvas;
           if (canvas != null) {
