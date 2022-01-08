@@ -527,4 +527,22 @@ var testSuite = function () {
 
     });
 
+    test("endpoint hover", function() {
+        var d = _addDiv("one", 0, 0, 1000, 1000), count = 0,
+            d2 = _addDiv("two", 50, 50, 1000, 1000),
+            e1 = _jsPlumb.addEndpoint(d, {
+                hoverClass:"hovering"
+            }),
+            e2 = _jsPlumb.addEndpoint(d2, {
+                hoverClass:"hovering"
+            }),
+            c = _jsPlumb.connect({source:e1, target:e2})
+
+        support.fireEventOnEndpoint(e1, "mouseover", "mousemove")
+        var c = support.getEndpointCanvas(e1)
+        ok(c.classList.contains("hovering"), "hovered endpoint has hover class")
+        var c2 = support.getEndpointCanvas(e2)
+        ok(c2.classList.contains("hovering"), "other endpoint has hover class")
+    })
+
 };
