@@ -536,7 +536,7 @@ export class EndpointDragHandler implements DragHandler {
      * @param canvasElement
      * @internal
      */
-    private _populateTargets(canvasElement:Element) {
+    private _populateTargets(canvasElement:Element, eventTarget?:Element) {
         const isSourceDrag = this.jpc && this.jpc.endpoints[0] === this.ep
 
         let boundingRect:BoundingBox
@@ -634,7 +634,7 @@ export class EndpointDragHandler implements DragHandler {
 
                         let maxConnections:number = targetDef.def.def.maxConnections
                         if (targetDef.def.def.parameterExtractor) {
-                            const extractedParameters = targetDef.def.def.parameterExtractor(d.targetEl, null)
+                            const extractedParameters = targetDef.def.def.parameterExtractor(d.targetEl, eventTarget)
                             if (extractedParameters.maxConnections != null) {
                                  maxConnections = extractedParameters.maxConnections
                             }
@@ -707,6 +707,8 @@ export class EndpointDragHandler implements DragHandler {
         let dragEl = p.drag.getDragElement()
         this.ep = dragEl.jtk.endpoint
 
+        const eventTarget = (p.e.srcElement || p.e.target) as Element
+
         if (!this.ep) {
             return false
         }
@@ -739,7 +741,7 @@ export class EndpointDragHandler implements DragHandler {
         this._createFloatingEndpoint(this.canvasElement)
 
         // populate list of drop targets, whose contents depends on what's being dragged
-        this._populateTargets(this.canvasElement)
+        this._populateTargets(this.canvasElement, eventTarget)
 
         if (this.jpc == null) {
             this.startNewConnectionDrag(this.ep.scope, payload)
