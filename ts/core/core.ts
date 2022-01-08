@@ -2140,7 +2140,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      * @param h
      * @param doNotCascade
      */
-    abstract setConnectorHover(connector:AbstractConnector, h:boolean, doNotCascade?:boolean):void
+    abstract setConnectorHover(connector:AbstractConnector, h:boolean, sourceEndpoint?:Endpoint):void
 
     /**
      * @internal
