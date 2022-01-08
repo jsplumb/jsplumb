@@ -412,6 +412,13 @@ export class BrowserUITestSupport {
         this.equal(_mel.connections.length, count, id + " has " + count + " connections in managed record")
     }
 
+    fireEventOnEndpoint (ep:Endpoint, ...events:Array<string>) {
+        var canvas = this.getEndpointCanvas(ep)
+        for (let i = 0; i < events.length; i++) {
+            this._jsPlumb.trigger(canvas, events[i])
+        }
+    }
+
     fireEventOnConnection (connection:Connection, ...events:Array<string>) {
         var canvas = this.getConnectionCanvas(connection)
         for (let i = 0; i < events.length; i++) {
