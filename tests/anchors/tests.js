@@ -140,6 +140,35 @@ var testSuite = function () {
         equal(sa.type, "ContinuousTop")
         equal(ta.type, "ContinuousBottom")
     })
+
+    test("continuous anchors, different faces for two separate connect calls", function() {
+        var d1 = _addDiv("one", 50, 50, 100, 100),
+            d2 = _addDiv("two", 550, 550, 100, 100)
+
+        var conn = _jsPlumb.connect({
+                source:d1,
+                target:d2,
+                anchors:["ContinuousLeft", "ContinuousRight"]
+            }),
+            sa = conn.endpoints[0]._anchor,
+            ta = conn.endpoints[1]._anchor
+
+        equal(sa.type, "ContinuousLeft")
+        equal(ta.type, "ContinuousRight")
+        equal(ta.computedPosition.x, 1, "x = 1 on target anchor (right face)")
+
+        var conn2 = _jsPlumb.connect({
+                source:d1,
+                target:d2,
+                anchors:["ContinuousLeft", "ContinuousBottom"]
+            }),
+            sa2 = conn2.endpoints[0]._anchor,
+            ta2 = conn2.endpoints[1]._anchor
+
+        equal(sa2.type, "ContinuousLeft")
+        equal(ta2.type, "ContinuousBottom")
+        equal(ta2.computedPosition.y, 1, "y = 1 on target anchor (bottom face)")
+    })
     
     test("perimeter anchors, circle", function () {
         var d1 = _addDiv("one", 50, 50, 100, 100), d2 = _addDiv("two", 550, 550, 100, 100)
