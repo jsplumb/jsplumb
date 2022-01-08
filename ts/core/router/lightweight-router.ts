@@ -516,6 +516,7 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
                     }
 
                 } else {
+
                     for (let i = 0; i < anEndpoint.connections.length; i++) {
                         let conn = anEndpoint.connections[i],
                             sourceId = conn.sourceId,
@@ -524,7 +525,10 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
                             targetContinuous = isContinuous(conn.endpoints[1]._anchor)
 
                         if (sourceContinuous || targetContinuous) {
-                            let oKey = sourceId + "_" + targetId,
+                            // key for orientation cache must take allowed faces for each anchor into account (issue 1086)
+                            let c1 = ((conn.endpoints[0]._anchor as any).faces || []).join("-"),
+                                c2 = ((conn.endpoints[1]._anchor as any).faces || []).join("-"),
+                                oKey = [sourceId, c1, targetId, c2].join("-"),
                                 o = orientationCache[oKey],
                                 oIdx = conn.sourceId === elementId ? 1 : 0
 
