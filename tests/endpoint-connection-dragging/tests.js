@@ -425,7 +425,7 @@ var testSuite = function () {
     test("connection dragging, redrop on original target endpoint", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
         var e1 = _jsPlumb.addEndpoint(d1, { source:true });
-        var e2 = _jsPlumb.addEndpoint(d2, { target:true });
+        var e2 = _jsPlumb.addEndpoint(d2, { target:true, maxConnections:-1 });
 
         var c = _jsPlumb.connect({source: e1, target: e2});
         equal(_jsPlumb.select({source:d1}).length, 1, "1 connection registered for d1 after mouse connect");
