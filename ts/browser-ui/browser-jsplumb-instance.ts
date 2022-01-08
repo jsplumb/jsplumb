@@ -1412,7 +1412,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         paintSvgConnector(this, connector, paintStyle, extents)
     }
 
-    setConnectorHover(connector:AbstractConnector, hover:boolean, doNotCascade?:boolean):void {
+    setConnectorHover(connector:AbstractConnector, hover:boolean, sourceEndpoint?:Endpoint):void {
         if (hover === false || (!this.currentlyDragging && !this.isHoverSuspended())) {
 
             const canvas = (connector as any).canvas
@@ -1439,9 +1439,11 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
                 }
             }
 
-            if (!doNotCascade) {
-
+            if (connector.connection.endpoints[0] !== sourceEndpoint) {
                 this.setEndpointHover(connector.connection.endpoints[0], hover, true)
+            }
+
+            if (connector.connection.endpoints[1] !== sourceEndpoint) {
                 this.setEndpointHover(connector.connection.endpoints[1], hover, true)
             }
         }
@@ -1619,7 +1621,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             if (!doNotCascade) {
                 // instruct attached connections to set hover, unless doNotCascade was true.
                 for(let i = 0; i < endpoint.connections.length; i++) {
-                    this.setConnectorHover(endpoint.connections[i].connector, hover, true)
+                    this.setConnectorHover(endpoint.connections[i].connector, hover, endpoint)
+                    //this.setConnectorHover(endpoint.connections[i].connector, hover, true)
                 }
             }
         }
