@@ -1976,7 +1976,7 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param h
      * @param doNotCascade
      */
-    abstract setConnectorHover(connector: AbstractConnector, h: boolean, doNotCascade?: boolean): void;
+    abstract setConnectorHover(connector: AbstractConnector, h: boolean, sourceEndpoint?: Endpoint): void;
     /**
      * @internal
      * @param connector

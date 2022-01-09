@@ -222,7 +222,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     setAttribute(el: Element, name: string, value: string): void;
     setAttributes(el: Element, atts: Record<string, string>): void;
     // (undocumented)
-    setConnectorHover(connector: AbstractConnector, hover: boolean, doNotCascade?: boolean): void;
+    setConnectorHover(connector: AbstractConnector, hover: boolean, sourceEndpoint?: Endpoint): void;
     // @internal (undocumented)
     setConnectorVisible(connector: AbstractConnector, v: boolean): void;
     setContainer(newContainer: Element): void;

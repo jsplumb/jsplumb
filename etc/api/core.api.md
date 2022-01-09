@@ -1853,7 +1853,7 @@ export abstract class JsPlumbInstance<T extends {
     // (undocumented)
     abstract setAttributes(el: T["E"], atts: Record<string, string>): void;
     // @internal (undocumented)
-    abstract setConnectorHover(connector: AbstractConnector, h: boolean, doNotCascade?: boolean): void;
+    abstract setConnectorHover(connector: AbstractConnector, h: boolean, sourceEndpoint?: Endpoint): void;
     // Warning: (ae-incompatible-release-tags) The symbol "setConnectorVisible" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
     //
     // (undocumented)

@@ -5235,7 +5235,9 @@ var LightweightRouter = function () {
                   sourceContinuous = isContinuous(conn.endpoints[0]._anchor),
                   targetContinuous = isContinuous(conn.endpoints[1]._anchor);
               if (sourceContinuous || targetContinuous) {
-                var oKey = sourceId + "_" + targetId,
+                var c1 = (conn.endpoints[0]._anchor.faces || []).join("-"),
+                    c2 = (conn.endpoints[1]._anchor.faces || []).join("-"),
+                    oKey = [sourceId, c1, targetId, c2].join("-"),
                     o = orientationCache[oKey],
                     oIdx = conn.sourceId === elementId ? 1 : 0;
                 if (sourceContinuous && !this.anchorLists.has(sourceId)) {
@@ -5968,10 +5970,10 @@ var JsPlumbInstance = function (_EventGenerator) {
         if (params.force || util.functionChain(true, false, [[connection.endpoints[0], IS_DETACH_ALLOWED, [connection]], [connection.endpoints[1], IS_DETACH_ALLOWED, [connection]], [connection, IS_DETACH_ALLOWED, [connection]], [this, CHECK_CONDITION, [INTERCEPT_BEFORE_DETACH, connection]]])) {
           removeManagedConnection(connection, this._managedElements[connection.sourceId], this._managedElements[connection.targetId]);
           this.fireDetachEvent(connection, !connection.pending && params.fireEvent !== false, params.originalEvent);
-          var sourceEndpoint = connection.endpoints[0];
+          var _sourceEndpoint = connection.endpoints[0];
           var targetEndpoint = connection.endpoints[1];
-          if (sourceEndpoint !== params.endpointToIgnore) {
-            sourceEndpoint.detachFromConnection(connection, null, true);
+          if (_sourceEndpoint !== params.endpointToIgnore) {
+            _sourceEndpoint.detachFromConnection(connection, null, true);
           }
           if (targetEndpoint !== params.endpointToIgnore) {
             targetEndpoint.detachFromConnection(connection, null, true);
@@ -5980,8 +5982,8 @@ var JsPlumbInstance = function (_EventGenerator) {
             return connection.id === _c.id;
           });
           connection.destroy();
-          if (sourceEndpoint !== params.endpointToIgnore && sourceEndpoint.deleteOnEmpty && sourceEndpoint.connections.length === 0) {
-            this.deleteEndpoint(sourceEndpoint);
+          if (_sourceEndpoint !== params.endpointToIgnore && _sourceEndpoint.deleteOnEmpty && _sourceEndpoint.connections.length === 0) {
+            this.deleteEndpoint(_sourceEndpoint);
           }
           if (targetEndpoint !== params.endpointToIgnore && targetEndpoint.deleteOnEmpty && targetEndpoint.connections.length === 0) {
             this.deleteEndpoint(targetEndpoint);

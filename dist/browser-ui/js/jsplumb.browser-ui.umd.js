@@ -3044,7 +3044,7 @@
       }
     }, {
       key: "_populateTargets",
-      value: function _populateTargets(canvasElement) {
+      value: function _populateTargets(canvasElement, eventTarget) {
         var _this = this;
         var isSourceDrag = this.jpc && this.jpc.endpoints[0] === this.ep;
         var boundingRect;
@@ -3134,7 +3134,7 @@
                 }
                 var maxConnections = targetDef.def.def.maxConnections;
                 if (targetDef.def.def.parameterExtractor) {
-                  var extractedParameters = targetDef.def.def.parameterExtractor(d.targetEl, null);
+                  var extractedParameters = targetDef.def.def.parameterExtractor(d.targetEl, eventTarget);
                   if (extractedParameters.maxConnections != null) {
                     maxConnections = extractedParameters.maxConnections;
                   }
@@ -3198,6 +3198,7 @@
         this._stopped = false;
         var dragEl = p.drag.getDragElement();
         this.ep = dragEl.jtk.endpoint;
+        var eventTarget = p.e.srcElement || p.e.target;
         if (!this.ep) {
           return false;
         }
@@ -3218,7 +3219,7 @@
           this.jpc = null;
         }
         this._createFloatingEndpoint(this.canvasElement);
-        this._populateTargets(this.canvasElement);
+        this._populateTargets(this.canvasElement, eventTarget);
         if (this.jpc == null) {
           this.startNewConnectionDrag(this.ep.scope, payload);
         } else {
@@ -4878,7 +4879,7 @@
       }
     }, {
       key: "setConnectorHover",
-      value: function setConnectorHover(connector, hover, doNotCascade) {
+      value: function setConnectorHover(connector, hover, sourceEndpoint) {
         if (hover === false || !this.currentlyDragging && !this.isHoverSuspended()) {
           var canvas = connector.canvas;
           if (canvas != null) {
@@ -4901,8 +4902,10 @@
               this.paintConnection(connector.connection);
             }
           }
-          if (!doNotCascade) {
+          if (connector.connection.endpoints[0] !== sourceEndpoint) {
             this.setEndpointHover(connector.connection.endpoints[0], hover, true);
+          }
+          if (connector.connection.endpoints[1] !== sourceEndpoint) {
             this.setEndpointHover(connector.connection.endpoints[1], hover, true);
           }
         }
@@ -5026,7 +5029,7 @@
           }
           if (!doNotCascade) {
             for (var i = 0; i < endpoint.connections.length; i++) {
-              this.setConnectorHover(endpoint.connections[i].connector, hover, true);
+              this.setConnectorHover(endpoint.connections[i].connector, hover, endpoint);
             }
           }
         }

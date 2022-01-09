@@ -78,6 +78,8 @@ export class BrowserUITestSupport {
     // (undocumented)
     fireEventOnConnection(connection: Connection, ...events: Array<string>): void;
     // (undocumented)
+    fireEventOnEndpoint(ep: Endpoint, ...events: Array<string>): void;
+    // (undocumented)
     fireEventOnOverlay(connection: Connection, overlayId: string, event: string): void;
     // (undocumented)
     getAttribute(el: Element, att: string): string;

@@ -399,11 +399,19 @@ var BrowserUITestSupport = function () {
       this.equal(_mel.connections.length, count, id + " has " + count + " connections in managed record");
     }
   }, {
+    key: "fireEventOnEndpoint",
+    value: function fireEventOnEndpoint(ep) {
+      var canvas = this.getEndpointCanvas(ep);
+      for (var _i2 = 0; _i2 < (arguments.length <= 1 ? 0 : arguments.length - 1); _i2++) {
+        this._jsPlumb.trigger(canvas, _i2 + 1 < 1 || arguments.length <= _i2 + 1 ? undefined : arguments[_i2 + 1]);
+      }
+    }
+  }, {
     key: "fireEventOnConnection",
     value: function fireEventOnConnection(connection) {
       var canvas = this.getConnectionCanvas(connection);
-      for (var _i2 = 0; _i2 < (arguments.length <= 1 ? 0 : arguments.length - 1); _i2++) {
-        this._jsPlumb.trigger(canvas, _i2 + 1 < 1 || arguments.length <= _i2 + 1 ? undefined : arguments[_i2 + 1]);
+      for (var _i3 = 0; _i3 < (arguments.length <= 1 ? 0 : arguments.length - 1); _i3++) {
+        this._jsPlumb.trigger(canvas, _i3 + 1 < 1 || arguments.length <= _i3 + 1 ? undefined : arguments[_i3 + 1]);
       }
     }
   }, {

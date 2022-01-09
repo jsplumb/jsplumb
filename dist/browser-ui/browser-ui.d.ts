@@ -454,7 +454,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     updateLabel(o: LabelOverlay): void;
     setHover(component: Component, hover: boolean): void;
     paintConnector(connector: AbstractConnector, paintStyle: PaintStyle, extents?: Extents): void;
-    setConnectorHover(connector: AbstractConnector, hover: boolean, doNotCascade?: boolean): void;
+    setConnectorHover(connector: AbstractConnector, hover: boolean, sourceEndpoint?: Endpoint): void;
     /**
      * @internal
      * @param connection

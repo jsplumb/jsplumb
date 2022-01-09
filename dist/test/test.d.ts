@@ -52,6 +52,7 @@ export declare class BrowserUITestSupport {
     within(val: number, target: number, msg: string): void;
     assertManagedEndpointCount(el: Element, count: number): void;
     assertManagedConnectionCount(el: Element, count: number): void;
+    fireEventOnEndpoint(ep: Endpoint, ...events: Array<string>): void;
     fireEventOnConnection(connection: Connection, ...events: Array<string>): void;
     clickOnConnection(connection: Connection): void;
     dblClickOnConnection(connection: Connection): void;

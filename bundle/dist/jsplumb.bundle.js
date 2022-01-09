@@ -6322,7 +6322,9 @@ var jsPlumbBrowserUI = (function (exports) {
                     sourceContinuous = isContinuous(conn.endpoints[0]._anchor),
                     targetContinuous = isContinuous(conn.endpoints[1]._anchor);
                 if (sourceContinuous || targetContinuous) {
-                  var oKey = sourceId + "_" + targetId,
+                  var c1 = (conn.endpoints[0]._anchor.faces || []).join("-"),
+                      c2 = (conn.endpoints[1]._anchor.faces || []).join("-"),
+                      oKey = [sourceId, c1, targetId, c2].join("-"),
                       o = orientationCache[oKey],
                       oIdx = conn.sourceId === elementId ? 1 : 0;
                   if (sourceContinuous && !this.anchorLists.has(sourceId)) {
@@ -7055,10 +7057,10 @@ var jsPlumbBrowserUI = (function (exports) {
           if (params.force || functionChain(true, false, [[connection.endpoints[0], IS_DETACH_ALLOWED, [connection]], [connection.endpoints[1], IS_DETACH_ALLOWED, [connection]], [connection, IS_DETACH_ALLOWED, [connection]], [this, CHECK_CONDITION, [INTERCEPT_BEFORE_DETACH, connection]]])) {
             removeManagedConnection(connection, this._managedElements[connection.sourceId], this._managedElements[connection.targetId]);
             this.fireDetachEvent(connection, !connection.pending && params.fireEvent !== false, params.originalEvent);
-            var sourceEndpoint = connection.endpoints[0];
+            var _sourceEndpoint = connection.endpoints[0];
             var targetEndpoint = connection.endpoints[1];
-            if (sourceEndpoint !== params.endpointToIgnore) {
-              sourceEndpoint.detachFromConnection(connection, null, true);
+            if (_sourceEndpoint !== params.endpointToIgnore) {
+              _sourceEndpoint.detachFromConnection(connection, null, true);
             }
             if (targetEndpoint !== params.endpointToIgnore) {
               targetEndpoint.detachFromConnection(connection, null, true);
@@ -7067,8 +7069,8 @@ var jsPlumbBrowserUI = (function (exports) {
               return connection.id === _c.id;
             });
             connection.destroy();
-            if (sourceEndpoint !== params.endpointToIgnore && sourceEndpoint.deleteOnEmpty && sourceEndpoint.connections.length === 0) {
-              this.deleteEndpoint(sourceEndpoint);
+            if (_sourceEndpoint !== params.endpointToIgnore && _sourceEndpoint.deleteOnEmpty && _sourceEndpoint.connections.length === 0) {
+              this.deleteEndpoint(_sourceEndpoint);
             }
             if (targetEndpoint !== params.endpointToIgnore && targetEndpoint.deleteOnEmpty && targetEndpoint.connections.length === 0) {
               this.deleteEndpoint(targetEndpoint);
@@ -13084,7 +13086,7 @@ var jsPlumbBrowserUI = (function (exports) {
       }
     }, {
       key: "_populateTargets",
-      value: function _populateTargets(canvasElement) {
+      value: function _populateTargets(canvasElement, eventTarget) {
         var _this = this;
         var isSourceDrag = this.jpc && this.jpc.endpoints[0] === this.ep;
         var boundingRect;
@@ -13174,7 +13176,7 @@ var jsPlumbBrowserUI = (function (exports) {
                 }
                 var maxConnections = targetDef.def.def.maxConnections;
                 if (targetDef.def.def.parameterExtractor) {
-                  var extractedParameters = targetDef.def.def.parameterExtractor(d.targetEl, null);
+                  var extractedParameters = targetDef.def.def.parameterExtractor(d.targetEl, eventTarget);
                   if (extractedParameters.maxConnections != null) {
                     maxConnections = extractedParameters.maxConnections;
                   }
@@ -13238,6 +13240,7 @@ var jsPlumbBrowserUI = (function (exports) {
         this._stopped = false;
         var dragEl = p.drag.getDragElement();
         this.ep = dragEl.jtk.endpoint;
+        var eventTarget = p.e.srcElement || p.e.target;
         if (!this.ep) {
           return false;
         }
@@ -13258,7 +13261,7 @@ var jsPlumbBrowserUI = (function (exports) {
           this.jpc = null;
         }
         this._createFloatingEndpoint(this.canvasElement);
-        this._populateTargets(this.canvasElement);
+        this._populateTargets(this.canvasElement, eventTarget);
         if (this.jpc == null) {
           this.startNewConnectionDrag(this.ep.scope, payload);
         } else {
@@ -14918,7 +14921,7 @@ var jsPlumbBrowserUI = (function (exports) {
       }
     }, {
       key: "setConnectorHover",
-      value: function setConnectorHover(connector, hover, doNotCascade) {
+      value: function setConnectorHover(connector, hover, sourceEndpoint) {
         if (hover === false || !this.currentlyDragging && !this.isHoverSuspended()) {
           var canvas = connector.canvas;
           if (canvas != null) {
@@ -14941,8 +14944,10 @@ var jsPlumbBrowserUI = (function (exports) {
               this.paintConnection(connector.connection);
             }
           }
-          if (!doNotCascade) {
+          if (connector.connection.endpoints[0] !== sourceEndpoint) {
             this.setEndpointHover(connector.connection.endpoints[0], hover, true);
+          }
+          if (connector.connection.endpoints[1] !== sourceEndpoint) {
             this.setEndpointHover(connector.connection.endpoints[1], hover, true);
           }
         }
@@ -15066,7 +15071,7 @@ var jsPlumbBrowserUI = (function (exports) {
           }
           if (!doNotCascade) {
             for (var i = 0; i < endpoint.connections.length; i++) {
-              this.setConnectorHover(endpoint.connections[i].connector, hover, true);
+              this.setConnectorHover(endpoint.connections[i].connector, hover, endpoint);
             }
           }
         }
