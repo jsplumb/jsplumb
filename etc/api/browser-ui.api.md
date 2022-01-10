@@ -230,7 +230,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     setDragGrid(grid: Grid): void;
     setDragGroupState(state: boolean, ...els: Array<Element>): void;
     // @internal (undocumented)
-    setEndpointHover(endpoint: Endpoint, hover: boolean, doNotCascade?: boolean): void;
+    setEndpointHover(endpoint: Endpoint, hover: boolean, endpointIndex: -1 | 0 | 1, doNotCascade?: boolean): void;
     // @internal (undocumented)
     setEndpointVisible(ep: Endpoint, v: boolean): void;
     // @internal (undocumented)

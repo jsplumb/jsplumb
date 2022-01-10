@@ -568,6 +568,6 @@ export declare abstract class JsPlumbInstance<T extends {
     abstract addEndpointClass(ep: Endpoint<T>, c: string): void;
     abstract removeEndpointClass(ep: Endpoint<T>, c: string): void;
     abstract getEndpointClass(ep: Endpoint<T>): string;
-    abstract setEndpointHover(endpoint: Endpoint<T>, h: boolean, doNotCascade?: boolean): void;
+    abstract setEndpointHover(endpoint: Endpoint<T>, h: boolean, endpointIndex: number, doNotCascade?: boolean): void;
 }
 //# sourceMappingURL=core.d.ts.map

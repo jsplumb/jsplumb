@@ -1862,7 +1862,7 @@ export abstract class JsPlumbInstance<T extends {
     setContainer(c: T["E"]): void;
     setElementPosition(el: T["E"], x: number, y: number): RedrawResult;
     // (undocumented)
-    abstract setEndpointHover(endpoint: Endpoint<T>, h: boolean, doNotCascade?: boolean): void;
+    abstract setEndpointHover(endpoint: Endpoint<T>, h: boolean, endpointIndex: number, doNotCascade?: boolean): void;
     setEndpointUuid(endpoint: Endpoint, uuid: string): void;
     // (undocumented)
     abstract setEndpointVisible(ep: Endpoint<T>, v: boolean): void;

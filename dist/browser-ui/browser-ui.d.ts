@@ -527,9 +527,11 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
      * @internal
      * @param endpoint
      * @param hover
+     * @param endpointIndex Optional (though you must provide a value) index that identifies whether the endpoint being hovered is the source
+     * or target of some connection. A value for this will be provided whenever the source of the hover event is the connector.
      * @param doNotCascade
      */
-    setEndpointHover(endpoint: Endpoint, hover: boolean, doNotCascade?: boolean): void;
+    setEndpointHover(endpoint: Endpoint, hover: boolean, endpointIndex: -1 | 0 | 1, doNotCascade?: boolean): void;
     /**
      * @internal
      * @param ep

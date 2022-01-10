@@ -1,6 +1,6 @@
 {
   "name": "@jsplumb/browser-ui-lists",
-  "version": "5.3.2",
+  "version": "5.3.3",
   "description": "Scrollable list manager for jsPlumb",
   "main": "js/jsplumb.browser-ui-lists.cjs.js",
   "module": "js/jsplumb.browser-ui-lists.es.js",
@@ -30,6 +30,6 @@
   "author": "jsPlumb (hello@jsplumbtoolkit.com)",
   "license": "(MIT OR GPL-2.0)",
   "dependencies": {
-    "@jsplumb/browser-ui": "5.3.2"
+    "@jsplumb/browser-ui": "5.3.3"
   }
 }
