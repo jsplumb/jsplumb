@@ -528,8 +528,8 @@ var testSuite = function () {
     });
 
     test("endpoint hover", function() {
-        var d = _addDiv("one", 0, 0, 1000, 1000), count = 0,
-            d2 = _addDiv("two", 50, 50, 1000, 1000),
+        var d = _addDiv("one", 0, 0, 100, 100), count = 0,
+            d2 = _addDiv("two", 250, 520, 100, 100),
             e1 = _jsPlumb.addEndpoint(d, {
                 hoverClass:"hovering"
             }),
@@ -543,6 +543,30 @@ var testSuite = function () {
         ok(c.classList.contains("hovering"), "hovered endpoint has hover class")
         var c2 = support.getEndpointCanvas(e2)
         ok(c2.classList.contains("hovering"), "other endpoint has hover class")
+    })
+
+    test("connector hover (including adding classes to source and target endpoints)", function() {
+        var d = _addDiv("one", 0, 0, 100, 100),
+            d2 = _addDiv("two", 250, 250, 100, 100),
+            e1 = _jsPlumb.addEndpoint(d, {
+                hoverClass:"sourcehovering"
+            }),
+            e2 = _jsPlumb.addEndpoint(d2, {
+                hoverClass:"targethovering"
+            }),
+            c = _jsPlumb.connect({source:e1, target:e2})
+
+        var cc = support.getConnectionCanvas(c)
+
+        support.fireEventOnElement(cc.childNodes[0], "mouseover", "mousemove")
+
+        ok(cc.classList.contains("jtk-hover"), "connector has hover class")
+        var c = support.getEndpointCanvas(e1)
+        ok(c.classList.contains("jtk-source-hover"), "source endpoint has standard hover class")
+        ok(c.classList.contains("sourcehovering"), "source endpoint has user supplied hover class")
+        var c2 = support.getEndpointCanvas(e2)
+        ok(c2.classList.contains("jtk-target-hover"), "target endpoint has standard hover class")
+        ok(c2.classList.contains("targethovering"), "source endpoint has user supplied hover class")
     })
 
 };
