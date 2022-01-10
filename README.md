@@ -27,6 +27,8 @@ One major change between 5.x and 2.x is that jsPlumb is now broken up into a num
 
 - `@jsplumb/bundle` This package contains all of the other packages, and contains a single JS file - `jsplumb.bundle.umd.js`, which exposes a `jsPlumbBrowserUI` member on the window. Using this package you do not have the option of any tree shaking, and you are importing everything, which you may not need.  Currently this package is not published on npm. 
 
+**NOTE** jsPlumb does not necessarily follow semver. You should not use a wildcard version number. This is of course true not only of jsPlumb but of every package you import, as evidenced by the occasional "package XXX has broken the internets!" frenzies. Pick a version you like and stick with it, that's my advice. And then if you want to use a new version, update your code, _test it_, and then stick with that version.
+
 
 ### Which packages do you need?
 
@@ -117,10 +119,6 @@ There is a full suite of unit tests checked in to the `test` and `dist/test` dir
 ## Twitter
 
 Please don't.
-
-## Mailing List
-
-Sign up for the jsPlumb announcements mailing list [here](http://eepurl.com/bMuD9).
 
 ## License
 
