@@ -419,11 +419,15 @@ export class BrowserUITestSupport {
         }
     }
 
+    fireEventOnElement(e:Element, ...events:Array<string>) {
+        for (let i = 0; i < events.length; i++) {
+            this._jsPlumb.trigger(e, events[i])
+        }
+    }
+
     fireEventOnConnection (connection:Connection, ...events:Array<string>) {
         var canvas = this.getConnectionCanvas(connection)
-        for (let i = 0; i < events.length; i++) {
-            this._jsPlumb.trigger(canvas, events[i])
-        }
+        this.fireEventOnElement(canvas, ...events)
     }
 
     clickOnConnection(connection:Connection) {
