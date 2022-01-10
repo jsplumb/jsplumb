@@ -1400,7 +1400,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     setHover(component: Component, hover: boolean): void {
         component._hover = hover
         if (component instanceof Endpoint && (component as Endpoint).endpoint != null) {
-            this.setEndpointHover((component as Endpoint), hover)
+            this.setEndpointHover((component as Endpoint), hover, -1)
         } else if (component instanceof Connection && (component as Connection).connector != null) {
             this.setConnectorHover((component as Connection).connector, hover)
         }
@@ -1440,11 +1440,11 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             }
 
             if (connector.connection.endpoints[0] !== sourceEndpoint) {
-                this.setEndpointHover(connector.connection.endpoints[0], hover, true)
+                this.setEndpointHover(connector.connection.endpoints[0], hover, 0, true)
             }
 
             if (connector.connection.endpoints[1] !== sourceEndpoint) {
-                this.setEndpointHover(connector.connection.endpoints[1], hover, true)
+                this.setEndpointHover(connector.connection.endpoints[1], hover, 1, true)
             }
         }
     }
@@ -1594,9 +1594,11 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
      * @internal
      * @param endpoint
      * @param hover
+     * @param endpointIndex Optional (though you must provide a value) index that identifies whether the endpoint being hovered is the source
+     * or target of some connection. A value for this will be provided whenever the source of the hover event is the connector.
      * @param doNotCascade
      */
-    setEndpointHover(endpoint: Endpoint, hover: boolean, doNotCascade?:boolean): void {
+    setEndpointHover(endpoint: Endpoint, hover: boolean, endpointIndex:-1|0|1, doNotCascade?:boolean): void {
 
         if (endpoint != null && (hover === false || (!this.currentlyDragging && !this.isHoverSuspended()))) {
 
@@ -1608,6 +1610,16 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
                         this.addClass(canvas, endpoint.hoverClass)
                     } else {
                         this.removeClass(canvas, endpoint.hoverClass)
+                    }
+                }
+
+                if (endpointIndex === 0 || endpointIndex === 1) {
+                    const genericHoverClass = endpointIndex === 0 ? this.hoverSourceClass : this.hoverTargetClass
+
+                    if (hover) {
+                        this.addClass(canvas, genericHoverClass)
+                    } else {
+                        this.removeClass(canvas, genericHoverClass)
                     }
                 }
             }
@@ -1622,7 +1634,6 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
                 // instruct attached connections to set hover, unless doNotCascade was true.
                 for(let i = 0; i < endpoint.connections.length; i++) {
                     this.setConnectorHover(endpoint.connections[i].connector, hover, endpoint)
-                    //this.setConnectorHover(endpoint.connections[i].connector, hover, true)
                 }
             }
         }
@@ -1660,8 +1671,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
      */
     deleteConnection(connection: Connection, params?: DeleteConnectionOptions): boolean {
         if (connection != null && connection.deleted !== true) {
-            this.setEndpointHover(connection.endpoints[0], false, true)
-            this.setEndpointHover(connection.endpoints[1], false, true)
+            this.setEndpointHover(connection.endpoints[0], false, 0, true)
+            this.setEndpointHover(connection.endpoints[1], false, 1, true)
             return super.deleteConnection(connection, params)
         } else {
             return false
