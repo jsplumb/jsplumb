@@ -263,7 +263,7 @@ export function groupDragConstrain (desiredLoc:PointXY, dragEl:jsPlumbDOMElement
  */
 export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
-    private dragSelection:DragSelection
+    private readonly dragSelection:DragSelection
     dragManager:DragManager
     _connectorClick:Function
     _connectorDblClick:Function
@@ -325,10 +325,10 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
      */
     elementsDraggable:boolean
 
-    private elementDragHandler :ElementDragHandler
+    private elementDragHandler:ElementDragHandler
 
-    private groupDragOptions:DragHandlerOptions
-    private elementDragOptions:DragHandlerOptions
+    private readonly groupDragOptions:DragHandlerOptions
+    private readonly elementDragOptions:DragHandlerOptions
 
     constructor(public _instanceIndex:number, defaults?:BrowserJsPlumbDefaults) {
         super(_instanceIndex, defaults)
@@ -340,7 +340,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
         this.eventManager = new EventManager()
         this.dragSelection = new DragSelection(this)
-        this.dragManager = new DragManager(this, this.dragSelection/*,defaults && defaults.dragOptions ? defaults.dragOptions : null*/)
+        this.dragManager = new DragManager(this, this.dragSelection)
 
         this.dragManager.addHandler(new EndpointDragHandler(this))
         this.groupDragOptions = {
@@ -374,7 +374,18 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         const _connectorHover = function(state:boolean, e:MouseEvent) {
             const el = getEventSource(e).parentNode
             if (el.jtk && el.jtk.connector) {
-                this.setConnectorHover(el.jtk.connector, state)
+                const connector = el.jtk.connector
+                const connection = connector.connection
+                this.setConnectorHover(connector, state)
+
+                if (state) {
+                    this.addClass(connection.source, this.hoverSourceClass)
+                    this.addClass(connection.target, this.hoverTargetClass)
+                } else {
+                    this.removeClass(connection.source, this.hoverSourceClass)
+                    this.removeClass(connection.target, this.hoverTargetClass)
+                }
+
                 this.fire(state ? EVENT_CONNECTION_MOUSEOVER : EVENT_CONNECTION_MOUSEOUT, el.jtk.connector.connection, e)
             }
         }
