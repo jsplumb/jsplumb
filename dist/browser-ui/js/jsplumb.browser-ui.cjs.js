@@ -4081,8 +4081,7 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
     _this.managedElementsSelector = defaults ? defaults.managedElementsSelector || core.SELECTOR_MANAGED_ELEMENT : core.SELECTOR_MANAGED_ELEMENT;
     _this.eventManager = new EventManager();
     _this.dragSelection = new DragSelection(_assertThisInitialized(_this));
-    _this.dragManager = new DragManager(_assertThisInitialized(_this), _this.dragSelection
-    );
+    _this.dragManager = new DragManager(_assertThisInitialized(_this), _this.dragSelection);
     _this.dragManager.addHandler(new EndpointDragHandler(_assertThisInitialized(_this)));
     _this.groupDragOptions = {
       constrainFunction: groupDragConstrain
@@ -4107,7 +4106,16 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
     var _connectorHover = function _connectorHover(state, e) {
       var el = getEventSource(e).parentNode;
       if (el.jtk && el.jtk.connector) {
-        this.setConnectorHover(el.jtk.connector, state);
+        var connector = el.jtk.connector;
+        var connection = connector.connection;
+        this.setConnectorHover(connector, state);
+        if (state) {
+          this.addClass(connection.source, this.hoverSourceClass);
+          this.addClass(connection.target, this.hoverTargetClass);
+        } else {
+          this.removeClass(connection.source, this.hoverSourceClass);
+          this.removeClass(connection.target, this.hoverTargetClass);
+        }
         this.fire(state ? EVENT_CONNECTION_MOUSEOVER : EVENT_CONNECTION_MOUSEOUT, el.jtk.connector.connection, e);
       }
     };

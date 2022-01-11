@@ -90,7 +90,7 @@ export declare interface BrowserJsPlumbDefaults extends JsPlumbDefaults<Element>
  */
 export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     _instanceIndex: number;
-    private dragSelection;
+    private readonly dragSelection;
     dragManager: DragManager;
     _connectorClick: Function;
     _connectorDblClick: Function;
@@ -138,8 +138,8 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
      */
     elementsDraggable: boolean;
     private elementDragHandler;
-    private groupDragOptions;
-    private elementDragOptions;
+    private readonly groupDragOptions;
+    private readonly elementDragOptions;
     constructor(_instanceIndex: number, defaults?: BrowserJsPlumbDefaults);
     /**
      * Fire an event for an overlay, and for its related component.
