@@ -562,11 +562,15 @@ var testSuite = function () {
 
         ok(cc.classList.contains("jtk-hover"), "connector has hover class")
         var c = support.getEndpointCanvas(e1)
-        ok(c.classList.contains("jtk-source-hover"), "source endpoint has standard hover class")
+        ok(d.classList.contains("jtk-source-hover"), "source element has standard hover class")
         ok(c.classList.contains("sourcehovering"), "source endpoint has user supplied hover class")
         var c2 = support.getEndpointCanvas(e2)
-        ok(c2.classList.contains("jtk-target-hover"), "target endpoint has standard hover class")
+        ok(d2.classList.contains("jtk-target-hover"), "target element has standard hover class")
         ok(c2.classList.contains("targethovering"), "source endpoint has user supplied hover class")
+
+        support.fireEventOnElement(cc.childNodes[0], "mouseout")
+        ok(!d.classList.contains("jtk-source-hover"), "source element hover class removed")
+        ok(!d2.classList.contains("jtk-target-hover"), "target element hover class removed")
     })
 
 };
