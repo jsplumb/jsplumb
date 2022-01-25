@@ -16,16 +16,6 @@ var removeContainer = function() {
     container && container.parentNode && container.parentNode.removeChild(container)
 }
 
-var reinit = function(defaults) {
-    removeContainer()
-    makeContainer()
-    var d = jsPlumbUtil.extend({container:container}, defaults || {});
-    support.cleanup()
-
-    _jsPlumb = jsPlumbBrowserUI.newInstance((d));
-    support = jsPlumbTestSupport.getInstanceQUnit(_jsPlumb);
-    defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
-}
 
 /**
  * Tests for dragging
@@ -290,6 +280,60 @@ var testSuite = function () {
         support.clickOnElement(d2)
 
         ok(!clicked, "click event not fired when child selector doesnt match")
+    })
+
+    test("click, child element, delegate selector, filter with single class", function() {
+        var d = _addDiv("one", 50, 50, 100, 100)
+        var d1 = document.createElement("div")
+        d1.className = "one"
+        d1.style.width = "10px";
+        d1.style.height= "10px";
+        d.appendChild(d1)
+        var d2 = document.createElement("div")
+        d2.className = "two"
+        d2.style.width = "10px";
+        d2.style.height= "10px";
+        d.appendChild(d2)
+        var clicked = false;
+        _jsPlumb.on(d, "click", ":not(.two)", function() {
+            clicked = true
+        })
+
+        support.clickOnElement(d1)
+
+        ok(clicked, "click event fired")
+
+        clicked = false
+
+        support.clickOnElement(d2)
+
+        ok(!clicked, "click event not fired when child selector matches but clicked element is filtered")
+    })
+
+    test("click, child element, delegate selector, filter with two classes", function() {
+        var d = _addDiv("one", 50, 50, 100, 100)
+        var d1 = document.createElement("div")
+        d1.className = "one"
+        d1.style.width = "10px";
+        d1.style.height= "10px";
+        d.appendChild(d1)
+        var d2 = document.createElement("div")
+        d2.className = "two"
+        d2.style.width = "10px";
+        d2.style.height= "10px";
+        d.appendChild(d2)
+        var clicked = false;
+        _jsPlumb.on(d, "click", ":not(.one), :not(.two)", function() {
+            clicked = true
+        })
+
+        support.clickOnElement(d1)
+
+        ok(!clicked, "click event not fired when child selector matches but clicked element is filtered")
+
+        support.clickOnElement(d2)
+
+        ok(!clicked, "click event not fired when child selector matches but clicked element is filtered")
     })
 
     test("tap, child element, delegate selector", function() {
