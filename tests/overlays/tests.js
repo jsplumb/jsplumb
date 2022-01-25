@@ -563,6 +563,21 @@ var testSuite = function () {
         equal(c.getOverlay("lbl").isVisible(), true, "overlay is visible");
     });
 
+    test("show/hide Overlays, supply ids to hide/show", function() {
+        var c = _jsPlumb.connect({source:support.addDiv("d1"), target:support.addDiv("d2"), overlays:[
+                { type: "Label", options:{ "id":"lbl" } },
+                { type: "Label", options:{ "id":"lbl2" } }
+            ]});
+
+        equal(c.getOverlay("lbl").isVisible(), true, "overlay is visible");
+        c.hideOverlays("lbl");
+        equal(c.getOverlay("lbl").isVisible(), false, "overlay is not visible");
+        equal(c.getOverlay("lbl2").isVisible(), true, "overlay 2 is visible");
+        c.showOverlays("lbl");
+        equal(c.getOverlay("lbl").isVisible(), true, "overlay is visible");
+        equal(c.getOverlay("lbl2").isVisible(), true, "overlay 2 is visible");
+    });
+
     //
     //test for issue 132: label leaves its element in the DOM after it has been
     //removed from a connection.
