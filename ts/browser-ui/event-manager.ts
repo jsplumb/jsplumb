@@ -3,12 +3,13 @@ import {
     ATTRIBUTE_TABINDEX,
 } from "@jsplumb/core"
 
-import { PointXY, removeWithFunction, uuid } from "@jsplumb/util"
+import {forEach, PointXY, removeWithFunction, uuid} from "@jsplumb/util"
 
 import { jsPlumbDOMElement} from './element-facade'
 
 import { EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEOUT, EVENT_MOUSEOVER,
     EVENT_MOUSEUP, EVENT_TAP, EVENT_DBL_TAP, EVENT_CONTEXTMENU, EVENT_FOCUS } from './constants'
+import {WILDCARD} from "@jsplumb/common"
 
 /**
  * Creates a Touch object.
@@ -241,11 +242,33 @@ function _unstore (obj:any, event:string, fn:FunctionFacade) {
     fn.__taUnstore && fn.__taUnstore()
 }
 
+const NOT_SELECTOR_REGEX = /:not\(([^)]+)\)/
+
 function _curryChildFilter (children:string, obj:any, fn:FunctionFacade, evt:string) {
-    if (children == null) return fn
+    if (children == null) {
+        return fn
+    }
     else {
         const c = children.split(","),
-            _fn =  (e:any) => {
+            pc:Array<string> = [],
+            nc:Array<string> = []
+
+        // split into :not(...) and other selectors.
+        forEach(c, (sel) => {
+            const m = sel.match(NOT_SELECTOR_REGEX)
+            if (m != null) {
+                nc.push(m[1])
+            } else {
+                pc.push(sel)
+            }
+        })
+
+        // if there were negative selectors but no positive selectors, push the wildcard selector to the positive selector list.
+        if (nc.length > 0 && pc.length === 0) {
+            pc.push(WILDCARD)
+        }
+
+        const _fn =  (e:any) => {
                 (_fn as any).__tauid = fn.__tauid
                 const t = _t(e)
                 let done = false;
@@ -255,8 +278,17 @@ function _curryChildFilter (children:string, obj:any, fn:FunctionFacade, evt:str
                 if (pathInfo.end != -1) {
                     for (let p = 0; !done && p < pathInfo.end; p++) {
                         target = pathInfo.path[p]
-                        for (let i = 0; !done && i < c.length; i++) {
-                            if (matchesSelector(target, c[i], obj)) {
+
+                        // if any negative selectors match, abort.
+                        for (let i = 0; i < nc.length; i++) {
+                            if (matchesSelector(target, nc[i], obj)) {
+                                return
+                            }
+                        }
+
+                        // now try to match a positive selector.
+                        for (let i = 0; !done && i < pc.length; i++) {
+                            if (matchesSelector(target, pc[i], obj)) {
                                 fn.apply(target, [e, target])
                                 done = true;
                                 break;
