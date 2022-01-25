@@ -2953,8 +2953,14 @@ var jsPlumbBrowserUI = (function (exports) {
     }, {
       key: "hideOverlays",
       value: function hideOverlays() {
+        for (var _len = arguments.length, ids = new Array(_len), _key = 0; _key < _len; _key++) {
+          ids[_key] = arguments[_key];
+        }
+        ids = ids || [];
         for (var i in this.overlays) {
-          this.overlays[i].setVisible(false);
+          if (ids.length === 0 || ids.indexOf(i) !== -1) {
+            this.overlays[i].setVisible(false);
+          }
         }
       }
     }, {
@@ -2968,8 +2974,14 @@ var jsPlumbBrowserUI = (function (exports) {
     }, {
       key: "showOverlays",
       value: function showOverlays() {
+        for (var _len2 = arguments.length, ids = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+          ids[_key2] = arguments[_key2];
+        }
+        ids = ids || [];
         for (var i in this.overlays) {
-          this.overlays[i].setVisible(true);
+          if (ids.length === 0 || ids.indexOf(i) !== -1) {
+            this.overlays[i].setVisible(true);
+          }
         }
       }
     }, {
@@ -3003,8 +3015,8 @@ var jsPlumbBrowserUI = (function (exports) {
     }, {
       key: "removeOverlays",
       value: function removeOverlays() {
-        for (var _len = arguments.length, overlays = new Array(_len), _key = 0; _key < _len; _key++) {
-          overlays[_key] = arguments[_key];
+        for (var _len3 = arguments.length, overlays = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+          overlays[_key3] = arguments[_key3];
         }
         for (var i = 0, j = overlays.length; i < j; i++) {
           this.removeOverlay(arguments[i]);
@@ -10787,10 +10799,26 @@ var jsPlumbBrowserUI = (function (exports) {
     }
     fn.__taUnstore && fn.__taUnstore();
   }
+  var NOT_SELECTOR_REGEX = /:not\(([^)]+)\)/;
   function _curryChildFilter(children, obj, fn, evt) {
-    if (children == null) return fn;else {
+    if (children == null) {
+      return fn;
+    } else {
       var c = children.split(","),
-          _fn = function _fn(e) {
+          pc = [],
+          nc = [];
+      forEach(c, function (sel) {
+        var m = sel.match(NOT_SELECTOR_REGEX);
+        if (m != null) {
+          nc.push(m[1]);
+        } else {
+          pc.push(sel);
+        }
+      });
+      if (nc.length > 0 && pc.length === 0) {
+        pc.push(WILDCARD);
+      }
+      var _fn = function _fn(e) {
         _fn.__tauid = fn.__tauid;
         var t = _t(e);
         var done = false;
@@ -10799,8 +10827,13 @@ var jsPlumbBrowserUI = (function (exports) {
         if (pathInfo.end != -1) {
           for (var p = 0; !done && p < pathInfo.end; p++) {
             target = pathInfo.path[p];
-            for (var i = 0; !done && i < c.length; i++) {
-              if (matchesSelector(target, c[i], obj)) {
+            for (var i = 0; i < nc.length; i++) {
+              if (matchesSelector(target, nc[i], obj)) {
+                return;
+              }
+            }
+            for (var _i = 0; !done && _i < pc.length; _i++) {
+              if (matchesSelector(target, pc[_i], obj)) {
                 fn.apply(target, [e, target]);
                 done = true;
                 break;

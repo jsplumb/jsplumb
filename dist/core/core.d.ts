@@ -506,9 +506,21 @@ export declare abstract class Component extends EventGenerator {
     getOverlay<T extends Overlay>(id: string): T;
     getOverlays(): Record<string, Overlay>;
     hideOverlay(id: string): void;
-    hideOverlays(): void;
+    /**
+     * Hide all overlays, or a specific set of overlays.
+     * @param ids optional list of ids to hide.
+     */
+    hideOverlays(...ids: Array<string>): void;
+    /**
+     * Show a specific overlay
+     * @param id
+     */
     showOverlay(id: string): void;
-    showOverlays(): void;
+    /**
+     * Show all overlays, or a specific set of overlays.
+     * @param ids optional list of ids to show.
+     */
+    showOverlays(...ids: Array<string>): void;
     removeAllOverlays(): void;
     removeOverlay(overlayId: string, dontCleanup?: boolean): void;
     removeOverlays(...overlays: string[]): void;

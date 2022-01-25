@@ -1,6 +1,6 @@
 import { NONE, cls, CLASS_CONNECTOR, CLASS_ENDPOINT, att, ATTRIBUTE_GROUP, CLASS_OVERLAY, ATTRIBUTE_TABINDEX, EVENT_ZOOM, SELECTOR_MANAGED_ELEMENT, ATTRIBUTE_NOT_DRAGGABLE, SOURCE, TARGET, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_START_DETACH, ATTRIBUTE_SCOPE_PREFIX, REDROP_POLICY_ANY, CHECK_DROP_ALLOWED, classList, EVENT_MAX_CONNECTIONS, IS_DETACH_ALLOWED, CHECK_CONDITION, INTERCEPT_BEFORE_DETACH, createFloatingAnchor, EndpointRepresentation, ABSOLUTE, Connection, Endpoint, Overlay, BLOCK, STATIC, FIXED, ATTRIBUTE_MANAGED, isLabelOverlay, isArrowOverlay, isDiamondOverlay, isPlainArrowOverlay, isCustomOverlay, JsPlumbInstance, DotEndpoint, RectangleEndpoint, BlankEndpoint } from '@jsplumb/core';
 import { isString, forEach, fastTrim, log, removeWithFunction, uuid, snapToGrid, extend, findWithFunction, wrap, getWithFunction, getFromSetWithFunction, intersects, merge, each, getAllWithFunction, functionChain, isObject, addToDictionary, isAssignableFrom, fromArray, isFunction } from '@jsplumb/util';
-import { FALSE as FALSE$1, TRUE as TRUE$1, UNDEFINED } from '@jsplumb/common';
+import { WILDCARD, FALSE as FALSE$1, TRUE as TRUE$1, UNDEFINED } from '@jsplumb/common';
 
 function _typeof(obj) {
   "@babel/helpers - typeof";
@@ -743,10 +743,26 @@ function _unstore(obj, event, fn) {
   }
   fn.__taUnstore && fn.__taUnstore();
 }
+var NOT_SELECTOR_REGEX = /:not\(([^)]+)\)/;
 function _curryChildFilter(children, obj, fn, evt) {
-  if (children == null) return fn;else {
+  if (children == null) {
+    return fn;
+  } else {
     var c = children.split(","),
-        _fn = function _fn(e) {
+        pc = [],
+        nc = [];
+    forEach(c, function (sel) {
+      var m = sel.match(NOT_SELECTOR_REGEX);
+      if (m != null) {
+        nc.push(m[1]);
+      } else {
+        pc.push(sel);
+      }
+    });
+    if (nc.length > 0 && pc.length === 0) {
+      pc.push(WILDCARD);
+    }
+    var _fn = function _fn(e) {
       _fn.__tauid = fn.__tauid;
       var t = _t(e);
       var done = false;
@@ -755,8 +771,13 @@ function _curryChildFilter(children, obj, fn, evt) {
       if (pathInfo.end != -1) {
         for (var p = 0; !done && p < pathInfo.end; p++) {
           target = pathInfo.path[p];
-          for (var i = 0; !done && i < c.length; i++) {
-            if (matchesSelector(target, c[i], obj)) {
+          for (var i = 0; i < nc.length; i++) {
+            if (matchesSelector(target, nc[i], obj)) {
+              return;
+            }
+          }
+          for (var _i = 0; !done && _i < pc.length; _i++) {
+            if (matchesSelector(target, pc[_i], obj)) {
               fn.apply(target, [e, target]);
               done = true;
               break;

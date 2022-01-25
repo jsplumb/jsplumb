@@ -745,10 +745,26 @@
     }
     fn.__taUnstore && fn.__taUnstore();
   }
+  var NOT_SELECTOR_REGEX = /:not\(([^)]+)\)/;
   function _curryChildFilter(children, obj, fn, evt) {
-    if (children == null) return fn;else {
+    if (children == null) {
+      return fn;
+    } else {
       var c = children.split(","),
-          _fn = function _fn(e) {
+          pc = [],
+          nc = [];
+      util.forEach(c, function (sel) {
+        var m = sel.match(NOT_SELECTOR_REGEX);
+        if (m != null) {
+          nc.push(m[1]);
+        } else {
+          pc.push(sel);
+        }
+      });
+      if (nc.length > 0 && pc.length === 0) {
+        pc.push(common.WILDCARD);
+      }
+      var _fn = function _fn(e) {
         _fn.__tauid = fn.__tauid;
         var t = _t(e);
         var done = false;
@@ -757,8 +773,13 @@
         if (pathInfo.end != -1) {
           for (var p = 0; !done && p < pathInfo.end; p++) {
             target = pathInfo.path[p];
-            for (var i = 0; !done && i < c.length; i++) {
-              if (matchesSelector(target, c[i], obj)) {
+            for (var i = 0; i < nc.length; i++) {
+              if (matchesSelector(target, nc[i], obj)) {
+                return;
+              }
+            }
+            for (var _i = 0; !done && _i < pc.length; _i++) {
+              if (matchesSelector(target, pc[_i], obj)) {
                 fn.apply(target, [e, target]);
                 done = true;
                 break;

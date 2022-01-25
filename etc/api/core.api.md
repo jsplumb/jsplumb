@@ -538,8 +538,7 @@ export abstract class Component extends EventGenerator {
     hasType(typeId: string): boolean;
     // (undocumented)
     hideOverlay(id: string): void;
-    // (undocumented)
-    hideOverlays(): void;
+    hideOverlays(...ids: Array<string>): void;
     // (undocumented)
     _hover: boolean;
     // (undocumented)
@@ -608,10 +607,8 @@ export abstract class Component extends EventGenerator {
     setVisible(v: boolean): void;
     // (undocumented)
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
-    // (undocumented)
     showOverlay(id: string): void;
-    // (undocumented)
-    showOverlays(): void;
+    showOverlays(...ids: Array<string>): void;
     // (undocumented)
     toggleType(typeId: string, params?: any): void;
     // (undocumented)

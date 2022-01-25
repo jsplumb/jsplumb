@@ -1862,8 +1862,14 @@ var Component = function (_EventGenerator) {
   }, {
     key: "hideOverlays",
     value: function hideOverlays() {
+      for (var _len = arguments.length, ids = new Array(_len), _key = 0; _key < _len; _key++) {
+        ids[_key] = arguments[_key];
+      }
+      ids = ids || [];
       for (var i in this.overlays) {
-        this.overlays[i].setVisible(false);
+        if (ids.length === 0 || ids.indexOf(i) !== -1) {
+          this.overlays[i].setVisible(false);
+        }
       }
     }
   }, {
@@ -1877,8 +1883,14 @@ var Component = function (_EventGenerator) {
   }, {
     key: "showOverlays",
     value: function showOverlays() {
+      for (var _len2 = arguments.length, ids = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        ids[_key2] = arguments[_key2];
+      }
+      ids = ids || [];
       for (var i in this.overlays) {
-        this.overlays[i].setVisible(true);
+        if (ids.length === 0 || ids.indexOf(i) !== -1) {
+          this.overlays[i].setVisible(true);
+        }
       }
     }
   }, {
@@ -1912,8 +1924,8 @@ var Component = function (_EventGenerator) {
   }, {
     key: "removeOverlays",
     value: function removeOverlays() {
-      for (var _len = arguments.length, overlays = new Array(_len), _key = 0; _key < _len; _key++) {
-        overlays[_key] = arguments[_key];
+      for (var _len3 = arguments.length, overlays = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+        overlays[_key3] = arguments[_key3];
       }
       for (var i = 0, j = overlays.length; i < j; i++) {
         this.removeOverlay(arguments[i]);
