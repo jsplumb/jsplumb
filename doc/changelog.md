@@ -1,3 +1,14 @@
+## 5.3.6
+
+January 25th 2021
+
+- updated EventManager to support multiple `:not(..)` clauses in the child selector.
+
+## 5.3.5
+
+January 20th 2021
+
+
 ## 5.3.1
 
 December 20th 2021
