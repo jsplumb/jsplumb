@@ -3,6 +3,7 @@
 January 25th 2021
 
 - updated EventManager to support multiple `:not(..)` clauses in the child selector.
+- updated `hideOverlays` and `showOverlays` on `Component` to support a list of IDs to hide or show.
 
 ## 5.3.5
 
