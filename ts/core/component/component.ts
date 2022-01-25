@@ -645,12 +645,23 @@ export abstract class Component extends EventGenerator {
         }
     }
 
-    hideOverlays():void {
+    /**
+     * Hide all overlays, or a specific set of overlays.
+     * @param ids optional list of ids to hide.
+     */
+    hideOverlays(...ids:Array<string>):void {
+        ids = ids || []
         for (let i in this.overlays) {
-            this.overlays[i].setVisible(false)
+            if (ids.length === 0 || ids.indexOf(i) !== -1) {
+                this.overlays[i].setVisible(false)
+            }
         }
     }
 
+    /**
+     * Show a specific overlay
+     * @param id
+     */
     showOverlay(id:string):void {
         let o = this.getOverlay(id)
         if (o) {
@@ -658,9 +669,16 @@ export abstract class Component extends EventGenerator {
         }
     }
 
-    showOverlays():void {
+    /**
+     * Show all overlays, or a specific set of overlays.
+     * @param ids optional list of ids to show.
+     */
+    showOverlays(...ids:Array<string>):void {
+        ids = ids || []
         for (let i in this.overlays) {
-            this.overlays[i].setVisible(true)
+            if (ids.length === 0 || ids.indexOf(i) !== -1) {
+                this.overlays[i].setVisible(true)
+            }
         }
     }
 
