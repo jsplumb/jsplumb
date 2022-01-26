@@ -1695,6 +1695,11 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         }
     }
 
+    /**
+     * Register a connection type: a set of connection attributes grouped together with an ID.
+     * @param id
+     * @param type
+     */
     registerConnectionType(id:string, type:ConnectionTypeDescriptor):void {
         this._connectionTypes.set(id, extend({}, type))
         if (type.overlays) {
@@ -1709,12 +1714,21 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         }
     }
 
+    /**
+     * Register a set of connection types
+     * @param types Set of types to register.
+     */
     registerConnectionTypes(types:Record<string, ConnectionTypeDescriptor>) {
         for (let i in types) {
             this.registerConnectionType(i, types[i])
         }
     }
 
+    /**
+     * Register an endpoint type: a set of endpoint attributes grouped together with an ID.
+     * @param id
+     * @param type
+     */
     registerEndpointType(id:string, type:EndpointTypeDescriptor) {
         this._endpointTypes.set(id, extend({}, type))
         if (type.overlays) {
@@ -1729,20 +1743,37 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         }
     }
 
+    /**
+     * Register a set of endpoint types
+     * @param types Set of types to register.
+     */
     registerEndpointTypes(types:Record<string, EndpointTypeDescriptor>) {
         for (let i in types) {
             this.registerEndpointType(i, types[i])
         }
     }
 
+    /**
+     * Retrieve an endpoint or connection type by its id.
+     * @param id
+     * @param typeDescriptor
+     */
     getType(id:string, typeDescriptor:string):TypeDescriptor {
         return typeDescriptor === "connection" ? this.getConnectionType(id) : this.getEndpointType(id)
     }
 
+    /**
+     * Retrieve a connection type by its id.
+     * @param id
+     */
     getConnectionType(id:string):ConnectionTypeDescriptor {
         return  this._connectionTypes.get(id)
     }
 
+    /**
+     * Retrieve an endpoint type by its id.
+     * @param id
+     */
     getEndpointType(id:string):EndpointTypeDescriptor {
         return this._endpointTypes.get(id)
     }
