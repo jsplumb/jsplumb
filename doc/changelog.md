@@ -1,3 +1,9 @@
+## 5.3.7
+
+January 27th 2021
+
+- fixed issue 1100, in which a `start` handler in `dragOptions` would override the disabled state of some draggable element.
+
 ## 5.3.6
 
 January 25th 2021
