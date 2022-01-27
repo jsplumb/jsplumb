@@ -648,6 +648,50 @@ var testSuite = function () {
         equal(stop, true, "stop event fired")
     });
 
+    test("dragging, start event should not override disabled element (issue 1100)", function() {
+
+        var start = false, beforeStart = false, drag = false, stop = false;
+
+        reinit({
+            dragOptions:{
+                start:(p) => start = true
+            }
+        });
+
+        var d = _addDiv("d1");
+        d.style.position = "absolute";
+        d.style.left = "50px";
+        d.style.top = "50px";
+        d.style.width = "100px";
+        d.style.height = "100px";
+
+        _jsPlumb.manage(d);
+
+        _jsPlumb.setDraggable(d, false)
+
+        // try to drag; it should not happen
+        support.dragNodeBy(d, 26, 26);
+
+        // our custom start handler should not be called
+        equal(start, false, "start event not fired")
+
+        // the element should not have moved
+        equal(50, parseInt(d.style.left, 10), "left position unchanged as no drag occurred")
+        equal(50, parseInt(d.style.top, 10), "top position unchanged as no drag occurred")
+
+        // set draggable and try again
+        _jsPlumb.setDraggable(d, true)
+
+        support.dragNodeBy(d, 26, 26);
+
+        // our custom start handler was invoked
+        equal(start, true, "start event fired")
+
+        // the element was moved.
+        equal(76, parseInt(d.style.left, 10), "left position changed ")
+        equal(76, parseInt(d.style.top, 10), "top position changed")
+    });
+
     test("dragging, grid, change at runtime, including set to null", function() {
 
         reinit({
