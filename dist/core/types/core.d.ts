@@ -454,12 +454,43 @@ export declare abstract class JsPlumbInstance<T extends {
      */
     toggleVisible(el: T["E"], changeEndpoints?: boolean): void;
     private _operation;
+    /**
+     * Register a connection type: a set of connection attributes grouped together with an ID.
+     * @param id
+     * @param type
+     */
     registerConnectionType(id: string, type: ConnectionTypeDescriptor): void;
+    /**
+     * Register a set of connection types
+     * @param types Set of types to register.
+     */
     registerConnectionTypes(types: Record<string, ConnectionTypeDescriptor>): void;
+    /**
+     * Register an endpoint type: a set of endpoint attributes grouped together with an ID.
+     * @param id
+     * @param type
+     */
     registerEndpointType(id: string, type: EndpointTypeDescriptor): void;
+    /**
+     * Register a set of endpoint types
+     * @param types Set of types to register.
+     */
     registerEndpointTypes(types: Record<string, EndpointTypeDescriptor>): void;
+    /**
+     * Retrieve an endpoint or connection type by its id.
+     * @param id
+     * @param typeDescriptor
+     */
     getType(id: string, typeDescriptor: string): TypeDescriptor;
+    /**
+     * Retrieve a connection type by its id.
+     * @param id
+     */
     getConnectionType(id: string): ConnectionTypeDescriptor;
+    /**
+     * Retrieve an endpoint type by its id.
+     * @param id
+     */
     getEndpointType(id: string): EndpointTypeDescriptor;
     importDefaults(d: JsPlumbDefaults<T["E"]>): JsPlumbInstance;
     restoreDefaults(): JsPlumbInstance;

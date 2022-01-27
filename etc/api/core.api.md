@@ -1689,7 +1689,6 @@ export abstract class JsPlumbInstance<T extends {
     abstract getClass(el: T["E"]): string;
     // (undocumented)
     getConnections(options?: SelectOptions<T["E"]>, flat?: boolean): Record<string, Connection> | Array<Connection>;
-    // (undocumented)
     getConnectionType(id: string): ConnectionTypeDescriptor;
     // Warning: (ae-incompatible-release-tags) The symbol "getConnectorClass" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
     //
@@ -1701,7 +1700,6 @@ export abstract class JsPlumbInstance<T extends {
     // (undocumented)
     abstract getEndpointClass(ep: Endpoint<T>): string;
     getEndpoints(el: T["E"]): Array<Endpoint>;
-    // (undocumented)
     getEndpointType(id: string): EndpointTypeDescriptor;
     // (undocumented)
     getGroup(groupId: string): UIGroup<T["E"]>;
@@ -1736,7 +1734,6 @@ export abstract class JsPlumbInstance<T extends {
     abstract getStyle(el: T["E"], prop: string): any;
     // (undocumented)
     getSuspendedAt(): string;
-    // (undocumented)
     getType(id: string, typeDescriptor: string): TypeDescriptor;
     // (undocumented)
     readonly groupManager: GroupManager<T["E"]>;
@@ -1798,13 +1795,9 @@ export abstract class JsPlumbInstance<T extends {
     abstract reattachOverlay(o: Overlay, c: Component): void;
     // (undocumented)
     refreshEndpoint(endpoint: Endpoint): void;
-    // (undocumented)
     registerConnectionType(id: string, type: ConnectionTypeDescriptor): void;
-    // (undocumented)
     registerConnectionTypes(types: Record<string, ConnectionTypeDescriptor>): void;
-    // (undocumented)
     registerEndpointType(id: string, type: EndpointTypeDescriptor): void;
-    // (undocumented)
     registerEndpointTypes(types: Record<string, EndpointTypeDescriptor>): void;
     removeAllEndpoints(el: T["E"], recurse?: boolean): JsPlumbInstance;
     // (undocumented)
@@ -2716,6 +2709,6 @@ export const Y_AXIS_FACES: Axis;
 // /Users/simon/programming/jsplumb/jsplumb/dist/core/types/connector/connectors.d.ts:5:5 - (ae-incompatible-release-tags) The symbol "get" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
 // /Users/simon/programming/jsplumb/jsplumb/dist/core/types/connector/connectors.d.ts:6:5 - (ae-incompatible-release-tags) The symbol "register" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
 // /Users/simon/programming/jsplumb/jsplumb/dist/core/types/core.d.ts:68:5 - (ae-incompatible-release-tags) The symbol "viewportElement" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
-// /Users/simon/programming/jsplumb/jsplumb/dist/core/types/core.d.ts:483:9 - (ae-incompatible-release-tags) The symbol "offset" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
+// /Users/simon/programming/jsplumb/jsplumb/dist/core/types/core.d.ts:514:9 - (ae-incompatible-release-tags) The symbol "offset" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
 
 ```

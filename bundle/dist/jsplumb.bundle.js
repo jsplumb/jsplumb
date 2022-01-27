@@ -12151,7 +12151,7 @@ var jsPlumbBrowserUI = (function (exports) {
         }, dragOptions || {});
         o.start = wrap(o.start, function (p) {
           return handler.onStart(p);
-        });
+        }, false);
         o.drag = wrap(o.drag, function (p) {
           return handler.onDrag(p);
         });

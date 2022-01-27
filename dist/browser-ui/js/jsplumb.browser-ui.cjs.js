@@ -2099,7 +2099,7 @@ var DragManager = function () {
       }, dragOptions || {});
       o.start = util.wrap(o.start, function (p) {
         return handler.onStart(p);
-      });
+      }, false);
       o.drag = util.wrap(o.drag, function (p) {
         return handler.onDrag(p);
       });
