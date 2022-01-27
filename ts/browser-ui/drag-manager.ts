@@ -101,7 +101,7 @@ export class DragManager {
     addHandler(handler:DragHandler, dragOptions?:DragHandlerOptions):void {
         const o = extend<DragHandlerOptions>({selector:handler.selector} as any, (dragOptions || {}) as any)
 
-        o.start = wrap(o.start, (p:DragStartEventParams) => { return handler.onStart(p); })
+        o.start = wrap(o.start, (p:DragStartEventParams) => { return handler.onStart(p); }, false)
         o.drag = wrap(o.drag, (p:DragEventParams) => { return handler.onDrag(p); })
         o.stop = wrap(o.stop, (p:DragStopEventParams) => { return handler.onStop(p); })
 
