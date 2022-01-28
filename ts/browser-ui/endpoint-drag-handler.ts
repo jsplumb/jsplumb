@@ -1033,12 +1033,13 @@ export class EndpointDragHandler implements DragHandler {
                 endpoint:targetDefinition.def.endpoint || eps.endpoints[1]
             }) :p
 
-            // if the definition specified some anchors, use those, or if there are `anchors` specified as defaults on the instance,
+            // if the definition specified an anchor/some anchors, use those, or if there are `anchors` specified as defaults on the instance,
             // use those. otherwise later in the code we'll pick the default anchor.
             const anchorsToUse = this.instance.validAnchorsSpec(eps.anchors) ? eps.anchors : this.instance.areDefaultAnchorsSet() ? this.instance.defaults.anchors : null
-            if (anchorsToUse) {
+            const dropAnchor = targetDefinition.def.anchor ? targetDefinition.def.anchor : anchorsToUse != null && anchorsToUse[1] != null ? anchorsToUse[1] : null
+            if (dropAnchor != null) {
                 pp = extend(pp, {
-                    anchor:targetDefinition.def.anchor || anchorsToUse[1]
+                    anchor:dropAnchor
                 })
             }
 
