@@ -477,6 +477,54 @@ var testSuite = function () {
         equal(parseInt(d.style.top, 10), 150);
     });
 
+    test("dragging multiple elements works", function() {
+
+        reinit({
+            dragOptions:{
+                stop:function() {
+                    console.log(arguments)
+                }
+            }
+        });
+
+        var d = _addDiv("d1");
+        d.style.position = "absolute";
+        d.style.left = "50px";
+        d.style.top = "50px";
+        d.style.width = "100px";
+        d.style.height = "100px";
+
+        var d2 = _addDiv("d2");
+        d2.style.position = "absolute";
+        d2.style.left = "350px";
+        d2.style.top = "350px";
+        d2.style.width = "100px";
+        d2.style.height = "100px";
+
+        // should not be necessary
+        _jsPlumb.manage(d);
+        _jsPlumb.manage(d2);
+
+        _jsPlumb.addToDragSelection(d2)
+
+        support.dragNodeBy(d, 100, 100, {
+            beforeMouseUp:function() {
+                ok(d.classList.contains("jtk-drag"), "drag class set on element d");
+             //   ok(d2.classList.contains("jtk-drag"), "drag class set on element d2");
+            },
+            after:function() {
+                ok(!d.classList.contains("jtk-drag"), "drag class no longer set on element d");
+               // ok(!d2.classList.contains("jtk-drag"), "drag class no longer set on element d2");
+            }
+        });
+
+        equal(parseInt(d.style.left, 10), 150);
+        equal(parseInt(d.style.top, 10), 150);
+
+        equal(parseInt(d2.style.left, 10), 450);
+        equal(parseInt(d2.style.top, 10), 450);
+    });
+
     test("dragging does not happen with `data-jtk-not-draggable` attribute set", function() {
         var d = _addDiv("d1");
         d.style.position = "absolute";

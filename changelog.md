@@ -1,3 +1,9 @@
+## 5.3.8
+
+January 29th 2021
+
+- fixed issue with `anchor` in an `addTargetSelector` call being ignored.
+
 ## 5.3.7
 
 January 27th 2021
