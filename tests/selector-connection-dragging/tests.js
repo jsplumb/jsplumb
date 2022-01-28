@@ -900,6 +900,40 @@ var testSuite = function () {
 
     })
 
+    test("addTargetSelector, specify different anchors on source and target (issue 1103)", function() {
+        var targetNode = makeTargetNode()
+        var zone = addZone(targetNode, "zone1")
+
+        var d2 = support.addDiv("d2")
+        d2.className = "node"
+        _jsPlumb.manage(d2)
+        _jsPlumb.addSourceSelector("#d2", { anchor:"Top"})
+
+        let elDragged = false;
+        _jsPlumb.bind("drag:move", function() {
+            elDragged = true
+        })
+
+        _jsPlumb.addTargetSelector(".zone1", {
+            anchor:"Right",
+            endpoint:"Rectangle",
+            connector:"Flowchart"
+        })
+
+        var conn = support.dragConnection(d2, zone, true)
+
+        ok(elDragged === false, "element was not dragged")
+
+        equal(1, _jsPlumb.select().length, "one connection in the instance")
+
+        equal(conn.endpoints[0]._anchor.type, "Top", "source anchor is Top")
+        equal(conn.endpoints[1]._anchor.type, "Right", "source anchor is Right")
+
+        support.dragConnection(d2, targetNode, true)
+        equal(1, _jsPlumb.select().length, "still only one connection in the instance - the node itself is not a targetNode")
+
+    })
+
     test("addTargetSelector, maxConnections 1", function() {
         var targetNode = makeTargetNode()
         var zone = addZone(targetNode, "zone1")
