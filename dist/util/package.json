@@ -1,6 +1,6 @@
 {
   "name": "@jsplumb/util",
-  "version": "5.3.8",
+  "version": "5.3.9",
   "description": "",
   "main": "js/jsplumb.util.cjs.js",
   "module": "js/jsplumb.util.es.js",
