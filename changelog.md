@@ -1,25 +1,68 @@
+## 5.3.10
+
+February 4th 2022
+
+- Toolkit edition dialog refactoring.
+
+## 5.3.9
+
+February 1st 2022
+
+- Toolkit edition dialog refactoring.
+
 ## 5.3.8
 
-January 29th 2021
+January 29th 2022
 
 - fixed issue with `anchor` in an `addTargetSelector` call being ignored.
 
 ## 5.3.7
 
-January 27th 2021
+January 27th 2022
 
 - fixed issue 1100, in which a `start` handler in `dragOptions` would override the disabled state of some draggable element.
 
 ## 5.3.6
 
-January 25th 2021
+January 25th 2022
 
 - updated EventManager to support multiple `:not(..)` clauses in the child selector.
 - updated `hideOverlays` and `showOverlays` on `Component` to support a list of IDs to hide or show.
 
 ## 5.3.5
 
-January 20th 2021
+January 20th 2022
+
+Toolkit edition updates:
+
+    - Fixed an issue whereby in some circumstances it was possible for a `bindModelObject` callback to be invoked without a model object supplied.
+    
+    - added `setOverlaysVisible(Selection|Path|Edge|Array<Edge>, boolean)` method to the `Surface`
+    
+    - updated the drop manager to support overridden `left` / `top` properties passed to the node factory callback.
+    
+    - added optional `onVertexAdded` callback to SurfaceDropManager, which will be invoked whenever a group/node has been dropped onto the canvas and added to the dataset. 
+
+## 5.3.4
+
+January 12th 2022
+
+- Correction of the change in 5.3.3: `jtk-source-hover` and `jtk-target-hover` are applied to the _elements_ involved in a connection, not the endpoints.
+
+## 5.3.3
+
+January 11th 2022
+
+- Reinstated the application of `jtk-source-hover` and `jtk-target-hover` classes to the source and target endpoint for some connection on which the mouse is hovering.
+
+## 5.3.2
+
+January 10th 2022
+
+Toolkit edition updates:
+
+    - Fixed issue with endpoint hover: when hovering over an endpoint, endpoints at the other end of connections to that endpoint also hover.
+    - Fixed intermittent issue with multiple definitions on an element that have Continuous anchor definitions with different faces.
 
 
 ## 5.3.1
