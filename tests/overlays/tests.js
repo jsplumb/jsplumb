@@ -636,6 +636,38 @@ var testSuite = function () {
         ok(_jsPlumb.hasClass(o.canvas, "foo"), "label overlay has custom css class");
     });
 
+    test(" overlay custom attributes", function () {
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+        var c = _jsPlumb.connect({source: d1, target: d2, overlays: [
+                {
+                    type: "Label",
+                    options:{
+                        id: "label",
+                        cssClass: "foo",
+                        attributes:{
+                            att1:"att1",
+                            att2:"att2"
+                        }
+                    }
+                },
+                {
+                    type: "Arrow",
+                    options:{
+                        id:"arrow",
+                        attributes:{
+                            att1:"arrowAtt1"
+                        }
+                    }
+                }
+            ]});
+        var o = c.getOverlay("label");
+        ok(_jsPlumb.hasClass(o.canvas, "foo"), "label overlay has custom css class");
+        equal(o.canvas.getAttribute("att1"), "att1", "label overlay has custom attribute");
+
+        var a = c.getOverlay("arrow");
+        equal(a.path.getAttribute("att1"), "arrowAtt1", "arrow overlay has custom attribute");
+    });
+
 
     test(": _jsPlumb.addEndpoints (default overlays)", function () {
         _jsPlumb.defaults.endpointOverlays = [
