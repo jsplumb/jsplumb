@@ -9,6 +9,7 @@ export interface OverlayOptions extends Record<string, any> {
     cssClass?: string
     location?: number | number[] // 0.5
     events?:Record<string, (value:any, event?:any)=>any>
+    attributes?:Record<string, string>
 }
 
 /**
