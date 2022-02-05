@@ -72,7 +72,6 @@ export class DragManager {
 
     private _filtersToAdd:Array<DragFilterSpec> = []
 
-
     constructor(protected instance:BrowserJsPlumbInstance, protected dragSelection:DragSelection, options?:DragManagerOptions) {
 
         // create a delegated drag handler
@@ -191,6 +190,8 @@ export class DragManager {
         let out:Array<[string, boolean]> = []
 
         forEach(this.handlers,(p:{handler:DragHandler, options:DragHandlerOptions}) => { p.handler.reset() })
+
+        this.handlers.length = 0
 
         if (this.drag != null) {
             const currentFilters = this.drag._filters
