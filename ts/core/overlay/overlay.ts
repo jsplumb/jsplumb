@@ -38,7 +38,8 @@ export abstract class Overlay extends EventGenerator {
     visible:boolean = true
     location: number | Array<number>
 
-    events?:Record<string, (value:any, event?:any)=>any>
+    events:Record<string, (value:any, event?:any)=>any>
+    attributes:Record<string, string>
 
     constructor(public instance:JsPlumbInstance, public component:Component, p:OverlayOptions) {
         super()
@@ -47,6 +48,7 @@ export abstract class Overlay extends EventGenerator {
         this.cssClass = p.cssClass || ""
         this.location = p.location || 0.5
         this.events = p.events || {}
+        this.attributes = p.attributes || {}
 
         for (let event in this.events) {
             this.bind(event, this.events[event])
