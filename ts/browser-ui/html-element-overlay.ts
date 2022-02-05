@@ -23,6 +23,9 @@ export class HTMLElementOverlay {
             (o.cssClass ? o.cssClass : ""))
 
         o.instance.setAttribute(el, "jtk-overlay-id", o.id)
+        for (let att in o.attributes) {
+            o.instance.setAttribute(el, att, o.attributes[att])
+        }
         return el
     }
 
