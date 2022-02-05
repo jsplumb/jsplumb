@@ -2247,7 +2247,8 @@ export declare abstract class Overlay extends EventGenerator {
     cssClass: string;
     visible: boolean;
     location: number | Array<number>;
-    events?: Record<string, (value: any, event?: any) => any>;
+    events: Record<string, (value: any, event?: any) => any>;
+    attributes: Record<string, string>;
     constructor(instance: JsPlumbInstance, component: Component, p: OverlayOptions);
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
     setVisible(v: boolean): void;

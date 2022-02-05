@@ -2318,11 +2318,13 @@ var jsPlumbBrowserUI = (function (exports) {
       _defineProperty$3(_assertThisInitialized$3(_this), "visible", true);
       _defineProperty$3(_assertThisInitialized$3(_this), "location", void 0);
       _defineProperty$3(_assertThisInitialized$3(_this), "events", void 0);
+      _defineProperty$3(_assertThisInitialized$3(_this), "attributes", void 0);
       p = p || {};
       _this.id = p.id || uuid();
       _this.cssClass = p.cssClass || "";
       _this.location = p.location || 0.5;
       _this.events = p.events || {};
+      _this.attributes = p.attributes || {};
       for (var _event in _this.events) {
         _this.bind(_event, _this.events[_event]);
       }
@@ -12260,6 +12262,7 @@ var jsPlumbBrowserUI = (function (exports) {
         forEach(this.handlers, function (p) {
           p.handler.reset();
         });
+        this.handlers.length = 0;
         if (this.drag != null) {
           var currentFilters = this.drag._filters;
           for (var f in currentFilters) {
@@ -13705,6 +13708,9 @@ var jsPlumbBrowserUI = (function (exports) {
       value: function createElement$1(o) {
         var el = createElement(ELEMENT_DIV, {}, o.instance.overlayClass + " " + (o.cssClass ? o.cssClass : ""));
         o.instance.setAttribute(el, "jtk-overlay-id", o.id);
+        for (var att in o.attributes) {
+          o.instance.setAttribute(el, att, o.attributes[att]);
+        }
         return el;
       }
     }, {
@@ -13773,9 +13779,10 @@ var jsPlumbBrowserUI = (function (exports) {
       key: "ensurePath",
       value: function ensurePath(o) {
         if (o.path == null) {
-          o.path = _node(ELEMENT_PATH, {
+          var atts = extend({
             "jtk-overlay-id": o.id
-          });
+          }, o.attributes);
+          o.path = _node(ELEMENT_PATH, atts);
           var parent = null;
           if (o.component instanceof Connection) {
             var connector = o.component.connector;

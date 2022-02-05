@@ -215,6 +215,8 @@ export interface LabelOverlayOptions extends OverlayOptions {
 // @public (undocumented)
 export interface OverlayOptions extends Record<string, any> {
     // (undocumented)
+    attributes?: Record<string, string>;
+    // (undocumented)
     cssClass?: string;
     // (undocumented)
     events?: Record<string, (value: any, event?: any) => any>;

@@ -1231,11 +1231,13 @@ var Overlay = function (_EventGenerator) {
     _defineProperty(_assertThisInitialized(_this), "visible", true);
     _defineProperty(_assertThisInitialized(_this), "location", void 0);
     _defineProperty(_assertThisInitialized(_this), "events", void 0);
+    _defineProperty(_assertThisInitialized(_this), "attributes", void 0);
     p = p || {};
     _this.id = p.id || util.uuid();
     _this.cssClass = p.cssClass || "";
     _this.location = p.location || 0.5;
     _this.events = p.events || {};
+    _this.attributes = p.attributes || {};
     for (var _event in _this.events) {
       _this.bind(_event, _this.events[_event]);
     }

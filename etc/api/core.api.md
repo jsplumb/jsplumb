@@ -2127,11 +2127,13 @@ export type Orientation = [number, number];
 export abstract class Overlay extends EventGenerator {
     constructor(instance: JsPlumbInstance, component: Component, p: OverlayOptions);
     // (undocumented)
+    attributes: Record<string, string>;
+    // (undocumented)
     component: Component;
     // (undocumented)
     cssClass: string;
     // (undocumented)
-    events?: Record<string, (value: any, event?: any) => any>;
+    events: Record<string, (value: any, event?: any) => any>;
     // (undocumented)
     id: string;
     // (undocumented)

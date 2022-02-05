@@ -2206,6 +2206,7 @@
         util.forEach(this.handlers, function (p) {
           p.handler.reset();
         });
+        this.handlers.length = 0;
         if (this.drag != null) {
           var currentFilters = this.drag._filters;
           for (var f in currentFilters) {
@@ -3651,6 +3652,9 @@
       value: function createElement$1(o) {
         var el = createElement(ELEMENT_DIV, {}, o.instance.overlayClass + " " + (o.cssClass ? o.cssClass : ""));
         o.instance.setAttribute(el, "jtk-overlay-id", o.id);
+        for (var att in o.attributes) {
+          o.instance.setAttribute(el, att, o.attributes[att]);
+        }
         return el;
       }
     }, {
@@ -3719,9 +3723,10 @@
       key: "ensurePath",
       value: function ensurePath(o) {
         if (o.path == null) {
-          o.path = _node(ELEMENT_PATH, {
+          var atts = util.extend({
             "jtk-overlay-id": o.id
-          });
+          }, o.attributes);
+          o.path = _node(ELEMENT_PATH, atts);
           var parent = null;
           if (o.component instanceof core.Connection) {
             var connector = o.component.connector;
