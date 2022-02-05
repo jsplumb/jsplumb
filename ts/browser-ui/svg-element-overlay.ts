@@ -2,7 +2,7 @@
 import { _attr, _node, _appendAtIndex, ELEMENT_PATH } from './svg-util'
 import {Component, Connection, Endpoint, Overlay} from "@jsplumb/core"
 import { PaintStyle } from "@jsplumb/common"
-import {Extents} from "@jsplumb/util"
+import {extend, Extents} from "@jsplumb/util"
 
 export interface SvgOverlayPaintParams extends Extents, PaintStyle {
     component:Component
@@ -16,7 +16,8 @@ export abstract class SVGElementOverlay extends Overlay {
     static ensurePath(o:SVGElementOverlay):SVGElement {
 
         if (o.path == null) {
-            o.path = _node(ELEMENT_PATH, {"jtk-overlay-id": o.id})
+            const atts = extend({"jtk-overlay-id": o.id}, o.attributes)
+            o.path = _node(ELEMENT_PATH, atts)
             let parent:SVGElement = null
 
             if (o.component instanceof Connection) {
