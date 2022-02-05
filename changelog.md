@@ -1,3 +1,8 @@
+## 5.3.11
+
+- update drag manager code to ensure handlers array is empty after reset
+- added support for optional `attributes` record to set custom attributes on overlays
+
 ## 5.3.10
 
 February 4th 2022
