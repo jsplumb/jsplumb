@@ -412,7 +412,14 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     };
     addOverlayClass(o: Overlay, clazz: string): void;
     removeOverlayClass(o: Overlay, clazz: string): void;
-    paintOverlay(o: Overlay, params: any, extents: any): void;
+    /**
+     * @internal
+     * @param o
+     * @param params
+     * @param extents
+     * @private
+     */
+    _paintOverlay(o: Overlay, params: any, extents: any): void;
     setOverlayVisible(o: Overlay, visible: boolean): void;
     reattachOverlay(o: Overlay, c: Component): void;
     setOverlayHover(o: Overlay, hover: boolean): void;

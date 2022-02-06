@@ -194,8 +194,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     _overlayTap: Function;
     // (undocumented)
     paintConnector(connector: AbstractConnector, paintStyle: PaintStyle, extents?: Extents): void;
-    // (undocumented)
-    paintOverlay(o: Overlay, params: any, extents: any): void;
+    // @internal (undocumented)
+    _paintOverlay(o: Overlay, params: any, extents: any): void;
     // (undocumented)
     reattachOverlay(o: Overlay, c: Component): void;
     removeAttribute(el: Element, attName: string): void;

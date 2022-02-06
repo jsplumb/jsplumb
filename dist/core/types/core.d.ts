@@ -18,7 +18,7 @@ import { Component } from './component/component';
 import { Overlay } from './overlay/overlay';
 import { LabelOverlay } from './overlay/label-overlay';
 import { AbstractConnector } from './connector/abstract-connector';
-import { PaintStyle, AnchorPlacement, AnchorSpec, EndpointSpec } from '@jsplumb/common';
+import { PaintStyle, AnchorPlacement, AnchorSpec, EndpointSpec, OverlaySpec } from '@jsplumb/common';
 import { SourceSelector, TargetSelector } from "./source-selector";
 import { InternalEndpointOptions } from "./endpoint/endpoint-options";
 export interface jsPlumbElement<E> {
@@ -509,7 +509,13 @@ export declare abstract class JsPlumbInstance<T extends {
     removeGroup(group: string | UIGroup<T["E"]>, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): Record<string, PointXY>;
     removeAllGroups(deleteMembers?: boolean, manipulateView?: boolean): void;
     removeFromGroup(group: string | UIGroup<T["E"]>, el: T["E"], doNotFireEvent?: boolean): void;
-    paintEndpoint(endpoint: Endpoint, params: {
+    /**
+     * @internal
+     * @param endpoint
+     * @param params
+     * @private
+     */
+    _paintEndpoint(endpoint: Endpoint, params: {
         timestamp?: string;
         offset?: ViewportElement<T["E"]>;
         recalc?: boolean;
@@ -517,11 +523,37 @@ export declare abstract class JsPlumbInstance<T extends {
         connectorPaintStyle?: PaintStyle;
         anchorLoc?: AnchorPlacement;
     }): void;
-    paintConnection(connection: Connection, params?: {
+    /**
+     * @internal
+     * @param connection
+     * @param params
+     */
+    _paintConnection(connection: Connection, params?: {
         timestamp?: string;
     }): void;
-    refreshEndpoint(endpoint: Endpoint): void;
-    makeConnector(connection: Connection<T["E"]>, name: string, args: any): AbstractConnector;
+    /**
+     * @internal
+     * @param endpoint
+     * @private
+     */
+    _refreshEndpoint(endpoint: Endpoint): void;
+    /**
+     * Prepare a connector using the given name and args.
+     * @internal
+     * @param connection
+     * @param name
+     * @param args
+     * @private
+     */
+    _makeConnector(connection: Connection<T["E"]>, name: string, args: any): AbstractConnector;
+    /**
+     * Adds an overlay to the given component, repainting the UI as necessary.
+     * @param component A Connection or Endpoint to add the overlay to
+     * @param overlay Spec for the overlay
+     * @param doNotRevalidate Defaults to true. If false, a repaint won't occur after adding the overlay. This flag can be used when adding
+     * several overlays in a loop.
+     */
+    addOverlay(component: Component, overlay: OverlaySpec, doNotRevalidate?: boolean): void;
     /**
      * For some given element, find any other elements we want to draw whenever that element
      * is being drawn. for groups, for example, this means any child elements of the group. For an element that has child
@@ -552,7 +584,13 @@ export declare abstract class JsPlumbInstance<T extends {
     abstract off(el: Document | T["E"] | ArrayLike<T["E"]>, event: string, callback: Function): void;
     abstract trigger(el: Document | T["E"], event: string, originalEvent?: Event, payload?: any, detail?: number): void;
     getPathData(connector: AbstractConnector): any;
-    abstract paintOverlay(o: Overlay, params: any, extents: any): void;
+    /**
+     * @internal
+     * @param o
+     * @param params
+     * @param extents
+     */
+    abstract _paintOverlay(o: Overlay, params: any, extents: any): void;
     abstract addOverlayClass(o: Overlay, clazz: string): void;
     abstract removeOverlayClass(o: Overlay, clazz: string): void;
     abstract setOverlayVisible(o: Overlay, visible: boolean): void;
@@ -579,7 +617,7 @@ export declare abstract class JsPlumbInstance<T extends {
      * @internal
      * @param connector
      * @param h
-     * @param doNotCascade
+     * @param sourceEndpoint
      */
     abstract setConnectorHover(connector: AbstractConnector, h: boolean, sourceEndpoint?: Endpoint): void;
     /**

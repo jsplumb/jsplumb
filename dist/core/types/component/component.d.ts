@@ -136,6 +136,12 @@ export declare abstract class Component extends EventGenerator {
     getData(): Record<string, any>;
     setData(d: any): void;
     mergeData(d: any): void;
+    /**
+     * Add an overlay to the component.  You must `revalidate` an associated element for this component if you call
+     * this method directly. Consider using the `addOverlay` method of `JsPlumbInstance` instead, which adds the overlay
+     * and then revalidates.
+     * @param overlay
+     */
     addOverlay(overlay: OverlaySpec): Overlay;
     /**
      * Get the Overlay with the given ID. You can optionally provide a type parameter for this method in order to get

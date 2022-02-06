@@ -2757,7 +2757,7 @@
       }
     }
     var ep = instance._internal_newEndpoint(p);
-    instance.paintEndpoint(ep, {});
+    instance._paintEndpoint(ep, {});
     return ep;
   }
   function selectorFilter(evt, _el, selector, _instance, negate) {
@@ -3312,7 +3312,7 @@
                   newDropTarget.endpoint.endpoint.addClass(this.instance.endpointDropForbiddenClass);
                 }
                 this.floatingAnchor.over(newDropTarget.endpoint);
-                this.instance.paintConnection(this.jpc);
+                this.instance._paintConnection(this.jpc);
               } else {
                 newDropTarget = null;
               }
@@ -3410,7 +3410,7 @@
           } else {
             this._reattachOrDiscard(p.e);
           }
-          this.instance.refreshEndpoint(this.ep);
+          this.instance._refreshEndpoint(this.ep);
           this.ep.removeClass(this.instance.draggingClass);
           this._cleanupDraggablePlaceholder();
           this.jpc.removeClass(this.instance.draggingClass);
@@ -4736,8 +4736,8 @@
         }
       }
     }, {
-      key: "paintOverlay",
-      value: function paintOverlay(o, params, extents) {
+      key: "_paintOverlay",
+      value: function _paintOverlay(o, params, extents) {
         if (core.isLabelOverlay(o)) {
           getLabelElement(o);
           var XY = o.component.getXY();
@@ -4939,7 +4939,7 @@
           if (connector.connection.hoverPaintStyle != null) {
             connector.connection.paintStyleInUse = hover ? connector.connection.hoverPaintStyle : connector.connection.paintStyle;
             if (!this._suspendDrawing) {
-              this.paintConnection(connector.connection);
+              this._paintConnection(connector.connection);
             }
           }
           if (connector.connection.endpoints[0] !== sourceEndpoint) {

@@ -92,7 +92,7 @@ function _makeFloatingEndpoint (paintStyle:PaintStyle,
     }
 
     let ep = instance._internal_newEndpoint(p)
-    instance.paintEndpoint(ep, {})
+    instance._paintEndpoint(ep, {})
     return ep
 }
 
@@ -817,7 +817,7 @@ export class EndpointDragHandler implements DragHandler {
                         }
 
                         this.floatingAnchor.over(newDropTarget.endpoint)
-                        this.instance.paintConnection(this.jpc)
+                        this.instance._paintConnection(this.jpc)
                     } else {
                         newDropTarget = null
                     }
@@ -957,7 +957,7 @@ export class EndpointDragHandler implements DragHandler {
             }
 
             // refresh the appearance of the endpoint, if necessary
-            this.instance.refreshEndpoint(this.ep)
+            this.instance._refreshEndpoint(this.ep)
             this.ep.removeClass(this.instance.draggingClass)
 
             // common clean up

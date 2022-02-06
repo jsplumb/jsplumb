@@ -3665,10 +3665,10 @@ var jsPlumbBrowserUI = (function (exports) {
       });
       if (!_this.instance._suspendDrawing) {
         var initialTimestamp = _this.instance._suspendedAt || uuid();
-        _this.instance.paintEndpoint(_this.endpoints[0], {
+        _this.instance._paintEndpoint(_this.endpoints[0], {
           timestamp: initialTimestamp
         });
-        _this.instance.paintEndpoint(_this.endpoints[1], {
+        _this.instance._paintEndpoint(_this.endpoints[1], {
           timestamp: initialTimestamp
         });
       }
@@ -3821,7 +3821,7 @@ var jsPlumbBrowserUI = (function (exports) {
         if (this.connector) {
           this.instance.setConnectorVisible(this.connector, v);
         }
-        this.instance.paintConnection(this);
+        this.instance._paintConnection(this);
       }
     }, {
       key: "destroy",
@@ -3850,10 +3850,10 @@ var jsPlumbBrowserUI = (function (exports) {
         },
             connector;
         if (isString(connectorSpec)) {
-          connector = this.instance.makeConnector(this, connectorSpec, connectorArgs);
+          connector = this.instance._makeConnector(this, connectorSpec, connectorArgs);
         } else {
           var co = connectorSpec;
-          connector = this.instance.makeConnector(this, co.type, merge(co.options, connectorArgs));
+          connector = this.instance._makeConnector(this, co.type, merge(co.options, connectorArgs));
         }
         if (typeId != null) {
           connector.typeId = typeId;
@@ -3883,7 +3883,7 @@ var jsPlumbBrowserUI = (function (exports) {
             }
           }
           if (!doNotRepaint) {
-            this.instance.paintConnection(this);
+            this.instance._paintConnection(this);
           }
         }
       }
@@ -4098,7 +4098,7 @@ var jsPlumbBrowserUI = (function (exports) {
         idx = idx == null ? this.connections.indexOf(connection) : idx;
         if (idx >= 0) {
           this.connections.splice(idx, 1);
-          this.instance.refreshEndpoint(this);
+          this.instance._refreshEndpoint(this);
         }
         if (!transientDetach && this.deleteOnEmpty && this.connections.length === 0) {
           this.instance.deleteEndpoint(this);
@@ -5460,7 +5460,7 @@ var jsPlumbBrowserUI = (function (exports) {
       value: function repaint() {
         var _this2 = this;
         this.each(function (c) {
-          return _this2.instance.paintConnection(c);
+          return _this2.instance._paintConnection(c);
         });
         return this;
       }
@@ -6390,7 +6390,7 @@ var jsPlumbBrowserUI = (function (exports) {
                   var otherEndpoint = anEndpoint.connections[_i2].endpoints[conn.sourceId === elementId ? 1 : 0],
                       otherAnchor = otherEndpoint._anchor;
                   if (isDynamic(otherAnchor)) {
-                    this.instance.paintEndpoint(otherEndpoint, {
+                    this.instance._paintEndpoint(otherEndpoint, {
                       elementWithPrecedence: elementId,
                       timestamp: timestamp
                     });
@@ -6412,13 +6412,13 @@ var jsPlumbBrowserUI = (function (exports) {
           });
           endpointsToPaint.forEach(function (ep) {
             var cd = _this3.instance.viewport.getPosition(ep.elementId);
-            _this3.instance.paintEndpoint(ep, {
+            _this3.instance._paintEndpoint(ep, {
               timestamp: timestamp,
               offset: cd
             });
           });
           connectionsToPaint.forEach(function (c) {
-            _this3.instance.paintConnection(c, {
+            _this3.instance._paintConnection(c, {
               timestamp: timestamp
             });
           });
@@ -6982,7 +6982,7 @@ var jsPlumbBrowserUI = (function (exports) {
           c[_st.elId] = ep.elementId;
           evtParams[idx === 0 ? "newSourceId" : "newTargetId"] = ep.elementId;
           this.fireMoveEvent(evtParams);
-          this.paintConnection(c);
+          this._paintConnection(c);
         }
         return evtParams;
       }
@@ -7322,7 +7322,7 @@ var jsPlumbBrowserUI = (function (exports) {
         }
         addToDictionary(this.endpointsByElement, ep.elementId, ep);
         if (!this._suspendDrawing) {
-          this.paintEndpoint(ep, {
+          this._paintEndpoint(ep, {
             timestamp: this._suspendedAt
           });
         }
@@ -7632,7 +7632,7 @@ var jsPlumbBrowserUI = (function (exports) {
         params.id = "con_" + this._idstamp();
         var c = new Connection(this, params);
         addManagedConnection(c, this._managedElements[c.sourceId], this._managedElements[c.targetId]);
-        this.paintConnection(c);
+        this._paintConnection(c);
         return c;
       }
     }, {
@@ -8037,8 +8037,8 @@ var jsPlumbBrowserUI = (function (exports) {
         });
       }
     }, {
-      key: "paintEndpoint",
-      value: function paintEndpoint(endpoint, params) {
+      key: "_paintEndpoint",
+      value: function _paintEndpoint(endpoint, params) {
         function findConnectionToUseForDynamicAnchor(ep) {
           var idx = 0;
           if (params.elementWithPrecedence != null) {
@@ -8097,7 +8097,7 @@ var jsPlumbBrowserUI = (function (exports) {
                 var _o = endpoint.overlays[i];
                 if (_o.isVisible()) {
                   endpoint.overlayPlacements[i] = this.drawOverlay(_o, endpoint.endpoint, endpoint.paintStyleInUse, endpoint.getAbsoluteOverlayPosition(_o));
-                  this.paintOverlay(_o, endpoint.overlayPlacements[i], {
+                  this._paintOverlay(_o, endpoint.overlayPlacements[i], {
                     xmin: 0,
                     ymin: 0
                   });
@@ -8108,8 +8108,8 @@ var jsPlumbBrowserUI = (function (exports) {
         }
       }
     }, {
-      key: "paintConnection",
-      value: function paintConnection(connection, params) {
+      key: "_paintConnection",
+      value: function _paintConnection(connection, params) {
         if (!this._suspendDrawing && connection.visible !== false) {
           params = params || {};
           var timestamp = params.timestamp;
@@ -8149,7 +8149,7 @@ var jsPlumbBrowserUI = (function (exports) {
               if (connection.overlays.hasOwnProperty(j)) {
                 var _p2 = connection.overlays[j];
                 if (_p2.isVisible()) {
-                  this.paintOverlay(_p2, connection.overlayPlacements[j], _extents);
+                  this._paintOverlay(_p2, connection.overlayPlacements[j], _extents);
                 }
               }
             }
@@ -8158,8 +8158,8 @@ var jsPlumbBrowserUI = (function (exports) {
         }
       }
     }, {
-      key: "refreshEndpoint",
-      value: function refreshEndpoint(endpoint) {
+      key: "_refreshEndpoint",
+      value: function _refreshEndpoint(endpoint) {
         if (endpoint.connections.length > 0) {
           this.addEndpointClass(endpoint, this.endpointConnectedClass);
         } else {
@@ -8172,9 +8172,18 @@ var jsPlumbBrowserUI = (function (exports) {
         }
       }
     }, {
-      key: "makeConnector",
-      value: function makeConnector(connection, name, args) {
+      key: "_makeConnector",
+      value: function _makeConnector(connection, name, args) {
         return Connectors.get(connection, name, args);
+      }
+    }, {
+      key: "addOverlay",
+      value: function addOverlay(component, overlay, doNotRevalidate) {
+        component.addOverlay(overlay);
+        if (!doNotRevalidate) {
+          var relatedElement = component instanceof Endpoint ? component.element : component.source;
+          this.revalidate(relatedElement);
+        }
       }
     }, {
       key: "getPathData",
@@ -12813,7 +12822,7 @@ var jsPlumbBrowserUI = (function (exports) {
       }
     }
     var ep = instance._internal_newEndpoint(p);
-    instance.paintEndpoint(ep, {});
+    instance._paintEndpoint(ep, {});
     return ep;
   }
   function selectorFilter(evt, _el, selector, _instance, negate) {
@@ -13368,7 +13377,7 @@ var jsPlumbBrowserUI = (function (exports) {
                   newDropTarget.endpoint.endpoint.addClass(this.instance.endpointDropForbiddenClass);
                 }
                 this.floatingAnchor.over(newDropTarget.endpoint);
-                this.instance.paintConnection(this.jpc);
+                this.instance._paintConnection(this.jpc);
               } else {
                 newDropTarget = null;
               }
@@ -13466,7 +13475,7 @@ var jsPlumbBrowserUI = (function (exports) {
           } else {
             this._reattachOrDiscard(p.e);
           }
-          this.instance.refreshEndpoint(this.ep);
+          this.instance._refreshEndpoint(this.ep);
           this.ep.removeClass(this.instance.draggingClass);
           this._cleanupDraggablePlaceholder();
           this.jpc.removeClass(this.instance.draggingClass);
@@ -14792,8 +14801,8 @@ var jsPlumbBrowserUI = (function (exports) {
         }
       }
     }, {
-      key: "paintOverlay",
-      value: function paintOverlay(o, params, extents) {
+      key: "_paintOverlay",
+      value: function _paintOverlay(o, params, extents) {
         if (isLabelOverlay(o)) {
           getLabelElement(o);
           var XY = o.component.getXY();
@@ -14995,7 +15004,7 @@ var jsPlumbBrowserUI = (function (exports) {
           if (connector.connection.hoverPaintStyle != null) {
             connector.connection.paintStyleInUse = hover ? connector.connection.hoverPaintStyle : connector.connection.paintStyle;
             if (!this._suspendDrawing) {
-              this.paintConnection(connector.connection);
+              this._paintConnection(connector.connection);
             }
           }
           if (connector.connection.endpoints[0] !== sourceEndpoint) {

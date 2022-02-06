@@ -327,8 +327,8 @@ export class Connection<E = any> extends Component {
 
         if (!this.instance._suspendDrawing) {
             const initialTimestamp = this.instance._suspendedAt || uuid()
-            this.instance.paintEndpoint(this.endpoints[0], { timestamp: initialTimestamp })
-            this.instance.paintEndpoint(this.endpoints[1], { timestamp: initialTimestamp })
+            this.instance._paintEndpoint(this.endpoints[0], { timestamp: initialTimestamp })
+            this.instance._paintEndpoint(this.endpoints[1], { timestamp: initialTimestamp })
         }
 
         this.cost = params.cost || this.endpoints[0].connectionCost
@@ -503,7 +503,7 @@ export class Connection<E = any> extends Component {
         if (this.connector) {
             this.instance.setConnectorVisible(this.connector, v)
         }
-        this.instance.paintConnection(this)
+        this.instance._paintConnection(this)
     }
 
     /**
@@ -542,11 +542,11 @@ export class Connection<E = any> extends Component {
             connector
 
         if (isString(connectorSpec)) {
-            connector = this.instance.makeConnector(this, connectorSpec as string, connectorArgs)
+            connector = this.instance._makeConnector(this, connectorSpec as string, connectorArgs)
         }
         else {
             const co = connectorSpec as ConnectorWithOptions
-            connector = this.instance.makeConnector(this, co.type, merge(co.options, connectorArgs))
+            connector = this.instance._makeConnector(this, co.type, merge(co.options, connectorArgs))
         }
         if (typeId != null) {
             connector.typeId = typeId
@@ -586,7 +586,7 @@ export class Connection<E = any> extends Component {
             }
 
             if (!doNotRepaint) {
-                this.instance.paintConnection(this)
+                this.instance._paintConnection(this)
             }
         }
     }

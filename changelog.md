@@ -1,3 +1,9 @@
+## 5.3.12
+
+February 7th 2022
+
+- added `addOverlay` to `JsPlumbInstance`. This method calls `addOverlay` on the underlying Component, and then revalidates the UI
+
 ## 5.3.11
 
 February 6th 2022
