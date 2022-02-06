@@ -12232,6 +12232,11 @@ var jsPlumbBrowserUI = (function (exports) {
         handler.init(this.drag);
       }
     }, {
+      key: "addSelector",
+      value: function addSelector(params, atStart) {
+        this.drag && this.drag.addSelector(params, atStart);
+      }
+    }, {
       key: "addFilter",
       value: function addFilter(filter, exclude) {
         if (this.drag == null) {
@@ -15283,12 +15288,19 @@ var jsPlumbBrowserUI = (function (exports) {
   exports.CLASS_CONNECTED = CLASS_CONNECTED;
   exports.CLASS_CONNECTOR = CLASS_CONNECTOR;
   exports.CLASS_CONNECTOR_OUTLINE = CLASS_CONNECTOR_OUTLINE;
+  exports.CLASS_DELEGATED_DRAGGABLE = CLASS_DELEGATED_DRAGGABLE;
+  exports.CLASS_DRAGGABLE = CLASS_DRAGGABLE;
+  exports.CLASS_DRAGGED = CLASS_DRAGGED;
+  exports.CLASS_DRAG_ACTIVE = CLASS_DRAG_ACTIVE;
+  exports.CLASS_DRAG_CONTAINER = CLASS_DRAG_CONTAINER;
+  exports.CLASS_DRAG_HOVER = CLASS_DRAG_HOVER;
   exports.CLASS_ENDPOINT = CLASS_ENDPOINT;
   exports.CLASS_ENDPOINT_ANCHOR_PREFIX = CLASS_ENDPOINT_ANCHOR_PREFIX;
   exports.CLASS_ENDPOINT_CONNECTED = CLASS_ENDPOINT_CONNECTED;
   exports.CLASS_ENDPOINT_DROP_ALLOWED = CLASS_ENDPOINT_DROP_ALLOWED;
   exports.CLASS_ENDPOINT_DROP_FORBIDDEN = CLASS_ENDPOINT_DROP_FORBIDDEN;
   exports.CLASS_ENDPOINT_FULL = CLASS_ENDPOINT_FULL;
+  exports.CLASS_GHOST_PROXY = CLASS_GHOST_PROXY;
   exports.CLASS_GROUP_COLLAPSED = CLASS_GROUP_COLLAPSED;
   exports.CLASS_GROUP_EXPANDED = CLASS_GROUP_EXPANDED;
   exports.CLASS_OVERLAY = CLASS_OVERLAY;
@@ -15305,6 +15317,7 @@ var jsPlumbBrowserUI = (function (exports) {
   exports.DotEndpoint = DotEndpoint;
   exports.DotEndpointHandler = DotEndpointHandler;
   exports.Drag = Drag;
+  exports.DragManager = DragManager;
   exports.ELEMENT = ELEMENT;
   exports.ELEMENT_DIV = ELEMENT_DIV;
   exports.EMPTY_BOUNDS = EMPTY_BOUNDS;

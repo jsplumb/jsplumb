@@ -43,6 +43,7 @@ export declare class DragManager {
     private _filtersToAdd;
     constructor(instance: BrowserJsPlumbInstance, dragSelection: DragSelection, options?: DragManagerOptions);
     addHandler(handler: DragHandler, dragOptions?: DragHandlerOptions): void;
+    addSelector(params: DragHandlerOptions, atStart?: boolean): void;
     addFilter(filter: Function | string, exclude?: boolean): void;
     removeFilter(filter: Function | string): void;
     setFilters(filters: Array<[string, boolean]>): void;

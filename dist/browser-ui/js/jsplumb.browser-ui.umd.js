@@ -2176,6 +2176,11 @@
         handler.init(this.drag);
       }
     }, {
+      key: "addSelector",
+      value: function addSelector(params, atStart) {
+        this.drag && this.drag.addSelector(params, atStart);
+      }
+    }, {
       key: "addFilter",
       value: function addFilter(filter, exclude) {
         if (this.drag == null) {
@@ -5204,9 +5209,17 @@
   exports.ATTRIBUTE_JTK_ENABLED = ATTRIBUTE_JTK_ENABLED;
   exports.ATTRIBUTE_JTK_SCOPE = ATTRIBUTE_JTK_SCOPE;
   exports.BrowserJsPlumbInstance = BrowserJsPlumbInstance;
+  exports.CLASS_DELEGATED_DRAGGABLE = CLASS_DELEGATED_DRAGGABLE;
+  exports.CLASS_DRAGGABLE = CLASS_DRAGGABLE;
+  exports.CLASS_DRAGGED = CLASS_DRAGGED;
+  exports.CLASS_DRAG_ACTIVE = CLASS_DRAG_ACTIVE;
+  exports.CLASS_DRAG_CONTAINER = CLASS_DRAG_CONTAINER;
+  exports.CLASS_DRAG_HOVER = CLASS_DRAG_HOVER;
+  exports.CLASS_GHOST_PROXY = CLASS_GHOST_PROXY;
   exports.CONNECTION = CONNECTION;
   exports.Collicat = Collicat;
   exports.Drag = Drag;
+  exports.DragManager = DragManager;
   exports.ELEMENT = ELEMENT;
   exports.ELEMENT_DIV = ELEMENT_DIV;
   exports.ENDPOINT = ENDPOINT;

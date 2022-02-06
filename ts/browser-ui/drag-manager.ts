@@ -165,6 +165,10 @@ export class DragManager {
         handler.init(this.drag)
     }
 
+    addSelector (params:DragHandlerOptions, atStart?:boolean) {
+        this.drag && this.drag.addSelector(params, atStart)
+    }
+
     addFilter(filter:Function|string, exclude?:boolean) {
         if (this.drag == null) {
             this._filtersToAdd.push([filter, exclude === true ])

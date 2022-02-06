@@ -105,8 +105,6 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     destroyOverlay(o: Overlay): void;
     // (undocumented)
     draggingClass: string;
-    // Warning: (ae-forgotten-export) The symbol "DragManager" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     dragManager: DragManager;
     // (undocumented)
@@ -264,6 +262,27 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     // (undocumented)
     updateLabel(o: LabelOverlay): void;
 }
+
+// @public (undocumented)
+export const CLASS_DELEGATED_DRAGGABLE = "jtk-delegated-draggable";
+
+// @public (undocumented)
+export const CLASS_DRAG_ACTIVE = "jtk-drag-active";
+
+// @public (undocumented)
+export const CLASS_DRAG_CONTAINER = "jtk-drag";
+
+// @public (undocumented)
+export const CLASS_DRAG_HOVER = "jtk-drag-hover";
+
+// @public (undocumented)
+export const CLASS_DRAGGABLE = "jtk-draggable";
+
+// @public (undocumented)
+export const CLASS_DRAGGED = "jtk-dragged";
+
+// @public (undocumented)
+export const CLASS_GHOST_PROXY = "jtk-ghost-proxy";
 
 // @public (undocumented)
 export class Collicat implements jsPlumbDragManager {
@@ -427,6 +446,28 @@ export type DragGroupSpec = string | {
 };
 
 // @public (undocumented)
+export interface DragHandler {
+    // (undocumented)
+    init: (drag: Drag) => void;
+    // (undocumented)
+    onBeforeStart?: (beforeStartParams: BeforeStartEventParams) => void;
+    // (undocumented)
+    onDrag: (params: DragEventParams) => void;
+    // (undocumented)
+    onDragAbort: (el: Element) => void;
+    // (undocumented)
+    onDragInit: (el: Element) => Element;
+    // (undocumented)
+    onStart: (params: DragStartEventParams) => boolean;
+    // (undocumented)
+    onStop: (params: DragStopEventParams) => void;
+    // (undocumented)
+    reset: () => void;
+    // (undocumented)
+    selector: string;
+}
+
+// @public (undocumented)
 export interface DragHandlerOptions {
     // (undocumented)
     beforeStart?: (beforeStartParams: BeforeStartEventParams) => void;
@@ -466,6 +507,50 @@ export interface DragHandlerOptions {
     stop?: (p: DragStopEventParams) => any;
     // (undocumented)
     useGhostProxy?: (container: any, dragEl: jsPlumbDOMElement) => boolean;
+}
+
+// @public (undocumented)
+export class DragManager {
+    constructor(instance: BrowserJsPlumbInstance, dragSelection: DragSelection, options?: DragManagerOptions);
+    // (undocumented)
+    addFilter(filter: Function | string, exclude?: boolean): void;
+    // (undocumented)
+    addHandler(handler: DragHandler, dragOptions?: DragHandlerOptions): void;
+    // (undocumented)
+    addSelector(params: DragHandlerOptions, atStart?: boolean): void;
+    // (undocumented)
+    _dlist: Array<any>;
+    // (undocumented)
+    _draggables: Record<string, any>;
+    // (undocumented)
+    _draggablesForElements: Record<string, any>;
+    // Warning: (ae-forgotten-export) The symbol "DragSelection" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    protected dragSelection: DragSelection;
+    // (undocumented)
+    _elementsWithEndpoints: Record<string, any>;
+    // (undocumented)
+    handlers: Array<{
+        handler: DragHandler;
+        options: DragHandlerOptions;
+    }>;
+    // (undocumented)
+    protected instance: BrowserJsPlumbInstance;
+    // (undocumented)
+    removeFilter(filter: Function | string): void;
+    // (undocumented)
+    reset(): Array<[string, boolean]>;
+    // (undocumented)
+    setFilters(filters: Array<[string, boolean]>): void;
+    // (undocumented)
+    setOption(handler: DragHandler, options: DragHandlerOptions): void;
+}
+
+// @public (undocumented)
+export interface DragManagerOptions {
+    // (undocumented)
+    trackScroll?: boolean;
 }
 
 // @public
@@ -582,8 +667,6 @@ export const ELEMENT = "element";
 // @public (undocumented)
 export const ELEMENT_DIV = "div";
 
-// Warning: (ae-forgotten-export) The symbol "DragHandler" needs to be exported by the entry point index.d.ts
-//
 // @public (undocumented)
 export class ElementDragHandler implements DragHandler {
     constructor(instance: BrowserJsPlumbInstance, _dragSelection: DragSelection);
@@ -591,8 +674,6 @@ export class ElementDragHandler implements DragHandler {
     addToDragGroup(spec: DragGroupSpec, ...els: Array<Element>): void;
     // (undocumented)
     protected drag: Drag;
-    // Warning: (ae-forgotten-export) The symbol "DragSelection" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     protected _dragSelection: DragSelection;
     // (undocumented)
@@ -840,6 +921,14 @@ export function getTouch(touches: TouchList, idx: number): Touch;
 
 // @public (undocumented)
 export type GhostProxyGenerator = (el: Element) => Element;
+
+// @public (undocumented)
+export interface GhostProxyingDragHandler extends DragHandler {
+    // (undocumented)
+    makeGhostProxy?: GhostProxyGenerator;
+    // (undocumented)
+    useGhostProxy: (container: any, dragEl: Element) => boolean;
+}
 
 // @public (undocumented)
 export function groupDragConstrain(desiredLoc: PointXY, dragEl: jsPlumbDOMElement, constrainRect: BoundingBox, size: Size): PointXY;

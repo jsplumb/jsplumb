@@ -554,6 +554,20 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     removeSourceSelector(selector: SourceSelector): void;
 }
 
+export declare const CLASS_DELEGATED_DRAGGABLE = "jtk-delegated-draggable";
+
+export declare const CLASS_DRAG_ACTIVE = "jtk-drag-active";
+
+export declare const CLASS_DRAG_CONTAINER = "jtk-drag";
+
+export declare const CLASS_DRAG_HOVER = "jtk-drag-hover";
+
+export declare const CLASS_DRAGGABLE = "jtk-draggable";
+
+export declare const CLASS_DRAGGED = "jtk-dragged";
+
+export declare const CLASS_GHOST_PROXY = "jtk-ghost-proxy";
+
 export declare class Collicat implements jsPlumbDragManager {
     eventManager: EventManager;
     private zoom;
@@ -697,7 +711,7 @@ export declare type DragGroupSpec = string | {
     active: boolean;
 };
 
-declare interface DragHandler {
+export declare interface DragHandler {
     selector: string;
     onStart: (params: DragStartEventParams) => boolean;
     onDrag: (params: DragEventParams) => void;
@@ -731,7 +745,7 @@ export declare interface DragHandlerOptions {
     containmentPadding?: number;
 }
 
-declare class DragManager {
+export declare class DragManager {
     protected instance: BrowserJsPlumbInstance;
     protected dragSelection: DragSelection;
     private collicat;
@@ -748,6 +762,7 @@ declare class DragManager {
     private _filtersToAdd;
     constructor(instance: BrowserJsPlumbInstance, dragSelection: DragSelection, options?: DragManagerOptions);
     addHandler(handler: DragHandler, dragOptions?: DragHandlerOptions): void;
+    addSelector(params: DragHandlerOptions, atStart?: boolean): void;
     addFilter(filter: Function | string, exclude?: boolean): void;
     removeFilter(filter: Function | string): void;
     setFilters(filters: Array<[string, boolean]>): void;
@@ -755,7 +770,7 @@ declare class DragManager {
     setOption(handler: DragHandler, options: DragHandlerOptions): void;
 }
 
-declare interface DragManagerOptions {
+export declare interface DragManagerOptions {
     trackScroll?: boolean;
 }
 
@@ -1215,6 +1230,11 @@ export declare function getPositionOnElement(evt: Event, el: Element, zoom: numb
 export declare function getTouch(touches: TouchList, idx: number): Touch;
 
 export declare type GhostProxyGenerator = (el: Element) => Element;
+
+export declare interface GhostProxyingDragHandler extends DragHandler {
+    useGhostProxy: (container: any, dragEl: Element) => boolean;
+    makeGhostProxy?: GhostProxyGenerator;
+}
 
 export declare function groupDragConstrain(desiredLoc: PointXY, dragEl: jsPlumbDOMElement, constrainRect: BoundingBox, size: Size): PointXY;
 
