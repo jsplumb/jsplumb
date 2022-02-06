@@ -214,7 +214,6 @@ var testSuite = function () {
                 outlineWidth: "5"
             }
         });
-        _jsPlumb.paintConnection(c)
         equal(c.paintStyleInUse.outlineWidth, 5, "outline width converted to integer");
     });
 
@@ -232,7 +231,6 @@ var testSuite = function () {
                 outlineWidth: "5"
             }
         });
-        _jsPlumb.paintConnection(c)
         equal(c.paintStyleInUse.outlineWidth, 5, "outline width converted to integer");
         equal(c.paintStyleInUse.strokeWidth, 3, "line width converted to integer");
     });
