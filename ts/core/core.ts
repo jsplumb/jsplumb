@@ -62,7 +62,7 @@ import {
     AnchorPlacement,
     AnchorSpec,
     EndpointSpec,
-    WILDCARD, DEFAULT
+    WILDCARD, DEFAULT, OverlaySpec
 } from '@jsplumb/common'
 import {AnchorComputeParams, Face} from "./factory/anchor-record-factory"
 import {SourceSelector, TargetSelector} from "./source-selector"
@@ -561,7 +561,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             evtParams[idx === 0 ? "newSourceId" : "newTargetId"] = ep.elementId
 
             this.fireMoveEvent(evtParams)
-            this.paintConnection(c)
+            this._paintConnection(c)
         }
 
         return evtParams
@@ -1030,7 +1030,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         addToDictionary(this.endpointsByElement, ep.elementId, ep)
 
         if (!this._suspendDrawing) {
-            this.paintEndpoint(ep, {
+            this._paintEndpoint(ep, {
                 timestamp: this._suspendedAt
             })
         }
@@ -1458,7 +1458,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
         addManagedConnection(c, this._managedElements[c.sourceId], this._managedElements[c.targetId])
 
-        this.paintConnection(c)
+        this._paintConnection(c)
         return c
     }
 
@@ -1940,7 +1940,13 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     // ----------------------------- PAINT ENDPOINT
 
-    paintEndpoint(endpoint:Endpoint, params:{ timestamp?: string, offset?: ViewportElement<T["E"]>,
+    /**
+     * @internal
+     * @param endpoint
+     * @param params
+     * @private
+     */
+    _paintEndpoint(endpoint:Endpoint, params:{ timestamp?: string, offset?: ViewportElement<T["E"]>,
         recalc?:boolean, elementWithPrecedence?:string,
         connectorPaintStyle?:PaintStyle,
         anchorLoc?:AnchorPlacement
@@ -2002,7 +2008,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
                         let o = endpoint.overlays[i]
                         if (o.isVisible()) {
                             endpoint.overlayPlacements[i] = this.drawOverlay(o, endpoint.endpoint, endpoint.paintStyleInUse, endpoint.getAbsoluteOverlayPosition(o))
-                            this.paintOverlay(o, endpoint.overlayPlacements[i], {xmin:0, ymin:0})
+                            this._paintOverlay(o, endpoint.overlayPlacements[i], {xmin:0, ymin:0})
                         }
                     }
                 }
@@ -2012,7 +2018,12 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     // ---- paint Connection
 
-    paintConnection(connection:Connection, params?:{timestamp?:string}) {
+    /**
+     * @internal
+     * @param connection
+     * @param params
+     */
+    _paintConnection(connection:Connection, params?:{timestamp?:string}) {
 
         if (!this._suspendDrawing && connection.visible !== false) {
 
@@ -2061,7 +2072,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
                     if (connection.overlays.hasOwnProperty(j)) {
                         let p = connection.overlays[j]
                         if (p.isVisible()) {
-                            this.paintOverlay(p, connection.overlayPlacements[j], extents)
+                            this._paintOverlay(p, connection.overlayPlacements[j], extents)
                         }
                     }
                 }
@@ -2070,7 +2081,12 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         }
     }
 
-    refreshEndpoint(endpoint: Endpoint): void {
+    /**
+     * @internal
+     * @param endpoint
+     * @private
+     */
+    _refreshEndpoint(endpoint: Endpoint): void {
 
         if (endpoint.connections.length > 0) {
             this.addEndpointClass(endpoint, this.endpointConnectedClass)
@@ -2085,8 +2101,31 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         }
     }
 
-    makeConnector(connection:Connection<T["E"]>, name:string, args:any):AbstractConnector {
+    /**
+     * Prepare a connector using the given name and args.
+     * @internal
+     * @param connection
+     * @param name
+     * @param args
+     * @private
+     */
+    _makeConnector(connection:Connection<T["E"]>, name:string, args:any):AbstractConnector {
         return Connectors.get(connection, name, args)
+    }
+
+    /**
+     * Adds an overlay to the given component, repainting the UI as necessary.
+     * @param component A Connection or Endpoint to add the overlay to
+     * @param overlay Spec for the overlay
+     * @param doNotRevalidate Defaults to true. If false, a repaint won't occur after adding the overlay. This flag can be used when adding
+     * several overlays in a loop.
+     */
+    addOverlay(component:Component, overlay:OverlaySpec, doNotRevalidate?:boolean) {
+        const o = component.addOverlay(overlay)
+        if (!doNotRevalidate) {
+            const relatedElement = component instanceof Endpoint ? (component as Endpoint).element : (component as Connection).source
+            this.revalidate(relatedElement)
+        }
     }
 
     /**
@@ -2137,7 +2176,13 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return p
     }
 
-    abstract paintOverlay(o: Overlay, params:any, extents:any):void
+    /**
+     * @internal
+     * @param o
+     * @param params
+     * @param extents
+     */
+    abstract _paintOverlay(o: Overlay, params:any, extents:any):void
     abstract addOverlayClass(o:Overlay, clazz:string):void
     abstract removeOverlayClass(o:Overlay, clazz:string):void
     abstract setOverlayVisible(o: Overlay, visible:boolean):void
@@ -2169,7 +2214,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      * @internal
      * @param connector
      * @param h
-     * @param doNotCascade
+     * @param sourceEndpoint
      */
     abstract setConnectorHover(connector:AbstractConnector, h:boolean, sourceEndpoint?:Endpoint):void
 
