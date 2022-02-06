@@ -389,10 +389,9 @@ var testSuite = function () {
         equal(0, support.length(connection1.overlays));
     });
 
-    test(": _jsPlumb.connect (overlays, short-hand version)", function () {
+    test("connect (overlays, short-hand version)", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
-        var imageEventListener = function () {
-        };
+
         var loc = { location: 0.7 };
         var arrowSpec = { width: 40, length: 40, foldback: 0, paintStyle: {strokeWidth: 1, stroke: "#000000"}, id:"a" };
         var connection1 = _jsPlumb.connect({
@@ -412,6 +411,37 @@ var testSuite = function () {
         equal(40, connection1.overlays["a"].width);
         equal(40, connection1.overlays["a"].length);
     });
+
+    test("add overlay after connection created (issue 1106)", function() {
+
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+
+        var connection = _jsPlumb.connect({
+            source: d1,
+            target: d2,
+            anchor:"Continuous",
+            overlays: [
+                { type:"Label", options:{label: "CONNECTION 1", location: 0.3, id:"l"}}
+            ]
+        });
+
+        ok(!isNaN(parseInt(connection.getOverlay("l").canvas.style.left, 10)), "left position set for overlay")
+
+        connection.addOverlay({
+            type: "Label",
+            options: { label: "bar", id: "barlabel", location: 0.75 }
+        });
+
+        ok(isNaN(parseInt(connection.getOverlay("barlabel").canvas.style.left, 10)), "left position not set for overlay added via connection.addOverlay")
+
+        _jsPlumb.addOverlay(connection, {
+            type: "Label",
+            options: { label: "bar", id: "barlabel2", location: 0.75 }
+        });
+
+        ok(!isNaN(parseInt(connection.getOverlay("barlabel2").canvas.style.left, 10)), "left position set for overlay added via _jsPlumb.addOverlay")
+
+    })
 
     test(": _jsPlumb.connect (removeAllOverlays)", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"), d3 = support.addDiv("d3");
