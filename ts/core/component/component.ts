@@ -605,6 +605,12 @@ export abstract class Component extends EventGenerator {
     mergeData (d:any) { this.data = extend(this.data, d); }
 
     // =----------- overlays ------------
+    /**
+     * Add an overlay to the component.  You must `revalidate` an associated element for this component if you call
+     * this method directly. Consider using the `addOverlay` method of `JsPlumbInstance` instead, which adds the overlay
+     * and then revalidates.
+     * @param overlay
+     */
     addOverlay(overlay:OverlaySpec):Overlay {
         let o = _processOverlay(this, overlay)
 

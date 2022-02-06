@@ -588,7 +588,7 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
 
                             if (isDynamic(otherAnchor)) {
 
-                                this.instance.paintEndpoint(otherEndpoint, {
+                                this.instance._paintEndpoint(otherEndpoint, {
                                     elementWithPrecedence: elementId,
                                     timestamp: timestamp
                                 })
@@ -617,12 +617,12 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
             // now that continuous anchors have been placed, paint all the endpoints for this element and any other endpoints we came across as a result of the continuous anchors.
             endpointsToPaint.forEach((ep) => {
                 let cd = this.instance.viewport.getPosition(ep.elementId)
-                this.instance.paintEndpoint(ep, { timestamp: timestamp, offset: cd })
+                this.instance._paintEndpoint(ep, { timestamp: timestamp, offset: cd })
             })
 
             // paint all the connections
             connectionsToPaint.forEach((c) => {
-                this.instance.paintConnection(c, {timestamp: timestamp})
+                this.instance._paintConnection(c, {timestamp: timestamp})
             })
         }
 

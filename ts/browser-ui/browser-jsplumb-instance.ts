@@ -1232,7 +1232,14 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
     }
 
-    paintOverlay(o: Overlay, params:any, extents:any):void {
+    /**
+     * @internal
+     * @param o
+     * @param params
+     * @param extents
+     * @private
+     */
+    _paintOverlay(o: Overlay, params:any, extents:any):void {
 
         //
         if (isLabelOverlay(o)) {
@@ -1446,7 +1453,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             if (connector.connection.hoverPaintStyle != null) {
                 connector.connection.paintStyleInUse = hover ? connector.connection.hoverPaintStyle : connector.connection.paintStyle
                 if (!this._suspendDrawing) {
-                    this.paintConnection(connector.connection)
+                    this._paintConnection(connector.connection)
                 }
             }
 

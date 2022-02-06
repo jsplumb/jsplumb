@@ -217,7 +217,7 @@ export class Endpoint<E = any> extends Component {
         if (idx >= 0) {
             this.connections.splice(idx, 1)
             // refresh the endpoint's appearance (which can change based on the number of connections, via classes)
-            this.instance.refreshEndpoint(this)
+            this.instance._refreshEndpoint(this)
         }
 
         if (!transientDetach  && this.deleteOnEmpty && this.connections.length === 0) {
