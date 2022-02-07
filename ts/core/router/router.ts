@@ -32,7 +32,7 @@ export interface Router<T extends {E:unknown}, A> {
     setAnchorOrientation(anchor:A, orientation:Orientation):void
 
     setAnchor(endpoint:Endpoint, anchor:A):void
-    prepareAnchor(endpoint:Endpoint, params:AnchorSpec | Array<AnchorSpec>):A
+    prepareAnchor(params:AnchorSpec | Array<AnchorSpec>):A
     setConnectionAnchors(conn:Connection, anchors:[A, A]):void
     isDynamicAnchor(ep:Endpoint):boolean
 
