@@ -247,14 +247,22 @@ export class BrowserUITestSupport {
         this._jsPlumb.trigger(document, EVENT_MOUSEUP, _distantPointEvent);
     }
 
-    dragConnection (d1:any, d2:any, mouseUpOnTarget?:boolean):Connection {
+    dragConnection (d1:any, d2:any, mouseUpOnTarget?:boolean, events?:EventHandlers<Connection>):Connection {
         const el1 = this.getCanvas(d1), el2 = this.getCanvas(d2);
         const e1 = this.makeEvent(el1), e2 = this.makeEvent(el2);
+        events = events || {}
 
         const conns = this._jsPlumb.select().length;
 
         this._jsPlumb.trigger(el1, EVENT_MOUSEDOWN, e1);
+        if (events.beforeMouseMove) {
+            events.beforeMouseMove()
+        }
         this._jsPlumb.trigger(mouseUpOnTarget ? el2 : document, EVENT_MOUSEMOVE, e2);
+
+        if (events.beforeMouseUp) {
+            events.beforeMouseUp()
+        }
         this._jsPlumb.trigger(mouseUpOnTarget ? el2 : document, EVENT_MOUSEUP, e2);
 
         return this._jsPlumb.select().get(conns);
