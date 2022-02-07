@@ -172,7 +172,7 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
 
     private _floatingAnchorCompute(anchor:LightweightFloatingAnchor, params:AnchorComputeParams):AnchorPlacement {
         let xy = params.xy
-        const pos = {curX:xy.x + (anchor.size.w / 2), curY:xy.y + (anchor.size.h / 2), x:0, y:0, ox:0, oy:0 } // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
+        const pos = {curX:xy.x + (anchor.size.w / 2), curY:xy.y + (anchor.size.h / 2), x:0, y:0, ox:0 as AnchorOrientationHint, oy:0 as AnchorOrientationHint } // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
         return this._setComputedPosition(anchor, pos)
     }
 
@@ -447,7 +447,7 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
         return pos
     }
 
-    getEndpointOrientation(ep: Endpoint<any>): [number, number] {
+    getEndpointOrientation(ep: Endpoint<any>): Orientation {
         return ep._anchor ? this.getAnchorOrientation(ep._anchor) : [0,0]
     }
 
