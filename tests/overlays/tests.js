@@ -680,6 +680,19 @@ var testSuite = function () {
         ok(_jsPlumb.hasClass(o.path, "foo"), "arrow overlay has custom css class");
     });
 
+    test(" custom overlay custom css class", function () {
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+        var c = _jsPlumb.connect({source: d1, target: d2, overlays: [
+                { type: "Custom", options:{
+                        create:function() { return document.createElement("div")},
+                        id: "label",
+                        cssClass: "foo"
+                    }}
+            ]});
+        var o = c.getOverlay("label");
+        ok(_jsPlumb.hasClass(o.canvas, "foo"), "custom overlay has custom css class");
+    });
+
     test(" overlay custom attributes", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var c = _jsPlumb.connect({source: d1, target: d2, overlays: [
