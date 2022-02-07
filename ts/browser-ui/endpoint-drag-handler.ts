@@ -43,7 +43,7 @@ import {
     ATTRIBUTE_SCOPE_PREFIX,
     SourceSelector, InternalEndpointOptions,
     BehaviouralTypeDescriptor,
-    createFloatingAnchor, LightweightFloatingAnchor, REDROP_POLICY_ANY, Face, ConnectionDragSelector
+    createFloatingAnchor, LightweightFloatingAnchor, REDROP_POLICY_ANY, Face, ConnectionDragSelector, LightweightAnchor
 } from "@jsplumb/core"
 
 import { FALSE,
@@ -66,20 +66,19 @@ import {
 } from "@jsplumb/util"
 import {ATTRIBUTE_JTK_ENABLED, ELEMENT_DIV} from "./constants"
 
-function _makeFloatingEndpoint (paintStyle:PaintStyle,
+function _makeFloatingEndpoint (ep:Endpoint<Element>,
                                 endpoint:EndpointSpec | EndpointRepresentation<any>,
                                 referenceCanvas:Element,
                                 sourceElement:jsPlumbDOMElement,
-                                instance:BrowserJsPlumbInstance,
-                                scope?:string)
+                                instance:BrowserJsPlumbInstance)
 {
-    let floatingAnchor = createFloatingAnchor(instance, sourceElement)
+    let floatingAnchor = createFloatingAnchor(instance, sourceElement, ep)
 
     const p:InternalEndpointOptions<any> = {
-        paintStyle: paintStyle,
+        paintStyle: ep.getPaintStyle(),
         preparedAnchor: floatingAnchor,
         element: sourceElement,
-        scope: scope
+        scope: ep.scope
     }
 
     if (endpoint != null) {
@@ -91,9 +90,9 @@ function _makeFloatingEndpoint (paintStyle:PaintStyle,
         }
     }
 
-    let ep = instance._internal_newEndpoint(p)
-    instance._paintEndpoint(ep, {})
-    return ep
+    let actualEndpoint = instance._internal_newEndpoint(p)
+    instance._paintEndpoint(actualEndpoint, {})
+    return actualEndpoint
 }
 
 function selectorFilter (evt:Event, _el:jsPlumbDOMElement, selector:string, _instance:BrowserJsPlumbInstance, negate?:boolean):boolean {
@@ -120,7 +119,7 @@ export class EndpointDragHandler implements DragHandler {
     jpc:Connection
     existingJpc:boolean
 
-    private _originalAnchor:AnchorSpec
+    private _originalAnchorSpec:AnchorSpec
     ep:Endpoint<Element>
     endpointRepresentation:EndpointRepresentation<any>
     canvasElement:Element
@@ -263,11 +262,37 @@ export class EndpointDragHandler implements DragHandler {
                     }
                 }
 
+                //
+                // check if an anchorPositionFinder was supplied, and use it if so.
+                // if it returns anything other than null we use that value as the anchor spec.
+                if (def.anchorPositionFinder) {
+                    const maybeAnchorSpec = def.anchorPositionFinder(sourceEl, elxy, def, e)
+                    if (maybeAnchorSpec != null) {
+                        tempEndpointParams.anchor = maybeAnchorSpec
+                    }
+                }
+
                 // keep a reference to the anchor we want to use if the connection is finalised, and then write a temp anchor
                 // for the drag
-                this._originalAnchor = tempEndpointParams.anchor || (this.instance.areDefaultAnchorsSet() ? this.instance.defaults.anchors[0] : this.instance.defaults.anchor)
+                this._originalAnchorSpec = tempEndpointParams.anchor || (this.instance.areDefaultAnchorsSet() ? this.instance.defaults.anchors[0] : this.instance.defaults.anchor)
+                // instantiate the anchor so we can extract from it a suitable orientation to use while dragging
+                const _originalAnchor:LightweightAnchor = this.instance.router.prepareAnchor(this._originalAnchorSpec)
+                let anchorSpecToUse = [elxy.x, elxy.y, 0, 0]
+                // if not continuous, get the orientation from the anchor's first location (perhaps here we could look through the
+                // locations to find the one that is closest to [elxy.x, elxy.y]
+                if (_originalAnchor.locations.length > 0) {
+                    anchorSpecToUse[2] = _originalAnchor.locations[0].ox
+                    anchorSpecToUse[3] = _originalAnchor.locations[0].oy
+                } else if (_originalAnchor.isContinuous) {
+                    // if continuous, compute which face the endpoint is closest to, and then use the orientation from Top/Left/Right/Bottom
+                    const dx = elxy.x < 0.5 ? elxy.x : 1 - elxy.x
+                    const dy = elxy.y < 0.5 ? elxy.y : 1 - elxy.y
+                    anchorSpecToUse[2] = dx < dy ? elxy.x < 0.5 ? -1 : 1 : 0
+                    anchorSpecToUse[3] = dy < dx ? elxy.y < 0.5 ? -1 : 1 : 0
+                }
 
-                tempEndpointParams.anchor = [elxy.x, elxy.y, 0, 0]
+                tempEndpointParams.anchor = anchorSpecToUse
+
                 tempEndpointParams.deleteOnEmpty = true
 
                 // add an endpoint to the element that is the connection source, using the anchor that will position it where
@@ -523,7 +548,7 @@ export class EndpointDragHandler implements DragHandler {
             endpointToFloat = aae.endpoints[1]
         }
 
-        this.floatingEndpoint = _makeFloatingEndpoint(this.ep.getPaintStyle(), endpointToFloat, canvasElement, this.placeholderInfo.element, this.instance, this.ep.scope)
+        this.floatingEndpoint = _makeFloatingEndpoint(this.ep, endpointToFloat, canvasElement, this.placeholderInfo.element, this.instance)
         this.floatingAnchor = this.floatingEndpoint._anchor as LightweightFloatingAnchor
 
         this.floatingEndpoint.deleteOnEmpty = true
@@ -1012,6 +1037,7 @@ export class EndpointDragHandler implements DragHandler {
      * @internal
      */
     private _getDropEndpoint(p:DragStopEventParams, jpc:Connection):Endpoint {
+
         let dropEndpoint:Endpoint
 
         if (this.currentDropTarget.endpoint == null) {
@@ -1025,6 +1051,9 @@ export class EndpointDragHandler implements DragHandler {
                 return null
             }
 
+            const targetElement = this.currentDropTarget.targetEl
+            let elxy = getPositionOnElement(p.e, targetElement, this.instance.currentZoom)
+
             // if no cached endpoint, or there was one but it has been cleaned up
             // (ie. detached), create a new one
             let eps = this.instance._deriveEndpointAndAnchorSpec(jpc.getType().join(" "), true)
@@ -1036,7 +1065,11 @@ export class EndpointDragHandler implements DragHandler {
             // if the definition specified an anchor/some anchors, use those, or if there are `anchors` specified as defaults on the instance,
             // use those. otherwise later in the code we'll pick the default anchor.
             const anchorsToUse = this.instance.validAnchorsSpec(eps.anchors) ? eps.anchors : this.instance.areDefaultAnchorsSet() ? this.instance.defaults.anchors : null
-            const dropAnchor = targetDefinition.def.anchor ? targetDefinition.def.anchor : anchorsToUse != null && anchorsToUse[1] != null ? anchorsToUse[1] : null
+            const anchorFromDef = targetDefinition.def.anchor
+            const anchorFromPositionFinder = targetDefinition.def.anchorPositionFinder ? targetDefinition.def.anchorPositionFinder(targetElement, elxy, targetDefinition.def, p.e) : null
+
+            const dropAnchor = anchorFromPositionFinder != null ? anchorFromPositionFinder : anchorFromDef != null ? anchorFromDef : anchorsToUse != null && anchorsToUse[1] != null ? anchorsToUse[1] : null
+
             if (dropAnchor != null) {
                 pp = extend(pp, {
                     anchor:dropAnchor
@@ -1050,7 +1083,7 @@ export class EndpointDragHandler implements DragHandler {
             const extractedParameters = targetDefinition.def.parameterExtractor ? targetDefinition.def.parameterExtractor(this.currentDropTarget.el, eventTarget) : {}
             pp = merge(pp, extractedParameters)
 
-            pp.element = this.currentDropTarget.targetEl
+            pp.element = targetElement
             dropEndpoint = this.instance._internal_newEndpoint(pp);
 
             (<any>dropEndpoint)._mtNew = true
@@ -1190,9 +1223,9 @@ export class EndpointDragHandler implements DragHandler {
             this.jpc.mergeData(optionalData)
         }
 
-        if (this._originalAnchor) {
-            this.jpc.endpoints[0].setAnchor(this._originalAnchor)
-            this._originalAnchor = null
+        if (this._originalAnchorSpec) {
+            this.jpc.endpoints[0].setAnchor(this._originalAnchorSpec)
+            this._originalAnchorSpec = null
         }
 
         this.instance._finaliseConnection(this.jpc, null, originalEvent)
