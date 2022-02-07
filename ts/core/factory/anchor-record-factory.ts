@@ -5,7 +5,7 @@ import { JsPlumbInstance } from "../core"
 import {AnchorLocations, AnchorSpec, FullAnchorSpec, PerimeterAnchorShapes} from "@jsplumb/common"
 
 export type AnchorOrientationHint = -1 | 0 | 1
-export type Orientation = [  number, number ]
+export type Orientation = [  AnchorOrientationHint, AnchorOrientationHint ]
 
 
 enum FaceValues { top="top", left="left", right="right", bottom="bottom" }
@@ -57,7 +57,7 @@ export interface AnchorRecord {
 /**
  * @internal
  */
-export interface ComputedPosition {curX:number,curY:number,ox:number,oy:number,x:number,y:number}
+export interface ComputedPosition {curX:number,curY:number,ox:AnchorOrientationHint,oy:AnchorOrientationHint,x:number,y:number}
 
 export interface LightweightAnchor {
     locations:Array<AnchorRecord>
@@ -93,7 +93,7 @@ export class LightweightFloatingAnchor implements LightweightAnchor {
     isContinuous:false
     isDynamic:false
 
-    locations = [ {x:0.5, y:0.5, ox:0, oy:0, offx:0, offy:0, iox:0, ioy:0, cls:''} as any]
+    locations:Array<AnchorRecord> = []
     currentLocation = 0
     locked = false
     cssClass = ''
@@ -107,8 +107,20 @@ export class LightweightFloatingAnchor implements LightweightAnchor {
 
     size:Size
 
-    constructor(public instance:JsPlumbInstance, public element:any) {
+    constructor(public instance:JsPlumbInstance, public element:any, oppositeEndpoint:Endpoint<any>) {
         this.size = instance.getSize(element)
+        // TODO a test. needs thought/improvement.
+        if (oppositeEndpoint != null) {
+            if (oppositeEndpoint._anchor.isContinuous) {
+                console.log("Cannot derive orientation from opposite endpoint as it is Continuous anchor")
+            } else if (oppositeEndpoint._anchor.locations.length > 0) {
+                // set this anchor's orientation to be opposite to the other endpoint. this is a reasonable default behaviour.
+                this.orientation[0] = (oppositeEndpoint._anchor.locations[0].ox * -1) as AnchorOrientationHint
+                this.orientation[1] = (oppositeEndpoint._anchor.locations[0].oy * -1) as AnchorOrientationHint
+            }
+        }
+
+        this.locations.push({x:0.5, y:0.5, ox:this.orientation[0], oy:this.orientation[1], offx:0, offy:0, iox:this.orientation[0], ioy:this.orientation[1], cls:''})
     }
 
     private _updateOrientationInRouter() {
@@ -271,8 +283,8 @@ function _createAnchor(type:string, locations:Array<AnchorRecord>, params:Record
     }
 }
 
-export function createFloatingAnchor(instance:JsPlumbInstance, element:any):LightweightFloatingAnchor {
-    return new LightweightFloatingAnchor(instance, element)
+export function createFloatingAnchor(instance:JsPlumbInstance, element:any, ep:Endpoint<any>):LightweightFloatingAnchor {
+    return new LightweightFloatingAnchor(instance, element, ep)
 }
 
 const PROPERTY_CURRENT_FACE = "currentFace"
