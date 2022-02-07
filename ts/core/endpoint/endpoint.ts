@@ -183,7 +183,7 @@ export class Endpoint<E = any> extends Component {
     }
 
     setAnchor (anchorParams:AnchorSpec | Array<AnchorSpec>):Endpoint {
-        const a = this.instance.router.prepareAnchor(this, anchorParams)
+        const a = this.instance.router.prepareAnchor(anchorParams)
         this.setPreparedAnchor(a)
         return this
     }
