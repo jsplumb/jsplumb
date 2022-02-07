@@ -2,6 +2,7 @@
 import {PaintStyle, OverlaySpec, ConnectorSpec, EndpointSpec, AnchorSpec} from "@jsplumb/common"
 import {RedropPolicy} from "./source-selector"
 import {Endpoint} from "./endpoint/endpoint"
+import {PointXY} from "@jsplumb/util"
 
 /**
  * Base interface for endpoint/connection types, which are registered via `registerConnectionType` and `registerEndpointType`. This interface
@@ -70,7 +71,7 @@ export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescript
 
     /**
      * A function that can be used to extract a set of parameters pertinent to the connection that is being dragged
-     * from a given source.
+     * from a given source or dropped on a given target.
      * @param el - The element that is the drag source
      * @param eventTarget - The element that captured the event that started the connection drag.
      */
@@ -78,6 +79,11 @@ export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescript
     redrop?:RedropPolicy
 
     extract?:Record<string, string>
+
+    /**
+     * If true, only one endpoint will be created on any given element for this type descriptor, and subsequent connections will
+     * all attach to that endpoint. Defaults to false.
+     */
     uniqueEndpoint?:boolean
 
     /**
@@ -102,6 +108,19 @@ export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescript
      * are added. By default this is the internal attribute jsPlumb uses to mark managed elements (data-jtk-managed)
      */
     parentSelector?:string
+
+    /**
+     * This function offers a means for you to provide the anchor to use for
+     * a new drag, or a drop. You're given the source/target element, the proportional location on
+     * the element that the drag started/drop occurred, the associated type descriptor, and
+     * the originating event.  Return null if you don't wish to provide a value,
+     * and any other return value will be treated as an AnchorSpec.
+     * @param el
+     * @param elxy
+     * @param def
+     * @param e
+     */
+    anchorPositionFinder?:(el:Element, elxy:PointXY, def:BehaviouralTypeDescriptor, e:Event) => AnchorSpec|null
 }
 
 /**
@@ -121,6 +140,7 @@ export interface SourceOrTargetDefinition {
  * @public
  */
 export interface SourceDefinition extends SourceOrTargetDefinition { }
+
 
 /**
  * Defines the supported options on an `addTargetSelector` call.
