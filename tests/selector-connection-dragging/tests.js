@@ -1321,5 +1321,119 @@ var testSuite = function () {
         equal(c.endpoints[1]._anchor.type, "Right", "target anchor correct per defaults");
     });
 
+    test("addSourceSelector, parameterExtractor returns anchor, anchor orientation honoured.", function() {
+
+        var sourceNode = makeSourceNode()
+        var zone = addZone(sourceNode, "zone1")
+        zone.setAttribute("foo", "the value of foo");
+
+        var targetNode = makeTargetNode()
+        var tzone = addZone(targetNode, "zone2")
+        tzone.setAttribute("foo", "the value of foo target");
+
+        let elDragged = false;
+        _jsPlumb.bind("drag:move", function() {
+            elDragged = true
+        })
+
+        _jsPlumb.addSourceSelector(".zone1", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart",
+            parameterExtractor:function(el, target, idx) {
+                return {
+                    parameters: {
+                        fooAttribute: target.getAttribute("foo")
+                    },
+                    anchor:[0.3, 0.1, -1, -1]  // -1, -1 is not a valid set of orientation values in the real world, but for testing it's ok.
+                }
+            }
+        })
+
+        _jsPlumb.addTargetSelector(".zone2", {
+            parameterExtractor:function(el, target, idx) {
+                return {
+                    parameters: {
+                        fooAttribute: target.getAttribute("foo")
+                    }
+                }
+            }
+        })
+
+        var c = support.dragConnection(zone, tzone, true, {
+            beforeMouseUp:() => {
+                console.log("before mouse up!")
+                const sourceEndpoint = _jsPlumb.selectEndpoints().get(0)
+                equal(sourceEndpoint._anchor.locations[0].ox, -1, "x orientation correctly set for source endpoint")
+                equal(sourceEndpoint._anchor.locations[0].oy, -1, "y orientation correctly set for source endpoint")
+
+                equal(sourceEndpoint.connections[0].endpoints[1]._anchor.locations[0].ox, 1, "x orientation correctly set for floating endpoint")
+                equal(sourceEndpoint.connections[0].endpoints[1]._anchor.locations[0].oy, 1, "y orientation correctly set for floating endpoint")
+            }
+        })
+
+        equal(1, _jsPlumb.select().length, "one connection in the instance")
+
+        equal(c.endpoints[0]._anchor.locations[0].x, 0.3, "x location of source anchor is as given by parameter extractor");
+        equal(c.endpoints[0]._anchor.locations[0].y, 0.1, "y location of target anchor is as given by parameter extractor");
+    });
+
+    test("addSourceSelector, anchorPositionFinder supplied, anchor orientation honoured.", function() {
+
+        var sourceNode = makeSourceNode()
+        var zone = addZone(sourceNode, "zone1")
+        zone.setAttribute("foo", "the value of foo");
+
+        var targetNode = makeTargetNode()
+        var tzone = addZone(targetNode, "zone2")
+        tzone.setAttribute("foo", "the value of foo target");
+
+        let elDragged = false;
+        _jsPlumb.bind("drag:move", function() {
+            elDragged = true
+        })
+
+        _jsPlumb.addSourceSelector(".zone1", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart",
+            anchorPositionFinder:function(p) {
+                console.log("pos params", p)
+                return [0.3, 0.1, -1, -1]  // -1, -1 is not a valid set of orientation values in the real world, but for testing it's ok.
+            }
+        })
+
+        _jsPlumb.addTargetSelector(".zone2", {
+            anchorPositionFinder:function(p) {
+                console.log("pos params", p)
+                return [0.6, 0.2, 1, 1]  // -1, -1 is not a valid set of orientation values in the real world, but for testing it's ok.
+            }
+        })
+
+        var c = support.dragConnection(zone, tzone, true, {
+            beforeMouseUp:() => {
+                console.log("before mouse up!")
+                const sourceEndpoint = _jsPlumb.selectEndpoints().get(0)
+                equal(sourceEndpoint._anchor.locations[0].ox, -1, "x orientation correctly set for source endpoint")
+                equal(sourceEndpoint._anchor.locations[0].oy, -1, "y orientation correctly set for source endpoint")
+
+                equal(sourceEndpoint.connections[0].endpoints[1]._anchor.locations[0].ox, 1, "x orientation correctly set for floating endpoint")
+                equal(sourceEndpoint.connections[0].endpoints[1]._anchor.locations[0].oy, 1, "y orientation correctly set for floating endpoint")
+            }
+        })
+
+        equal(1, _jsPlumb.select().length, "one connection in the instance")
+
+        equal(c.endpoints[0]._anchor.locations[0].x, 0.3, "x location of source anchor is as given by anchorPositionFinder");
+        equal(c.endpoints[0]._anchor.locations[0].y, 0.1, "y location of source anchor is as given by anchorPositionFinder");
+        equal(c.endpoints[0]._anchor.locations[0].ox, -1, "x orientation of source anchor is as given by anchorPositionFinder");
+        equal(c.endpoints[0]._anchor.locations[0].oy, -1, "y orientation of source anchor is as given by anchorPositionFinder");
+
+        equal(c.endpoints[1]._anchor.locations[0].x, 0.6, "x location of target anchor x is as given by anchorPositionFinder");
+        equal(c.endpoints[1]._anchor.locations[0].y, 0.2, "y location of target anchor y is as given by anchorPositionFinder");
+        equal(c.endpoints[1]._anchor.locations[0].ox, 1, "x orientation of target anchor is as given by anchorPositionFinder");
+        equal(c.endpoints[1]._anchor.locations[0].oy, 1, "y orientation of target anchor is as given by anchorPositionFinder");
+    });
+
 
 };
