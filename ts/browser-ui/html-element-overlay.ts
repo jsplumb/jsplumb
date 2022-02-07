@@ -18,23 +18,19 @@ export class HTMLElementOverlay {
         this.htmlElementOverlay = overlay as HTMLElementOverlayHolder
     }
 
-    static createElement(o:HTMLElementOverlayHolder):Element {
-        const el = createElement(ELEMENT_DIV, {}, o.instance.overlayClass + " " +
-            (o.cssClass ? o.cssClass : ""))
-
-        o.instance.setAttribute(el, "jtk-overlay-id", o.id)
-        for (let att in o.attributes) {
-            o.instance.setAttribute(el, att, o.attributes[att])
-        }
-        return el
-    }
-
     static getElement (o:HTMLElementOverlayHolder, component?:Component, elementCreator?:(c:Component) => Element):Element{
         if (o.canvas == null) {
             if (elementCreator && component) {
                 o.canvas = elementCreator(component) as jsPlumbDOMElement
+                const cls = o.instance.overlayClass + " " + (o.cssClass ? o.cssClass : "")
+                o.instance.addClass(o.canvas, cls)
             } else {
-                o.canvas = HTMLElementOverlay.createElement(o) as jsPlumbDOMElement
+                o.canvas = createElement(ELEMENT_DIV, {}, o.instance.overlayClass + " " + (o.cssClass ? o.cssClass : ""))
+            }
+
+            o.instance.setAttribute(o.canvas, "jtk-overlay-id", o.id)
+            for (let att in o.attributes) {
+                o.instance.setAttribute(o.canvas, att, o.attributes[att])
             }
 
             o.canvas.style.position = ABSOLUTE
