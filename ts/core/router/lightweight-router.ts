@@ -469,7 +469,7 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
         return ep._anchor ? isFloating(ep._anchor) : false
     }
 
-    prepareAnchor(endpoint: Endpoint<any>, params: AnchorSpec | Array<AnchorSpec>): LightweightAnchor {
+    prepareAnchor(params: AnchorSpec | Array<AnchorSpec>): LightweightAnchor {
         return makeLightweightAnchorFromSpec(params)
     }
 
