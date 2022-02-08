@@ -109,17 +109,6 @@ export class LightweightFloatingAnchor implements LightweightAnchor {
 
     constructor(public instance:JsPlumbInstance, public element:any, oppositeEndpoint:Endpoint<any>) {
         this.size = instance.getSize(element)
-        // TODO a test. needs thought/improvement.
-        if (oppositeEndpoint != null) {
-            if (oppositeEndpoint._anchor.isContinuous) {
-                console.log("Cannot derive orientation from opposite endpoint as it is Continuous anchor")
-            } else if (oppositeEndpoint._anchor.locations.length > 0) {
-                // set this anchor's orientation to be opposite to the other endpoint. this is a reasonable default behaviour.
-                this.orientation[0] = (oppositeEndpoint._anchor.locations[0].ox * -1) as AnchorOrientationHint
-                this.orientation[1] = (oppositeEndpoint._anchor.locations[0].oy * -1) as AnchorOrientationHint
-            }
-        }
-
         this.locations.push({x:0.5, y:0.5, ox:this.orientation[0], oy:this.orientation[1], offx:0, offy:0, iox:this.orientation[0], ioy:this.orientation[1], cls:''})
     }
 
