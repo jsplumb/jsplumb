@@ -128,8 +128,12 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
 
     constructor(public instance:JsPlumbInstance ) {
         instance.bind<ConnectionDetachedParams<T["E"]>>(Constants.EVENT_INTERNAL_CONNECTION_DETACHED, (p:ConnectionDetachedParams<T["E"]>) => {
-            this._removeEndpointFromAnchorLists(p.sourceEndpoint)
-            this._removeEndpointFromAnchorLists(p.targetEndpoint)
+            if (p.sourceEndpoint._anchor.isContinuous) {
+                this._removeEndpointFromAnchorLists(p.sourceEndpoint)
+            }
+            if (p.targetEndpoint._anchor.isContinuous) {
+                this._removeEndpointFromAnchorLists(p.targetEndpoint)
+            }
         })
 
         instance.bind<Endpoint<T["E"]>>(Constants.EVENT_INTERNAL_ENDPOINT_UNREGISTERED, (ep:Endpoint<T["E"]>) => {
@@ -139,7 +143,7 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
 
     getAnchorOrientation(anchor:LightweightAnchor): Orientation {
         const loc = this.anchorLocations.get(anchor.id)
-        return loc ? [loc.ox, loc.oy] : [0,0]
+        return loc ? [loc.ox, loc.oy] :  [0,0]
     }
 
     private _distance(anchor:AnchorRecord, cx:number, cy:number, xy:PointXY, wh:Size, rotation:Rotations, targetRotation:Rotations):number {
