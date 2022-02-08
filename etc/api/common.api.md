@@ -4,6 +4,7 @@
 
 ```ts
 
+import { AnchorOrientationHint } from '@jsplumb/core';
 import { BoundingBox } from '@jsplumb/util';
 import { Component } from '@jsplumb/core';
 import { Extents } from '@jsplumb/util';
@@ -70,7 +71,7 @@ export enum AnchorLocations {
     TopRight = "TopRight"
 }
 
-// @public
+// @public (undocumented)
 export interface AnchorOptions extends Record<string, any> {
     cssClass?: string;
 }
@@ -83,8 +84,8 @@ export type AnchorPlacement = {
     curY: number;
     x: number;
     y: number;
-    ox: number;
-    oy: number;
+    ox: AnchorOrientationHint;
+    oy: AnchorOrientationHint;
 };
 
 // @public

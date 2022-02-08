@@ -4,7 +4,7 @@ import { Endpoint } from "../endpoint/endpoint";
 import { JsPlumbInstance } from "../core";
 import { AnchorSpec, PerimeterAnchorShapes } from "@jsplumb/common";
 export declare type AnchorOrientationHint = -1 | 0 | 1;
-export declare type Orientation = [number, number];
+export declare type Orientation = [AnchorOrientationHint, AnchorOrientationHint];
 declare enum FaceValues {
     top = "top",
     left = "left",
@@ -56,8 +56,8 @@ export interface AnchorRecord {
 export interface ComputedPosition {
     curX: number;
     curY: number;
-    ox: number;
-    oy: number;
+    ox: AnchorOrientationHint;
+    oy: AnchorOrientationHint;
     x: number;
     y: number;
 }
@@ -92,7 +92,7 @@ export declare class LightweightFloatingAnchor implements LightweightAnchor {
     isFloating: boolean;
     isContinuous: false;
     isDynamic: false;
-    locations: any[];
+    locations: Array<AnchorRecord>;
     currentLocation: number;
     locked: boolean;
     cssClass: string;

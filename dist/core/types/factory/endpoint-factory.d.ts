@@ -7,7 +7,7 @@ export declare type EndpointComputeFunction<T> = (endpoint: EndpointRepresentati
 export declare const EndpointFactory: {
     get: (ep: Endpoint<any>, name: string, params: any) => EndpointRepresentation<any>;
     clone: <C>(epr: EndpointRepresentation<C>) => EndpointRepresentation<C>;
-    compute: <T>(endpoint: EndpointRepresentation<T>, anchorPoint: AnchorPlacement, orientation: [number, number], endpointStyle: any) => T;
+    compute: <T>(endpoint: EndpointRepresentation<T>, anchorPoint: AnchorPlacement, orientation: [import("./anchor-record-factory").AnchorOrientationHint, import("./anchor-record-factory").AnchorOrientationHint], endpointStyle: any) => T;
     registerHandler: <E, T>(eph: EndpointHandler<E, T>) => void;
 };
 export interface EndpointHandler<E, T> {

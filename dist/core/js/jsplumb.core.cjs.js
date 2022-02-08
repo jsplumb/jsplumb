@@ -689,15 +689,21 @@ var AbstractConnector = function () {
           y = swapY ? y2 : y1,
           w = Math.abs(x2 - x1),
           h = Math.abs(y2 - y1);
-      if (so[0] === 0 && so[1] === 0 || to[0] === 0 && to[1] === 0) {
+      var noSourceOrientation = so[0] === 0 && so[1] === 0;
+      var noTargetOrientation = to[0] === 0 && to[1] === 0;
+      if (noSourceOrientation || noTargetOrientation) {
         var index = w > h ? 0 : 1,
             oIndex = [1, 0][index],
             v1 = index === 0 ? x1 : y1,
             v2 = index === 0 ? x2 : y2;
-        so[index] = v1 > v2 ? -1 : 1;
-        to[index] = v1 > v2 ? 1 : -1;
-        so[oIndex] = 0;
-        to[oIndex] = 0;
+        if (noSourceOrientation) {
+          so[index] = v1 > v2 ? -1 : 1;
+          so[oIndex] = 0;
+        }
+        if (noTargetOrientation) {
+          to[index] = v1 > v2 ? 1 : -1;
+          to[oIndex] = 0;
+        }
       }
       var sx = swapX ? w + this.sourceGap * so[0] : this.sourceGap * so[0],
           sy = swapY ? h + this.sourceGap * so[1] : this.sourceGap * so[1],
@@ -1998,17 +2004,7 @@ var LightweightFloatingAnchor = function () {
     _defineProperty(this, "isFloating", true);
     _defineProperty(this, "isContinuous", void 0);
     _defineProperty(this, "isDynamic", void 0);
-    _defineProperty(this, "locations", [{
-      x: 0.5,
-      y: 0.5,
-      ox: 0,
-      oy: 0,
-      offx: 0,
-      offy: 0,
-      iox: 0,
-      ioy: 0,
-      cls: ''
-    }]);
+    _defineProperty(this, "locations", []);
     _defineProperty(this, "currentLocation", 0);
     _defineProperty(this, "locked", false);
     _defineProperty(this, "cssClass", '');
@@ -2018,6 +2014,17 @@ var LightweightFloatingAnchor = function () {
     _defineProperty(this, "orientation", [0, 0]);
     _defineProperty(this, "size", void 0);
     this.size = instance.getSize(element);
+    this.locations.push({
+      x: 0.5,
+      y: 0.5,
+      ox: this.orientation[0],
+      oy: this.orientation[1],
+      offx: 0,
+      offy: 0,
+      iox: this.orientation[0],
+      ioy: this.orientation[1],
+      cls: ''
+    });
   }
   _createClass(LightweightFloatingAnchor, [{
     key: "_updateOrientationInRouter",
@@ -2984,7 +2991,7 @@ var Endpoint = function (_Component) {
   }, {
     key: "setAnchor",
     value: function setAnchor(anchorParams) {
-      var a = this.instance.router.prepareAnchor(this, anchorParams);
+      var a = this.instance.router.prepareAnchor(anchorParams);
       this.setPreparedAnchor(a);
       return this;
     }
@@ -4851,8 +4858,12 @@ var LightweightRouter = function () {
     _defineProperty(this, "anchorLists", new Map());
     _defineProperty(this, "anchorLocations", new Map());
     instance.bind(EVENT_INTERNAL_CONNECTION_DETACHED, function (p) {
-      _this._removeEndpointFromAnchorLists(p.sourceEndpoint);
-      _this._removeEndpointFromAnchorLists(p.targetEndpoint);
+      if (p.sourceEndpoint._anchor.isContinuous) {
+        _this._removeEndpointFromAnchorLists(p.sourceEndpoint);
+      }
+      if (p.targetEndpoint._anchor.isContinuous) {
+        _this._removeEndpointFromAnchorLists(p.targetEndpoint);
+      }
     });
     instance.bind(EVENT_INTERNAL_ENDPOINT_UNREGISTERED, function (ep) {
       _this._removeEndpointFromAnchorLists(ep);
@@ -5205,7 +5216,7 @@ var LightweightRouter = function () {
     }
   }, {
     key: "prepareAnchor",
-    value: function prepareAnchor(endpoint, params) {
+    value: function prepareAnchor(params) {
       return makeLightweightAnchorFromSpec(params);
     }
   }, {

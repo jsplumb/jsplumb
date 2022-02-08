@@ -16,7 +16,7 @@ export declare class EndpointDragHandler implements DragHandler {
     protected instance: BrowserJsPlumbInstance;
     jpc: Connection;
     existingJpc: boolean;
-    private _originalAnchor;
+    private _originalAnchorSpec;
     ep: Endpoint<Element>;
     endpointRepresentation: EndpointRepresentation<any>;
     canvasElement: Element;

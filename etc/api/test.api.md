@@ -64,7 +64,7 @@ export class BrowserUITestSupport {
     // (undocumented)
     dragANodeAround(el: any, functionToAssertWhileDragging?: () => boolean, assertMessage?: string): void;
     // (undocumented)
-    dragConnection(d1: any, d2: any, mouseUpOnTarget?: boolean): Connection;
+    dragConnection(d1: any, d2: any, mouseUpOnTarget?: boolean, events?: EventHandlers<Connection>): Connection;
     // (undocumented)
     dragNodeBy(el: Element, x: number, y: number, events?: EventHandlers): void;
     // (undocumented)

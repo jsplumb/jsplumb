@@ -1776,15 +1776,21 @@ var jsPlumbBrowserUI = (function (exports) {
             y = swapY ? y2 : y1,
             w = Math.abs(x2 - x1),
             h = Math.abs(y2 - y1);
-        if (so[0] === 0 && so[1] === 0 || to[0] === 0 && to[1] === 0) {
+        var noSourceOrientation = so[0] === 0 && so[1] === 0;
+        var noTargetOrientation = to[0] === 0 && to[1] === 0;
+        if (noSourceOrientation || noTargetOrientation) {
           var index = w > h ? 0 : 1,
               oIndex = [1, 0][index],
               v1 = index === 0 ? x1 : y1,
               v2 = index === 0 ? x2 : y2;
-          so[index] = v1 > v2 ? -1 : 1;
-          to[index] = v1 > v2 ? 1 : -1;
-          so[oIndex] = 0;
-          to[oIndex] = 0;
+          if (noSourceOrientation) {
+            so[index] = v1 > v2 ? -1 : 1;
+            so[oIndex] = 0;
+          }
+          if (noTargetOrientation) {
+            to[index] = v1 > v2 ? 1 : -1;
+            to[oIndex] = 0;
+          }
         }
         var sx = swapX ? w + this.sourceGap * so[0] : this.sourceGap * so[0],
             sy = swapY ? h + this.sourceGap * so[1] : this.sourceGap * so[1],
@@ -3085,17 +3091,7 @@ var jsPlumbBrowserUI = (function (exports) {
       _defineProperty$3(this, "isFloating", true);
       _defineProperty$3(this, "isContinuous", void 0);
       _defineProperty$3(this, "isDynamic", void 0);
-      _defineProperty$3(this, "locations", [{
-        x: 0.5,
-        y: 0.5,
-        ox: 0,
-        oy: 0,
-        offx: 0,
-        offy: 0,
-        iox: 0,
-        ioy: 0,
-        cls: ''
-      }]);
+      _defineProperty$3(this, "locations", []);
       _defineProperty$3(this, "currentLocation", 0);
       _defineProperty$3(this, "locked", false);
       _defineProperty$3(this, "cssClass", '');
@@ -3105,6 +3101,17 @@ var jsPlumbBrowserUI = (function (exports) {
       _defineProperty$3(this, "orientation", [0, 0]);
       _defineProperty$3(this, "size", void 0);
       this.size = instance.getSize(element);
+      this.locations.push({
+        x: 0.5,
+        y: 0.5,
+        ox: this.orientation[0],
+        oy: this.orientation[1],
+        offx: 0,
+        offy: 0,
+        iox: this.orientation[0],
+        ioy: this.orientation[1],
+        cls: ''
+      });
     }
     _createClass$3(LightweightFloatingAnchor, [{
       key: "_updateOrientationInRouter",
@@ -4071,7 +4078,7 @@ var jsPlumbBrowserUI = (function (exports) {
     }, {
       key: "setAnchor",
       value: function setAnchor(anchorParams) {
-        var a = this.instance.router.prepareAnchor(this, anchorParams);
+        var a = this.instance.router.prepareAnchor(anchorParams);
         this.setPreparedAnchor(a);
         return this;
       }
@@ -5938,8 +5945,12 @@ var jsPlumbBrowserUI = (function (exports) {
       _defineProperty$3(this, "anchorLists", new Map());
       _defineProperty$3(this, "anchorLocations", new Map());
       instance.bind(EVENT_INTERNAL_CONNECTION_DETACHED, function (p) {
-        _this._removeEndpointFromAnchorLists(p.sourceEndpoint);
-        _this._removeEndpointFromAnchorLists(p.targetEndpoint);
+        if (p.sourceEndpoint._anchor.isContinuous) {
+          _this._removeEndpointFromAnchorLists(p.sourceEndpoint);
+        }
+        if (p.targetEndpoint._anchor.isContinuous) {
+          _this._removeEndpointFromAnchorLists(p.targetEndpoint);
+        }
       });
       instance.bind(EVENT_INTERNAL_ENDPOINT_UNREGISTERED, function (ep) {
         _this._removeEndpointFromAnchorLists(ep);
@@ -6292,7 +6303,7 @@ var jsPlumbBrowserUI = (function (exports) {
       }
     }, {
       key: "prepareAnchor",
-      value: function prepareAnchor(endpoint, params) {
+      value: function prepareAnchor(params) {
         return makeLightweightAnchorFromSpec(params);
       }
     }, {
@@ -12806,13 +12817,13 @@ var jsPlumbBrowserUI = (function (exports) {
     return ElementDragHandler;
   }();
 
-  function _makeFloatingEndpoint(paintStyle, endpoint, referenceCanvas, sourceElement, instance, scope) {
+  function _makeFloatingEndpoint(ep, endpoint, referenceCanvas, sourceElement, instance) {
     var floatingAnchor = createFloatingAnchor(instance, sourceElement);
     var p = {
-      paintStyle: paintStyle,
+      paintStyle: ep.getPaintStyle(),
       preparedAnchor: floatingAnchor,
       element: sourceElement,
-      scope: scope
+      scope: ep.scope
     };
     if (endpoint != null) {
       if (isAssignableFrom(endpoint, EndpointRepresentation)) {
@@ -12821,9 +12832,9 @@ var jsPlumbBrowserUI = (function (exports) {
         p.endpoint = endpoint;
       }
     }
-    var ep = instance._internal_newEndpoint(p);
-    instance._paintEndpoint(ep, {});
-    return ep;
+    var actualEndpoint = instance._internal_newEndpoint(p);
+    instance._paintEndpoint(actualEndpoint, {});
+    return actualEndpoint;
   }
   function selectorFilter(evt, _el, selector, _instance, negate) {
     var t = evt.target || evt.srcElement,
@@ -12845,7 +12856,7 @@ var jsPlumbBrowserUI = (function (exports) {
       this.instance = instance;
       _defineProperty(this, "jpc", void 0);
       _defineProperty(this, "existingJpc", void 0);
-      _defineProperty(this, "_originalAnchor", void 0);
+      _defineProperty(this, "_originalAnchorSpec", void 0);
       _defineProperty(this, "ep", void 0);
       _defineProperty(this, "endpointRepresentation", void 0);
       _defineProperty(this, "canvasElement", void 0);
@@ -12928,7 +12939,7 @@ var jsPlumbBrowserUI = (function (exports) {
                 tempEndpointParams.scope = scopeFromElement;
               }
             }
-            var extractedParameters = def.parameterExtractor ? def.parameterExtractor(sourceEl, eventTarget) : {};
+            var extractedParameters = def.parameterExtractor ? def.parameterExtractor(sourceEl, eventTarget, e) : {};
             tempEndpointParams = merge(tempEndpointParams, extractedParameters);
             if (tempEndpointParams.maxConnections != null && tempEndpointParams.maxConnections >= 0) {
               var sourceCount = this.instance.select({
@@ -12946,8 +12957,25 @@ var jsPlumbBrowserUI = (function (exports) {
                 return false;
               }
             }
-            this._originalAnchor = tempEndpointParams.anchor || (this.instance.areDefaultAnchorsSet() ? this.instance.defaults.anchors[0] : this.instance.defaults.anchor);
-            tempEndpointParams.anchor = [elxy.x, elxy.y, 0, 0];
+            if (def.anchorPositionFinder) {
+              var maybeAnchorSpec = def.anchorPositionFinder(sourceEl, elxy, def, e);
+              if (maybeAnchorSpec != null) {
+                tempEndpointParams.anchor = maybeAnchorSpec;
+              }
+            }
+            this._originalAnchorSpec = tempEndpointParams.anchor || (this.instance.areDefaultAnchorsSet() ? this.instance.defaults.anchors[0] : this.instance.defaults.anchor);
+            var _originalAnchor = this.instance.router.prepareAnchor(this._originalAnchorSpec);
+            var anchorSpecToUse = [elxy.x, elxy.y, 0, 0];
+            if (_originalAnchor.locations.length > 0) {
+              anchorSpecToUse[2] = _originalAnchor.locations[0].ox;
+              anchorSpecToUse[3] = _originalAnchor.locations[0].oy;
+            } else if (_originalAnchor.isContinuous) {
+              var dx = elxy.x < 0.5 ? elxy.x : 1 - elxy.x;
+              var dy = elxy.y < 0.5 ? elxy.y : 1 - elxy.y;
+              anchorSpecToUse[2] = dx < dy ? elxy.x < 0.5 ? -1 : 1 : 0;
+              anchorSpecToUse[3] = dy < dx ? elxy.y < 0.5 ? -1 : 1 : 0;
+            }
+            tempEndpointParams.anchor = anchorSpecToUse;
             tempEndpointParams.deleteOnEmpty = true;
             this.ep = this.instance._internal_newEndpoint(tempEndpointParams);
             var payload = {};
@@ -13128,7 +13156,7 @@ var jsPlumbBrowserUI = (function (exports) {
           var aae = this.instance._deriveEndpointAndAnchorSpec(this.ep.edgeType);
           endpointToFloat = aae.endpoints[1];
         }
-        this.floatingEndpoint = _makeFloatingEndpoint(this.ep.getPaintStyle(), endpointToFloat, canvasElement, this.placeholderInfo.element, this.instance, this.ep.scope);
+        this.floatingEndpoint = _makeFloatingEndpoint(this.ep, endpointToFloat, canvasElement, this.placeholderInfo.element, this.instance);
         this.floatingAnchor = this.floatingEndpoint._anchor;
         this.floatingEndpoint.deleteOnEmpty = true;
         this.floatingElement = this.floatingEndpoint.endpoint.canvas;
@@ -13136,7 +13164,7 @@ var jsPlumbBrowserUI = (function (exports) {
       }
     }, {
       key: "_populateTargets",
-      value: function _populateTargets(canvasElement, eventTarget) {
+      value: function _populateTargets(canvasElement, eventTarget, event) {
         var _this = this;
         var isSourceDrag = this.jpc && this.jpc.endpoints[0] === this.ep;
         var boundingRect;
@@ -13226,7 +13254,7 @@ var jsPlumbBrowserUI = (function (exports) {
                 }
                 var maxConnections = targetDef.def.def.maxConnections;
                 if (targetDef.def.def.parameterExtractor) {
-                  var extractedParameters = targetDef.def.def.parameterExtractor(d.targetEl, eventTarget);
+                  var extractedParameters = targetDef.def.def.parameterExtractor(d.targetEl, eventTarget, event);
                   if (extractedParameters.maxConnections != null) {
                     maxConnections = extractedParameters.maxConnections;
                   }
@@ -13311,7 +13339,7 @@ var jsPlumbBrowserUI = (function (exports) {
           this.jpc = null;
         }
         this._createFloatingEndpoint(this.canvasElement);
-        this._populateTargets(this.canvasElement, eventTarget);
+        this._populateTargets(this.canvasElement, eventTarget, p.e);
         if (this.jpc == null) {
           this.startNewConnectionDrag(this.ep.scope, payload);
         } else {
@@ -13519,12 +13547,16 @@ var jsPlumbBrowserUI = (function (exports) {
           if (targetDefinition == null) {
             return null;
           }
+          var targetElement = this.currentDropTarget.targetEl;
+          var elxy = getPositionOnElement(p.e, targetElement, this.instance.currentZoom);
           var eps = this.instance._deriveEndpointAndAnchorSpec(jpc.getType().join(" "), true);
           var pp = eps.endpoints ? extend(p, {
             endpoint: targetDefinition.def.endpoint || eps.endpoints[1]
           }) : p;
           var anchorsToUse = this.instance.validAnchorsSpec(eps.anchors) ? eps.anchors : this.instance.areDefaultAnchorsSet() ? this.instance.defaults.anchors : null;
-          var dropAnchor = targetDefinition.def.anchor ? targetDefinition.def.anchor : anchorsToUse != null && anchorsToUse[1] != null ? anchorsToUse[1] : null;
+          var anchorFromDef = targetDefinition.def.anchor;
+          var anchorFromPositionFinder = targetDefinition.def.anchorPositionFinder ? targetDefinition.def.anchorPositionFinder(targetElement, elxy, targetDefinition.def, p.e) : null;
+          var dropAnchor = anchorFromPositionFinder != null ? anchorFromPositionFinder : anchorFromDef != null ? anchorFromDef : anchorsToUse != null && anchorsToUse[1] != null ? anchorsToUse[1] : null;
           if (dropAnchor != null) {
             pp = extend(pp, {
               anchor: dropAnchor
@@ -13533,9 +13565,9 @@ var jsPlumbBrowserUI = (function (exports) {
           if (targetDefinition.def.portId != null) {
             pp.portId = targetDefinition.def.portId;
           }
-          var extractedParameters = targetDefinition.def.parameterExtractor ? targetDefinition.def.parameterExtractor(this.currentDropTarget.el, eventTarget) : {};
+          var extractedParameters = targetDefinition.def.parameterExtractor ? targetDefinition.def.parameterExtractor(this.currentDropTarget.el, eventTarget, p.e) : {};
           pp = merge(pp, extractedParameters);
-          pp.element = this.currentDropTarget.targetEl;
+          pp.element = targetElement;
           dropEndpoint = this.instance._internal_newEndpoint(pp);
           dropEndpoint._mtNew = true;
           dropEndpoint.deleteOnEmpty = true;
@@ -13638,9 +13670,9 @@ var jsPlumbBrowserUI = (function (exports) {
         if (isObject(optionalData)) {
           this.jpc.mergeData(optionalData);
         }
-        if (this._originalAnchor) {
-          this.jpc.endpoints[0].setAnchor(this._originalAnchor);
-          this._originalAnchor = null;
+        if (this._originalAnchorSpec) {
+          this.jpc.endpoints[0].setAnchor(this._originalAnchorSpec);
+          this._originalAnchorSpec = null;
         }
         this.instance._finaliseConnection(this.jpc, null, originalEvent);
         this.instance.setHover(this.jpc, false);
@@ -13718,23 +13750,19 @@ var jsPlumbBrowserUI = (function (exports) {
       this.htmlElementOverlay = overlay;
     }
     _createClass(HTMLElementOverlay, null, [{
-      key: "createElement",
-      value: function createElement$1(o) {
-        var el = createElement(ELEMENT_DIV, {}, o.instance.overlayClass + " " + (o.cssClass ? o.cssClass : ""));
-        o.instance.setAttribute(el, "jtk-overlay-id", o.id);
-        for (var att in o.attributes) {
-          o.instance.setAttribute(el, att, o.attributes[att]);
-        }
-        return el;
-      }
-    }, {
       key: "getElement",
       value: function getElement(o, component, elementCreator) {
         if (o.canvas == null) {
           if (elementCreator && component) {
             o.canvas = elementCreator(component);
+            var cls = o.instance.overlayClass + " " + (o.cssClass ? o.cssClass : "");
+            o.instance.addClass(o.canvas, cls);
           } else {
-            o.canvas = HTMLElementOverlay.createElement(o);
+            o.canvas = createElement(ELEMENT_DIV, {}, o.instance.overlayClass + " " + (o.cssClass ? o.cssClass : ""));
+          }
+          o.instance.setAttribute(o.canvas, "jtk-overlay-id", o.id);
+          for (var att in o.attributes) {
+            o.instance.setAttribute(o.canvas, att, o.attributes[att]);
           }
           o.canvas.style.position = ABSOLUTE;
           o.instance._appendElement(o.canvas, o.instance.getContainer());
@@ -13808,7 +13836,8 @@ var jsPlumbBrowserUI = (function (exports) {
           if (parent != null) {
             _appendAtIndex(parent, o.path, 1);
           }
-          o.instance.addClass(o.path, o.instance.overlayClass);
+          var cls = o.instance.overlayClass + " " + (o.cssClass ? o.cssClass : "");
+          o.instance.addClass(o.path, cls);
           o.path.jtk = {
             overlay: o
           };

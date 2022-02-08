@@ -372,12 +372,13 @@ export interface BeforeStartDetachParams<E> extends BeforeDragParams<E> {
 // @public
 export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescriptor {
     allowLoopback?: boolean;
+    anchorPositionFinder?: (el: Element, elxy: PointXY, def: BehaviouralTypeDescriptor, e: Event) => AnchorSpec | null;
     // (undocumented)
     edgeType?: string;
     // (undocumented)
     extract?: Record<string, string>;
     onMaxConnections?: (value: any, event?: any) => any;
-    parameterExtractor?: (el: T, eventTarget: T) => Record<string, any>;
+    parameterExtractor?: (el: T, eventTarget: T, event: Event) => Record<string, any>;
     parentSelector?: string;
     // (undocumented)
     portId?: string;
@@ -385,7 +386,6 @@ export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescript
     rank?: number;
     // (undocumented)
     redrop?: RedropPolicy;
-    // (undocumented)
     uniqueEndpoint?: boolean;
 }
 
@@ -681,9 +681,9 @@ export interface ComputedPosition {
     // (undocumented)
     curY: number;
     // (undocumented)
-    ox: number;
+    ox: AnchorOrientationHint;
     // (undocumented)
-    oy: number;
+    oy: AnchorOrientationHint;
     // (undocumented)
     x: number;
     // (undocumented)
@@ -1137,7 +1137,7 @@ export type EndpointComputeFunction<T> = (endpoint: EndpointRepresentation<T>, a
 export const EndpointFactory: {
     get: (ep: Endpoint<any>, name: string, params: any) => EndpointRepresentation<any>;
     clone: <C>(epr: EndpointRepresentation<C>) => EndpointRepresentation<C>;
-    compute: <T>(endpoint: EndpointRepresentation<T>, anchorPoint: AnchorPlacement, orientation: [number, number], endpointStyle: any) => T;
+    compute: <T>(endpoint: EndpointRepresentation<T>, anchorPoint: AnchorPlacement, orientation: [AnchorOrientationHint, AnchorOrientationHint], endpointStyle: any) => T;
     registerHandler: <E, T>(eph: EndpointHandler<E, T>) => void;
 };
 
@@ -2005,8 +2005,10 @@ export class LightweightFloatingAnchor implements LightweightAnchor {
     isDynamic: false;
     // (undocumented)
     isFloating: boolean;
+    // Warning: (ae-incompatible-release-tags) The symbol "locations" is marked as @public, but its signature references "AnchorRecord" which is marked as @internal
+    //
     // (undocumented)
-    locations: any[];
+    locations: Array<AnchorRecord>;
     // (undocumented)
     locked: boolean;
     // (undocumented)
@@ -2053,7 +2055,7 @@ export class LightweightRouter<T extends {
     // (undocumented)
     getEndpointLocation(endpoint: Endpoint<any>, params: AnchorComputeParams): AnchorPlacement;
     // (undocumented)
-    getEndpointOrientation(ep: Endpoint<any>): [number, number];
+    getEndpointOrientation(ep: Endpoint<any>): Orientation;
     // (undocumented)
     instance: JsPlumbInstance;
     // (undocumented)
@@ -2065,7 +2067,7 @@ export class LightweightRouter<T extends {
     // @internal (undocumented)
     lockCurrentAxis(a: LightweightContinuousAnchor): void;
     // (undocumented)
-    prepareAnchor(endpoint: Endpoint<any>, params: AnchorSpec | Array<AnchorSpec>): LightweightAnchor;
+    prepareAnchor(params: AnchorSpec | Array<AnchorSpec>): LightweightAnchor;
     // (undocumented)
     redraw(elementId: string, timestamp?: string, offsetToUI?: PointXY): RedrawResult;
     // (undocumented)
@@ -2119,7 +2121,7 @@ export interface ManageElementParams<E = any> {
 export const NONE = "none";
 
 // @public (undocumented)
-export type Orientation = [number, number];
+export type Orientation = [AnchorOrientationHint, AnchorOrientationHint];
 
 // @public (undocumented)
 export abstract class Overlay extends EventGenerator {
@@ -2307,7 +2309,7 @@ export interface Router<T extends {
     // (undocumented)
     lock(a: A): void;
     // (undocumented)
-    prepareAnchor(endpoint: Endpoint, params: AnchorSpec | Array<AnchorSpec>): A;
+    prepareAnchor(params: AnchorSpec | Array<AnchorSpec>): A;
     // (undocumented)
     redraw(elementId: string, timestamp?: string, offsetToUI?: PointXY): RedrawResult;
     // (undocumented)

@@ -35,7 +35,7 @@ export declare class BrowserUITestSupport {
     dragToGroup(el: Element, targetGroupId: string, events?: EventHandlers): void;
     aSyncDragNodeBy(el: Element, x: number, y: number, events?: EventHandlers): void;
     dragANodeAround(el: any, functionToAssertWhileDragging?: () => boolean, assertMessage?: string): void;
-    dragConnection(d1: any, d2: any, mouseUpOnTarget?: boolean): Connection;
+    dragConnection(d1: any, d2: any, mouseUpOnTarget?: boolean, events?: EventHandlers<Connection>): Connection;
     aSyncDragConnection(d1: any, d2: any, events?: EventHandlers<Connection>): void;
     dragAndAbortConnection(d1: any): void;
     dragAndAbort(d1: any): void;

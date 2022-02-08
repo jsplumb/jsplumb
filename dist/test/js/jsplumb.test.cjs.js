@@ -249,14 +249,21 @@ var BrowserUITestSupport = function () {
     }
   }, {
     key: "dragConnection",
-    value: function dragConnection(d1, d2, mouseUpOnTarget) {
+    value: function dragConnection(d1, d2, mouseUpOnTarget, events) {
       var el1 = this.getCanvas(d1),
           el2 = this.getCanvas(d2);
       var e1 = this.makeEvent(el1),
           e2 = this.makeEvent(el2);
+      events = events || {};
       var conns = this._jsPlumb.select().length;
       this._jsPlumb.trigger(el1, browserUi.EVENT_MOUSEDOWN, e1);
+      if (events.beforeMouseMove) {
+        events.beforeMouseMove();
+      }
       this._jsPlumb.trigger(mouseUpOnTarget ? el2 : document, browserUi.EVENT_MOUSEMOVE, e2);
+      if (events.beforeMouseUp) {
+        events.beforeMouseUp();
+      }
       this._jsPlumb.trigger(mouseUpOnTarget ? el2 : document, browserUi.EVENT_MOUSEUP, e2);
       return this._jsPlumb.select().get(conns);
     }

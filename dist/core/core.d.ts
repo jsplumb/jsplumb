@@ -350,13 +350,17 @@ export declare interface BeforeStartDetachParams<E> extends BeforeDragParams<E> 
 export declare interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescriptor {
     /**
      * A function that can be used to extract a set of parameters pertinent to the connection that is being dragged
-     * from a given source.
+     * from a given source or dropped on a given target.
      * @param el - The element that is the drag source
      * @param eventTarget - The element that captured the event that started the connection drag.
      */
-    parameterExtractor?: (el: T, eventTarget: T) => Record<string, any>;
+    parameterExtractor?: (el: T, eventTarget: T, event: Event) => Record<string, any>;
     redrop?: RedropPolicy;
     extract?: Record<string, string>;
+    /**
+     * If true, only one endpoint will be created on any given element for this type descriptor, and subsequent connections will
+     * all attach to that endpoint. Defaults to false.
+     */
     uniqueEndpoint?: boolean;
     /**
      * Optional function to call if the user begins a new connection drag when the associated element is full.
@@ -376,6 +380,18 @@ export declare interface BehaviouralTypeDescriptor<T = any> extends EndpointType
      * are added. By default this is the internal attribute jsPlumb uses to mark managed elements (data-jtk-managed)
      */
     parentSelector?: string;
+    /**
+     * This function offers a means for you to provide the anchor to use for
+     * a new drag, or a drop. You're given the source/target element, the proportional location on
+     * the element that the drag started/drop occurred, the associated type descriptor, and
+     * the originating event.  Return null if you don't wish to provide a value,
+     * and any other return value will be treated as an AnchorSpec.
+     * @param el
+     * @param elxy
+     * @param def
+     * @param e
+     */
+    anchorPositionFinder?: (el: Element, elxy: PointXY, def: BehaviouralTypeDescriptor, e: Event) => AnchorSpec | null;
 }
 
 export declare class BlankEndpoint extends EndpointRepresentation<ComputedBlankEndpoint> {
@@ -570,8 +586,8 @@ export declare type ComputedDotEndpoint = [number, number, number, number, numbe
 export declare interface ComputedPosition {
     curX: number;
     curY: number;
-    ox: number;
-    oy: number;
+    ox: AnchorOrientationHint;
+    oy: AnchorOrientationHint;
     x: number;
     y: number;
 }
@@ -1116,7 +1132,7 @@ export declare type EndpointComputeFunction<T> = (endpoint: EndpointRepresentati
 export declare const EndpointFactory: {
     get: (ep: Endpoint<any>, name: string, params: any) => EndpointRepresentation<any>;
     clone: <C>(epr: EndpointRepresentation<C>) => EndpointRepresentation<C>;
-    compute: <T>(endpoint: EndpointRepresentation<T>, anchorPoint: AnchorPlacement, orientation: [number, number], endpointStyle: any) => T;
+    compute: <T>(endpoint: EndpointRepresentation<T>, anchorPoint: AnchorPlacement, orientation: [AnchorOrientationHint, AnchorOrientationHint], endpointStyle: any) => T;
     registerHandler: <E, T>(eph: EndpointHandler<E, T>) => void;
 };
 
@@ -2133,7 +2149,7 @@ export declare class LightweightFloatingAnchor implements LightweightAnchor {
     isFloating: boolean;
     isContinuous: false;
     isDynamic: false;
-    locations: any[];
+    locations: Array<AnchorRecord>;
     currentLocation: number;
     locked: boolean;
     cssClass: string;
@@ -2197,11 +2213,11 @@ export declare class LightweightRouter<T extends {
     computeAnchorLocation(anchor: LightweightAnchor, params: AnchorComputeParams): AnchorPlacement;
     computePath(connection: Connection<any>, timestamp: string): void;
     getEndpointLocation(endpoint: Endpoint<any>, params: AnchorComputeParams): AnchorPlacement;
-    getEndpointOrientation(ep: Endpoint<any>): [number, number];
+    getEndpointOrientation(ep: Endpoint<any>): Orientation;
     setAnchorOrientation(anchor: LightweightAnchor, orientation: Orientation): void;
     isDynamicAnchor(ep: Endpoint<any>): boolean;
     isFloating(ep: Endpoint<any>): boolean;
-    prepareAnchor(endpoint: Endpoint<any>, params: AnchorSpec | Array<AnchorSpec>): LightweightAnchor;
+    prepareAnchor(params: AnchorSpec | Array<AnchorSpec>): LightweightAnchor;
     redraw(elementId: string, timestamp?: string, offsetToUI?: PointXY): RedrawResult;
     reset(): void;
     setAnchor(endpoint: Endpoint<any>, anchor: LightweightAnchor): void;
@@ -2281,7 +2297,7 @@ export declare interface ManageElementParams<E = any> {
 
 export declare const NONE = "none";
 
-export declare type Orientation = [number, number];
+export declare type Orientation = [AnchorOrientationHint, AnchorOrientationHint];
 
 export declare abstract class Overlay extends EventGenerator {
     instance: JsPlumbInstance;
@@ -2400,7 +2416,7 @@ export declare interface Router<T extends {
     getEndpointOrientation(endpoint: Endpoint): Orientation;
     setAnchorOrientation(anchor: A, orientation: Orientation): void;
     setAnchor(endpoint: Endpoint, anchor: A): void;
-    prepareAnchor(endpoint: Endpoint, params: AnchorSpec | Array<AnchorSpec>): A;
+    prepareAnchor(params: AnchorSpec | Array<AnchorSpec>): A;
     setConnectionAnchors(conn: Connection, anchors: [A, A]): void;
     isDynamicAnchor(ep: Endpoint): boolean;
     isFloating(ep: Endpoint): boolean;

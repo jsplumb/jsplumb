@@ -4,6 +4,7 @@
  * @packageDocumentation
  */
 
+import { AnchorOrientationHint } from '@jsplumb/core';
 import { BoundingBox } from '@jsplumb/util';
 import { Component } from '@jsplumb/core';
 import { Extents } from '@jsplumb/util';
@@ -152,10 +153,6 @@ export declare enum AnchorLocations {
     TopRight = "TopRight"
 }
 
-/**
- * Common options for anchors.
- * @public
- */
 export declare interface AnchorOptions extends Record<string, any> {
     /**
      * Optional css class that will be applied to any DOM element for an endpoint using this anchor.
@@ -172,8 +169,8 @@ export declare type AnchorPlacement = {
     curY: number;
     x: number;
     y: number;
-    ox: number;
-    oy: number;
+    ox: AnchorOrientationHint;
+    oy: AnchorOrientationHint;
 };
 
 /**

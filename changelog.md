@@ -1,8 +1,10 @@
-## 5.3.12
+## 5.4.0
 
-February 7th 2022
+February 9th 2022
 
 - added `addOverlay` to `JsPlumbInstance`. This method calls `addOverlay` on the underlying Component, and then revalidates the UI
+- updated connection drag code to honour the orientation of the source anchor when dragging a new connection. With Flowchart connectors
+this makes for a better UX, as the source stub is always painted.
 
 ## 5.3.11
 
