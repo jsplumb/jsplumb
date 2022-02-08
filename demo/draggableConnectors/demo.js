@@ -93,20 +93,15 @@
             var exampleEndpoint = {
                 endpoint: "Rectangle",
                 paintStyle: { width: 25, height: 21, fill: exampleColor },
-                isSource: true,
+                source: true,
                 reattach: true,
                 scope: "blue",
                 connectorStyle: {
-                    gradient: {stops: [
-                            [0, exampleColor],
-                            [0.5, "#09098e"],
-                            [1, exampleColor]
-                        ]},
                     strokeWidth: 5,
                     stroke: exampleColor,
                     dashstyle: "2 2"
                 },
-                isTarget: true,
+                target: true,
                 beforeDrop: function (params) {
                     return confirm("Connect " + params.sourceId + " to " + params.targetId + "?");
                 },
@@ -121,12 +116,12 @@
             var exampleEndpoint2 = {
                 endpoint: {type:"Dot", options:{ radius: 11 }},
                 paintStyle: { fill: color2 },
-                isSource: true,
+                source: true,
                 scope: "green",
                 connectorStyle: { stroke: color2, strokeWidth: 6 },
                 connector: {type:"Bezier", options:{ curviness: 63 } },
                 maxConnections: 3,
-                isTarget: true,
+                target: true,
                 dropOptions: exampleDropOptions
             };
 
@@ -141,16 +136,16 @@
             var example3Color = "rgba(229,219,61,0.5)";
             var exampleEndpoint3 = {
                 endpoint: {type:"Dot", options:{radius: 17} },
-                anchor: "BottomLeft",
+                anchor: "Left",
                 paintStyle: { fill: example3Color, opacity: 0.5 },
-                isSource: true,
+                source: true,
                 scope: 'yellow',
                 connectorStyle: {
                     stroke: example3Color,
                     strokeWidth: 4
                 },
-                connector: "Straight",
-                isTarget: true,
+                connector: "Flowchart",
+                target: true,
                 dropOptions: exampleDropOptions,
                 beforeDetach: function (conn) {
                     return confirm("Detach connection?");
