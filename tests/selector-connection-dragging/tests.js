@@ -1397,15 +1397,15 @@ var testSuite = function () {
             anchor:"Continuous",
             endpoint:"Rectangle",
             connector:"Flowchart",
-            anchorPositionFinder:function(p) {
-                console.log("pos params", p)
+            anchorPositionFinder:function(el, pos, def, e) {
+                console.log("pos params", el, pos, def, e)
                 return [0.3, 0.1, -1, -1]  // -1, -1 is not a valid set of orientation values in the real world, but for testing it's ok.
             }
         })
 
         _jsPlumb.addTargetSelector(".zone2", {
-            anchorPositionFinder:function(p) {
-                console.log("pos params", p)
+            anchorPositionFinder:function(el, pos, def, e) {
+                console.log("pos params", el, pos, def, e)
                 return [0.6, 0.2, 1, 1]  // -1, -1 is not a valid set of orientation values in the real world, but for testing it's ok.
             }
         })
