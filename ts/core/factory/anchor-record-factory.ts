@@ -107,7 +107,7 @@ export class LightweightFloatingAnchor implements LightweightAnchor {
 
     size:Size
 
-    constructor(public instance:JsPlumbInstance, public element:any, oppositeEndpoint:Endpoint<any>) {
+    constructor(public instance:JsPlumbInstance, public element:any) {
         this.size = instance.getSize(element)
         this.locations.push({x:0.5, y:0.5, ox:this.orientation[0], oy:this.orientation[1], offx:0, offy:0, iox:this.orientation[0], ioy:this.orientation[1], cls:''})
     }
@@ -272,8 +272,8 @@ function _createAnchor(type:string, locations:Array<AnchorRecord>, params:Record
     }
 }
 
-export function createFloatingAnchor(instance:JsPlumbInstance, element:any, ep:Endpoint<any>):LightweightFloatingAnchor {
-    return new LightweightFloatingAnchor(instance, element, ep)
+export function createFloatingAnchor(instance:JsPlumbInstance, element:any):LightweightFloatingAnchor {
+    return new LightweightFloatingAnchor(instance, element)
 }
 
 const PROPERTY_CURRENT_FACE = "currentFace"
