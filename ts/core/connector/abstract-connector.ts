@@ -334,19 +334,29 @@ export abstract class AbstractConnector implements Connector {
             w = Math.abs(x2 - x1),
             h = Math.abs(y2 - y1)
 
-        // if either anchor does not have an orientation set, we derive one from their relative
-        // positions.  we fix the axis to be the one in which the two elements are further apart, and
-        // point each anchor at the other element.  this is also used when dragging a new connection.
-        if (so[0] === 0 && so[1] === 0 || to[0] === 0 && to[1] === 0) {
+        // check that a valid orientation exists for both source and target. if one or both lacks an orientation,
+        // compute one where missing by deriving it from the element's relative positions. the axis for the derived
+        // orientation is the one in which the two elements are further apart. Previously, we'd use this computed
+        // orientation for both anchors, but from 5.4.0 we only use it for an anchor that had [0,0]. This results in
+        // a better new connection dragging experience when using the flowchart connectors.
+        const noSourceOrientation = so[0] === 0 && so[1] === 0
+        const noTargetOrientation = to[0] === 0 && to[1] === 0
+
+        if (noSourceOrientation || noTargetOrientation) {
             let index = w > h ? 0 : 1,
                 oIndex = [1, 0][index],
                 v1 = index === 0 ? x1 : y1,
                 v2 = index === 0 ? x2 : y2
 
-            so[index] = v1 > v2 ? -1 : 1
-            to[index] = v1 > v2 ? 1 : -1
-            so[oIndex] = 0
-            to[oIndex] = 0
+            if (noSourceOrientation) {
+                so[index] = v1 > v2 ? -1 : 1
+                so[oIndex] = 0
+            }
+
+            if (noTargetOrientation) {
+                to[index] = v1 > v2 ? 1 : -1
+                to[oIndex] = 0
+            }
         }
 
         let sx = swapX ? w + (this.sourceGap * so[0]) : this.sourceGap * so[0],
