@@ -72,7 +72,7 @@ function _makeFloatingEndpoint (ep:Endpoint<Element>,
                                 sourceElement:jsPlumbDOMElement,
                                 instance:BrowserJsPlumbInstance)
 {
-    let floatingAnchor = createFloatingAnchor(instance, sourceElement, ep)
+    let floatingAnchor = createFloatingAnchor(instance, sourceElement)
 
     const p:InternalEndpointOptions<any> = {
         paintStyle: ep.getPaintStyle(),
@@ -242,7 +242,7 @@ export class EndpointDragHandler implements DragHandler {
                 // contacted the parameter extractor.
 
                 // perhaps extract some parameters from a parameter extractor
-                const extractedParameters = def.parameterExtractor ? def.parameterExtractor(sourceEl, eventTarget as Element) : {}
+                const extractedParameters = def.parameterExtractor ? def.parameterExtractor(sourceEl, eventTarget as Element, e) : {}
                 tempEndpointParams = merge(tempEndpointParams, extractedParameters)
 
                 // if maxConnections reached (maxConnections may have been specified in the addSourceSelector call, or it may also have
@@ -561,7 +561,7 @@ export class EndpointDragHandler implements DragHandler {
      * @param canvasElement
      * @internal
      */
-    private _populateTargets(canvasElement:Element, eventTarget?:Element) {
+    private _populateTargets(canvasElement:Element, eventTarget:Element, event:Event) {
         const isSourceDrag = this.jpc && this.jpc.endpoints[0] === this.ep
 
         let boundingRect:BoundingBox
@@ -659,7 +659,7 @@ export class EndpointDragHandler implements DragHandler {
 
                         let maxConnections:number = targetDef.def.def.maxConnections
                         if (targetDef.def.def.parameterExtractor) {
-                            const extractedParameters = targetDef.def.def.parameterExtractor(d.targetEl, eventTarget)
+                            const extractedParameters = targetDef.def.def.parameterExtractor(d.targetEl, eventTarget, event)
                             if (extractedParameters.maxConnections != null) {
                                  maxConnections = extractedParameters.maxConnections
                             }
@@ -766,7 +766,7 @@ export class EndpointDragHandler implements DragHandler {
         this._createFloatingEndpoint(this.canvasElement)
 
         // populate list of drop targets, whose contents depends on what's being dragged
-        this._populateTargets(this.canvasElement, eventTarget)
+        this._populateTargets(this.canvasElement, eventTarget, p.e)
 
         if (this.jpc == null) {
             this.startNewConnectionDrag(this.ep.scope, payload)
@@ -1080,7 +1080,7 @@ export class EndpointDragHandler implements DragHandler {
                 pp.portId = targetDefinition.def.portId
             }
 
-            const extractedParameters = targetDefinition.def.parameterExtractor ? targetDefinition.def.parameterExtractor(this.currentDropTarget.el, eventTarget) : {}
+            const extractedParameters = targetDefinition.def.parameterExtractor ? targetDefinition.def.parameterExtractor(this.currentDropTarget.el, eventTarget, p.e) : {}
             pp = merge(pp, extractedParameters)
 
             pp.element = targetElement
