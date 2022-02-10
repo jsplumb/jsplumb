@@ -1367,8 +1367,8 @@ var testSuite = function () {
                 equal(sourceEndpoint._anchor.locations[0].ox, -1, "x orientation correctly set for source endpoint")
                 equal(sourceEndpoint._anchor.locations[0].oy, -1, "y orientation correctly set for source endpoint")
 
-                equal(sourceEndpoint.connections[0].endpoints[1]._anchor.locations[0].ox, 1, "x orientation correctly set for floating endpoint")
-                equal(sourceEndpoint.connections[0].endpoints[1]._anchor.locations[0].oy, 1, "y orientation correctly set for floating endpoint")
+                equal(sourceEndpoint.connections[0].endpoints[1]._anchor.locations[0].ox, 0, "x orientation correctly set for floating endpoint")
+                equal(sourceEndpoint.connections[0].endpoints[1]._anchor.locations[0].oy, 0, "y orientation correctly set for floating endpoint")
             }
         })
 
@@ -1378,7 +1378,7 @@ var testSuite = function () {
         equal(c.endpoints[0]._anchor.locations[0].y, 0.1, "y location of target anchor is as given by parameter extractor");
     });
 
-    test("addSourceSelector, anchorPositionFinder supplied, anchor orientation honoured.", function() {
+    test("addSourceSelector, addTargetSelector, anchorPositionFinder supplied, anchor orientation honoured.", function() {
 
         var sourceNode = makeSourceNode()
         var zone = addZone(sourceNode, "zone1")
@@ -1417,8 +1417,8 @@ var testSuite = function () {
                 equal(sourceEndpoint._anchor.locations[0].ox, -1, "x orientation correctly set for source endpoint")
                 equal(sourceEndpoint._anchor.locations[0].oy, -1, "y orientation correctly set for source endpoint")
 
-                equal(sourceEndpoint.connections[0].endpoints[1]._anchor.locations[0].ox, 1, "x orientation correctly set for floating endpoint")
-                equal(sourceEndpoint.connections[0].endpoints[1]._anchor.locations[0].oy, 1, "y orientation correctly set for floating endpoint")
+                equal(sourceEndpoint.connections[0].endpoints[1]._anchor.locations[0].ox, 0, "x orientation correctly set for floating endpoint")
+                equal(sourceEndpoint.connections[0].endpoints[1]._anchor.locations[0].oy, 0, "y orientation correctly set for floating endpoint")
             }
         })
 
@@ -1433,6 +1433,73 @@ var testSuite = function () {
         equal(c.endpoints[1]._anchor.locations[0].y, 0.2, "y location of target anchor y is as given by anchorPositionFinder");
         equal(c.endpoints[1]._anchor.locations[0].ox, 1, "x orientation of target anchor is as given by anchorPositionFinder");
         equal(c.endpoints[1]._anchor.locations[0].oy, 1, "y orientation of target anchor is as given by anchorPositionFinder");
+    });
+
+    test("addTargetSelector with canAcceptNewConnection handler", function() {
+
+        var sourceNode = makeSourceNode()
+        var zone = addZone(sourceNode, "zone1")
+        zone.setAttribute("foo", "the value of foo");
+
+        var targetNode = makeTargetNode()
+        var tzone = addZone(targetNode, "zone2")
+        tzone.setAttribute("foo", "the value of foo target");
+
+        var targetNode2 = makeTargetNode()
+        var tzone2 = addZone(targetNode2, "zone2")
+        tzone.setAttribute("foo2", "the value of foo target");
+
+
+        _jsPlumb.addSourceSelector(".zone1", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart"
+        })
+
+        _jsPlumb.addTargetSelector(".zone2", {
+            canAcceptNewConnection:function(el, event) {
+                return el === targetNode2
+            }
+        })
+
+        var c = support.dragConnection(zone, tzone, true)
+        equal(0, _jsPlumb.select().length, "zero connections in the instance as targetNode cannot accept new connections")
+
+        var c2 = support.dragConnection(zone, tzone2, true)
+        equal(1, _jsPlumb.select().length, "one connection in the instance, as targetNode2 can accept new connections")
+    });
+
+    test("addSourceSelector with canAcceptNewConnection handler", function() {
+
+        var sourceNode = makeSourceNode()
+        var zone = addZone(sourceNode, "zone1")
+        zone.setAttribute("foo", "the value of foo");
+
+        var sourceNode2 = makeSourceNode()
+        var zone2 = addZone(sourceNode2, "zone1")
+        zone.setAttribute("foo", "the value of foo");
+
+        var targetNode = makeTargetNode()
+        var tzone = addZone(targetNode, "zone2")
+        tzone.setAttribute("foo", "the value of foo target");
+
+
+        _jsPlumb.addSourceSelector(".zone1", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart",
+            canAcceptNewConnection:function(el, event) {
+                return el === sourceNode2
+            }
+        })
+
+        _jsPlumb.addTargetSelector(".zone2")
+
+        var c = support.dragConnection(zone, tzone, true)
+        equal(0, _jsPlumb.select().length, "zero connections in the instance as sourceNode cannot accept new connections")
+
+        var c2 = support.dragConnection(zone2, tzone, true)
+        equal(1, _jsPlumb.select().length, "one connection in the instance, as sourceNode2 can accept new connections")
     });
 
 
