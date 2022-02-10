@@ -76,7 +76,18 @@ export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescript
      * @param eventTarget - The element that captured the event that started the connection drag.
      */
     parameterExtractor?:(el:T, eventTarget:T, event:Event) => Record<string, any>
+
+    /**
+     * Optional policy for dropping existing connections that have been detached by their source. See RedropPolicy.
+     */
     redrop?:RedropPolicy
+
+    /**
+     * Optional function that is used to determine whether at the start of a drag, a given element is able to accept
+     * new connections. For a source element returning false from here aborts the connection drag. For a target element
+     * returning false from here means the target element is not active as a drop target.
+     */
+    canAcceptNewConnection?:(el:Element, e:Event) => boolean
 
     extract?:Record<string, string>
 
