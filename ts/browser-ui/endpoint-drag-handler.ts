@@ -213,6 +213,10 @@ export class EndpointDragHandler implements DragHandler {
                 // at this point we have a mousedown event on an element that is configured as a drag source.
                 def = sourceSelector.def.def
 
+                if (def.canAcceptNewConnection != null && !def.canAcceptNewConnection(sourceEl, e)) {
+                    return false
+                }
+
                 // find the position on the element at which the mouse was pressed; this is where the endpoint
                 // will be located.
                 let elxy = getPositionOnElement(e, sourceEl, this.instance.currentZoom)
@@ -657,14 +661,12 @@ export class EndpointDragHandler implements DragHandler {
                             }
                         }
 
-                        let maxConnections:number = targetDef.def.def.maxConnections
-                        if (targetDef.def.def.parameterExtractor) {
-                            const extractedParameters = targetDef.def.def.parameterExtractor(d.targetEl, eventTarget, event)
-                            if (extractedParameters.maxConnections != null) {
-                                 maxConnections = extractedParameters.maxConnections
-                            }
+                        // if a `canAcceptNewConnection` handler is defined and it returns false, abort.
+                        if (targetDef.def.def.canAcceptNewConnection != null && !targetDef.def.def.canAcceptNewConnection(d.targetEl, event)) {
+                            return
                         }
 
+                        let maxConnections:number = targetDef.def.def.maxConnections
                         // check for maxConnections
                         if(maxConnections != null && maxConnections !== -1) {
                             if (this.instance.select({target:d.targetEl}).length >= maxConnections) {
