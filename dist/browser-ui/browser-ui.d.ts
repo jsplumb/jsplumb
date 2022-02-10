@@ -668,8 +668,10 @@ export declare class Drag extends Base {
     downListener: (e: MouseEvent) => void;
     moveListener: (e: MouseEvent) => void;
     upListener: (e?: MouseEvent) => void;
+    scrollTracker: (e: Event) => void;
     listeners: Record<string, Array<Function>>;
     constructor(el: jsPlumbDOMElement, params: DragParams, k: Collicat);
+    private _trackScroll;
     on(evt: string, fn: Function): void;
     off(evt: string, fn: Function): void;
     private _upListener;

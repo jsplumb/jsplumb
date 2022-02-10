@@ -137,7 +137,7 @@ export declare type FullAnchorSpec = {
 /**
  * An anchor spec in the form [ x, y, ox, oy ]
  */
-export declare type ArrayAnchorSpec = [number, number, number, number, number?, number?];
+export declare type ArrayAnchorSpec = [number, number, AnchorOrientationHint, AnchorOrientationHint, number?, number?];
 /**
  * Models the specification of a single anchor.
  * @public

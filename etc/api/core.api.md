@@ -373,6 +373,7 @@ export interface BeforeStartDetachParams<E> extends BeforeDragParams<E> {
 export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescriptor {
     allowLoopback?: boolean;
     anchorPositionFinder?: (el: Element, elxy: PointXY, def: BehaviouralTypeDescriptor, e: Event) => AnchorSpec | null;
+    canAcceptNewConnection?: (el: Element, e: Event) => boolean;
     // (undocumented)
     edgeType?: string;
     // (undocumented)
@@ -384,7 +385,6 @@ export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescript
     portId?: string;
     // (undocumented)
     rank?: number;
-    // (undocumented)
     redrop?: RedropPolicy;
     uniqueEndpoint?: boolean;
 }

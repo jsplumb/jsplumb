@@ -92,7 +92,7 @@ export type AnchorPlacement = {
 export type AnchorSpec = SingleAnchorSpec | Array<SingleAnchorSpec>;
 
 // @public
-export type ArrayAnchorSpec = [number, number, number, number, number?, number?];
+export type ArrayAnchorSpec = [number, number, AnchorOrientationHint, AnchorOrientationHint, number?, number?];
 
 // @public (undocumented)
 export interface ArrowOverlayOptions extends OverlayOptions {

@@ -1297,6 +1297,7 @@ var Drag = function (_Base) {
     _defineProperty(_assertThisInitialized(_this), "downListener", void 0);
     _defineProperty(_assertThisInitialized(_this), "moveListener", void 0);
     _defineProperty(_assertThisInitialized(_this), "upListener", void 0);
+    _defineProperty(_assertThisInitialized(_this), "scrollTracker", void 0);
     _defineProperty(_assertThisInitialized(_this), "listeners", {
       "start": [],
       "drag": [],
@@ -1324,32 +1325,8 @@ var Drag = function (_Base) {
     _this._ignoreZoom = params.ignoreZoom === true;
     _this._ghostProxyParent = params.ghostProxyParent;
     if (_this.trackScroll) {
-      document.addEventListener("scroll", function (e) {
-        if (_this._moving) {
-          var currentScrollValues = {
-            x: document.documentElement.scrollLeft,
-            y: document.documentElement.scrollTop
-          },
-              dsx = currentScrollValues.x - _this._lastScrollValues.x,
-              dsy = currentScrollValues.y - _this._lastScrollValues.y,
-              _pos = {
-            x: dsx + _this._lastPosition.x,
-            y: dsy + _this._lastPosition.y
-          },
-          dx = _pos.x - _this._downAt.x,
-              dy = _pos.y - _this._downAt.y,
-              _z = _this._ignoreZoom ? 1 : _this.k.getZoom();
-          if (_this._dragEl && _this._dragEl.parentNode) {
-            dx += _this._dragEl.parentNode.scrollLeft - _this._initialScroll.x;
-            dy += _this._dragEl.parentNode.scrollTop - _this._initialScroll.y;
-          }
-          dx /= _z;
-          dy /= _z;
-          _this.moveBy(dx, dy, e);
-          _this._lastPosition = _pos;
-          _this._lastScrollValues = currentScrollValues;
-        }
-      });
+      _this.scrollTracker = _this._trackScroll.bind(_assertThisInitialized(_this));
+      document.addEventListener("scroll", _this.scrollTracker);
     }
     if (params.ghostProxy === true) {
       _this._useGhostProxy = TRUE;
@@ -1389,6 +1366,34 @@ var Drag = function (_Base) {
     return _this;
   }
   _createClass(Drag, [{
+    key: "_trackScroll",
+    value: function _trackScroll(e) {
+      if (this._moving) {
+        var currentScrollValues = {
+          x: document.documentElement.scrollLeft,
+          y: document.documentElement.scrollTop
+        },
+            dsx = currentScrollValues.x - this._lastScrollValues.x,
+            dsy = currentScrollValues.y - this._lastScrollValues.y,
+            _pos = {
+          x: dsx + this._lastPosition.x,
+          y: dsy + this._lastPosition.y
+        },
+        dx = _pos.x - this._downAt.x,
+            dy = _pos.y - this._downAt.y,
+            _z = this._ignoreZoom ? 1 : this.k.getZoom();
+        if (this._dragEl && this._dragEl.parentNode) {
+          dx += this._dragEl.parentNode.scrollLeft - this._initialScroll.x;
+          dy += this._dragEl.parentNode.scrollTop - this._initialScroll.y;
+        }
+        dx /= _z;
+        dy /= _z;
+        this.moveBy(dx, dy, e);
+        this._lastPosition = _pos;
+        this._lastScrollValues = currentScrollValues;
+      }
+    }
+  }, {
     key: "on",
     value: function on(evt, fn) {
       if (this.listeners[evt]) {
@@ -1802,6 +1807,9 @@ var Drag = function (_Base) {
       this.downListener = null;
       this.upListener = null;
       this.moveListener = null;
+      if (this.scrollTracker != null) {
+        document.removeEventListener("scroll", this.scrollTracker);
+      }
     }
   }]);
   return Drag;
@@ -2851,6 +2859,9 @@ var EndpointDragHandler = function () {
           consume(e);
           this._activeDefinition = sourceSelector;
           def = sourceSelector.def.def;
+          if (def.canAcceptNewConnection != null && !def.canAcceptNewConnection(sourceEl, e)) {
+            return false;
+          }
           var elxy = getPositionOnElement(e, sourceEl, this.instance.currentZoom);
           var tempEndpointParams = {
             element: sourceEl
@@ -3178,13 +3189,10 @@ var EndpointDragHandler = function () {
                   return;
                 }
               }
-              var maxConnections = targetDef.def.def.maxConnections;
-              if (targetDef.def.def.parameterExtractor) {
-                var extractedParameters = targetDef.def.def.parameterExtractor(d.targetEl, eventTarget, event);
-                if (extractedParameters.maxConnections != null) {
-                  maxConnections = extractedParameters.maxConnections;
-                }
+              if (targetDef.def.def.canAcceptNewConnection != null && !targetDef.def.def.canAcceptNewConnection(d.targetEl, event)) {
+                return;
               }
+              var maxConnections = targetDef.def.def.maxConnections;
               if (maxConnections != null && maxConnections !== -1) {
                 if (_this.instance.select({
                   target: d.targetEl

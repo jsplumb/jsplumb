@@ -182,7 +182,7 @@ export declare type AnchorSpec = SingleAnchorSpec | Array<SingleAnchorSpec>;
 /**
  * An anchor spec in the form [ x, y, ox, oy ]
  */
-export declare type ArrayAnchorSpec = [number, number, number, number, number?, number?];
+export declare type ArrayAnchorSpec = [number, number, AnchorOrientationHint, AnchorOrientationHint, number?, number?];
 
 /**
  * @public

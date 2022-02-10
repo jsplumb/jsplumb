@@ -406,6 +406,8 @@ export class Drag extends Base {
     // (undocumented)
     scroll: boolean;
     // (undocumented)
+    scrollTracker: (e: Event) => void;
+    // (undocumented)
     setUseGhostProxy(val: boolean): void;
     // (undocumented)
     _size: Size;
