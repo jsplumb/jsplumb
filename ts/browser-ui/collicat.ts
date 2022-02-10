@@ -323,6 +323,8 @@ export class Drag extends Base {
     moveListener:(e:MouseEvent) => void
     upListener:(e?:MouseEvent) => void
 
+    scrollTracker:(e:Event) => void
+
     listeners:Record<string, Array<Function>> = {"start":[], "drag":[], "stop":[], "over":[], "out":[], "beforeStart":[], "revert":[] }
 
     constructor(el:jsPlumbDOMElement, params: DragParams, k:Collicat) {
@@ -350,36 +352,8 @@ export class Drag extends Base {
         this._ghostProxyParent = params.ghostProxyParent as jsPlumbDOMElement
 
         if (this.trackScroll) {
-            document.addEventListener("scroll", (e:Event) => {
-                if (this._moving) {
-
-                    let currentScrollValues = { x:document.documentElement.scrollLeft, y:document.documentElement.scrollTop},
-                        dsx = currentScrollValues.x - this._lastScrollValues.x,
-                        dsy = currentScrollValues.y - this._lastScrollValues.y,
-                        pos = {x:dsx + this._lastPosition.x, y:dsy + this._lastPosition.y},
-
-// ------------- from here we copy the existing code - 'pos' comes from a mouse event in the drag code - ..refactor:
-                        dx = pos.x - this._downAt.x,
-                        dy = pos.y - this._downAt.y,
-                        z = this._ignoreZoom ? 1 : this.k.getZoom()
-
-                    if (this._dragEl && this._dragEl.parentNode)
-                    {
-                        dx += this._dragEl.parentNode.scrollLeft - this._initialScroll.x
-                        dy += this._dragEl.parentNode.scrollTop - this._initialScroll.y
-                    }
-
-                    dx /= z
-                    dy /= z
-
-                    this.moveBy(dx, dy, e as any)
-
-// ------------ this ^^^ is the end of the duplicated code.  setting the last position below is something only the scroll handler does.
-
-                    this._lastPosition = pos
-                    this._lastScrollValues = currentScrollValues
-                }
-            })
+            this.scrollTracker = this._trackScroll.bind(this)
+            document.addEventListener("scroll", this.scrollTracker)
         }
 
         if (params.ghostProxy === true) {
@@ -423,6 +397,37 @@ export class Drag extends Base {
         }
 
         this.k.eventManager.on(this.el, EVENT_MOUSEDOWN, this.downListener)
+    }
+
+    private _trackScroll(e:Event) {
+        if (this._moving) {
+//
+            let currentScrollValues = { x:document.documentElement.scrollLeft, y:document.documentElement.scrollTop},
+                dsx = currentScrollValues.x - this._lastScrollValues.x,
+                dsy = currentScrollValues.y - this._lastScrollValues.y,
+                pos = {x:dsx + this._lastPosition.x, y:dsy + this._lastPosition.y},
+
+// ------------- from here we copy the existing code - 'pos' comes from a mouse event in the drag code - ..refactor:
+                dx = pos.x - this._downAt.x,
+                dy = pos.y - this._downAt.y,
+                z = this._ignoreZoom ? 1 : this.k.getZoom()
+
+            if (this._dragEl && this._dragEl.parentNode)
+            {
+                dx += this._dragEl.parentNode.scrollLeft - this._initialScroll.x
+                dy += this._dragEl.parentNode.scrollTop - this._initialScroll.y
+            }
+
+            dx /= z
+            dy /= z
+
+            this.moveBy(dx, dy, e as any)
+
+// ------------ this ^^^ is the end of the duplicated code.  setting the last position below is something only the scroll handler does.
+
+            this._lastPosition = pos
+            this._lastScrollValues = currentScrollValues
+        }
     }
 
     on (evt:string, fn:Function) {
@@ -844,6 +849,9 @@ export class Drag extends Base {
         this.downListener = null
         this.upListener = null
         this.moveListener = null
+        if (this.scrollTracker != null) {
+            document.removeEventListener("scroll", this.scrollTracker)
+        }
     }
 
 }
