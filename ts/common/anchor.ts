@@ -142,7 +142,7 @@ export type FullAnchorSpec = {type:AnchorId, options:AnchorOptions}
 /**
  * An anchor spec in the form [ x, y, ox, oy ]
  */
-export type ArrayAnchorSpec = [ number, number, number, number, number?, number? ]
+export type ArrayAnchorSpec = [ number, number, AnchorOrientationHint, AnchorOrientationHint, number?, number? ]
 
 /**
  * Models the specification of a single anchor.
