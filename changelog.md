@@ -1,3 +1,9 @@
+## 5.4.1
+
+February 14th 2022
+
+- Updates to the Toolkit edition.
+
 ## 5.4.0
 
 February 10th 2022
@@ -7,7 +13,6 @@ February 10th 2022
 this makes for a better UX, as the source stub is always painted.
 - issue 1107 - drag handler's scroll listener is now removed when the drag handler is destroyed.
 - Moved code that calculates `maxConnections` on drag start into a new handler - `canAcceptNewConnection`. this obviates the need to extract all the parameters from each candidate target. If previously you had a `parameterExtractor` defined that was passing back a value for `maxConnections`, you'll now need to implement `canAcceptNewConnection`
-
 
 ## 5.3.11
 
