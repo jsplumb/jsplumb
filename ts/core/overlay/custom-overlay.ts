@@ -2,7 +2,14 @@ import {Overlay} from "./overlay"
 import { JsPlumbInstance } from "../core"
 import {Component} from '../component/component'
 import { OverlayFactory } from '../factory/overlay-factory'
-import { CustomOverlayOptions } from "@jsplumb/common"
+import { OverlayOptions } from "@jsplumb/common"
+
+/**
+ * @public
+ */
+export interface CustomOverlayOptions extends OverlayOptions {
+    create:(c:Component) => any
+}
 
 export class CustomOverlay extends Overlay {
 
@@ -26,4 +33,4 @@ export function isCustomOverlay(o:Overlay):o is CustomOverlay {
     return o.type === CustomOverlay.type
 }
 
-OverlayFactory.register("Custom", CustomOverlay)
+OverlayFactory.register(CustomOverlay.type, CustomOverlay)
