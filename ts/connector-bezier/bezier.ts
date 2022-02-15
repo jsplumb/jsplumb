@@ -59,7 +59,7 @@
  *
  *
  */
-import {BoundingBox, LineXY, PointXY} from "@jsplumb/util"
+import {BoundingBox, LineXY, PointXY, sgn} from "@jsplumb/util"
 
 export type Curve = Array<PointXY>
 export type PointOnPath = { point:PointXY, location:number }
@@ -642,14 +642,6 @@ function _computeCoefficients(curve:Curve):[ AxisCoefficients, AxisCoefficients 
         _computeCoefficientsForAxis(curve, "x"),
         _computeCoefficientsForAxis(curve, "y")
     ]
-}
-
-/**
- * @internal
- * @param x
- */
-function sgn(x:number):-1|0|1 {
-    return x < 0 ? -1 : x > 0 ? 1 : 0
 }
 
 /**
