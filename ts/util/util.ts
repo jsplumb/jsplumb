@@ -1,5 +1,3 @@
-import {Face} from "@jsplumb/core"
-
 /**
  * Internal method used to filter lists, supporting wildcards.
  * @param list
@@ -874,6 +872,14 @@ export function log(...args: string[]): void {
         catch (e) {
         }
     }
+}
+
+/**
+ * Replacement for Math.sign, which IE11 does not support.
+ * @param x
+ */
+export function sgn(x:number):-1|0|1 {
+    return x < 0 ? -1 : x > 0 ? 1 : 0
 }
 
 /**
