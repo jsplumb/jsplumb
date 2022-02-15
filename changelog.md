@@ -1,3 +1,10 @@
+## 5.4.2
+
+
+BREAKING
+
+- The `CustomOverlayOptions` interface has been moved from `@jsplumb/common` to `@jsplumb/core`
+
 ## 5.4.1
 
 February 15th 2022
