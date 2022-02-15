@@ -1,6 +1,6 @@
 ## 5.4.1
 
-February 14th 2022
+February 15th 2022
 
 - Updates to the Toolkit edition.
 
@@ -20,8 +20,7 @@ February 6th 2022
 
 - update drag manager code to ensure handlers array is empty after reset
 - added support for optional `attributes` record to set custom attributes on overlays
-- added `addSelector` method to `DragManager`, which proxies the `addSelector` method on the underlying `Drag`. The Toolkit's
-connector editors register drag handlers via this method.
+- added `addSelector` method to `DragManager`, which proxies the `addSelector` method on the underlying `Drag`. The Toolkit's connector editors register drag handlers via this method.
 
 ## 5.3.10
 
