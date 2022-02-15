@@ -1,4 +1,4 @@
-import {Component} from "@jsplumb/core"
+//import {Component} from "@jsplumb/core"
 import { PaintStyle } from './paint-style'
 
 /**
@@ -29,13 +29,6 @@ export interface ArrowOverlayOptions extends OverlayOptions {
 export interface LabelOverlayOptions extends OverlayOptions {
     label: string|Function
     labelLocationAttribute?:string
-}
-
-/**
- * @public
- */
-export interface CustomOverlayOptions extends OverlayOptions {
-    create:(c:Component) => any
 }
 
 /**
