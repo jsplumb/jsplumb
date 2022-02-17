@@ -1631,6 +1631,116 @@ var testSuite = function () {
         expect(1);
     });
 
+    test(": removeAllEndpoints, endpointHoverStyle active", function () {
+
+        _jsPlumb.importDefaults({
+            endpointHoverStyle: {
+                fill: "#808080",
+                stroke: "#808080",
+                strokeWidth: 6,
+            }
+        })
+
+        var d1 = support.addDiv("d1");
+        var d2 = support.addDiv("d2");
+
+        var ep11 = _jsPlumb.addEndpoint(d1, {anchor:"Left"});
+        var ep12 = _jsPlumb.addEndpoint(d1, {anchor:"Right"});
+
+        var ep21 = _jsPlumb.addEndpoint(d2, {anchor:"Left"});
+        var ep22 = _jsPlumb.addEndpoint(d2, {anchor:"Right"});
+
+        _jsPlumb.connect({source:ep11, target:ep22})
+
+        equal(document.querySelectorAll(".jtk-endpoint").length, 4, "4 endpoints in the DOM")
+
+        _jsPlumb.removeAllEndpoints(d1);
+
+        equal(document.querySelectorAll(".jtk-endpoint").length, 2, "2 endpoints in the DOM after remove all")
+
+
+    });
+
+    /*
+    jsPlumbInstance = newInstance({
+        container: container.value,
+        ,
+      });
+      renderConnections();
+    });
+
+    const renderConnections = () => {
+      const node1Endpoints = jsPlumbInstance.addEndpoints(
+        node1.value,
+        nodes.node1.endpoints
+      );
+      const node2Endpoints = jsPlumbInstance.addEndpoints(
+        node2.value,
+        nodes.node2.endpoints
+      );
+
+      const node3Endpoints = jsPlumbInstance.addEndpoints(
+        node3.value,
+        nodes.node3.endpoints
+      );
+      jsPlumbInstance.connect({
+        source: node1Endpoints[1],
+        target: node2Endpoints[0],
+      });
+      jsPlumbInstance.connect({
+        source: node1Endpoints[0],
+        target: node3Endpoints[0],
+      });
+
+      jsPlumbInstance.connect({
+        source: node2Endpoints[1],
+        target: node3Endpoints[1],
+      });
+    };
+    const removeEndpoints = (node) => {
+      console.log("node", node);
+      debugger
+      jsPlumbInstance.removeAllEndpoints(node);
+    };
+
+    return {
+      container,
+      node1,
+      node2,
+      removeEndpoints,
+      node3,
+      renderConnections,
+    };
+  },
+};
+</script>
+
+<style lang='scss'>
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+
+#container {
+  width: 100%;
+  height: 900px;
+  &:hover {
+    background-color: lightcyan;
+  }
+}
+.node {
+  z-index: 2;
+  background-color: white;
+  position: absolute;
+  left: 200px;
+  top: 200px;
+  border: 2px solid
+     */
+
     //
     //test(": removeAllEndpoints - element already deleted", function() {
     //var d1 = support.addDiv("d1");
