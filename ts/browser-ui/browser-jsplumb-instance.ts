@@ -1689,8 +1689,12 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
      */
     deleteConnection(connection: Connection, params?: DeleteConnectionOptions): boolean {
         if (connection != null && connection.deleted !== true) {
-            this.setEndpointHover(connection.endpoints[0], false, 0, true)
-            this.setEndpointHover(connection.endpoints[1], false, 1, true)
+            if (connection.endpoints[0].deleted !== true) {
+                this.setEndpointHover(connection.endpoints[0], false, 0, true)
+            }
+            if (connection.endpoints[1].deleted !== true) {
+                this.setEndpointHover(connection.endpoints[1], false, 1, true)
+            }
             return super.deleteConnection(connection, params)
         } else {
             return false
