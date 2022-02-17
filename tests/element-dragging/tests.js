@@ -36,11 +36,6 @@ var reinit = function(defaults) {
 
 var testSuite = function () {
 
-    var _detachThisConnection = function(c) {
-        var idx = c.endpoints[1].connections.indexOf(c);
-        support.detachConnection(c.endpoints[1], idx);
-    };
-
     var _addDiv = function(id, x, y, w, h) {
         if (!x) {
             _jsPlumb.testx = _jsPlumb.testx || 0;
@@ -75,6 +70,7 @@ var testSuite = function () {
         },
         setup: function () {
 
+            debugger
             makeContainer()
 
             _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
@@ -1315,11 +1311,11 @@ var testSuite = function () {
                 QUnit.stop()
             },
             after:function() {
-                var scrollDelta = document.documentElement.scrollTop - scrollAtStart
+                var scrollDelta = Math.floor(document.documentElement.scrollTop - scrollAtStart)
                 QUnit.start()
                 ok(!d.classList.contains("jtk-drag"), "drag class no longer set on element");
-                equal(parseInt(d.style.left, 10), 150);
-                equal(parseInt(d.style.top, 10), 150 + scrollDelta);
+                equal(Math.floor(parseInt(d.style.left, 10)), 150);
+                equal(Math.floor(parseInt(d.style.top, 10)), 150 + scrollDelta);
             }
         });
 
