@@ -245,7 +245,6 @@ var testSuite = function () {
 
         var extractorCalled = false
 
-        debugger
         _jsPlumb.addSourceSelector(".zone1", {
             anchor:"Continuous",
             endpoint:"Rectangle",
