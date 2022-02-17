@@ -308,13 +308,14 @@ export class Endpoint<E = any> extends Component {
 
         super.destroy()
 
-        // let anchorClass = this.instance.endpointAnchorClassPrefix + (this.currentAnchorClass ? "-" + this.currentAnchorClass : "")
-        // this.instance.removeClass(this.element, anchorClass)
+        // as issue 1110 pointed out, an endpointHoverStyle would result in an endpoint not being cleaned up
+        // properly, as when deleting its connections, the connection sets hover(false) on each endpoint. When the endpoint
+        // paints, it if it has no canvas, a new one is created
+        this.deleted = true
 
         if(this.endpoint != null) {
             this.instance.destroyEndpoint(this)
         }
-
 
     }
 
