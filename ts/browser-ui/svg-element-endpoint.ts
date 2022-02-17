@@ -71,24 +71,25 @@ export abstract class SvgEndpoint<C> {
 
     static paint<C>(ep:EndpointRepresentation<C>, handlers:EndpointHelperFunctions<any>,  paintStyle: PaintStyle): void {
 
-        this.getEndpointElement(ep)
+        if (ep.endpoint.deleted !== true) {
+            this.getEndpointElement(ep)
 
-        SvgComponent.paint(ep, true, paintStyle)
-        //
-        let s:PaintStyle = extend({}, paintStyle)
-        if (s.outlineStroke) {
-            s.stroke = s.outlineStroke
-        }
-        //
-        if ((ep as any).node == null) {
-            (ep as any).node = handlers.makeNode(ep, s);
-            (ep as any).svg.appendChild((ep as any).node)
-        }
-        else if (handlers.updateNode != null) {
-            handlers.updateNode(ep, (ep as any).node)
-        }
+            SvgComponent.paint(ep, true, paintStyle)
+            //
+            let s: PaintStyle = extend({}, paintStyle)
+            if (s.outlineStroke) {
+                s.stroke = s.outlineStroke
+            }
+            //
+            if ((ep as any).node == null) {
+                (ep as any).node = handlers.makeNode(ep, s);
+                (ep as any).svg.appendChild((ep as any).node)
+            } else if (handlers.updateNode != null) {
+                handlers.updateNode(ep, (ep as any).node)
+            }
 
-        _applyStyles((ep as any).canvas, (ep as any).node, s)
+            _applyStyles((ep as any).canvas, (ep as any).node, s)
+        }
     }
 }
 
