@@ -1185,21 +1185,13 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
         removeManagedEndpoint(this._managedElements[endpoint.elementId], endpoint)
 
-        // TODO at least replace this with a removeWithFunction call.
-        for (let e in this.endpointsByElement) {
-            let endpoints = this.endpointsByElement[e]
-            if (endpoints) {
-                let newEndpoints = []
-                for (let i = 0, j = endpoints.length; i < j; i++) {
-                    if (endpoints[i] !== endpoint) {
-                        newEndpoints.push(endpoints[i])
-                    }
-                }
+        const ebe = this.endpointsByElement[endpoint.elementId]
 
-                this.endpointsByElement[e] = newEndpoints
-            }
-            if (this.endpointsByElement[e].length < 1) {
-                delete this.endpointsByElement[e]
+        if (ebe != null) {
+            if (ebe.length > 1) {
+                this.endpointsByElement[endpoint.elementId] = ebe.filter(e => e !== endpoint)
+            } else {
+                delete this.endpointsByElement[endpoint.elementId]
             }
         }
 
