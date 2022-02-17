@@ -467,6 +467,9 @@
         } catch (e) {}
       }
     }
+    function sgn(x) {
+      return x < 0 ? -1 : x > 0 ? 1 : 0;
+    }
     function wrap(wrappedFunction, newFunction, returnOnThisValue) {
       return function () {
         var r = null;
@@ -1011,6 +1014,7 @@
     exports.rotateAnchorOrientation = rotateAnchorOrientation;
     exports.rotatePoint = rotatePoint;
     exports.setToArray = setToArray;
+    exports.sgn = sgn;
     exports.snapToGrid = snapToGrid;
     exports.subtract = subtract;
     exports.suggest = suggest;

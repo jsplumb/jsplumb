@@ -1,4 +1,4 @@
-import { extend, log } from '@jsplumb/util';
+import { extend, log, sgn } from '@jsplumb/util';
 import { ArcSegment, AbstractConnector, Connectors } from '@jsplumb/core';
 import { AbstractSegment } from '@jsplumb/common';
 
@@ -721,9 +721,6 @@ function _computeCoefficientsForAxis(curve, axis) {
 }
 function _computeCoefficients(curve) {
   return [_computeCoefficientsForAxis(curve, "x"), _computeCoefficientsForAxis(curve, "y")];
-}
-function sgn(x) {
-  return x < 0 ? -1 : x > 0 ? 1 : 0;
 }
 function _cubicRoots(a, b, c, d) {
   var A = b / a,

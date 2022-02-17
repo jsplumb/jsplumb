@@ -1,6 +1,6 @@
 {
   "name": "@jsplumb/core",
-  "version": "5.4.1",
+  "version": "5.5.0",
   "description": "Visual connectivity for webapps. This is the core package, which is imported by specific renderers. You probably want to import @jsplumb/browser-ui, as it is currently the only renderer available.",
   "main": "js/jsplumb.core.cjs.js",
   "module": "js/jsplumb.core.es.js",
@@ -30,7 +30,7 @@
   "author": "jsPlumb (hello@jsplumbtoolkit.com)",
   "license": "(MIT OR GPL-2.0)",
   "dependencies": {
-    "@jsplumb/common": "5.4.1"
+    "@jsplumb/common": "5.5.0"
   },
   "devDependencies": {}
 }

@@ -14,7 +14,6 @@ import { Connector } from '@jsplumb/common';
 import { ConnectorOptions } from '@jsplumb/common';
 import { ConnectorSpec } from '@jsplumb/common';
 import { Constructable } from '@jsplumb/util';
-import { CustomOverlayOptions } from '@jsplumb/common';
 import { DotEndpointParams } from '@jsplumb/common';
 import { EndpointRepresentationParams } from '@jsplumb/common';
 import { EndpointSpec } from '@jsplumb/common';
@@ -1002,6 +1001,13 @@ export declare class CustomOverlay extends Overlay {
     static type: string;
     type: string;
     updateFrom(d: any): void;
+}
+
+/**
+ * @public
+ */
+export declare interface CustomOverlayOptions extends OverlayOptions {
+    create: (c: Component) => any;
 }
 
 /**

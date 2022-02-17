@@ -461,6 +461,9 @@ function log() {
     } catch (e) {}
   }
 }
+function sgn(x) {
+  return x < 0 ? -1 : x > 0 ? 1 : 0;
+}
 function wrap(wrappedFunction, newFunction, returnOnThisValue) {
   return function () {
     var r = null;
@@ -950,4 +953,4 @@ function snapToGrid(pos, grid, thresholdX, thresholdY) {
   };
 }
 
-export { EventGenerator, OptimisticEventGenerator, TWO_PI, add, addToDictionary, addToList, addWithFunction, arraysEqual, clone, each, encloses, extend, fastTrim, filterList, filterNull, findAllWithFunction, findWithFunction, forEach, fromArray, functionChain, getAllWithFunction, getFromSetWithFunction, getWithFunction, getsert, gradient, insertSorted, intersects, isAssignableFrom, isBoolean, isDate, isEmpty, isFunction, isNamedFunction, isNumber, isObject, isString, lineIntersection, lineLength, lineRectangleIntersection, log, logEnabled, map, merge, normal, objectsEqual, perpendicularLineTo, pointOnLine, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, snapToGrid, subtract, suggest, theta, uuid, wrap };
+export { EventGenerator, OptimisticEventGenerator, TWO_PI, add, addToDictionary, addToList, addWithFunction, arraysEqual, clone, each, encloses, extend, fastTrim, filterList, filterNull, findAllWithFunction, findWithFunction, forEach, fromArray, functionChain, getAllWithFunction, getFromSetWithFunction, getWithFunction, getsert, gradient, insertSorted, intersects, isAssignableFrom, isBoolean, isDate, isEmpty, isFunction, isNamedFunction, isNumber, isObject, isString, lineIntersection, lineLength, lineRectangleIntersection, log, logEnabled, map, merge, normal, objectsEqual, perpendicularLineTo, pointOnLine, populate, quadrant, remove, removeWithFunction, replace, rotateAnchorOrientation, rotatePoint, setToArray, sgn, snapToGrid, subtract, suggest, theta, uuid, wrap };

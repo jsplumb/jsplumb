@@ -6,7 +6,6 @@
 
 import { AnchorOrientationHint } from '@jsplumb/core';
 import { BoundingBox } from '@jsplumb/util';
-import { Component } from '@jsplumb/core';
 import { Extents } from '@jsplumb/util';
 import { PointXY } from '@jsplumb/util';
 
@@ -255,13 +254,6 @@ export declare type ConnectorWithOptions = {
     type: ConnectorId;
     options: ConnectorOptions;
 };
-
-/**
- * @public
- */
-export declare interface CustomOverlayOptions extends OverlayOptions {
-    create: (c: Component) => any;
-}
 
 /**
  * Constant used im various places internally, and in the Toolkit edition used as the key for default node, edge, port and group definitions.

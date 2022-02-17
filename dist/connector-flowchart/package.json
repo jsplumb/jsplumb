@@ -1,6 +1,6 @@
 {
   "name": "@jsplumb/connector-flowchart",
-  "version": "5.4.1",
+  "version": "5.5.0",
   "description": "The Flowchart connector",
   "main": "js/jsplumb.connector-flowchart.cjs.js",
   "module": "js/jsplumb.connector-flowchart.es.js",
@@ -30,7 +30,7 @@
   "author": "jsPlumb (hello@jsplumbtoolkit.com)",
   "license": "(MIT OR GPL-2.0)",
   "dependencies": {
-    "@jsplumb/core": "5.4.1"
+    "@jsplumb/core": "5.5.0"
   },
   "devDependencies": {}
 }

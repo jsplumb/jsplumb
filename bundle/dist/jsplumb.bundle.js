@@ -464,6 +464,9 @@ var jsPlumbBrowserUI = (function (exports) {
       } catch (e) {}
     }
   }
+  function sgn$1(x) {
+    return x < 0 ? -1 : x > 0 ? 1 : 0;
+  }
   function wrap(wrappedFunction, newFunction, returnOnThisValue) {
     return function () {
       var r = null;
@@ -4179,6 +4182,7 @@ var jsPlumbBrowserUI = (function (exports) {
       key: "destroy",
       value: function destroy() {
         _get$1(_getPrototypeOf$3(Endpoint.prototype), "destroy", this).call(this);
+        this.deleted = true;
         if (this.endpoint != null) {
           this.instance.destroyEndpoint(this);
         }
@@ -7450,19 +7454,14 @@ var jsPlumbBrowserUI = (function (exports) {
           this.endpointsByUUID["delete"](uuid);
         }
         removeManagedEndpoint(this._managedElements[endpoint.elementId], endpoint);
-        for (var _e in this.endpointsByElement) {
-          var endpoints = this.endpointsByElement[_e];
-          if (endpoints) {
-            var newEndpoints = [];
-            for (var i = 0, j = endpoints.length; i < j; i++) {
-              if (endpoints[i] !== endpoint) {
-                newEndpoints.push(endpoints[i]);
-              }
-            }
-            this.endpointsByElement[_e] = newEndpoints;
-          }
-          if (this.endpointsByElement[_e].length < 1) {
-            delete this.endpointsByElement[_e];
+        var ebe = this.endpointsByElement[endpoint.elementId];
+        if (ebe != null) {
+          if (ebe.length > 1) {
+            this.endpointsByElement[endpoint.elementId] = ebe.filter(function (e) {
+              return e !== endpoint;
+            });
+          } else {
+            delete this.endpointsByElement[endpoint.elementId];
           }
         }
         this.fire(EVENT_INTERNAL_ENDPOINT_UNREGISTERED, endpoint);
@@ -8536,7 +8535,7 @@ var jsPlumbBrowserUI = (function (exports) {
   function isCustomOverlay(o) {
     return o.type === CustomOverlay.type;
   }
-  OverlayFactory.register("Custom", CustomOverlay);
+  OverlayFactory.register(CustomOverlay.type, CustomOverlay);
 
   EndpointFactory.registerHandler(DotEndpointHandler);
   EndpointFactory.registerHandler(RectangleEndpointHandler);
@@ -8659,11 +8658,11 @@ var jsPlumbBrowserUI = (function (exports) {
     };
   }
 
-  function sgn$1(n) {
+  function sgn(n) {
     return n < 0 ? -1 : n === 0 ? 0 : 1;
   }
   function segmentDirections(segment) {
-    return [sgn$1(segment[2] - segment[0]), sgn$1(segment[3] - segment[1])];
+    return [sgn(segment[2] - segment[0]), sgn(segment[3] - segment[1])];
   }
   function segLength(s) {
     return Math.sqrt(Math.pow(s[0] - s[2], 2) + Math.pow(s[1] - s[3], 2));
@@ -9327,9 +9326,9 @@ var jsPlumbBrowserUI = (function (exports) {
     var n_crossings = 0,
         sign,
         old_sign;
-    sign = old_sign = sgn(curve[0].y);
+    sign = old_sign = sgn$1(curve[0].y);
     for (var i = 1; i <= degree; i++) {
-      sign = sgn(curve[i].y);
+      sign = sgn$1(curve[i].y);
       if (sign != old_sign) n_crossings++;
       old_sign = sign;
     }
@@ -9660,9 +9659,6 @@ var jsPlumbBrowserUI = (function (exports) {
   function _computeCoefficients(curve) {
     return [_computeCoefficientsForAxis(curve, "x"), _computeCoefficientsForAxis(curve, "y")];
   }
-  function sgn(x) {
-    return x < 0 ? -1 : x > 0 ? 1 : 0;
-  }
   function _cubicRoots(a, b, c, d) {
     var A = b / a,
         B = c / a,
@@ -9675,8 +9671,8 @@ var jsPlumbBrowserUI = (function (exports) {
         t = [0, 0, 0];
     if (D >= 0)
       {
-        S = sgn(R + Math.sqrt(D)) * Math.pow(Math.abs(R + Math.sqrt(D)), 1 / 3);
-        T = sgn(R - Math.sqrt(D)) * Math.pow(Math.abs(R - Math.sqrt(D)), 1 / 3);
+        S = sgn$1(R + Math.sqrt(D)) * Math.pow(Math.abs(R + Math.sqrt(D)), 1 / 3);
+        T = sgn$1(R - Math.sqrt(D)) * Math.pow(Math.abs(R - Math.sqrt(D)), 1 / 3);
         t[0] = -A / 3 + (S + T);
         t[1] = -A / 3 - (S + T) / 2;
         t[2] = -A / 3 - (S + T) / 2;
@@ -14052,19 +14048,21 @@ var jsPlumbBrowserUI = (function (exports) {
     }, {
       key: "paint",
       value: function paint(ep, handlers, paintStyle) {
-        this.getEndpointElement(ep);
-        SvgComponent.paint(ep, true, paintStyle);
-        var s = extend({}, paintStyle);
-        if (s.outlineStroke) {
-          s.stroke = s.outlineStroke;
+        if (ep.endpoint.deleted !== true) {
+          this.getEndpointElement(ep);
+          SvgComponent.paint(ep, true, paintStyle);
+          var s = extend({}, paintStyle);
+          if (s.outlineStroke) {
+            s.stroke = s.outlineStroke;
+          }
+          if (ep.node == null) {
+            ep.node = handlers.makeNode(ep, s);
+            ep.svg.appendChild(ep.node);
+          } else if (handlers.updateNode != null) {
+            handlers.updateNode(ep, ep.node);
+          }
+          _applyStyles(ep.canvas, ep.node, s);
         }
-        if (ep.node == null) {
-          ep.node = handlers.makeNode(ep, s);
-          ep.svg.appendChild(ep.node);
-        } else if (handlers.updateNode != null) {
-          handlers.updateNode(ep, ep.node);
-        }
-        _applyStyles(ep.canvas, ep.node, s);
       }
     }]);
     return SvgEndpoint;
@@ -15205,8 +15203,12 @@ var jsPlumbBrowserUI = (function (exports) {
       key: "deleteConnection",
       value: function deleteConnection(connection, params) {
         if (connection != null && connection.deleted !== true) {
-          this.setEndpointHover(connection.endpoints[0], false, 0, true);
-          this.setEndpointHover(connection.endpoints[1], false, 1, true);
+          if (connection.endpoints[0].deleted !== true) {
+            this.setEndpointHover(connection.endpoints[0], false, 0, true);
+          }
+          if (connection.endpoints[1].deleted !== true) {
+            this.setEndpointHover(connection.endpoints[1], false, 1, true);
+          }
           return _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "deleteConnection", this).call(this, connection, params);
         } else {
           return false;
@@ -15614,6 +15616,7 @@ var jsPlumbBrowserUI = (function (exports) {
   exports.rotateAnchorOrientation = rotateAnchorOrientation;
   exports.rotatePoint = rotatePoint;
   exports.setToArray = setToArray;
+  exports.sgn = sgn$1;
   exports.size = size;
   exports.snapToGrid = snapToGrid;
   exports.subtract = subtract;

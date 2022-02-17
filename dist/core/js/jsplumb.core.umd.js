@@ -3091,6 +3091,7 @@
       key: "destroy",
       value: function destroy() {
         _get(_getPrototypeOf(Endpoint.prototype), "destroy", this).call(this);
+        this.deleted = true;
         if (this.endpoint != null) {
           this.instance.destroyEndpoint(this);
         }
@@ -6362,19 +6363,14 @@
           this.endpointsByUUID["delete"](uuid);
         }
         removeManagedEndpoint(this._managedElements[endpoint.elementId], endpoint);
-        for (var _e in this.endpointsByElement) {
-          var endpoints = this.endpointsByElement[_e];
-          if (endpoints) {
-            var newEndpoints = [];
-            for (var i = 0, j = endpoints.length; i < j; i++) {
-              if (endpoints[i] !== endpoint) {
-                newEndpoints.push(endpoints[i]);
-              }
-            }
-            this.endpointsByElement[_e] = newEndpoints;
-          }
-          if (this.endpointsByElement[_e].length < 1) {
-            delete this.endpointsByElement[_e];
+        var ebe = this.endpointsByElement[endpoint.elementId];
+        if (ebe != null) {
+          if (ebe.length > 1) {
+            this.endpointsByElement[endpoint.elementId] = ebe.filter(function (e) {
+              return e !== endpoint;
+            });
+          } else {
+            delete this.endpointsByElement[endpoint.elementId];
           }
         }
         this.fire(EVENT_INTERNAL_ENDPOINT_UNREGISTERED, endpoint);
@@ -7448,7 +7444,7 @@
   function isCustomOverlay(o) {
     return o.type === CustomOverlay.type;
   }
-  OverlayFactory.register("Custom", CustomOverlay);
+  OverlayFactory.register(CustomOverlay.type, CustomOverlay);
 
   EndpointFactory.registerHandler(DotEndpointHandler);
   EndpointFactory.registerHandler(RectangleEndpointHandler);

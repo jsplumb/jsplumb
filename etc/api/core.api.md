@@ -13,7 +13,6 @@ import { Connector } from '@jsplumb/common';
 import { ConnectorOptions } from '@jsplumb/common';
 import { ConnectorSpec } from '@jsplumb/common';
 import { Constructable } from '@jsplumb/util';
-import { CustomOverlayOptions } from '@jsplumb/common';
 import { DotEndpointParams } from '@jsplumb/common';
 import { EndpointRepresentationParams } from '@jsplumb/common';
 import { EndpointSpec } from '@jsplumb/common';
@@ -975,6 +974,12 @@ export class CustomOverlay extends Overlay {
     type: string;
     // (undocumented)
     updateFrom(d: any): void;
+}
+
+// @public (undocumented)
+export interface CustomOverlayOptions extends OverlayOptions {
+    // (undocumented)
+    create: (c: Component) => any;
 }
 
 // @public

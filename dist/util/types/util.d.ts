@@ -367,6 +367,11 @@ export declare const logEnabled: boolean;
  */
 export declare function log(...args: string[]): void;
 /**
+ * Replacement for Math.sign, which IE11 does not support.
+ * @param x
+ */
+export declare function sgn(x: number): -1 | 0 | 1;
+/**
  * Wraps one function with another, creating a placeholder for the
  * wrapped function if it was null. This is used to wrap the various
  * drag/drop event functions - to allow jsPlumb to be notified of

@@ -393,9 +393,9 @@ function _getCrossingCount(curve, degree) {
   var n_crossings = 0,
       sign,
       old_sign;
-  sign = old_sign = sgn(curve[0].y);
+  sign = old_sign = util.sgn(curve[0].y);
   for (var i = 1; i <= degree; i++) {
-    sign = sgn(curve[i].y);
+    sign = util.sgn(curve[i].y);
     if (sign != old_sign) n_crossings++;
     old_sign = sign;
   }
@@ -726,9 +726,6 @@ function _computeCoefficientsForAxis(curve, axis) {
 function _computeCoefficients(curve) {
   return [_computeCoefficientsForAxis(curve, "x"), _computeCoefficientsForAxis(curve, "y")];
 }
-function sgn(x) {
-  return x < 0 ? -1 : x > 0 ? 1 : 0;
-}
 function _cubicRoots(a, b, c, d) {
   var A = b / a,
       B = c / a,
@@ -741,8 +738,8 @@ function _cubicRoots(a, b, c, d) {
       t = [0, 0, 0];
   if (D >= 0)
     {
-      S = sgn(R + Math.sqrt(D)) * Math.pow(Math.abs(R + Math.sqrt(D)), 1 / 3);
-      T = sgn(R - Math.sqrt(D)) * Math.pow(Math.abs(R - Math.sqrt(D)), 1 / 3);
+      S = util.sgn(R + Math.sqrt(D)) * Math.pow(Math.abs(R + Math.sqrt(D)), 1 / 3);
+      T = util.sgn(R - Math.sqrt(D)) * Math.pow(Math.abs(R - Math.sqrt(D)), 1 / 3);
       t[0] = -A / 3 + (S + T);
       t[1] = -A / 3 - (S + T) / 2;
       t[2] = -A / 3 - (S + T) / 2;

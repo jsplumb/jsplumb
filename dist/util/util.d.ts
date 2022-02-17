@@ -704,6 +704,12 @@ export declare type Rotations = Array<Rotation>;
 export declare function setToArray<T>(s: Set<T>): Array<T>;
 
 /**
+ * Replacement for Math.sign, which IE11 does not support.
+ * @param x
+ */
+export declare function sgn(x: number): -1 | 0 | 1;
+
+/**
  * Defines the width and height of some element.
  * @public
  */

@@ -1,6 +1,6 @@
 {
   "name": "@jsplumb/common",
-  "version": "5.4.1",
+  "version": "5.5.0",
   "description": "",
   "main": "js/jsplumb.common.cjs.js",
   "module": "js/jsplumb.common.es.js",
@@ -30,7 +30,7 @@
   "author": "jsPlumb (hello@jsplumbtoolkit.com)",
   "license": "(MIT OR GPL-2.0)",
   "dependencies": {
-    "@jsplumb/util": "5.4.1"
+    "@jsplumb/util": "5.5.0"
   },
   "devDependencies": {}
 }

@@ -326,6 +326,9 @@ export type Rotations = Array<Rotation>;
 export function setToArray<T>(s: Set<T>): Array<T>;
 
 // @public
+export function sgn(x: number): -1 | 0 | 1;
+
+// @public
 export interface Size {
     // (undocumented)
     h: number;

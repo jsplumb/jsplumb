@@ -3978,19 +3978,21 @@ var SvgEndpoint = function () {
   }, {
     key: "paint",
     value: function paint(ep, handlers, paintStyle) {
-      this.getEndpointElement(ep);
-      SvgComponent.paint(ep, true, paintStyle);
-      var s = util.extend({}, paintStyle);
-      if (s.outlineStroke) {
-        s.stroke = s.outlineStroke;
+      if (ep.endpoint.deleted !== true) {
+        this.getEndpointElement(ep);
+        SvgComponent.paint(ep, true, paintStyle);
+        var s = util.extend({}, paintStyle);
+        if (s.outlineStroke) {
+          s.stroke = s.outlineStroke;
+        }
+        if (ep.node == null) {
+          ep.node = handlers.makeNode(ep, s);
+          ep.svg.appendChild(ep.node);
+        } else if (handlers.updateNode != null) {
+          handlers.updateNode(ep, ep.node);
+        }
+        _applyStyles(ep.canvas, ep.node, s);
       }
-      if (ep.node == null) {
-        ep.node = handlers.makeNode(ep, s);
-        ep.svg.appendChild(ep.node);
-      } else if (handlers.updateNode != null) {
-        handlers.updateNode(ep, ep.node);
-      }
-      _applyStyles(ep.canvas, ep.node, s);
     }
   }]);
   return SvgEndpoint;
@@ -5131,8 +5133,12 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
     key: "deleteConnection",
     value: function deleteConnection(connection, params) {
       if (connection != null && connection.deleted !== true) {
-        this.setEndpointHover(connection.endpoints[0], false, 0, true);
-        this.setEndpointHover(connection.endpoints[1], false, 1, true);
+        if (connection.endpoints[0].deleted !== true) {
+          this.setEndpointHover(connection.endpoints[0], false, 0, true);
+        }
+        if (connection.endpoints[1].deleted !== true) {
+          this.setEndpointHover(connection.endpoints[1], false, 1, true);
+        }
         return _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "deleteConnection", this).call(this, connection, params);
       } else {
         return false;

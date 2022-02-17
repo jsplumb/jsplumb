@@ -6,7 +6,6 @@
 
 import { AnchorOrientationHint } from '@jsplumb/core';
 import { BoundingBox } from '@jsplumb/util';
-import { Component } from '@jsplumb/core';
 import { Extents } from '@jsplumb/util';
 import { PointXY } from '@jsplumb/util';
 
@@ -136,12 +135,6 @@ export type ConnectorWithOptions = {
     type: ConnectorId;
     options: ConnectorOptions;
 };
-
-// @public (undocumented)
-export interface CustomOverlayOptions extends OverlayOptions {
-    // (undocumented)
-    create: (c: Component) => any;
-}
 
 // @public
 export const DEFAULT = "default";
