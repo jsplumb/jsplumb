@@ -1,5 +1,6 @@
-## 5.4.2
+## 5.5.0
 
+- Fixed an issue with endpoints not being cleaned up properly if an `endpointHoverStyle` was set in the defaults.
 
 BREAKING
 
