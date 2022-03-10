@@ -1,5 +1,7 @@
 ## 5.5.0
 
+March 10th 2022
+
 - Fixed an issue with endpoints not being cleaned up properly if an `endpointHoverStyle` was set in the defaults.
 
 BREAKING
