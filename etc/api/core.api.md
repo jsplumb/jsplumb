@@ -462,6 +462,7 @@ export abstract class Component extends EventGenerator {
     protected constructor(instance: JsPlumbInstance, params?: ComponentOptions);
     // (undocumented)
     addClass(clazz: string, cascade?: boolean): void;
+    // @internal
     addOverlay(overlay: OverlaySpec): Overlay;
     // (undocumented)
     addType(typeId: string, params?: any): void;
@@ -499,7 +500,6 @@ export abstract class Component extends EventGenerator {
     getAbsoluteOverlayPosition(overlay: Overlay): PointXY;
     // (undocumented)
     getCachedTypeItem(key: string, typeId: string): any;
-    // (undocumented)
     getClass(): string;
     // (undocumented)
     getData(): Record<string, any>;
@@ -515,12 +515,10 @@ export abstract class Component extends EventGenerator {
     getId(): string;
     // (undocumented)
     abstract getIdPrefix(): string;
-    // (undocumented)
     getLabel(): string;
-    // (undocumented)
+    // @internal (undocumented)
     getLabelOverlay(): LabelOverlay;
     getOverlay<T extends Overlay>(id: string): T;
-    // (undocumented)
     getOverlays(): Record<string, Overlay>;
     // (undocumented)
     getPaintStyle(): PaintStyle;
@@ -534,7 +532,6 @@ export abstract class Component extends EventGenerator {
     h: number;
     // (undocumented)
     hasType(typeId: string): boolean;
-    // (undocumented)
     hideOverlay(id: string): void;
     hideOverlays(...ids: Array<string>): void;
     // (undocumented)
@@ -577,13 +574,10 @@ export abstract class Component extends EventGenerator {
     params: Record<string, any>;
     // (undocumented)
     reapplyTypes(params?: any): void;
-    // (undocumented)
     removeAllOverlays(): void;
     // (undocumented)
     removeClass(clazz: string, cascade?: boolean): void;
-    // (undocumented)
     removeOverlay(overlayId: string, dontCleanup?: boolean): void;
-    // (undocumented)
     removeOverlays(...overlays: string[]): void;
     // (undocumented)
     removeType(typeId: string, params?: any): void;
@@ -595,7 +589,6 @@ export abstract class Component extends EventGenerator {
     setData(d: any): void;
     // (undocumented)
     setHoverPaintStyle(style: PaintStyle): void;
-    // (undocumented)
     setLabel(l: string | Function | LabelOverlay): void;
     // (undocumented)
     setPaintStyle(style: PaintStyle): void;
@@ -603,7 +596,7 @@ export abstract class Component extends EventGenerator {
     setType(typeId: string, params?: any): void;
     // (undocumented)
     setVisible(v: boolean): void;
-    // (undocumented)
+    // @internal (undocumented)
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
     showOverlay(id: string): void;
     showOverlays(...ids: Array<string>): void;

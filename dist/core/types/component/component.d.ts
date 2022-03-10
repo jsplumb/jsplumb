@@ -131,7 +131,14 @@ export declare abstract class Component extends EventGenerator {
     private _clazzManip;
     addClass(clazz: string, cascade?: boolean): void;
     removeClass(clazz: string, cascade?: boolean): void;
+    /**
+     * Returns a space-separated list of the current classes assigned to this component.
+     * @public
+     */
     getClass(): string;
+    /**
+     * @internal
+     */
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
     getData(): Record<string, any>;
     setData(d: any): void;
@@ -141,6 +148,7 @@ export declare abstract class Component extends EventGenerator {
      * this method directly. Consider using the `addOverlay` method of `JsPlumbInstance` instead, which adds the overlay
      * and then revalidates.
      * @param overlay
+     * @internal
      */
     addOverlay(overlay: OverlaySpec): Overlay;
     /**
@@ -148,30 +156,70 @@ export declare abstract class Component extends EventGenerator {
      * a typed return value (such as `LabelOverlay`, `ArrowOverlay`, etc), since some overlays have methods that
      * others do not.
      * @param id ID of the overlay to retrieve.
+     * @public
      */
     getOverlay<T extends Overlay>(id: string): T;
+    /**
+     * Gets all the overlays registered on this component.
+     * @public
+     */
     getOverlays(): Record<string, Overlay>;
+    /**
+     * Hide the overlay with the given id.
+     * @param id
+     * @public
+     */
     hideOverlay(id: string): void;
     /**
      * Hide all overlays, or a specific set of overlays.
      * @param ids optional list of ids to hide.
+     * @public
      */
     hideOverlays(...ids: Array<string>): void;
     /**
-     * Show a specific overlay
+     * Show a specific overlay (set it to be visible)
      * @param id
+     * @public
      */
     showOverlay(id: string): void;
     /**
      * Show all overlays, or a specific set of overlays.
      * @param ids optional list of ids to show.
+     * @public
      */
     showOverlays(...ids: Array<string>): void;
+    /**
+     * Remove all overlays from this component.
+     * @public
+     */
     removeAllOverlays(): void;
+    /**
+     * Remove the overlay with the given id.
+     * @param overlayId
+     * @param dontCleanup This is an internal parameter. You are not encouraged to provide a value for this.
+     * @public
+     */
     removeOverlay(overlayId: string, dontCleanup?: boolean): void;
+    /**
+     * Remove the given set of overlays, specified by their ids.
+     * @param overlays
+     * @public
+     */
     removeOverlays(...overlays: string[]): void;
+    /**
+     * Return this component's label, if one is set.
+     * @public
+     */
     getLabel(): string;
+    /**
+     * @internal
+     */
     getLabelOverlay(): LabelOverlay;
+    /**
+     * Set this component's label.
+     * @param l Either some text, or a function which returns some text, or an existing label overlay.
+     * @public
+     */
     setLabel(l: string | Function | LabelOverlay): void;
 }
 //# sourceMappingURL=component.d.ts.map

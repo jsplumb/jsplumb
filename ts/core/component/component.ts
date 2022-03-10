@@ -592,10 +592,17 @@ export abstract class Component extends EventGenerator {
         this._clazzManip(ACTION_REMOVE, clazz)
     }
 
+    /**
+     * Returns a space-separated list of the current classes assigned to this component.
+     * @public
+     */
     getClass() : string {
         return this.cssClass
     }
 
+    /**
+     * @internal
+     */
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean {
         return true
     }
@@ -610,6 +617,7 @@ export abstract class Component extends EventGenerator {
      * this method directly. Consider using the `addOverlay` method of `JsPlumbInstance` instead, which adds the overlay
      * and then revalidates.
      * @param overlay
+     * @internal
      */
     addOverlay(overlay:OverlaySpec):Overlay {
         let o = _processOverlay(this, overlay)
@@ -635,15 +643,25 @@ export abstract class Component extends EventGenerator {
      * a typed return value (such as `LabelOverlay`, `ArrowOverlay`, etc), since some overlays have methods that
      * others do not.
      * @param id ID of the overlay to retrieve.
+     * @public
      */
     getOverlay<T extends Overlay>(id:string):T {
         return this.overlays[id] as T
     }
 
+    /**
+     * Gets all the overlays registered on this component.
+     * @public
+     */
     getOverlays():Record<string, Overlay> {
         return this.overlays
     }
 
+    /**
+     * Hide the overlay with the given id.
+     * @param id
+     * @public
+     */
     hideOverlay(id:string):void {
         let o = this.getOverlay(id)
         if (o) {
@@ -654,6 +672,7 @@ export abstract class Component extends EventGenerator {
     /**
      * Hide all overlays, or a specific set of overlays.
      * @param ids optional list of ids to hide.
+     * @public
      */
     hideOverlays(...ids:Array<string>):void {
         ids = ids || []
@@ -665,8 +684,9 @@ export abstract class Component extends EventGenerator {
     }
 
     /**
-     * Show a specific overlay
+     * Show a specific overlay (set it to be visible)
      * @param id
+     * @public
      */
     showOverlay(id:string):void {
         let o = this.getOverlay(id)
@@ -678,6 +698,7 @@ export abstract class Component extends EventGenerator {
     /**
      * Show all overlays, or a specific set of overlays.
      * @param ids optional list of ids to show.
+     * @public
      */
     showOverlays(...ids:Array<string>):void {
         ids = ids || []
@@ -688,6 +709,10 @@ export abstract class Component extends EventGenerator {
         }
     }
 
+    /**
+     * Remove all overlays from this component.
+     * @public
+     */
     removeAllOverlays():void {
         for (let i in this.overlays) {
             this.instance.destroyOverlay(this.overlays[i])
@@ -698,6 +723,12 @@ export abstract class Component extends EventGenerator {
         this.overlayPlacements= {}
     }
 
+    /**
+     * Remove the overlay with the given id.
+     * @param overlayId
+     * @param dontCleanup This is an internal parameter. You are not encouraged to provide a value for this.
+     * @public
+     */
     removeOverlay(overlayId:string, dontCleanup?:boolean):void {
         let o = this.overlays[overlayId]
         if (o) {
@@ -716,21 +747,38 @@ export abstract class Component extends EventGenerator {
         }
     }
 
+    /**
+     * Remove the given set of overlays, specified by their ids.
+     * @param overlays
+     * @public
+     */
     removeOverlays(...overlays:string[]):void {
         for (let i = 0, j = overlays.length; i < j; i++) {
             this.removeOverlay(arguments[i])
         }
     }
 
+    /**
+     * Return this component's label, if one is set.
+     * @public
+     */
     getLabel():string {
         let lo:LabelOverlay = this.getLabelOverlay()
         return lo != null ? lo.getLabel() : null
     }
 
+    /**
+     * @internal
+     */
     getLabelOverlay():LabelOverlay {
         return this.getOverlay(_internalLabelOverlayId) as LabelOverlay
     }
 
+    /**
+     * Set this component's label.
+     * @param l Either some text, or a function which returns some text, or an existing label overlay.
+     * @public
+     */
     setLabel(l:string|Function|LabelOverlay):void {
         let lo = this.getLabelOverlay()
         if (!lo) {
