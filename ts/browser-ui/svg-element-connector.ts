@@ -5,7 +5,7 @@ import { PaintStyle } from "@jsplumb/common"
 
 import {SvgComponent} from "./svg-component"
 import {_appendAtIndex, _applyStyles, _attr, _node, ELEMENT_PATH, ELEMENT_SVG} from './svg-util'
-import {BrowserJsPlumbInstance} from "@jsplumb/browser-ui/browser-jsplumb-instance"
+import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
 
 
 export function paintSvgConnector(instance:BrowserJsPlumbInstance, connector:AbstractConnector, paintStyle:PaintStyle, extents?:Extents) {

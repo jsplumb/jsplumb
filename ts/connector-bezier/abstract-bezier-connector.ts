@@ -2,7 +2,6 @@ import {PointXY, log, extend} from "@jsplumb/util"
 
 import {Connection, ArcSegment, AbstractConnector, ConnectorComputeParams, PaintGeometry } from "@jsplumb/core"
 import {AnchorPlacement, ConnectorOptions, Geometry} from "@jsplumb/common"
-import {Bezier} from "../../_build_es6/connector/bezier-connector"
 
 /**
  * The bezier connector's internal representation of a path.

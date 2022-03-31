@@ -2,7 +2,7 @@
 import { JsPlumbInstance, jsPlumbElement } from "../core"
 import { Connection } from '../connector/connection-impl'
 import { DotEndpoint } from "../endpoint/dot-endpoint"
-import { GroupManager } from "../group/group-manager"
+import { GroupManager } from "./group-manager"
 import { PointXY, removeWithFunction, uuid, log, getWithFunction} from '@jsplumb/util'
 
 import * as Constants from "../constants"

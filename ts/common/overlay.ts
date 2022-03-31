@@ -1,4 +1,3 @@
-//import {Component} from "@jsplumb/core"
 import { PaintStyle } from './paint-style'
 
 /**

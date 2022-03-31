@@ -29,7 +29,7 @@ import {
     OverlayMouseEventParams,
     UIGroup,
     CLASS_CONNECTOR,
-    CLASS_ENDPOINT, Face
+    CLASS_ENDPOINT
 } from '@jsplumb/core'
 
 import {
