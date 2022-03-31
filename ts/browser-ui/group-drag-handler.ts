@@ -1,11 +1,10 @@
 
-import {ElementDragHandler, IntersectingGroup} from "./element-drag-handler"
+import {ElementDragHandler} from "./element-drag-handler"
 import {GhostProxyingDragHandler} from "./drag-manager"
 import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
 import { jsPlumbDOMElement} from './element-facade'
-import {DragEventParams, Drag, DragStopEventParams, isInsideParent} from "./collicat"
-import {SELECTOR_MANAGED_ELEMENT, UIGroup} from "@jsplumb/core"
-import {PointXY} from "@jsplumb/util"
+import {Drag} from "./collicat"
+import {SELECTOR_MANAGED_ELEMENT} from "@jsplumb/core"
 import {EVENT_REVERT, SELECTOR_GROUP} from "./constants"
 import {DragSelection} from "./drag-selection"
 

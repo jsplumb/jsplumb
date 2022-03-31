@@ -1,7 +1,7 @@
 
 import {quadrant, log, PointXY, Extents, Constructable} from "@jsplumb/util"
 
-import { Connection} from '../connector/connection-impl'
+import { Connection} from './connection-impl'
 import { Orientation} from '../factory/anchor-record-factory'
 import { Endpoint} from '../endpoint/endpoint'
 

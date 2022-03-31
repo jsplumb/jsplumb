@@ -6,9 +6,7 @@ import {
     ComputedPosition,
     Face, getDefaultFace, isEdgeSupported,
     Orientation,
-    X_AXIS_FACES, Y_AXIS_FACES
-} from "../factory/anchor-record-factory"
-import {
+    X_AXIS_FACES, Y_AXIS_FACES,
     AnchorRecord,
     LightweightAnchor,
     LightweightContinuousAnchor,

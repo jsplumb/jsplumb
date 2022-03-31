@@ -1,6 +1,6 @@
 {
   "private" : true,
-  "version" : "5.5.2",
+  "version" : "5.5.3",
   "workspaces" : [ "ts/*" ],
   "description" : "Visual connectivity for webapps",
   "directories" : {
@@ -21,7 +21,8 @@
     "rollup" : "echo \"\n--- Running Rollup...\n\"; rollup -c",
     "rollup-dev" : "rollup -c -w",
     "link" : "node scripts/link.js",
-    "apidocs" : "node scripts/create-apidocs.js"
+    "apidocs" : "node scripts/create-apidocs.js",
+    "update-versions": "node scripts/update-version.js"
   },
   "repository" : {
     "type" : "git",
