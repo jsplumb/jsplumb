@@ -1342,7 +1342,9 @@ function isLabelOverlay(o) {
 OverlayFactory.register("Label", LabelOverlay);
 
 function _splitType(t) {
-  return t == null ? null : t.split(" ");
+  return t == null ? null : t.split(" ").filter(function (t) {
+    return t != null && t.length > 0;
+  });
 }
 function _mapType(map, obj, typeId) {
   for (var i in obj) {
@@ -1367,8 +1369,7 @@ function _applyTypes(component, params) {
     var defType = component.getDefaultType();
     var o = extend({}, defType);
     _mapType(map, defType, DEFAULT_TYPE_KEY);
-    for (var i = 0, j = component._types.length; i < j; i++) {
-      var tid = component._types[i];
+    component._types.forEach(function (tid) {
       if (tid !== DEFAULT_TYPE_KEY) {
         var _t = component.instance.getType(tid, td);
         if (_t != null) {
@@ -1382,16 +1383,15 @@ function _applyTypes(component, params) {
           _mapType(map, _t, tid);
         }
       }
-    }
+    });
     if (params) {
       o = populate(o, params, "_");
     }
     component.applyType(o, map);
   }
 }
-function _removeTypeCssHelper(component, typeIndex) {
-  var typeId = component._types[typeIndex],
-      type = component.instance.getType(typeId, component.getTypeDescriptor());
+function _removeTypeCssHelper(component, typeId) {
+  var type = component.instance.getType(typeId, component.getTypeDescriptor());
   if (type != null && type.cssClass) {
     component.removeClass(type.cssClass);
   }
@@ -1472,7 +1472,7 @@ var Component = function (_EventGenerator) {
     _this.hoverClass = params.hoverClass || instance.defaults.hoverClass;
     _this.beforeDetach = params.beforeDetach;
     _this.beforeDrop = params.beforeDrop;
-    _this._types = [];
+    _this._types = new Set();
     _this._typeCache = {};
     _this.parameters = clone(params.parameters || {});
     _this.id = params.id || _this.getIdPrefix() + new Date().getTime();
@@ -1585,14 +1585,15 @@ var Component = function (_EventGenerator) {
   }, {
     key: "setType",
     value: function setType(typeId, params) {
-      this.clearTypes();
-      this._types = _splitType(typeId) || [];
+      this.clearTypes()
+      ;
+      (_splitType(typeId) || []).forEach(this._types.add, this._types);
       _applyTypes(this, params);
     }
   }, {
     key: "getType",
     value: function getType() {
-      return this._types;
+      return Array.from(this._types.keys());
     }
   }, {
     key: "reapplyTypes",
@@ -1602,7 +1603,7 @@ var Component = function (_EventGenerator) {
   }, {
     key: "hasType",
     value: function hasType(typeId) {
-      return this._types.indexOf(typeId) !== -1;
+      return this._types.has(typeId);
     }
   }, {
     key: "addType",
@@ -1611,8 +1612,8 @@ var Component = function (_EventGenerator) {
           _somethingAdded = false;
       if (t != null) {
         for (var i = 0, j = t.length; i < j; i++) {
-          if (!this.hasType(t[i])) {
-            this._types.push(t[i]);
+          if (!this._types.has(t[i])) {
+            this._types.add(t[i]);
             _somethingAdded = true;
           }
         }
@@ -1628,10 +1629,9 @@ var Component = function (_EventGenerator) {
       var t = _splitType(typeId),
           _cont = false,
           _one = function _one(tt) {
-        var idx = _this2._types.indexOf(tt);
-        if (idx !== -1) {
-          _removeTypeCssHelper(_this2, idx);
-          _this2._types.splice(idx, 1);
+        if (_this2._types.has(tt)) {
+          _removeTypeCssHelper(_this2, tt);
+          _this2._types["delete"](tt);
           return true;
         }
         return false;
@@ -1648,11 +1648,11 @@ var Component = function (_EventGenerator) {
   }, {
     key: "clearTypes",
     value: function clearTypes(params, doNotRepaint) {
-      var i = this._types.length;
-      for (var j = 0; j < i; j++) {
-        _removeTypeCssHelper(this, 0);
-        this._types.splice(0, 1);
-      }
+      var _this3 = this;
+      this._types.forEach(function (t) {
+        _removeTypeCssHelper(_this3, t);
+      });
+      this._types.clear();
       _applyTypes(this, params);
     }
   }, {
@@ -1661,12 +1661,11 @@ var Component = function (_EventGenerator) {
       var t = _splitType(typeId);
       if (t != null) {
         for (var i = 0, j = t.length; i < j; i++) {
-          var idx = this._types.indexOf(t[i]);
-          if (idx !== -1) {
-            _removeTypeCssHelper(this, idx);
-            this._types.splice(idx, 1);
+          if (this._types.has(t[i])) {
+            _removeTypeCssHelper(this, t[i]);
+            this._types["delete"](t[i]);
           } else {
-            this._types.push(t[i]);
+            this._types.add(t[i]);
           }
         }
         _applyTypes(this, params);
