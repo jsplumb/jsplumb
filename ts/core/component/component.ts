@@ -20,7 +20,7 @@ import {
 export type ComponentParameters = Record<string, any>
 
 function _splitType (t:string):string[] {
-    return t == null ? null : t.split(" ")
+    return t == null ? null : t.split(" ").filter(t => t != null && t.length > 0)
 }
 
 function _mapType (map:any, obj:any, typeId:string) {
@@ -49,8 +49,8 @@ function _applyTypes<E>(component:Component, params?:any) {
         let o = extend({} as any, defType)
 
         _mapType(map, defType, DEFAULT_TYPE_KEY)
-        for (let i = 0, j = component._types.length; i < j; i++) {
-            let tid = component._types[i]
+
+        component._types.forEach(tid => {
             if (tid !== DEFAULT_TYPE_KEY) {
                 let _t = component.instance.getType(tid, td)
                 if (_t != null) {
@@ -66,7 +66,7 @@ function _applyTypes<E>(component:Component, params?:any) {
                     _mapType(map, _t, tid)
                 }
             }
-        }
+        })
 
         if (params) {
             o = populate(o, params, "_")
@@ -76,9 +76,8 @@ function _applyTypes<E>(component:Component, params?:any) {
     }
 }
 
-export function _removeTypeCssHelper<E>(component:Component, typeIndex:number) {
-    let typeId = component._types[typeIndex],
-        type = component.instance.getType(typeId, component.getTypeDescriptor())
+export function _removeTypeCssHelper<E>(component:Component, typeId:string) {
+    let type = component.instance.getType(typeId, component.getTypeDescriptor())
 
      if (type != null && type.cssClass) {
         component.removeClass(type.cssClass)
@@ -239,7 +238,7 @@ export abstract class Component extends EventGenerator {
 
     parameters:ComponentParameters
 
-    _types:string[]
+    _types:Set<string>
     _typeCache:{}
 
     cssClass:string
@@ -259,7 +258,7 @@ export abstract class Component extends EventGenerator {
         this.beforeDetach = params.beforeDetach
         this.beforeDrop = params.beforeDrop
 
-        this._types = []
+        this._types = new Set()
         this._typeCache = {}
 
         this.parameters = clone(params.parameters || {})
@@ -378,12 +377,12 @@ export abstract class Component extends EventGenerator {
 
     setType(typeId:string, params?:any) {
         this.clearTypes()
-        this._types = _splitType(typeId) || []
+        ;(_splitType(typeId) || []).forEach(this._types.add, this._types)
         _applyTypes(this, params)
     }
 
     getType():string[] {
-        return this._types
+        return Array.from(this._types.keys())
     }
 
     reapplyTypes(params?:any) {
@@ -391,15 +390,15 @@ export abstract class Component extends EventGenerator {
     }
 
     hasType(typeId:string):boolean {
-        return this._types.indexOf(typeId) !== -1
+        return this._types.has(typeId)
     }
 
     addType(typeId:string, params?:any):void {
         let t = _splitType(typeId), _somethingAdded = false
         if (t != null) {
             for (let i = 0, j = t.length; i < j; i++) {
-                if (!this.hasType(t[i])) {
-                    this._types.push(t[i])
+                if (!this._types.has(t[i])) {
+                    this._types.add(t[i])
                     _somethingAdded = true
                 }
             }
@@ -411,11 +410,9 @@ export abstract class Component extends EventGenerator {
 
     removeType(typeId:string, params?:any) {
         let t = _splitType(typeId), _cont = false, _one = (tt:string) =>{
-            let idx = this._types.indexOf(tt)
-            if (idx !== -1) {
-                // remove css class if necessary
-                _removeTypeCssHelper(this, idx)
-                this._types.splice(idx, 1)
+            if (this._types.has(tt)) {
+                _removeTypeCssHelper(this, tt)
+                this._types.delete(tt)
                 return true
             }
             return false
@@ -432,11 +429,12 @@ export abstract class Component extends EventGenerator {
     }
 
     clearTypes(params?:any, doNotRepaint?:boolean):void {
-        let i = this._types.length
-        for (let j = 0; j < i; j++) {
-            _removeTypeCssHelper(this, 0)
-            this._types.splice(0, 1)
-        }
+
+        this._types.forEach(t => {
+            _removeTypeCssHelper(this, t)
+        })
+        this._types.clear()
+
         _applyTypes(this, params)
     }
 
@@ -444,13 +442,11 @@ export abstract class Component extends EventGenerator {
         let t = _splitType(typeId)
         if (t != null) {
             for (let i = 0, j = t.length; i < j; i++) {
-                let idx = this._types.indexOf(t[i])
-                if (idx !== -1) {
-                    _removeTypeCssHelper(this, idx)
-                    this._types.splice(idx, 1)
-                }
-                else {
-                    this._types.push(t[i])
+                if (this._types.has(t[i])) {
+                    _removeTypeCssHelper(this, t[i])
+                    this._types.delete(t[i])
+                } else {
+                    this._types.add(t[i])
                 }
             }
 
