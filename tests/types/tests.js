@@ -60,7 +60,11 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
             c = _jsPlumb.connect({source: d1, target: d2});
 
+        equal(c._types.size, 1, "1 type set")
+        equal(Array.from(c._types)[0], "default", "default type set")
         c.setType("basic");
+        equal(c._types.size, 1, "1 type set")
+        equal(Array.from(c._types)[0], "basic", "basic type set")
         equal(c.getPaintStyle().strokeWidth, 4, "paintStyle strokeWidth is 4");
         equal(c.getPaintStyle().stroke, "yellow", "paintStyle stroke is yellow");
         equal(c.getHoverPaintStyle().stroke, "blue", "paintStyle stroke is yellow");
@@ -82,8 +86,13 @@ var testSuite = function () {
             c = _jsPlumb.connect({source: d1, target: d2});
 
         equal(c.connector.type, "Straight", "connector has Straight type before state add");
+        equal(c._types.size, 1, "1 type set")
+        equal(Array.from(c._types)[0], "default", "default type set")
 
         c.addType("basic");
+        equal(c._types.size, 2, "2 types set")
+        equal(Array.from(c._types)[0], "default", "default type set")
+        equal(Array.from(c._types)[1], "basic", "basic type set")
         equal(c.connector.type, "Flowchart", "connector has Flowchart type after state add");
         equal(c.getPaintStyle().strokeWidth, 4, "paintStyle strokeWidth is 4");
         equal(c.getPaintStyle().stroke, "yellow", "paintStyle stroke is yellow");
@@ -147,6 +156,25 @@ var testSuite = function () {
 
         c.setType("basic");
         equal(_length(c.getOverlays()), 1, "one overlay");
+    });
+
+    test(" set same type twice, should only be set once", function () {
+        var basicType = {
+            connector: "Flowchart",
+            paintStyle: { stroke: "yellow", strokeWidth: 4 },
+            hoverPaintStyle: { stroke: "blue" },
+            overlays: [
+                "Arrow"
+            ]
+        };
+
+        _jsPlumb.registerConnectionType("basic", basicType);
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
+            c = _jsPlumb.connect({source: d1, target: d2});
+
+        c.setType("basic basic");
+        equal(_length(c.getOverlays()), 1, "one overlay");
+        equal(c._types.size, 1, "connection only has one type set")
     });
 
     test(" set connection type on existing connection, overlays should be removed with second type", function () {
