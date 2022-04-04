@@ -361,7 +361,7 @@
             }[axis],
                 comparator = pi["is" + axis.toUpperCase() + "GreaterThanStubTimes2"];
             if (params.sourceEndpoint.elementId === params.targetEndpoint.elementId) {
-              var _val = oss + (1 - params.sourceEndpoint._anchor[otherAxis]) * params.sourceInfo[dim] + _this2.maxStub;
+              var _val = oss + (1 - params.sourceEndpoint._anchor.computedPosition[otherAxis]) * params.sourceInfo[dim] + _this2.maxStub;
               return {
                 "x": [[ss, _val], [es, _val]],
                 "y": [[_val, ss], [_val, es]]
