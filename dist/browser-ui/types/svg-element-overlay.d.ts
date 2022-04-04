@@ -5,10 +5,10 @@ export interface SvgOverlayPaintParams extends Extents, PaintStyle {
     component: Component;
     d?: any;
 }
+export declare function ensureSVGOverlayPath(o: SVGElementOverlay): SVGElement;
+export declare function paintSVGOverlay(o: SVGElementOverlay, path: string, params: SvgOverlayPaintParams, extents: Extents): void;
+export declare function destroySVGOverlay(o: Overlay, force?: boolean): void;
 export declare abstract class SVGElementOverlay extends Overlay {
     path: SVGElement;
-    static ensurePath(o: SVGElementOverlay): SVGElement;
-    static paint(o: SVGElementOverlay, path: string, params: SvgOverlayPaintParams, extents: Extents): void;
-    static destroy(o: Overlay, force?: boolean): void;
 }
 //# sourceMappingURL=svg-element-overlay.d.ts.map

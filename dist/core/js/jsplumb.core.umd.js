@@ -1588,8 +1588,7 @@
     }, {
       key: "setType",
       value: function setType(typeId, params) {
-        this.clearTypes()
-        ;
+        this.clearTypes();
         (_splitType(typeId) || []).forEach(this._types.add, this._types);
         _applyTypes(this, params);
       }

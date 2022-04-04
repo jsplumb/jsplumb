@@ -82,7 +82,7 @@ import {
 } from './collicat'
 
 import {HTMLElementOverlay} from "./html-element-overlay"
-import {SVGElementOverlay} from "./svg-element-overlay"
+import {destroySVGOverlay, ensureSVGOverlayPath, paintSVGOverlay, SVGElementOverlay} from "./svg-element-overlay"
 import {paintSvgConnector} from "./svg-element-connector"
 import {SvgEndpoint} from "./svg-element-endpoint"
 import {
@@ -1211,7 +1211,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         if (isLabelOverlay(o)) {
             o.instance.addClass(getLabelElement(o), clazz)
         } else if (isSVGElementOverlay(o)) {
-            o.instance.addClass(SVGElementOverlay.ensurePath(o), clazz)
+            o.instance.addClass(ensureSVGOverlayPath(o), clazz)
         } else if (isCustomOverlay(o)) {
             o.instance.addClass(getCustomElement(o), clazz)
         } else {
@@ -1224,7 +1224,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         if (isLabelOverlay(o)) {
             o.instance.removeClass(getLabelElement(o), clazz)
         } else if (isSVGElementOverlay(o)) {
-            o.instance.removeClass(SVGElementOverlay.ensurePath(o), clazz)
+            o.instance.removeClass(ensureSVGOverlayPath(o), clazz)
         } else if (isCustomOverlay(o)) {
             o.instance.removeClass(getCustomElement(o), clazz)
         } else {
@@ -1259,7 +1259,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
                 " L" + params.d.tail[1].x + "," + params.d.tail[1].y +
                 " L" + params.d.hxy.x + "," + params.d.hxy.y
 
-            SVGElementOverlay.paint(o, path, params, extents)
+            paintSVGOverlay(o, path, params, extents)
 
         } else if (isCustomOverlay(o)) {
             getCustomElement(o)
@@ -1297,7 +1297,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             o.instance._appendElement(getCustomElement(o), this.getContainer())
         }
         else if (isSVGElementOverlay(o)){
-            this._appendElement(SVGElementOverlay.ensurePath(o), (c as any).connector.canvas)
+            this._appendElement(ensureSVGOverlayPath(o), (c as any).connector.canvas)
         }
     }
 
@@ -1311,7 +1311,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             canvas = getCustomElement(o)
         }
         else if (isSVGElementOverlay(o)){
-            canvas = SVGElementOverlay.ensurePath(o)
+            canvas = ensureSVGOverlayPath(o)
         }
 
         if (canvas != null) {
@@ -1334,7 +1334,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             delete (o as any).canvas
             delete (o as any).cachedDimensions
         } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)){
-            SVGElementOverlay.destroy(o)
+            destroySVGOverlay(o)
         } else if (isCustomOverlay(o)) {
             const el = getCustomElement(o)
             el.parentNode.removeChild(el)

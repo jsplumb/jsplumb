@@ -3738,7 +3738,61 @@ var HTMLElementOverlay = function () {
   return HTMLElementOverlay;
 }();
 
-var SVGElementOverlay = function (_Overlay) {
+function ensureSVGOverlayPath(o) {
+  if (o.path == null) {
+    var atts = util.extend({
+      "jtk-overlay-id": o.id
+    }, o.attributes);
+    o.path = _node(ELEMENT_PATH, atts);
+    var parent = null;
+    if (o.component instanceof core.Connection) {
+      var connector = o.component.connector;
+      parent = connector != null ? connector.canvas : null;
+    } else if (o.component instanceof core.Endpoint) {
+      var endpoint = o.component.endpoint;
+      parent = endpoint != null ? endpoint.svg : endpoint;
+    }
+    if (parent != null) {
+      _appendAtIndex(parent, o.path, 1);
+    }
+    var cls = o.instance.overlayClass + " " + (o.cssClass ? o.cssClass : "");
+    o.instance.addClass(o.path, cls);
+    o.path.jtk = {
+      overlay: o
+    };
+  }
+  return o.path;
+}
+function paintSVGOverlay(o, path, params, extents) {
+  ensureSVGOverlayPath(o);
+  var offset = [0, 0];
+  if (extents.xmin < 0) {
+    offset[0] = -extents.xmin;
+  }
+  if (extents.ymin < 0) {
+    offset[1] = -extents.ymin;
+  }
+  var a = {
+    "d": path,
+    stroke: params.stroke ? params.stroke : null,
+    fill: params.fill ? params.fill : null,
+    transform: "translate(" + offset[0] + "," + offset[1] + ")",
+    "pointer-events": "visibleStroke"
+  };
+  _attr(o.path, a);
+}
+function destroySVGOverlay(o, force) {
+  var _o = o;
+  if (_o.path != null && _o.path.parentNode != null) {
+    _o.path.parentNode.removeChild(_o.path);
+  }
+  if (_o.bgPath != null && _o.bgPath.parentNode != null) {
+    _o.bgPath.parentNode.removeChild(_o.bgPath);
+  }
+  delete _o.path;
+  delete _o.bgPath;
+}
+(function (_Overlay) {
   _inherits(SVGElementOverlay, _Overlay);
   var _super = _createSuper(SVGElementOverlay);
   function SVGElementOverlay() {
@@ -3751,69 +3805,8 @@ var SVGElementOverlay = function (_Overlay) {
     _defineProperty(_assertThisInitialized(_this), "path", void 0);
     return _this;
   }
-  _createClass(SVGElementOverlay, null, [{
-    key: "ensurePath",
-    value: function ensurePath(o) {
-      if (o.path == null) {
-        var atts = util.extend({
-          "jtk-overlay-id": o.id
-        }, o.attributes);
-        o.path = _node(ELEMENT_PATH, atts);
-        var parent = null;
-        if (o.component instanceof core.Connection) {
-          var connector = o.component.connector;
-          parent = connector != null ? connector.canvas : null;
-        } else if (o.component instanceof core.Endpoint) {
-          var endpoint = o.component.endpoint;
-          parent = endpoint != null ? endpoint.svg : endpoint;
-        }
-        if (parent != null) {
-          _appendAtIndex(parent, o.path, 1);
-        }
-        var cls = o.instance.overlayClass + " " + (o.cssClass ? o.cssClass : "");
-        o.instance.addClass(o.path, cls);
-        o.path.jtk = {
-          overlay: o
-        };
-      }
-      return o.path;
-    }
-  }, {
-    key: "paint",
-    value: function paint(o, path, params, extents) {
-      this.ensurePath(o);
-      var offset = [0, 0];
-      if (extents.xmin < 0) {
-        offset[0] = -extents.xmin;
-      }
-      if (extents.ymin < 0) {
-        offset[1] = -extents.ymin;
-      }
-      var a = {
-        "d": path,
-        stroke: params.stroke ? params.stroke : null,
-        fill: params.fill ? params.fill : null,
-        transform: "translate(" + offset[0] + "," + offset[1] + ")",
-        "pointer-events": "visibleStroke"
-      };
-      _attr(o.path, a);
-    }
-  }, {
-    key: "destroy",
-    value: function destroy(o, force) {
-      var _o = o;
-      if (_o.path != null && _o.path.parentNode != null) {
-        _o.path.parentNode.removeChild(_o.path);
-      }
-      if (_o.bgPath != null && _o.bgPath.parentNode != null) {
-        _o.bgPath.parentNode.removeChild(_o.bgPath);
-      }
-      delete _o.path;
-      delete _o.bgPath;
-    }
-  }]);
   return SVGElementOverlay;
-}(core.Overlay);
+})(core.Overlay);
 
 var SvgComponent = function () {
   function SvgComponent() {
@@ -4745,7 +4738,7 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
       if (core.isLabelOverlay(o)) {
         o.instance.addClass(getLabelElement(o), clazz);
       } else if (isSVGElementOverlay(o)) {
-        o.instance.addClass(SVGElementOverlay.ensurePath(o), clazz);
+        o.instance.addClass(ensureSVGOverlayPath(o), clazz);
       } else if (core.isCustomOverlay(o)) {
         o.instance.addClass(getCustomElement(o), clazz);
       } else {
@@ -4758,7 +4751,7 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
       if (core.isLabelOverlay(o)) {
         o.instance.removeClass(getLabelElement(o), clazz);
       } else if (isSVGElementOverlay(o)) {
-        o.instance.removeClass(SVGElementOverlay.ensurePath(o), clazz);
+        o.instance.removeClass(ensureSVGOverlayPath(o), clazz);
       } else if (core.isCustomOverlay(o)) {
         o.instance.removeClass(getCustomElement(o), clazz);
       } else {
@@ -4775,7 +4768,7 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
         o.canvas.style.top = XY.y + params.d.miny + "px";
       } else if (isSVGElementOverlay(o)) {
         var path = isNaN(params.d.cxy.x) || isNaN(params.d.cxy.y) ? "M 0 0" : "M" + params.d.hxy.x + "," + params.d.hxy.y + " L" + params.d.tail[0].x + "," + params.d.tail[0].y + " L" + params.d.cxy.x + "," + params.d.cxy.y + " L" + params.d.tail[1].x + "," + params.d.tail[1].y + " L" + params.d.hxy.x + "," + params.d.hxy.y;
-        SVGElementOverlay.paint(o, path, params, extents);
+        paintSVGOverlay(o, path, params, extents);
       } else if (core.isCustomOverlay(o)) {
         getCustomElement(o);
         var _XY = o.component.getXY();
@@ -4810,7 +4803,7 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
       } else if (core.isCustomOverlay(o)) {
         o.instance._appendElement(getCustomElement(o), this.getContainer());
       } else if (isSVGElementOverlay(o)) {
-        this._appendElement(SVGElementOverlay.ensurePath(o), c.connector.canvas);
+        this._appendElement(ensureSVGOverlayPath(o), c.connector.canvas);
       }
     }
   }, {
@@ -4822,7 +4815,7 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
       } else if (core.isCustomOverlay(o)) {
         canvas = getCustomElement(o);
       } else if (isSVGElementOverlay(o)) {
-        canvas = SVGElementOverlay.ensurePath(o);
+        canvas = ensureSVGOverlayPath(o);
       }
       if (canvas != null) {
         if (this.hoverClass != null) {
@@ -4844,7 +4837,7 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
         delete o.canvas;
         delete o.cachedDimensions;
       } else if (core.isArrowOverlay(o) || core.isDiamondOverlay(o) || core.isPlainArrowOverlay(o)) {
-        SVGElementOverlay.destroy(o);
+        destroySVGOverlay(o);
       } else if (core.isCustomOverlay(o)) {
         var _el2 = getCustomElement(o);
         _el2.parentNode.removeChild(_el2);

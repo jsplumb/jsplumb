@@ -8,7 +8,7 @@ import { BeforeDropParams } from '../callbacks';
 import { LabelOverlay } from "../overlay/label-overlay";
 import { OverlaySpec, PaintStyle } from "@jsplumb/common";
 export declare type ComponentParameters = Record<string, any>;
-export declare function _removeTypeCssHelper<E>(component: Component, typeIndex: number): void;
+export declare function _removeTypeCssHelper<E>(component: Component, typeId: string): void;
 export declare function _updateHoverStyle<E>(component: Component): void;
 /**
  * Defines the method signature for the callback to the `beforeDetach` interceptor. Returning false from this method
@@ -94,7 +94,7 @@ export declare abstract class Component extends EventGenerator {
     _defaultType: ComponentTypeDescriptor;
     events: any;
     parameters: ComponentParameters;
-    _types: string[];
+    _types: Set<string>;
     _typeCache: {};
     cssClass: string;
     hoverClass: string;
