@@ -1,3 +1,9 @@
+## 5.5.4
+
+April 5th 2022
+
+- Removed reference to `document` in root of the event manager module, which was causing an error on import when using NextJS SSR.
+
 ## 5.5.3
 
 April 1st 2022
