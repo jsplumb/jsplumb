@@ -8899,7 +8899,7 @@ var jsPlumbBrowserUI = (function (exports) {
             }[axis],
                 comparator = pi["is" + axis.toUpperCase() + "GreaterThanStubTimes2"];
             if (params.sourceEndpoint.elementId === params.targetEndpoint.elementId) {
-              var _val = oss + (1 - params.sourceEndpoint._anchor[otherAxis]) * params.sourceInfo[dim] + _this2.maxStub;
+              var _val = oss + (1 - params.sourceEndpoint._anchor.computedPosition[otherAxis]) * params.sourceInfo[dim] + _this2.maxStub;
               return {
                 "x": [[ss, _val], [es, _val]],
                 "y": [[_val, ss], [_val, es]]
@@ -10717,8 +10717,12 @@ var jsPlumbBrowserUI = (function (exports) {
     }
   }
   var guid = 1;
-  var isTouchDevice = "ontouchstart" in document.documentElement || navigator.maxTouchPoints != null && navigator.maxTouchPoints > 0;
-  var isMouseDevice = ("onmousedown" in document.documentElement);
+  function isTouchDevice() {
+    return "ontouchstart" in document.documentElement || navigator.maxTouchPoints != null && navigator.maxTouchPoints > 0;
+  }
+  function isMouseDevice() {
+    return "onmousedown" in document.documentElement;
+  }
   var touchMap = {
     "mousedown": "touchstart",
     "mouseup": "touchend",
@@ -10779,7 +10783,7 @@ var jsPlumbBrowserUI = (function (exports) {
       if (fn.__tauid != null) {
         if (_el.removeEventListener) {
           _el.removeEventListener(type, fn, false);
-          if (isTouchDevice && touchMap[type]) _el.removeEventListener(touchMap[type], fn, false);
+          if (isTouchDevice() && touchMap[type]) _el.removeEventListener(touchMap[type], fn, false);
         } else if (_this.detachEvent) {
           var key = type + fn.__tauid;
           _el[key] && _el.detachEvent("on" + type, _el[key]);
@@ -10869,7 +10873,7 @@ var jsPlumbBrowserUI = (function (exports) {
     fn.__taExtra.push([evt, newFn]);
   }
   var DefaultHandler = function DefaultHandler(obj, evt, fn, children, options) {
-    if (isTouchDevice && touchMap[evt]) {
+    if (isTouchDevice() && touchMap[evt]) {
       var tfn = _curryChildFilter(children, obj, fn, touchMap[evt]);
       _bind(obj, touchMap[evt], tfn, fn, options);
     }
@@ -10907,7 +10911,7 @@ var jsPlumbBrowserUI = (function (exports) {
       key: "generate",
       value: function generate(clickThreshold, dblClickThreshold) {
         return function (obj, evt, fn, children) {
-          if (evt == EVENT_CONTEXTMENU && isMouseDevice) DefaultHandler(obj, evt, fn, children);else {
+          if (evt == EVENT_CONTEXTMENU && isMouseDevice()) DefaultHandler(obj, evt, fn, children);else {
             if (obj.__taTapHandler == null) {
               var tt = obj.__taTapHandler = {
                 tap: [],
@@ -11080,9 +11084,9 @@ var jsPlumbBrowserUI = (function (exports) {
     }, {
       key: "trigger",
       value: function trigger(el, event, originalEvent, payload, detail) {
-        var originalIsMouse = isMouseDevice && (typeof MouseEvent === "undefined" || originalEvent == null || originalEvent.constructor === MouseEvent);
-        var eventToBind = isTouchDevice && !isMouseDevice && touchMap[event] ? touchMap[event] : event,
-            bindingAMouseEvent = !(isTouchDevice && !isMouseDevice && touchMap[event]);
+        var originalIsMouse = isMouseDevice() && (typeof MouseEvent === "undefined" || originalEvent == null || originalEvent.constructor === MouseEvent);
+        var eventToBind = isTouchDevice() && !isMouseDevice() && touchMap[event] ? touchMap[event] : event,
+            bindingAMouseEvent = !(isTouchDevice() && !isMouseDevice() && touchMap[event]);
         var pl = pageLocation(originalEvent),
             sl = screenLocation(originalEvent),
             cl = clientLocation(originalEvent);
@@ -11109,7 +11113,7 @@ var jsPlumbBrowserUI = (function (exports) {
               evt.initMouseEvent(eventToBind, true, true, window, detail == null ? 1 : detail, sl.x, sl.y, cl.x, cl.y, false, false, false, false, 1, _el);
             }
           };
-          var ite = !bindingAMouseEvent && !originalIsMouse && isTouchDevice && touchMap[event],
+          var ite = !bindingAMouseEvent && !originalIsMouse && isTouchDevice() && touchMap[event],
               evtName = ite ? "TouchEvent" : "MouseEvents";
           evt = document.createEvent(evtName);
           eventGenerators[evtName](evt);

@@ -118,8 +118,10 @@ function _d (l:Array<any>, fn:Function) {
 
 let guid = 1
 
-let isTouchDevice:boolean = "ontouchstart" in document.documentElement || (navigator.maxTouchPoints != null && navigator.maxTouchPoints > 0)
-let isMouseDevice:boolean = "onmousedown" in document.documentElement
+let forceTouchEvents = false
+let forceMouseEvents = false
+function isTouchDevice():boolean { return  forceTouchEvents || "ontouchstart" in document.documentElement || (navigator.maxTouchPoints != null && navigator.maxTouchPoints > 0) }
+function isMouseDevice():boolean { return forceMouseEvents || "onmousedown" in document.documentElement }
 const touchMap = { "mousedown": "touchstart", "mouseup": "touchend", "mousemove": "touchmove" }
 
 const PAGE = "page"
@@ -183,7 +185,7 @@ function _unbind (obj:any, type:string, fn:any) {
         if (fn.__tauid != null) {
             if (_el.removeEventListener) {
                 _el.removeEventListener(type, fn, false)
-                if (isTouchDevice && touchMap[type]) _el.removeEventListener(touchMap[type], fn, false)
+                if (isTouchDevice() && touchMap[type]) _el.removeEventListener(touchMap[type], fn, false)
             }
             else if (this.detachEvent) {
                 const key = type + fn.__tauid
@@ -309,7 +311,7 @@ function registerExtraFunction (fn:FunctionFacade, evt:string, newFn:FunctionFac
 
 type Handler = (obj:any, evt:string, fn:FunctionFacade, children?:string, options?:{passive?:boolean, capture?:boolean, once?:boolean}) => void
 const DefaultHandler:Handler = (obj:any, evt:string, fn:FunctionFacade, children?:string, options?:{passive?:boolean, capture?:boolean, once?:boolean}) => {
-    if (isTouchDevice && touchMap[evt]) {
+    if (isTouchDevice() && touchMap[evt]) {
         const tfn = _curryChildFilter(children, obj, fn, touchMap[evt])
         _bind(obj, touchMap[evt], tfn , fn, options)
     }
@@ -339,7 +341,7 @@ class TapHandler {
         return (obj:any, evt:string, fn:FunctionFacade, children:string) => {
             // if event is contextmenu, for devices which are mouse only, we want to
             // use the default bind.
-            if (evt == EVENT_CONTEXTMENU && isMouseDevice)
+            if (evt == EVENT_CONTEXTMENU && isMouseDevice())
                 DefaultHandler(obj, evt, fn, children)
             else {
                 // the issue here is that this down handler gets registered only for the
@@ -531,10 +533,10 @@ export class EventManager {
 
     trigger (el:any, event:string, originalEvent:any, payload?:any, detail?:number) {
         // MouseEvent undefined in old IE; that's how we know it's a mouse event.  A fine Microsoft paradox.
-        const originalIsMouse = isMouseDevice && (typeof MouseEvent === "undefined" || originalEvent == null || originalEvent.constructor === MouseEvent)
+        const originalIsMouse = isMouseDevice() && (typeof MouseEvent === "undefined" || originalEvent == null || originalEvent.constructor === MouseEvent)
 
-        let eventToBind = (isTouchDevice && !isMouseDevice && touchMap[event]) ? touchMap[event] : event,
-            bindingAMouseEvent = !(isTouchDevice && !isMouseDevice && touchMap[event])
+        let eventToBind = (isTouchDevice() && !isMouseDevice() && touchMap[event]) ? touchMap[event] : event,
+            bindingAMouseEvent = !(isTouchDevice() && !isMouseDevice() && touchMap[event])
 
         const pl = pageLocation(originalEvent), sl = screenLocation(originalEvent), cl = clientLocation(originalEvent)
         _each(el, (_el:jsPlumbDOMElement) => {
@@ -570,7 +572,7 @@ export class EventManager {
                 }
             }
 
-            const ite = !bindingAMouseEvent && !originalIsMouse && (isTouchDevice && touchMap[event]),
+            const ite = !bindingAMouseEvent && !originalIsMouse && (isTouchDevice() && touchMap[event]),
                 evtName = ite ? "TouchEvent" : "MouseEvents"
 
             // create event using constructors.
@@ -609,9 +611,9 @@ export class EventManager {
 }
 
 export function setForceTouchEvents (value:boolean) {
-    isTouchDevice = value
+    forceTouchEvents = value
 }
 
 export function setForceMouseEvents (value:boolean) {
-    isMouseDevice = value
+    forceMouseEvents = value
 }

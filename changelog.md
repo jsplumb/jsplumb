@@ -1,3 +1,15 @@
+## 5.5.5
+
+April 5th 2022
+
+- Merge PR 1115 - fix for issue 1113, in which a flowchart connector painted between opposite faces on the same element was not painted properly.
+
+## 5.5.4
+
+April 5th 2022
+
+- Removed reference to `document` in root of the event manager module, which was causing an error on import when using NextJS SSR.
+
 ## 5.5.3
 
 April 1st 2022
