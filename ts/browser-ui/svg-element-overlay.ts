@@ -14,8 +14,15 @@ export function ensureSVGOverlayPath(o:SVGElementOverlay):SVGElement {
     if (o.path == null) {
         const atts = extend({"jtk-overlay-id": o.id}, o.attributes)
         o.path = _node(ELEMENT_PATH, atts)
-        let parent:SVGElement = null
 
+        const cls = o.instance.overlayClass + " " + (o.cssClass ? o.cssClass : "")
+        ;o.instance.addClass(<any>o.path, cls)
+
+        ;(<any>o.path).jtk = { overlay:o }
+    }
+
+    let parent:SVGElement = o.path.parentNode as unknown as any
+    if (parent == null) {
         if (o.component instanceof Connection) {
             let connector = (o.component as Connection).connector
             parent = connector != null ? (connector as any).canvas : null
@@ -27,11 +34,6 @@ export function ensureSVGOverlayPath(o:SVGElementOverlay):SVGElement {
         if (parent != null) {
             _appendAtIndex(parent, o.path, 1)
         }
-
-        const cls = o.instance.overlayClass + " " + (o.cssClass ? o.cssClass : "")
-        ;o.instance.addClass(<any>o.path, cls)
-
-        ;(<any>o.path).jtk = { overlay:o }
     }
 
     return o.path
