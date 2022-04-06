@@ -591,6 +591,16 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     }
 
     /**
+     * Sets the type of a connection and then repaints it.
+     * @param connection
+     * @param type
+     */
+    setConnectionType(connection:Connection, type:string, params?:any):void {
+        connection.setType(type, params)
+        this._paintConnection(connection)
+    }
+
+    /**
      * Returns whether or not hover is currently suspended.
      */
     isHoverSuspended():boolean { return this.hoverSuspended; }
