@@ -1,3 +1,7 @@
+## 5.6.0
+
+- Parameterised types were updated to support `{{value}}` syntax as opposed to `${value}`. This is to avoid confusion with JS string templates. The previous syntax is still supported for now but won't be as of v6.0.0.
+
 ## 5.5.5
 
 April 5th 2022
