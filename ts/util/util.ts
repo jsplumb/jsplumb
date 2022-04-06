@@ -462,7 +462,19 @@ export function functionChain(successValue: any, failValue: any, fns: Array<Arra
 
 /**
  *
- * Take the given model and expand out any parameters.
+ * Take the given model and expand out any parameters. Parameters to expand are marked inside string values with this syntax:
+ *
+ * `
+ * someKey:"this is a value of type {{type}}"
+ * `
+ *
+ * so when you call this method and `values` contains a key `type`, the value for that key is inserted into the populated value. Note that prior to
+ * 5.6.0 the syntax for parameter substitutions was this:
+ *
+ * someKey:"this is a value of type ${type}"
+ *
+ * which is still supported, but will not be from v 6.0.0 onwards. We've made this change because people are increasingly using JS string templates,
+ * and the `${..}` syntax is part of those.
  *
  * @param model Object to populate with values.
  * @param values Object containing values to populate
@@ -486,6 +498,18 @@ export function populate(model: any, values: any, functionPrefix?: string, doNot
                 }
             }
         }
+        // new syntax: {{value}}. this will become the only supported syntax from v6
+        matches = fromString.match(/({{.*?}})/g)
+        if (matches != null) {
+            for (let i = 0; i < matches.length; i++) {
+                let val = values[matches[i].substring(2, matches[i].length - 2)] || ""
+                if (val != null) {
+                    fromString = fromString.replace(matches[i], val)
+                }
+            }
+        }
+
+
         return fromString
     }
 
