@@ -181,7 +181,19 @@ export declare function replace(inObj: any, path: string, value: any): any;
 export declare function functionChain(successValue: any, failValue: any, fns: Array<Array<any>>): any;
 /**
  *
- * Take the given model and expand out any parameters.
+ * Take the given model and expand out any parameters. Parameters to expand are marked inside string values with this syntax:
+ *
+ * `
+ * someKey:"this is a value of type {{type}}"
+ * `
+ *
+ * so when you call this method and `values` contains a key `type`, the value for that key is inserted into the populated value. Note that prior to
+ * 5.6.0 the syntax for parameter substitutions was this:
+ *
+ * someKey:"this is a value of type ${type}"
+ *
+ * which is still supported, but will not be from v 6.0.0 onwards. We've made this change because people are increasingly using JS string templates,
+ * and the `${..}` syntax is part of those.
  *
  * @param model Object to populate with values.
  * @param values Object containing values to populate

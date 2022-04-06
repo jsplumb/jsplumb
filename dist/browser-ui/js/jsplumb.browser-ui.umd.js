@@ -3746,7 +3746,14 @@
         "jtk-overlay-id": o.id
       }, o.attributes);
       o.path = _node(ELEMENT_PATH, atts);
-      var parent = null;
+      var cls = o.instance.overlayClass + " " + (o.cssClass ? o.cssClass : "");
+      o.instance.addClass(o.path, cls);
+      o.path.jtk = {
+        overlay: o
+      };
+    }
+    var parent = o.path.parentNode;
+    if (parent == null) {
       if (o.component instanceof core.Connection) {
         var connector = o.component.connector;
         parent = connector != null ? connector.canvas : null;
@@ -3757,11 +3764,6 @@
       if (parent != null) {
         _appendAtIndex(parent, o.path, 1);
       }
-      var cls = o.instance.overlayClass + " " + (o.cssClass ? o.cssClass : "");
-      o.instance.addClass(o.path, cls);
-      o.path.jtk = {
-        overlay: o
-      };
     }
     return o.path;
   }

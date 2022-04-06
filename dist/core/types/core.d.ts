@@ -144,6 +144,12 @@ export declare abstract class JsPlumbInstance<T extends {
      */
     setTarget(connection: Connection, el: T["E"] | Endpoint): void;
     /**
+     * Sets the type of a connection and then repaints it.
+     * @param connection
+     * @param type
+     */
+    setConnectionType(connection: Connection, type: string, params?: any): void;
+    /**
      * Returns whether or not hover is currently suspended.
      */
     isHoverSuspended(): boolean;

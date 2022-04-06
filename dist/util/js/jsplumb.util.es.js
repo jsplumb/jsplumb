@@ -251,6 +251,15 @@ function populate(model, values, functionPrefix, doNotExpandFunctions) {
         }
       }
     }
+    matches = fromString.match(/({{.*?}})/g);
+    if (matches != null) {
+      for (var _i = 0; _i < matches.length; _i++) {
+        var _val = values[matches[_i].substring(2, matches[_i].length - 2)] || "";
+        if (_val != null) {
+          fromString = fromString.replace(matches[_i], _val);
+        }
+      }
+    }
     return fromString;
   };
   var _one = function _one(d) {
@@ -438,14 +447,14 @@ function fastTrim(s) {
 }
 function each(obj, fn) {
   obj = obj.length == null || typeof obj === "string" ? [obj] : obj;
-  for (var _i = 0; _i < obj.length; _i++) {
-    fn(obj[_i]);
+  for (var _i2 = 0; _i2 < obj.length; _i2++) {
+    fn(obj[_i2]);
   }
 }
 function map(obj, fn) {
   var o = [];
-  for (var _i2 = 0; _i2 < obj.length; _i2++) {
-    o.push(fn(obj[_i2]));
+  for (var _i3 = 0; _i3 < obj.length; _i3++) {
+    o.push(fn(obj[_i3]));
   }
   return o;
 }

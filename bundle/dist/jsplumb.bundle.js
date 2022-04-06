@@ -254,6 +254,15 @@ var jsPlumbBrowserUI = (function (exports) {
           }
         }
       }
+      matches = fromString.match(/({{.*?}})/g);
+      if (matches != null) {
+        for (var _i = 0; _i < matches.length; _i++) {
+          var _val = values[matches[_i].substring(2, matches[_i].length - 2)] || "";
+          if (_val != null) {
+            fromString = fromString.replace(matches[_i], _val);
+          }
+        }
+      }
       return fromString;
     };
     var _one = function _one(d) {
@@ -441,14 +450,14 @@ var jsPlumbBrowserUI = (function (exports) {
   }
   function each(obj, fn) {
     obj = obj.length == null || typeof obj === "string" ? [obj] : obj;
-    for (var _i = 0; _i < obj.length; _i++) {
-      fn(obj[_i]);
+    for (var _i2 = 0; _i2 < obj.length; _i2++) {
+      fn(obj[_i2]);
     }
   }
   function map(obj, fn) {
     var o = [];
-    for (var _i2 = 0; _i2 < obj.length; _i2++) {
-      o.push(fn(obj[_i2]));
+    for (var _i3 = 0; _i3 < obj.length; _i3++) {
+      o.push(fn(obj[_i3]));
     }
     return o;
   }
@@ -2436,7 +2445,9 @@ var jsPlumbBrowserUI = (function (exports) {
   OverlayFactory.register("Label", LabelOverlay);
 
   function _splitType(t) {
-    return t == null ? null : t.split(" ");
+    return t == null ? null : t.split(" ").filter(function (t) {
+      return t != null && t.length > 0;
+    });
   }
   function _mapType(map, obj, typeId) {
     for (var i in obj) {
@@ -2461,8 +2472,7 @@ var jsPlumbBrowserUI = (function (exports) {
       var defType = component.getDefaultType();
       var o = extend({}, defType);
       _mapType(map, defType, DEFAULT_TYPE_KEY);
-      for (var i = 0, j = component._types.length; i < j; i++) {
-        var tid = component._types[i];
+      component._types.forEach(function (tid) {
         if (tid !== DEFAULT_TYPE_KEY) {
           var _t = component.instance.getType(tid, td);
           if (_t != null) {
@@ -2476,16 +2486,15 @@ var jsPlumbBrowserUI = (function (exports) {
             _mapType(map, _t, tid);
           }
         }
-      }
+      });
       if (params) {
         o = populate(o, params, "_");
       }
       component.applyType(o, map);
     }
   }
-  function _removeTypeCssHelper(component, typeIndex) {
-    var typeId = component._types[typeIndex],
-        type = component.instance.getType(typeId, component.getTypeDescriptor());
+  function _removeTypeCssHelper(component, typeId) {
+    var type = component.instance.getType(typeId, component.getTypeDescriptor());
     if (type != null && type.cssClass) {
       component.removeClass(type.cssClass);
     }
@@ -2566,7 +2575,7 @@ var jsPlumbBrowserUI = (function (exports) {
       _this.hoverClass = params.hoverClass || instance.defaults.hoverClass;
       _this.beforeDetach = params.beforeDetach;
       _this.beforeDrop = params.beforeDrop;
-      _this._types = [];
+      _this._types = new Set();
       _this._typeCache = {};
       _this.parameters = clone(params.parameters || {});
       _this.id = params.id || _this.getIdPrefix() + new Date().getTime();
@@ -2680,13 +2689,13 @@ var jsPlumbBrowserUI = (function (exports) {
       key: "setType",
       value: function setType(typeId, params) {
         this.clearTypes();
-        this._types = _splitType(typeId) || [];
+        (_splitType(typeId) || []).forEach(this._types.add, this._types);
         _applyTypes(this, params);
       }
     }, {
       key: "getType",
       value: function getType() {
-        return this._types;
+        return Array.from(this._types.keys());
       }
     }, {
       key: "reapplyTypes",
@@ -2696,7 +2705,7 @@ var jsPlumbBrowserUI = (function (exports) {
     }, {
       key: "hasType",
       value: function hasType(typeId) {
-        return this._types.indexOf(typeId) !== -1;
+        return this._types.has(typeId);
       }
     }, {
       key: "addType",
@@ -2705,8 +2714,8 @@ var jsPlumbBrowserUI = (function (exports) {
             _somethingAdded = false;
         if (t != null) {
           for (var i = 0, j = t.length; i < j; i++) {
-            if (!this.hasType(t[i])) {
-              this._types.push(t[i]);
+            if (!this._types.has(t[i])) {
+              this._types.add(t[i]);
               _somethingAdded = true;
             }
           }
@@ -2722,10 +2731,9 @@ var jsPlumbBrowserUI = (function (exports) {
         var t = _splitType(typeId),
             _cont = false,
             _one = function _one(tt) {
-          var idx = _this2._types.indexOf(tt);
-          if (idx !== -1) {
-            _removeTypeCssHelper(_this2, idx);
-            _this2._types.splice(idx, 1);
+          if (_this2._types.has(tt)) {
+            _removeTypeCssHelper(_this2, tt);
+            _this2._types["delete"](tt);
             return true;
           }
           return false;
@@ -2742,11 +2750,11 @@ var jsPlumbBrowserUI = (function (exports) {
     }, {
       key: "clearTypes",
       value: function clearTypes(params, doNotRepaint) {
-        var i = this._types.length;
-        for (var j = 0; j < i; j++) {
-          _removeTypeCssHelper(this, 0);
-          this._types.splice(0, 1);
-        }
+        var _this3 = this;
+        this._types.forEach(function (t) {
+          _removeTypeCssHelper(_this3, t);
+        });
+        this._types.clear();
         _applyTypes(this, params);
       }
     }, {
@@ -2755,12 +2763,11 @@ var jsPlumbBrowserUI = (function (exports) {
         var t = _splitType(typeId);
         if (t != null) {
           for (var i = 0, j = t.length; i < j; i++) {
-            var idx = this._types.indexOf(t[i]);
-            if (idx !== -1) {
-              _removeTypeCssHelper(this, idx);
-              this._types.splice(idx, 1);
+            if (this._types.has(t[i])) {
+              _removeTypeCssHelper(this, t[i]);
+              this._types["delete"](t[i]);
             } else {
-              this._types.push(t[i]);
+              this._types.add(t[i]);
             }
           }
           _applyTypes(this, params);
@@ -7014,6 +7021,12 @@ var jsPlumbBrowserUI = (function (exports) {
         removeManagedConnection(connection, this._managedElements[connection.targetId]);
         var p = this._set(connection, el, 1);
         addManagedConnection(connection, this._managedElements[p.newTargetId]);
+      }
+    }, {
+      key: "setConnectionType",
+      value: function setConnectionType(connection, type, params) {
+        connection.setType(type, params);
+        this._paintConnection(connection);
       }
     }, {
       key: "isHoverSuspended",
@@ -13812,7 +13825,63 @@ var jsPlumbBrowserUI = (function (exports) {
     return HTMLElementOverlay;
   }();
 
-  var SVGElementOverlay = function (_Overlay) {
+  function ensureSVGOverlayPath(o) {
+    if (o.path == null) {
+      var atts = extend({
+        "jtk-overlay-id": o.id
+      }, o.attributes);
+      o.path = _node(ELEMENT_PATH, atts);
+      var cls = o.instance.overlayClass + " " + (o.cssClass ? o.cssClass : "");
+      o.instance.addClass(o.path, cls);
+      o.path.jtk = {
+        overlay: o
+      };
+    }
+    var parent = o.path.parentNode;
+    if (parent == null) {
+      if (o.component instanceof Connection) {
+        var connector = o.component.connector;
+        parent = connector != null ? connector.canvas : null;
+      } else if (o.component instanceof Endpoint) {
+        var endpoint = o.component.endpoint;
+        parent = endpoint != null ? endpoint.svg : endpoint;
+      }
+      if (parent != null) {
+        _appendAtIndex(parent, o.path, 1);
+      }
+    }
+    return o.path;
+  }
+  function paintSVGOverlay(o, path, params, extents) {
+    ensureSVGOverlayPath(o);
+    var offset = [0, 0];
+    if (extents.xmin < 0) {
+      offset[0] = -extents.xmin;
+    }
+    if (extents.ymin < 0) {
+      offset[1] = -extents.ymin;
+    }
+    var a = {
+      "d": path,
+      stroke: params.stroke ? params.stroke : null,
+      fill: params.fill ? params.fill : null,
+      transform: "translate(" + offset[0] + "," + offset[1] + ")",
+      "pointer-events": "visibleStroke"
+    };
+    _attr(o.path, a);
+  }
+  function destroySVGOverlay(o, force) {
+    var _o = o;
+    if (_o.path != null && _o.path.parentNode != null) {
+      _o.path.parentNode.removeChild(_o.path);
+    }
+    if (_o.bgPath != null && _o.bgPath.parentNode != null) {
+      _o.bgPath.parentNode.removeChild(_o.bgPath);
+    }
+    delete _o.path;
+    delete _o.bgPath;
+  }
+  (function (_Overlay) {
     _inherits(SVGElementOverlay, _Overlay);
     var _super = _createSuper(SVGElementOverlay);
     function SVGElementOverlay() {
@@ -13825,69 +13894,8 @@ var jsPlumbBrowserUI = (function (exports) {
       _defineProperty(_assertThisInitialized(_this), "path", void 0);
       return _this;
     }
-    _createClass(SVGElementOverlay, null, [{
-      key: "ensurePath",
-      value: function ensurePath(o) {
-        if (o.path == null) {
-          var atts = extend({
-            "jtk-overlay-id": o.id
-          }, o.attributes);
-          o.path = _node(ELEMENT_PATH, atts);
-          var parent = null;
-          if (o.component instanceof Connection) {
-            var connector = o.component.connector;
-            parent = connector != null ? connector.canvas : null;
-          } else if (o.component instanceof Endpoint) {
-            var endpoint = o.component.endpoint;
-            parent = endpoint != null ? endpoint.svg : endpoint;
-          }
-          if (parent != null) {
-            _appendAtIndex(parent, o.path, 1);
-          }
-          var cls = o.instance.overlayClass + " " + (o.cssClass ? o.cssClass : "");
-          o.instance.addClass(o.path, cls);
-          o.path.jtk = {
-            overlay: o
-          };
-        }
-        return o.path;
-      }
-    }, {
-      key: "paint",
-      value: function paint(o, path, params, extents) {
-        this.ensurePath(o);
-        var offset = [0, 0];
-        if (extents.xmin < 0) {
-          offset[0] = -extents.xmin;
-        }
-        if (extents.ymin < 0) {
-          offset[1] = -extents.ymin;
-        }
-        var a = {
-          "d": path,
-          stroke: params.stroke ? params.stroke : null,
-          fill: params.fill ? params.fill : null,
-          transform: "translate(" + offset[0] + "," + offset[1] + ")",
-          "pointer-events": "visibleStroke"
-        };
-        _attr(o.path, a);
-      }
-    }, {
-      key: "destroy",
-      value: function destroy(o, force) {
-        var _o = o;
-        if (_o.path != null && _o.path.parentNode != null) {
-          _o.path.parentNode.removeChild(_o.path);
-        }
-        if (_o.bgPath != null && _o.bgPath.parentNode != null) {
-          _o.bgPath.parentNode.removeChild(_o.bgPath);
-        }
-        delete _o.path;
-        delete _o.bgPath;
-      }
-    }]);
     return SVGElementOverlay;
-  }(Overlay);
+  })(Overlay);
 
   var SvgComponent = function () {
     function SvgComponent() {
@@ -14819,7 +14827,7 @@ var jsPlumbBrowserUI = (function (exports) {
         if (isLabelOverlay(o)) {
           o.instance.addClass(getLabelElement(o), clazz);
         } else if (isSVGElementOverlay(o)) {
-          o.instance.addClass(SVGElementOverlay.ensurePath(o), clazz);
+          o.instance.addClass(ensureSVGOverlayPath(o), clazz);
         } else if (isCustomOverlay(o)) {
           o.instance.addClass(getCustomElement(o), clazz);
         } else {
@@ -14832,7 +14840,7 @@ var jsPlumbBrowserUI = (function (exports) {
         if (isLabelOverlay(o)) {
           o.instance.removeClass(getLabelElement(o), clazz);
         } else if (isSVGElementOverlay(o)) {
-          o.instance.removeClass(SVGElementOverlay.ensurePath(o), clazz);
+          o.instance.removeClass(ensureSVGOverlayPath(o), clazz);
         } else if (isCustomOverlay(o)) {
           o.instance.removeClass(getCustomElement(o), clazz);
         } else {
@@ -14849,7 +14857,7 @@ var jsPlumbBrowserUI = (function (exports) {
           o.canvas.style.top = XY.y + params.d.miny + "px";
         } else if (isSVGElementOverlay(o)) {
           var path = isNaN(params.d.cxy.x) || isNaN(params.d.cxy.y) ? "M 0 0" : "M" + params.d.hxy.x + "," + params.d.hxy.y + " L" + params.d.tail[0].x + "," + params.d.tail[0].y + " L" + params.d.cxy.x + "," + params.d.cxy.y + " L" + params.d.tail[1].x + "," + params.d.tail[1].y + " L" + params.d.hxy.x + "," + params.d.hxy.y;
-          SVGElementOverlay.paint(o, path, params, extents);
+          paintSVGOverlay(o, path, params, extents);
         } else if (isCustomOverlay(o)) {
           getCustomElement(o);
           var _XY = o.component.getXY();
@@ -14884,7 +14892,7 @@ var jsPlumbBrowserUI = (function (exports) {
         } else if (isCustomOverlay(o)) {
           o.instance._appendElement(getCustomElement(o), this.getContainer());
         } else if (isSVGElementOverlay(o)) {
-          this._appendElement(SVGElementOverlay.ensurePath(o), c.connector.canvas);
+          this._appendElement(ensureSVGOverlayPath(o), c.connector.canvas);
         }
       }
     }, {
@@ -14896,7 +14904,7 @@ var jsPlumbBrowserUI = (function (exports) {
         } else if (isCustomOverlay(o)) {
           canvas = getCustomElement(o);
         } else if (isSVGElementOverlay(o)) {
-          canvas = SVGElementOverlay.ensurePath(o);
+          canvas = ensureSVGOverlayPath(o);
         }
         if (canvas != null) {
           if (this.hoverClass != null) {
@@ -14918,7 +14926,7 @@ var jsPlumbBrowserUI = (function (exports) {
           delete o.canvas;
           delete o.cachedDimensions;
         } else if (isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)) {
-          SVGElementOverlay.destroy(o);
+          destroySVGOverlay(o);
         } else if (isCustomOverlay(o)) {
           var _el2 = getCustomElement(o);
           _el2.parentNode.removeChild(_el2);

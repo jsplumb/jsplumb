@@ -5920,6 +5920,12 @@ var JsPlumbInstance = function (_EventGenerator) {
       addManagedConnection(connection, this._managedElements[p.newTargetId]);
     }
   }, {
+    key: "setConnectionType",
+    value: function setConnectionType(connection, type, params) {
+      connection.setType(type, params);
+      this._paintConnection(connection);
+    }
+  }, {
     key: "isHoverSuspended",
     value: function isHoverSuspended() {
       return this.hoverSuspended;

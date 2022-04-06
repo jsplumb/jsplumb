@@ -607,7 +607,7 @@ export abstract class Component extends EventGenerator {
     // (undocumented)
     typeId: string;
     // (undocumented)
-    _types: string[];
+    _types: Set<string>;
     // (undocumented)
     visible: boolean;
     // (undocumented)
@@ -1838,6 +1838,7 @@ export abstract class JsPlumbInstance<T extends {
     abstract setAttribute(el: T["E"], name: string, value: string): void;
     // (undocumented)
     abstract setAttributes(el: T["E"], atts: Record<string, string>): void;
+    setConnectionType(connection: Connection, type: string, params?: any): void;
     // @internal (undocumented)
     abstract setConnectorHover(connector: AbstractConnector, h: boolean, sourceEndpoint?: Endpoint): void;
     // Warning: (ae-incompatible-release-tags) The symbol "setConnectorVisible" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
@@ -2275,7 +2276,7 @@ export const REDROP_POLICY_STRICT = "strict";
 export type RedropPolicy = typeof REDROP_POLICY_STRICT | typeof REDROP_POLICY_ANY;
 
 // @public (undocumented)
-export function _removeTypeCssHelper<E>(component: Component, typeIndex: number): void;
+export function _removeTypeCssHelper<E>(component: Component, typeId: string): void;
 
 // @public (undocumented)
 export const RIGHT = FaceValues.right;
