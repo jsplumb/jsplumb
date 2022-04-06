@@ -946,6 +946,24 @@ var testSuite = function () {
         equal(c.getHoverPaintStyle().strokeWidth, 4, "hoverPaintStyle strokeWidth is 6");
     });
 
+    test(" set connection type on existing connection, parameterised type, new format", function () {
+        var basicType = {
+            connector: "Flowchart",
+            paintStyle: { stroke: "{{strokeColor}}", strokeWidth: 4 },
+            hoverPaintStyle: { stroke: "blue" }
+        };
+
+        _jsPlumb.registerConnectionType("basic", basicType);
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
+            c = _jsPlumb.connect({source: d1, target: d2});
+
+        c.setType("basic", { strokeColor: "yellow" });
+        equal(c.getPaintStyle().strokeWidth, 4, "paintStyle strokeWidth is 4");
+        equal(c.getPaintStyle().stroke, "yellow", "paintStyle stroke is yellow");
+        equal(c.getHoverPaintStyle().stroke, "blue", "paintStyle stroke is yellow");
+        equal(c.getHoverPaintStyle().strokeWidth, 4, "hoverPaintStyle strokeWidth is 6");
+    });
+
     test(" create connection with parameterised type", function () {
         var basicType = {
             connector: "Flowchart",
