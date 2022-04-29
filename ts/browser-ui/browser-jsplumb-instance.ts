@@ -25,11 +25,10 @@ import {
     isCustomOverlay,
     DeleteConnectionOptions,
     BehaviouralTypeDescriptor,
-    SourceSelector,
     OverlayMouseEventParams,
     UIGroup,
     CLASS_CONNECTOR,
-    CLASS_ENDPOINT
+    CLASS_ENDPOINT, ManagedElement, ConnectionDragSelector
 } from '@jsplumb/core'
 
 import {
@@ -184,17 +183,31 @@ export interface DragOptions {
     filter?:string
 }
 
+/**
+ * Defaults for the BrowserUI implementation of jsPlumb.
+ */
 export interface BrowserJsPlumbDefaults extends JsPlumbDefaults<Element> {
     /**
      * Whether or not elements should be draggable. Default value is `true`.
      */
     elementsDraggable?: boolean
+
     /**
      * Options for dragging - containment, grid, callbacks etc.
      */
     dragOptions?: DragOptions
 
+    /**
+     * Specifies the CSS selector used to identify managed elements. This option is not something that most users of
+     * jsPlumb will need to set.
+     */
     managedElementsSelector?:string
+
+    /**
+     * Defaults to true, indicating that a ResizeObserver will be used, where available, to allow jsPlumb to revalidate elements
+     * whose size in the DOM have been changed, without the library user having to call `revalidate()`
+     */
+    resizeObserver?:boolean
 }
 
 export interface jsPlumbDOMInformation {
@@ -255,6 +268,17 @@ export function groupDragConstrain (desiredLoc:PointXY, dragEl:jsPlumbDOMElement
     return {x, y}
 }
 
+
+// typescript does not seem to know about this.
+declare const ResizeObserver:any;
+interface ResizeObserverImpl {
+    observe(el:Element):void
+    disconnect():void
+    unobserve(el:Element):void
+}
+type ResizeObserverEntry = {target:Element, contentRect:{width:number, height:number}}
+type ResizeObserverEntries = Array<ResizeObserverEntry>
+
 // ------------------------------------------------------------------------------------------------------------
 
 /**
@@ -303,6 +327,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     _elementMousedown:Function
     _elementContextmenu:Function
 
+    private readonly _resizeObserver:ResizeObserverImpl
+
     eventManager:EventManager
 
     draggingClass = "jtk-dragging"
@@ -332,6 +358,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
     constructor(public _instanceIndex:number, defaults?:BrowserJsPlumbDefaults) {
         super(_instanceIndex, defaults)
+
+        defaults = defaults || {}
 
         // by default, elements are draggable
         this.elementsDraggable = defaults && defaults.elementsDraggable !== false
@@ -444,7 +472,6 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         // ---
 
         const _oClick = function(method:string, e:MouseEvent) {
-          //  consume(e)
             let overlayElement = findParent(getEventSource(e), SELECTOR_OVERLAY, this.getContainer(), true)
             let overlay = overlayElement.jtk.overlay
             if (overlay) {
@@ -514,7 +541,28 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             this.fire(EVENT_ELEMENT_CONTEXTMENU, getEventSource(e), e)
         }.bind(this)
 
-        this._attachEventDelegates()
+        this._attachEventDelegates();
+
+        if (defaults.resizeObserver !== false) {
+            try {
+                this._resizeObserver = new ResizeObserver((entries: ResizeObserverEntries) => {
+                    const updates = entries.filter((e: ResizeObserverEntry) => {
+                        const a = this.getAttribute(e.target, ATTRIBUTE_MANAGED)
+                        if (a != null) {
+                            const v = this.viewport._elementMap.get(a)
+                            return v ? v.w !== e.contentRect.width || v.h !== e.contentRect.height : false
+                        } else {
+                            return false
+                        }
+                    })
+
+                    updates.forEach(el => this.revalidate(el.target))
+
+                })
+            } catch (e) {
+                // ResizeObserver not available. Not fatal.
+            }
+        }
     }
 
 
@@ -1064,6 +1112,9 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
      */
     reset() {
         super.reset()
+        if(this._resizeObserver) {
+            this._resizeObserver.disconnect()
+        }
         const container = this.getContainer()
         const els = container.querySelectorAll([SELECTOR_MANAGED_ELEMENT, SELECTOR_ENDPOINT, SELECTOR_CONNECTOR, SELECTOR_OVERLAY].join(","))
         forEach(els,(el:any) => el.parentNode && el.parentNode.removeChild(el))
@@ -1094,6 +1145,9 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
      * @public
      */
     unmanage (el:Element, removeElement?:boolean):void {
+        if (this._resizeObserver != null) {
+            this._resizeObserver.unobserve(el)
+        }
         this.removeFromDragSelection(el)
         super.unmanage(el, removeElement)
     }
@@ -1701,13 +1755,21 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
     }
 
-    addSourceSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?:boolean): SourceSelector {
+    addSourceSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?:boolean): ConnectionDragSelector {
         this.addDragFilter(selector)
         return super.addSourceSelector(selector, params, exclude)
     }
 
-    removeSourceSelector(selector: SourceSelector) {
+    removeSourceSelector(selector: ConnectionDragSelector) {
         this.removeDragFilter(selector.selector)
         super.removeSourceSelector(selector)
+    }
+
+    manage (element:Element, internalId?:string, _recalc?:boolean):ManagedElement<Element> {
+        const managedElement = super.manage(element, internalId, _recalc)
+        if (managedElement != null && this._resizeObserver != null) {
+            this._resizeObserver.observe(managedElement.el as unknown as Element)
+        }
+        return managedElement
     }
 }
