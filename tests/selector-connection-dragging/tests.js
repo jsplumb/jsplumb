@@ -5,7 +5,7 @@ var defaults = null, support, _jsPlumb, count = 0;
 function makeNode(id, className) {
     var d = support.addDiv("" + ++count)
     d.className = className + " " + "node"
-    _jsPlumb.manage(d)
+    _jsPlumb.manage(d, id)
     return d
 }
 
@@ -326,6 +326,13 @@ var testSuite = function () {
 
     })
 
+    // Setup a source selector, and drag a connection from some element using that selector. Then drag the source of that
+    // connection to the appropriate part of some other element (ie. it matches the source selector); the connection should be
+    // moved to that new element. This tests the 'redrop policy', which by default mandates that the source of some connection
+    // can only be dropped on a part of some other element that matches the source selector.
+    //
+    // the next test shows how you can setup the source selector so you can drop back anywhere on the element instead.
+    //
     test("addSourceSelector, move source of dragged connection, default redrop policy", function() {
         var sourceNode = makeSourceNode()
         var zone = addZone(sourceNode, "zone1")
@@ -355,6 +362,7 @@ var testSuite = function () {
         // and check it exists
         equal(1, _jsPlumb.select().length, "one connection in the instance")
         equal(sourceNode, c.source, "connection's source is first source node")
+        equal(c.endpoints[0]._anchor.type, "Continuous", "source anchor is Continuous, per the source selector spec")
 
         // relocate the dragged connection so that its source is the 3rd source node. note that here we have to drop the
         // connection on the part of the element that is setup as a source selector, which is a departure from v2/v4. the test below
@@ -362,6 +370,8 @@ var testSuite = function () {
         support.relocateSource(c, zone3)
         equal(1, _jsPlumb.select().length, "one connection in the instance")
         equal(_jsPlumb.select().get(0).endpoints[0].element, sourceNode3, "source node is now node 3")
+
+        equal(c.endpoints[0]._anchor.type, "Continuous", "source anchor is still Continuous, per the source selector spec")
     })
 
     test("addSourceSelector, move source of dragged connection, redrop policy strict", function() {
@@ -394,6 +404,7 @@ var testSuite = function () {
         // and check it exists
         equal(1, _jsPlumb.select().length, "one connection in the instance")
         equal(sourceNode, c.source, "connection's source is first source node")
+        equal(c.endpoints[0]._anchor.type, "Continuous", "source anchor is Continuous, per the source selector spec")
 
         // relocate the dragged connection so that its source is the 3rd source node. note that here we have to drop the
         // connection on the part of the element that is setup as a source selector, which is a departure from v2/v4. the test below
@@ -401,6 +412,8 @@ var testSuite = function () {
         support.relocateSource(c, zone3)
         equal(1, _jsPlumb.select().length, "one connection in the instance")
         equal(_jsPlumb.select().get(0).endpoints[0].element, sourceNode3, "source node is now node 3")
+
+        equal(c.endpoints[0]._anchor.type, "Continuous", "source anchor is still Continuous, per the source selector spec")
     })
 
     test("addSourceSelector, move source of dragged connection, drop source on managed element instead of target", function() {
@@ -433,11 +446,96 @@ var testSuite = function () {
         // and check it exists
         equal(1, _jsPlumb.select().length, "one connection in the instance")
         equal(sourceNode, c.source, "connection's source is first source node")
+        equal(c.endpoints[0]._anchor.type, "Continuous", "source anchor is Continuous, per the source selector spec")
 
         // relocate the dragged connection so that its source is the second source node.
         support.relocateSource(c, sourceNode3)
         equal(1, _jsPlumb.select().length, "one connection in the instance")
         equal(_jsPlumb.select().get(0).endpoints[0].element, sourceNode3, "source node is now node 3")
+        equal(c.endpoints[0]._anchor.type, "Continuous", "source anchor is still Continuous, per the source selector spec")
+
+    })
+
+    test("addSourceSelector, move source of dragged connection, drop source on original selector but with redrop policy of 'any'", function() {
+        var sourceNode = makeSourceNode()
+        var zone = addZone(sourceNode, "zone1")
+        var sourceNode2 = makeSourceNode()
+        var zone2 = addZone(sourceNode2, "zone1")
+        var sourceNode3 = makeSourceNode()
+        var zone3 = addZone(sourceNode3, "zone1")
+
+        var d2 = support.addDiv("d2")
+        d2.className = "node"
+        _jsPlumb.manage(d2)
+        _jsPlumb.addTargetSelector("#d2")
+
+        let elDragged = false;
+        _jsPlumb.bind("drag:move", function() {
+            elDragged = true
+        })
+
+        _jsPlumb.addSourceSelector(".zone1", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart",
+            redrop:"any"
+        })
+
+        // drag a connection from the drag zone on the first source node to the target node
+        var c = support.dragConnection(zone, d2, true)
+        // and check it exists
+        equal(1, _jsPlumb.select().length, "one connection in the instance")
+        equal(sourceNode, c.source, "connection's source is first source node")
+        equal(c.endpoints[0]._anchor.type, "Continuous", "source anchor is Continuous, per the source selector spec")
+
+        // relocate the dragged connection so that its source is the second source node.
+        support.relocateSource(c, zone3)
+        equal(1, _jsPlumb.select().length, "one connection in the instance")
+        equal(_jsPlumb.select().get(0).endpoints[0].element, sourceNode3, "source node is now node 3")
+        equal(c.endpoints[0]._anchor.type, "Continuous", "source anchor is still Continuous, per the source selector spec")
+
+    })
+
+    test("addSourceSelector, source selector is positioned absolute outside the bounds of parent. Redrop policy 'any'. Drag source to source selector positioned absolute outside the bounds of its parent", function() {
+        var sourceNode = makeSourceNode()
+        var zone = addZone(sourceNode, "zone1")
+        var sourceNode2 = makeSourceNode()
+        var zone2 = addZone(sourceNode2, "zone1")
+        zone2.style.position = "absolute"
+        zone2.style.left = "-100px"
+        zone2.style.top = "50px"
+        var sourceNode3 = makeSourceNode()
+        var zone3 = addZone(sourceNode3, "zone1")
+
+        var d2 = support.addDiv("d2")
+        d2.className = "node"
+        _jsPlumb.manage(d2)
+        _jsPlumb.addTargetSelector("#d2")
+
+        let elDragged = false;
+        _jsPlumb.bind("drag:move", function() {
+            elDragged = true
+        })
+
+        _jsPlumb.addSourceSelector(".zone1", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart",
+            redrop:"any"
+        })
+
+        // drag a connection from the drag zone on the first source node to the target node
+        var c = support.dragConnection(zone, d2, true)
+        // and check it exists
+        equal(1, _jsPlumb.select().length, "one connection in the instance")
+        equal(sourceNode, c.source, "connection's source is first source node")
+        equal(c.endpoints[0]._anchor.type, "Continuous", "source anchor is Continuous, per the source selector spec")
+
+        // relocate the dragged connection so that its source is the second source node.
+        support.relocateSource(c, zone2)
+        equal(1, _jsPlumb.select().length, "one connection in the instance")
+        equal(_jsPlumb.select().get(0).endpoints[0].element, sourceNode2, "source node is now node 2")
+        equal(c.endpoints[0]._anchor.type, "Continuous", "source anchor is still Continuous, per the source selector spec")
 
     })
 
@@ -545,6 +643,46 @@ var testSuite = function () {
         support.dragConnection(zone2, d2, true)
         ok(elDragged === false, "element was not dragged")
         equal(3, _jsPlumb.select().length, "three connections in the instance; .zone1 has been removed but .zone2 remains")
+
+    })
+
+    test("addSourceSelector, two source zones, registered separately, drag source from one zone to another zone with 'anySource' redrop selector", function() {
+        var sourceNode = makeSourceNode()
+        var zone1 = addZone(sourceNode, "zone1")
+        var zone2 = addZone(sourceNode, "zone2")
+
+        var d2 = support.addDiv("d2")
+        d2.className = "node"
+        _jsPlumb.manage(d2)
+        _jsPlumb.addTargetSelector("#d2")
+
+        let elDragged = false;
+        _jsPlumb.bind("drag:move", function() {
+            elDragged = true
+        })
+
+        var selector = _jsPlumb.addSourceSelector(".zone1", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart",
+            redrop:"anySource"
+        })
+
+        var selector2 = _jsPlumb.addSourceSelector(".zone2", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart"
+        })
+
+        var c = support.dragConnection(zone1, d2, true)
+        ok(elDragged === false, "element was not dragged")
+        equal(1, _jsPlumb.select().length, "one connection in the instance")
+
+        support.relocateSource(c, zone2)
+        equal(1, _jsPlumb.select().length, "one connection in the instance")
+        equal(_jsPlumb.select().get(0).endpoints[0].element, sourceNode, "source node is still node 1")
+        equal(c.endpoints[0]._anchor.type, "Continuous", "source anchor is still Continuous, per the source selector spec")
+
 
     })
 
@@ -1016,7 +1154,7 @@ var testSuite = function () {
 
     })
 
-    test("addTargetSelector, move target of dragged connection", function() {
+    test("addTargetSelector, move target of dragged connection, default redrop policy (strict)", function() {
         var targetNode = makeTargetNode()
         var zone = addZone(targetNode, "zone1")
 
@@ -1041,11 +1179,82 @@ var testSuite = function () {
         equal(1, _jsPlumb.select().length, "one connection in the instance")
         equal(c.target, targetNode, "connection's target is first target node")
 
+        support.relocateTarget(c, targetNode2)
+        equal(0, _jsPlumb.select().length, "zero connections in the instance after target moved, because it was dropped in violation of the strict redrop policy")
+
+        // reestablish the connection
+        c = support.dragConnection(d2, zone, true)
+
+        equal(1, _jsPlumb.select().length, "one connection in the instance")
+
         // relocate the dragged connection so that its target is dropped on the second target node
         support.relocateTarget(c, zone2)
         equal(1, _jsPlumb.select().length, "one connection in the instance after target moved")
         equal(c.target, targetNode2, "connection's target is second target node")
 
+    })
+
+    test("addTargetSelector, move target of dragged connection, redrop policy 'any'", function() {
+        var targetNode = makeTargetNode()
+        var zone = addZone(targetNode, "zone1")
+
+        var targetNode2 = makeTargetNode()
+        targetNode2.style.left = "600px"
+        targetNode2.style.top = "600px"
+        var zone2 = addZone(targetNode2, "zone1")
+
+        var d2 = support.addDiv("d2")
+        d2.className = "node"
+        _jsPlumb.manage(d2)
+        _jsPlumb.addSourceSelector("#d2")
+
+        _jsPlumb.addTargetSelector(".zone1", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart",
+            redrop:'any'
+        })
+
+        var c = support.dragConnection(d2, zone, true)
+
+        equal(1, _jsPlumb.select().length, "one connection in the instance")
+        equal(c.target, targetNode, "connection's target is first target node")
+
+        support.relocateTarget(c, targetNode2)
+        equal(1, _jsPlumb.select().length, "one connection in the instance after target moved")
+        equal(c.target, targetNode2, "connection's target is second target node")
+
+    })
+
+    test("addTargetSelector, move target of dragged connection, redrop policy 'any' but drop on the target selector zone anyway", function() {
+        var targetNode = makeTargetNode()
+        var zone = addZone(targetNode, "zone1")
+
+        var targetNode2 = makeTargetNode()
+        targetNode2.style.left = "600px"
+        targetNode2.style.top = "600px"
+        var zone2 = addZone(targetNode2, "zone1")
+
+        var d2 = support.addDiv("d2")
+        d2.className = "node"
+        _jsPlumb.manage(d2)
+        _jsPlumb.addSourceSelector("#d2")
+
+        _jsPlumb.addTargetSelector(".zone1", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart",
+            redrop:'any'
+        })
+
+        var c = support.dragConnection(d2, zone, true)
+
+        equal(1, _jsPlumb.select().length, "one connection in the instance")
+        equal(c.target, targetNode, "connection's target is first target node")
+
+        support.relocateTarget(c, zone2)
+        equal(1, _jsPlumb.select().length, "one connection in the instance after target moved")
+        equal(c.target, targetNode2, "connection's target is second target node")
 
     })
 
@@ -1149,6 +1358,46 @@ var testSuite = function () {
     })
 
     test("addTargetSelector, two target zone definitions", function() {
+        var targetNode = makeTargetNode()
+        var tzone = addZone(targetNode, "zone1")
+        var tzone2 = addZone(targetNode, "zone2")
+
+        var d2 = makeSourceNode()
+        var zone = addZone(d2, "zone1")
+        _jsPlumb.addSourceSelector(".zone1", {
+            anchor:"Continuous"
+        })
+
+        let elDragged = false;
+        _jsPlumb.bind("drag:move", function() {
+            elDragged = true
+        })
+
+        _jsPlumb.addTargetSelector(".zone1", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart",
+            redrop:"anyTarget"
+        })
+
+        _jsPlumb.addTargetSelector(".zone2", {
+            anchor:"Continuous",
+            endpoint:"Rectangle",
+            connector:"Flowchart"
+        })
+
+        var c = support.dragConnection(zone, tzone, true)
+        ok(elDragged === false, "element was not dragged")
+        equal(1, _jsPlumb.select().length, "one connection in the instance after drag to .zone1")
+
+        support.relocateTarget(c, tzone2)
+        equal(1, _jsPlumb.select().length, "one connection in the instance")
+        equal(_jsPlumb.select().get(0).endpoints[1].element, targetNode, "target node is node 2")
+        equal(c.endpoints[0]._anchor.type, "Continuous", "target anchor is still Continuous, per the source selector spec")
+
+    })
+
+    test("addTargetSelector, two target zone definitions, drag target", function() {
         var targetNode = makeTargetNode()
         var tzone = addZone(targetNode, "zone1")
         var tzone2 = addZone(targetNode, "zone2")
@@ -1501,5 +1750,140 @@ var testSuite = function () {
         equal(1, _jsPlumb.select().length, "one connection in the instance, as sourceNode2 can accept new connections")
     });
 
+
+// ----------------------------------------------------------------------------------------------------------------
+// ---------------- CSS CLASSES -----------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------
+
+    test("css classes", function() {
+
+        var CLASS_CONNECTED = _jsPlumb.endpointConnectedClass
+        var CLASS_ENDPOINT = _jsPlumb.endpointClass
+        var CLASS_FULL = _jsPlumb.endpointFullClass
+        var CLASS_DRAGGING = _jsPlumb.draggingClass
+        var CLASS_FLOATING = _jsPlumb.endpointFloatingClass
+
+        var d1 = makeSourceNode("d1"),
+            d2 = makeSourceNode("d2"),
+            z1 = addZone(d1, "zone1"),
+            z2 = addZone(d2, "zone2")
+
+        _jsPlumb.addSourceSelector(".zone1", {
+            cssClass:"customSource",
+            source:true
+        })
+        _jsPlumb.addTargetSelector(".zone2", {
+            cssClass:"customTarget",
+            target:true
+        })
+
+        support.assertManagedEndpointCount(d1, 0)
+        support.assertManagedEndpointCount(d2, 0)
+        support.assertManagedConnectionCount(d1, 0)
+        support.assertManagedConnectionCount(d2, 0)
+
+        support.dragConnection(z1, z2, false, {
+            beforeMouseUp:function() {
+
+                var e1 = _jsPlumb.endpointsByElement["d1"][0],
+                    c1 = support.getEndpointCanvas(e1)
+
+                equal(c1.classList.contains(CLASS_ENDPOINT), true, "d1 endpoint has jtk-endpoint class when dragging new connection")
+                equal(c1.classList.contains(CLASS_CONNECTED), true, "d1 endpoint has jtk-endpoint-connected class when dragging new connection")
+                equal(c1.classList.contains(CLASS_FULL), true, "d1 endpoint has jtk-endpoint-full class when dragging new connection")
+                equal(c1.classList.contains(CLASS_DRAGGING), true, "d1 endpoint has jtk-dragging class (should be present as this is a new connection from a source) when dragging new connection")
+
+                const floatingElementId = e1.connections[0].targetId
+
+                support.assertManagedEndpointCount(e1.connections[0].target, 1)
+
+                const floatingEndpoints = _jsPlumb.endpointsByElement[floatingElementId]
+
+                const fc = support.getEndpointCanvas(floatingEndpoints[0])
+                equal(fc.classList.contains("customSource"), true, "custom class set on floating endpoint copied from source when dragging new connection")
+                equal(fc.classList.contains(CLASS_FLOATING), true, "floating endpoint has jtk-floating-endpoint class when dragging new connection")
+                equal(fc.classList.contains(CLASS_CONNECTED), false, "floating endpoint has not jtk-endpoint-connected class when dragging new connection")
+                equal(fc.classList.contains(CLASS_FULL), false, "floating endpoint has not jtk-endpoint-full class when dragging new connection")
+                equal(fc.classList.contains(CLASS_DRAGGING), false, "floating endpoint has not jtk-dragging class when dragging new connection")
+
+            }
+        })
+
+        support.assertManagedConnectionCount(d1, 1)
+        support.assertManagedConnectionCount(d2, 1)
+
+        var e1 = _jsPlumb.endpointsByElement["d1"][0],
+            c1 = support.getEndpointCanvas(e1)
+
+        var e2 = _jsPlumb.endpointsByElement["d2"][0],
+            c2 = support.getEndpointCanvas(e2)
+
+        equal(c1.classList.contains(CLASS_CONNECTED), true, "d1 endpoint has jtk-endpoint-connected class when new connection established")
+        equal(c1.classList.contains(CLASS_FULL), true, "d1 endpoint has jtk-endpoint-full class when new connection established")
+        equal(c1.classList.contains(CLASS_DRAGGING), false, "d1 endpoint has not jtk-dragging class removed after drag when new connection established")
+        equal(c1.classList.contains("customSource"), true, "d1 endpoint has customSource class new connection established")
+        equal(c2.classList.contains(CLASS_CONNECTED), true, "d2 endpoint has jtk-endpoint-connected class when new connection established")
+        equal(c2.classList.contains(CLASS_FULL), true, "d2 endpoint has jtk-endpoint-full class when new connection established")
+        equal(c2.classList.contains("customTarget"), true, "d2 endpoint has customTarget class new connection established")
+
+        debugger
+        support.detachAndReattachConnection(e1, {
+            beforeMouseUp:function() {
+
+                const d2Endpoints = _jsPlumb.endpointsByElement["d2"]
+                const floatingElementId = d2Endpoints[0].connections[0].sourceId
+                const floatingEndpoints = _jsPlumb.endpointsByElement[floatingElementId]
+                const fc = support.getEndpointCanvas(floatingEndpoints[0])
+                equal(fc.classList.contains("customSource"), true, "custom class set on floating endpoint copied from source when detaching and reattaching source")
+
+                equal(fc.classList.contains(CLASS_FLOATING), true, "floating endpoint has jtk-floating-endpoint class when detaching and reattaching source")
+                equal(fc.classList.contains(CLASS_CONNECTED), false, "floating endpoint has not jtk-endpoint-connected class when detaching and reattaching source")
+                equal(fc.classList.contains(CLASS_FULL), false, "floating endpoint has not jtk-endpoint-full class when detaching and reattaching source")
+                equal(fc.classList.contains(CLASS_DRAGGING), false, "floating endpoint has not jtk-dragging class when detaching and reattaching source")
+
+                equal(c1.classList.contains(CLASS_CONNECTED), false, "d1 endpoint has not jtk-endpoint-connected class as it is currently disconnected when detaching and reattaching source")
+                equal(c1.classList.contains(CLASS_FULL), false, "d1 endpoint has not jtk-endpoint-full class as it is currently disconnected when detaching and reattaching source")
+                equal(c1.classList.contains(CLASS_DRAGGING), false, "d1 endpoint has not jtk-dragging class as a new connection is not being dragged when detaching and reattaching source")
+            }
+        })
+
+        support.assertManagedConnectionCount(d1, 1)
+        support.assertManagedConnectionCount(d2, 1)
+
+        equal(c1.classList.contains(CLASS_CONNECTED), true, "d1 endpoint has jtk-endpoint-connected class as the connection was reattached")
+        equal(c1.classList.contains(CLASS_FULL), true, "d1 endpoint has jtk-endpoint-full class as the connection was reattached")
+        equal(c1.classList.contains(CLASS_DRAGGING), false, "d1 endpoint does not have jtk-dragging class")
+
+        // we now have 2 endpoints that are connected.  detaching via the target should mean:
+        // - during the drag, the target should not show full, connected or dragging, whereas the target should show full and connected.
+        //
+
+        support.detachAndReattachConnection(e2, {
+            beforeMouseUp:function() {
+
+                const d1Endpoints = _jsPlumb.endpointsByElement["d1"]
+                const floatingElementId = d1Endpoints[0].connections[0].targetId
+                const floatingEndpoints = _jsPlumb.endpointsByElement[floatingElementId]
+                const fc = support.getEndpointCanvas(floatingEndpoints[0])
+                equal(fc.classList.contains("customTarget"), true, "custom class set on floating endpoint copied from target when detaching and reattaching target")
+
+                equal(fc.classList.contains(CLASS_FLOATING), true, "floating endpoint has jtk-floating-endpoint class when detaching and reattaching target")
+                equal(fc.classList.contains(CLASS_CONNECTED), false, "floating endpoint has not jtk-endpoint-connected class when detaching and reattaching target")
+                equal(fc.classList.contains(CLASS_FULL), false, "floating endpoint has not jtk-endpoint-full class when detaching and reattaching target")
+                equal(fc.classList.contains(CLASS_DRAGGING), false, "floating endpoint has not jtk-dragging class when detaching and reattaching target")
+
+                equal(c2.classList.contains(CLASS_CONNECTED), false, "d2 endpoint has not jtk-endpoint-connected class as it is currently disconnected when detaching and reattaching target")
+                equal(c2.classList.contains(CLASS_FULL), false, "d2 endpoint has not jtk-endpoint-full class as it is currently disconnected when detaching and reattaching target")
+                equal(c2.classList.contains(CLASS_DRAGGING), false, "d2 endpoint has not jtk-dragging class as a new connection is not being dragged when detaching and reattaching target")
+            }
+        })
+
+        support.assertManagedConnectionCount(d1, 1)
+        support.assertManagedConnectionCount(d2, 1)
+
+        equal(c2.classList.contains(CLASS_CONNECTED), true, "d2 endpoint has jtk-endpoint-connected class as the connection was reattached")
+        equal(c2.classList.contains(CLASS_FULL), true, "d2 endpoint has jtk-endpoint-full class as the connection was reattached")
+        equal(c2.classList.contains(CLASS_DRAGGING), false, "d2 endpoint does not have jtk-dragging class")
+    });
 
 };
