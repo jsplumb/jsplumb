@@ -49,8 +49,13 @@ export declare class EndpointDragHandler implements DragHandler {
      * At the beginning of a drag, this method can be used to perform some setup in a handler, and if it returns a DOM
      * element, that element will be the one used for dragging.
      * @param el The element that will be dragged unless we return something different.
+     * @internal
      */
     onDragInit(el: Element): Element;
+    /**
+     * @internal
+     * @param el
+     */
     onDragAbort(el: Element): void;
     /**
      * Makes the element that is the placeholder for dragging. This element gets `managed` by the instance, and `unmanaged` when dragging
@@ -64,6 +69,9 @@ export declare class EndpointDragHandler implements DragHandler {
     reset(): void;
     init(drag: Drag): void;
     private startNewConnectionDrag;
+    /**
+     * Starts the drag of an existing connection, either by its target or its source.
+     */
     private startExistingConnectionDrag;
     /**
      * Returns whether or not a connection drag should start, and, if so, optionally returns a payload to associate with the drag.
@@ -78,10 +86,17 @@ export declare class EndpointDragHandler implements DragHandler {
     private _createFloatingEndpoint;
     /**
      * Populate the list of drop targets based upon what is being dragged.
-     * @param canvasElement
+     * @param canvasElement Element that the connection drag has started on.
+     * @param event The event that instigated a connection drag
      * @internal
      */
     private _populateTargets;
+    /**
+     * For a given drag selector, find the current list of target elements that match, according to the selector's redrop policy.
+     * @param dragSelector
+     * @internal
+     */
+    private _findTargetZones;
     onStart(p: DragStartEventParams): boolean;
     onBeforeStart(beforeStartParams: BeforeStartEventParams): void;
     onDrag(params: DragEventParams): boolean;

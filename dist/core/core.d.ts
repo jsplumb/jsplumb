@@ -355,7 +355,21 @@ export declare interface BehaviouralTypeDescriptor<T = any> extends EndpointType
      */
     parameterExtractor?: (el: T, eventTarget: T, event: Event) => Record<string, any>;
     /**
-     * Optional policy for dropping existing connections that have been detached by their source. See RedropPolicy.
+     * Optional policy for dropping existing connections that have been detached by their source/target.
+     *
+     * - 'strict' (`RedropPolicy.STRICT`) indicates that a connection can only be dropped back onto a part of
+     * an element that matches the original source/target's selector.
+     *
+     * - 'any' (`RedropPolicy.ANY`) indicates that a connection can be dropped anywhere onto an element.
+     *
+     * - 'anySource' (`RedropPolicy.ANY_SOURCE`) indicates that a connection can be dropped onto any part of an element that
+     * is configured as a source selector.
+     *
+     * - 'anyTarget' (`RedropPolicy.ANY_TARGET`) indicates that a connection can be dropped onto any part of an element that
+     * is configured as a target selector.
+     *
+     * - 'anySourceOrTarget' (`RedropPolicy.ANY_SOURCE_OR_TARGET`) indicates that a connection can be dropped onto any part of an element that
+     * is configured as a source selector or a target selector.
      */
     redrop?: RedropPolicy;
     /**
@@ -364,6 +378,9 @@ export declare interface BehaviouralTypeDescriptor<T = any> extends EndpointType
      * returning false from here means the target element is not active as a drop target.
      */
     canAcceptNewConnection?: (el: Element, e: Event) => boolean;
+    /**
+     * Optional set of values to extract from an element when a drag starts from that element. For target selectors this option is ignored.
+     */
     extract?: Record<string, string>;
     /**
      * If true, only one endpoint will be created on any given element for this type descriptor, and subsequent connections will
@@ -376,12 +393,22 @@ export declare interface BehaviouralTypeDescriptor<T = any> extends EndpointType
      * @param event
      */
     onMaxConnections?: (value: any, event?: any) => any;
+    /**
+     * Optional type for connections dragged from a source selector. This option is ignored for target selectors.
+     */
     edgeType?: string;
+    /**
+     * Optional logical id for the endpoint associated with a source or target selector.
+     */
     portId?: string;
     /**
      * Defaults to true. If false, the user will not be permitted to drag a connection from the current node to itself.
      */
     allowLoopback?: boolean;
+    /**
+     * Optional rank for a given source or target selector. When selecting a selector from a list of candidates, rank can be used
+     * to prioritise them. Higher values take precedence.
+     */
     rank?: number;
     /**
      * Optional selector identifying the ancestor of the event target that could be the element to which connections
@@ -400,6 +427,8 @@ export declare interface BehaviouralTypeDescriptor<T = any> extends EndpointType
      * @param e
      */
     anchorPositionFinder?: (el: Element, elxy: PointXY, def: BehaviouralTypeDescriptor, e: Event) => AnchorSpec | null;
+    source?: boolean;
+    target?: boolean;
 }
 
 export declare class BlankEndpoint extends EndpointRepresentation<ComputedBlankEndpoint> {
@@ -434,6 +463,8 @@ export declare const CLASS_ENDPOINT_DROP_ALLOWED = "jtk-endpoint-drop-allowed";
 
 export declare const CLASS_ENDPOINT_DROP_FORBIDDEN = "jtk-endpoint-drop-forbidden";
 
+export declare const CLASS_ENDPOINT_FLOATING = "jtk-floating-endpoint";
+
 export declare const CLASS_ENDPOINT_FULL = "jtk-endpoint-full";
 
 export declare const CLASS_GROUP_COLLAPSED = "jtk-group-collapsed";
@@ -448,6 +479,9 @@ export declare function classList(...className: Array<string>): string;
 
 export declare function cls(...className: Array<string>): string;
 
+/**
+ * Base class for Endpoint and Connection.
+ */
 export declare abstract class Component extends EventGenerator {
     instance: JsPlumbInstance;
     abstract getTypeDescriptor(): string;
@@ -498,7 +532,7 @@ export declare abstract class Component extends EventGenerator {
     hasType(typeId: string): boolean;
     addType(typeId: string, params?: any): void;
     removeType(typeId: string, params?: any): void;
-    clearTypes(params?: any, doNotRepaint?: boolean): void;
+    clearTypes(params?: any): void;
     toggleType(typeId: string, params?: any): void;
     applyType(t: any, params?: any): void;
     setPaintStyle(style: PaintStyle): void;
@@ -513,7 +547,19 @@ export declare abstract class Component extends EventGenerator {
     setAbsoluteOverlayPosition(overlay: Overlay, xy: PointXY): void;
     getAbsoluteOverlayPosition(overlay: Overlay): PointXY;
     private _clazzManip;
+    /**
+     * Adds a css class to the component
+     * @param clazz Class to add. May be a space separated list.
+     * @param cascade This is for subclasses to use, if they wish to. For instance, a Connection might want to optionally cascade a css class
+     * down to its endpoints.
+     */
     addClass(clazz: string, cascade?: boolean): void;
+    /**
+     * Removes a css class from the component
+     * @param clazz Class to remove. May be a space separated list.
+     * @param cascade This is for subclasses to use, if they wish to. For instance, a Connection might want to optionally cascade a css class
+     * removal down to its endpoints.
+     */
     removeClass(clazz: string, cascade?: boolean): void;
     /**
      * Returns a space-separated list of the current classes assigned to this component.
@@ -836,6 +882,7 @@ export declare class ConnectionDragSelector {
     def: SourceOrTargetDefinition;
     exclude: boolean;
     readonly id: string;
+    redrop: RedropPolicy;
     constructor(selector: string, def: SourceOrTargetDefinition, exclude?: boolean);
     setEnabled(enabled: boolean): void;
     isEnabled(): boolean;
@@ -1612,6 +1659,7 @@ export declare abstract class JsPlumbInstance<T extends {
     endpointClass: string;
     endpointConnectedClass: string;
     endpointFullClass: string;
+    endpointFloatingClass: string;
     endpointDropAllowedClass: string;
     endpointDropForbiddenClass: string;
     endpointAnchorClassPrefix: string;
@@ -1619,8 +1667,8 @@ export declare abstract class JsPlumbInstance<T extends {
     readonly connections: Array<Connection>;
     endpointsByElement: Record<string, Array<Endpoint>>;
     private readonly endpointsByUUID;
-    sourceSelectors: Array<SourceSelector>;
-    targetSelectors: Array<TargetSelector>;
+    sourceSelectors: Array<ConnectionDragSelector>;
+    targetSelectors: Array<ConnectionDragSelector>;
     allowNestedGroups: boolean;
     private _curIdStamp;
     readonly viewport: Viewport<T>;
@@ -1950,19 +1998,19 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param exclude - If true, the selector defines an 'exclusion': anything _except_ elements that match this.
      * @public
      */
-    addSourceSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): SourceSelector;
+    addSourceSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): ConnectionDragSelector;
     /**
      * Unregister the given source selector.
      * @param selector
      * @public
      */
-    removeSourceSelector(selector: SourceSelector): void;
+    removeSourceSelector(selector: ConnectionDragSelector): void;
     /**
      * Unregister the given target selector.
      * @param selector
      * @public
      */
-    removeTargetSelector(selector: TargetSelector): void;
+    removeTargetSelector(selector: ConnectionDragSelector): void;
     /**
      * Registers a selector for connection drag on the instance. This is a newer version of the `makeTarget` functionality
      * that has been in jsPlumb since the early days. With this approach, rather than calling `makeTarget` on every element, you
@@ -1973,7 +2021,7 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param exclude - If true, the selector defines an 'exclusion': anything _except_ elements that match this.
      * @public
      */
-    addTargetSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): TargetSelector;
+    addTargetSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): ConnectionDragSelector;
     private _createTargetDefinition;
     show(el: T["E"], changeEndpoints?: boolean): JsPlumbInstance;
     hide(el: T["E"], changeEndpoints?: boolean): JsPlumbInstance;
@@ -2063,7 +2111,6 @@ export declare abstract class JsPlumbInstance<T extends {
     /**
      * @internal
      * @param endpoint
-     * @private
      */
     _refreshEndpoint(endpoint: Endpoint): void;
     /**
@@ -2072,7 +2119,6 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param connection
      * @param name
      * @param args
-     * @private
      */
     _makeConnector(connection: Connection<T["E"]>, name: string, args: any): AbstractConnector;
     /**
@@ -2458,6 +2504,12 @@ export declare interface RedrawResult {
  */
 export declare const REDROP_POLICY_ANY = "any";
 
+export declare const REDROP_POLICY_ANY_SOURCE = "anySource";
+
+export declare const REDROP_POLICY_ANY_SOURCE_OR_TARGET = "anySourceOrTarget";
+
+export declare const REDROP_POLICY_ANY_TARGET = "anyTarget";
+
 /**
  * Indicates that when dragging an existing connection by its source endpoint, it can only be relocated onto some other source element by
  * dropping it on the part of that element defined by its source selector.
@@ -2467,7 +2519,7 @@ export declare const REDROP_POLICY_STRICT = "strict";
 /**
  * Defines how redrop of source endpoints can be done.
  */
-export declare type RedropPolicy = typeof REDROP_POLICY_STRICT | typeof REDROP_POLICY_ANY;
+export declare type RedropPolicy = typeof REDROP_POLICY_STRICT | typeof REDROP_POLICY_ANY | typeof REDROP_POLICY_ANY_SOURCE | typeof REDROP_POLICY_ANY_TARGET | typeof REDROP_POLICY_ANY_SOURCE_OR_TARGET;
 
 export declare function _removeTypeCssHelper<E>(component: Component, typeId: string): void;
 
@@ -2583,15 +2635,6 @@ export declare interface SourceOrTargetDefinition {
     uniqueEndpoint?: boolean;
 }
 
-/**
- * @internal
- */
-export declare class SourceSelector extends ConnectionDragSelector {
-    def: SourceDefinition;
-    redrop: RedropPolicy;
-    constructor(selector: string, def: SourceDefinition, exclude: boolean);
-}
-
 export declare const STATIC = "static";
 
 export declare class StraightConnector extends AbstractConnector {
@@ -2691,11 +2734,6 @@ export declare const TARGET_INDEX = 1;
  * @public
  */
 export declare interface TargetDefinition extends SourceOrTargetDefinition {
-}
-
-export declare class TargetSelector extends ConnectionDragSelector {
-    def: TargetDefinition;
-    constructor(selector: string, def: TargetDefinition, exclude: boolean);
 }
 
 export declare const TOP = FaceValues.top;

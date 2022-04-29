@@ -1,4 +1,4 @@
-import { JsPlumbDefaults, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, LabelOverlay, Connection, Component, DeleteConnectionOptions, BehaviouralTypeDescriptor, SourceSelector, UIGroup } from '@jsplumb/core';
+import { JsPlumbDefaults, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, LabelOverlay, Connection, Component, DeleteConnectionOptions, BehaviouralTypeDescriptor, UIGroup, ManagedElement, ConnectionDragSelector } from '@jsplumb/core';
 import { PointXY, Size, BoundingBox, Extents, Grid } from "@jsplumb/util";
 import { PaintStyle } from "@jsplumb/common";
 import { DragManager } from "./drag-manager";
@@ -27,6 +27,9 @@ export interface DragOptions {
     trackScroll?: boolean;
     filter?: string;
 }
+/**
+ * Defaults for the BrowserUI implementation of jsPlumb.
+ */
 export interface BrowserJsPlumbDefaults extends JsPlumbDefaults<Element> {
     /**
      * Whether or not elements should be draggable. Default value is `true`.
@@ -36,7 +39,16 @@ export interface BrowserJsPlumbDefaults extends JsPlumbDefaults<Element> {
      * Options for dragging - containment, grid, callbacks etc.
      */
     dragOptions?: DragOptions;
+    /**
+     * Specifies the CSS selector used to identify managed elements. This option is not something that most users of
+     * jsPlumb will need to set.
+     */
     managedElementsSelector?: string;
+    /**
+     * Defaults to true, indicating that a ResizeObserver will be used, where available, to allow jsPlumb to revalidate elements
+     * whose size in the DOM have been changed, without the library user having to call `revalidate()`
+     */
+    resizeObserver?: boolean;
 }
 export interface jsPlumbDOMInformation {
     connector?: AbstractConnector;
@@ -89,6 +101,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
     _elementMouseup: Function;
     _elementMousedown: Function;
     _elementContextmenu: Function;
+    private readonly _resizeObserver;
     eventManager: EventManager;
     draggingClass: string;
     elementDraggingClass: string;
@@ -524,7 +537,8 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
      * @param params
      */
     deleteConnection(connection: Connection, params?: DeleteConnectionOptions): boolean;
-    addSourceSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): SourceSelector;
-    removeSourceSelector(selector: SourceSelector): void;
+    addSourceSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): ConnectionDragSelector;
+    removeSourceSelector(selector: ConnectionDragSelector): void;
+    manage(element: Element, internalId?: string, _recalc?: boolean): ManagedElement<Element>;
 }
 //# sourceMappingURL=browser-jsplumb-instance.d.ts.map

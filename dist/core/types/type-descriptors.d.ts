@@ -67,7 +67,21 @@ export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescript
      */
     parameterExtractor?: (el: T, eventTarget: T, event: Event) => Record<string, any>;
     /**
-     * Optional policy for dropping existing connections that have been detached by their source. See RedropPolicy.
+     * Optional policy for dropping existing connections that have been detached by their source/target.
+     *
+     * - 'strict' (`RedropPolicy.STRICT`) indicates that a connection can only be dropped back onto a part of
+     * an element that matches the original source/target's selector.
+     *
+     * - 'any' (`RedropPolicy.ANY`) indicates that a connection can be dropped anywhere onto an element.
+     *
+     * - 'anySource' (`RedropPolicy.ANY_SOURCE`) indicates that a connection can be dropped onto any part of an element that
+     * is configured as a source selector.
+     *
+     * - 'anyTarget' (`RedropPolicy.ANY_TARGET`) indicates that a connection can be dropped onto any part of an element that
+     * is configured as a target selector.
+     *
+     * - 'anySourceOrTarget' (`RedropPolicy.ANY_SOURCE_OR_TARGET`) indicates that a connection can be dropped onto any part of an element that
+     * is configured as a source selector or a target selector.
      */
     redrop?: RedropPolicy;
     /**
@@ -76,6 +90,9 @@ export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescript
      * returning false from here means the target element is not active as a drop target.
      */
     canAcceptNewConnection?: (el: Element, e: Event) => boolean;
+    /**
+     * Optional set of values to extract from an element when a drag starts from that element. For target selectors this option is ignored.
+     */
     extract?: Record<string, string>;
     /**
      * If true, only one endpoint will be created on any given element for this type descriptor, and subsequent connections will
@@ -88,12 +105,22 @@ export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescript
      * @param event
      */
     onMaxConnections?: (value: any, event?: any) => any;
+    /**
+     * Optional type for connections dragged from a source selector. This option is ignored for target selectors.
+     */
     edgeType?: string;
+    /**
+     * Optional logical id for the endpoint associated with a source or target selector.
+     */
     portId?: string;
     /**
      * Defaults to true. If false, the user will not be permitted to drag a connection from the current node to itself.
      */
     allowLoopback?: boolean;
+    /**
+     * Optional rank for a given source or target selector. When selecting a selector from a list of candidates, rank can be used
+     * to prioritise them. Higher values take precedence.
+     */
     rank?: number;
     /**
      * Optional selector identifying the ancestor of the event target that could be the element to which connections
@@ -112,6 +139,8 @@ export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescript
      * @param e
      */
     anchorPositionFinder?: (el: Element, elxy: PointXY, def: BehaviouralTypeDescriptor, e: Event) => AnchorSpec | null;
+    source?: boolean;
+    target?: boolean;
 }
 /**
  * Base interface for source/target definitions

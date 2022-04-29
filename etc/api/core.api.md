@@ -373,18 +373,18 @@ export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescript
     allowLoopback?: boolean;
     anchorPositionFinder?: (el: Element, elxy: PointXY, def: BehaviouralTypeDescriptor, e: Event) => AnchorSpec | null;
     canAcceptNewConnection?: (el: Element, e: Event) => boolean;
-    // (undocumented)
     edgeType?: string;
-    // (undocumented)
     extract?: Record<string, string>;
     onMaxConnections?: (value: any, event?: any) => any;
     parameterExtractor?: (el: T, eventTarget: T, event: Event) => Record<string, any>;
     parentSelector?: string;
-    // (undocumented)
     portId?: string;
-    // (undocumented)
     rank?: number;
     redrop?: RedropPolicy;
+    // (undocumented)
+    source?: boolean;
+    // (undocumented)
+    target?: boolean;
     uniqueEndpoint?: boolean;
 }
 
@@ -437,6 +437,9 @@ export const CLASS_ENDPOINT_DROP_ALLOWED = "jtk-endpoint-drop-allowed";
 export const CLASS_ENDPOINT_DROP_FORBIDDEN = "jtk-endpoint-drop-forbidden";
 
 // @public (undocumented)
+export const CLASS_ENDPOINT_FLOATING = "jtk-floating-endpoint";
+
+// @public (undocumented)
 export const CLASS_ENDPOINT_FULL = "jtk-endpoint-full";
 
 // @public (undocumented)
@@ -457,10 +460,9 @@ export function classList(...className: Array<string>): string;
 // @public (undocumented)
 export function cls(...className: Array<string>): string;
 
-// @public (undocumented)
+// @public
 export abstract class Component extends EventGenerator {
     protected constructor(instance: JsPlumbInstance, params?: ComponentOptions);
-    // (undocumented)
     addClass(clazz: string, cascade?: boolean): void;
     // @internal
     addOverlay(overlay: OverlaySpec): Overlay;
@@ -477,7 +479,7 @@ export abstract class Component extends EventGenerator {
     // (undocumented)
     cacheTypeItem(key: string, item: any, typeId: string): void;
     // (undocumented)
-    clearTypes(params?: any, doNotRepaint?: boolean): void;
+    clearTypes(params?: any): void;
     // (undocumented)
     clone: () => Component;
     // (undocumented)
@@ -575,7 +577,6 @@ export abstract class Component extends EventGenerator {
     // (undocumented)
     reapplyTypes(params?: any): void;
     removeAllOverlays(): void;
-    // (undocumented)
     removeClass(clazz: string, cascade?: boolean): void;
     removeOverlay(overlayId: string, dontCleanup?: boolean): void;
     removeOverlays(...overlays: string[]): void;
@@ -802,6 +803,8 @@ export class ConnectionDragSelector {
     readonly id: string;
     // (undocumented)
     isEnabled(): boolean;
+    // (undocumented)
+    redrop: RedropPolicy;
     // (undocumented)
     selector: string;
     // (undocumented)
@@ -1594,9 +1597,8 @@ export abstract class JsPlumbInstance<T extends {
     addOverlay(component: Component, overlay: OverlaySpec, doNotRevalidate?: boolean): void;
     // (undocumented)
     abstract addOverlayClass(o: Overlay, clazz: string): void;
-    // Warning: (ae-incompatible-release-tags) The symbol "addSourceSelector" is marked as @public, but its signature references "SourceSelector" which is marked as @internal
-    addSourceSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): SourceSelector;
-    addTargetSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): TargetSelector;
+    addSourceSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): ConnectionDragSelector;
+    addTargetSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): ConnectionDragSelector;
     // (undocumented)
     addToGroup(group: string | UIGroup<T["E"]>, ...el: Array<T["E"]>): void;
     // (undocumented)
@@ -1669,6 +1671,8 @@ export abstract class JsPlumbInstance<T extends {
     endpointDropAllowedClass: string;
     // (undocumented)
     endpointDropForbiddenClass: string;
+    // (undocumented)
+    endpointFloatingClass: string;
     // (undocumented)
     endpointFullClass: string;
     // (undocumented)
@@ -1816,9 +1820,8 @@ export abstract class JsPlumbInstance<T extends {
     removeGroup(group: string | UIGroup<T["E"]>, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): Record<string, PointXY>;
     // (undocumented)
     abstract removeOverlayClass(o: Overlay, clazz: string): void;
-    // Warning: (ae-incompatible-release-tags) The symbol "removeSourceSelector" is marked as @public, but its signature references "SourceSelector" which is marked as @internal
-    removeSourceSelector(selector: SourceSelector): void;
-    removeTargetSelector(selector: TargetSelector): void;
+    removeSourceSelector(selector: ConnectionDragSelector): void;
+    removeTargetSelector(selector: ConnectionDragSelector): void;
     // (undocumented)
     abstract renderEndpoint(ep: Endpoint<T>, paintStyle: PaintStyle): void;
     repaint(el: T["E"], timestamp?: string, offsetsWereJustCalculated?: boolean): RedrawResult;
@@ -1874,16 +1877,14 @@ export abstract class JsPlumbInstance<T extends {
     show(el: T["E"], changeEndpoints?: boolean): JsPlumbInstance;
     // (undocumented)
     sourceOrTargetChanged(originalId: string, newId: string, connection: Connection, newElement: T["E"], index: number): void;
-    // Warning: (ae-incompatible-release-tags) The symbol "sourceSelectors" is marked as @public, but its signature references "SourceSelector" which is marked as @internal
-    //
     // (undocumented)
-    sourceSelectors: Array<SourceSelector>;
+    sourceSelectors: Array<ConnectionDragSelector>;
     // (undocumented)
     _suspendDrawing: boolean;
     // (undocumented)
     _suspendedAt: string;
     // (undocumented)
-    targetSelectors: Array<TargetSelector>;
+    targetSelectors: Array<ConnectionDragSelector>;
     // (undocumented)
     abstract toggleClass(el: T["E"] | ArrayLike<T["E"]>, clazz: string): void;
     // (undocumented)
@@ -2269,11 +2270,20 @@ export interface RedrawResult {
 // @public
 export const REDROP_POLICY_ANY = "any";
 
+// @public (undocumented)
+export const REDROP_POLICY_ANY_SOURCE = "anySource";
+
+// @public (undocumented)
+export const REDROP_POLICY_ANY_SOURCE_OR_TARGET = "anySourceOrTarget";
+
+// @public (undocumented)
+export const REDROP_POLICY_ANY_TARGET = "anyTarget";
+
 // @public
 export const REDROP_POLICY_STRICT = "strict";
 
 // @public
-export type RedropPolicy = typeof REDROP_POLICY_STRICT | typeof REDROP_POLICY_ANY;
+export type RedropPolicy = typeof REDROP_POLICY_STRICT | typeof REDROP_POLICY_ANY | typeof REDROP_POLICY_ANY_SOURCE | typeof REDROP_POLICY_ANY_TARGET | typeof REDROP_POLICY_ANY_SOURCE_OR_TARGET;
 
 // @public (undocumented)
 export function _removeTypeCssHelper<E>(component: Component, typeId: string): void;
@@ -2372,17 +2382,6 @@ export interface SourceOrTargetDefinition {
     uniqueEndpoint?: boolean;
 }
 
-// Warning: (ae-internal-missing-underscore) The name "SourceSelector" should be prefixed with an underscore because the declaration is marked as @internal
-//
-// @internal (undocumented)
-export class SourceSelector extends ConnectionDragSelector {
-    constructor(selector: string, def: SourceDefinition, exclude: boolean);
-    // (undocumented)
-    def: SourceDefinition;
-    // (undocumented)
-    redrop: RedropPolicy;
-}
-
 // @public (undocumented)
 export const STATIC = "static";
 
@@ -2465,13 +2464,6 @@ export const TARGET_INDEX = 1;
 
 // @public
 export interface TargetDefinition extends SourceOrTargetDefinition {
-}
-
-// @public (undocumented)
-export class TargetSelector extends ConnectionDragSelector {
-    constructor(selector: string, def: TargetDefinition, exclude: boolean);
-    // (undocumented)
-    def: TargetDefinition;
 }
 
 // @public (undocumented)

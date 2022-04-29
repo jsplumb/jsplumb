@@ -2,6 +2,36 @@
 
 - Parameterised types were updated to support `{{value}}` syntax as opposed to `${value}`. This is to avoid confusion with JS string templates. The previous syntax is still supported for now but won't be as of v6.0.0.
 
+- Fixed issue 1123: `jtk-endpoint-connected` and `jtk-endpoint-full` not initially added to endpoints created via the `connect` method.
+- Fixed issue with redrop of connection on its original source: the selector params were not applied correctly (discussed in issue 1122)
+- Added new RedropPolicy values `ANY_SOURCE`, `ANY_TARGET` and `ANY_SOURCE_OR_TARGET`
+- Improved documentation around the `redrop` and `RedropPolicy` concepts.
+
+----------
+- add floating endpoint class and ensure floating endpoints have all user-supplied classes from the endpoint they were cloned from
+- some apidocs
+- set 'dragging' class on stationary endpoint, not floating endpoint, and only when dragging a new connection
+- ensure stationary endpoint's appearance is up to date after start drag (via a refresh call)
+- exclude floating endpoints from the list of drop targets
+- fix for the issue that a "full" endpoint would be excluded from a list of drop targets prepared when an existing connection is detached from it via the mouse
+- fold the logic to find target zones into a method that is shared by source drag and target drag
+- fix for the issue that the endpoint definition was not correctly honoured when dropping a source back onto its original element
+- ensure 'source' and 'target' flags are correctly copied from target definition on drop
+- fix for `shouldReattach` - it was using the floating endpoint's detach allowed response rather than the stationary endpoint the connection was originally on
+- fix for floating endpoint being added multiple times to `endpointsByElement` map
+- ensure endpoint classes correctly copied when cloning an endpoint for drag (part of #1124)
+-----------------
+
+- Added a `ResizeObserver` to the `BrowserJsPlumbInstance` class in `@jsplumb/browser-ui`. When the size of a managed element changes, jsPlumb will automatically revalidate that element.
+
+- Added `resizeObserver` parameter to `BrowserJsPlumbDefaults`, with a default value of `true`. Can be set to `false` to prevent the resize observer from being added.
+
+- Improved API docs @jsplumb/test-support package.
+
+### Breaking
+
+- in `@jsplumb/test-support`, the `dragToDistantLand` and `dragAndAbort` methods were removed. They were identical to `dragAndAbortConnection`, which was retained. 
+
 ## 5.5.5
 
 April 5th 2022

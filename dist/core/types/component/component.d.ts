@@ -64,6 +64,9 @@ export interface ComponentOptions {
     overlays?: Array<OverlaySpec>;
 }
 export declare type ClassAction = "add" | "remove";
+/**
+ * Base class for Endpoint and Connection.
+ */
 export declare abstract class Component extends EventGenerator {
     instance: JsPlumbInstance;
     abstract getTypeDescriptor(): string;
@@ -114,7 +117,7 @@ export declare abstract class Component extends EventGenerator {
     hasType(typeId: string): boolean;
     addType(typeId: string, params?: any): void;
     removeType(typeId: string, params?: any): void;
-    clearTypes(params?: any, doNotRepaint?: boolean): void;
+    clearTypes(params?: any): void;
     toggleType(typeId: string, params?: any): void;
     applyType(t: any, params?: any): void;
     setPaintStyle(style: PaintStyle): void;
@@ -129,7 +132,19 @@ export declare abstract class Component extends EventGenerator {
     setAbsoluteOverlayPosition(overlay: Overlay, xy: PointXY): void;
     getAbsoluteOverlayPosition(overlay: Overlay): PointXY;
     private _clazzManip;
+    /**
+     * Adds a css class to the component
+     * @param clazz Class to add. May be a space separated list.
+     * @param cascade This is for subclasses to use, if they wish to. For instance, a Connection might want to optionally cascade a css class
+     * down to its endpoints.
+     */
     addClass(clazz: string, cascade?: boolean): void;
+    /**
+     * Removes a css class from the component
+     * @param clazz Class to remove. May be a space separated list.
+     * @param cascade This is for subclasses to use, if they wish to. For instance, a Connection might want to optionally cascade a css class
+     * removal down to its endpoints.
+     */
     removeClass(clazz: string, cascade?: boolean): void;
     /**
      * Returns a space-separated list of the current classes assigned to this component.

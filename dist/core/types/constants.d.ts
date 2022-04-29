@@ -24,6 +24,7 @@ export declare const CLASS_CONNECTED = "jtk-connected";
 export declare const CLASS_ENDPOINT = "jtk-endpoint";
 export declare const CLASS_ENDPOINT_CONNECTED = "jtk-endpoint-connected";
 export declare const CLASS_ENDPOINT_FULL = "jtk-endpoint-full";
+export declare const CLASS_ENDPOINT_FLOATING = "jtk-floating-endpoint";
 export declare const CLASS_ENDPOINT_DROP_ALLOWED = "jtk-endpoint-drop-allowed";
 export declare const CLASS_ENDPOINT_DROP_FORBIDDEN = "jtk-endpoint-drop-forbidden";
 export declare const CLASS_ENDPOINT_ANCHOR_PREFIX = "jtk-endpoint-anchor";

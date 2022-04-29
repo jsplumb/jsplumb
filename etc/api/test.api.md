@@ -13,133 +13,79 @@ import { Overlay } from '@jsplumb/core';
 // @public (undocumented)
 export class BrowserUITestSupport {
     constructor(_jsPlumb: BrowserJsPlumbInstance, ok: (b: boolean, m: string) => any, equal: (v1: any, v2: any, m?: string) => any);
-    // (undocumented)
     addDiv(id: string, parent?: Element, className?: string, x?: number, y?: number, w?: number, h?: number): Element;
     // (undocumented)
     addDivs(ids: Array<string>, parent?: Element): void;
     // (undocumented)
     assertEndpointCount(el: Element, count: number): void;
-    // (undocumented)
     assertManagedConnectionCount(el: Element, count: number): void;
     // (undocumented)
     _assertManagedConnectionCount(el: Element, count: number): void;
-    // (undocumented)
     assertManagedEndpointCount(el: Element, count: number): void;
     // (undocumented)
     _assertManagedEndpointCount(el: Element, count: number): void;
-    // (undocumented)
-    aSyncDragConnection(d1: any, d2: any, events?: EventHandlers<Connection>): void;
-    // (undocumented)
+    aSyncDragConnection(d1: Element | Endpoint, d2: Element | Endpoint, events?: EventHandlers<Connection>): void;
     aSyncDragNodeBy(el: Element, x: number, y: number, events?: EventHandlers): void;
-    // (undocumented)
     cleanup(): void;
-    // (undocumented)
     clickOnConnection(connection: Connection): void;
-    // (undocumented)
     clickOnElement(element: Element, clickCount?: number): void;
-    // (undocumented)
     clickOnOverlay(connection: Connection, overlayId: string): void;
-    // (undocumented)
     dblClickOnConnection(connection: Connection): void;
-    // (undocumented)
     dblClickOnElement(element: Element): void;
-    // (undocumented)
     dblClickOnOverlay(connection: Connection, overlayId: string): void;
-    // (undocumented)
     dblTapOnConnection(connection: Connection): void;
-    // (undocumented)
     dblTapOnElement(element: Element): void;
-    // (undocumented)
     dblTapOnOverlay(connection: Connection, overlayId: string): void;
-    // (undocumented)
-    detachConnection(e: Endpoint, connIndex: number): void;
-    // (undocumented)
-    detachConnectionByTarget(c: Connection): void;
+    detachAndReattachConnection(e: Endpoint, events?: EventHandlers): void;
+    detachConnection(e: Endpoint, events?: EventHandlers): void;
+    detachConnectionByTarget(c: Connection, events?: EventHandlers): void;
     // (undocumented)
     _divs: Array<string>;
-    // (undocumented)
-    dragAndAbort(d1: any): void;
-    // (undocumented)
-    dragAndAbortConnection(d1: any): void;
-    // (undocumented)
-    dragANodeAround(el: any, functionToAssertWhileDragging?: () => boolean, assertMessage?: string): void;
-    // (undocumented)
-    dragConnection(d1: any, d2: any, mouseUpOnTarget?: boolean, events?: EventHandlers<Connection>): Connection;
-    // (undocumented)
+    dragAndAbortConnection(d1: Element | Endpoint): void;
+    dragANodeAround(el: HTMLElement, functionToAssertWhileDragging?: () => boolean, assertMessage?: string): void;
+    dragConnection(d1: Element | Endpoint, d2: Element | Endpoint, mouseUpOnTarget?: boolean, events?: EventHandlers<Connection>): Connection;
     dragNodeBy(el: Element, x: number, y: number, events?: EventHandlers): void;
-    // (undocumented)
     dragNodeTo(el: Element, x: number, y: number, events?: EventHandlers): void;
-    // (undocumented)
-    dragToDistantLand(d1: any): void;
-    // (undocumented)
     dragToGroup(el: Element, targetGroupId: string, events?: EventHandlers): void;
     // (undocumented)
     droppableClass: string;
-    // (undocumented)
     fireEventOnConnection(connection: Connection, ...events: Array<string>): void;
-    // (undocumented)
     fireEventOnElement(e: Element, ...events: Array<string>): void;
-    // (undocumented)
     fireEventOnEndpoint(ep: Endpoint, ...events: Array<string>): void;
-    // (undocumented)
     fireEventOnOverlay(connection: Connection, overlayId: string, event: string): void;
     // (undocumented)
     getAttribute(el: Element, att: string): string;
-    // (undocumented)
     getCanvas(epOrEl: any): any;
-    // (undocumented)
-    getConnectionCanvas(c: Connection): any;
-    // (undocumented)
-    getEndpointCanvas(ep: Endpoint): any;
-    // (undocumented)
+    getConnectionCanvas(c: Connection): HTMLElement;
+    getEndpointCanvas(ep: Endpoint): HTMLElement;
     getOverlayCanvas(overlay: Overlay): any;
-    // (undocumented)
     head(obj: any): any;
     // (undocumented)
     isSourceAttribute: string;
     // (undocumented)
     isTargetAttribute: string;
-    // (undocumented)
     length(obj: any): number;
-    // (undocumented)
     makeContent(s: string): ChildNode;
-    // (undocumented)
-    makeDragStartEvt(el: any): Event;
-    // (undocumented)
     makeEvent(el: Element): any;
     // (undocumented)
     mottle: EventManager;
     // (undocumented)
     _registerDiv(div: string): void;
-    // (undocumented)
     relocate(conn: Connection, idx: number, newEl: Element, events?: EventHandlers): void;
-    // (undocumented)
-    relocateSource(conn: Connection, source: any, events?: EventHandlers): void;
-    // (undocumented)
-    relocateTarget(conn: Connection, target: any, events?: EventHandlers): void;
-    // (undocumented)
-    _t(el: Document | Element, evt: string, x: number, y: number): void;
-    // (undocumented)
+    relocateSource(conn: Connection, newEl: Element, events?: EventHandlers): void;
+    relocateTarget(conn: Connection, newEl: Element, events?: EventHandlers): void;
     tapOnConnection(connection: Connection): void;
-    // (undocumented)
     tapOnElement(element: Element): void;
-    // (undocumented)
     tapOnOverlay(connection: Connection, overlayId: string): void;
-    // (undocumented)
     uuid(): string;
-    // (undocumented)
     within(val: number, target: number, msg: string): void;
 }
 
-// @public (undocumented)
+// @public
 export interface EventHandlers<T = any> {
-    // (undocumented)
     after?: (payload?: T) => any;
-    // (undocumented)
     before?: () => any;
-    // (undocumented)
     beforeMouseMove?: () => any;
-    // (undocumented)
     beforeMouseUp?: () => any;
 }
 

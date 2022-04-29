@@ -19,8 +19,8 @@ import { Overlay } from './overlay/overlay';
 import { LabelOverlay } from './overlay/label-overlay';
 import { AbstractConnector } from './connector/abstract-connector';
 import { PaintStyle, AnchorPlacement, AnchorSpec, EndpointSpec, OverlaySpec } from '@jsplumb/common';
-import { SourceSelector, TargetSelector } from "./source-selector";
 import { InternalEndpointOptions } from "./endpoint/endpoint-options";
+import { ConnectionDragSelector } from "./source-selector";
 export interface jsPlumbElement<E> {
     _jsPlumbGroup: UIGroup<E>;
     _jsPlumbParentGroup: UIGroup<E>;
@@ -89,6 +89,7 @@ export declare abstract class JsPlumbInstance<T extends {
     endpointClass: string;
     endpointConnectedClass: string;
     endpointFullClass: string;
+    endpointFloatingClass: string;
     endpointDropAllowedClass: string;
     endpointDropForbiddenClass: string;
     endpointAnchorClassPrefix: string;
@@ -96,8 +97,8 @@ export declare abstract class JsPlumbInstance<T extends {
     readonly connections: Array<Connection>;
     endpointsByElement: Record<string, Array<Endpoint>>;
     private readonly endpointsByUUID;
-    sourceSelectors: Array<SourceSelector>;
-    targetSelectors: Array<TargetSelector>;
+    sourceSelectors: Array<ConnectionDragSelector>;
+    targetSelectors: Array<ConnectionDragSelector>;
     allowNestedGroups: boolean;
     private _curIdStamp;
     readonly viewport: Viewport<T>;
@@ -427,19 +428,19 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param exclude - If true, the selector defines an 'exclusion': anything _except_ elements that match this.
      * @public
      */
-    addSourceSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): SourceSelector;
+    addSourceSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): ConnectionDragSelector;
     /**
      * Unregister the given source selector.
      * @param selector
      * @public
      */
-    removeSourceSelector(selector: SourceSelector): void;
+    removeSourceSelector(selector: ConnectionDragSelector): void;
     /**
      * Unregister the given target selector.
      * @param selector
      * @public
      */
-    removeTargetSelector(selector: TargetSelector): void;
+    removeTargetSelector(selector: ConnectionDragSelector): void;
     /**
      * Registers a selector for connection drag on the instance. This is a newer version of the `makeTarget` functionality
      * that has been in jsPlumb since the early days. With this approach, rather than calling `makeTarget` on every element, you
@@ -450,7 +451,7 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param exclude - If true, the selector defines an 'exclusion': anything _except_ elements that match this.
      * @public
      */
-    addTargetSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): TargetSelector;
+    addTargetSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): ConnectionDragSelector;
     private _createTargetDefinition;
     show(el: T["E"], changeEndpoints?: boolean): JsPlumbInstance;
     hide(el: T["E"], changeEndpoints?: boolean): JsPlumbInstance;
@@ -540,7 +541,6 @@ export declare abstract class JsPlumbInstance<T extends {
     /**
      * @internal
      * @param endpoint
-     * @private
      */
     _refreshEndpoint(endpoint: Endpoint): void;
     /**
@@ -549,7 +549,6 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param connection
      * @param name
      * @param args
-     * @private
      */
     _makeConnector(connection: Connection<T["E"]>, name: string, args: any): AbstractConnector;
     /**

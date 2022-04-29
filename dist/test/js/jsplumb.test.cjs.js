@@ -161,7 +161,8 @@ var BrowserUITestSupport = function () {
     }
   }, {
     key: "dragNodeBy",
-    value: function dragNodeBy(el, x, y, events) {
+    value:
+    function dragNodeBy(el, x, y, events) {
       events = events || {};
       if (events.before) events.before();
       var downEvent = this.makeEvent(el);
@@ -236,7 +237,7 @@ var BrowserUITestSupport = function () {
     value: function dragANodeAround(el, functionToAssertWhileDragging, assertMessage) {
       this._jsPlumb.trigger(el, browserUi.EVENT_MOUSEDOWN, this.makeEvent(el));
       var steps = Math.random() * 50;
-      for (var i = 0; i < steps; i++) {
+      for (var _i2 = 0; _i2 < steps; _i2++) {
         var evt = _randomEvent();
         el.style.left = evt.screenX + "px";
         el.style.top = evt.screenY + "px";
@@ -297,11 +298,6 @@ var BrowserUITestSupport = function () {
   }, {
     key: "dragAndAbortConnection",
     value: function dragAndAbortConnection(d1) {
-      this.dragAndAbort(d1);
-    }
-  }, {
-    key: "dragAndAbort",
-    value: function dragAndAbort(d1) {
       var el1 = this.getCanvas(d1);
       var e1 = this.makeEvent(el1);
       this._jsPlumb.trigger(el1, browserUi.EVENT_MOUSEDOWN, e1);
@@ -309,30 +305,43 @@ var BrowserUITestSupport = function () {
       this._jsPlumb.trigger(document, browserUi.EVENT_MOUSEUP, _distantPointEvent);
     }
   }, {
-    key: "dragToDistantLand",
-    value: function dragToDistantLand(d1) {
-      this.dragAndAbort(d1);
+    key: "detachConnection",
+    value: function detachConnection(e, events) {
+      events = events || {};
+      var el1 = this.getEndpointCanvas(e);
+      var e1 = this.makeEvent(el1);
+      events.before && events.before();
+      this._jsPlumb.trigger(el1, browserUi.EVENT_MOUSEDOWN, e1);
+      events.beforeMouseMove && events.beforeMouseMove();
+      this._jsPlumb.trigger(document, browserUi.EVENT_MOUSEMOVE, _distantPointEvent);
+      events.beforeMouseUp && events.beforeMouseUp();
+      this._jsPlumb.trigger(document, browserUi.EVENT_MOUSEUP, _distantPointEvent);
+      events.after && events.after();
     }
   }, {
-    key: "detachConnection",
-    value: function detachConnection(e, connIndex) {
+    key: "detachAndReattachConnection",
+    value: function detachAndReattachConnection(e, events) {
+      events = events || {};
       var el1 = this.getEndpointCanvas(e);
-          e.connections[connIndex];
       var e1 = this.makeEvent(el1);
+      events.before && events.before();
       this._jsPlumb.trigger(el1, browserUi.EVENT_MOUSEDOWN, e1);
+      events.beforeMouseMove && events.beforeMouseMove();
       this._jsPlumb.trigger(document, browserUi.EVENT_MOUSEMOVE, _distantPointEvent);
-      this._jsPlumb.trigger(document, browserUi.EVENT_MOUSEUP, _distantPointEvent);
+      this._jsPlumb.trigger(document, browserUi.EVENT_MOUSEMOVE, e1);
+      events.beforeMouseUp && events.beforeMouseUp();
+      this._jsPlumb.trigger(document, browserUi.EVENT_MOUSEUP, e1);
+      events.after && events.after();
     }
   }, {
     key: "detachConnectionByTarget",
-    value: function detachConnectionByTarget(c) {
-      var idx = c.endpoints[1].connections.indexOf(c);
-      this.detachConnection(c.endpoints[1], idx);
+    value: function detachConnectionByTarget(c, events) {
+      this.detachConnection(c.endpoints[1], events);
     }
   }, {
     key: "relocateTarget",
-    value: function relocateTarget(conn, target, events) {
-      this.relocate(conn, 1, target, events);
+    value: function relocateTarget(conn, newEl, events) {
+      this.relocate(conn, 1, newEl, events);
     }
   }, {
     key: "relocate",
@@ -352,8 +361,8 @@ var BrowserUITestSupport = function () {
     }
   }, {
     key: "relocateSource",
-    value: function relocateSource(conn, source, events) {
-      this.relocate(conn, 0, source, events);
+    value: function relocateSource(conn, newEl, events) {
+      this.relocate(conn, 0, newEl, events);
     }
   }, {
     key: "makeEvent",
@@ -396,8 +405,7 @@ var BrowserUITestSupport = function () {
     }
   }, {
     key: "assertManagedEndpointCount",
-    value:
-    function assertManagedEndpointCount(el, count) {
+    value: function assertManagedEndpointCount(el, count) {
       var id = this._jsPlumb.getId(el),
           _mel = this._jsPlumb._managedElements[id];
       this.equal(_mel.endpoints.length, count, id + " has " + count + " endpoints in managed record");
@@ -413,15 +421,15 @@ var BrowserUITestSupport = function () {
     key: "fireEventOnEndpoint",
     value: function fireEventOnEndpoint(ep) {
       var canvas = this.getEndpointCanvas(ep);
-      for (var _i2 = 0; _i2 < (arguments.length <= 1 ? 0 : arguments.length - 1); _i2++) {
-        this._jsPlumb.trigger(canvas, _i2 + 1 < 1 || arguments.length <= _i2 + 1 ? undefined : arguments[_i2 + 1]);
+      for (var _i3 = 0; _i3 < (arguments.length <= 1 ? 0 : arguments.length - 1); _i3++) {
+        this._jsPlumb.trigger(canvas, _i3 + 1 < 1 || arguments.length <= _i3 + 1 ? undefined : arguments[_i3 + 1]);
       }
     }
   }, {
     key: "fireEventOnElement",
     value: function fireEventOnElement(e) {
-      for (var _i3 = 0; _i3 < (arguments.length <= 1 ? 0 : arguments.length - 1); _i3++) {
-        this._jsPlumb.trigger(e, _i3 + 1 < 1 || arguments.length <= _i3 + 1 ? undefined : arguments[_i3 + 1]);
+      for (var _i4 = 0; _i4 < (arguments.length <= 1 ? 0 : arguments.length - 1); _i4++) {
+        this._jsPlumb.trigger(e, _i4 + 1 < 1 || arguments.length <= _i4 + 1 ? undefined : arguments[_i4 + 1]);
       }
     }
   }, {
@@ -522,8 +530,8 @@ var BrowserUITestSupport = function () {
     value: function cleanup() {
       var container = this._jsPlumb.getContainer();
       this._jsPlumb.destroy();
-      for (var i in this._divs) {
-        var d = document.getElementById(this._divs[i]);
+      for (var _i5 in this._divs) {
+        var d = document.getElementById(this._divs[_i5]);
         d && d.parentNode.removeChild(d);
       }
       this._divs.length = 0;
@@ -556,16 +564,18 @@ var BrowserUITestSupport = function () {
     key: "length",
     value: function length(obj) {
       var c = 0;
-      for (var i in obj) {
-        if (obj.hasOwnProperty(i)) c++;
+      for (var _i6 in obj) {
+        if (obj.hasOwnProperty(_i6)) {
+          c++;
+        }
       }
       return c;
     }
   }, {
     key: "head",
     value: function head(obj) {
-      for (var i in obj) {
-        return obj[i];
+      for (var _i7 in obj) {
+        return obj[_i7];
       }
     }
   }, {

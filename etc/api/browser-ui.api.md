@@ -9,6 +9,7 @@ import { BehaviouralTypeDescriptor } from '@jsplumb/core';
 import { BoundingBox } from '@jsplumb/util';
 import { Component } from '@jsplumb/core';
 import { Connection } from '@jsplumb/core';
+import { ConnectionDragSelector } from '@jsplumb/core';
 import { DeleteConnectionOptions } from '@jsplumb/core';
 import { Endpoint } from '@jsplumb/core';
 import { Extents } from '@jsplumb/util';
@@ -17,12 +18,12 @@ import { JsPlumbDefaults } from '@jsplumb/core';
 import { jsPlumbElement } from '@jsplumb/core';
 import { JsPlumbInstance } from '@jsplumb/core';
 import { LabelOverlay } from '@jsplumb/core';
+import { ManagedElement } from '@jsplumb/core';
 import { Overlay } from '@jsplumb/core';
 import { PaintStyle } from '@jsplumb/common';
 import { PointXY } from '@jsplumb/util';
 import { RedrawResult } from '@jsplumb/core';
 import { Size } from '@jsplumb/util';
-import { SourceSelector } from '@jsplumb/core';
 import { TypeDescriptor } from '@jsplumb/core';
 import { UIGroup } from '@jsplumb/core';
 
@@ -45,12 +46,12 @@ export const ATTRIBUTE_JTK_SCOPE = "data-jtk-scope";
 export interface BeforeStartEventParams extends DragStartEventParams {
 }
 
-// @public (undocumented)
+// @public
 export interface BrowserJsPlumbDefaults extends JsPlumbDefaults<Element> {
     dragOptions?: DragOptions;
     elementsDraggable?: boolean;
-    // (undocumented)
     managedElementsSelector?: string;
+    resizeObserver?: boolean;
 }
 
 // @public
@@ -65,7 +66,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     // (undocumented)
     addOverlayClass(o: Overlay, clazz: string): void;
     // (undocumented)
-    addSourceSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): SourceSelector;
+    addSourceSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): ConnectionDragSelector;
     addToDragGroup(spec: DragGroupSpec, ...els: Array<Element>): void;
     addToDragSelection(...el: Array<Element>): void;
     // @internal (undocumented)
@@ -177,6 +178,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     _instanceIndex: number;
     isDraggable(el: Element): boolean;
     // (undocumented)
+    manage(element: Element, internalId?: string, _recalc?: boolean): ManagedElement<Element>;
+    // (undocumented)
     managedElementsSelector: string;
     off(el: Document | Element | NodeListOf<Element>, event: string, callback: Function): this;
     on(el: Document | Element | NodeListOf<Element>, event: string, callbackOrSelector: Function | string, callback?: Function): this;
@@ -212,7 +215,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     // (undocumented)
     removeOverlayClass(o: Overlay, clazz: string): void;
     // (undocumented)
-    removeSourceSelector(selector: SourceSelector): void;
+    removeSourceSelector(selector: ConnectionDragSelector): void;
     // @internal (undocumented)
     renderEndpoint(ep: Endpoint, paintStyle: PaintStyle): void;
     reset(): void;

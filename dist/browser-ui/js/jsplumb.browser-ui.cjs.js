@@ -172,8 +172,20 @@ function _slicedToArray(arr, i) {
   return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
 }
 
+function _toConsumableArray(arr) {
+  return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
+}
+
+function _arrayWithoutHoles(arr) {
+  if (Array.isArray(arr)) return _arrayLikeToArray(arr);
+}
+
 function _arrayWithHoles(arr) {
   if (Array.isArray(arr)) return arr;
+}
+
+function _iterableToArray(iter) {
+  if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
 }
 
 function _iterableToArrayLimit(arr, i) {
@@ -221,6 +233,10 @@ function _arrayLikeToArray(arr, len) {
   for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
 
   return arr2;
+}
+
+function _nonIterableSpread() {
+  throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
 }
 
 function _nonIterableRest() {
@@ -2761,7 +2777,8 @@ function _makeFloatingEndpoint(ep, endpoint, referenceCanvas, sourceElement, ins
     paintStyle: ep.getPaintStyle(),
     preparedAnchor: floatingAnchor,
     element: sourceElement,
-    scope: ep.scope
+    scope: ep.scope,
+    cssClass: [core.CLASS_ENDPOINT_FLOATING, ep.cssClass].join(" ")
   };
   if (endpoint != null) {
     if (util.isAssignableFrom(endpoint, core.EndpointRepresentation)) {
@@ -3025,7 +3042,7 @@ var EndpointDragHandler = function () {
       });
       this.jpc.pending = true;
       this.jpc.addClass(this.instance.draggingClass);
-      this.floatingEndpoint.addClass(this.instance.draggingClass);
+      this.ep.addClass(this.instance.draggingClass);
       this.instance.fire(EVENT_CONNECTION_DRAG, this.jpc);
     }
   }, {
@@ -3036,7 +3053,6 @@ var EndpointDragHandler = function () {
       var anchorIdx = this.jpc.endpoints[0].id === this.ep.id ? 0 : 1;
       this.ep.detachFromConnection(this.jpc, null, true);
       this.floatingEndpoint.addConnection(this.jpc);
-      this.floatingEndpoint.addClass(this.instance.draggingClass);
       this.instance.fire(EVENT_CONNECTION_DRAG, this.jpc);
       this.instance.sourceOrTargetChanged(this.jpc.endpoints[anchorIdx].elementId, this.placeholderInfo.id, this.jpc, this.placeholderInfo.element, anchorIdx);
       this.jpc.suspendedEndpoint = this.jpc.endpoints[anchorIdx];
@@ -3050,6 +3066,7 @@ var EndpointDragHandler = function () {
       this.jpc.addClass(this.instance.draggingClass);
       this.floatingId = this.placeholderInfo.id;
       this.floatingIndex = anchorIdx;
+      this.instance._refreshEndpoint(this.ep);
     }
   }, {
     key: "_shouldStartDrag",
@@ -3105,13 +3122,13 @@ var EndpointDragHandler = function () {
     }
   }, {
     key: "_populateTargets",
-    value: function _populateTargets(canvasElement, eventTarget, event) {
+    value: function _populateTargets(canvasElement, event) {
       var _this = this;
       var isSourceDrag = this.jpc && this.jpc.endpoints[0] === this.ep;
       var boundingRect;
-      var matchingEndpoints = this.instance.getContainer().querySelectorAll([".", core.CLASS_ENDPOINT, "[", core.ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]"].join(""));
+      var matchingEndpoints = this.instance.getContainer().querySelectorAll([".", core.CLASS_ENDPOINT, "[", core.ATTRIBUTE_SCOPE_PREFIX, this.ep.scope, "]:not(.", core.CLASS_ENDPOINT_FLOATING, ")"].join(""));
       util.forEach(matchingEndpoints, function (candidate) {
-        if ((_this.jpc != null || candidate !== canvasElement) && candidate !== _this.floatingElement && !candidate.jtk.endpoint.isFull()) {
+        if ((_this.jpc != null || candidate !== canvasElement) && candidate !== _this.floatingElement && (_this.jpc != null || !candidate.jtk.endpoint.isFull())) {
           if (isSourceDrag && candidate.jtk.endpoint.isSource || !isSourceDrag && candidate.jtk.endpoint.isTarget) {
             var o = _this.instance.getOffset(candidate),
                 s = _this.instance.getSize(candidate);
@@ -3137,7 +3154,7 @@ var EndpointDragHandler = function () {
           return sSel.isEnabled() && (sSel.def.def.scope == null || sSel.def.def.scope === _this.ep.scope);
         });
         if (sourceDef != null) {
-          var targetZones = this.instance.getContainer().querySelectorAll(sourceDef.redrop === core.REDROP_POLICY_ANY ? core.SELECTOR_MANAGED_ELEMENT : sourceDef.selector);
+          var targetZones = this._findTargetZones(sourceDef);
           util.forEach(targetZones, function (el) {
             if (el.getAttribute(ATTRIBUTE_JTK_ENABLED) !== common.FALSE) {
               var scopeFromElement = el.getAttribute(ATTRIBUTE_JTK_SCOPE);
@@ -3160,7 +3177,7 @@ var EndpointDragHandler = function () {
               if (sourceDef.def.def.rank != null) {
                 d.rank = sourceDef.def.def.rank;
               }
-              d.def = sourceDef;
+              d.def = sourceDef.def;
               _this.endpointDropTargets.push(d);
               _this.instance.addClass(d.targetEl, CLASS_DRAG_ACTIVE);
             }
@@ -3171,7 +3188,7 @@ var EndpointDragHandler = function () {
           return tSel.isEnabled();
         });
         targetDefs.forEach(function (targetDef) {
-          var targetZones = _this.instance.getContainer().querySelectorAll(targetDef.selector);
+          var targetZones = _this._findTargetZones(targetDef);
           util.forEach(targetZones, function (el) {
             if (el.getAttribute(ATTRIBUTE_JTK_ENABLED) !== common.FALSE) {
               var scopeFromElement = el.getAttribute(ATTRIBUTE_JTK_SCOPE);
@@ -3249,6 +3266,40 @@ var EndpointDragHandler = function () {
       });
     }
   }, {
+    key: "_findTargetZones",
+    value: function _findTargetZones(dragSelector) {
+      var targetZonesSelector;
+      if (dragSelector.redrop === core.REDROP_POLICY_ANY) {
+        var t = this.instance.targetSelectors.map(function (s) {
+          return s.selector;
+        });
+        t.push.apply(t, _toConsumableArray(this.instance.sourceSelectors.map(function (s) {
+          return s.selector;
+        })));
+        t.push(core.SELECTOR_MANAGED_ELEMENT);
+        targetZonesSelector = t.join(",");
+      } else if (dragSelector.redrop === core.REDROP_POLICY_STRICT) {
+        targetZonesSelector = dragSelector.selector;
+      } else if (dragSelector.redrop === core.REDROP_POLICY_ANY_SOURCE) {
+        targetZonesSelector = this.instance.sourceSelectors.map(function (s) {
+          return s.selector;
+        }).join(",");
+      } else if (dragSelector.redrop === core.REDROP_POLICY_ANY_TARGET) {
+        targetZonesSelector = this.instance.targetSelectors.map(function (s) {
+          return s.selector;
+        }).join(",");
+      } else if (dragSelector.redrop === core.REDROP_POLICY_ANY_SOURCE_OR_TARGET) {
+        var _t = this.instance.targetSelectors.map(function (s) {
+          return s.selector;
+        });
+        _t.push.apply(_t, _toConsumableArray(this.instance.sourceSelectors.map(function (s) {
+          return s.selector;
+        })));
+        targetZonesSelector = _t.join(",");
+      }
+      return this.instance.getContainer().querySelectorAll(targetZonesSelector);
+    }
+  }, {
     key: "onStart",
     value: function onStart(p) {
       this.endpointDropTargets.length = 0;
@@ -3256,7 +3307,7 @@ var EndpointDragHandler = function () {
       this._stopped = false;
       var dragEl = p.drag.getDragElement();
       this.ep = dragEl.jtk.endpoint;
-      var eventTarget = p.e.srcElement || p.e.target;
+      p.e.srcElement || p.e.target;
       if (!this.ep) {
         return false;
       }
@@ -3277,13 +3328,14 @@ var EndpointDragHandler = function () {
         this.jpc = null;
       }
       this._createFloatingEndpoint(this.canvasElement);
-      this._populateTargets(this.canvasElement, eventTarget, p.e);
+      this._populateTargets(this.canvasElement, p.e);
       if (this.jpc == null) {
         this.startNewConnectionDrag(this.ep.scope, payload);
       } else {
         this.startExistingConnectionDrag();
       }
-      this._registerFloatingConnection(this.placeholderInfo, this.jpc, this.floatingEndpoint);
+      this._registerFloatingConnection(this.placeholderInfo, this.jpc
+      );
       this.instance.currentlyDragging = true;
     }
   }, {
@@ -3366,7 +3418,7 @@ var EndpointDragHandler = function () {
     value: function _reattachOrDiscard(originalEvent) {
       var existingConnection = this.jpc.suspendedEndpoint != null;
       var idx = this._getFloatingAnchorIndex();
-      if (existingConnection && this._shouldReattach(originalEvent)) {
+      if (existingConnection && this._shouldReattach()) {
         if (idx === 0) {
           this.jpc.source = this.jpc.suspendedElement;
           this.jpc.sourceId = this.jpc.suspendedElementId;
@@ -3401,7 +3453,7 @@ var EndpointDragHandler = function () {
         if (this.currentDropTarget != null) {
           dropEndpoint = this._getDropEndpoint(p, this.jpc);
           if (dropEndpoint == null) {
-            !this._reattachOrDiscard(p.e);
+            this._reattachOrDiscard(p.e);
           } else {
             if (suspendedEndpoint && suspendedEndpoint.id === dropEndpoint.id) {
               this._doForceReattach(idx);
@@ -3465,10 +3517,11 @@ var EndpointDragHandler = function () {
     key: "_getSourceDefinition",
     value: function _getSourceDefinition(evt) {
       var selector;
+      var container = this.instance.getContainer();
       for (var i = 0; i < this.instance.sourceSelectors.length; i++) {
         selector = this.instance.sourceSelectors[i];
         if (selector.isEnabled()) {
-          var r = selectorFilter(evt, this.instance.getContainer(), selector.selector, this.instance, selector.exclude);
+          var r = selectorFilter(evt, container, selector.selector, this.instance, selector.exclude);
           if (r !== false) {
             return selector;
           }
@@ -3489,7 +3542,10 @@ var EndpointDragHandler = function () {
         var elxy = getPositionOnElement(p.e, targetElement, this.instance.currentZoom);
         var eps = this.instance._deriveEndpointAndAnchorSpec(jpc.getType().join(" "), true);
         var pp = eps.endpoints ? util.extend(p, {
-          endpoint: targetDefinition.def.endpoint || eps.endpoints[1]
+          endpoint: targetDefinition.def.endpoint || eps.endpoints[1],
+          cssClass: targetDefinition.def.cssClass || "",
+          source: targetDefinition.def.source === true,
+          target: targetDefinition.def.target === true
         }) : p;
         var anchorsToUse = this.instance.validAnchorsSpec(eps.anchors) ? eps.anchors : this.instance.areDefaultAnchorsSet() ? this.instance.defaults.anchors : null;
         var anchorFromDef = targetDefinition.def.anchor;
@@ -3546,8 +3602,15 @@ var EndpointDragHandler = function () {
     }
   }, {
     key: "_shouldReattach",
-    value: function _shouldReattach(originalEvent) {
-      return this.jpc.isReattach() || this.jpc._forceReattach || !util.functionChain(true, false, [[this.jpc.endpoints[0], core.IS_DETACH_ALLOWED, [this.jpc]], [this.jpc.endpoints[1], core.IS_DETACH_ALLOWED, [this.jpc]], [this.jpc, core.IS_DETACH_ALLOWED, [this.jpc]], [this.instance, core.CHECK_CONDITION, [core.INTERCEPT_BEFORE_DETACH, this.jpc]]]);
+    value: function _shouldReattach() {
+      if (this.jpc.isReattach() || this.jpc._forceReattach) {
+        return true;
+      } else {
+        var suspendedEndpoint = this.jpc.suspendedEndpoint,
+            otherEndpointIdx = this.jpc.suspendedElementType == core.SOURCE ? 1 : 0,
+            otherEndpoint = this.jpc.endpoints[otherEndpointIdx];
+        return !util.functionChain(true, false, [[suspendedEndpoint, core.IS_DETACH_ALLOWED, [this.jpc]], [otherEndpoint, core.IS_DETACH_ALLOWED, [this.jpc]], [this.jpc, core.IS_DETACH_ALLOWED, [this.jpc]], [this.instance, core.CHECK_CONDITION, [core.INTERCEPT_BEFORE_DETACH, this.jpc]]]);
+      }
     }
   }, {
     key: "_discard",
@@ -3618,9 +3681,8 @@ var EndpointDragHandler = function () {
     }
   }, {
     key: "_registerFloatingConnection",
-    value: function _registerFloatingConnection(info, conn, ep) {
+    value: function _registerFloatingConnection(info, conn) {
       this.floatingConnections[info.id] = conn;
-      util.addToDictionary(this.instance.endpointsByElement, info.id, ep);
     }
   }, {
     key: "_getFloatingAnchorIndex",
@@ -4111,6 +4173,7 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
     _defineProperty(_assertThisInitialized(_this), "_elementMouseup", void 0);
     _defineProperty(_assertThisInitialized(_this), "_elementMousedown", void 0);
     _defineProperty(_assertThisInitialized(_this), "_elementContextmenu", void 0);
+    _defineProperty(_assertThisInitialized(_this), "_resizeObserver", void 0);
     _defineProperty(_assertThisInitialized(_this), "eventManager", void 0);
     _defineProperty(_assertThisInitialized(_this), "draggingClass", "jtk-dragging");
     _defineProperty(_assertThisInitialized(_this), "elementDraggingClass", "jtk-element-dragging");
@@ -4136,6 +4199,7 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
         return _pos(d);
       }
     });
+    defaults = defaults || {};
     _this.elementsDraggable = defaults && defaults.elementsDraggable !== false;
     _this.managedElementsSelector = defaults ? defaults.managedElementsSelector || core.SELECTOR_MANAGED_ELEMENT : core.SELECTOR_MANAGED_ELEMENT;
     _this.eventManager = new EventManager();
@@ -4274,6 +4338,25 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
       this.fire(EVENT_ELEMENT_CONTEXTMENU, getEventSource(e), e);
     }.bind(_assertThisInitialized(_this));
     _this._attachEventDelegates();
+    if (defaults.resizeObserver !== false) {
+      try {
+        _this._resizeObserver = new ResizeObserver(function (entries) {
+          var updates = entries.filter(function (e) {
+            var a = _this.getAttribute(e.target, core.ATTRIBUTE_MANAGED);
+            if (a != null) {
+              var v = _this.viewport._elementMap.get(a);
+              return v ? v.w !== e.contentRect.width || v.h !== e.contentRect.height : false;
+            } else {
+              return false;
+            }
+          });
+          updates.forEach(function (el) {
+            return _this.revalidate(el.target);
+          });
+        });
+      } catch (e) {
+      }
+    }
     return _this;
   }
   _createClass(BrowserJsPlumbInstance, [{
@@ -4635,6 +4718,9 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
     key: "reset",
     value: function reset() {
       _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "reset", this).call(this);
+      if (this._resizeObserver) {
+        this._resizeObserver.disconnect();
+      }
       var container = this.getContainer();
       var els = container.querySelectorAll([core.SELECTOR_MANAGED_ELEMENT, SELECTOR_ENDPOINT, SELECTOR_CONNECTOR, SELECTOR_OVERLAY].join(","));
       util.forEach(els, function (el) {
@@ -4654,6 +4740,9 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
   }, {
     key: "unmanage",
     value: function unmanage(el, removeElement) {
+      if (this._resizeObserver != null) {
+        this._resizeObserver.unobserve(el);
+      }
       this.removeFromDragSelection(el);
       _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "unmanage", this).call(this, el, removeElement);
     }
@@ -4838,15 +4927,15 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
     key: "destroyOverlay",
     value: function destroyOverlay(o) {
       if (core.isLabelOverlay(o)) {
-        var el = getLabelElement(o);
-        el.parentNode.removeChild(el);
+        var _el2 = getLabelElement(o);
+        _el2.parentNode.removeChild(_el2);
         delete o.canvas;
         delete o.cachedDimensions;
       } else if (core.isArrowOverlay(o) || core.isDiamondOverlay(o) || core.isPlainArrowOverlay(o)) {
         destroySVGOverlay(o);
       } else if (core.isCustomOverlay(o)) {
-        var _el2 = getCustomElement(o);
-        _el2.parentNode.removeChild(_el2);
+        var _el3 = getCustomElement(o);
+        _el3.parentNode.removeChild(_el3);
         delete o.canvas;
         delete o.cachedDimensions;
       }
@@ -5154,6 +5243,15 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
     value: function removeSourceSelector(selector) {
       this.removeDragFilter(selector.selector);
       _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "removeSourceSelector", this).call(this, selector);
+    }
+  }, {
+    key: "manage",
+    value: function manage(element, internalId, _recalc) {
+      var managedElement = _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "manage", this).call(this, element, internalId, _recalc);
+      if (managedElement != null && this._resizeObserver != null) {
+        this._resizeObserver.observe(managedElement.el);
+      }
+      return managedElement;
     }
   }]);
   return BrowserJsPlumbInstance;
