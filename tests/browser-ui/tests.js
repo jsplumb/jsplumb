@@ -137,24 +137,6 @@ var testSuite = function () {
         ok(o != null, "overlay exists");
     });
 
-    // test(': create two simple endpoints, registered using a selector', function () {
-    //     var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
-    //     _jsPlumb.addClass(d1, "window");
-    //     _jsPlumb.addClass(d2, "window");
-    //     var endpoints = _jsPlumb.addEndpoint(_jsPlumb.getSelector(".window"), {});
-    //     support.assertEndpointCount(d1, 1);
-    //     support.assertEndpointCount(d2, 1);
-    // });
-    //
-    // test(': create two simple endpoints, registered using an array of element ids', function () {
-    //     var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
-    //     _jsPlumb.addClass(d1, "window");
-    //     _jsPlumb.addClass(d2, "window");
-    //     var endpoints = _jsPlumb.addEndpoint(["d1", "d2"], {});
-    //     support.assertEndpointCount(d1, 1);
-    //     support.assertEndpointCount(d2, 1);
-    // });
-
     test(' jsPlumb.remove after element removed from DOM', function () {
         var d = document.createElement("div");
         d.innerHTML = '<div id="container2"><ul id="targets"><li id="in1">input 1</li><li id="in2">input 2</li></ul><ul id="sources"><li id="output">output</li></ul></div>';
@@ -595,6 +577,7 @@ var testSuite = function () {
         equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
         _jsPlumb.deleteConnection(c);
         equal(c.endpoints, null, "connection's endpoints were removed");
+        equal(beforeDetachCount, 1, "beforeDetach called once")
     });
 
     test(": detach; beforeDetach on connect call returns true", function () {
@@ -619,19 +602,21 @@ var testSuite = function () {
 
     test(": detach; beforeDetach on addEndpoint call to source Endpoint returns false", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+        var beforeDetachCount = 0;
         var e1 = _jsPlumb.addEndpoint(d1, { source: true, beforeDetach: function (conn) {
+                    beforeDetachCount++;
                 return false;
             } }),
             e2 = _jsPlumb.addEndpoint(d2, { target: true });
         var c = _jsPlumb.connect({source: e1, target: e2});
-        var beforeDetachCount = 0;
+
         _jsPlumb.bind("beforeDetach", function (connection) {
             beforeDetachCount++;
         });
         equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
         _jsPlumb.deleteConnection(c);
         equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection after detach call was denied");
-        equal(beforeDetachCount, 0, "jsplumb before detach was not called");
+        equal(beforeDetachCount, 1, "jsplumb before detach was called once (by the endpoint; the main method was not called)");
     });
 
     test(": detach; beforeDetach on addEndpoint call to source Endpoint returns true", function () {
@@ -4776,6 +4761,30 @@ var testSuite = function () {
         equal(c.fooFunction(), "child", "fooFunction property overridden")
         equal(c.barFunction(), "parent", "barFunction property not overridden; there was only one value")
     })
+
+    asyncTest(": resize listener", function () {
+        var d16 = support.addDiv("d16", null, null, 50, 50, 150, 150),
+            d18 = support.addDiv("d18", null, null, 450, 50, 150, 150);
+
+
+        d16.style.outline = "1px solid"
+        d18.style.outline = "1px solid"
+        var e16 = _jsPlumb.addEndpoint(d16, {anchor:"Right"});
+        var e18 = _jsPlumb.addEndpoint(d18, {anchor: "Left"});
+
+        var c = _jsPlumb.connect({source: e16, target: e18});
+        equal(c.endpoints[0]._anchor.computedPosition.curX, 200, "source anchor at correct x position")
+        equal(c.endpoints[0]._anchor.computedPosition.curY, 125, "source anchor at correct y position")
+
+        d16.style.width = "200px"
+        setTimeout(function() {
+            QUnit.start()
+            equal(c.endpoints[0]._anchor.computedPosition.curX, 250, "source anchor at correct x position after programmatic resize")
+            equal(c.endpoints[0]._anchor.computedPosition.curY, 125, "source anchor at correct y position")
+        }, 250)
+
+
+    });
 
 };
 
