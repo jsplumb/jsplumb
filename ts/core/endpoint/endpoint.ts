@@ -189,20 +189,8 @@ export class Endpoint<E = any> extends Component {
     }
 
     addConnection(conn:Connection) {
-        const wasFull = this.isFull()
-        const wasEmpty = this.connections.length === 0
         this.connections.push(conn)
-
-        if (wasEmpty) {
-            this.addClass(this.instance.endpointConnectedClass)
-        }
-        if (this.isFull()) {
-            if (!wasFull) {
-                this.addClass(this.instance.endpointFullClass)
-            }
-        } else if (wasFull) {
-            this.removeClass(this.instance.endpointFullClass)
-        }
+        this.instance._refreshEndpoint(this)
     }
 
     /**
@@ -370,9 +358,11 @@ export class Endpoint<E = any> extends Component {
         let endpoint:EndpointRepresentation<C>
 
         if(isAssignableFrom(ep, EndpointRepresentation)) {
-
+            // cloning an existing endpoint
             const epr = (ep as EndpointRepresentation<C>)
             endpoint = EndpointFactory.clone(epr)
+            // ensure the css classes are correctly applied
+            endpoint.classes = endpointArgs.cssClass.split(" ")
 
         } else if (isString(ep)) {
             endpoint = EndpointFactory.get(this, ep as string, endpointArgs)
