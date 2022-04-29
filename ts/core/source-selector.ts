@@ -5,8 +5,12 @@ export class ConnectionDragSelector {
 
     readonly id:string
 
+    redrop:RedropPolicy
+
     constructor(public selector:string, public def:SourceOrTargetDefinition, public exclude = false) {
         this.id = uuid()
+
+        this.redrop = def.def.redrop || REDROP_POLICY_STRICT
     }
 
     setEnabled(enabled:boolean) {
@@ -28,24 +32,14 @@ export const REDROP_POLICY_STRICT = "strict"
  * dropping it anywhere on that element.
  */
 export const REDROP_POLICY_ANY = "any"
+
+export const REDROP_POLICY_ANY_SOURCE = "anySource"
+
+export const REDROP_POLICY_ANY_TARGET = "anyTarget"
+
+export const REDROP_POLICY_ANY_SOURCE_OR_TARGET = "anySourceOrTarget"
 /**
  * Defines how redrop of source endpoints can be done.
  */
-export type RedropPolicy = typeof REDROP_POLICY_STRICT | typeof REDROP_POLICY_ANY
+export type RedropPolicy = typeof REDROP_POLICY_STRICT | typeof REDROP_POLICY_ANY | typeof REDROP_POLICY_ANY_SOURCE | typeof REDROP_POLICY_ANY_TARGET | typeof REDROP_POLICY_ANY_SOURCE_OR_TARGET
 
-/**
- * @internal
- */
-export class SourceSelector extends ConnectionDragSelector {
-    redrop:RedropPolicy
-    constructor(selector:string, public def:SourceDefinition, exclude:boolean) {
-        super(selector, def, exclude)
-        this.redrop = def.def.redrop || REDROP_POLICY_STRICT
-    }
-}
-
-export class TargetSelector extends ConnectionDragSelector {
-    constructor(selector:string, public def:TargetDefinition, exclude:boolean) {
-        super(selector, def, exclude)
-    }
-}
