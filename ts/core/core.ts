@@ -64,8 +64,7 @@ import {
     EndpointSpec,
     WILDCARD, DEFAULT, OverlaySpec
 } from '@jsplumb/common'
-import {AnchorComputeParams, Face} from "./factory/anchor-record-factory"
-import {SourceSelector, TargetSelector} from "./source-selector"
+import {AnchorComputeParams} from "./factory/anchor-record-factory"
 import {
     ATTRIBUTE_MANAGED,
     CLASS_CONNECTED,
@@ -75,7 +74,7 @@ import {
     CLASS_ENDPOINT_ANCHOR_PREFIX,
     CLASS_ENDPOINT_CONNECTED,
     CLASS_ENDPOINT_DROP_ALLOWED,
-    CLASS_ENDPOINT_DROP_FORBIDDEN,
+    CLASS_ENDPOINT_DROP_FORBIDDEN, CLASS_ENDPOINT_FLOATING,
     CLASS_ENDPOINT_FULL,
     CLASS_OVERLAY,
     ERROR_SOURCE_DOES_NOT_EXIST,
@@ -87,6 +86,7 @@ import {LightweightRouter} from "./router/lightweight-router"
 import {Connectors} from "./connector/connectors"
 
 import {StraightConnector} from "./connector/straight-connector"
+import {ConnectionDragSelector} from "./source-selector"
 
 export interface jsPlumbElement<E> {
     _jsPlumbGroup: UIGroup<E>
@@ -276,6 +276,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     endpointClass = CLASS_ENDPOINT
     endpointConnectedClass = CLASS_ENDPOINT_CONNECTED
     endpointFullClass = CLASS_ENDPOINT_FULL
+    endpointFloatingClass = CLASS_ENDPOINT_FLOATING
     endpointDropAllowedClass = CLASS_ENDPOINT_DROP_ALLOWED
     endpointDropForbiddenClass = CLASS_ENDPOINT_DROP_FORBIDDEN
     endpointAnchorClassPrefix = CLASS_ENDPOINT_ANCHOR_PREFIX
@@ -285,8 +286,8 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     endpointsByElement:Record<string, Array<Endpoint>> = {}
     private readonly endpointsByUUID:Map<string, Endpoint> = new Map()
 
-    sourceSelectors:Array<SourceSelector> = []
-    targetSelectors:Array<TargetSelector> = []
+    sourceSelectors:Array<ConnectionDragSelector> = []
+    targetSelectors:Array<ConnectionDragSelector> = []
 
     public allowNestedGroups:boolean
 
@@ -1559,10 +1560,10 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      * @param exclude - If true, the selector defines an 'exclusion': anything _except_ elements that match this.
      * @public
      */
-    addSourceSelector(selector:string, params?:BehaviouralTypeDescriptor, exclude = false):SourceSelector {
+    addSourceSelector(selector:string, params?:BehaviouralTypeDescriptor, exclude = false):ConnectionDragSelector {
 
         const _def = this._createSourceDefinition(params)
-        const sel = new SourceSelector(selector, _def, exclude)
+        const sel = new ConnectionDragSelector(selector, _def, exclude)
         this.sourceSelectors.push(sel)
 
         return sel
@@ -1573,8 +1574,8 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      * @param selector
      * @public
      */
-    removeSourceSelector(selector:SourceSelector) {
-        removeWithFunction(this.sourceSelectors, (s:SourceSelector) => s === selector)
+    removeSourceSelector(selector:ConnectionDragSelector) {
+        removeWithFunction(this.sourceSelectors, (s:ConnectionDragSelector) => s === selector)
     }
 
     /**
@@ -1582,8 +1583,8 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      * @param selector
      * @public
      */
-    removeTargetSelector(selector:TargetSelector) {
-        removeWithFunction(this.targetSelectors, (s:TargetSelector) => s === selector)
+    removeTargetSelector(selector:ConnectionDragSelector) {
+        removeWithFunction(this.targetSelectors, (s:ConnectionDragSelector) => s === selector)
     }
 
     /**
@@ -1596,10 +1597,10 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      * @param exclude - If true, the selector defines an 'exclusion': anything _except_ elements that match this.
      * @public
      */
-    addTargetSelector(selector:string, params?:BehaviouralTypeDescriptor, exclude = false):TargetSelector {
+    addTargetSelector(selector:string, params?:BehaviouralTypeDescriptor, exclude = false):ConnectionDragSelector {
 
         const _def = this._createTargetDefinition(params)
-        const sel = new TargetSelector(selector, _def, exclude)
+        const sel = new ConnectionDragSelector(selector, _def, exclude)
         this.targetSelectors.push(sel)
 
         return sel
@@ -2086,20 +2087,21 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     /**
      * @internal
      * @param endpoint
-     * @private
      */
     _refreshEndpoint(endpoint: Endpoint): void {
 
-        if (endpoint.connections.length > 0) {
-            this.addEndpointClass(endpoint, this.endpointConnectedClass)
-        } else {
-            this.removeEndpointClass(endpoint, this.endpointConnectedClass)
-        }
+        if (!endpoint._anchor.isFloating) {
+            if (endpoint.connections.length > 0) {
+                this.addEndpointClass(endpoint, this.endpointConnectedClass)
+            } else {
+                this.removeEndpointClass(endpoint, this.endpointConnectedClass)
+            }
 
-        if (endpoint.isFull()) {
-            this.addEndpointClass(endpoint, this.endpointFullClass)
-        } else {
-            this.removeEndpointClass(endpoint, this.endpointFullClass)
+            if (endpoint.isFull()) {
+                this.addEndpointClass(endpoint, this.endpointFullClass)
+            } else {
+                this.removeEndpointClass(endpoint, this.endpointFullClass)
+            }
         }
     }
 
@@ -2109,7 +2111,6 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      * @param connection
      * @param name
      * @param args
-     * @private
      */
     _makeConnector(connection:Connection<T["E"]>, name:string, args:any):AbstractConnector {
         return Connectors.get(connection, name, args)
