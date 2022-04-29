@@ -697,7 +697,7 @@ var testSuite = function () {
 
         // try dragging 1_2 right out of the box and dropping it. it should not work: c1 has constrain switched on.
         // 1_2 will end up in the bottom right corner of the group.
-        support.dragToDistantLand(c1_2);
+        support.dragAndAbortConnection(c1_2);
         equal(_jsPlumb.getGroup("one").children.length, 2, "2 members in group one");
         // check the node has not actually moved.
         var c1_2_pos = getNodePosition(c1_2);
@@ -706,7 +706,7 @@ var testSuite = function () {
 
         // try dragging 2_2 right out of the box and dropping it.
         var c2_2_pos = getNodePosition(c2_2);
-        support.dragToDistantLand(c2_2);
+        support.dragAndAbortConnection(c2_2);
         equal(_jsPlumb.getGroup("two").children.length, 2, "2 members in group two");
         // check the node position
         var c2_2_pos2 = getNodePosition(c2_2);
@@ -714,7 +714,7 @@ var testSuite = function () {
 
         // c3, should also allow nodes to be dropped outside
         var c32o = getNodePosition(c3_2);
-        support.dragToDistantLand(c3_2);
+        support.dragAndAbortConnection(c3_2);
         equal(_jsPlumb.getGroup("three").children.length, 2, "2 members in group three");
         // check the node has moved. but just not removed from the group.
         var c32o2 = getNodePosition(c3_2);
@@ -727,14 +727,14 @@ var testSuite = function () {
 
         // c4 prunes nodes on drop outside
 
-        support.dragToDistantLand(c4_2);
+        support.dragAndAbortConnection(c4_2);
         equal(_jsPlumb.getGroup("four").children.length, 1, "1 member in group four");
         ok(c4_2.parentNode == null, "c4_2 removed from DOM");
         ok(eventPosted, "group:member:removed event was posted")
 
         // c5 orphans nodes on drop outside (remove from group but not from DOM)
         eventPosted = false
-        support.dragToDistantLand(c5_2);
+        support.dragAndAbortConnection(c5_2);
         equal(_jsPlumb.getGroup("five").children.length, 1, "1 member in group five");
         ok(c5_2.parentNode != null, "c5_2 still in DOM");
         ok(eventPosted, "group:member:removed event was posted")
@@ -756,7 +756,7 @@ var testSuite = function () {
         // try dragging 1_2 (and 1_1) right out of the box and dropping it. it should not work: c1 has constrain switched on.
         // 1_2 will end up in the bottom right corner of the group.
         //var c12o = _jsPlumb.getOffset(c1_2);
-        support.dragToDistantLand(c1_2);
+        support.dragAndAbortConnection(c1_2);
         equal(_jsPlumb.getGroup("one").children.length, 2, "2 members in group one");
         // check the nodes have not actually moved.
         var c1_2_pos = getNodePosition(c1_2);
@@ -772,7 +772,7 @@ var testSuite = function () {
         // try dragging 2_2 right out of the box and dropping it. g2 has dropOverride:true so this should not be possible.
         var c2_2_pos = getNodePosition(c2_2);
         var c2_1_pos = getNodePosition(c2_1);
-        support.dragToDistantLand(c2_2);
+        support.dragAndAbortConnection(c2_2);
         equal(_jsPlumb.getGroup("two").children.length, 2, "2 members in group two");
         // check the node position
         var c2_2_pos2 = getNodePosition(c2_2);
@@ -785,7 +785,7 @@ var testSuite = function () {
         _jsPlumb.addToDragSelection(c3_1)
         var c32o = getNodePosition(c3_2);
         var c31o = getNodePosition(c3_1);
-        support.dragToDistantLand(c3_2);
+        support.dragAndAbortConnection(c3_2);
         equal(_jsPlumb.getGroup("three").children.length, 2, "2 members in group three");
         // check the node has moved. but just not removed from the group.
         var c32o2 = getNodePosition(c3_2);
@@ -797,7 +797,7 @@ var testSuite = function () {
         _jsPlumb.clearDragSelection()
         _jsPlumb.addToDragSelection(c4_1)
         //var c32o = getNodePosition(c3_2);
-        support.dragToDistantLand(c4_2);
+        support.dragAndAbortConnection(c4_2);
         equal(_jsPlumb.getGroup("four").children.length, 0, "0 members in group four - they were both dragged out.");
         ok(c4_2.parentNode == null, "c4_2 removed from DOM");
         ok(c4_1.parentNode == null, "c4_1 removed from DOM");
@@ -805,7 +805,7 @@ var testSuite = function () {
         // c5 orphans nodes on drop outside (remove from group but not from DOM)
         _jsPlumb.clearDragSelection()
         _jsPlumb.addToDragSelection(c5_1)
-        support.dragToDistantLand(c5_2);
+        support.dragAndAbortConnection(c5_2);
         equal(_jsPlumb.getGroup("five").children.length, 0, "0 members in group five - they were both dragged out");
         ok(c5_2.parentNode != null, "c5_2 still in DOM");
         ok(c5_1.parentNode != null, "c5_1 still in DOM");
@@ -2212,7 +2212,7 @@ var testSuite = function () {
         equal(_jsPlumb.getGroupContentArea(groupA), groupB.el.parentNode, "groupB is child of groupA in the DOM");
         equal(groupA.getGroups().length, 1, "groupA has one child group");
 
-        support.dragToDistantLand(groupB.el);
+        support.dragAndAbortConnection(groupB.el);
         equal(_jsPlumb.getContainer(), groupB.el.parentNode, "groupB is no longer a child of groupA in the DOM after being dragged out");
         equal(groupA.getGroups().length, 0, "groupA has zero child groups");
         ok(groupB.group == null, "groupB has no parent group");
@@ -2399,7 +2399,7 @@ var testSuite = function () {
         equal(_jsPlumb.groupManager.getGroups().length, 2, "2 groups in the instance");
         equal(groupB.getGroups().length, 1, "groupB reports one child group");
 
-        support.dragToDistantLand(groupA.el);
+        support.dragAndAbortConnection(groupA.el);
 
         equal(_jsPlumb.groupManager.getGroups().length, 1, "1 group in the instance after nested group dragged out of parent that has prune:true set on it");
         equal(groupB.getGroups().length, 0, "groupB reports zero child groups");
@@ -2454,7 +2454,7 @@ var testSuite = function () {
         support.dragToGroup( d1, g1)
         equal(g1.children.length, 1, "1 member in the nested group")
 
-        support.dragToDistantLand(g1.el);
+        support.dragAndAbortConnection(g1.el);
         equal(true, nestedRemoved, "nested group removed event");
     });
 
