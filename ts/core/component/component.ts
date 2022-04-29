@@ -192,6 +192,9 @@ function _processOverlay<E>(component:Component, o:OverlaySpec|Overlay) {
     return _newOverlay
 }
 
+/**
+ * Base class for Endpoint and Connection.
+ */
 export abstract class Component extends EventGenerator {
 
     abstract getTypeDescriptor():string
@@ -428,7 +431,7 @@ export abstract class Component extends EventGenerator {
         }
     }
 
-    clearTypes(params?:any, doNotRepaint?:boolean):void {
+    clearTypes(params?:any):void {
 
         this._types.forEach(t => {
             _removeTypeCssHelper(this, t)
@@ -575,6 +578,12 @@ export abstract class Component extends EventGenerator {
         }
     }
 
+    /**
+     * Adds a css class to the component
+     * @param clazz Class to add. May be a space separated list.
+     * @param cascade This is for subclasses to use, if they wish to. For instance, a Connection might want to optionally cascade a css class
+     * down to its endpoints.
+     */
     addClass(clazz:string, cascade?:boolean):void {
         let parts = (this.cssClass || "").split(" ")
         parts.push(clazz)
@@ -582,6 +591,12 @@ export abstract class Component extends EventGenerator {
         this._clazzManip(ACTION_ADD, clazz)
     }
 
+    /**
+     * Removes a css class from the component
+     * @param clazz Class to remove. May be a space separated list.
+     * @param cascade This is for subclasses to use, if they wish to. For instance, a Connection might want to optionally cascade a css class
+     * removal down to its endpoints.
+     */
     removeClass(clazz:string, cascade?:boolean):void {
         let parts = (this.cssClass || "").split(" ")
         this.cssClass = parts.filter((p) => p !== clazz).join(" ")
