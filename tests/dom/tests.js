@@ -24,7 +24,7 @@ var testSuite = function () {
         },
         setup: function () {
             makeContainer()
-            _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
+            _jsPlumb = jsPlumbBrowserUI.newInstance(({container: container}));
             support = jsPlumbTestSupport.getInstanceQUnit(_jsPlumb);
             defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
         }
@@ -76,12 +76,55 @@ var testSuite = function () {
 
     test(': create a simple endpoint with a scope and ensure the scope is written to the DOM', function () {
         var d1 = support.addDiv("d1");
-        var e = _jsPlumb.addEndpoint(d1, { scope:"one"});
+        var e = _jsPlumb.addEndpoint(d1, {scope: "one"});
         ok(e, 'endpoint exists');
         support.assertEndpointCount(d1, 1);
         ok(e.id != null, "endpoint has had an id assigned");
         ok(support.getEndpointCanvas(e).getAttribute("data-jtk-scope-one") != null, "scope was written to the element");
     });
+
+    // issue 1123
+    test("connect method adds endpoint connected and endpoint full classes, existing endpoints", function () {
+
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+        var e1 = _jsPlumb.addEndpoint(d1),
+            e2 = _jsPlumb.addEndpoint(d2);
+
+        var c = _jsPlumb.connect({
+            source: e1, target: e2
+        });
+
+        equal(support.getEndpointCanvas(e1).classList.contains("jtk-endpoint"), true, "jtk-endpoint class added to endpoint container");
+        equal(support.getEndpointCanvas(e1).classList.contains("jtk-endpoint-connected"), true, "jtk-endpoint-connected class added to endpoint container");
+        equal(support.getEndpointCanvas(e1).classList.contains("jtk-endpoint-full"), true, "jtk-endpoint-full class added to endpoint container");
+
+        _jsPlumb.deleteConnection(c)
+
+        equal(support.getEndpointCanvas(e1).classList.contains("jtk-endpoint"), true, "jtk-endpoint class added to endpoint container");
+        equal(support.getEndpointCanvas(e1).classList.contains("jtk-endpoint-connected"), false, "jtk-endpoint-connected class removed from endpoint container");
+        equal(support.getEndpointCanvas(e1).classList.contains("jtk-endpoint-full"), false, "jtk-endpoint-full class removed from endpoint container");
+
+    });
+
+    // issue 1123
+    test("connect method adds endpoint connected and endpoint full classes, new endpoints", function () {
+
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+
+        var c = _jsPlumb.connect({
+            source: d1, target: d2
+        }), e1 = c.endpoints[0], e2 = c.endpoints[1]
+
+        equal(support.getEndpointCanvas(e1).classList.contains("jtk-endpoint"), true, "jtk-endpoint class added to endpoint container");
+        equal(support.getEndpointCanvas(e1).classList.contains("jtk-endpoint-connected"), true, "jtk-endpoint-connected class added to endpoint container");
+        equal(support.getEndpointCanvas(e1).classList.contains("jtk-endpoint-full"), true, "jtk-endpoint-full class added to endpoint container");
+
+        _jsPlumb.deleteConnection(c)
+
+        equal(support.getEndpointCanvas(e1), null, "endpoint was cleaned up");
+
+    });
+
 
     test(" change Container programmatically", function () {
 
