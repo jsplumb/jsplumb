@@ -36,11 +36,6 @@ var reinit = function(defaults) {
 
 var testSuite = function () {
 
-    // var _detachThisConnection = function(c) {
-    //     var idx = c.endpoints[1].connections.indexOf(c);
-    //     support.detachConnection(c.endpoints[1], idx);
-    // };
-
     var _addDiv = function(id, x, y, w, h) {
         if (!x) {
             _jsPlumb.testx = _jsPlumb.testx || 0;
@@ -383,14 +378,13 @@ var testSuite = function () {
      });
      //*/
 
-    test("endpoint:beforeDetach listener via mouse interaction", function() {
+    test("beforeDetach listener on instance via mouse interaction", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), r = 0, s = 0, bd = 0,
             e1 = _jsPlumb.addEndpoint(d1, {
                 source:true, target:true
 
             }),
             e2 = _jsPlumb.addEndpoint(d2, {source:true, target:true});
-
 
 
         _jsPlumb.bind("beforeDetach", function() {
@@ -419,6 +413,31 @@ var testSuite = function () {
         equal(bd, 1, "beforeDrag called once");
         equal(r, 1, "beforeDetach interceptor called once");
         equal(s, 1, "beforeStartDetach interceptor called once");
+
+    });
+
+    test("beforeDetach listener on Endpoint via mouse interaction", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            beforeDetachCount = 0,
+            endpointSpec = {
+                source:true, target:true,
+                beforeDetach:function() {
+                    beforeDetachCount++;
+                }
+
+            },
+            e1 = _jsPlumb.addEndpoint(d1, endpointSpec),
+            e2 = _jsPlumb.addEndpoint(d2, endpointSpec);
+
+        equal(_jsPlumb.select().length, 0, "zero connections before drag");
+        support.dragConnection(e1, e2);
+        equal(_jsPlumb.select().length, 1, "one connection after drag");
+
+
+        support.detachConnection(e1, 0);
+        equal(_jsPlumb.select().length, 0, "connection detached");
+
+        equal(beforeDetachCount, 2, "beforeDetach interceptor called twice, because each endpoint has a beforeDetach and it doesnt return a concrete value");
 
     });
 
@@ -507,7 +526,7 @@ var testSuite = function () {
         // Use jsplumb.hasClass here; IE11 doesnt have `classList` on SVG element
         ok(!_jsPlumb.hasClass(cc, "jtk-dragging"), "jtk-dragging class removed from connection after drag");
 
-        support.dragToDistantLand(e2);
+        support.dragAndAbortConnection(e2);
 
         ok(!ec1.classList.contains("endpointDrag"), "endpointDrag class removed from endpoint after drag");
         ok(!ec1.classList.contains("jtk-dragging"), "jtk-dragging class removed from endpoint after drag");
@@ -517,8 +536,149 @@ var testSuite = function () {
     });
 
 // ----------------------------------------------------------------------------------------------------------------
-// ---------------- ELEMENTS AS SOURCES / TARGETS -----------------------------------------------------------------
+// ---------------- CSS CLASSES -----------------------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------------
+
+    test("css classes", function() {
+
+        var CLASS_CONNECTED = _jsPlumb.endpointConnectedClass
+        var CLASS_ENDPOINT = _jsPlumb.endpointClass
+        var CLASS_FULL = _jsPlumb.endpointFullClass
+        var CLASS_DRAGGING = _jsPlumb.draggingClass
+        var CLASS_FLOATING = _jsPlumb.endpointFloatingClass
+
+        var d1 = support.addDiv("d1", null, null, 50, 50, 50, 50),
+            d2 = support.addDiv("d2", null, null, 250, 250, 50, 50),
+            e1 = _jsPlumb.addEndpoint(d1, {source: true, target: true, anchor: "Top", cssClass:"customSource"}),
+            e2 = _jsPlumb.addEndpoint(d2, {source: true, target: true, anchor: "Top", cssClass:"customTarget"}),
+            c1 = support.getEndpointCanvas(e1),
+            c2 = support.getEndpointCanvas(e2)
+
+        support.assertManagedEndpointCount(d1, 1)
+        support.assertManagedEndpointCount(d2, 1)
+        support.assertManagedConnectionCount(d1, 0)
+        support.assertManagedConnectionCount(d2, 0)
+
+        // we have 2 endpoints, both configured as source/target. First we'll check the initial class list.
+
+        equal(c1.classList.contains(CLASS_ENDPOINT), true, "jtk-endpoint class set on new endpoint")
+        equal(c2.classList.contains(CLASS_ENDPOINT), true, "jtk-endpoint class set on new endpoint")
+
+        equal(c1.classList.contains("customSource"), true, "custom class set on source endpoint")
+        equal(c2.classList.contains("customTarget"), true, "custom class set on target endpoint")
+
+        equal(c1.classList.contains(CLASS_CONNECTED), false, "d1 endpoint has not jtk-endpoint-connected class")
+        equal(c1.classList.contains(CLASS_FULL), false, "d1 endpoint has not jtk-endpoint-full class")
+        equal(c1.classList.contains(CLASS_DRAGGING), false, "d1 endpoint has not jtk-dragging class")
+
+        equal(c2.classList.contains(CLASS_CONNECTED), false, "d2 endpoint has not jtk-endpoint-connected class")
+        equal(c2.classList.contains(CLASS_FULL), false, "d2 endpoint has not jtk-endpoint-full class")
+        equal(c2.classList.contains(CLASS_DRAGGING), false, "d2 endpoint has not jtk-dragging class")
+
+        // now drag a new connection. the source endpoint should show as connected, full and dragging. the target, during the drag, should
+        // have no new classes. after the drop, the target should show as connected and full, and the source should not show dragging.
+        support.dragConnection(e1, e2, false, {
+            beforeMouseUp:function() {
+
+                equal(c1.classList.contains(CLASS_CONNECTED), true, "d1 endpoint has jtk-endpoint-connected class when dragging new connection")
+                equal(c1.classList.contains(CLASS_FULL), true, "d1 endpoint has jtk-endpoint-full class when dragging new connection")
+                equal(c1.classList.contains(CLASS_DRAGGING), true, "d1 endpoint has jtk-dragging class (should be present as this is a new connection from a source) when dragging new connection")
+
+                equal(c2.classList.contains(CLASS_CONNECTED), false, "d2 endpoint has not jtk-endpoint-connected class when dragging new connection")
+                equal(c2.classList.contains(CLASS_FULL), false, "d2 endpoint has not jtk-endpoint-full class when dragging new connection")
+                equal(c2.classList.contains(CLASS_DRAGGING), false, "d2 endpoint has not jtk-dragging class when dragging new connection")
+
+                const d1Endpoints = _jsPlumb.endpointsByElement["d1"]
+                const floatingElementId = d1Endpoints[0].connections[0].targetId
+
+                support.assertManagedEndpointCount(d1Endpoints[0].connections[0].target, 1)
+
+                const floatingEndpoints = _jsPlumb.endpointsByElement[floatingElementId]
+
+                debugger
+                const fc = support.getEndpointCanvas(floatingEndpoints[0])
+                equal(fc.classList.contains("customSource"), true, "custom class set on floating endpoint copied from source when dragging new connection")
+                equal(fc.classList.contains(CLASS_FLOATING), true, "floating endpoint has jtk-floating-endpoint class when dragging new connection")
+                equal(fc.classList.contains(CLASS_CONNECTED), false, "floating endpoint has not jtk-endpoint-connected class when dragging new connection")
+                equal(fc.classList.contains(CLASS_FULL), false, "floating endpoint has not jtk-endpoint-full class when dragging new connection")
+                equal(fc.classList.contains(CLASS_DRAGGING), false, "floating endpoint has not jtk-dragging class when dragging new connection")
+
+            }
+        });
+
+        equal(c1.classList.contains(CLASS_CONNECTED), true, "d1 endpoint has jtk-endpoint-connected class when new connection established")
+        equal(c1.classList.contains(CLASS_FULL), true, "d1 endpoint has jtk-endpoint-full class when new connection established")
+        equal(c1.classList.contains(CLASS_DRAGGING), false, "d1 endpoint has not jtk-dragging class removed after drag when new connection established")
+        equal(c2.classList.contains(CLASS_CONNECTED), true, "d2 endpoint has jtk-endpoint-connected class when new connection established")
+        equal(c2.classList.contains(CLASS_FULL), true, "d2 endpoint has jtk-endpoint-full class when new connection established")
+
+        support.assertManagedConnectionCount(d1, 1)
+        support.assertManagedConnectionCount(d2, 1)
+
+        // we now have 2 endpoints that are connected.  detaching via the source should mean:
+        // - during the drag, the source should now show full, connected or dragging, whereas the target should show full and connected.
+        //
+
+        support.detachAndReattachConnection(e1, {
+            beforeMouseUp:function() {
+
+                debugger
+                const d2Endpoints = _jsPlumb.endpointsByElement["d2"]
+                const floatingElementId = d2Endpoints[0].connections[0].sourceId
+                const floatingEndpoints = _jsPlumb.endpointsByElement[floatingElementId]
+                const fc = support.getEndpointCanvas(floatingEndpoints[0])
+                equal(fc.classList.contains("customSource"), true, "custom class set on floating endpoint copied from source when detaching and reattaching source")
+
+                equal(fc.classList.contains(CLASS_FLOATING), true, "floating endpoint has jtk-floating-endpoint class when detaching and reattaching source")
+                equal(fc.classList.contains(CLASS_CONNECTED), false, "floating endpoint has not jtk-endpoint-connected class when detaching and reattaching source")
+                equal(fc.classList.contains(CLASS_FULL), false, "floating endpoint has not jtk-endpoint-full class when detaching and reattaching source")
+                equal(fc.classList.contains(CLASS_DRAGGING), false, "floating endpoint has not jtk-dragging class when detaching and reattaching source")
+
+                equal(c1.classList.contains(CLASS_CONNECTED), false, "d1 endpoint has not jtk-endpoint-connected class as it is currently disconnected when detaching and reattaching source")
+                equal(c1.classList.contains(CLASS_FULL), false, "d1 endpoint has not jtk-endpoint-full class as it is currently disconnected when detaching and reattaching source")
+                equal(c1.classList.contains(CLASS_DRAGGING), false, "d1 endpoint has not jtk-dragging class as a new connection is not being dragged when detaching and reattaching source")
+            }
+        })
+
+        support.assertManagedConnectionCount(d1, 1)
+        support.assertManagedConnectionCount(d2, 1)
+
+        equal(c1.classList.contains(CLASS_CONNECTED), true, "d1 endpoint has jtk-endpoint-connected class as the connection was reattached")
+        equal(c1.classList.contains(CLASS_FULL), true, "d1 endpoint has jtk-endpoint-full class as the connection was reattached")
+        equal(c1.classList.contains(CLASS_DRAGGING), false, "d1 endpoint does not have jtk-dragging class")
+
+        // we now have 2 endpoints that are connected.  detaching via the target should mean:
+        // - during the drag, the target should not show full, connected or dragging, whereas the target should show full and connected.
+        //
+
+        support.detachAndReattachConnection(e2, {
+            beforeMouseUp:function() {
+
+                debugger
+                const d1Endpoints = _jsPlumb.endpointsByElement["d1"]
+                const floatingElementId = d1Endpoints[0].connections[0].targetId
+                const floatingEndpoints = _jsPlumb.endpointsByElement[floatingElementId]
+                const fc = support.getEndpointCanvas(floatingEndpoints[0])
+                equal(fc.classList.contains("customTarget"), true, "custom class set on floating endpoint copied from target when detaching and reattaching target")
+
+                equal(fc.classList.contains(CLASS_FLOATING), true, "floating endpoint has jtk-floating-endpoint class when detaching and reattaching target")
+                equal(fc.classList.contains(CLASS_CONNECTED), false, "floating endpoint has not jtk-endpoint-connected class when detaching and reattaching target")
+                equal(fc.classList.contains(CLASS_FULL), false, "floating endpoint has not jtk-endpoint-full class when detaching and reattaching target")
+                equal(fc.classList.contains(CLASS_DRAGGING), false, "floating endpoint has not jtk-dragging class when detaching and reattaching target")
+
+                equal(c2.classList.contains(CLASS_CONNECTED), false, "d2 endpoint has not jtk-endpoint-connected class as it is currently disconnected when detaching and reattaching target")
+                equal(c2.classList.contains(CLASS_FULL), false, "d2 endpoint has not jtk-endpoint-full class as it is currently disconnected when detaching and reattaching target")
+                equal(c2.classList.contains(CLASS_DRAGGING), false, "d2 endpoint has not jtk-dragging class as a new connection is not being dragged when detaching and reattaching target")
+            }
+        })
+
+        support.assertManagedConnectionCount(d1, 1)
+        support.assertManagedConnectionCount(d2, 1)
+
+        equal(c2.classList.contains(CLASS_CONNECTED), true, "d2 endpoint has jtk-endpoint-connected class as the connection was reattached")
+        equal(c2.classList.contains(CLASS_FULL), true, "d2 endpoint has jtk-endpoint-full class as the connection was reattached")
+        equal(c2.classList.contains(CLASS_DRAGGING), false, "d2 endpoint does not have jtk-dragging class")
+    });
 
 
 
