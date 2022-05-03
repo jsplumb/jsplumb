@@ -33,7 +33,7 @@ var testSuite = function () {
 
     // ------------------------------- manage -----------------------------------------
 
-    test("Manage adds data-jtk-managed attribute (and defaults to element's `id` if set)", function() {
+    test("Manage adds data-jtk-managed attribute (and defaults to element's `id` if set), and removes it on unmanage", function() {
         var d1 = support.addDiv("d1"), f1 = false;
 
         _jsPlumb.manage(d1);
