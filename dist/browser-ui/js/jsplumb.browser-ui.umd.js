@@ -3332,8 +3332,7 @@
         } else {
           this.startExistingConnectionDrag();
         }
-        this._registerFloatingConnection(this.placeholderInfo, this.jpc
-        );
+        this._registerFloatingConnection(this.placeholderInfo, this.jpc);
         this.instance.currentlyDragging = true;
       }
     }, {
@@ -4353,6 +4352,7 @@
             });
           });
         } catch (e) {
+          util.log("WARN: ResizeObserver could not be attached.");
         }
       }
       return _this;
@@ -4827,7 +4827,8 @@
       }
     }, {
       key: "addOverlayClass",
-      value: function addOverlayClass(o, clazz) {
+      value:
+      function addOverlayClass(o, clazz) {
         if (core.isLabelOverlay(o)) {
           o.instance.addClass(getLabelElement(o), clazz);
         } else if (isSVGElementOverlay(o)) {

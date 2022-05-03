@@ -139,7 +139,15 @@ export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescript
      * @param e
      */
     anchorPositionFinder?: (el: Element, elxy: PointXY, def: BehaviouralTypeDescriptor, e: Event) => AnchorSpec | null;
+    /**
+     * Whether or not an endpoint created from this definition should subsequently
+     * behave as a source for dragging connections with the mouse.
+     */
     source?: boolean;
+    /**
+     * Whether or not an endpoint created from this definition should subsequently
+     * behave as a target for dragging connections with the mouse.
+     */
     target?: boolean;
 }
 /**

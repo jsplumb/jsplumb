@@ -209,7 +209,7 @@ export declare abstract class JsPlumbInstance<T extends {
      * @param element - Element to manage. This method does not accept a DOM element ID as argument. If you wish to manage elements via their DOM element ID,
      * you should use `manageAll` and pass in an appropriate CSS selector that represents your element, eg `#myElementId`.
      * @param internalId - Optional ID for jsPlumb to use internally. If this is not supplied, one will be created.
-     * @param recalc - Maybe recalculate offsets for the element also. It is not recommended that clients of the API use this parameter; it's used in
+     * @param _recalc - Maybe recalculate offsets for the element also. It is not recommended that clients of the API use this parameter; it's used in
      * certain scenarios internally
      */
     manage(element: T["E"], internalId?: string, _recalc?: boolean): ManagedElement<T["E"]>;
@@ -238,7 +238,9 @@ export declare abstract class JsPlumbInstance<T extends {
      */
     getManagedElement(id: string): T["E"];
     /**
-     * Stops managing the given element.
+     * Stops managing the given element, removing it from internal tracking and clearing the custom attribute that is
+     * added by jsPlumb to mark it as managed. This method fires an 'element:unmanage' event containing the unmanaged
+     * element and its managed id.
      * @param el - Element, or ID of the element to stop managing.
      * @param removeElement - If true, also remove the element from the renderer.
      * @public

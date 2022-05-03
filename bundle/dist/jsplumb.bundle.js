@@ -7223,7 +7223,8 @@ var jsPlumbBrowserUI = (function (exports) {
           delete _this3._managedElements[id];
           _this3.viewport.remove(id);
           _this3.fire(EVENT_UNMANAGE_ELEMENT, {
-            el: _el
+            el: _el,
+            id: id
           });
           if (_el && removeElement) {
             _this3._removeElement(_el);
@@ -13391,8 +13392,7 @@ var jsPlumbBrowserUI = (function (exports) {
         } else {
           this.startExistingConnectionDrag();
         }
-        this._registerFloatingConnection(this.placeholderInfo, this.jpc
-        );
+        this._registerFloatingConnection(this.placeholderInfo, this.jpc);
         this.instance.currentlyDragging = true;
       }
     }, {
@@ -14412,6 +14412,7 @@ var jsPlumbBrowserUI = (function (exports) {
             });
           });
         } catch (e) {
+          log("WARN: ResizeObserver could not be attached.");
         }
       }
       return _this;
@@ -14886,7 +14887,8 @@ var jsPlumbBrowserUI = (function (exports) {
       }
     }, {
       key: "addOverlayClass",
-      value: function addOverlayClass(o, clazz) {
+      value:
+      function addOverlayClass(o, clazz) {
         if (isLabelOverlay(o)) {
           o.instance.addClass(getLabelElement(o), clazz);
         } else if (isSVGElementOverlay(o)) {

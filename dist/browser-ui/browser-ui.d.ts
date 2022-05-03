@@ -75,6 +75,7 @@ export declare interface BeforeStartEventParams extends DragStartEventParams {
 
 /**
  * Defaults for the BrowserUI implementation of jsPlumb.
+ * @public
  */
 export declare interface BrowserJsPlumbDefaults extends JsPlumbDefaults<Element> {
     /**
@@ -99,7 +100,7 @@ export declare interface BrowserJsPlumbDefaults extends JsPlumbDefaults<Element>
 
 /**
  * JsPlumbInstance that renders to the DOM in a browser, and supports dragging of elements/connections.
- *
+ * @public
  */
 export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     _instanceIndex: number;
@@ -446,9 +447,9 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
      * Rotates the given element. This method overrides the same method from the superclass: the superclass only makes a note
      * of the current rotation for the given element, but in this class the element has appropriate CSS transforms applied to it
      * to effect the rotation in the DOM.
-     * @param element Element to rotate.
-     * @param rotation Rotation, in degrees.
-     * @param doNotRepaint If true, a repaint is not done afterwards. Defaults to false.
+     * @param element - Element to rotate.
+     * @param rotation - Rotation, in degrees.
+     * @param doNotRepaint - If true, a repaint is not done afterwards. Defaults to false.
      * @public
      */
     rotate(element: Element, rotation: number, doNotRepaint?: boolean): RedrawResult;
@@ -457,24 +458,80 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
         attr: (node: SVGElement, attributes: Record<string, string | number>) => void;
         pos: (d: [number, number]) => string;
     };
+    /**
+     * @internal
+     * @param o
+     * @param clazz
+     */
     addOverlayClass(o: Overlay, clazz: string): void;
+    /**
+     * @internal
+     * @param o
+     * @param clazz
+     */
     removeOverlayClass(o: Overlay, clazz: string): void;
     /**
      * @internal
      * @param o
      * @param params
      * @param extents
-     * @private
      */
     _paintOverlay(o: Overlay, params: any, extents: any): void;
+    /**
+     * Sets the visibility of some overlay.
+     * @param o - Overlay to hide or show
+     * @param visible - If true, make the overlay visible, if false, make the overlay invisible.
+     */
     setOverlayVisible(o: Overlay, visible: boolean): void;
+    /**
+     * @internal
+     * @param o
+     * @param c
+     */
     reattachOverlay(o: Overlay, c: Component): void;
+    /**
+     * @internal
+     * @param o
+     * @param hover
+     */
     setOverlayHover(o: Overlay, hover: boolean): void;
+    /**
+     * @internal
+     * @param o
+     */
     destroyOverlay(o: Overlay): void;
+    /**
+     * @internal
+     * @param o
+     * @param component
+     * @param paintStyle
+     * @param absolutePosition
+     */
     drawOverlay(o: Overlay, component: any, paintStyle: PaintStyle, absolutePosition?: PointXY): any;
+    /**
+     * @internal
+     * @param o
+     */
     updateLabel(o: LabelOverlay): void;
+    /**
+     * @internal
+     * @param component
+     * @param hover
+     */
     setHover(component: Component, hover: boolean): void;
+    /**
+     * @internal
+     * @param connector
+     * @param paintStyle
+     * @param extents
+     */
     paintConnector(connector: AbstractConnector, paintStyle: PaintStyle, extents?: Extents): void;
+    /**
+     * @internal
+     * @param connector
+     * @param hover
+     * @param sourceEndpoint
+     */
     setConnectorHover(connector: AbstractConnector, hover: boolean, sourceEndpoint?: Endpoint): void;
     /**
      * @internal
@@ -571,8 +628,34 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
      * @param params
      */
     deleteConnection(connection: Connection, params?: DeleteConnectionOptions): boolean;
+    /**
+     * Registers a selector for connection drag on the instance. This is a newer version of the `makeSource` functionality
+     * that had been in jsPlumb since the early days (and which, in 5.x, has been removed). With this approach, rather than calling `makeSource` on every element, you
+     * can register a CSS selector on the instance that identifies something that is common to your elements. This will only respond to
+     * mouse/touch events on elements that are managed by the instance.
+     * @param selector - CSS3 selector identifying child element(s) of some managed element that should act as a connection source.
+     * @param params - Options for the source: connector type, behaviour, etc.
+     * @param exclude - If true, the selector defines an 'exclusion': anything _except_ elements that match this.
+     * @public
+     */
     addSourceSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): ConnectionDragSelector;
+    /**
+     * Unregister the given source selector.
+     * @param selector - Remove the given drag selector from the instance.
+     * @public
+     */
     removeSourceSelector(selector: ConnectionDragSelector): void;
+    /**
+     * Manage an element.  Adds the element to the viewport and sets up tracking for endpoints/connections for the element, as well as enabling dragging for the
+     * element. This method is called internally by various methods of the jsPlumb instance, such as `connect`, `addEndpoint`, `makeSource` and `makeTarget`,
+     * so if you use those methods to setup your UI then you may not need to call this. However, if you use the `addSourceSelector` and `addTargetSelector` methods
+     * to configure your UI then you will need to register elements using this method, or they will not be draggable.
+     * @param element - Element to manage. This method does not accept a DOM element ID as argument. If you wish to manage elements via their DOM element ID,
+     * you should use `manageAll` and pass in an appropriate CSS selector that represents your element, eg `#myElementId`.
+     * @param internalId - Optional ID for jsPlumb to use internally. If this is not supplied, one will be created.
+     * @param _recalc - Maybe recalculate offsets for the element also. It is not recommended that clients of the API use this parameter; it's used in
+     * certain scenarios internally
+     */
     manage(element: Element, internalId?: string, _recalc?: boolean): ManagedElement<Element>;
 }
 
@@ -730,6 +813,11 @@ export declare type DraggedElement = {
     dropGroup: UIGroup;
 };
 
+/**
+ * Definition of a drag group membership - either just the id of a drag group, or the id of a drag group and whether or not
+ * this element plays an `active` role in the drag group.
+ * @public
+ */
 export declare type DragGroupSpec = string | {
     id: string;
     active: boolean;
@@ -1249,6 +1337,12 @@ export declare function getClass(el: Element): string;
 
 export declare function getEventSource(e: Event): jsPlumbDOMElement;
 
+/**
+ * @internal
+ * @param evt
+ * @param el
+ * @param zoom
+ */
 export declare function getPositionOnElement(evt: Event, el: Element, zoom: number): PointXY;
 
 export declare function getTouch(touches: TouchList, idx: number): Touch;
@@ -1260,6 +1354,13 @@ export declare interface GhostProxyingDragHandler extends DragHandler {
     makeGhostProxy?: GhostProxyGenerator;
 }
 
+/**
+ * @internal
+ * @param desiredLoc
+ * @param dragEl
+ * @param constrainRect
+ * @param size
+ */
 export declare function groupDragConstrain(desiredLoc: PointXY, dragEl: jsPlumbDOMElement, constrainRect: BoundingBox, size: Size): PointXY;
 
 export declare type GroupLocation = {
@@ -1293,6 +1394,9 @@ export declare interface jsPlumbDOMElement extends HTMLElement, jsPlumbElement<E
     cloneNode: (deep?: boolean) => jsPlumbDOMElement;
 }
 
+/**
+ * @internal
+ */
 export declare interface jsPlumbDOMInformation {
     connector?: AbstractConnector;
     endpoint?: Endpoint;

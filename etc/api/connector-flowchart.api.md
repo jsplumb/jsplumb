@@ -11,7 +11,7 @@ import { ConnectorOptions } from '@jsplumb/common';
 import { Geometry } from '@jsplumb/common';
 import { PaintGeometry } from '@jsplumb/core';
 
-// @public (undocumented)
+// @public
 export class FlowchartConnector extends AbstractConnector {
     constructor(connection: Connection, params: FlowchartConnectorOptions);
     // (undocumented)
@@ -44,15 +44,11 @@ export class FlowchartConnector extends AbstractConnector {
     type: string;
 }
 
-// @public (undocumented)
+// @public
 export interface FlowchartConnectorOptions extends ConnectorOptions {
-    // (undocumented)
     alwaysRespectStubs?: boolean;
-    // (undocumented)
     cornerRadius?: number;
-    // (undocumented)
     loopbackRadius?: number;
-    // (undocumented)
     midpoint?: number;
 }
 

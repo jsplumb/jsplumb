@@ -63,9 +63,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     addDragFilter(filter: Function | string, exclude?: boolean): void;
     // @internal (undocumented)
     addEndpointClass(ep: Endpoint, c: string): void;
-    // (undocumented)
+    // @internal (undocumented)
     addOverlayClass(o: Overlay, clazz: string): void;
-    // (undocumented)
     addSourceSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): ConnectionDragSelector;
     addToDragGroup(spec: DragGroupSpec, ...els: Array<Element>): void;
     addToDragSelection(...el: Array<Element>): void;
@@ -102,7 +101,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     destroyConnector(connection: Connection): void;
     // @internal (undocumented)
     destroyEndpoint(ep: Endpoint): void;
-    // (undocumented)
+    // @internal (undocumented)
     destroyOverlay(o: Overlay): void;
     // (undocumented)
     draggingClass: string;
@@ -110,7 +109,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     dragManager: DragManager;
     // (undocumented)
     dragSelectClass: string;
-    // (undocumented)
+    // @internal (undocumented)
     drawOverlay(o: Overlay, component: any, paintStyle: PaintStyle, absolutePosition?: PointXY): any;
     // (undocumented)
     _elementClick: Function;
@@ -177,7 +176,6 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     // (undocumented)
     _instanceIndex: number;
     isDraggable(el: Element): boolean;
-    // (undocumented)
     manage(element: Element, internalId?: string, _recalc?: boolean): ManagedElement<Element>;
     // (undocumented)
     managedElementsSelector: string;
@@ -195,11 +193,11 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     _overlayMouseover: Function;
     // (undocumented)
     _overlayTap: Function;
-    // (undocumented)
+    // @internal (undocumented)
     paintConnector(connector: AbstractConnector, paintStyle: PaintStyle, extents?: Extents): void;
     // @internal (undocumented)
     _paintOverlay(o: Overlay, params: any, extents: any): void;
-    // (undocumented)
+    // @internal (undocumented)
     reattachOverlay(o: Overlay, c: Component): void;
     removeAttribute(el: Element, attName: string): void;
     removeClass(el: Element | NodeListOf<Element>, clazz: string): void;
@@ -212,9 +210,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     removeEndpointClass(ep: Endpoint, c: string): void;
     removeFromDragGroup(...els: Array<Element>): void;
     removeFromDragSelection(...el: Array<Element>): void;
-    // (undocumented)
+    // @internal (undocumented)
     removeOverlayClass(o: Overlay, clazz: string): void;
-    // (undocumented)
     removeSourceSelector(selector: ConnectionDragSelector): void;
     // @internal (undocumented)
     renderEndpoint(ep: Endpoint, paintStyle: PaintStyle): void;
@@ -222,7 +219,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     rotate(element: Element, rotation: number, doNotRepaint?: boolean): RedrawResult;
     setAttribute(el: Element, name: string, value: string): void;
     setAttributes(el: Element, atts: Record<string, string>): void;
-    // (undocumented)
+    // @internal (undocumented)
     setConnectorHover(connector: AbstractConnector, hover: boolean, sourceEndpoint?: Endpoint): void;
     // @internal (undocumented)
     setConnectorVisible(connector: AbstractConnector, v: boolean): void;
@@ -236,11 +233,10 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     setEndpointVisible(ep: Endpoint, v: boolean): void;
     // @internal (undocumented)
     setGroupVisible(group: UIGroup<Element>, state: boolean): void;
-    // (undocumented)
+    // @internal (undocumented)
     setHover(component: Component, hover: boolean): void;
-    // (undocumented)
+    // @internal (undocumented)
     setOverlayHover(o: Overlay, hover: boolean): void;
-    // (undocumented)
     setOverlayVisible(o: Overlay, visible: boolean): void;
     // @internal
     setPosition(el: Element, p: PointXY): void;
@@ -262,7 +258,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     toggleDragSelection(...el: Array<Element>): void;
     trigger(el: Document | Element, event: string, originalEvent?: Event, payload?: any, detail?: number): void;
     unmanage(el: Element, removeElement?: boolean): void;
-    // (undocumented)
+    // @internal (undocumented)
     updateLabel(o: LabelOverlay): void;
 }
 
@@ -444,7 +440,7 @@ export type DraggedElement = {
     dropGroup: UIGroup;
 };
 
-// @public (undocumented)
+// @public
 export type DragGroupSpec = string | {
     id: string;
     active: boolean;
@@ -918,7 +914,9 @@ export function getClass(el: Element): string;
 // @public (undocumented)
 export function getEventSource(e: Event): jsPlumbDOMElement;
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "getPositionOnElement" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
 export function getPositionOnElement(evt: Event, el: Element, zoom: number): PointXY;
 
 // @public (undocumented)
@@ -935,7 +933,9 @@ export interface GhostProxyingDragHandler extends DragHandler {
     useGhostProxy: (container: any, dragEl: Element) => boolean;
 }
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "groupDragConstrain" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
 export function groupDragConstrain(desiredLoc: PointXY, dragEl: jsPlumbDOMElement, constrainRect: BoundingBox, size: Size): PointXY;
 
 // @public (undocumented)
@@ -974,6 +974,8 @@ export interface jsPlumbDOMElement extends HTMLElement, jsPlumbElement<Element> 
     _jsPlumbOrphanedEndpoints: Array<Endpoint>;
     // (undocumented)
     _jsPlumbScrollHandler?: Function;
+    // Warning: (ae-incompatible-release-tags) The symbol "jtk" is marked as @public, but its signature references "jsPlumbDOMInformation" which is marked as @internal
+    //
     // (undocumented)
     jtk: jsPlumbDOMInformation;
     // (undocumented)
@@ -984,7 +986,9 @@ export interface jsPlumbDOMElement extends HTMLElement, jsPlumbElement<Element> 
     parentNode: jsPlumbDOMElement;
 }
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "jsPlumbDOMInformation" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
 export interface jsPlumbDOMInformation {
     // (undocumented)
     connector?: AbstractConnector;

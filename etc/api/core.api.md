@@ -381,9 +381,7 @@ export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescript
     portId?: string;
     rank?: number;
     redrop?: RedropPolicy;
-    // (undocumented)
     source?: boolean;
-    // (undocumented)
     target?: boolean;
     uniqueEndpoint?: boolean;
 }

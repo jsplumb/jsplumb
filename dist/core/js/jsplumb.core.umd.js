@@ -6123,7 +6123,8 @@
           delete _this3._managedElements[id];
           _this3.viewport.remove(id);
           _this3.fire(EVENT_UNMANAGE_ELEMENT, {
-            el: _el
+            el: _el,
+            id: id
           });
           if (_el && removeElement) {
             _this3._removeElement(_el);
