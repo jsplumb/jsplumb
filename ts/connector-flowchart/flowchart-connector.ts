@@ -4,10 +4,26 @@ import {
 
 import {ConnectorOptions, Geometry} from "@jsplumb/common"
 
+/**
+ * Options for a flowchart connector
+ * @public
+ */
 export interface FlowchartConnectorOptions extends ConnectorOptions {
+    /**
+     * Always paint stubs at the end of a connector, even if the elements are closer together than the length of the stubs.
+     */
     alwaysRespectStubs?:boolean
+    /**
+     * Optional midpoint to use for the connector, defaults to 0.5.
+     */
     midpoint?:number
+    /**
+     * Optional curvature between segments. Defaults to 0, ie. no curve.
+     */
     cornerRadius?:number
+    /**
+     * How large to make a connector whose source and target is the same element.
+     */
     loopbackRadius?:number
 }
 
@@ -36,6 +52,10 @@ function _cloneArray (a:Array<any>):Array<any> {
     return _a
 }
 
+/**
+ * Flowchart connector inscribes a path consisting of a series of horizontal and vertical segments.
+ * @public
+ */
 export class FlowchartConnector extends AbstractConnector {
 
     static type = "Flowchart"
