@@ -4762,10 +4762,9 @@ var testSuite = function () {
         equal(c.barFunction(), "parent", "barFunction property not overridden; there was only one value")
     })
 
-    asyncTest(": resize listener", function () {
+    asyncTest("resize observer", function () {
         var d16 = support.addDiv("d16", null, null, 50, 50, 150, 150),
             d18 = support.addDiv("d18", null, null, 450, 50, 150, 150);
-
 
         d16.style.outline = "1px solid"
         d18.style.outline = "1px solid"
@@ -4785,6 +4784,28 @@ var testSuite = function () {
 
 
     });
+
+    // asyncTest("mutation observer", function() {
+    //
+    //     var d16 = support.addDiv("d16", null, null, 50, 50, 150, 150),
+    //         d18 = support.addDiv("d18", null, null, 450, 50, 150, 150);
+    //
+    //     d16.style.outline = "1px solid"
+    //     d18.style.outline = "1px solid"
+    //     var e16 = _jsPlumb.addEndpoint(d16, {anchor:"Right"});
+    //     var e18 = _jsPlumb.addEndpoint(d18, {anchor: "Left"});
+    //
+    //     var c = _jsPlumb.connect({source: e16, target: e18});
+    //     equal(c.endpoints[0]._anchor.computedPosition.curX, 200, "source anchor at correct x position")
+    //     equal(c.endpoints[0]._anchor.computedPosition.curY, 125, "source anchor at correct y position")
+    //
+    //     d16.parentNode.removeChild(d16)
+    //
+    //     setTimeout(function() {
+    //         QUnit.start()
+    //         equal(_jsPlumb.select().length, 0, "0 connections as mutation observer caught the removal of a div")
+    //     }, 250)
+    // })
 
 };
 
