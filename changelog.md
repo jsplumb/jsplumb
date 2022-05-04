@@ -1,3 +1,9 @@
+## 5.6.1
+
+May 5th 2022
+
+- Update to packaging in Toolkit edition.
+
 ## 5.6.0
 
 May 3rd 2022
@@ -14,9 +20,7 @@ May 3rd 2022
     - set `jtk-dragging1 class on stationary endpoint, not floating endpoint, and only when dragging a new connection
     - fix issue where the endpoint definition was not correctly honoured when dropping a source back onto its original element
     - ensure 'source' and 'target' flags are correctly copied from target definition on drop
-    - fix for `shouldReattach` - it was using the floating endpoint's detach allowed response rather than the stationary endpoint the connection was originally on
-    
------------------
+    - fix for `shouldReattach` - it was using the floating endpoint's detach allowed response rather than the stationary endpoint the connection was originally on   
 
 - Added a `ResizeObserver` to the `BrowserJsPlumbInstance` class in `@jsplumb/browser-ui`. When the size of a managed element changes, jsPlumb will automatically revalidate that element.
 
