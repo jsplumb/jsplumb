@@ -1,3 +1,9 @@
+## 5.6.2
+
+May 6th 2022
+
+- Toolkit edition updates
+
 ## 5.6.1
 
 May 5th 2022
