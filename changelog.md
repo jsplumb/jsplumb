@@ -1,5 +1,8 @@
 ## 5.6.5
 
+May 24th 2022
+
+- Updates to the Toolkit edition's Angular integration
 
 ## 5.6.4
 
