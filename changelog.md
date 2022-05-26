@@ -1,3 +1,9 @@
+## 5.7.0
+
+May 26th 2022
+
+- Reinstated support for "direct render" in Toolkit edition.
+
 ## 5.6.5
 
 May 24th 2022
