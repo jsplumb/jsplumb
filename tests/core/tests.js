@@ -100,6 +100,43 @@ var testSuite = function () {
         ok(d1.getAttribute("data-jtk-managed") != null, "d1 is marked data-jtk-managed");
     });
 
+    test("jsPlumbUtil.lineIntersection", function () {
+        var i = jsPlumbUtil.lineIntersection([{x:592,y:197}, {x:692,y:197}], [{x:642,y:157},{x:608.35,y:745.10423240126}])
+        equal(i.y, 197, "intersection crosses at y = 197")
+        var i2 = jsPlumbUtil.lineIntersection([{x:592,y:197}, {x:692,y:197}], [{x:642,y:157},{x:608.35,y:745.1042324012622}])
+        equal(i2.y, 197, "intersection crosses at y = 197")
+
+
+    })
+
+    test("Rectangle/line intersection", function() {
+        var r = {x: 211, y: 8.04, w: 100, h: 80}
+        var l = [{x: 304, y: 204}, {x: 261, y: 48.04}]
+
+        var i = jsPlumbUtil.lineRectangleIntersection(l, r)[0]
+        ok(i != null)
+
+        var l2 = [{x: 106.9, y: 40.355}, {x: 104.1, y: 159}]
+
+        // center: {x: 106.9, y: 40.355}
+        var r2 = {h: 80, w: 100, x: 56.9, y: 0.355}
+
+        var i2 = jsPlumbUtil.lineRectangleIntersection(l2, r2)[0]
+        ok(i2 != null)
+
+        var r3 = {h: 80,w: 100,x: 653,y: 683}
+        var l3 =  [{x: 412, y: 105.8},{x: 703, y: 723}]
+
+        var i3 = jsPlumbUtil.lineRectangleIntersection(l3, r3)[0]
+        ok(i3 != null)
+
+        var r4 = {x: 13.5, y: 99.3, w: 100, h: 80}
+        var l4 = [{x: 63.5, y: 139.3}, {x: 610, y: 140}]
+
+        var i4 = jsPlumbUtil.lineRectangleIntersection(l4, r4)[0]
+        ok(i4 != null)
+    })
+
     // asyncTest("element with data-jtk-managed attribute set is automatically managed", function() {
     //     _jsPlumb.bind("manageElement", function(p) {
     //         QUnit.start()
@@ -185,5 +222,20 @@ var testSuite = function () {
     //     support2.cleanup();
     //     foo.parentNode.removeChild(foo);
     // });
+
+    test("no options provided to connector (issue 1129)", function() {
+        var d1 = support.addDiv("d1"),
+            d2 = support.addDiv("d2");
+
+        var c = _jsPlumb.connect({
+            source:d1,
+            target:d2,
+            connector:{
+                type:"Bezier"
+            }
+        })
+
+        ok(c != null, "connection established when no options set")
+    })
 
 };
