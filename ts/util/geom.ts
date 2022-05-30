@@ -1,7 +1,7 @@
 /**
  * Various geometry functions
  *
- * Copyright (c) 2021 jsPlumb Pty Ltd
+ * Copyright (c) 2022 jsPlumb Pty Ltd
  * https://jsplumbtoolkit.com
  *
  * Permission is hereby granted, free of charge, to any person
@@ -178,8 +178,13 @@ function toABC(line:LineXY):{A:number,B:number, C:number} {
     return {
         A,
         B,
-        C:(A * line[0].x) + (B * line[0].y)
+        C:fixPrecision((A * line[0].x) + (B * line[0].y))
     }
+}
+
+function fixPrecision(n:number, digits?:number):number {
+    digits = digits == null ? 2 : digits
+    return Math.floor(n * Math.pow(10, digits)) / Math.pow(10, digits)
 }
 
 /**
@@ -198,18 +203,21 @@ export function lineIntersection(l1:LineXY, l2:LineXY):PointXY|null {
     if (det == 0) {
         return null
     } else {
+        // we fix the candidate values to two decimal places to assist in edge cases where the inputs
+        // are decimals with many figures after the point - javascript numbers start getting a bit imprecise. and in
+        // a browser environment we really dont need anything more accurate than a couple of decimal points.
         const candidate = {
-            x:( (abc2.B * abc1.C) - (abc1.B * abc2.C) ) / det,
-            y:( (abc1.A * abc2.C) - (abc2.A * abc1.C) ) / det
+            x:Math.round(( (abc2.B * abc1.C) - (abc1.B * abc2.C) ) / det),
+            y:Math.round(( (abc1.A * abc2.C) - (abc2.A * abc1.C) ) / det)
         },
-            l1xmin = Math.min(l1[0].x, l1[1].x),
-            l1xmax = Math.max(l1[0].x, l1[1].x),
-            l1ymin = Math.min(l1[0].y, l1[1].y),
-            l1ymax = Math.max(l1[0].y, l1[1].y),
-            l2xmin = Math.min(l2[0].x, l2[1].x),
-            l2xmax = Math.max(l2[0].x, l2[1].x),
-            l2ymin = Math.min(l2[0].y, l2[1].y),
-            l2ymax = Math.max(l2[0].y, l2[1].y)
+            l1xmin = Math.floor(Math.min(l1[0].x, l1[1].x)),
+            l1xmax = Math.round(Math.max(l1[0].x, l1[1].x)),
+            l1ymin = Math.floor(Math.min(l1[0].y, l1[1].y)),
+            l1ymax = Math.round(Math.max(l1[0].y, l1[1].y)),
+            l2xmin = Math.floor(Math.min(l2[0].x, l2[1].x)),
+            l2xmax = Math.round(Math.max(l2[0].x, l2[1].x)),
+            l2ymin = Math.floor(Math.min(l2[0].y, l2[1].y)),
+            l2ymax = Math.round(Math.max(l2[0].y, l2[1].y))
 
         if (  (candidate.x >= l1xmin && candidate.x <= l1xmax) &&
             (candidate.y >= l1ymin && candidate.y <= l1ymax) &&
