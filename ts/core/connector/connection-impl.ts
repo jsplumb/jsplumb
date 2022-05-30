@@ -548,7 +548,7 @@ export class Connection<E = any> extends Component {
         }
         else {
             const co = connectorSpec as ConnectorWithOptions
-            connector = this.instance._makeConnector(this, co.type, merge(co.options, connectorArgs))
+            connector = this.instance._makeConnector(this, co.type, merge(co.options || {}, connectorArgs))
         }
         if (typeId != null) {
             connector.typeId = typeId
