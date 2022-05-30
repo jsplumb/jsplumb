@@ -2772,7 +2772,7 @@
           connector = this.instance._makeConnector(this, connectorSpec, connectorArgs);
         } else {
           var co = connectorSpec;
-          connector = this.instance._makeConnector(this, co.type, util.merge(co.options, connectorArgs));
+          connector = this.instance._makeConnector(this, co.type, util.merge(co.options || {}, connectorArgs));
         }
         if (typeId != null) {
           connector.typeId = typeId;

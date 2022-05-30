@@ -1,7 +1,7 @@
 /**
  * Various geometry functions
  *
- * Copyright (c) 2021 jsPlumb Pty Ltd
+ * Copyright (c) 2022 jsPlumb Pty Ltd
  * https://jsplumbtoolkit.com
  *
  * Permission is hereby granted, free of charge, to any person
