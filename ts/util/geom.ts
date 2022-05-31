@@ -182,8 +182,13 @@ function toABC(line:LineXY):{A:number,B:number, C:number} {
     }
 }
 
-function fixPrecision(n:number, digits?:number):number {
-    digits = digits == null ? 2 : digits
+/**
+ * Trim decimal points from a number. Defaults to 3 decimal points.
+ * @param n
+ * @param digits
+ */
+export function fixPrecision(n:number, digits?:number):number {
+    digits = digits == null ? 3 : digits
     return Math.floor(n * Math.pow(10, digits)) / Math.pow(10, digits)
 }
 
