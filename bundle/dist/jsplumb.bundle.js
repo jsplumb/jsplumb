@@ -849,7 +849,7 @@ var jsPlumbBrowserUI = (function (exports) {
     };
   }
   function fixPrecision(n, digits) {
-    digits = digits == null ? 2 : digits;
+    digits = digits == null ? 3 : digits;
     return Math.floor(n * Math.pow(10, digits)) / Math.pow(10, digits);
   }
   function lineIntersection(l1, l2) {
@@ -15633,6 +15633,7 @@ var jsPlumbBrowserUI = (function (exports) {
   exports.findAllWithFunction = findAllWithFunction;
   exports.findParent = findParent;
   exports.findWithFunction = findWithFunction;
+  exports.fixPrecision = fixPrecision;
   exports.forEach = forEach;
   exports.fromArray = fromArray;
   exports.functionChain = functionChain;

@@ -99,6 +99,12 @@ export declare function theta(p1: PointXY, p2: PointXY): number;
  */
 export declare function intersects(r1: RectangleXY, r2: RectangleXY): boolean;
 /**
+ * Trim decimal points from a number. Defaults to 3 decimal points.
+ * @param n
+ * @param digits
+ */
+export declare function fixPrecision(n: number, digits?: number): number;
+/**
  * Compute the intersection of the two lines.
  * @param l1
  * @param l2

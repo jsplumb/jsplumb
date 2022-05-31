@@ -108,6 +108,9 @@ export function findAllWithFunction<T>(a: ArrayLike<T>, predicate: (_a: T) => bo
 // @internal
 export function findWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): number;
 
+// @public
+export function fixPrecision(n: number, digits?: number): number;
+
 // Warning: (ae-internal-missing-underscore) The name "forEach" should be prefixed with an underscore because the declaration is marked as @internal
 //
 // @internal

@@ -231,6 +231,13 @@ export declare function findAllWithFunction<T>(a: ArrayLike<T>, predicate: (_a: 
 export declare function findWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): number;
 
 /**
+ * Trim decimal points from a number. Defaults to 3 decimal points.
+ * @param n
+ * @param digits
+ */
+export declare function fixPrecision(n: number, digits?: number): number;
+
+/**
  * Stand-in for the `forEach` method which is available on modern browsers but not on IE11.
  * @param a
  * @param f
