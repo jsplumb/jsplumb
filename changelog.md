@@ -1,3 +1,9 @@
+## 5.7.1
+
+June 1st 2022
+
+- Update to ForceDirected layout in Toolkit edition to better support positioning newly added nodes 
+
 ## 5.7.0
 
 June 1st 2022
