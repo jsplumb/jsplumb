@@ -1,8 +1,9 @@
 ## 5.7.0
 
-May 26th 2022
+June 1st 2022
 
 - Reinstated support for "direct render" in Toolkit edition.
+- Added ForceDirected layout to Toolkit edition
 
 ## 5.6.5
 
