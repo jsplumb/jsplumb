@@ -1,3 +1,10 @@
+## 5.7.2
+
+June 3rd 2022
+
+- Added support for template macros to Toolkit's `browser-ui-vanilla-2` package
+- Fixed versioning issue in Community edition
+
 ## 5.7.1
 
 June 1st 2022
