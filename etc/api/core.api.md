@@ -976,6 +976,69 @@ export interface CustomOverlayOptions extends OverlayOptions {
     create: (c: Component) => any;
 }
 
+// @public (undocumented)
+export const DEFAULT_KEY_ALLOW_NESTED_GROUPS = "allowNestedGroups";
+
+// @public (undocumented)
+export const DEFAULT_KEY_ANCHOR = "anchor";
+
+// @public (undocumented)
+export const DEFAULT_KEY_ANCHORS = "anchors";
+
+// @public (undocumented)
+export const DEFAULT_KEY_CONNECTION_OVERLAYS = "connectionOverlays";
+
+// @public (undocumented)
+export const DEFAULT_KEY_CONNECTIONS_DETACHABLE = "connectionsDetachable";
+
+// @public (undocumented)
+export const DEFAULT_KEY_CONNECTOR = "connector";
+
+// @public (undocumented)
+export const DEFAULT_KEY_CONTAINER = "container";
+
+// @public (undocumented)
+export const DEFAULT_KEY_ENDPOINT = "endpoint";
+
+// @public (undocumented)
+export const DEFAULT_KEY_ENDPOINT_HOVER_STYLE = "endpointHoverStyle";
+
+// @public (undocumented)
+export const DEFAULT_KEY_ENDPOINT_HOVER_STYLES = "endpointHoverStyles";
+
+// @public (undocumented)
+export const DEFAULT_KEY_ENDPOINT_OVERLAYS = "endpointOverlays";
+
+// @public (undocumented)
+export const DEFAULT_KEY_ENDPOINT_STYLE = "endpointStyle";
+
+// @public (undocumented)
+export const DEFAULT_KEY_ENDPOINT_STYLES = "endpointStyles";
+
+// @public (undocumented)
+export const DEFAULT_KEY_ENDPOINTS = "endpoints";
+
+// @public (undocumented)
+export const DEFAULT_KEY_HOVER_CLASS = "hoverClass";
+
+// @public (undocumented)
+export const DEFAULT_KEY_HOVER_PAINT_STYLE = "hoverPaintStyle";
+
+// @public (undocumented)
+export const DEFAULT_KEY_LIST_STYLE = "listStyle";
+
+// @public (undocumented)
+export const DEFAULT_KEY_MAX_CONNECTIONS = "maxConnections";
+
+// @public (undocumented)
+export const DEFAULT_KEY_PAINT_STYLE = "paintStyle";
+
+// @public (undocumented)
+export const DEFAULT_KEY_REATTACH_CONNECTIONS = "reattachConnections";
+
+// @public (undocumented)
+export const DEFAULT_KEY_SCOPE = "scope";
+
 // @public
 export type DeleteConnectionOptions = {
     force?: boolean;
@@ -1520,47 +1583,47 @@ export function isPlainArrowOverlay(o: Overlay): o is PlainArrowOverlay;
 // @public (undocumented)
 export interface JsPlumbDefaults<E> {
     // (undocumented)
-    allowNestedGroups?: boolean;
+    [DEFAULT_KEY_ALLOW_NESTED_GROUPS]?: boolean;
     // (undocumented)
-    anchor?: AnchorSpec;
+    [DEFAULT_KEY_ANCHOR]?: AnchorSpec;
     // (undocumented)
-    anchors?: [AnchorSpec, AnchorSpec];
+    [DEFAULT_KEY_ANCHORS]?: [AnchorSpec, AnchorSpec];
     // (undocumented)
-    connectionOverlays?: Array<OverlaySpec>;
+    [DEFAULT_KEY_CONNECTION_OVERLAYS]?: Array<OverlaySpec>;
     // (undocumented)
-    connectionsDetachable?: boolean;
+    [DEFAULT_KEY_CONNECTIONS_DETACHABLE]?: boolean;
     // (undocumented)
-    connector?: ConnectorSpec;
+    [DEFAULT_KEY_CONNECTOR]?: ConnectorSpec;
     // (undocumented)
-    container?: E;
+    [DEFAULT_KEY_CONTAINER]?: E;
     // (undocumented)
-    endpoint?: EndpointSpec;
+    [DEFAULT_KEY_ENDPOINT]?: EndpointSpec;
     // (undocumented)
-    endpointHoverStyle?: EndpointStyle;
+    [DEFAULT_KEY_ENDPOINT_HOVER_STYLE]?: EndpointStyle;
     // (undocumented)
-    endpointHoverStyles?: [EndpointStyle, EndpointStyle];
+    [DEFAULT_KEY_ENDPOINT_HOVER_STYLES]?: [EndpointStyle, EndpointStyle];
     // (undocumented)
-    endpointOverlays?: Array<OverlaySpec>;
+    [DEFAULT_KEY_ENDPOINT_OVERLAYS]?: Array<OverlaySpec>;
     // (undocumented)
-    endpoints?: [EndpointSpec, EndpointSpec];
+    [DEFAULT_KEY_ENDPOINTS]?: [EndpointSpec, EndpointSpec];
     // (undocumented)
-    endpointStyle?: EndpointStyle;
+    [DEFAULT_KEY_ENDPOINT_STYLE]?: EndpointStyle;
     // (undocumented)
-    endpointStyles?: [EndpointStyle, EndpointStyle];
+    [DEFAULT_KEY_ENDPOINT_STYLES]?: [EndpointStyle, EndpointStyle];
     // (undocumented)
-    hoverClass?: string;
+    [DEFAULT_KEY_HOVER_CLASS]?: string;
     // (undocumented)
-    hoverPaintStyle?: PaintStyle;
+    [DEFAULT_KEY_HOVER_PAINT_STYLE]?: PaintStyle;
     // (undocumented)
-    listStyle?: ListSpec;
+    [DEFAULT_KEY_LIST_STYLE]?: ListSpec;
     // (undocumented)
-    maxConnections?: number;
+    [DEFAULT_KEY_MAX_CONNECTIONS]?: number;
     // (undocumented)
-    paintStyle?: PaintStyle;
+    [DEFAULT_KEY_PAINT_STYLE]?: PaintStyle;
     // (undocumented)
-    reattachConnections?: boolean;
+    [DEFAULT_KEY_REATTACH_CONNECTIONS]?: boolean;
     // (undocumented)
-    scope?: string;
+    [DEFAULT_KEY_SCOPE]?: string;
 }
 
 // @public (undocumented)

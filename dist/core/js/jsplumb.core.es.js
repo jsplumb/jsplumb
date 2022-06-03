@@ -1203,6 +1203,28 @@ var ERROR_SOURCE_DOES_NOT_EXIST = "Cannot establish connection: source does not 
 var ERROR_TARGET_DOES_NOT_EXIST = "Cannot establish connection: target does not exist";
 var KEY_CONNECTION_OVERLAYS = "connectionOverlays";
 
+var DEFAULT_KEY_ALLOW_NESTED_GROUPS = "allowNestedGroups";
+var DEFAULT_KEY_ANCHOR = "anchor";
+var DEFAULT_KEY_ANCHORS = "anchors";
+var DEFAULT_KEY_CONNECTION_OVERLAYS = "connectionOverlays";
+var DEFAULT_KEY_CONNECTIONS_DETACHABLE = "connectionsDetachable";
+var DEFAULT_KEY_CONNECTOR = "connector";
+var DEFAULT_KEY_CONTAINER = "container";
+var DEFAULT_KEY_ENDPOINT = "endpoint";
+var DEFAULT_KEY_ENDPOINT_OVERLAYS = "endpointOverlays";
+var DEFAULT_KEY_ENDPOINTS = "endpoints";
+var DEFAULT_KEY_ENDPOINT_STYLE = "endpointStyle";
+var DEFAULT_KEY_ENDPOINT_STYLES = "endpointStyles";
+var DEFAULT_KEY_ENDPOINT_HOVER_STYLE = "endpointHoverStyle";
+var DEFAULT_KEY_ENDPOINT_HOVER_STYLES = "endpointHoverStyles";
+var DEFAULT_KEY_HOVER_CLASS = "hoverClass";
+var DEFAULT_KEY_HOVER_PAINT_STYLE = "hoverPaintStyle";
+var DEFAULT_KEY_LIST_STYLE = "listStyle";
+var DEFAULT_KEY_MAX_CONNECTIONS = "maxConnections";
+var DEFAULT_KEY_PAINT_STYLE = "paintStyle";
+var DEFAULT_KEY_REATTACH_CONNECTIONS = "reattachConnections";
+var DEFAULT_KEY_SCOPE = "scope";
+
 function isFullOverlaySpec(o) {
   return o.type != null && o.options != null;
 }
@@ -5666,8 +5688,11 @@ var JsPlumbInstance = function (_EventGenerator) {
       extend(_this.defaults, defaults);
     }
     extend(_this._initialDefaults, _this.defaults);
-    _this.DEFAULT_SCOPE = _this.defaults.scope;
-    _this.allowNestedGroups = _this._initialDefaults.allowNestedGroups !== false;
+    if (_this._initialDefaults[DEFAULT_KEY_PAINT_STYLE] != null) {
+      _this._initialDefaults[DEFAULT_KEY_PAINT_STYLE].strokeWidth = _this._initialDefaults[DEFAULT_KEY_PAINT_STYLE].strokeWidth || 2;
+    }
+    _this.DEFAULT_SCOPE = _this.defaults[DEFAULT_KEY_SCOPE];
+    _this.allowNestedGroups = _this._initialDefaults[DEFAULT_KEY_ALLOW_NESTED_GROUPS] !== false;
     _this.router = new LightweightRouter(_assertThisInitialized(_this));
     _this.groupManager = new GroupManager(_assertThisInitialized(_this));
     _this.setContainer(_this._initialDefaults.container);
@@ -6769,6 +6794,9 @@ var JsPlumbInstance = function (_EventGenerator) {
       for (var i in d) {
         this.defaults[i] = d[i];
       }
+      if (this.defaults[DEFAULT_KEY_PAINT_STYLE] != null) {
+        this.defaults[DEFAULT_KEY_PAINT_STYLE].strokeWidth = this.defaults[DEFAULT_KEY_PAINT_STYLE].strokeWidth || 2;
+      }
       if (d.container) {
         this.setContainer(d.container);
       }
@@ -7427,4 +7455,4 @@ EndpointFactory.registerHandler(RectangleEndpointHandler);
 EndpointFactory.registerHandler(BlankEndpointHandler);
 Connectors.register(StraightConnector.type, StraightConnector);
 
-export { ABSOLUTE, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SCOPE, ATTRIBUTE_SCOPE_PREFIX, ATTRIBUTE_TABINDEX, AbstractConnector, ArcSegment, ArrowOverlay, BLOCK, BOTTOM, BlankEndpoint, BlankEndpointHandler, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTED, CLASS_CONNECTOR, CLASS_CONNECTOR_OUTLINE, CLASS_ENDPOINT, CLASS_ENDPOINT_ANCHOR_PREFIX, CLASS_ENDPOINT_CONNECTED, CLASS_ENDPOINT_DROP_ALLOWED, CLASS_ENDPOINT_DROP_FORBIDDEN, CLASS_ENDPOINT_FLOATING, CLASS_ENDPOINT_FULL, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, CustomOverlay, DiamondOverlay, DotEndpoint, DotEndpointHandler, ERROR_SOURCE_DOES_NOT_EXIST, ERROR_SOURCE_ENDPOINT_FULL, ERROR_TARGET_DOES_NOT_EXIST, ERROR_TARGET_ENDPOINT_FULL, EVENT_ANCHOR_CHANGED, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_ENDPOINT_REPLACED, EVENT_GROUP_ADDED, EVENT_GROUP_COLLAPSE, EVENT_GROUP_EXPAND, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_UNMANAGE_ELEMENT, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, FIXED, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_DROP, INTERCEPT_BEFORE_START_DETACH, IS_DETACH_ALLOWED, JsPlumbInstance, KEY_CONNECTION_OVERLAYS, LEFT, LabelOverlay, LightweightFloatingAnchor, LightweightRouter, NONE, Overlay, OverlayFactory, PlainArrowOverlay, REDROP_POLICY_ANY, REDROP_POLICY_ANY_SOURCE, REDROP_POLICY_ANY_SOURCE_OR_TARGET, REDROP_POLICY_ANY_TARGET, REDROP_POLICY_STRICT, RIGHT, RectangleEndpoint, RectangleEndpointHandler, SELECTOR_MANAGED_ELEMENT, SOURCE, SOURCE_INDEX, STATIC, StraightConnector, StraightSegment, TARGET, TARGET_INDEX, TOP, UIGroup, UINode, Viewport, X_AXIS_FACES, Y_AXIS_FACES, _createPerimeterAnchor, _removeTypeCssHelper, _updateHoverStyle, att, classList, cls, convertToFullOverlaySpec, createFloatingAnchor, getDefaultFace, isArrowOverlay, isContinuous, isCustomOverlay, isDiamondOverlay, isDynamic, isEdgeSupported, _isFloating as isFloating, isFullOverlaySpec, isLabelOverlay, isPlainArrowOverlay, makeLightweightAnchorFromSpec };
+export { ABSOLUTE, ATTRIBUTE_GROUP, ATTRIBUTE_MANAGED, ATTRIBUTE_NOT_DRAGGABLE, ATTRIBUTE_SCOPE, ATTRIBUTE_SCOPE_PREFIX, ATTRIBUTE_TABINDEX, AbstractConnector, ArcSegment, ArrowOverlay, BLOCK, BOTTOM, BlankEndpoint, BlankEndpointHandler, CHECK_CONDITION, CHECK_DROP_ALLOWED, CLASS_CONNECTED, CLASS_CONNECTOR, CLASS_CONNECTOR_OUTLINE, CLASS_ENDPOINT, CLASS_ENDPOINT_ANCHOR_PREFIX, CLASS_ENDPOINT_CONNECTED, CLASS_ENDPOINT_DROP_ALLOWED, CLASS_ENDPOINT_DROP_FORBIDDEN, CLASS_ENDPOINT_FLOATING, CLASS_ENDPOINT_FULL, CLASS_GROUP_COLLAPSED, CLASS_GROUP_EXPANDED, CLASS_OVERLAY, Component, Connection, ConnectionDragSelector, ConnectionSelection, Connectors, CustomOverlay, DEFAULT_KEY_ALLOW_NESTED_GROUPS, DEFAULT_KEY_ANCHOR, DEFAULT_KEY_ANCHORS, DEFAULT_KEY_CONNECTIONS_DETACHABLE, DEFAULT_KEY_CONNECTION_OVERLAYS, DEFAULT_KEY_CONNECTOR, DEFAULT_KEY_CONTAINER, DEFAULT_KEY_ENDPOINT, DEFAULT_KEY_ENDPOINTS, DEFAULT_KEY_ENDPOINT_HOVER_STYLE, DEFAULT_KEY_ENDPOINT_HOVER_STYLES, DEFAULT_KEY_ENDPOINT_OVERLAYS, DEFAULT_KEY_ENDPOINT_STYLE, DEFAULT_KEY_ENDPOINT_STYLES, DEFAULT_KEY_HOVER_CLASS, DEFAULT_KEY_HOVER_PAINT_STYLE, DEFAULT_KEY_LIST_STYLE, DEFAULT_KEY_MAX_CONNECTIONS, DEFAULT_KEY_PAINT_STYLE, DEFAULT_KEY_REATTACH_CONNECTIONS, DEFAULT_KEY_SCOPE, DiamondOverlay, DotEndpoint, DotEndpointHandler, ERROR_SOURCE_DOES_NOT_EXIST, ERROR_SOURCE_ENDPOINT_FULL, ERROR_TARGET_DOES_NOT_EXIST, ERROR_TARGET_ENDPOINT_FULL, EVENT_ANCHOR_CHANGED, EVENT_CONNECTION, EVENT_CONNECTION_DETACHED, EVENT_CONNECTION_MOVED, EVENT_CONTAINER_CHANGE, EVENT_ENDPOINT_REPLACED, EVENT_GROUP_ADDED, EVENT_GROUP_COLLAPSE, EVENT_GROUP_EXPAND, EVENT_GROUP_MEMBER_ADDED, EVENT_GROUP_MEMBER_REMOVED, EVENT_GROUP_REMOVED, EVENT_INTERNAL_CONNECTION, EVENT_INTERNAL_CONNECTION_DETACHED, EVENT_INTERNAL_ENDPOINT_UNREGISTERED, EVENT_MANAGE_ELEMENT, EVENT_MAX_CONNECTIONS, EVENT_NESTED_GROUP_ADDED, EVENT_NESTED_GROUP_REMOVED, EVENT_UNMANAGE_ELEMENT, EVENT_ZOOM, Endpoint, EndpointFactory, EndpointRepresentation, EndpointSelection, FIXED, GroupManager, INTERCEPT_BEFORE_DETACH, INTERCEPT_BEFORE_DRAG, INTERCEPT_BEFORE_DROP, INTERCEPT_BEFORE_START_DETACH, IS_DETACH_ALLOWED, JsPlumbInstance, KEY_CONNECTION_OVERLAYS, LEFT, LabelOverlay, LightweightFloatingAnchor, LightweightRouter, NONE, Overlay, OverlayFactory, PlainArrowOverlay, REDROP_POLICY_ANY, REDROP_POLICY_ANY_SOURCE, REDROP_POLICY_ANY_SOURCE_OR_TARGET, REDROP_POLICY_ANY_TARGET, REDROP_POLICY_STRICT, RIGHT, RectangleEndpoint, RectangleEndpointHandler, SELECTOR_MANAGED_ELEMENT, SOURCE, SOURCE_INDEX, STATIC, StraightConnector, StraightSegment, TARGET, TARGET_INDEX, TOP, UIGroup, UINode, Viewport, X_AXIS_FACES, Y_AXIS_FACES, _createPerimeterAnchor, _removeTypeCssHelper, _updateHoverStyle, att, classList, cls, convertToFullOverlaySpec, createFloatingAnchor, getDefaultFace, isArrowOverlay, isContinuous, isCustomOverlay, isDiamondOverlay, isDynamic, isEdgeSupported, _isFloating as isFloating, isFullOverlaySpec, isLabelOverlay, isPlainArrowOverlay, makeLightweightAnchorFromSpec };

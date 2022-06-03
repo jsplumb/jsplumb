@@ -1207,6 +1207,28 @@ var ERROR_SOURCE_DOES_NOT_EXIST = "Cannot establish connection: source does not 
 var ERROR_TARGET_DOES_NOT_EXIST = "Cannot establish connection: target does not exist";
 var KEY_CONNECTION_OVERLAYS = "connectionOverlays";
 
+var DEFAULT_KEY_ALLOW_NESTED_GROUPS = "allowNestedGroups";
+var DEFAULT_KEY_ANCHOR = "anchor";
+var DEFAULT_KEY_ANCHORS = "anchors";
+var DEFAULT_KEY_CONNECTION_OVERLAYS = "connectionOverlays";
+var DEFAULT_KEY_CONNECTIONS_DETACHABLE = "connectionsDetachable";
+var DEFAULT_KEY_CONNECTOR = "connector";
+var DEFAULT_KEY_CONTAINER = "container";
+var DEFAULT_KEY_ENDPOINT = "endpoint";
+var DEFAULT_KEY_ENDPOINT_OVERLAYS = "endpointOverlays";
+var DEFAULT_KEY_ENDPOINTS = "endpoints";
+var DEFAULT_KEY_ENDPOINT_STYLE = "endpointStyle";
+var DEFAULT_KEY_ENDPOINT_STYLES = "endpointStyles";
+var DEFAULT_KEY_ENDPOINT_HOVER_STYLE = "endpointHoverStyle";
+var DEFAULT_KEY_ENDPOINT_HOVER_STYLES = "endpointHoverStyles";
+var DEFAULT_KEY_HOVER_CLASS = "hoverClass";
+var DEFAULT_KEY_HOVER_PAINT_STYLE = "hoverPaintStyle";
+var DEFAULT_KEY_LIST_STYLE = "listStyle";
+var DEFAULT_KEY_MAX_CONNECTIONS = "maxConnections";
+var DEFAULT_KEY_PAINT_STYLE = "paintStyle";
+var DEFAULT_KEY_REATTACH_CONNECTIONS = "reattachConnections";
+var DEFAULT_KEY_SCOPE = "scope";
+
 function isFullOverlaySpec(o) {
   return o.type != null && o.options != null;
 }
@@ -5670,8 +5692,11 @@ var JsPlumbInstance = function (_EventGenerator) {
       util.extend(_this.defaults, defaults);
     }
     util.extend(_this._initialDefaults, _this.defaults);
-    _this.DEFAULT_SCOPE = _this.defaults.scope;
-    _this.allowNestedGroups = _this._initialDefaults.allowNestedGroups !== false;
+    if (_this._initialDefaults[DEFAULT_KEY_PAINT_STYLE] != null) {
+      _this._initialDefaults[DEFAULT_KEY_PAINT_STYLE].strokeWidth = _this._initialDefaults[DEFAULT_KEY_PAINT_STYLE].strokeWidth || 2;
+    }
+    _this.DEFAULT_SCOPE = _this.defaults[DEFAULT_KEY_SCOPE];
+    _this.allowNestedGroups = _this._initialDefaults[DEFAULT_KEY_ALLOW_NESTED_GROUPS] !== false;
     _this.router = new LightweightRouter(_assertThisInitialized(_this));
     _this.groupManager = new GroupManager(_assertThisInitialized(_this));
     _this.setContainer(_this._initialDefaults.container);
@@ -6773,6 +6798,9 @@ var JsPlumbInstance = function (_EventGenerator) {
       for (var i in d) {
         this.defaults[i] = d[i];
       }
+      if (this.defaults[DEFAULT_KEY_PAINT_STYLE] != null) {
+        this.defaults[DEFAULT_KEY_PAINT_STYLE].strokeWidth = this.defaults[DEFAULT_KEY_PAINT_STYLE].strokeWidth || 2;
+      }
       if (d.container) {
         this.setContainer(d.container);
       }
@@ -7466,6 +7494,27 @@ exports.ConnectionDragSelector = ConnectionDragSelector;
 exports.ConnectionSelection = ConnectionSelection;
 exports.Connectors = Connectors;
 exports.CustomOverlay = CustomOverlay;
+exports.DEFAULT_KEY_ALLOW_NESTED_GROUPS = DEFAULT_KEY_ALLOW_NESTED_GROUPS;
+exports.DEFAULT_KEY_ANCHOR = DEFAULT_KEY_ANCHOR;
+exports.DEFAULT_KEY_ANCHORS = DEFAULT_KEY_ANCHORS;
+exports.DEFAULT_KEY_CONNECTIONS_DETACHABLE = DEFAULT_KEY_CONNECTIONS_DETACHABLE;
+exports.DEFAULT_KEY_CONNECTION_OVERLAYS = DEFAULT_KEY_CONNECTION_OVERLAYS;
+exports.DEFAULT_KEY_CONNECTOR = DEFAULT_KEY_CONNECTOR;
+exports.DEFAULT_KEY_CONTAINER = DEFAULT_KEY_CONTAINER;
+exports.DEFAULT_KEY_ENDPOINT = DEFAULT_KEY_ENDPOINT;
+exports.DEFAULT_KEY_ENDPOINTS = DEFAULT_KEY_ENDPOINTS;
+exports.DEFAULT_KEY_ENDPOINT_HOVER_STYLE = DEFAULT_KEY_ENDPOINT_HOVER_STYLE;
+exports.DEFAULT_KEY_ENDPOINT_HOVER_STYLES = DEFAULT_KEY_ENDPOINT_HOVER_STYLES;
+exports.DEFAULT_KEY_ENDPOINT_OVERLAYS = DEFAULT_KEY_ENDPOINT_OVERLAYS;
+exports.DEFAULT_KEY_ENDPOINT_STYLE = DEFAULT_KEY_ENDPOINT_STYLE;
+exports.DEFAULT_KEY_ENDPOINT_STYLES = DEFAULT_KEY_ENDPOINT_STYLES;
+exports.DEFAULT_KEY_HOVER_CLASS = DEFAULT_KEY_HOVER_CLASS;
+exports.DEFAULT_KEY_HOVER_PAINT_STYLE = DEFAULT_KEY_HOVER_PAINT_STYLE;
+exports.DEFAULT_KEY_LIST_STYLE = DEFAULT_KEY_LIST_STYLE;
+exports.DEFAULT_KEY_MAX_CONNECTIONS = DEFAULT_KEY_MAX_CONNECTIONS;
+exports.DEFAULT_KEY_PAINT_STYLE = DEFAULT_KEY_PAINT_STYLE;
+exports.DEFAULT_KEY_REATTACH_CONNECTIONS = DEFAULT_KEY_REATTACH_CONNECTIONS;
+exports.DEFAULT_KEY_SCOPE = DEFAULT_KEY_SCOPE;
 exports.DiamondOverlay = DiamondOverlay;
 exports.DotEndpoint = DotEndpoint;
 exports.DotEndpointHandler = DotEndpointHandler;
