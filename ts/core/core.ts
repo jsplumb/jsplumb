@@ -1,4 +1,4 @@
-import {JsPlumbDefaults} from "./defaults"
+import {DEFAULT_KEY_ALLOW_NESTED_GROUPS, DEFAULT_KEY_PAINT_STYLE, DEFAULT_KEY_SCOPE, JsPlumbDefaults} from "./defaults"
 
 import {Connection, ConnectionOptions} from "./connector/connection-impl"
 import {Endpoint} from "./endpoint/endpoint"
@@ -341,9 +341,14 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         }
 
         extend(this._initialDefaults, this.defaults)
-        this.DEFAULT_SCOPE = this.defaults.scope
 
-        this.allowNestedGroups = this._initialDefaults.allowNestedGroups !== false
+        if (this._initialDefaults[DEFAULT_KEY_PAINT_STYLE] != null) {
+            this._initialDefaults[DEFAULT_KEY_PAINT_STYLE].strokeWidth = this._initialDefaults[DEFAULT_KEY_PAINT_STYLE].strokeWidth || 2
+        }
+
+        this.DEFAULT_SCOPE = this.defaults[DEFAULT_KEY_SCOPE]
+
+        this.allowNestedGroups = this._initialDefaults[DEFAULT_KEY_ALLOW_NESTED_GROUPS] !== false
 
         this.router = new LightweightRouter(this)
 
@@ -1787,6 +1792,11 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         for (let i in d) {
             this.defaults[i] = d[i]
         }
+
+        if (this.defaults[DEFAULT_KEY_PAINT_STYLE] != null) {
+            this.defaults[DEFAULT_KEY_PAINT_STYLE].strokeWidth = this.defaults[DEFAULT_KEY_PAINT_STYLE].strokeWidth || 2
+        }
+
         if (d.container) {
             this.setContainer(d.container)
         }
