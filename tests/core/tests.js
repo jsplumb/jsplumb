@@ -238,4 +238,34 @@ var testSuite = function () {
         ok(c != null, "connection established when no options set")
     })
 
+    test("ensure stroke width is set (issue 1133)", function() {
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2")
+
+        _jsPlumb.destroy()
+
+        var j2 = jsPlumbBrowserUI.newInstance({
+            container:container,
+            paintStyle: { stroke: '#666'}
+        });
+
+        var c = j2.connect({source:d1, target:d2})
+        var p = c.connector.canvas.querySelector("path")
+        equal(p.getAttribute("stroke-width"), "2", "stroke-width set to 2 despite not being supplied")
+
+        j2.destroy()
+
+        var j3 = jsPlumbBrowserUI.newInstance({
+            container:container,
+            paintStyle: { stroke: '#666', strokeWidth:12}
+        });
+
+        var d3 = support.addDiv("d3"), d4 = support.addDiv("d4")
+        c = j3.connect({source:d3, target:d4})
+        p = c.connector.canvas.querySelector("path")
+        equal(p.getAttribute("stroke-width"), "12", "stroke-width set to 12 as that was the supplied value")
+
+        j3.destroy()
+
+
+    })
 };
