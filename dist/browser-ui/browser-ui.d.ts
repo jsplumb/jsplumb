@@ -813,6 +813,17 @@ export declare type DraggedElement = {
     dropGroup: UIGroup;
 };
 
+declare type DragGroup = {
+    id: string;
+    members: Set<DragGroupMemberSpec>;
+};
+
+declare type DragGroupMemberSpec = {
+    el: jsPlumbDOMElement;
+    elId: string;
+    active: boolean;
+};
+
 /**
  * Definition of a drag group membership - either just the id of a drag group, or the id of a drag group and whether or not
  * this element plays an `active` role in the drag group.
@@ -980,6 +991,8 @@ export declare interface DragStartEventParams {
  * Payload for `drag:start` event.
  */
 export declare interface DragStartPayload extends DragPayload {
+    dragGroup?: DragGroup;
+    dragGroupMemberSpec?: DragGroupMemberSpec;
 }
 
 export declare interface DragStopEventParams extends DragEventParams {

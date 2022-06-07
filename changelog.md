@@ -1,9 +1,10 @@
 ## 5.7.2
 
-June 3rd 2022
+June 7th 2022
 
 - Added support for template macros to Toolkit's `browser-ui-vanilla-2` package
 - Fixed versioning issue in Community edition
+- Fix for issue with incorrect decoding of drag group spec when providing id and role
 
 ## 5.7.1
 

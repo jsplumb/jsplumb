@@ -15,6 +15,15 @@ export declare type GroupLocation = {
     r: BoundingBox;
     group: UIGroup<Element>;
 };
+declare type DragGroupMemberSpec = {
+    el: jsPlumbDOMElement;
+    elId: string;
+    active: boolean;
+};
+declare type DragGroup = {
+    id: string;
+    members: Set<DragGroupMemberSpec>;
+};
 /**
  * Base payload for drag events. Contains the element being dragged, the corresponding mouse event, the current position, and the position when drag started.
  */
@@ -53,6 +62,8 @@ export interface DragMovePayload extends DragPayload {
  * Payload for `drag:start` event.
  */
 export interface DragStartPayload extends DragPayload {
+    dragGroup?: DragGroup;
+    dragGroupMemberSpec?: DragGroupMemberSpec;
 }
 export declare class ElementDragHandler implements DragHandler {
     protected instance: BrowserJsPlumbInstance;
@@ -98,4 +109,5 @@ export declare class ElementDragHandler implements DragHandler {
      */
     private _pruneOrOrphan;
 }
+export {};
 //# sourceMappingURL=element-drag-handler.d.ts.map

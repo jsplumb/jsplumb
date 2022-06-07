@@ -12364,7 +12364,7 @@ var jsPlumbBrowserUI = (function (exports) {
       };
     } else {
       return {
-        id: instance.getId(spec),
+        id: spec.id,
         active: spec.active
       };
     }
@@ -12677,7 +12677,7 @@ var jsPlumbBrowserUI = (function (exports) {
             return a.indexOf(p.jel) === -1;
           });
           this._dragSelection.initialisePositions();
-          var _one = function _one(_el) {
+          var _one = function _one(_el, dragGroup, dragGroupMemberSpec) {
             if (!_el._isJsPlumbGroup || _this4.instance.allowNestedGroups) {
               var isNotInAGroup = !_el._jsPlumbParentGroup;
               var membersAreDroppable = isNotInAGroup || _el._jsPlumbParentGroup.dropOverride !== true;
@@ -12727,7 +12727,9 @@ var jsPlumbBrowserUI = (function (exports) {
               el: _el,
               e: params.e,
               originalPosition: _this4.originalPosition,
-              pos: _this4.originalPosition
+              pos: _this4.originalPosition,
+              dragGroup: dragGroup,
+              dragGroupMemberSpec: dragGroupMemberSpec
             });
           };
           var elId = this.instance.getId(el);
@@ -12752,7 +12754,7 @@ var jsPlumbBrowserUI = (function (exports) {
                 y: off.y - elOffset.y
               }, jel.el]);
               _this4._currentDragGroupSizes.set(jel.elId, _this4.instance.getSize(jel.el));
-              _one(jel.el);
+              _one(jel.el, _this4._currentDragGroup, jel);
             });
           }
         }

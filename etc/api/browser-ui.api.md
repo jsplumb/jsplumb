@@ -640,6 +640,14 @@ export interface DragStartEventParams {
 
 // @public
 export interface DragStartPayload extends DragPayload {
+    // Warning: (ae-forgotten-export) The symbol "DragGroup" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    dragGroup?: DragGroup;
+    // Warning: (ae-forgotten-export) The symbol "DragGroupMemberSpec" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    dragGroupMemberSpec?: DragGroupMemberSpec;
 }
 
 // @public (undocumented)
