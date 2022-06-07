@@ -82,7 +82,10 @@ export interface DragMovePayload extends DragPayload { }
 /**
  * Payload for `drag:start` event.
  */
-export interface DragStartPayload extends DragPayload { }
+export interface DragStartPayload extends DragPayload {
+    dragGroup?:DragGroup
+    dragGroupMemberSpec?:DragGroupMemberSpec
+}
 
 function decodeDragGroupSpec(instance:JsPlumbInstance, spec:DragGroupSpec):{id:string, active:boolean} {
 
@@ -90,7 +93,7 @@ function decodeDragGroupSpec(instance:JsPlumbInstance, spec:DragGroupSpec):{id:s
         return { id:spec as string, active:true }
     } else {
         return {
-            id:instance.getId(spec as any),
+            id:(spec as any).id,
             active:(spec as any).active
         }
     }
@@ -455,7 +458,7 @@ export class ElementDragHandler implements DragHandler {
             // init the drag selection positions
             this._dragSelection.initialisePositions()
 
-            const _one = (_el:jsPlumbDOMElement):any => {
+            const _one = (_el:jsPlumbDOMElement, dragGroup?:DragGroup, dragGroupMemberSpec?:DragGroupMemberSpec):any => {
 
                 // if drag el not a group
                 if (!_el._isJsPlumbGroup || this.instance.allowNestedGroups) {
@@ -514,7 +517,9 @@ export class ElementDragHandler implements DragHandler {
                     el:_el,
                     e:params.e,
                     originalPosition:this.originalPosition,
-                    pos:this.originalPosition
+                    pos:this.originalPosition,
+                    dragGroup,
+                    dragGroupMemberSpec
                 })
             }
 
@@ -540,7 +545,7 @@ export class ElementDragHandler implements DragHandler {
                     let off = this.instance.getOffset(jel.el)
                     this._currentDragGroupOffsets.set(jel.elId, [ { x:off.x- elOffset.x, y:off.y - elOffset.y}, jel.el as jsPlumbDOMElement])
                     this._currentDragGroupSizes.set(jel.elId, this.instance.getSize(jel.el))
-                    _one(jel.el)
+                    _one(jel.el, this._currentDragGroup, jel)
                 })
             }
         }
