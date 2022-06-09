@@ -1,8 +1,9 @@
-## 5.7.2
+## 5.8.0
 
-June 7th 2022
+June 9th 2022
 
 - Added support for template macros to Toolkit's `browser-ui-vanilla-2` package
+- Updated Toolkit's React and Vue 3 integrations to better handle asynchronous rendering
 - Fixed versioning issue in Community edition
 - Fix for issue with incorrect decoding of drag group spec when providing id and role
 
