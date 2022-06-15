@@ -2331,13 +2331,13 @@ export interface RedrawResult {
 // @public
 export const REDROP_POLICY_ANY = "any";
 
-// @public (undocumented)
+// @public
 export const REDROP_POLICY_ANY_SOURCE = "anySource";
 
-// @public (undocumented)
+// @public
 export const REDROP_POLICY_ANY_SOURCE_OR_TARGET = "anySourceOrTarget";
 
-// @public (undocumented)
+// @public
 export const REDROP_POLICY_ANY_TARGET = "anyTarget";
 
 // @public
