@@ -86,21 +86,26 @@ function _t (e:Event):EventTarget {
 // is false we just return target for the path.
 //
 function _pi (e:any, target:EventTarget, obj:any, doCompute?:boolean) {
-    if (!doCompute) return { path:[target], end:1 }
-    else if (typeof e.path !== "undefined" && e.path.indexOf) {
-        return { path: e.path, end: e.path.indexOf(obj) }
-    } else {
-        const out:any = { path:[], end:-1 }, _one = (el:any) => {
-            out.path.push(el)
-            if (el === obj) {
-                out.end = out.path.length - 1
+    if (!doCompute) {
+        return { path:[target], end:1 }
+    }
+    else {
+        const path = e.composedPath ? e.composedPath() : e.path
+        if (typeof path !== "undefined" && path.indexOf) {
+            return { path, end: path.indexOf(obj) }
+        } else {
+            const out:any = { path:[], end:-1 }, _one = (el:any) => {
+                out.path.push(el)
+                if (el === obj) {
+                    out.end = out.path.length - 1
+                }
+                else if (el.parentNode != null) {
+                    _one(el.parentNode)
+                }
             }
-            else if (el.parentNode != null) {
-                _one(el.parentNode)
-            }
+            _one(target)
+            return out
         }
-        _one(target)
-        return out
     }
 }
 
