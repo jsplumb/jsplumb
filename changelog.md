@@ -1,3 +1,10 @@
+## 5.8.3
+
+June 16th 2022
+
+- Updated event manager to prefer `Event.computedPath()` over `Event.path` as Chrome now reports `Event.path` is deprecated and will be removed in the not so distant future.
+- Updates to the Toolkit edition's React integration.
+
 ## 5.8.2
 
 June 15th 2022

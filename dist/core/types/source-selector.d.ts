@@ -36,7 +36,7 @@ export declare const REDROP_POLICY_ANY_SOURCE = "anySource";
  */
 export declare const REDROP_POLICY_ANY_TARGET = "anyTarget";
 /**
- * This flag is the union of REDROP_POLICT_ANY_TARGET and REDROP_POLICY_ANY_SOURCE
+ * This flag is the union of REDROP_POLICY_ANY_TARGET and REDROP_POLICY_ANY_SOURCE
  * @public
  */
 export declare const REDROP_POLICY_ANY_SOURCE_OR_TARGET = "anySourceOrTarget";

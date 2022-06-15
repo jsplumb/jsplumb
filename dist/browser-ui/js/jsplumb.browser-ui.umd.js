@@ -623,29 +623,34 @@
     return e.srcElement || e.target;
   }
   function _pi(e, target, obj, doCompute) {
-    if (!doCompute) return {
-      path: [target],
-      end: 1
-    };else if (typeof e.path !== "undefined" && e.path.indexOf) {
+    if (!doCompute) {
       return {
-        path: e.path,
-        end: e.path.indexOf(obj)
+        path: [target],
+        end: 1
       };
     } else {
-      var out = {
-        path: [],
-        end: -1
-      },
-          _one = function _one(el) {
-        out.path.push(el);
-        if (el === obj) {
-          out.end = out.path.length - 1;
-        } else if (el.parentNode != null) {
-          _one(el.parentNode);
-        }
-      };
-      _one(target);
-      return out;
+      var path = e.composedPath ? e.composedPath() : e.path;
+      if (typeof path !== "undefined" && path.indexOf) {
+        return {
+          path: path,
+          end: path.indexOf(obj)
+        };
+      } else {
+        var out = {
+          path: [],
+          end: -1
+        },
+            _one = function _one(el) {
+          out.path.push(el);
+          if (el === obj) {
+            out.end = out.path.length - 1;
+          } else if (el.parentNode != null) {
+            _one(el.parentNode);
+          }
+        };
+        _one(target);
+        return out;
+      }
     }
   }
   function _d(l, fn) {
