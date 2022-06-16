@@ -489,35 +489,130 @@ export declare abstract class JsPlumbInstance<T extends {
      * Retrieve an endpoint or connection type by its id.
      * @param id
      * @param typeDescriptor
+     * @public
      */
     getType(id: string, typeDescriptor: string): TypeDescriptor;
     /**
      * Retrieve a connection type by its id.
      * @param id
+     * @public
      */
     getConnectionType(id: string): ConnectionTypeDescriptor;
     /**
      * Retrieve an endpoint type by its id.
      * @param id
+     * @public
      */
     getEndpointType(id: string): EndpointTypeDescriptor;
+    /**
+     * Import the given set of defaults to the instance.
+     * @param d
+     * @public
+     */
     importDefaults(d: JsPlumbDefaults<T["E"]>): JsPlumbInstance;
+    /**
+     * Reset the instance defaults to the defaults computed by the constructor.
+     * @public
+     */
     restoreDefaults(): JsPlumbInstance;
+    /**
+     * Gets all of the elements managed by this instance.
+     * @public
+     */
     getManagedElements(): Record<string, ManagedElement<T["E"]>>;
+    /**
+     * @internal
+     * @param connection
+     * @param index
+     * @param proxyEl
+     * @param endpointGenerator
+     * @param anchorGenerator
+     */
     proxyConnection(connection: Connection, index: number, proxyEl: T["E"], endpointGenerator: (c: Connection, idx: number) => EndpointSpec, anchorGenerator: (c: Connection, idx: number) => AnchorSpec): void;
+    /**
+     * @internal
+     * @param connection
+     * @param index
+     */
     unproxyConnection(connection: Connection, index: number): void;
+    /**
+     * @internal
+     * @param originalId
+     * @param newId
+     * @param connection
+     * @param newElement
+     * @param index
+     */
     sourceOrTargetChanged(originalId: string, newId: string, connection: Connection, newElement: T["E"], index: number): void;
     abstract setGroupVisible(group: UIGroup, state: boolean): void;
+    /**
+     * Gets the group with given id, null if not found.
+     * @param groupId
+     * @public
+     */
     getGroup(groupId: string): UIGroup<T["E"]>;
+    /**
+     * Gets the group associated with the given element, null if the given element does not map to a group.
+     * @param el
+     * @public
+     */
     getGroupFor(el: T["E"]): UIGroup<T["E"]>;
+    /**
+     * Add a group.
+     * @param params
+     * @public
+     */
     addGroup(params: AddGroupOptions<T["E"]>): UIGroup<T["E"]>;
+    /**
+     * Add an element to a group
+     * @param group
+     * @param el
+     * @public
+     */
     addToGroup(group: string | UIGroup<T["E"]>, ...el: Array<T["E"]>): void;
+    /**
+     * Collapse a group.
+     * @param group
+     * @public
+     */
     collapseGroup(group: string | UIGroup<T["E"]>): void;
+    /**
+     * Expand a group.
+     * @param group
+     * @public
+     */
     expandGroup(group: string | UIGroup<T["E"]>): void;
+    /**
+     * Expand a group if it is collapsed, or collapse it if it is expanded.
+     * @param group
+     * @public
+     */
     toggleGroup(group: string | UIGroup<T["E"]>): void;
-    removeGroup(group: string | UIGroup<T["E"]>, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): Record<string, PointXY>;
-    removeAllGroups(deleteMembers?: boolean, manipulateView?: boolean): void;
-    removeFromGroup(group: string | UIGroup<T["E"]>, el: T["E"], doNotFireEvent?: boolean): void;
+    /**
+     * Remove a group from this instance of jsPlumb.
+     * @param group - Group to remove
+     * @param deleteMembers - Whether or not to also delete any members of the group. If this is false (the default) then
+     * group members will be removed before the group is deleted.
+     * @param _manipulateView - Not for public usage. Used internally.
+     * @param _doNotFireEvent - Not recommended for public usage, used internally.
+     * @public
+     */
+    removeGroup(group: string | UIGroup<T["E"]>, deleteMembers?: boolean, _manipulateView?: boolean, _doNotFireEvent?: boolean): Record<string, PointXY>;
+    /**
+     * Remove all groups from this instance of jsPlumb
+     * @param deleteMembers
+     * @param _manipulateView - Not for public usage. Used internally.
+     * @public
+     */
+    removeAllGroups(deleteMembers?: boolean, _manipulateView?: boolean): void;
+    /**
+     * Remove an element from a group
+     * @param group - Group to remove element from
+     * @param el - Element to remove.
+     * @param _doNotFireEvent - Not for public usage. Used internally.
+     * @public
+     */
+    removeFromGroup(group: string | UIGroup<T["E"]>, el: T["E"], _doNotFireEvent?: boolean): void;
     /**
      * @internal
      * @param endpoint
@@ -555,12 +650,20 @@ export declare abstract class JsPlumbInstance<T extends {
     _makeConnector(connection: Connection<T["E"]>, name: string, args: any): AbstractConnector;
     /**
      * Adds an overlay to the given component, repainting the UI as necessary.
-     * @param component A Connection or Endpoint to add the overlay to
-     * @param overlay Spec for the overlay
-     * @param doNotRevalidate Defaults to true. If false, a repaint won't occur after adding the overlay. This flag can be used when adding
+     * @param component - A Connection or Endpoint to add the overlay to
+     * @param overlay - Spec for the overlay
+     * @param doNotRevalidate - Defaults to true. If false, a repaint won't occur after adding the overlay. This flag can be used when adding
      * several overlays in a loop.
+     * @public
      */
     addOverlay(component: Component, overlay: OverlaySpec, doNotRevalidate?: boolean): void;
+    /**
+     * Remove the overlay with the given id from the given component.
+     * @param component - Component to remove the overlay from.
+     * @param overlayId - ID of the overlay to remove.
+     * @public
+     */
+    removeOverlay(component: Component, overlayId: string): void;
     /**
      * For some given element, find any other elements we want to draw whenever that element
      * is being drawn. for groups, for example, this means any child elements of the group. For an element that has child
@@ -590,6 +693,10 @@ export declare abstract class JsPlumbInstance<T extends {
     abstract on(el: Document | T["E"] | ArrayLike<T["E"]>, event: string, callbackOrSelector: Function | string, callback?: Function): void;
     abstract off(el: Document | T["E"] | ArrayLike<T["E"]>, event: string, callback: Function): void;
     abstract trigger(el: Document | T["E"], event: string, originalEvent?: Event, payload?: any, detail?: number): void;
+    /**
+     * @internal
+     * @param connector
+     */
     getPathData(connector: AbstractConnector): any;
     /**
      * @internal

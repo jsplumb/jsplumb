@@ -8007,7 +8007,8 @@ var jsPlumbBrowserUI = (function (exports) {
       }
     }, {
       key: "getGroup",
-      value: function getGroup(groupId) {
+      value:
+      function getGroup(groupId) {
         return this.groupManager.getGroup(groupId);
       }
     }, {
@@ -8046,18 +8047,18 @@ var jsPlumbBrowserUI = (function (exports) {
       }
     }, {
       key: "removeGroup",
-      value: function removeGroup(group, deleteMembers, manipulateView, doNotFireEvent) {
-        return this.groupManager.removeGroup(group, deleteMembers, manipulateView, doNotFireEvent);
+      value: function removeGroup(group, deleteMembers, _manipulateView, _doNotFireEvent) {
+        return this.groupManager.removeGroup(group, deleteMembers, _manipulateView, _doNotFireEvent);
       }
     }, {
       key: "removeAllGroups",
-      value: function removeAllGroups(deleteMembers, manipulateView) {
-        this.groupManager.removeAllGroups(deleteMembers, manipulateView, false);
+      value: function removeAllGroups(deleteMembers, _manipulateView) {
+        this.groupManager.removeAllGroups(deleteMembers, _manipulateView, false);
       }
     }, {
       key: "removeFromGroup",
-      value: function removeFromGroup(group, el, doNotFireEvent) {
-        this.groupManager.removeFromGroup(group, doNotFireEvent, el);
+      value: function removeFromGroup(group, el, _doNotFireEvent) {
+        this.groupManager.removeFromGroup(group, _doNotFireEvent, el);
         this._appendElement(el, this.getContainer());
         this.updateOffset({
           recalc: true,
@@ -8216,8 +8217,16 @@ var jsPlumbBrowserUI = (function (exports) {
         }
       }
     }, {
+      key: "removeOverlay",
+      value: function removeOverlay(component, overlayId) {
+        component.removeOverlay(overlayId);
+        var relatedElement = component instanceof Endpoint ? component.element : component.source;
+        this.revalidate(relatedElement);
+      }
+    }, {
       key: "getPathData",
-      value: function getPathData(connector) {
+      value:
+      function getPathData(connector) {
         var p = "";
         for (var i = 0; i < connector.segments.length; i++) {
           p += connector.segments[i].getPath(i === 0);

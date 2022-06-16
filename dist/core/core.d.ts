@@ -289,6 +289,7 @@ export declare type Axis = [Face, Face];
  * Defines the method signature for the callback to the `beforeDetach` interceptor. Returning false from this method
  * prevents the connection from being detached. The interceptor is fired by the core, meaning that it will be invoked
  * regardless of whether the detach occurred programmatically, or via the mouse.
+ * @public
  */
 export declare type BeforeDetachInterceptor = (c: Connection) => boolean;
 
@@ -481,6 +482,9 @@ export declare const CLASS_GROUP_EXPANDED = "jtk-group-expanded";
 
 export declare const CLASS_OVERLAY = "jtk-overlay";
 
+/**
+ * @internal
+ */
 export declare type ClassAction = "add" | "remove";
 
 export declare function classList(...className: Array<string>): string;
@@ -489,6 +493,7 @@ export declare function cls(...className: Array<string>): string;
 
 /**
  * Base class for Endpoint and Connection.
+ * @public
  */
 export declare abstract class Component extends EventGenerator {
     instance: JsPlumbInstance;
@@ -527,39 +532,131 @@ export declare abstract class Component extends EventGenerator {
     beforeDetach: BeforeDetachInterceptor;
     beforeDrop: BeforeDropInterceptor;
     protected constructor(instance: JsPlumbInstance, params?: ComponentOptions);
+    /**
+     * Called internally when the user is trying to disconnect the given connection.
+     * @internal
+     * @param connection
+     */
     isDetachAllowed(connection: Connection): boolean;
+    /**
+     * @internal
+     * @param sourceId
+     * @param targetId
+     * @param scope
+     * @param connection
+     * @param dropEndpoint
+     */
     isDropAllowed(sourceId: string, targetId: string, scope: string, connection: Connection, dropEndpoint: Endpoint): boolean;
+    /**
+     * @internal
+     */
     getDefaultType(): ComponentTypeDescriptor;
+    /**
+     * @internal
+     */
     appendToDefaultType(obj: Record<string, any>): void;
+    /**
+     * @internal
+     */
     getId(): string;
+    /**
+     * @internal
+     */
     cacheTypeItem(key: string, item: any, typeId: string): void;
+    /**
+     * @internal
+     */
     getCachedTypeItem(key: string, typeId: string): any;
+    /**
+     * @internal
+     */
     setType(typeId: string, params?: any): void;
+    /**
+     * @internal
+     */
     getType(): string[];
+    /**
+     * @internal
+     */
     reapplyTypes(params?: any): void;
+    /**
+     * @internal
+     */
     hasType(typeId: string): boolean;
+    /**
+     * @internal
+     */
     addType(typeId: string, params?: any): void;
+    /**
+     * @internal
+     */
     removeType(typeId: string, params?: any): void;
+    /**
+     * @internal
+     */
     clearTypes(params?: any): void;
+    /**
+     * @internal
+     */
     toggleType(typeId: string, params?: any): void;
+    /**
+     * @internal
+     */
     applyType(t: any, params?: any): void;
+    /**
+     * @internal
+     */
     setPaintStyle(style: PaintStyle): void;
+    /**
+     * @internal
+     */
     getPaintStyle(): PaintStyle;
+    /**
+     * @internal
+     */
     setHoverPaintStyle(style: PaintStyle): void;
+    /**
+     * @internal
+     */
     getHoverPaintStyle(): PaintStyle;
+    /**
+     * @internal
+     */
     destroy(): void;
+    /**
+     * @internal
+     */
     isHover(): boolean;
+    /**
+     * @internal
+     */
     mergeParameters(p: ComponentParameters): void;
+    /**
+     * @internal
+     */
     setVisible(v: boolean): void;
+    /**
+     * @internal
+     */
     isVisible(): boolean;
+    /**
+     * @internal
+     */
     setAbsoluteOverlayPosition(overlay: Overlay, xy: PointXY): void;
+    /**
+     * @internal
+     */
     getAbsoluteOverlayPosition(overlay: Overlay): PointXY;
+    /**
+     * @internal
+     */
     private _clazzManip;
     /**
      * Adds a css class to the component
      * @param clazz Class to add. May be a space separated list.
      * @param cascade This is for subclasses to use, if they wish to. For instance, a Connection might want to optionally cascade a css class
      * down to its endpoints.
+     * @public
      */
     addClass(clazz: string, cascade?: boolean): void;
     /**
@@ -567,6 +664,7 @@ export declare abstract class Component extends EventGenerator {
      * @param clazz Class to remove. May be a space separated list.
      * @param cascade This is for subclasses to use, if they wish to. For instance, a Connection might want to optionally cascade a css class
      * removal down to its endpoints.
+     * @public
      */
     removeClass(clazz: string, cascade?: boolean): void;
     /**
@@ -578,13 +676,27 @@ export declare abstract class Component extends EventGenerator {
      * @internal
      */
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
+    /**
+     * Gets any backing data stored against the given component.
+     * @public
+     */
     getData(): Record<string, any>;
+    /**
+     * Sets backing data stored against the given component, overwriting any current value.
+     * @param d
+     * @public
+     */
     setData(d: any): void;
+    /**
+     * Merges the given backing data into any current backing data.
+     * @param d
+     * @public
+     */
     mergeData(d: any): void;
     /**
-     * Add an overlay to the component.  You must `revalidate` an associated element for this component if you call
-     * this method directly. Consider using the `addOverlay` method of `JsPlumbInstance` instead, which adds the overlay
-     * and then revalidates.
+     * Add an overlay to the component.  This method is not intended for use by users of the API. You must `revalidate`
+     * an associated element for this component if you call this method directly. Consider using the `addOverlay` method
+     * of `JsPlumbInstance` instead, which adds the overlay and then revalidates.
      * @param overlay
      * @internal
      */
@@ -635,7 +747,7 @@ export declare abstract class Component extends EventGenerator {
      * Remove the overlay with the given id.
      * @param overlayId
      * @param dontCleanup This is an internal parameter. You are not encouraged to provide a value for this.
-     * @public
+     * @internal
      */
     removeOverlay(overlayId: string, dontCleanup?: boolean): void;
     /**
@@ -661,6 +773,9 @@ export declare abstract class Component extends EventGenerator {
     setLabel(l: string | Function | LabelOverlay): void;
 }
 
+/**
+ * @internal
+ */
 export declare interface ComponentOptions {
     parameters?: Record<string, any>;
     beforeDetach?: BeforeDetachInterceptor;
@@ -2109,35 +2224,130 @@ export declare abstract class JsPlumbInstance<T extends {
      * Retrieve an endpoint or connection type by its id.
      * @param id
      * @param typeDescriptor
+     * @public
      */
     getType(id: string, typeDescriptor: string): TypeDescriptor;
     /**
      * Retrieve a connection type by its id.
      * @param id
+     * @public
      */
     getConnectionType(id: string): ConnectionTypeDescriptor;
     /**
      * Retrieve an endpoint type by its id.
      * @param id
+     * @public
      */
     getEndpointType(id: string): EndpointTypeDescriptor;
+    /**
+     * Import the given set of defaults to the instance.
+     * @param d
+     * @public
+     */
     importDefaults(d: JsPlumbDefaults<T["E"]>): JsPlumbInstance;
+    /**
+     * Reset the instance defaults to the defaults computed by the constructor.
+     * @public
+     */
     restoreDefaults(): JsPlumbInstance;
+    /**
+     * Gets all of the elements managed by this instance.
+     * @public
+     */
     getManagedElements(): Record<string, ManagedElement<T["E"]>>;
+    /**
+     * @internal
+     * @param connection
+     * @param index
+     * @param proxyEl
+     * @param endpointGenerator
+     * @param anchorGenerator
+     */
     proxyConnection(connection: Connection, index: number, proxyEl: T["E"], endpointGenerator: (c: Connection, idx: number) => EndpointSpec, anchorGenerator: (c: Connection, idx: number) => AnchorSpec): void;
+    /**
+     * @internal
+     * @param connection
+     * @param index
+     */
     unproxyConnection(connection: Connection, index: number): void;
+    /**
+     * @internal
+     * @param originalId
+     * @param newId
+     * @param connection
+     * @param newElement
+     * @param index
+     */
     sourceOrTargetChanged(originalId: string, newId: string, connection: Connection, newElement: T["E"], index: number): void;
     abstract setGroupVisible(group: UIGroup, state: boolean): void;
+    /**
+     * Gets the group with given id, null if not found.
+     * @param groupId
+     * @public
+     */
     getGroup(groupId: string): UIGroup<T["E"]>;
+    /**
+     * Gets the group associated with the given element, null if the given element does not map to a group.
+     * @param el
+     * @public
+     */
     getGroupFor(el: T["E"]): UIGroup<T["E"]>;
+    /**
+     * Add a group.
+     * @param params
+     * @public
+     */
     addGroup(params: AddGroupOptions<T["E"]>): UIGroup<T["E"]>;
+    /**
+     * Add an element to a group
+     * @param group
+     * @param el
+     * @public
+     */
     addToGroup(group: string | UIGroup<T["E"]>, ...el: Array<T["E"]>): void;
+    /**
+     * Collapse a group.
+     * @param group
+     * @public
+     */
     collapseGroup(group: string | UIGroup<T["E"]>): void;
+    /**
+     * Expand a group.
+     * @param group
+     * @public
+     */
     expandGroup(group: string | UIGroup<T["E"]>): void;
+    /**
+     * Expand a group if it is collapsed, or collapse it if it is expanded.
+     * @param group
+     * @public
+     */
     toggleGroup(group: string | UIGroup<T["E"]>): void;
-    removeGroup(group: string | UIGroup<T["E"]>, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): Record<string, PointXY>;
-    removeAllGroups(deleteMembers?: boolean, manipulateView?: boolean): void;
-    removeFromGroup(group: string | UIGroup<T["E"]>, el: T["E"], doNotFireEvent?: boolean): void;
+    /**
+     * Remove a group from this instance of jsPlumb.
+     * @param group - Group to remove
+     * @param deleteMembers - Whether or not to also delete any members of the group. If this is false (the default) then
+     * group members will be removed before the group is deleted.
+     * @param _manipulateView - Not for public usage. Used internally.
+     * @param _doNotFireEvent - Not recommended for public usage, used internally.
+     * @public
+     */
+    removeGroup(group: string | UIGroup<T["E"]>, deleteMembers?: boolean, _manipulateView?: boolean, _doNotFireEvent?: boolean): Record<string, PointXY>;
+    /**
+     * Remove all groups from this instance of jsPlumb
+     * @param deleteMembers
+     * @param _manipulateView - Not for public usage. Used internally.
+     * @public
+     */
+    removeAllGroups(deleteMembers?: boolean, _manipulateView?: boolean): void;
+    /**
+     * Remove an element from a group
+     * @param group - Group to remove element from
+     * @param el - Element to remove.
+     * @param _doNotFireEvent - Not for public usage. Used internally.
+     * @public
+     */
+    removeFromGroup(group: string | UIGroup<T["E"]>, el: T["E"], _doNotFireEvent?: boolean): void;
     /**
      * @internal
      * @param endpoint
@@ -2175,12 +2385,20 @@ export declare abstract class JsPlumbInstance<T extends {
     _makeConnector(connection: Connection<T["E"]>, name: string, args: any): AbstractConnector;
     /**
      * Adds an overlay to the given component, repainting the UI as necessary.
-     * @param component A Connection or Endpoint to add the overlay to
-     * @param overlay Spec for the overlay
-     * @param doNotRevalidate Defaults to true. If false, a repaint won't occur after adding the overlay. This flag can be used when adding
+     * @param component - A Connection or Endpoint to add the overlay to
+     * @param overlay - Spec for the overlay
+     * @param doNotRevalidate - Defaults to true. If false, a repaint won't occur after adding the overlay. This flag can be used when adding
      * several overlays in a loop.
+     * @public
      */
     addOverlay(component: Component, overlay: OverlaySpec, doNotRevalidate?: boolean): void;
+    /**
+     * Remove the overlay with the given id from the given component.
+     * @param component - Component to remove the overlay from.
+     * @param overlayId - ID of the overlay to remove.
+     * @public
+     */
+    removeOverlay(component: Component, overlayId: string): void;
     /**
      * For some given element, find any other elements we want to draw whenever that element
      * is being drawn. for groups, for example, this means any child elements of the group. For an element that has child
@@ -2210,6 +2428,10 @@ export declare abstract class JsPlumbInstance<T extends {
     abstract on(el: Document | T["E"] | ArrayLike<T["E"]>, event: string, callbackOrSelector: Function | string, callback?: Function): void;
     abstract off(el: Document | T["E"] | ArrayLike<T["E"]>, event: string, callback: Function): void;
     abstract trigger(el: Document | T["E"], event: string, originalEvent?: Event, payload?: any, detail?: number): void;
+    /**
+     * @internal
+     * @param connector
+     */
     getPathData(connector: AbstractConnector): any;
     /**
      * @internal

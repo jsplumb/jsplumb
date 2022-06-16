@@ -14,6 +14,7 @@ export declare function _updateHoverStyle<E>(component: Component): void;
  * Defines the method signature for the callback to the `beforeDetach` interceptor. Returning false from this method
  * prevents the connection from being detached. The interceptor is fired by the core, meaning that it will be invoked
  * regardless of whether the detach occurred programmatically, or via the mouse.
+ * @public
  */
 export declare type BeforeDetachInterceptor = (c: Connection) => boolean;
 /**
@@ -49,6 +50,9 @@ export declare type BeforeDragInterceptor<E = any> = (params: BeforeDragParams<E
  * @public
  */
 export declare type BeforeStartDetachInterceptor<E = any> = (params: BeforeStartDetachParams<E>) => boolean;
+/**
+ * @internal
+ */
 export interface ComponentOptions {
     parameters?: Record<string, any>;
     beforeDetach?: BeforeDetachInterceptor;
@@ -63,9 +67,13 @@ export interface ComponentOptions {
     labelLocation?: number;
     overlays?: Array<OverlaySpec>;
 }
+/**
+ * @internal
+ */
 export declare type ClassAction = "add" | "remove";
 /**
  * Base class for Endpoint and Connection.
+ * @public
  */
 export declare abstract class Component extends EventGenerator {
     instance: JsPlumbInstance;
@@ -104,39 +112,131 @@ export declare abstract class Component extends EventGenerator {
     beforeDetach: BeforeDetachInterceptor;
     beforeDrop: BeforeDropInterceptor;
     protected constructor(instance: JsPlumbInstance, params?: ComponentOptions);
+    /**
+     * Called internally when the user is trying to disconnect the given connection.
+     * @internal
+     * @param connection
+     */
     isDetachAllowed(connection: Connection): boolean;
+    /**
+     * @internal
+     * @param sourceId
+     * @param targetId
+     * @param scope
+     * @param connection
+     * @param dropEndpoint
+     */
     isDropAllowed(sourceId: string, targetId: string, scope: string, connection: Connection, dropEndpoint: Endpoint): boolean;
+    /**
+     * @internal
+     */
     getDefaultType(): ComponentTypeDescriptor;
+    /**
+     * @internal
+     */
     appendToDefaultType(obj: Record<string, any>): void;
+    /**
+     * @internal
+     */
     getId(): string;
+    /**
+     * @internal
+     */
     cacheTypeItem(key: string, item: any, typeId: string): void;
+    /**
+     * @internal
+     */
     getCachedTypeItem(key: string, typeId: string): any;
+    /**
+     * @internal
+     */
     setType(typeId: string, params?: any): void;
+    /**
+     * @internal
+     */
     getType(): string[];
+    /**
+     * @internal
+     */
     reapplyTypes(params?: any): void;
+    /**
+     * @internal
+     */
     hasType(typeId: string): boolean;
+    /**
+     * @internal
+     */
     addType(typeId: string, params?: any): void;
+    /**
+     * @internal
+     */
     removeType(typeId: string, params?: any): void;
+    /**
+     * @internal
+     */
     clearTypes(params?: any): void;
+    /**
+     * @internal
+     */
     toggleType(typeId: string, params?: any): void;
+    /**
+     * @internal
+     */
     applyType(t: any, params?: any): void;
+    /**
+     * @internal
+     */
     setPaintStyle(style: PaintStyle): void;
+    /**
+     * @internal
+     */
     getPaintStyle(): PaintStyle;
+    /**
+     * @internal
+     */
     setHoverPaintStyle(style: PaintStyle): void;
+    /**
+     * @internal
+     */
     getHoverPaintStyle(): PaintStyle;
+    /**
+     * @internal
+     */
     destroy(): void;
+    /**
+     * @internal
+     */
     isHover(): boolean;
+    /**
+     * @internal
+     */
     mergeParameters(p: ComponentParameters): void;
+    /**
+     * @internal
+     */
     setVisible(v: boolean): void;
+    /**
+     * @internal
+     */
     isVisible(): boolean;
+    /**
+     * @internal
+     */
     setAbsoluteOverlayPosition(overlay: Overlay, xy: PointXY): void;
+    /**
+     * @internal
+     */
     getAbsoluteOverlayPosition(overlay: Overlay): PointXY;
+    /**
+     * @internal
+     */
     private _clazzManip;
     /**
      * Adds a css class to the component
      * @param clazz Class to add. May be a space separated list.
      * @param cascade This is for subclasses to use, if they wish to. For instance, a Connection might want to optionally cascade a css class
      * down to its endpoints.
+     * @public
      */
     addClass(clazz: string, cascade?: boolean): void;
     /**
@@ -144,6 +244,7 @@ export declare abstract class Component extends EventGenerator {
      * @param clazz Class to remove. May be a space separated list.
      * @param cascade This is for subclasses to use, if they wish to. For instance, a Connection might want to optionally cascade a css class
      * removal down to its endpoints.
+     * @public
      */
     removeClass(clazz: string, cascade?: boolean): void;
     /**
@@ -155,13 +256,27 @@ export declare abstract class Component extends EventGenerator {
      * @internal
      */
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
+    /**
+     * Gets any backing data stored against the given component.
+     * @public
+     */
     getData(): Record<string, any>;
+    /**
+     * Sets backing data stored against the given component, overwriting any current value.
+     * @param d
+     * @public
+     */
     setData(d: any): void;
+    /**
+     * Merges the given backing data into any current backing data.
+     * @param d
+     * @public
+     */
     mergeData(d: any): void;
     /**
-     * Add an overlay to the component.  You must `revalidate` an associated element for this component if you call
-     * this method directly. Consider using the `addOverlay` method of `JsPlumbInstance` instead, which adds the overlay
-     * and then revalidates.
+     * Add an overlay to the component.  This method is not intended for use by users of the API. You must `revalidate`
+     * an associated element for this component if you call this method directly. Consider using the `addOverlay` method
+     * of `JsPlumbInstance` instead, which adds the overlay and then revalidates.
      * @param overlay
      * @internal
      */
@@ -212,7 +327,7 @@ export declare abstract class Component extends EventGenerator {
      * Remove the overlay with the given id.
      * @param overlayId
      * @param dontCleanup This is an internal parameter. You are not encouraged to provide a value for this.
-     * @public
+     * @internal
      */
     removeOverlay(overlayId: string, dontCleanup?: boolean): void;
     /**

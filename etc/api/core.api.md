@@ -449,7 +449,9 @@ export const CLASS_GROUP_EXPANDED = "jtk-group-expanded";
 // @public (undocumented)
 export const CLASS_OVERLAY = "jtk-overlay";
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "ClassAction" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
 export type ClassAction = "add" | "remove";
 
 // @public (undocumented)
@@ -460,23 +462,24 @@ export function cls(...className: Array<string>): string;
 
 // @public
 export abstract class Component extends EventGenerator {
+    // Warning: (ae-incompatible-release-tags) The symbol "__constructor" is marked as @public, but its signature references "ComponentOptions" which is marked as @internal
     protected constructor(instance: JsPlumbInstance, params?: ComponentOptions);
     addClass(clazz: string, cascade?: boolean): void;
     // @internal
     addOverlay(overlay: OverlaySpec): Overlay;
-    // (undocumented)
+    // @internal (undocumented)
     addType(typeId: string, params?: any): void;
-    // (undocumented)
+    // @internal (undocumented)
     appendToDefaultType(obj: Record<string, any>): void;
-    // (undocumented)
+    // @internal (undocumented)
     applyType(t: any, params?: any): void;
     // (undocumented)
     beforeDetach: BeforeDetachInterceptor;
     // (undocumented)
     beforeDrop: BeforeDropInterceptor;
-    // (undocumented)
+    // @internal (undocumented)
     cacheTypeItem(key: string, item: any, typeId: string): void;
-    // (undocumented)
+    // @internal (undocumented)
     clearTypes(params?: any): void;
     // (undocumented)
     clone: () => Component;
@@ -492,26 +495,23 @@ export abstract class Component extends EventGenerator {
     _defaultType: ComponentTypeDescriptor;
     // (undocumented)
     deleted: boolean;
-    // (undocumented)
+    // @internal (undocumented)
     destroy(): void;
     // (undocumented)
     events: any;
-    // (undocumented)
+    // @internal (undocumented)
     getAbsoluteOverlayPosition(overlay: Overlay): PointXY;
-    // (undocumented)
+    // @internal (undocumented)
     getCachedTypeItem(key: string, typeId: string): any;
     getClass(): string;
-    // (undocumented)
     getData(): Record<string, any>;
     // (undocumented)
     abstract getDefaultOverlayKey(): string;
-    // Warning: (ae-incompatible-release-tags) The symbol "getDefaultType" is marked as @public, but its signature references "ComponentTypeDescriptor" which is marked as @internal
-    //
-    // (undocumented)
+    // @internal (undocumented)
     getDefaultType(): ComponentTypeDescriptor;
-    // (undocumented)
+    // @internal (undocumented)
     getHoverPaintStyle(): PaintStyle;
-    // (undocumented)
+    // @internal (undocumented)
     getId(): string;
     // (undocumented)
     abstract getIdPrefix(): string;
@@ -520,9 +520,9 @@ export abstract class Component extends EventGenerator {
     getLabelOverlay(): LabelOverlay;
     getOverlay<T extends Overlay>(id: string): T;
     getOverlays(): Record<string, Overlay>;
-    // (undocumented)
+    // @internal (undocumented)
     getPaintStyle(): PaintStyle;
-    // (undocumented)
+    // @internal (undocumented)
     getType(): string[];
     // (undocumented)
     abstract getTypeDescriptor(): string;
@@ -530,7 +530,7 @@ export abstract class Component extends EventGenerator {
     abstract getXY(): PointXY;
     // (undocumented)
     h: number;
-    // (undocumented)
+    // @internal (undocumented)
     hasType(typeId: string): boolean;
     hideOverlay(id: string): void;
     hideOverlays(...ids: Array<string>): void;
@@ -544,19 +544,18 @@ export abstract class Component extends EventGenerator {
     id: string;
     // (undocumented)
     instance: JsPlumbInstance;
-    // (undocumented)
+    // @internal
     isDetachAllowed(connection: Connection): boolean;
-    // (undocumented)
+    // @internal (undocumented)
     isDropAllowed(sourceId: string, targetId: string, scope: string, connection: Connection, dropEndpoint: Endpoint): boolean;
-    // (undocumented)
+    // @internal (undocumented)
     isHover(): boolean;
-    // (undocumented)
+    // @internal (undocumented)
     isVisible(): boolean;
     // (undocumented)
     lastPaintedAt: string;
-    // (undocumented)
     mergeData(d: any): void;
-    // (undocumented)
+    // @internal (undocumented)
     mergeParameters(p: ComponentParameters): void;
     // (undocumented)
     overlayPlacements: Record<string, Extents>;
@@ -572,34 +571,34 @@ export abstract class Component extends EventGenerator {
     parameters: ComponentParameters;
     // (undocumented)
     params: Record<string, any>;
-    // (undocumented)
+    // @internal (undocumented)
     reapplyTypes(params?: any): void;
     removeAllOverlays(): void;
     removeClass(clazz: string, cascade?: boolean): void;
+    // @internal
     removeOverlay(overlayId: string, dontCleanup?: boolean): void;
     removeOverlays(...overlays: string[]): void;
-    // (undocumented)
+    // @internal (undocumented)
     removeType(typeId: string, params?: any): void;
     // (undocumented)
     segment: number;
-    // (undocumented)
+    // @internal (undocumented)
     setAbsoluteOverlayPosition(overlay: Overlay, xy: PointXY): void;
-    // (undocumented)
     setData(d: any): void;
-    // (undocumented)
+    // @internal (undocumented)
     setHoverPaintStyle(style: PaintStyle): void;
     setLabel(l: string | Function | LabelOverlay): void;
-    // (undocumented)
+    // @internal (undocumented)
     setPaintStyle(style: PaintStyle): void;
-    // (undocumented)
+    // @internal (undocumented)
     setType(typeId: string, params?: any): void;
-    // (undocumented)
+    // @internal (undocumented)
     setVisible(v: boolean): void;
     // @internal (undocumented)
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
     showOverlay(id: string): void;
     showOverlays(...ids: Array<string>): void;
-    // (undocumented)
+    // @internal (undocumented)
     toggleType(typeId: string, params?: any): void;
     // (undocumented)
     _typeCache: {};
@@ -617,7 +616,9 @@ export abstract class Component extends EventGenerator {
     y: number;
 }
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "ComponentOptions" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
 export interface ComponentOptions {
     // (undocumented)
     beforeDetach?: BeforeDetachInterceptor;
@@ -1653,14 +1654,12 @@ export abstract class JsPlumbInstance<T extends {
     // (undocumented)
     abstract addEndpointClass(ep: Endpoint<T>, c: string): void;
     addEndpoints(el: T["E"], endpoints: Array<EndpointOptions<T["E"]>>, referenceParams?: EndpointOptions<T["E"]>): Array<Endpoint>;
-    // (undocumented)
     addGroup(params: AddGroupOptions<T["E"]>): UIGroup<T["E"]>;
     addOverlay(component: Component, overlay: OverlaySpec, doNotRevalidate?: boolean): void;
     // (undocumented)
     abstract addOverlayClass(o: Overlay, clazz: string): void;
     addSourceSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): ConnectionDragSelector;
     addTargetSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): ConnectionDragSelector;
-    // (undocumented)
     addToGroup(group: string | UIGroup<T["E"]>, ...el: Array<T["E"]>): void;
     // (undocumented)
     allowNestedGroups: boolean;
@@ -1681,7 +1680,6 @@ export abstract class JsPlumbInstance<T extends {
     batch(fn: Function, doNotRepaintAfterwards?: boolean): void;
     // (undocumented)
     checkCondition<RetVal>(conditionName: string, args?: any): RetVal;
-    // (undocumented)
     collapseGroup(group: string | UIGroup<T["E"]>): void;
     connect(params: ConnectParams<T["E"]>, referenceParams?: ConnectParams<T["E"]>): Connection;
     // (undocumented)
@@ -1738,7 +1736,6 @@ export abstract class JsPlumbInstance<T extends {
     endpointFullClass: string;
     // (undocumented)
     endpointsByElement: Record<string, Array<Endpoint>>;
-    // (undocumented)
     expandGroup(group: string | UIGroup<T["E"]>): void;
     // @internal
     _finaliseConnection(jpc: Connection, params?: any, originalEvent?: Event): void;
@@ -1764,26 +1761,21 @@ export abstract class JsPlumbInstance<T extends {
     abstract getEndpointClass(ep: Endpoint<T>): string;
     getEndpoints(el: T["E"]): Array<Endpoint>;
     getEndpointType(id: string): EndpointTypeDescriptor;
-    // (undocumented)
     getGroup(groupId: string): UIGroup<T["E"]>;
     // (undocumented)
     abstract getGroupContentArea(group: UIGroup): T["E"];
-    // (undocumented)
     getGroupFor(el: T["E"]): UIGroup<T["E"]>;
     // (undocumented)
     getId(element: T["E"], uuid?: string): string;
     // @internal
     getManagedData(elementId: string, dataIdentifier: string, key: string): any;
     getManagedElement(id: string): T["E"];
-    // (undocumented)
     getManagedElements(): Record<string, ManagedElement<T["E"]>>;
     // (undocumented)
     abstract getOffset(el: T["E"]): PointXY;
     // (undocumented)
     abstract getOffsetRelativeToRoot(el: T["E"] | string): PointXY;
-    // Warning: (ae-incompatible-release-tags) The symbol "getPathData" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
-    //
-    // (undocumented)
+    // @internal (undocumented)
     getPathData(connector: AbstractConnector): any;
     // @internal
     _getRotation(elementId: string): number;
@@ -1808,7 +1800,6 @@ export abstract class JsPlumbInstance<T extends {
     hoverSuspended: boolean;
     // (undocumented)
     _idstamp(): string;
-    // (undocumented)
     importDefaults(d: JsPlumbDefaults<T["E"]>): JsPlumbInstance;
     // (undocumented)
     readonly _instanceIndex: number;
@@ -1850,7 +1841,7 @@ export abstract class JsPlumbInstance<T extends {
     }): void;
     // @internal (undocumented)
     abstract _paintOverlay(o: Overlay, params: any, extents: any): void;
-    // (undocumented)
+    // @internal (undocumented)
     proxyConnection(connection: Connection, index: number, proxyEl: T["E"], endpointGenerator: (c: Connection, idx: number) => EndpointSpec, anchorGenerator: (c: Connection, idx: number) => AnchorSpec): void;
     // (undocumented)
     abstract reattachOverlay(o: Overlay, c: Component): void;
@@ -1861,8 +1852,7 @@ export abstract class JsPlumbInstance<T extends {
     registerEndpointType(id: string, type: EndpointTypeDescriptor): void;
     registerEndpointTypes(types: Record<string, EndpointTypeDescriptor>): void;
     removeAllEndpoints(el: T["E"], recurse?: boolean): JsPlumbInstance;
-    // (undocumented)
-    removeAllGroups(deleteMembers?: boolean, manipulateView?: boolean): void;
+    removeAllGroups(deleteMembers?: boolean, _manipulateView?: boolean): void;
     // (undocumented)
     abstract removeAttribute(el: T["E"], attName: string): void;
     // (undocumented)
@@ -1875,10 +1865,9 @@ export abstract class JsPlumbInstance<T extends {
     abstract _removeElement(el: T["E"]): void;
     // (undocumented)
     abstract removeEndpointClass(ep: Endpoint<T>, c: string): void;
-    // (undocumented)
-    removeFromGroup(group: string | UIGroup<T["E"]>, el: T["E"], doNotFireEvent?: boolean): void;
-    // (undocumented)
-    removeGroup(group: string | UIGroup<T["E"]>, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): Record<string, PointXY>;
+    removeFromGroup(group: string | UIGroup<T["E"]>, el: T["E"], _doNotFireEvent?: boolean): void;
+    removeGroup(group: string | UIGroup<T["E"]>, deleteMembers?: boolean, _manipulateView?: boolean, _doNotFireEvent?: boolean): Record<string, PointXY>;
+    removeOverlay(component: Component, overlayId: string): void;
     // (undocumented)
     abstract removeOverlayClass(o: Overlay, clazz: string): void;
     removeSourceSelector(selector: ConnectionDragSelector): void;
@@ -1888,7 +1877,6 @@ export abstract class JsPlumbInstance<T extends {
     repaint(el: T["E"], timestamp?: string, offsetsWereJustCalculated?: boolean): RedrawResult;
     repaintEverything(): JsPlumbInstance;
     reset(): void;
-    // (undocumented)
     restoreDefaults(): JsPlumbInstance;
     revalidate(el: T["E"], timestamp?: string): RedrawResult;
     rotate(element: T["E"], rotation: number, _doNotRepaint?: boolean): RedrawResult;
@@ -1936,7 +1924,7 @@ export abstract class JsPlumbInstance<T extends {
     setZoom(z: number, repaintEverything?: boolean): boolean;
     // (undocumented)
     show(el: T["E"], changeEndpoints?: boolean): JsPlumbInstance;
-    // (undocumented)
+    // @internal (undocumented)
     sourceOrTargetChanged(originalId: string, newId: string, connection: Connection, newElement: T["E"], index: number): void;
     // (undocumented)
     sourceSelectors: Array<ConnectionDragSelector>;
@@ -1948,13 +1936,12 @@ export abstract class JsPlumbInstance<T extends {
     targetSelectors: Array<ConnectionDragSelector>;
     // (undocumented)
     abstract toggleClass(el: T["E"] | ArrayLike<T["E"]>, clazz: string): void;
-    // (undocumented)
     toggleGroup(group: string | UIGroup<T["E"]>): void;
     toggleVisible(el: T["E"], changeEndpoints?: boolean): void;
     // (undocumented)
     abstract trigger(el: Document | T["E"], event: string, originalEvent?: Event, payload?: any, detail?: number): void;
     unmanage(el: T["E"], removeElement?: boolean): void;
-    // (undocumented)
+    // @internal (undocumented)
     unproxyConnection(connection: Connection, index: number): void;
     // (undocumented)
     abstract updateLabel(o: LabelOverlay): void;
