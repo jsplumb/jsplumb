@@ -100,6 +100,7 @@ export function  _updateHoverStyle<E> (component:Component) {
  * Defines the method signature for the callback to the `beforeDetach` interceptor. Returning false from this method
  * prevents the connection from being detached. The interceptor is fired by the core, meaning that it will be invoked
  * regardless of whether the detach occurred programmatically, or via the mouse.
+ * @public
  */
 export type BeforeDetachInterceptor = (c:Connection) => boolean
 
@@ -140,7 +141,9 @@ export type BeforeDragInterceptor<E = any> = (params:BeforeDragParams<E>) => boo
  */
 export type BeforeStartDetachInterceptor<E = any> = (params:BeforeStartDetachParams<E>) => boolean
 
-
+/**
+ * @internal
+ */
 export interface ComponentOptions {
     parameters?:Record<string, any>
     beforeDetach?:BeforeDetachInterceptor
@@ -156,7 +159,9 @@ export interface ComponentOptions {
     overlays?:Array<OverlaySpec>
 }
 
-
+/**
+ * @internal
+ */
 export type ClassAction = "add" | "remove"
 
 function _makeLabelOverlay(component:Component, params:LabelOverlayOptions):LabelOverlay {
@@ -194,6 +199,7 @@ function _processOverlay<E>(component:Component, o:OverlaySpec|Overlay) {
 
 /**
  * Base class for Endpoint and Connection.
+ * @public
  */
 export abstract class Component extends EventGenerator {
 
@@ -320,6 +326,11 @@ export abstract class Component extends EventGenerator {
         }
     }
 
+    /**
+     * Called internally when the user is trying to disconnect the given connection.
+     * @internal
+     * @param connection
+     */
     isDetachAllowed(connection:Connection):boolean {
         let r = true
         if (this.beforeDetach) {
@@ -333,6 +344,14 @@ export abstract class Component extends EventGenerator {
         return r
     }
 
+    /**
+     * @internal
+     * @param sourceId
+     * @param targetId
+     * @param scope
+     * @param connection
+     * @param dropEndpoint
+     */
     isDropAllowed(sourceId:string, targetId:string, scope:string, connection:Connection, dropEndpoint:Endpoint):boolean {
 
         let r:boolean
@@ -357,45 +376,75 @@ export abstract class Component extends EventGenerator {
         return r
     }
 
+    /**
+     * @internal
+     */
     getDefaultType():ComponentTypeDescriptor {
         return this._defaultType
     }
 
+    /**
+     * @internal
+     */
     appendToDefaultType (obj:Record<string, any>) {
         for (let i in obj) {
             this._defaultType[i] = obj[i]
         }
     }
 
+    /**
+     * @internal
+     */
     getId():string { return this.id; }
 
+    /**
+     * @internal
+     */
     cacheTypeItem(key:string, item:any, typeId:string) {
         this._typeCache[typeId] = this._typeCache[typeId] || {}
         this._typeCache[typeId][key] = item
     }
 
+    /**
+     * @internal
+     */
     getCachedTypeItem (key:string, typeId:string):any {
         return this._typeCache[typeId] ? this._typeCache[typeId][key] : null
     }
 
+    /**
+     * @internal
+     */
     setType(typeId:string, params?:any) {
         this.clearTypes()
         ;(_splitType(typeId) || []).forEach(this._types.add, this._types)
         _applyTypes(this, params)
     }
 
+    /**
+     * @internal
+     */
     getType():string[] {
         return Array.from(this._types.keys())
     }
 
+    /**
+     * @internal
+     */
     reapplyTypes(params?:any) {
         _applyTypes(this, params)
     }
 
+    /**
+     * @internal
+     */
     hasType(typeId:string):boolean {
         return this._types.has(typeId)
     }
 
+    /**
+     * @internal
+     */
     addType(typeId:string, params?:any):void {
         let t = _splitType(typeId), _somethingAdded = false
         if (t != null) {
@@ -411,6 +460,9 @@ export abstract class Component extends EventGenerator {
         }
     }
 
+    /**
+     * @internal
+     */
     removeType(typeId:string, params?:any) {
         let t = _splitType(typeId), _cont = false, _one = (tt:string) =>{
             if (this._types.has(tt)) {
@@ -431,6 +483,9 @@ export abstract class Component extends EventGenerator {
         }
     }
 
+    /**
+     * @internal
+     */
     clearTypes(params?:any):void {
 
         this._types.forEach(t => {
@@ -441,6 +496,9 @@ export abstract class Component extends EventGenerator {
         _applyTypes(this, params)
     }
 
+    /**
+     * @internal
+     */
     toggleType(typeId:string, params?:any) {
         let t = _splitType(typeId)
         if (t != null) {
@@ -457,6 +515,9 @@ export abstract class Component extends EventGenerator {
         }
     }
 
+    /**
+     * @internal
+     */
     applyType(t:any, params?:any):void {
         this.setPaintStyle(t.paintStyle)
         this.setHoverPaintStyle(t.hoverPaintStyle)
@@ -504,25 +565,40 @@ export abstract class Component extends EventGenerator {
         }
     }
 
+    /**
+     * @internal
+     */
     setPaintStyle(style:PaintStyle):void {
         this.paintStyle = style
         this.paintStyleInUse = this.paintStyle
         _updateHoverStyle(this)
     }
 
+    /**
+     * @internal
+     */
     getPaintStyle():PaintStyle {
         return this.paintStyle
     }
 
+    /**
+     * @internal
+     */
     setHoverPaintStyle(style:PaintStyle) {
         this.hoverPaintStyle = style
         _updateHoverStyle(this)
     }
 
+    /**
+     * @internal
+     */
     getHoverPaintStyle():PaintStyle {
         return this.hoverPaintStyle
     }
 
+    /**
+     * @internal
+     */
     destroy():void {
 
         for (let i in this.overlays) {
@@ -536,16 +612,25 @@ export abstract class Component extends EventGenerator {
         this.clone = null
     }
 
+    /**
+     * @internal
+     */
     isHover():boolean {
         return this._hover
     }
 
+    /**
+     * @internal
+     */
     mergeParameters(p:ComponentParameters) {
         if (p != null) {
             extend(this.parameters, p)
         }
     }
 
+    /**
+     * @internal
+     */
     setVisible(v:boolean) {
         this.visible = v
         if (v) {
@@ -555,18 +640,30 @@ export abstract class Component extends EventGenerator {
         }
     }
 
+    /**
+     * @internal
+     */
     isVisible():boolean {
         return this.visible
     }
 
+    /**
+     * @internal
+     */
     setAbsoluteOverlayPosition(overlay:Overlay, xy:PointXY) {
         this.overlayPositions[overlay.id] = xy
     }
 
+    /**
+     * @internal
+     */
     getAbsoluteOverlayPosition(overlay:Overlay):PointXY {
         return this.overlayPositions ? this.overlayPositions[overlay.id] : null
     }
 
+    /**
+     * @internal
+     */
     private _clazzManip(action:ClassAction, clazz:string) {
 
         for (let i in this.overlays) {
@@ -583,6 +680,7 @@ export abstract class Component extends EventGenerator {
      * @param clazz Class to add. May be a space separated list.
      * @param cascade This is for subclasses to use, if they wish to. For instance, a Connection might want to optionally cascade a css class
      * down to its endpoints.
+     * @public
      */
     addClass(clazz:string, cascade?:boolean):void {
         let parts = (this.cssClass || "").split(" ")
@@ -596,6 +694,7 @@ export abstract class Component extends EventGenerator {
      * @param clazz Class to remove. May be a space separated list.
      * @param cascade This is for subclasses to use, if they wish to. For instance, a Connection might want to optionally cascade a css class
      * removal down to its endpoints.
+     * @public
      */
     removeClass(clazz:string, cascade?:boolean):void {
         let parts = (this.cssClass || "").split(" ")
@@ -618,15 +717,30 @@ export abstract class Component extends EventGenerator {
         return true
     }
 
+    /**
+     * Gets any backing data stored against the given component.
+     * @public
+     */
     getData () { return this.data; }
+
+    /**
+     * Sets backing data stored against the given component, overwriting any current value.
+     * @param d
+     * @public
+     */
     setData (d:any) { this.data = d || {}; }
+
+    /**
+     * Merges the given backing data into any current backing data.
+     * @param d
+     * @public
+     */
     mergeData (d:any) { this.data = extend(this.data, d); }
 
-    // =----------- overlays ------------
     /**
-     * Add an overlay to the component.  You must `revalidate` an associated element for this component if you call
-     * this method directly. Consider using the `addOverlay` method of `JsPlumbInstance` instead, which adds the overlay
-     * and then revalidates.
+     * Add an overlay to the component.  This method is not intended for use by users of the API. You must `revalidate`
+     * an associated element for this component if you call this method directly. Consider using the `addOverlay` method
+     * of `JsPlumbInstance` instead, which adds the overlay and then revalidates.
      * @param overlay
      * @internal
      */
@@ -738,7 +852,7 @@ export abstract class Component extends EventGenerator {
      * Remove the overlay with the given id.
      * @param overlayId
      * @param dontCleanup This is an internal parameter. You are not encouraged to provide a value for this.
-     * @public
+     * @internal
      */
     removeOverlay(overlayId:string, dontCleanup?:boolean):void {
         let o = this.overlays[overlayId]

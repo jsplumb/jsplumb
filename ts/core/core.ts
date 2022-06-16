@@ -1767,6 +1767,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
      * Retrieve an endpoint or connection type by its id.
      * @param id
      * @param typeDescriptor
+     * @public
      */
     getType(id:string, typeDescriptor:string):TypeDescriptor {
         return typeDescriptor === "connection" ? this.getConnectionType(id) : this.getEndpointType(id)
@@ -1775,6 +1776,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     /**
      * Retrieve a connection type by its id.
      * @param id
+     * @public
      */
     getConnectionType(id:string):ConnectionTypeDescriptor {
         return  this._connectionTypes.get(id)
@@ -1783,11 +1785,17 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     /**
      * Retrieve an endpoint type by its id.
      * @param id
+     * @public
      */
     getEndpointType(id:string):EndpointTypeDescriptor {
         return this._endpointTypes.get(id)
     }
 
+    /**
+     * Import the given set of defaults to the instance.
+     * @param d
+     * @public
+     */
     importDefaults(d:JsPlumbDefaults<T["E"]>):JsPlumbInstance {
         for (let i in d) {
             this.defaults[i] = d[i]
@@ -1804,17 +1812,33 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         return this
     }
 
+    /**
+     * Reset the instance defaults to the defaults computed by the constructor.
+     * @public
+     */
     restoreDefaults ():JsPlumbInstance {
         this.defaults = extend({}, this._initialDefaults)
         return this
     }
 
+    /**
+     * Gets all of the elements managed by this instance.
+     * @public
+     */
     getManagedElements():Record<string, ManagedElement<T["E"]>> {
         return this._managedElements
     }
 
 // ----------------------------- proxy connections -----------------------
 
+    /**
+     * @internal
+     * @param connection
+     * @param index
+     * @param proxyEl
+     * @param endpointGenerator
+     * @param anchorGenerator
+     */
     proxyConnection(connection:Connection, index:number,
                     proxyEl:T["E"],
                     endpointGenerator:(c:Connection, idx:number) => EndpointSpec,
@@ -1876,6 +1900,11 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         this.revalidate(proxyEl)
     }
 
+    /**
+     * @internal
+     * @param connection
+     * @param index
+     */
     unproxyConnection(connection:Connection, index:number) {
         // if connection cleaned up, no proxies, or none for this end of the connection, abort.
         if (connection.proxies == null || connection.proxies[index] == null) {
@@ -1908,6 +1937,14 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         }
     }
 
+    /**
+     * @internal
+     * @param originalId
+     * @param newId
+     * @param connection
+     * @param newElement
+     * @param index
+     */
     sourceOrTargetChanged (originalId:string, newId:string, connection:Connection, newElement:T["E"], index:number):void {
 
         if (originalId !== newId) {
@@ -1928,28 +1965,90 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     abstract setGroupVisible(group:UIGroup, state:boolean):void
 
+    /**
+     * Gets the group with given id, null if not found.
+     * @param groupId
+     * @public
+     */
     getGroup(groupId:string) { return this.groupManager.getGroup(groupId); }
+
+    /**
+     * Gets the group associated with the given element, null if the given element does not map to a group.
+     * @param el
+     * @public
+     */
     getGroupFor(el:T["E"]) { return this.groupManager.getGroupFor(el); }
+
+    /**
+     * Add a group.
+     * @param params
+     * @public
+     */
     addGroup(params:AddGroupOptions<T["E"]>) { return this.groupManager.addGroup(params); }
+
+    /**
+     * Add an element to a group
+     * @param group
+     * @param el
+     * @public
+     */
     addToGroup(group:string | UIGroup<T["E"]>, ...el:Array<T["E"]>) { return this.groupManager.addToGroup(group, false, ...el); }
 
+    /**
+     * Collapse a group.
+     * @param group
+     * @public
+     */
     collapseGroup (group:string | UIGroup<T["E"]>) { this.groupManager.collapseGroup(group); }
+
+    /**
+     * Expand a group.
+     * @param group
+     * @public
+     */
     expandGroup (group:string | UIGroup<T["E"]>) { this.groupManager.expandGroup(group); }
+
+    /**
+     * Expand a group if it is collapsed, or collapse it if it is expanded.
+     * @param group
+     * @public
+     */
     toggleGroup (group:string | UIGroup<T["E"]>) { this.groupManager.toggleGroup(group); }
 
-    removeGroup(group:string | UIGroup<T["E"]>, deleteMembers?:boolean, manipulateView?:boolean, doNotFireEvent?:boolean):Record<string, PointXY> {
-        return this.groupManager.removeGroup(group, deleteMembers, manipulateView, doNotFireEvent)
+    /**
+     * Remove a group from this instance of jsPlumb.
+     * @param group - Group to remove
+     * @param deleteMembers - Whether or not to also delete any members of the group. If this is false (the default) then
+     * group members will be removed before the group is deleted.
+     * @param _manipulateView - Not for public usage. Used internally.
+     * @param _doNotFireEvent - Not recommended for public usage, used internally.
+     * @public
+     */
+    removeGroup(group:string | UIGroup<T["E"]>, deleteMembers?:boolean, _manipulateView?:boolean, _doNotFireEvent?:boolean):Record<string, PointXY> {
+        return this.groupManager.removeGroup(group, deleteMembers, _manipulateView, _doNotFireEvent)
     }
 
-    removeAllGroups(deleteMembers?:boolean, manipulateView?:boolean) {
-        this.groupManager.removeAllGroups(deleteMembers, manipulateView, false)
+    /**
+     * Remove all groups from this instance of jsPlumb
+     * @param deleteMembers
+     * @param _manipulateView - Not for public usage. Used internally.
+     * @public
+     */
+    removeAllGroups(deleteMembers?:boolean, _manipulateView?:boolean) {
+        this.groupManager.removeAllGroups(deleteMembers, _manipulateView, false)
     }
-    removeFromGroup (group:string | UIGroup<T["E"]>, el:T["E"], doNotFireEvent?:boolean):void {
-        this.groupManager.removeFromGroup(group, doNotFireEvent, el)
-    //    forEach(el,(_el) => {
-            this._appendElement(el, this.getContainer())
-            this.updateOffset({recalc:true, elId:this.getId(el)})
-      //  })
+
+    /**
+     * Remove an element from a group
+     * @param group - Group to remove element from
+     * @param el - Element to remove.
+     * @param _doNotFireEvent - Not for public usage. Used internally.
+     * @public
+     */
+    removeFromGroup (group:string | UIGroup<T["E"]>, el:T["E"], _doNotFireEvent?:boolean):void {
+        this.groupManager.removeFromGroup(group, _doNotFireEvent, el)
+        this._appendElement(el, this.getContainer())
+        this.updateOffset({recalc:true, elId:this.getId(el)})
     }
 
 
@@ -2130,10 +2229,11 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
 
     /**
      * Adds an overlay to the given component, repainting the UI as necessary.
-     * @param component A Connection or Endpoint to add the overlay to
-     * @param overlay Spec for the overlay
-     * @param doNotRevalidate Defaults to true. If false, a repaint won't occur after adding the overlay. This flag can be used when adding
+     * @param component - A Connection or Endpoint to add the overlay to
+     * @param overlay - Spec for the overlay
+     * @param doNotRevalidate - Defaults to true. If false, a repaint won't occur after adding the overlay. This flag can be used when adding
      * several overlays in a loop.
+     * @public
      */
     addOverlay(component:Component, overlay:OverlaySpec, doNotRevalidate?:boolean) {
         const o = component.addOverlay(overlay)
@@ -2141,6 +2241,18 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
             const relatedElement = component instanceof Endpoint ? (component as Endpoint).element : (component as Connection).source
             this.revalidate(relatedElement)
         }
+    }
+
+    /**
+     * Remove the overlay with the given id from the given component.
+     * @param component - Component to remove the overlay from.
+     * @param overlayId - ID of the overlay to remove.
+     * @public
+     */
+    removeOverlay(component:Component, overlayId:string) {
+        component.removeOverlay(overlayId)
+        const relatedElement = component instanceof Endpoint ? (component as Endpoint).element : (component as Connection).source
+        this.revalidate(relatedElement)
     }
 
     /**
@@ -2182,6 +2294,10 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     abstract off (el:Document | T["E"] | ArrayLike<T["E"]>, event:string, callback:Function):void
     abstract trigger(el:Document | T["E"], event:string, originalEvent?:Event, payload?:any, detail?:number):void
 
+    /**
+     * @internal
+     * @param connector
+     */
     getPathData (connector:AbstractConnector):any {
         let p = ""
         for (let i = 0; i < connector.segments.length; i++) {
