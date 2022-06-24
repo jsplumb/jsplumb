@@ -279,12 +279,13 @@ export class Drag extends Base {
     trackScroll:boolean
 
     private _downAt:PointXY
+    private _downScreenAt: PointXY
     private _posAtDown:PointXY
     private _pagePosAtDown:PointXY
     private _pageDelta:PointXY = {x:0, y:0}
 
     private _moving: boolean
-    private _lastPosition:PointXY
+    private _lastCursorPosition:PointXY
     private _lastScrollValues:PointXY = {x:0, y:0}
 
     private _initialScroll:PointXY = {x:0, y:0}
@@ -353,7 +354,7 @@ export class Drag extends Base {
 
         if (this.trackScroll) {
             this.scrollTracker = this._trackScroll.bind(this)
-            document.addEventListener("scroll", this.scrollTracker)
+            this.addScrollListener(this.el, this.scrollTracker);
         }
 
         if (params.ghostProxy === true) {
@@ -401,32 +402,8 @@ export class Drag extends Base {
 
     private _trackScroll(e:Event) {
         if (this._moving) {
-//
-            let currentScrollValues = { x:document.documentElement.scrollLeft, y:document.documentElement.scrollTop},
-                dsx = currentScrollValues.x - this._lastScrollValues.x,
-                dsy = currentScrollValues.y - this._lastScrollValues.y,
-                pos = {x:dsx + this._lastPosition.x, y:dsy + this._lastPosition.y},
-
-// ------------- from here we copy the existing code - 'pos' comes from a mouse event in the drag code - ..refactor:
-                dx = pos.x - this._downAt.x,
-                dy = pos.y - this._downAt.y,
-                z = this._ignoreZoom ? 1 : this.k.getZoom()
-
-            if (this._dragEl && this._dragEl.parentNode)
-            {
-                dx += this._dragEl.parentNode.scrollLeft - this._initialScroll.x
-                dy += this._dragEl.parentNode.scrollTop - this._initialScroll.y
-            }
-
-            dx /= z
-            dy /= z
-
-            this.moveBy(dx, dy, e as any)
-
-// ------------ this ^^^ is the end of the duplicated code.  setting the last position below is something only the scroll handler does.
-
-            this._lastPosition = pos
-            this._lastScrollValues = currentScrollValues
+            let {x, y} = this.calcMoveDistance(this._lastCursorPosition)
+            this.moveBy(x, y, e as any)
         }
     }
 
@@ -452,6 +429,9 @@ export class Drag extends Base {
         if (this._downAt) {
 
             this._downAt = null
+            this._downScreenAt = null
+            this._initialScroll = null
+            this._lastCursorPosition = null
             this.k.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener)
             this.k.eventManager.off(document, EVENT_MOUSEUP, this.upListener)
             removeClass(document.body as any, _classes.noSelect)
@@ -540,10 +520,9 @@ export class Drag extends Base {
 
 
                 this._downAt = pageLocation(e)
-
-                if (this._dragEl && this._dragEl.parentNode) {
-                    this._initialScroll = {x:this._dragEl.parentNode.scrollLeft, y:this._dragEl.parentNode.scrollTop}
-                }
+                this._downScreenAt = {x: e.screenX, y: e.screenY}
+                this._initialScroll = this.getScrollValues()
+                this._lastCursorPosition = this._downScreenAt
 
                 this._posAtDown = _getPosition(this._dragEl)
 
@@ -562,7 +541,6 @@ export class Drag extends Base {
             }
         }
     }
-
     private _moveListener(e:MouseEvent) {
         if (this._downAt) {
             if (!this._moving) {
@@ -581,28 +559,56 @@ export class Drag extends Base {
             // it is possible that the start event caused the drag to be aborted. So we check
             // again that we are currently dragging.
             if (this._downAt) {
-                let pos:PointXY = pageLocation(e),
-                    dx = pos.x - this._downAt.x,
-                    dy = pos.y - this._downAt.y,
-                    z = this._ignoreZoom ? 1 : this.k.getZoom()
-
-                this._lastPosition = {x:pos.x, y:pos.y}
-                this._lastScrollValues = {x:document.documentElement.scrollLeft, y:document.documentElement.scrollTop}
-
-                if (this._dragEl && this._dragEl.parentNode)
-                {
-                    dx += this._dragEl.parentNode.scrollLeft - this._initialScroll.x
-                    dy += this._dragEl.parentNode.scrollTop - this._initialScroll.y
-                }
-
-                dx /= z
-                dy /= z
-
-                this.moveBy(dx, dy, e)
+                let currentCursorPos: PointXY = {x: e.screenX, y: e.screenY},
+                    {x, y} = this.calcMoveDistance(currentCursorPos)
+                this._lastCursorPosition = currentCursorPos
+                this.moveBy(x, y, e)
             }
         }
     }
-
+    
+    private calcMoveDistance(currentCursorPos: PointXY): PointXY {
+        let currentScrollValue: PointXY = this.getScrollValues(),
+        dsx = currentScrollValue.x - this._initialScroll.x,
+        dsy = currentScrollValue.y - this._initialScroll.y,
+        dx = currentCursorPos.x - this._downScreenAt.x + dsx,
+        dy = currentCursorPos.y - this._downScreenAt.y + dsy,
+        z = this._ignoreZoom ? 1 : this.k.getZoom()
+        dx /= z
+        dy /= z
+        return {x: dx, y: dy}
+    }
+    private addScrollListener(el: HTMLElement, listener: (e: any) => void) {
+        this.traversalParentElement(el, parentElement => {
+            parentElement.addEventListener('scroll', listener)
+        })
+        el.addEventListener('scroll', listener)
+        document.addEventListener('scroll', listener)
+    }
+    private removeScrollListener(el: HTMLElement, listener: (e: any) => void) {
+        this.traversalParentElement(el, parentElement => {
+            parentElement.removeEventListener('scroll', listener)
+        })
+        el.removeEventListener('scroll', listener)
+        document.removeEventListener('scroll', listener)
+    }
+    private getScrollValues(): PointXY {
+        let x = this.el?.scrollLeft || 0
+        let y = this.el?.scrollTop || 0
+        this.traversalParentElement(this.el, parentElement => {
+            x += parentElement.scrollLeft
+            y += parentElement.scrollTop
+        })
+        return {x, y}
+    }
+    private traversalParentElement(el: HTMLElement, callback: (el: HTMLElement) => void) {
+        const parent = el?.parentElement
+        if(!parent) {
+            return
+        }
+        callback && callback(parent)
+        this.traversalParentElement(parent, callback)
+    }
     private mark(payload:any) {
 
         this._posAtDown = _getPosition(this._dragEl)
@@ -634,7 +640,6 @@ export class Drag extends Base {
     }
 
     moveBy (dx:number, dy:number, e?:MouseEvent) {
-
         let desiredLoc = this.toGrid({x:this._posAtDown.x + dx, y:this._posAtDown.y + dy}),
             cPos:PointXY = this._doConstrain(desiredLoc, this._dragEl, this._constrainRect, this._size)
 
@@ -850,7 +855,7 @@ export class Drag extends Base {
         this.upListener = null
         this.moveListener = null
         if (this.scrollTracker != null) {
-            document.removeEventListener("scroll", this.scrollTracker)
+            this.removeScrollListener(this.el, this.scrollTracker)
         }
     }
 
@@ -956,5 +961,3 @@ export class Collicat implements jsPlumbDragManager {
         }
     }
 }
-
-
