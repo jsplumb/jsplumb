@@ -2076,7 +2076,7 @@ var testSuite = function () {
         };
         var c = _jsPlumb.connect({source: d1, target: d2});
         equal(c.connector.type, "Straight", "connector is the default");
-        c.setConnector({type:"Bezier", options:{ curviness: 789 }});
+        c._setConnector({type:"Bezier", options:{ curviness: 789 }});
         equal(def.connector.options.curviness, 45, "curviness unchanged by setConnector call");
     });
 
@@ -2096,7 +2096,7 @@ var testSuite = function () {
         equal(c.connector.type, "Straight", "connector is the default");
         equal(_length(c.getOverlays()), 1, "one overlay on the connector");
 
-        c.setConnector({type:"StateMachine", options:{ curviness: 789 }});
+        c._setConnector({type:"StateMachine", options:{ curviness: 789 }});
         equal(def.connector.options.curviness, 45, "curviness unchanged by setConnector call");
         equal(_length(c.getOverlays()), 1, "one overlay on the connector");
     });
