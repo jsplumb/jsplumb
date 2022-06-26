@@ -15,7 +15,7 @@ export class ConnectionSelection extends SelectionBase<Connection> {
     }
 
     setConnector(spec:ConnectorSpec):ConnectionSelection {
-        this.each((c:Connection) => c.setConnector(spec))
+        this.each((c:Connection) => c._setConnector(spec))
         return this
     }
 
