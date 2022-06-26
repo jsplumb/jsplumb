@@ -67,10 +67,12 @@ export interface ComponentOptions {
     labelLocation?: number;
     overlays?: Array<OverlaySpec>;
 }
+export declare const ADD_CLASS_ACTION = "add";
+export declare const REMOVE_CLASS_ACTION = "remove";
 /**
  * @internal
  */
-export declare type ClassAction = "add" | "remove";
+export declare type ClassAction = typeof ADD_CLASS_ACTION | typeof REMOVE_CLASS_ACTION;
 /**
  * Base class for Endpoint and Connection.
  * @public

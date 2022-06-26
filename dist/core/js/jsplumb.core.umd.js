@@ -1430,6 +1430,8 @@
       component.hoverPaintStyle = mergedHoverStyle;
     }
   }
+  var ADD_CLASS_ACTION = "add";
+  var REMOVE_CLASS_ACTION = "remove";
   function _makeLabelOverlay(component, params) {
     var _params = {
       cssClass: params.cssClass,
@@ -1713,7 +1715,7 @@
               keep[t.overlays[i].options.id] = true;
               this.instance.reattachOverlay(existing, this);
             } else {
-              var _c = this.getCachedTypeItem("overlay", t.overlays[i].options.id);
+              var _c = this.getCachedTypeItem(TYPE_ITEM_OVERLAY, t.overlays[i].options.id);
               if (_c != null) {
                 this.instance.reattachOverlay(_c, this);
                 _c.setVisible(true);
@@ -2623,7 +2625,7 @@
       util.extend(_p, _this.parameters);
       _this.parameters = _p;
       _this.paintStyleInUse = _this.getPaintStyle() || {};
-      _this.setConnector(_this.endpoints[0].connector || _this.endpoints[1].connector || params.connector || _this.instance.defaults.connector, true);
+      _this._setConnector(_this.endpoints[0].connector || _this.endpoints[1].connector || params.connector || _this.instance.defaults.connector, true);
       var data = params.data == null || !util.isObject(params.data) ? {} : params.data;
       _this.setData(data);
       var _types = [common.DEFAULT, _this.endpoints[0].edgeType, _this.endpoints[1].edgeType, params.type].join(" ");
@@ -2829,8 +2831,8 @@
         }
       }
     }, {
-      key: "setConnector",
-      value: function setConnector(connectorSpec, doNotRepaint, doNotChangeListenerComponent, typeId) {
+      key: "_setConnector",
+      value: function _setConnector(connectorSpec, doNotRepaint, doNotChangeListenerComponent, typeId) {
         var connector = this.prepareConnector(connectorSpec, typeId);
         this.setPreparedConnector(connector, doNotRepaint, doNotChangeListenerComponent, typeId);
       }
@@ -4374,7 +4376,7 @@
       key: "setConnector",
       value: function setConnector(spec) {
         this.each(function (c) {
-          return c.setConnector(spec);
+          return c._setConnector(spec);
         });
         return this;
       }
@@ -7468,6 +7470,7 @@
   Connectors.register(StraightConnector.type, StraightConnector);
 
   exports.ABSOLUTE = ABSOLUTE;
+  exports.ADD_CLASS_ACTION = ADD_CLASS_ACTION;
   exports.ATTRIBUTE_GROUP = ATTRIBUTE_GROUP;
   exports.ATTRIBUTE_MANAGED = ATTRIBUTE_MANAGED;
   exports.ATTRIBUTE_NOT_DRAGGABLE = ATTRIBUTE_NOT_DRAGGABLE;
@@ -7577,6 +7580,7 @@
   exports.REDROP_POLICY_ANY_SOURCE_OR_TARGET = REDROP_POLICY_ANY_SOURCE_OR_TARGET;
   exports.REDROP_POLICY_ANY_TARGET = REDROP_POLICY_ANY_TARGET;
   exports.REDROP_POLICY_STRICT = REDROP_POLICY_STRICT;
+  exports.REMOVE_CLASS_ACTION = REMOVE_CLASS_ACTION;
   exports.RIGHT = RIGHT;
   exports.RectangleEndpoint = RectangleEndpoint;
   exports.RectangleEndpointHandler = RectangleEndpointHandler;

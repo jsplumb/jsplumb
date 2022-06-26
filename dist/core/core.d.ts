@@ -151,6 +151,8 @@ export declare interface AbstractSelectOptions<E> {
     target?: ElementSelectionSpecifier<E>;
 }
 
+export declare const ADD_CLASS_ACTION = "add";
+
 export declare interface AddGroupOptions<E> extends GroupOptions {
     el: E;
     collapsed?: boolean;
@@ -485,7 +487,7 @@ export declare const CLASS_OVERLAY = "jtk-overlay";
 /**
  * @internal
  */
-export declare type ClassAction = "add" | "remove";
+export declare type ClassAction = typeof ADD_CLASS_ACTION | typeof REMOVE_CLASS_ACTION;
 
 export declare function classList(...className: Array<string>): string;
 
@@ -982,7 +984,14 @@ export declare class Connection<E = any> extends Component {
      * @internal
      */
     setPreparedConnector(connector: AbstractConnector, doNotRepaint?: boolean, doNotChangeListenerComponent?: boolean, typeId?: string): void;
-    setConnector(connectorSpec: ConnectorSpec, doNotRepaint?: boolean, doNotChangeListenerComponent?: boolean, typeId?: string): void;
+    /**
+     * @internal
+     * @param connectorSpec
+     * @param doNotRepaint
+     * @param doNotChangeListenerComponent
+     * @param typeId
+     */
+    _setConnector(connectorSpec: ConnectorSpec, doNotRepaint?: boolean, doNotChangeListenerComponent?: boolean, typeId?: string): void;
     /**
      * Replace the Endpoint at the given index with a new Endpoint.  This is used by the Toolkit edition, if changes to an edge type
      * cause a change in Endpoint.
@@ -2813,6 +2822,8 @@ export declare const REDROP_POLICY_STRICT = "strict";
  * @public
  */
 export declare type RedropPolicy = typeof REDROP_POLICY_STRICT | typeof REDROP_POLICY_ANY | typeof REDROP_POLICY_ANY_SOURCE | typeof REDROP_POLICY_ANY_TARGET | typeof REDROP_POLICY_ANY_SOURCE_OR_TARGET;
+
+export declare const REMOVE_CLASS_ACTION = "remove";
 
 export declare function _removeTypeCssHelper<E>(component: Component, typeId: string): void;
 

@@ -180,7 +180,14 @@ export declare class Connection<E = any> extends Component {
      * @internal
      */
     setPreparedConnector(connector: AbstractConnector, doNotRepaint?: boolean, doNotChangeListenerComponent?: boolean, typeId?: string): void;
-    setConnector(connectorSpec: ConnectorSpec, doNotRepaint?: boolean, doNotChangeListenerComponent?: boolean, typeId?: string): void;
+    /**
+     * @internal
+     * @param connectorSpec
+     * @param doNotRepaint
+     * @param doNotChangeListenerComponent
+     * @param typeId
+     */
+    _setConnector(connectorSpec: ConnectorSpec, doNotRepaint?: boolean, doNotChangeListenerComponent?: boolean, typeId?: string): void;
     /**
      * Replace the Endpoint at the given index with a new Endpoint.  This is used by the Toolkit edition, if changes to an edge type
      * cause a change in Endpoint.

@@ -162,6 +162,9 @@ export interface AbstractSelectOptions<E> {
 }
 
 // @public (undocumented)
+export const ADD_CLASS_ACTION = "add";
+
+// @public (undocumented)
 export interface AddGroupOptions<E> extends GroupOptions {
     // (undocumented)
     collapsed?: boolean;
@@ -452,7 +455,7 @@ export const CLASS_OVERLAY = "jtk-overlay";
 // Warning: (ae-internal-missing-underscore) The name "ClassAction" should be prefixed with an underscore because the declaration is marked as @internal
 //
 // @internal (undocumented)
-export type ClassAction = "add" | "remove";
+export type ClassAction = typeof ADD_CLASS_ACTION | typeof REMOVE_CLASS_ACTION;
 
 // @public (undocumented)
 export function classList(...className: Array<string>): string;
@@ -757,8 +760,8 @@ export class Connection<E = any> extends Component {
     replaceEndpoint(idx: number, endpointDef: EndpointSpec): void;
     // (undocumented)
     scope: string;
-    // (undocumented)
-    setConnector(connectorSpec: ConnectorSpec, doNotRepaint?: boolean, doNotChangeListenerComponent?: boolean, typeId?: string): void;
+    // @internal (undocumented)
+    _setConnector(connectorSpec: ConnectorSpec, doNotRepaint?: boolean, doNotChangeListenerComponent?: boolean, typeId?: string): void;
     // (undocumented)
     setDetachable(detachable: boolean): void;
     // @internal (undocumented)
@@ -2332,6 +2335,9 @@ export const REDROP_POLICY_STRICT = "strict";
 
 // @public
 export type RedropPolicy = typeof REDROP_POLICY_STRICT | typeof REDROP_POLICY_ANY | typeof REDROP_POLICY_ANY_SOURCE | typeof REDROP_POLICY_ANY_TARGET | typeof REDROP_POLICY_ANY_SOURCE_OR_TARGET;
+
+// @public (undocumented)
+export const REMOVE_CLASS_ACTION = "remove";
 
 // @public (undocumented)
 export function _removeTypeCssHelper<E>(component: Component, typeId: string): void;
