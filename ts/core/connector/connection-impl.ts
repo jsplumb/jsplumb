@@ -354,7 +354,7 @@ export class Connection<E = any> extends Component {
 
         this.paintStyleInUse = this.getPaintStyle() || {}
 
-        this.setConnector(this.endpoints[0].connector || this.endpoints[1].connector || params.connector || this.instance.defaults.connector, true)
+        this._setConnector(this.endpoints[0].connector || this.endpoints[1].connector || params.connector || this.instance.defaults.connector, true)
 
         let data = params.data == null || !isObject(params.data) ? {} : params.data
         this.setData(data)
@@ -593,7 +593,14 @@ export class Connection<E = any> extends Component {
         }
     }
 
-    setConnector(connectorSpec:ConnectorSpec, doNotRepaint?:boolean, doNotChangeListenerComponent?:boolean, typeId?:string) {
+    /**
+     * @internal
+     * @param connectorSpec
+     * @param doNotRepaint
+     * @param doNotChangeListenerComponent
+     * @param typeId
+     */
+    _setConnector(connectorSpec:ConnectorSpec, doNotRepaint?:boolean, doNotChangeListenerComponent?:boolean, typeId?:string) {
         let connector = this.prepareConnector(connectorSpec, typeId)
         this.setPreparedConnector(connector, doNotRepaint, doNotChangeListenerComponent, typeId)
     }
