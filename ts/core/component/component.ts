@@ -159,10 +159,13 @@ export interface ComponentOptions {
     overlays?:Array<OverlaySpec>
 }
 
+export const ADD_CLASS_ACTION = "add"
+export const REMOVE_CLASS_ACTION = "remove"
+
 /**
  * @internal
  */
-export type ClassAction = "add" | "remove"
+export type ClassAction = typeof ADD_CLASS_ACTION | typeof REMOVE_CLASS_ACTION
 
 function _makeLabelOverlay(component:Component, params:LabelOverlayOptions):LabelOverlay {
 
@@ -539,7 +542,7 @@ export abstract class Component extends EventGenerator {
 
                 }
                 else {
-                    let c:Overlay = this.getCachedTypeItem("overlay", t.overlays[i].options.id)
+                    let c:Overlay = this.getCachedTypeItem(TYPE_ITEM_OVERLAY, t.overlays[i].options.id)
                     if (c != null) {
                         this.instance.reattachOverlay(c, this)
                         c.setVisible(true)
