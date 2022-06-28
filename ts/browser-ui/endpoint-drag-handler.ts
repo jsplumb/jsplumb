@@ -355,6 +355,17 @@ export class EndpointDragHandler implements DragHandler {
 
     }
 
+    private getPosition(el:Element) {
+        const pc = this.instance.getContainer().getBoundingClientRect()
+        const ec = el.getBoundingClientRect()
+        return { x: ec.left - pc.left, y:ec.top - pc.top }
+    }
+
+    private getSize(el:Element):Size {
+        const ec = el.getBoundingClientRect()
+        return { w:ec.width, h:ec.height }
+    }
+
     //
     // cleans up any endpoints added from a mousedown on a source that did not result in a connection drag
     // replaces what in previous versions was a mousedown/mouseup handler per element.
@@ -376,7 +387,7 @@ export class EndpointDragHandler implements DragHandler {
      * @internal
      */
     onDragInit(el:Element):Element {
-        const ipco = this.instance.getOffset(el), ips = this.instance.getSize(el)
+        const ipco = this.getPosition(el), ips = this.getSize(el)
 
         this._makeDraggablePlaceholder(ipco, ips)
 
@@ -596,7 +607,7 @@ export class EndpointDragHandler implements DragHandler {
 
             if ((this.jpc != null || candidate !== canvasElement) && candidate !== this.floatingElement && (this.jpc != null || !candidate.jtk.endpoint.isFull())) {
                 if ( (isSourceDrag && candidate.jtk.endpoint.isSource) || (!isSourceDrag && candidate.jtk.endpoint.isTarget) ) {
-                    const o = this.instance.getOffset(candidate), s = this.instance.getSize(candidate)
+                    const o = this.getPosition(candidate), s = this.getSize(candidate)
                     boundingRect = {x: o.x, y: o.y, w: s.w, h: s.h}
                     this.endpointDropTargets.push({el: candidate, targetEl:candidate, r: boundingRect, endpoint: candidate.jtk.endpoint, def:null})
                     this.instance.addClass(candidate, CLASS_DRAG_ACTIVE)
@@ -631,7 +642,7 @@ export class EndpointDragHandler implements DragHandler {
                         let d: any = {r: null, el}
                         d.targetEl = findParent(el as unknown as jsPlumbDOMElement, SELECTOR_MANAGED_ELEMENT, this.instance.getContainer(), true)
 
-                        const o = this.instance.getOffset(d.el), s = this.instance.getSize(d.el)
+                        const o = this.getPosition(d.el), s = this.getSize(d.el)
                         d.r = {x: o.x, y: o.y, w: s.w, h: s.h}
 
                         if (sourceDef.def.def.rank != null) {
@@ -694,7 +705,7 @@ export class EndpointDragHandler implements DragHandler {
                             }
                         }
 
-                        const o = this.instance.getOffset(el), s = this.instance.getSize(el)
+                        const o = this.getPosition(el), s = this.getSize(el)
                         d.r = {x: o.x, y: o.y, w: s.w, h: s.h}
 
                         d.def = targetDef.def
@@ -839,7 +850,7 @@ export class EndpointDragHandler implements DragHandler {
 
         if (this.placeholderInfo.element) {
 
-            let floatingElementSize = this.instance.getSize(this.floatingElement)
+            let floatingElementSize = this.getSize(this.floatingElement)
 
             this.instance.setElementPosition(this.placeholderInfo.element, params.pos.x, params.pos.y)
 
