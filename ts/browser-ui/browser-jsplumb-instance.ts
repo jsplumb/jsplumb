@@ -77,7 +77,7 @@ import {
     DragEventParams,
     DragStopEventParams,
     ContainmentType,
-    BeforeStartEventParams
+    BeforeStartEventParams, ConstrainFunction
 } from './collicat'
 
 import {HTMLElementOverlay} from "./html-element-overlay"
@@ -137,6 +137,13 @@ export interface UIComponent {
     canvas: HTMLElement
     svg:SVGElement
 }
+
+enum ContainerTypes {
+    SVG = "SVG",
+    HTML = "HTML"
+}
+
+type ContainerType = keyof typeof ContainerTypes
 
 export type EndpointHelperFunctions<E> = {
     makeNode:(ep:E, paintStyle:PaintStyle) => void,
@@ -253,7 +260,6 @@ function cleanup(component: UIComponent) {
     }
 
     delete component.canvas
-    delete component.svg
 }
 
 function getEndpointCanvas<C>(ep:EndpointRepresentation<C>):any {
@@ -310,6 +316,8 @@ type ResizeObserverEntries = Array<ResizeObserverEntry>
  * @public
  */
 export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
+
+    private containerType:ContainerType
 
     private readonly dragSelection:DragSelection
     dragManager:DragManager
@@ -664,6 +672,15 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     }
 
     /**
+     * Sets the function used to constrain the dragging of elements.
+     * @param constrainFunction
+     * @public
+     */
+    setDragConstrainFunction(constrainFunction:ConstrainFunction) {
+        this.dragManager.setOption(this.elementDragHandler, { constrainFunction })
+    }
+
+    /**
      * @internal
      * @param element
      */
@@ -681,6 +698,25 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         if (parent) {
             parent.appendChild(el)
         }
+    }
+
+    /**
+     * @internal
+     * @param group
+     * @param el
+     * @private
+     */
+    _appendElementToGroup(group: UIGroup<any>, el: ElementType["E"]): void {
+        this.getGroupContentArea(group).appendChild(el)
+    }
+
+    /**
+     * @internal
+     * @param el
+     * @private
+     */
+    _appendElementToContainer(el: ElementType["E"]): void {
+        this._appendElement(el, this.getContainer())
     }
 
     /**
@@ -865,6 +901,24 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
      * Exposed on this class to assist core in abstracting out the specifics of the renderer.
      * @internal
      * @param el
+     *
+     * Places this is called:
+     *
+     * - dragToGroup in test support, to get the position of the target group
+     * - `orphan` in group manager, to get an elements position relative to the group. since in this case we know its
+     * a child of the group's content area we could theoretically use getBoundingClientRect here
+     * - addToGroup in group manager, to find the position of some element that is about to be dropped
+     * - addToGroup in group manager, to get the position of the content area of an uncollapsed group onto which an element is being dropped
+     * - refreshElement, to get the current position of some element
+     * - getOffset method in viewport (just does a pass through to the instance)
+     * - onStop of group manager, when ghost proxy is active, to get the location of the original group's content area and the new group's content area
+     * - onStart in drag manager, to get the position of an element that is about to be dragged
+     * - onStart in drag manager, to get the position of an element's group parent when the element is about to be dragged (if the element is in a group)
+     * - onStart in drag manager, to get the position of a group, when checking for target group's for the element that is about to be dragged
+     * - onStart in drag manager, to get the position of all the elements in the current drag group (if there is one), so that they can be moved
+     * relative to each other during the drag.
+     *
+     *
      */
     getOffset(el:Element):PointXY {
         const jel = el as unknown as jsPlumbDOMElement
@@ -881,6 +935,12 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
                 }
             }
 
+        // this block is used when the element we're trying to find an offset for is not a direct child of the container.
+        // we recurse through offset parents, and also adjust for scroll if necessary (consider a child of some element that is
+        // a list, which can be internally scrolled: to know with certainty the offset of some child relative to the container's
+        // origin, it is necessary to adjust for scroll.
+        // it could be the case that getBoundingClientRect() takes parent scroll into account though. This requires
+        // investigation.
         while (op != null) {
             out.x += op.offsetLeft
             out.y += op.offsetTop
@@ -890,7 +950,10 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
         // if container is scrolled and the element (or its offset parent) is not absolute or fixed, adjust accordingly.
         if (container != null && (container.scrollTop > 0 || container.scrollLeft > 0)) {
+
+            // get the offset parent's position - fixed, absolute, relative or static
             let pp = jel.offsetParent != null ? this.getStyle(jel.offsetParent as HTMLElement, PROPERTY_POSITION) : STATIC,
+                // get the element's position - fixed, absolute, relative or static
                 p = this.getStyle(jel, PROPERTY_POSITION)
             if (p !== ABSOLUTE && p !== FIXED && pp !== ABSOLUTE && pp !== FIXED) {
                 out.x -= container.scrollLeft
@@ -898,7 +961,15 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
             }
         }
 
+        // let cb = container.getBoundingClientRect()
+        // let eb = el.getBoundingClientRect()
+        //
+        // const candidate = {x:eb.left - cb.left, y:eb.top - cb.top}
+        //
+        // console.log(out, candidate)
+
         return out
+        // return candidate
     }
 
     /**
@@ -908,6 +979,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
      */
     getSize(el:Element):Size {
         return size(el as any)
+        // const b = el.getBoundingClientRect()
+        // return { w:b.width, h:b.height }
     }
 
     /**
@@ -1144,6 +1217,9 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         }
 
         super.setContainer(newContainer)
+
+        this.containerType = newContainer instanceof SVGElement ? ContainerTypes.SVG : ContainerTypes.HTML
+
         if (this.eventManager != null) {
             this._attachEventDelegates()
         }
