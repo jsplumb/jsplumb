@@ -78,6 +78,10 @@ var testSuite = function () {
 
         equal(e16Loc.x, 0.5, "e16 x position is still middle after rotation");
         equal(e16Loc.y, 1, "e16 y position is still bottom after rotation");
+
+        // equal(e16Loc.x, 0, "e16 x position is still middle after rotation");
+        // equal(e16Loc.y, 0.5, "e16 y position is still bottom after rotation");
+
         equal(e17Loc.x, 0.5, "e17 x position is still middle after rotation");
         equal(e17Loc.y, 0, "e17 y position is still top after rotation");
 
@@ -139,6 +143,9 @@ var testSuite = function () {
 
         equal(e16Loc.curX, 100, "e16 x position is correct after rotation of d16");
         equal(e16Loc.curY, 175, "e16 y position is correct after rotation of d16");
+        // equal(e16Loc.curX, 175, "e16 x position is correct after rotation of d16");
+        // equal(e16Loc.curY, 125, "e16 y position is correct after rotation of d16");
+
         // these unchanged currently
         equal(e17Loc.curX, 250, "e17 x position is unchanged after rotation of d16");
         equal(e17Loc.curY, 325, "e17 y position is unchanged after rotation of d16");
@@ -151,10 +158,16 @@ var testSuite = function () {
 
         ok(d17.style.transformOrigin == "center center" || d17.style.transformOrigin == "center center 0px", "d17 transform origin was set");
         equal(d17.style.transform, "rotate(90deg)", "d17 rotate transform was set");
+
         equal(e16Loc.curX, 100, "e16 x position is correct after rotation of 1d7");
         equal(e16Loc.curY, 175, "e16 y position is correct after rotation of d17");
+        // equal(e16Loc.curX, 175, "e16 x position is correct after rotation of d16");
+        // equal(e16Loc.curY, 125, "e16 y position is correct after rotation of d16");
+
         equal(e17Loc.curX, 300, "e17 x position is correct after rotation of d17");
         equal(e17Loc.curY, 275, "e17 y position is correct after rotation of d17");
+        // equal(e17Loc.curX, 225, "e17 x position is correct after rotation of d17");
+        // equal(e17Loc.curY, 325, "e17 y position is correct after rotation of d17");
     });
 
     test("element rotation, continuous anchors", function () {

@@ -70,7 +70,7 @@ var testSuite = function () {
         },
         setup: function () {
 
-            debugger
+            // debugger
             makeContainer()
 
             _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
@@ -322,16 +322,16 @@ var testSuite = function () {
         _jsPlumb.connect({source:e1, target:e2});
         _jsPlumb.connect({source:e2, target:e3});
 
-        var e1canvas = support.getEndpointCanvas(e1),
-            e2canvas = support.getEndpointCanvas(e2),
-            e3canvas = support.getEndpointCanvas(e3);
+        var e1canvas = support.getEndpointCanvasPosition(e1),
+            e2canvas = support.getEndpointCanvasPosition(e2),
+            e3canvas = support.getEndpointCanvasPosition(e3);
 
-        equal(e1canvas.offsetLeft, 50 - (e1canvas.offsetWidth/2), "endpoint 1 is at the right place");
-        equal(e1canvas.offsetTop, 50 - (e1canvas.offsetHeight/2), "endpoint 1 is at the right place");
-        equal(e2canvas.offsetLeft, 250 - (e2canvas.offsetWidth/2), "endpoint 2 is at the right place");
-        equal(e2canvas.offsetTop, 250 - (e2canvas.offsetHeight/2), "endpoint 2 is at the right place");
-        equal(e3canvas.offsetLeft, 500 - (e3canvas.offsetWidth/2), "endpoint 3 is at the right place");
-        equal(e3canvas.offsetTop, 500 - (e3canvas.offsetHeight/2), "endpoint 3 is at the right place");
+        equal(e1canvas.x, 50 - (e1canvas.w/2), "endpoint 1 is at the right place");
+        equal(e1canvas.y, 50 - (e1canvas.h/2), "endpoint 1 is at the right place");
+        equal(e2canvas.x, 250 - (e2canvas.w/2), "endpoint 2 is at the right place");
+        equal(e2canvas.y, 250 - (e2canvas.h/2), "endpoint 2 is at the right place");
+        equal(e3canvas.x, 500 - (e3canvas.w/2), "endpoint 3 is at the right place");
+        equal(e3canvas.y, 500 - (e3canvas.h/2), "endpoint 3 is at the right place");
 
         _jsPlumb.addToDragSelection(d1);
         _jsPlumb.addToDragSelection(d3);
@@ -351,8 +351,9 @@ var testSuite = function () {
         equal(d3.offsetTop, 1250, "div 3 is at the right top position");
 
         // check the endpoints
-        equal(e2canvas.offsetLeft, 1000 - (e2canvas.offsetWidth/2), "endpoint 2 is at the right place");
-        equal(e2canvas.offsetTop, 1000 - (e2canvas.offsetHeight/2), "endpoint 2 is at the right place");
+        e2canvas = support.getEndpointCanvasPosition(e2)
+        equal(e2canvas.x, 1000 - (e2canvas.w/2), "endpoint 2 is at the right place");
+        equal(e2canvas.y, 1000 - (e2canvas.h/2), "endpoint 2 is at the right place");
 
         // TODO - drag selection
         // equal(e1.canvas.offsetLeft, 750 - (e1.canvas.offsetWidth/2), "endpoint 1 is at the right place");

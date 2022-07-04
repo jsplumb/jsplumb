@@ -1826,7 +1826,7 @@ var testSuite = function () {
         equal(c2.classList.contains(CLASS_FULL), true, "d2 endpoint has jtk-endpoint-full class when new connection established")
         equal(c2.classList.contains("customTarget"), true, "d2 endpoint has customTarget class new connection established")
 
-        debugger
+        // debugger
         support.detachAndReattachConnection(e1, {
             beforeMouseUp:function() {
 

@@ -3848,7 +3848,7 @@ var testSuite = function () {
             endpointStyle: { fill: "blue" }
         });
 
-        equal(support.getEndpointCanvas(c.endpoints[0]).childNodes[0].childNodes[0].getAttribute("fill"), "blue", "endpoint style passed through by connect method");
+        equal(support.getEndpointCanvas(c.endpoints[0]).childNodes[0].getAttribute("fill"), "blue", "endpoint style passed through by connect method");
     });
 
     /**
@@ -3869,7 +3869,7 @@ var testSuite = function () {
             endpointStyle: { fill: "blue" }
         });
 
-        equal(support.getEndpointCanvas(c.endpoints[0]).childNodes[0].childNodes[0].getAttribute("fill"), "blue", "endpoint style passed through by connect method");
+        equal(support.getEndpointCanvas(c.endpoints[0]).childNodes[0].getAttribute("fill"), "blue", "endpoint style passed through by connect method");
     });
 
 
@@ -4205,14 +4205,14 @@ var testSuite = function () {
         _jsPlumb.trigger(support.getEndpointCanvas(e).childNodes[0], "dblclick");
 
         // the path element
-        _jsPlumb.trigger(support.getEndpointCanvas(e).childNodes[0].childNodes[0], "dblclick");
+        //_jsPlumb.trigger(support.getEndpointCanvas(e).childNodes[0].childNodes[0], "dblclick");
 
         // the main endpoint element
         _jsPlumb.trigger(support.getEndpointCanvas(e), "dblclick");
 
         // each of those should have triggered a single click
 
-        equal(ec, 3, "3 endpoint dbl clicks");
+        equal(ec, 2, "2 endpoint dbl clicks");
         equal(c, 0, "no other dbl clicks");
     });
 

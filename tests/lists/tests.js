@@ -77,6 +77,7 @@ var testSuite = function () {
         },
         setup: function () {
             container = document.createElement("j" + jsPlumbUtil.uuid().replace(/-/g, ""))
+            container.style.position = "relative"
             document.body.appendChild(container)
             _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
             support = jsPlumbTestSupport.getInstanceQUnit(_jsPlumb);
