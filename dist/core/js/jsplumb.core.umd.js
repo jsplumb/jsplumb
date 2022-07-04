@@ -3379,7 +3379,7 @@
           var cpos = this.collapsed ? this.instance.getOffsetRelativeToRoot(this.el) : this.instance.getOffsetRelativeToRoot(this.instance.getGroupContentArea(this));
           group.el._jsPlumbParentGroup = this;
           this.children.push(group);
-          this.instance._appendElement(group.el, this.instance.getGroupContentArea(this));
+          this.instance._appendElementToGroup(this, group.el);
           group.group = this;
           var newPosition = {
             x: elpos.x - cpos.x,
@@ -3667,16 +3667,12 @@
         var jel = el;
         if (jel._jsPlumbParentGroup) {
           var currentParent = jel._jsPlumbParentGroup;
-          var positionRelativeToGroup = this.instance.getOffset(jel);
           var id = this.instance.getId(jel);
           var pos = this.instance.getOffset(el);
-          jel.parentNode.removeChild(jel);
           if (doNotTransferToAncestor !== true && currentParent.group) {
-            pos.x += positionRelativeToGroup.x;
-            pos.y += positionRelativeToGroup.y;
-            this.instance.getGroupContentArea(currentParent.group).appendChild(el);
+            this.instance._appendElementToGroup(currentParent.group, el);
           } else {
-            this.instance._appendElement(el, this.instance.getContainer());
+            this.instance._appendElementToContainer(el);
           }
           this.instance.setPosition(el, pos);
           delete jel._jsPlumbParentGroup;
@@ -4894,6 +4890,8 @@
     }, {
       key: "_computeSingleLocation",
       value: function _computeSingleLocation(loc, xy, wh, params) {
+        var pos;
+        var rotation = params.rotation;
         var candidate = {
           curX: xy.x + loc.x * wh.w + loc.offx,
           curY: xy.y + loc.y * wh.h + loc.offy,
@@ -4902,8 +4900,6 @@
           ox: 0,
           oy: 0
         };
-        var pos;
-        var rotation = params.rotation;
         if (rotation != null && rotation.length > 0) {
           var o = [loc.iox, loc.ioy],
               current = {

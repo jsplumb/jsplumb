@@ -4483,7 +4483,7 @@ var jsPlumbBrowserUI = (function (exports) {
           var cpos = this.collapsed ? this.instance.getOffsetRelativeToRoot(this.el) : this.instance.getOffsetRelativeToRoot(this.instance.getGroupContentArea(this));
           group.el._jsPlumbParentGroup = this;
           this.children.push(group);
-          this.instance._appendElement(group.el, this.instance.getGroupContentArea(this));
+          this.instance._appendElementToGroup(this, group.el);
           group.group = this;
           var newPosition = {
             x: elpos.x - cpos.x,
@@ -4771,16 +4771,12 @@ var jsPlumbBrowserUI = (function (exports) {
         var jel = el;
         if (jel._jsPlumbParentGroup) {
           var currentParent = jel._jsPlumbParentGroup;
-          var positionRelativeToGroup = this.instance.getOffset(jel);
           var id = this.instance.getId(jel);
           var pos = this.instance.getOffset(el);
-          jel.parentNode.removeChild(jel);
           if (doNotTransferToAncestor !== true && currentParent.group) {
-            pos.x += positionRelativeToGroup.x;
-            pos.y += positionRelativeToGroup.y;
-            this.instance.getGroupContentArea(currentParent.group).appendChild(el);
+            this.instance._appendElementToGroup(currentParent.group, el);
           } else {
-            this.instance._appendElement(el, this.instance.getContainer());
+            this.instance._appendElementToContainer(el);
           }
           this.instance.setPosition(el, pos);
           delete jel._jsPlumbParentGroup;
@@ -5998,6 +5994,8 @@ var jsPlumbBrowserUI = (function (exports) {
     }, {
       key: "_computeSingleLocation",
       value: function _computeSingleLocation(loc, xy, wh, params) {
+        var pos;
+        var rotation = params.rotation;
         var candidate = {
           curX: xy.x + loc.x * wh.w + loc.offx,
           curY: xy.y + loc.y * wh.h + loc.offy,
@@ -6006,8 +6004,6 @@ var jsPlumbBrowserUI = (function (exports) {
           ox: 0,
           oy: 0
         };
-        var pos;
-        var rotation = params.rotation;
         if (rotation != null && rotation.length > 0) {
           var o = [loc.iox, loc.ioy],
               current = {
@@ -10401,7 +10397,7 @@ var jsPlumbBrowserUI = (function (exports) {
         }
       }
     } catch (e) {
-      log("JSPLUMB: cannot set class list", e);
+      log("WARN: cannot set class list", e);
     }
   }
   function _getClassName(el) {
@@ -10612,14 +10608,11 @@ var jsPlumbBrowserUI = (function (exports) {
       svg.appendChild(path);
     }
   }
-  function _size(svg, x, y, w, h) {
-    svg.style.width = w + "px";
-    svg.style.height = h + "px";
-    svg.style.left = x + "px";
-    svg.style.top = y + "px";
-    svg.height = h;
-    svg.width = w;
-  }
+  var svg = {
+    attr: _attr,
+    node: _node,
+    ns: ns
+  };
 
   function compoundEvent(stem, event, subevent) {
     var a = [stem, event];
@@ -11285,14 +11278,16 @@ var jsPlumbBrowserUI = (function (exports) {
     return !matchesSelector$1(t, collicat.getInputFilterSelector(), el);
   };
   var Base = function () {
-    function Base(el, k) {
+    function Base(el, manager) {
       _classCallCheck(this, Base);
       this.el = el;
-      this.k = k;
+      this.manager = manager;
       _defineProperty(this, "_class", void 0);
       _defineProperty(this, "uuid", uuid());
       _defineProperty(this, "enabled", true);
       _defineProperty(this, "scopes", []);
+      _defineProperty(this, "eventManager", void 0);
+      this.eventManager = manager.eventManager;
     }
     _createClass(Base, [{
       key: "setEnabled",
@@ -11372,10 +11367,10 @@ var jsPlumbBrowserUI = (function (exports) {
   var Drag = function (_Base) {
     _inherits(Drag, _Base);
     var _super = _createSuper(Drag);
-    function Drag(el, params, k) {
+    function Drag(el, params, manager) {
       var _this;
       _classCallCheck(this, Drag);
-      _this = _super.call(this, el, k);
+      _this = _super.call(this, el, manager);
       _defineProperty(_assertThisInitialized(_this), "_class", void 0);
       _defineProperty(_assertThisInitialized(_this), "rightButtonCanDrag", void 0);
       _defineProperty(_assertThisInitialized(_this), "consumeStartEvent", void 0);
@@ -11433,7 +11428,7 @@ var jsPlumbBrowserUI = (function (exports) {
         "beforeStart": [],
         "revert": []
       });
-      _this._class = _this.k.css.draggable;
+      _this._class = _this.manager.css.draggable;
       addClass(_this.el, _this._class);
       _this.downListener = _this._downListener.bind(_assertThisInitialized(_this));
       _this.upListener = _this._upListener.bind(_assertThisInitialized(_this));
@@ -11488,7 +11483,7 @@ var jsPlumbBrowserUI = (function (exports) {
         }
         _this._availableSelectors.push(params);
       }
-      _this.k.eventManager.on(_this.el, EVENT_MOUSEDOWN, _this.downListener);
+      _this.eventManager.on(_this.el, EVENT_MOUSEDOWN, _this.downListener);
       return _this;
     }
     _createClass(Drag, [{
@@ -11507,7 +11502,7 @@ var jsPlumbBrowserUI = (function (exports) {
           },
           dx = _pos.x - this._downAt.x,
               dy = _pos.y - this._downAt.y,
-              _z = this._ignoreZoom ? 1 : this.k.getZoom();
+              _z = this._ignoreZoom ? 1 : this.manager.getZoom();
           if (this._dragEl && this._dragEl.parentNode) {
             dx += this._dragEl.parentNode.scrollLeft - this._initialScroll.x;
             dy += this._dragEl.parentNode.scrollTop - this._initialScroll.y;
@@ -11544,8 +11539,8 @@ var jsPlumbBrowserUI = (function (exports) {
       value: function _upListener(e) {
         if (this._downAt) {
           this._downAt = null;
-          this.k.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener);
-          this.k.eventManager.off(document, EVENT_MOUSEUP, this.upListener);
+          this.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener);
+          this.eventManager.off(document, EVENT_MOUSEUP, this.upListener);
           removeClass(document.body, _classes.noSelect);
           this.unmark(e);
           this.stop(e);
@@ -11555,7 +11550,7 @@ var jsPlumbBrowserUI = (function (exports) {
             this._dragEl = null;
           } else {
             if (this._activeSelectorParams && this._activeSelectorParams.revertFunction) {
-              if (this._activeSelectorParams.revertFunction(this._dragEl, _getPosition(this._dragEl)) === true) {
+              if (this._activeSelectorParams.revertFunction(this._dragEl, this.manager.getPosition(this._dragEl)) === true) {
                 _setPosition(this._dragEl, this._posAtDown);
                 this._dispatch(EVENT_REVERT, this._dragEl);
               }
@@ -11571,7 +11566,7 @@ var jsPlumbBrowserUI = (function (exports) {
         }
         var isNotRightClick = this.rightButtonCanDrag || e.which !== 3 && e.button !== 2;
         if (isNotRightClick && this.isEnabled() && this._canDrag()) {
-          var _f = this._testFilter(e) && _inputFilter(e, this.el, this.k);
+          var _f = this._testFilter(e) && _inputFilter(e, this.el, this.manager);
           if (_f) {
             this._activeSelectorParams = null;
             this._elementToDrag = null;
@@ -11587,7 +11582,7 @@ var jsPlumbBrowserUI = (function (exports) {
             if (this._activeSelectorParams == null || this._elementToDrag == null) {
               return;
             }
-            var initial = this._activeSelectorParams.dragInit ? this._activeSelectorParams.dragInit(this._elementToDrag) : null;
+            var initial = this._activeSelectorParams.dragInit ? this._activeSelectorParams.dragInit(this._elementToDrag, e) : null;
             if (initial != null) {
               this._elementToDrag = initial;
             }
@@ -11597,7 +11592,7 @@ var jsPlumbBrowserUI = (function (exports) {
               this._dragEl.setAttribute("id", null);
               this._dragEl.style.position = "absolute";
               if (this._parent != null) {
-                var _p2 = _getPosition(this.el);
+                var _p2 = this.manager.getPosition(this.el);
                 this._dragEl.style.left = _p2.x + "px";
                 this._dragEl.style.top = _p2.y + "px";
                 this._parent.appendChild(this._dragEl);
@@ -11620,15 +11615,15 @@ var jsPlumbBrowserUI = (function (exports) {
                 y: this._dragEl.parentNode.scrollTop
               };
             }
-            this._posAtDown = _getPosition(this._dragEl);
+            this._posAtDown = this.manager.getPosition(this._dragEl);
             this._pagePosAtDown = offsetRelativeToRoot(this._dragEl);
             this._pageDelta = {
               x: this._pagePosAtDown.x - this._posAtDown.x,
               y: this._pagePosAtDown.y - this._posAtDown.y
             };
-            this._size = _getSize(this._dragEl);
-            this.k.eventManager.on(document, EVENT_MOUSEMOVE, this.moveListener);
-            this.k.eventManager.on(document, EVENT_MOUSEUP, this.upListener);
+            this._size = this.manager.getSize(this._dragEl);
+            this.eventManager.on(document, EVENT_MOUSEMOVE, this.moveListener);
+            this.eventManager.on(document, EVENT_MOUSEUP, this.upListener);
             addClass(document.body, _classes.noSelect);
             this._dispatch(EVENT_BEFORE_START, {
               el: this.el,
@@ -11668,7 +11663,7 @@ var jsPlumbBrowserUI = (function (exports) {
             var _pos2 = pageLocation(e),
                 dx = _pos2.x - this._downAt.x,
                 dy = _pos2.y - this._downAt.y,
-                _z2 = this._ignoreZoom ? 1 : this.k.getZoom();
+                _z2 = this._ignoreZoom ? 1 : this.manager.getZoom();
             this._lastPosition = {
               x: _pos2.x,
               y: _pos2.y
@@ -11690,14 +11685,14 @@ var jsPlumbBrowserUI = (function (exports) {
     }, {
       key: "mark",
       value: function mark(payload) {
-        this._posAtDown = _getPosition(this._dragEl);
+        this._posAtDown = this.manager.getPosition(this._dragEl);
         this._pagePosAtDown = offsetRelativeToRoot(this._dragEl);
         this._pageDelta = {
           x: this._pagePosAtDown.x - this._posAtDown.x,
           y: this._pagePosAtDown.y - this._posAtDown.y
         };
-        this._size = _getSize(this._dragEl);
-        addClass(this._dragEl, this.k.css.drag);
+        this._size = this.manager.getSize(this._dragEl);
+        addClass(this._dragEl, this.manager.css.drag);
         this._constrainRect = getConstrainingRectangle(this._dragEl);
         this._ghostDx = 0;
         this._ghostDy = 0;
@@ -11715,7 +11710,7 @@ var jsPlumbBrowserUI = (function (exports) {
         } else {
           this._ghostProxyOffsets = null;
         }
-        removeClass(this._dragEl, this.k.css.drag);
+        removeClass(this._dragEl, this.manager.css.drag);
         this._isConstrained = false;
       }
     }, {
@@ -11786,7 +11781,7 @@ var jsPlumbBrowserUI = (function (exports) {
       value: function stop(e, force) {
         if (force || this._moving) {
           var positions = [],
-              dPos = _getPosition(this._dragEl);
+              dPos = this.manager.getPosition(this._dragEl);
           positions.push([this._dragEl, dPos, this, this._size]);
           this._dispatch(EVENT_STOP, {
             el: this._dragEl,
@@ -11927,9 +11922,9 @@ var jsPlumbBrowserUI = (function (exports) {
     }, {
       key: "destroy",
       value: function destroy() {
-        this.k.eventManager.off(this.el, EVENT_MOUSEDOWN, this.downListener);
-        this.k.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener);
-        this.k.eventManager.off(document, EVENT_MOUSEUP, this.upListener);
+        this.eventManager.off(this.el, EVENT_MOUSEDOWN, this.downListener);
+        this.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener);
+        this.eventManager.off(document, EVENT_MOUSEUP, this.upListener);
         this.downListener = null;
         this.upListener = null;
         this.moveListener = null;
@@ -11957,6 +11952,16 @@ var jsPlumbBrowserUI = (function (exports) {
       extend(this.css, _c);
     }
     _createClass(Collicat, [{
+      key: "getPosition",
+      value: function getPosition(el) {
+        return _getPosition(el);
+      }
+    }, {
+      key: "getSize",
+      value: function getSize(el) {
+        return _getSize(el);
+      }
+    }, {
       key: "getZoom",
       value: function getZoom() {
         return this.zoom;
@@ -12244,8 +12249,8 @@ var jsPlumbBrowserUI = (function (exports) {
         o.beforeStart = wrap(o.beforeStart, function (p) {
           return handlerBeforeStart(p);
         });
-        o.dragInit = function (el) {
-          return handler.onDragInit(el);
+        o.dragInit = function (el, e) {
+          return handler.onDragInit(el, e);
         };
         o.dragAbort = function (el) {
           return handler.onDragAbort(el);
@@ -13071,6 +13076,27 @@ var jsPlumbBrowserUI = (function (exports) {
         }
       }
     }, {
+      key: "getPosition",
+      value: function getPosition(el) {
+        var pc = this.instance.getContainer().getBoundingClientRect();
+        var ec = el.getBoundingClientRect();
+        var z = this.instance.currentZoom;
+        return {
+          x: (ec.left - pc.left) / z,
+          y: (ec.top - pc.top) / z
+        };
+      }
+    }, {
+      key: "getSize",
+      value: function getSize(el) {
+        var ec = el.getBoundingClientRect();
+        var z = this.instance.currentZoom;
+        return {
+          w: ec.width / z,
+          h: ec.height / z
+        };
+      }
+    }, {
       key: "_mouseupHandler",
       value: function _mouseupHandler(e) {
         var el = e.currentTarget || e.srcElement;
@@ -13083,8 +13109,8 @@ var jsPlumbBrowserUI = (function (exports) {
     }, {
       key: "onDragInit",
       value: function onDragInit(el) {
-        var ipco = this.instance.getOffset(el),
-            ips = this.instance.getSize(el);
+        var ipco = this.getPosition(el),
+            ips = this.getSize(el);
         this._makeDraggablePlaceholder(ipco, ips);
         this.placeholderInfo.element.jtk = el.jtk;
         return this.placeholderInfo.element;
@@ -13101,7 +13127,7 @@ var jsPlumbBrowserUI = (function (exports) {
         var n = createElement(ELEMENT_DIV, {
           position: "absolute"
         });
-        this.instance._appendElement(n, this.instance.getContainer());
+        this.instance._appendElementToContainer(n);
         var id = this.instance.getId(n);
         this.instance.setPosition(n, ipco);
         n.style.width = ips.w + "px";
@@ -13238,8 +13264,8 @@ var jsPlumbBrowserUI = (function (exports) {
         forEach(matchingEndpoints, function (candidate) {
           if ((_this.jpc != null || candidate !== canvasElement) && candidate !== _this.floatingElement && (_this.jpc != null || !candidate.jtk.endpoint.isFull())) {
             if (isSourceDrag && candidate.jtk.endpoint.isSource || !isSourceDrag && candidate.jtk.endpoint.isTarget) {
-              var o = _this.instance.getOffset(candidate),
-                  s = _this.instance.getSize(candidate);
+              var o = _this.getPosition(candidate),
+                  s = _this.getSize(candidate);
               boundingRect = {
                 x: o.x,
                 y: o.y,
@@ -13274,8 +13300,8 @@ var jsPlumbBrowserUI = (function (exports) {
                   el: el
                 };
                 d.targetEl = findParent(el, SELECTOR_MANAGED_ELEMENT, _this.instance.getContainer(), true);
-                var o = _this.instance.getOffset(d.el),
-                    s = _this.instance.getSize(d.el);
+                var o = _this.getPosition(d.el),
+                    s = _this.getSize(d.el);
                 d.r = {
                   x: o.x,
                   y: o.y,
@@ -13329,8 +13355,8 @@ var jsPlumbBrowserUI = (function (exports) {
                     return;
                   }
                 }
-                var o = _this.instance.getOffset(el),
-                    s = _this.instance.getSize(el);
+                var o = _this.getPosition(el),
+                    s = _this.getSize(el);
                 d.r = {
                   x: o.x,
                   y: o.y,
@@ -13415,7 +13441,6 @@ var jsPlumbBrowserUI = (function (exports) {
         this._stopped = false;
         var dragEl = p.drag.getDragElement();
         this.ep = dragEl.jtk.endpoint;
-        p.e.srcElement || p.e.target;
         if (!this.ep) {
           return false;
         }
@@ -13457,7 +13482,7 @@ var jsPlumbBrowserUI = (function (exports) {
           return true;
         }
         if (this.placeholderInfo.element) {
-          var floatingElementSize = this.instance.getSize(this.floatingElement);
+          var floatingElementSize = this.getSize(this.floatingElement);
           this.instance.setElementPosition(this.placeholderInfo.element, params.pos.x, params.pos.y);
           var boundingRect = {
             x: params.pos.x,
@@ -13930,7 +13955,7 @@ var jsPlumbBrowserUI = (function (exports) {
         parent = connector != null ? connector.canvas : null;
       } else if (o.component instanceof Endpoint) {
         var endpoint = o.component.endpoint;
-        parent = endpoint != null ? endpoint.svg : endpoint;
+        parent = endpoint != null ? endpoint.canvas : endpoint;
       }
       if (parent != null) {
         _appendAtIndex(parent, o.path, 1);
@@ -14005,24 +14030,12 @@ var jsPlumbBrowserUI = (function (exports) {
             wh[1] = extents.ymax + (extents.ymin < 0 ? -extents.ymin : 0);
           }
           if (isFinite(wh[0]) && isFinite(wh[1])) {
-            if (useDivWrapper) {
-              _size(connector.canvas, xy[0], xy[1], wh[0], wh[1]);
-              xy[0] = 0;
-              xy[1] = 0;
-              p = _pos([0, 0]);
-              _attr(connector.svg, {
-                "style": p,
-                "width": "" + (wh[0] || 0),
-                "height": "" + (wh[1] || 0)
-              });
-            } else {
-              p = _pos([xy[0], xy[1]]);
-              _attr(connector.canvas, {
-                "style": p,
-                "width": "" + (wh[0] || 0),
-                "height": "" + (wh[1] || 0)
-              });
-            }
+            p = _pos([xy[0], xy[1]]);
+            _attr(connector.canvas, {
+              "style": p,
+              "width": "" + (wh[0] || 0),
+              "height": "" + (wh[1] || 0)
+            });
           }
         }
       }
@@ -14110,16 +14123,12 @@ var jsPlumbBrowserUI = (function (exports) {
         if (ep.canvas != null) {
           return ep.canvas;
         } else {
-          var svg = _node(ELEMENT_SVG, {
+          var canvas = _node(ELEMENT_SVG, {
             "style": "",
             "width": "0",
             "height": "0",
-            "pointer-events": NONE,
+            "pointer-events": "all",
             "position": ABSOLUTE
-          });
-          ep.svg = svg;
-          var canvas = createElement(ELEMENT_DIV, {
-            position: ABSOLUTE
           });
           ep.canvas = canvas;
           var classes = ep.classes.join(" ");
@@ -14128,11 +14137,7 @@ var jsPlumbBrowserUI = (function (exports) {
           for (var i = 0; i < scopes.length; i++) {
             ep.instance.setAttribute(canvas, ATTRIBUTE_SCOPE_PREFIX + scopes[i], TRUE$1);
           }
-          if (!ep.instance._suspendDrawing) {
-            _size(canvas, 0, 0, 1, 1);
-          }
           ep.instance._appendElement(canvas, ep.instance.getContainer());
-          canvas.appendChild(svg);
           if (ep.cssClass != null) {
             ep.instance.addClass(canvas, ep.cssClass);
           }
@@ -14155,7 +14160,7 @@ var jsPlumbBrowserUI = (function (exports) {
           }
           if (ep.node == null) {
             ep.node = handlers.makeNode(ep, s);
-            ep.svg.appendChild(ep.node);
+            ep.canvas.appendChild(ep.node);
           } else if (handlers.updateNode != null) {
             handlers.updateNode(ep, ep.node);
           }
@@ -14166,6 +14171,11 @@ var jsPlumbBrowserUI = (function (exports) {
     return SvgEndpoint;
   }();
 
+  var ContainerTypes;
+  (function (ContainerTypes) {
+    ContainerTypes["SVG"] = "SVG";
+    ContainerTypes["HTML"] = "HTML";
+  })(ContainerTypes || (ContainerTypes = {}));
   var endpointMap = {};
   function registerEndpointRenderer(name, fns) {
     endpointMap[name] = fns;
@@ -14211,7 +14221,6 @@ var jsPlumbBrowserUI = (function (exports) {
       component.canvas.parentNode.removeChild(component.canvas);
     }
     delete component.canvas;
-    delete component.svg;
   }
   function getEndpointCanvas(ep) {
     return ep.canvas;
@@ -14248,6 +14257,7 @@ var jsPlumbBrowserUI = (function (exports) {
       _classCallCheck(this, BrowserJsPlumbInstance);
       _this = _super.call(this, _instanceIndex, defaults);
       _this._instanceIndex = _instanceIndex;
+      _defineProperty(_assertThisInitialized(_this), "containerType", void 0);
       _defineProperty(_assertThisInitialized(_this), "dragSelection", void 0);
       _defineProperty(_assertThisInitialized(_this), "dragManager", void 0);
       _defineProperty(_assertThisInitialized(_this), "_connectorClick", void 0);
@@ -14498,6 +14508,13 @@ var jsPlumbBrowserUI = (function (exports) {
         });
       }
     }, {
+      key: "setDragConstrainFunction",
+      value: function setDragConstrainFunction(constrainFunction) {
+        this.dragManager.setOption(this.elementDragHandler, {
+          constrainFunction: constrainFunction
+        });
+      }
+    }, {
       key: "_removeElement",
       value: function _removeElement(element) {
         element.parentNode && element.parentNode.removeChild(element);
@@ -14508,6 +14525,16 @@ var jsPlumbBrowserUI = (function (exports) {
         if (parent) {
           parent.appendChild(el);
         }
+      }
+    }, {
+      key: "_appendElementToGroup",
+      value: function _appendElementToGroup(group, el) {
+        this.getGroupContentArea(group).appendChild(el);
+      }
+    }, {
+      key: "_appendElementToContainer",
+      value: function _appendElementToContainer(el) {
+        this._appendElement(el, this.getContainer());
       }
     }, {
       key: "_getAssociatedElements",
@@ -14639,8 +14666,9 @@ var jsPlumbBrowserUI = (function (exports) {
           op = op.offsetParent === container ? null : op.offsetParent;
         }
         if (container != null && (container.scrollTop > 0 || container.scrollLeft > 0)) {
+          debugger;
           var pp = jel.offsetParent != null ? this.getStyle(jel.offsetParent, PROPERTY_POSITION) : STATIC,
-              p = this.getStyle(jel, PROPERTY_POSITION);
+          p = this.getStyle(jel, PROPERTY_POSITION);
           if (p !== ABSOLUTE && p !== FIXED && pp !== ABSOLUTE && pp !== FIXED) {
             out.x -= container.scrollLeft;
             out.y -= container.scrollTop;
@@ -14809,6 +14837,7 @@ var jsPlumbBrowserUI = (function (exports) {
           });
         }
         _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "setContainer", this).call(this, newContainer);
+        this.containerType = newContainer instanceof SVGElement ? ContainerTypes.SVG : ContainerTypes.HTML;
         if (this.eventManager != null) {
           this._attachEventDelegates();
         }
@@ -15783,6 +15812,7 @@ var jsPlumbBrowserUI = (function (exports) {
   exports.snapToGrid = snapToGrid;
   exports.subtract = subtract;
   exports.suggest = suggest;
+  exports.svg = svg;
   exports.theta = theta;
   exports.toggleClass = toggleClass;
   exports.touchCount = touchCount;

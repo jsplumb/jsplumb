@@ -1,3 +1,13 @@
+## 5.9.0
+
+### BREAKING
+
+- Endpoints no longer have a `div` wrapping their `svg` element. For the vast majority of applications this change will have no discernible effect, but there is a chance that the occasional CSS selector needs to be updated.
+
+### UPDATES
+
+- Added `setDragConstrainFunction` method to `BrowserJsPlumbInstance`.
+
 ## 5.8.3
 
 June 16th 2022

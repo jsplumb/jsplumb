@@ -1,0 +1,191 @@
+<!doctype html>
+<html>
+
+    <head>
+
+    </head>
+    <body>
+
+        <style>
+            #container {
+                width:600px;
+                height:600px;
+                position:relative;
+                outline:4px solid darkcyan;
+            }
+
+            #one {
+                left:50px;
+                top:50px;
+                position:absolute;
+                width:150px;
+                height:160px;
+                background-color: deepskyblue;
+            }
+
+            #one > div {
+                padding:3px;
+                background-color: whitesmoke;
+                margin-top:30px;
+            }
+
+            #two {
+                left:250px;
+                top:250px;
+                position:absolute;
+                width:150px;
+                height:260px;
+                background-color: deepskyblue;
+                overflow:auto;
+                display:flex;
+                flex-direction: column;
+            }
+
+            #two > div {
+                width:100%;
+                margin:5px 0;
+                background-color: peru;
+            }
+
+            button {
+                position:fixed;
+                top:50px;
+                right:50px;
+                padding:10px;
+            }
+
+            #output {
+                position: fixed;
+                top:150px;
+                right:10px;
+            }
+
+        </style>
+
+
+        <div id="container">
+
+            <div id="one">
+                <div>one child</div>
+            </div>
+
+            <div id="two">
+                <div>one</div>
+                <div>two</div>
+                <div>three</div>
+                <div>four</div>
+                <div>five</div>
+                <div>six</div>
+                <div>seven</div>
+                <div>eight</div>
+                <div>nine</div>
+                <div>ten</div>
+                <div>eleven</div>
+                <div>twelve</div>
+                <div>thirteen</div>
+                <div>quatorze</div>
+            </div>
+
+        </div>
+
+        <button>computer</button>
+        <div id="output"></div>
+
+
+        <script>
+
+            const container = document.getElementById("container")
+            const output = document.getElementById("output")
+
+            const alternativeGetOffset = (el) => {
+                const cb = container.getBoundingClientRect()
+                const eb = el.getBoundingClientRect()
+                const out = {
+                    x:eb.left - cb.left,
+                    y:eb.top - cb.top
+                }
+                return out
+            }
+
+            const getOffset = (el) =>{
+
+                let out= {
+                        x: el.offsetLeft,
+                        y: el.offsetTop
+                    },
+                    op = ((el !== container && el.offsetParent !== container) ? el.offsetParent : null),
+                    _maybeAdjustScroll = (offsetParent) => {
+                        if (offsetParent != null && offsetParent !== document.body && (offsetParent.scrollTop > 0 || offsetParent.scrollLeft > 0)) {
+                            out.x -= offsetParent.scrollLeft
+                            out.y -= offsetParent.scrollTop
+                        }
+                    }
+
+                // this block is used when the element we're trying to find an offset for is not a direct child of the container.
+                // we recurse through offset parents, and also adjust for scroll if necessary (consider a child of some element that is
+                // a list, which can be internally scrolled: to know with certainty the offset of some child relative to the container's
+                // origin, it is necessary to adjust for scroll.
+                // it could be the case that getBoundingClientRect() takes parent scroll into account though. This requires
+                // investigation.
+                while (op != null) {
+                    out.x += op.offsetLeft
+                    out.y += op.offsetTop
+                    _maybeAdjustScroll(op)
+                    op = (op.offsetParent === container ? null : op.offsetParent)
+                }
+
+                // if container is scrolled and the element (or its offset parent) is not absolute or fixed, adjust accordingly.
+                // if (container != null && (container.scrollTop > 0 || container.scrollLeft > 0)) {
+                //     let pp = el.offsetParent != null ? this.getStyle(jel.offsetParent as HTMLElement, PROPERTY_POSITION) : STATIC,
+                //         p = this.getStyle(jel, PROPERTY_POSITION)
+                //     if (p !== ABSOLUTE && p !== FIXED && pp !== ABSOLUTE && pp !== FIXED) {
+                //         out.x -= container.scrollLeft
+                //         out.y -= container.scrollTop
+                //     }
+                // }
+
+                // let cb = container.getBoundingClientRect()
+                // let eb = el.getBoundingClientRect()
+                //
+                // const candidate = {x:eb.left - cb.left, y:eb.top - cb.top}
+                //
+                // console.log(out, candidate)
+
+                return out
+                // return candidate
+            }
+
+            const print = (el, label) => {
+                const o = getOffset(el),
+                    oa = alternativeGetOffset(el)
+
+                const m = `${label} { ${o.x},${o.y} } { ${oa.x},${oa.y} }`
+
+                console.log(m)
+                output.innerHTML = output.innerHTML + "<br/>" + m
+
+                const twochildren = el.querySelectorAll("div")
+                for (let i = 0; i < twochildren.length; i++) {
+                    print(twochildren[i], `${label}.${(i+1)}`)
+                }
+            }
+
+
+            (() => {
+
+
+                const b = document.querySelector("button")
+                b.addEventListener("click", () => {
+                    output.innerHTML = ""
+                    print(one, "one")
+                    print(two, "two")
+
+                })
+
+            })()
+
+        </script>
+
+    </body>
+
+</html>

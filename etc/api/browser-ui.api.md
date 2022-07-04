@@ -71,6 +71,10 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     // @internal (undocumented)
     _appendElement(el: Element, parent: Element): void;
     // @internal (undocumented)
+    _appendElementToContainer(el: ElementType["E"]): void;
+    // @internal (undocumented)
+    _appendElementToGroup(group: UIGroup<any>, el: ElementType["E"]): void;
+    // @internal (undocumented)
     applyConnectorType(connector: AbstractConnector, t: TypeDescriptor): void;
     // @internal (undocumented)
     applyEndpointType<C>(ep: Endpoint, t: TypeDescriptor): void;
@@ -224,6 +228,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     // @internal (undocumented)
     setConnectorVisible(connector: AbstractConnector, v: boolean): void;
     setContainer(newContainer: Element): void;
+    setDragConstrainFunction(constrainFunction: ConstrainFunction): void;
     setDraggable(element: Element, draggable: boolean): void;
     setDragGrid(grid: Grid): void;
     setDragGroupState(state: boolean, ...els: Array<Element>): void;
@@ -296,6 +301,10 @@ export class Collicat implements jsPlumbDragManager {
     eventManager: EventManager;
     getInputFilterSelector(): string;
     // (undocumented)
+    getPosition(el: Element): PointXY;
+    // (undocumented)
+    getSize(el: Element): Size;
+    // (undocumented)
     getZoom(): number;
     // (undocumented)
     inputFilterSelector: string;
@@ -323,7 +332,7 @@ export const CONNECTION = "connection";
 // @public (undocumented)
 export type ConstrainFunction = (desiredLoc: PointXY, dragEl: HTMLElement, constrainRect: Size, size: Size) => PointXY;
 
-// @public (undocumented)
+// @public
 export function consume(e: Event, doNotPreventDefault?: boolean): void;
 
 // @public (undocumented)
@@ -346,7 +355,7 @@ export function createElementNS(ns: string, tag: string, style?: Record<string, 
 //
 // @public (undocumented)
 export class Drag extends Base {
-    constructor(el: jsPlumbDOMElement, params: DragParams, k: Collicat);
+    constructor(el: jsPlumbDOMElement, params: DragParams, manager: Collicat);
     // (undocumented)
     abort(): void;
     // (undocumented)
@@ -457,7 +466,7 @@ export interface DragHandler {
     // (undocumented)
     onDragAbort: (el: Element) => void;
     // (undocumented)
-    onDragInit: (el: Element) => Element;
+    onDragInit: (el: Element, e: MouseEvent) => Element;
     // (undocumented)
     onStart: (params: DragStartEventParams) => boolean;
     // (undocumented)
@@ -483,7 +492,7 @@ export interface DragHandlerOptions {
     // (undocumented)
     dragAbort?: (el: Element) => any;
     // (undocumented)
-    dragInit?: (el: Element) => any;
+    dragInit?: (el: Element, e: MouseEvent) => any;
     // (undocumented)
     filter?: string;
     // (undocumented)
@@ -914,7 +923,7 @@ export class EventManager {
 }
 
 // @public (undocumented)
-export function findParent(el: jsPlumbDOMElement, selector: string, container: HTMLElement, matchOnElementAlso: boolean): jsPlumbDOMElement;
+export function findParent(el: jsPlumbDOMElement, selector: string, container: Element, matchOnElementAlso: boolean): jsPlumbDOMElement;
 
 // @public (undocumented)
 export function getClass(el: Element): string;
@@ -1015,6 +1024,10 @@ export interface jsPlumbDragManager {
     // (undocumented)
     getInputFilterSelector(): string;
     // (undocumented)
+    getPosition(el: Element): PointXY;
+    // (undocumented)
+    getSize(el: Element): Size;
+    // (undocumented)
     getZoom(): number;
     // (undocumented)
     setInputFilterSelector(selector: string): void;
@@ -1028,7 +1041,9 @@ export function matchesSelector(el: jsPlumbDOMElement, selector: string, ctx?: E
 // @public (undocumented)
 export function newInstance(defaults?: BrowserJsPlumbDefaults): BrowserJsPlumbInstance;
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "offsetRelativeToRoot" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
 export function offsetRelativeToRoot(el: Element): PointXY;
 
 // @public (undocumented)
@@ -1067,8 +1082,17 @@ export const SELECTOR_GROUP_CONTAINER: string;
 // @public (undocumented)
 export const SELECTOR_OVERLAY: string;
 
-// @public (undocumented)
+// @public
 export function size(el: Element): Size;
+
+// @public (undocumented)
+export const svg: {
+    attr: typeof _attr;
+    node: typeof _node;
+    ns: {
+        svg: string;
+    };
+};
 
 // @public (undocumented)
 export function toggleClass(el: Element | NodeListOf<Element>, clazz: string): void;
@@ -1086,5 +1110,10 @@ export interface UIComponent {
     // (undocumented)
     svg: SVGElement;
 }
+
+// Warnings were encountered during analysis:
+//
+// /Users/simon/programming/jsplumb/jsplumb/dist/browser-ui/types/svg-util.d.ts:17:5 - (ae-forgotten-export) The symbol "_attr" needs to be exported by the entry point index.d.ts
+// /Users/simon/programming/jsplumb/jsplumb/dist/browser-ui/types/svg-util.d.ts:18:5 - (ae-forgotten-export) The symbol "_node" needs to be exported by the entry point index.d.ts
 
 ```

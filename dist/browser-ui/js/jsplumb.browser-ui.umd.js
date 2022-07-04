@@ -298,7 +298,7 @@
         }
       }
     } catch (e) {
-      util.log("JSPLUMB: cannot set class list", e);
+      util.log("WARN: cannot set class list", e);
     }
   }
   function _getClassName(el) {
@@ -509,14 +509,11 @@
       svg.appendChild(path);
     }
   }
-  function _size(svg, x, y, w, h) {
-    svg.style.width = w + "px";
-    svg.style.height = h + "px";
-    svg.style.left = x + "px";
-    svg.style.top = y + "px";
-    svg.height = h;
-    svg.width = w;
-  }
+  var svg = {
+    attr: _attr,
+    node: _node,
+    ns: ns
+  };
 
   function compoundEvent(stem, event, subevent) {
     var a = [stem, event];
@@ -1182,14 +1179,16 @@
     return !matchesSelector$1(t, collicat.getInputFilterSelector(), el);
   };
   var Base = function () {
-    function Base(el, k) {
+    function Base(el, manager) {
       _classCallCheck(this, Base);
       this.el = el;
-      this.k = k;
+      this.manager = manager;
       _defineProperty(this, "_class", void 0);
       _defineProperty(this, "uuid", util.uuid());
       _defineProperty(this, "enabled", true);
       _defineProperty(this, "scopes", []);
+      _defineProperty(this, "eventManager", void 0);
+      this.eventManager = manager.eventManager;
     }
     _createClass(Base, [{
       key: "setEnabled",
@@ -1269,10 +1268,10 @@
   var Drag = function (_Base) {
     _inherits(Drag, _Base);
     var _super = _createSuper(Drag);
-    function Drag(el, params, k) {
+    function Drag(el, params, manager) {
       var _this;
       _classCallCheck(this, Drag);
-      _this = _super.call(this, el, k);
+      _this = _super.call(this, el, manager);
       _defineProperty(_assertThisInitialized(_this), "_class", void 0);
       _defineProperty(_assertThisInitialized(_this), "rightButtonCanDrag", void 0);
       _defineProperty(_assertThisInitialized(_this), "consumeStartEvent", void 0);
@@ -1330,7 +1329,7 @@
         "beforeStart": [],
         "revert": []
       });
-      _this._class = _this.k.css.draggable;
+      _this._class = _this.manager.css.draggable;
       addClass(_this.el, _this._class);
       _this.downListener = _this._downListener.bind(_assertThisInitialized(_this));
       _this.upListener = _this._upListener.bind(_assertThisInitialized(_this));
@@ -1385,7 +1384,7 @@
         }
         _this._availableSelectors.push(params);
       }
-      _this.k.eventManager.on(_this.el, EVENT_MOUSEDOWN, _this.downListener);
+      _this.eventManager.on(_this.el, EVENT_MOUSEDOWN, _this.downListener);
       return _this;
     }
     _createClass(Drag, [{
@@ -1404,7 +1403,7 @@
           },
           dx = _pos.x - this._downAt.x,
               dy = _pos.y - this._downAt.y,
-              _z = this._ignoreZoom ? 1 : this.k.getZoom();
+              _z = this._ignoreZoom ? 1 : this.manager.getZoom();
           if (this._dragEl && this._dragEl.parentNode) {
             dx += this._dragEl.parentNode.scrollLeft - this._initialScroll.x;
             dy += this._dragEl.parentNode.scrollTop - this._initialScroll.y;
@@ -1441,8 +1440,8 @@
       value: function _upListener(e) {
         if (this._downAt) {
           this._downAt = null;
-          this.k.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener);
-          this.k.eventManager.off(document, EVENT_MOUSEUP, this.upListener);
+          this.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener);
+          this.eventManager.off(document, EVENT_MOUSEUP, this.upListener);
           removeClass(document.body, _classes.noSelect);
           this.unmark(e);
           this.stop(e);
@@ -1452,7 +1451,7 @@
             this._dragEl = null;
           } else {
             if (this._activeSelectorParams && this._activeSelectorParams.revertFunction) {
-              if (this._activeSelectorParams.revertFunction(this._dragEl, _getPosition(this._dragEl)) === true) {
+              if (this._activeSelectorParams.revertFunction(this._dragEl, this.manager.getPosition(this._dragEl)) === true) {
                 _setPosition(this._dragEl, this._posAtDown);
                 this._dispatch(EVENT_REVERT, this._dragEl);
               }
@@ -1468,7 +1467,7 @@
         }
         var isNotRightClick = this.rightButtonCanDrag || e.which !== 3 && e.button !== 2;
         if (isNotRightClick && this.isEnabled() && this._canDrag()) {
-          var _f = this._testFilter(e) && _inputFilter(e, this.el, this.k);
+          var _f = this._testFilter(e) && _inputFilter(e, this.el, this.manager);
           if (_f) {
             this._activeSelectorParams = null;
             this._elementToDrag = null;
@@ -1484,7 +1483,7 @@
             if (this._activeSelectorParams == null || this._elementToDrag == null) {
               return;
             }
-            var initial = this._activeSelectorParams.dragInit ? this._activeSelectorParams.dragInit(this._elementToDrag) : null;
+            var initial = this._activeSelectorParams.dragInit ? this._activeSelectorParams.dragInit(this._elementToDrag, e) : null;
             if (initial != null) {
               this._elementToDrag = initial;
             }
@@ -1494,7 +1493,7 @@
               this._dragEl.setAttribute("id", null);
               this._dragEl.style.position = "absolute";
               if (this._parent != null) {
-                var _p2 = _getPosition(this.el);
+                var _p2 = this.manager.getPosition(this.el);
                 this._dragEl.style.left = _p2.x + "px";
                 this._dragEl.style.top = _p2.y + "px";
                 this._parent.appendChild(this._dragEl);
@@ -1517,15 +1516,15 @@
                 y: this._dragEl.parentNode.scrollTop
               };
             }
-            this._posAtDown = _getPosition(this._dragEl);
+            this._posAtDown = this.manager.getPosition(this._dragEl);
             this._pagePosAtDown = offsetRelativeToRoot(this._dragEl);
             this._pageDelta = {
               x: this._pagePosAtDown.x - this._posAtDown.x,
               y: this._pagePosAtDown.y - this._posAtDown.y
             };
-            this._size = _getSize(this._dragEl);
-            this.k.eventManager.on(document, EVENT_MOUSEMOVE, this.moveListener);
-            this.k.eventManager.on(document, EVENT_MOUSEUP, this.upListener);
+            this._size = this.manager.getSize(this._dragEl);
+            this.eventManager.on(document, EVENT_MOUSEMOVE, this.moveListener);
+            this.eventManager.on(document, EVENT_MOUSEUP, this.upListener);
             addClass(document.body, _classes.noSelect);
             this._dispatch(EVENT_BEFORE_START, {
               el: this.el,
@@ -1565,7 +1564,7 @@
             var _pos2 = pageLocation(e),
                 dx = _pos2.x - this._downAt.x,
                 dy = _pos2.y - this._downAt.y,
-                _z2 = this._ignoreZoom ? 1 : this.k.getZoom();
+                _z2 = this._ignoreZoom ? 1 : this.manager.getZoom();
             this._lastPosition = {
               x: _pos2.x,
               y: _pos2.y
@@ -1587,14 +1586,14 @@
     }, {
       key: "mark",
       value: function mark(payload) {
-        this._posAtDown = _getPosition(this._dragEl);
+        this._posAtDown = this.manager.getPosition(this._dragEl);
         this._pagePosAtDown = offsetRelativeToRoot(this._dragEl);
         this._pageDelta = {
           x: this._pagePosAtDown.x - this._posAtDown.x,
           y: this._pagePosAtDown.y - this._posAtDown.y
         };
-        this._size = _getSize(this._dragEl);
-        addClass(this._dragEl, this.k.css.drag);
+        this._size = this.manager.getSize(this._dragEl);
+        addClass(this._dragEl, this.manager.css.drag);
         this._constrainRect = getConstrainingRectangle(this._dragEl);
         this._ghostDx = 0;
         this._ghostDy = 0;
@@ -1612,7 +1611,7 @@
         } else {
           this._ghostProxyOffsets = null;
         }
-        removeClass(this._dragEl, this.k.css.drag);
+        removeClass(this._dragEl, this.manager.css.drag);
         this._isConstrained = false;
       }
     }, {
@@ -1683,7 +1682,7 @@
       value: function stop(e, force) {
         if (force || this._moving) {
           var positions = [],
-              dPos = _getPosition(this._dragEl);
+              dPos = this.manager.getPosition(this._dragEl);
           positions.push([this._dragEl, dPos, this, this._size]);
           this._dispatch(EVENT_STOP, {
             el: this._dragEl,
@@ -1824,9 +1823,9 @@
     }, {
       key: "destroy",
       value: function destroy() {
-        this.k.eventManager.off(this.el, EVENT_MOUSEDOWN, this.downListener);
-        this.k.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener);
-        this.k.eventManager.off(document, EVENT_MOUSEUP, this.upListener);
+        this.eventManager.off(this.el, EVENT_MOUSEDOWN, this.downListener);
+        this.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener);
+        this.eventManager.off(document, EVENT_MOUSEUP, this.upListener);
         this.downListener = null;
         this.upListener = null;
         this.moveListener = null;
@@ -1854,6 +1853,16 @@
       util.extend(this.css, _c);
     }
     _createClass(Collicat, [{
+      key: "getPosition",
+      value: function getPosition(el) {
+        return _getPosition(el);
+      }
+    }, {
+      key: "getSize",
+      value: function getSize(el) {
+        return _getSize(el);
+      }
+    }, {
       key: "getZoom",
       value: function getZoom() {
         return this.zoom;
@@ -2141,8 +2150,8 @@
         o.beforeStart = util.wrap(o.beforeStart, function (p) {
           return handlerBeforeStart(p);
         });
-        o.dragInit = function (el) {
-          return handler.onDragInit(el);
+        o.dragInit = function (el, e) {
+          return handler.onDragInit(el, e);
         };
         o.dragAbort = function (el) {
           return handler.onDragAbort(el);
@@ -2968,6 +2977,27 @@
         }
       }
     }, {
+      key: "getPosition",
+      value: function getPosition(el) {
+        var pc = this.instance.getContainer().getBoundingClientRect();
+        var ec = el.getBoundingClientRect();
+        var z = this.instance.currentZoom;
+        return {
+          x: (ec.left - pc.left) / z,
+          y: (ec.top - pc.top) / z
+        };
+      }
+    }, {
+      key: "getSize",
+      value: function getSize(el) {
+        var ec = el.getBoundingClientRect();
+        var z = this.instance.currentZoom;
+        return {
+          w: ec.width / z,
+          h: ec.height / z
+        };
+      }
+    }, {
       key: "_mouseupHandler",
       value: function _mouseupHandler(e) {
         var el = e.currentTarget || e.srcElement;
@@ -2980,8 +3010,8 @@
     }, {
       key: "onDragInit",
       value: function onDragInit(el) {
-        var ipco = this.instance.getOffset(el),
-            ips = this.instance.getSize(el);
+        var ipco = this.getPosition(el),
+            ips = this.getSize(el);
         this._makeDraggablePlaceholder(ipco, ips);
         this.placeholderInfo.element.jtk = el.jtk;
         return this.placeholderInfo.element;
@@ -2998,7 +3028,7 @@
         var n = createElement(ELEMENT_DIV, {
           position: "absolute"
         });
-        this.instance._appendElement(n, this.instance.getContainer());
+        this.instance._appendElementToContainer(n);
         var id = this.instance.getId(n);
         this.instance.setPosition(n, ipco);
         n.style.width = ips.w + "px";
@@ -3135,8 +3165,8 @@
         util.forEach(matchingEndpoints, function (candidate) {
           if ((_this.jpc != null || candidate !== canvasElement) && candidate !== _this.floatingElement && (_this.jpc != null || !candidate.jtk.endpoint.isFull())) {
             if (isSourceDrag && candidate.jtk.endpoint.isSource || !isSourceDrag && candidate.jtk.endpoint.isTarget) {
-              var o = _this.instance.getOffset(candidate),
-                  s = _this.instance.getSize(candidate);
+              var o = _this.getPosition(candidate),
+                  s = _this.getSize(candidate);
               boundingRect = {
                 x: o.x,
                 y: o.y,
@@ -3171,8 +3201,8 @@
                   el: el
                 };
                 d.targetEl = findParent(el, core.SELECTOR_MANAGED_ELEMENT, _this.instance.getContainer(), true);
-                var o = _this.instance.getOffset(d.el),
-                    s = _this.instance.getSize(d.el);
+                var o = _this.getPosition(d.el),
+                    s = _this.getSize(d.el);
                 d.r = {
                   x: o.x,
                   y: o.y,
@@ -3226,8 +3256,8 @@
                     return;
                   }
                 }
-                var o = _this.instance.getOffset(el),
-                    s = _this.instance.getSize(el);
+                var o = _this.getPosition(el),
+                    s = _this.getSize(el);
                 d.r = {
                   x: o.x,
                   y: o.y,
@@ -3312,7 +3342,6 @@
         this._stopped = false;
         var dragEl = p.drag.getDragElement();
         this.ep = dragEl.jtk.endpoint;
-        p.e.srcElement || p.e.target;
         if (!this.ep) {
           return false;
         }
@@ -3354,7 +3383,7 @@
           return true;
         }
         if (this.placeholderInfo.element) {
-          var floatingElementSize = this.instance.getSize(this.floatingElement);
+          var floatingElementSize = this.getSize(this.floatingElement);
           this.instance.setElementPosition(this.placeholderInfo.element, params.pos.x, params.pos.y);
           var boundingRect = {
             x: params.pos.x,
@@ -3827,7 +3856,7 @@
         parent = connector != null ? connector.canvas : null;
       } else if (o.component instanceof core.Endpoint) {
         var endpoint = o.component.endpoint;
-        parent = endpoint != null ? endpoint.svg : endpoint;
+        parent = endpoint != null ? endpoint.canvas : endpoint;
       }
       if (parent != null) {
         _appendAtIndex(parent, o.path, 1);
@@ -3902,24 +3931,12 @@
             wh[1] = extents.ymax + (extents.ymin < 0 ? -extents.ymin : 0);
           }
           if (isFinite(wh[0]) && isFinite(wh[1])) {
-            if (useDivWrapper) {
-              _size(connector.canvas, xy[0], xy[1], wh[0], wh[1]);
-              xy[0] = 0;
-              xy[1] = 0;
-              p = _pos([0, 0]);
-              _attr(connector.svg, {
-                "style": p,
-                "width": "" + (wh[0] || 0),
-                "height": "" + (wh[1] || 0)
-              });
-            } else {
-              p = _pos([xy[0], xy[1]]);
-              _attr(connector.canvas, {
-                "style": p,
-                "width": "" + (wh[0] || 0),
-                "height": "" + (wh[1] || 0)
-              });
-            }
+            p = _pos([xy[0], xy[1]]);
+            _attr(connector.canvas, {
+              "style": p,
+              "width": "" + (wh[0] || 0),
+              "height": "" + (wh[1] || 0)
+            });
           }
         }
       }
@@ -4007,16 +4024,12 @@
         if (ep.canvas != null) {
           return ep.canvas;
         } else {
-          var svg = _node(ELEMENT_SVG, {
+          var canvas = _node(ELEMENT_SVG, {
             "style": "",
             "width": "0",
             "height": "0",
-            "pointer-events": core.NONE,
+            "pointer-events": "all",
             "position": core.ABSOLUTE
-          });
-          ep.svg = svg;
-          var canvas = createElement(ELEMENT_DIV, {
-            position: core.ABSOLUTE
           });
           ep.canvas = canvas;
           var classes = ep.classes.join(" ");
@@ -4025,11 +4038,7 @@
           for (var i = 0; i < scopes.length; i++) {
             ep.instance.setAttribute(canvas, core.ATTRIBUTE_SCOPE_PREFIX + scopes[i], common.TRUE);
           }
-          if (!ep.instance._suspendDrawing) {
-            _size(canvas, 0, 0, 1, 1);
-          }
           ep.instance._appendElement(canvas, ep.instance.getContainer());
-          canvas.appendChild(svg);
           if (ep.cssClass != null) {
             ep.instance.addClass(canvas, ep.cssClass);
           }
@@ -4052,7 +4061,7 @@
           }
           if (ep.node == null) {
             ep.node = handlers.makeNode(ep, s);
-            ep.svg.appendChild(ep.node);
+            ep.canvas.appendChild(ep.node);
           } else if (handlers.updateNode != null) {
             handlers.updateNode(ep, ep.node);
           }
@@ -4063,6 +4072,11 @@
     return SvgEndpoint;
   }();
 
+  var ContainerTypes;
+  (function (ContainerTypes) {
+    ContainerTypes["SVG"] = "SVG";
+    ContainerTypes["HTML"] = "HTML";
+  })(ContainerTypes || (ContainerTypes = {}));
   var endpointMap = {};
   function registerEndpointRenderer(name, fns) {
     endpointMap[name] = fns;
@@ -4108,7 +4122,6 @@
       component.canvas.parentNode.removeChild(component.canvas);
     }
     delete component.canvas;
-    delete component.svg;
   }
   function getEndpointCanvas(ep) {
     return ep.canvas;
@@ -4145,6 +4158,7 @@
       _classCallCheck(this, BrowserJsPlumbInstance);
       _this = _super.call(this, _instanceIndex, defaults);
       _this._instanceIndex = _instanceIndex;
+      _defineProperty(_assertThisInitialized(_this), "containerType", void 0);
       _defineProperty(_assertThisInitialized(_this), "dragSelection", void 0);
       _defineProperty(_assertThisInitialized(_this), "dragManager", void 0);
       _defineProperty(_assertThisInitialized(_this), "_connectorClick", void 0);
@@ -4395,6 +4409,13 @@
         });
       }
     }, {
+      key: "setDragConstrainFunction",
+      value: function setDragConstrainFunction(constrainFunction) {
+        this.dragManager.setOption(this.elementDragHandler, {
+          constrainFunction: constrainFunction
+        });
+      }
+    }, {
       key: "_removeElement",
       value: function _removeElement(element) {
         element.parentNode && element.parentNode.removeChild(element);
@@ -4405,6 +4426,16 @@
         if (parent) {
           parent.appendChild(el);
         }
+      }
+    }, {
+      key: "_appendElementToGroup",
+      value: function _appendElementToGroup(group, el) {
+        this.getGroupContentArea(group).appendChild(el);
+      }
+    }, {
+      key: "_appendElementToContainer",
+      value: function _appendElementToContainer(el) {
+        this._appendElement(el, this.getContainer());
       }
     }, {
       key: "_getAssociatedElements",
@@ -4536,8 +4567,9 @@
           op = op.offsetParent === container ? null : op.offsetParent;
         }
         if (container != null && (container.scrollTop > 0 || container.scrollLeft > 0)) {
+          debugger;
           var pp = jel.offsetParent != null ? this.getStyle(jel.offsetParent, PROPERTY_POSITION) : core.STATIC,
-              p = this.getStyle(jel, PROPERTY_POSITION);
+          p = this.getStyle(jel, PROPERTY_POSITION);
           if (p !== core.ABSOLUTE && p !== core.FIXED && pp !== core.ABSOLUTE && pp !== core.FIXED) {
             out.x -= container.scrollLeft;
             out.y -= container.scrollTop;
@@ -4706,6 +4738,7 @@
           });
         }
         _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "setContainer", this).call(this, newContainer);
+        this.containerType = newContainer instanceof SVGElement ? ContainerTypes.SVG : ContainerTypes.HTML;
         if (this.eventManager != null) {
           this._attachEventDelegates();
         }
@@ -5444,6 +5477,7 @@
   exports.registerEndpointRenderer = registerEndpointRenderer;
   exports.removeClass = removeClass;
   exports.size = size;
+  exports.svg = svg;
   exports.toggleClass = toggleClass;
   exports.touchCount = touchCount;
   exports.touches = touches;

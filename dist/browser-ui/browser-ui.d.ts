@@ -34,6 +34,8 @@ import { UIGroup } from '@jsplumb/core';
 
 export declare function addClass(el: Element | NodeListOf<Element>, clazz: string): void;
 
+declare function _attr(node: SVGElement, attributes: ElementAttributes): void;
+
 /**
  * @public
  */
@@ -56,12 +58,16 @@ export declare const ATTRIBUTE_JTK_SCOPE = "data-jtk-scope";
 
 declare abstract class Base {
     protected el: jsPlumbDOMElement;
-    protected k: Collicat;
+    protected manager: Collicat;
     abstract _class: string;
     uuid: string;
     private enabled;
     scopes: Array<string>;
-    protected constructor(el: jsPlumbDOMElement, k: Collicat);
+    /**
+     * @internal
+     */
+    protected eventManager: EventManager;
+    protected constructor(el: jsPlumbDOMElement, manager: Collicat);
     setEnabled(e: boolean): void;
     isEnabled(): boolean;
     toggleEnabled(): void;
@@ -104,6 +110,7 @@ export declare interface BrowserJsPlumbDefaults extends JsPlumbDefaults<Element>
  */
 export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     _instanceIndex: number;
+    private containerType;
     private readonly dragSelection;
     dragManager: DragManager;
     _connectorClick: Function;
@@ -184,6 +191,12 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
      */
     setDragGrid(grid: Grid): void;
     /**
+     * Sets the function used to constrain the dragging of elements.
+     * @param constrainFunction
+     * @public
+     */
+    setDragConstrainFunction(constrainFunction: ConstrainFunction): void;
+    /**
      * @internal
      * @param element
      */
@@ -195,6 +208,19 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
      * @internal
      */
     _appendElement(el: Element, parent: Element): void;
+    /**
+     * @internal
+     * @param group
+     * @param el
+     * @private
+     */
+    _appendElementToGroup(group: UIGroup<any>, el: ElementType["E"]): void;
+    /**
+     * @internal
+     * @param el
+     * @private
+     */
+    _appendElementToContainer(el: ElementType["E"]): void;
     /**
      *
      * @param el
@@ -307,6 +333,24 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
      * Exposed on this class to assist core in abstracting out the specifics of the renderer.
      * @internal
      * @param el
+     *
+     * Places this is called:
+     *
+     * - dragToGroup in test support, to get the position of the target group
+     * - `orphan` in group manager, to get an elements position relative to the group. since in this case we know its
+     * a child of the group's content area we could theoretically use getBoundingClientRect here
+     * - addToGroup in group manager, to find the position of some element that is about to be dropped
+     * - addToGroup in group manager, to get the position of the content area of an uncollapsed group onto which an element is being dropped
+     * - refreshElement, to get the current position of some element
+     * - getOffset method in viewport (just does a pass through to the instance)
+     * - onStop of group manager, when ghost proxy is active, to get the location of the original group's content area and the new group's content area
+     * - onStart in drag manager, to get the position of an element that is about to be dragged
+     * - onStart in drag manager, to get the position of an element's group parent when the element is about to be dragged (if the element is in a group)
+     * - onStart in drag manager, to get the position of a group, when checking for target group's for the element that is about to be dragged
+     * - onStart in drag manager, to get the position of all the elements in the current drag group (if there is one), so that they can be moved
+     * relative to each other during the drag.
+     *
+     *
      */
     getOffset(el: Element): PointXY;
     /**
@@ -679,6 +723,8 @@ export declare class Collicat implements jsPlumbDragManager {
     css: Record<string, string>;
     inputFilterSelector: string;
     constructor(options?: CollicatOptions);
+    getPosition(el: Element): PointXY;
+    getSize(el: Element): Size;
     getZoom(): number;
     setZoom(z: number): void;
     private _prepareParams;
@@ -712,6 +758,12 @@ export declare const CONNECTION = "connection";
 
 export declare type ConstrainFunction = (desiredLoc: PointXY, dragEl: HTMLElement, constrainRect: Size, size: Size) => PointXY;
 
+/**
+ * Consume the given event, using `stopPropagation()` if present or `returnValue` if not, and optionally
+ * also calling `preventDefault()`.
+ * @param e
+ * @param doNotPreventDefault
+ */
 export declare function consume(e: Event, doNotPreventDefault?: boolean): void;
 
 export declare enum ContainmentType {
@@ -768,7 +820,7 @@ export declare class Drag extends Base {
     upListener: (e?: MouseEvent) => void;
     scrollTracker: (e: Event) => void;
     listeners: Record<string, Array<Function>>;
-    constructor(el: jsPlumbDOMElement, params: DragParams, k: Collicat);
+    constructor(el: jsPlumbDOMElement, params: DragParams, manager: Collicat);
     private _trackScroll;
     on(evt: string, fn: Function): void;
     off(evt: string, fn: Function): void;
@@ -839,7 +891,7 @@ export declare interface DragHandler {
     onStart: (params: DragStartEventParams) => boolean;
     onDrag: (params: DragEventParams) => void;
     onStop: (params: DragStopEventParams) => void;
-    onDragInit: (el: Element) => Element;
+    onDragInit: (el: Element, e: MouseEvent) => Element;
     onDragAbort: (el: Element) => void;
     reset: () => void;
     init: (drag: Drag) => void;
@@ -852,7 +904,7 @@ export declare interface DragHandlerOptions {
     stop?: (p: DragStopEventParams) => any;
     drag?: (p: DragEventParams) => any;
     beforeStart?: (beforeStartParams: BeforeStartEventParams) => void;
-    dragInit?: (el: Element) => any;
+    dragInit?: (el: Element, e: MouseEvent) => any;
     dragAbort?: (el: Element) => any;
     ghostProxy?: GhostProxyGenerator | boolean;
     makeGhostProxy?: GhostProxyGenerator;
@@ -1019,6 +1071,8 @@ export declare const ELEMENT = "element";
  * @public
  */
 export declare const ELEMENT_DIV = "div";
+
+declare type ElementAttributes = Record<string, string | number>;
 
 export declare class ElementDragHandler implements DragHandler {
     protected instance: BrowserJsPlumbInstance;
@@ -1344,7 +1398,7 @@ declare interface EventManagerOptions {
     dblClickThreshold?: number;
 }
 
-export declare function findParent(el: jsPlumbDOMElement, selector: string, container: HTMLElement, matchOnElementAlso: boolean): jsPlumbDOMElement;
+export declare function findParent(el: jsPlumbDOMElement, selector: string, container: Element, matchOnElementAlso: boolean): jsPlumbDOMElement;
 
 export declare function getClass(el: Element): string;
 
@@ -1417,6 +1471,8 @@ export declare interface jsPlumbDOMInformation {
 }
 
 export declare interface jsPlumbDragManager {
+    getPosition(el: Element): PointXY;
+    getSize(el: Element): Size;
     getZoom(): number;
     setZoom(z: number): void;
     getInputFilterSelector(): string;
@@ -1429,6 +1485,14 @@ export declare function matchesSelector(el: jsPlumbDOMElement, selector: string,
 
 export declare function newInstance(defaults?: BrowserJsPlumbDefaults): BrowserJsPlumbInstance;
 
+declare function _node(name: string, attributes?: ElementAttributes): SVGElement;
+
+/**
+ * Gets the position of the given element relative to the browser viewport's origin. This method is safe for
+ * both HTML and SVG elements.
+ * @param el
+ * @internal
+ */
 export declare function offsetRelativeToRoot(el: Element): PointXY;
 
 export declare function pageLocation(e: Event): PointXY;
@@ -1473,7 +1537,19 @@ export declare const SELECTOR_GROUP_CONTAINER: string;
  */
 export declare const SELECTOR_OVERLAY: string;
 
+/**
+ * Gets the offset width and offset height of the given element. Not safe for SVG elements.
+ * @param el
+ */
 export declare function size(el: Element): Size;
+
+export declare const svg: {
+    attr: typeof _attr;
+    node: typeof _node;
+    ns: {
+        svg: string;
+    };
+};
 
 export declare function toggleClass(el: Element | NodeListOf<Element>, clazz: string): void;
 

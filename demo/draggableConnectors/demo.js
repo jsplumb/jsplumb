@@ -47,6 +47,7 @@
             dropOptions:{activeClass:"dragActive", hoverClass:"dropHover"}
         });
 
+        instance.setZoom(0.75)
         // suspend drawing and initialise.
         instance.batch(function () {
 

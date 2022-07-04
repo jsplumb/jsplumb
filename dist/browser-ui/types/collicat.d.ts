@@ -29,12 +29,16 @@ export declare const EVENT_OUT = "out";
 export declare const EVENT_STOP = "stop";
 declare abstract class Base {
     protected el: jsPlumbDOMElement;
-    protected k: Collicat;
+    protected manager: Collicat;
     abstract _class: string;
     uuid: string;
     private enabled;
     scopes: Array<string>;
-    protected constructor(el: jsPlumbDOMElement, k: Collicat);
+    /**
+     * @internal
+     */
+    protected eventManager: EventManager;
+    protected constructor(el: jsPlumbDOMElement, manager: Collicat);
     setEnabled(e: boolean): void;
     isEnabled(): boolean;
     toggleEnabled(): void;
@@ -54,7 +58,7 @@ export interface DragHandlerOptions {
     stop?: (p: DragStopEventParams) => any;
     drag?: (p: DragEventParams) => any;
     beforeStart?: (beforeStartParams: BeforeStartEventParams) => void;
-    dragInit?: (el: Element) => any;
+    dragInit?: (el: Element, e: MouseEvent) => any;
     dragAbort?: (el: Element) => any;
     ghostProxy?: GhostProxyGenerator | boolean;
     makeGhostProxy?: GhostProxyGenerator;
@@ -127,7 +131,7 @@ export declare class Drag extends Base {
     upListener: (e?: MouseEvent) => void;
     scrollTracker: (e: Event) => void;
     listeners: Record<string, Array<Function>>;
-    constructor(el: jsPlumbDOMElement, params: DragParams, k: Collicat);
+    constructor(el: jsPlumbDOMElement, params: DragParams, manager: Collicat);
     private _trackScroll;
     on(evt: string, fn: Function): void;
     off(evt: string, fn: Function): void;
@@ -164,6 +168,8 @@ export interface CollicatOptions {
     inputFilterSelector?: string;
 }
 export interface jsPlumbDragManager {
+    getPosition(el: Element): PointXY;
+    getSize(el: Element): Size;
     getZoom(): number;
     setZoom(z: number): void;
     getInputFilterSelector(): string;
@@ -177,6 +183,8 @@ export declare class Collicat implements jsPlumbDragManager {
     css: Record<string, string>;
     inputFilterSelector: string;
     constructor(options?: CollicatOptions);
+    getPosition(el: Element): PointXY;
+    getSize(el: Element): Size;
     getZoom(): number;
     setZoom(z: number): void;
     private _prepareParams;

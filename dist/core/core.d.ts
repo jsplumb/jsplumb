@@ -2418,6 +2418,8 @@ export declare abstract class JsPlumbInstance<T extends {
     abstract _getAssociatedElements(el: T["E"]): Array<T["E"]>;
     abstract _removeElement(el: T["E"]): void;
     abstract _appendElement(el: T["E"], parent: T["E"]): void;
+    abstract _appendElementToGroup(group: UIGroup, e: T["E"]): void;
+    abstract _appendElementToContainer(e: T["E"]): void;
     abstract removeClass(el: T["E"] | ArrayLike<T["E"]>, clazz: string): void;
     abstract addClass(el: T["E"] | ArrayLike<T["E"]>, clazz: string): void;
     abstract toggleClass(el: T["E"] | ArrayLike<T["E"]>, clazz: string): void;

@@ -182,6 +182,12 @@ export declare class BrowserUITestSupport {
      * @public
      */
     getConnectionCanvas(c: Connection): HTMLElement;
+    getEndpointCanvasPosition(ep: Endpoint): {
+        x: number;
+        y: number;
+        w: string;
+        h: string;
+    };
     /**
      * Helper to test that a value is the same as some target, within our tolerance.
      * Sometimes the trigonometry stuff needs a little bit of leeway.

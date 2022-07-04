@@ -7,7 +7,7 @@ import { PaintStyle } from "@jsplumb/common";
  * which respectively create the type-specific elements, and update them at paint time.
  */
 export declare abstract class SvgEndpoint<C> {
-    static getEndpointElement<C>(ep: EndpointRepresentation<C>): HTMLElement;
+    static getEndpointElement<C>(ep: EndpointRepresentation<C>): SVGElement;
     static paint<C>(ep: EndpointRepresentation<C>, handlers: EndpointHelperFunctions<any>, paintStyle: PaintStyle): void;
 }
 //# sourceMappingURL=svg-element-endpoint.d.ts.map

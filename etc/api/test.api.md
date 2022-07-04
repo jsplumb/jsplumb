@@ -58,6 +58,13 @@ export class BrowserUITestSupport {
     getCanvas(epOrEl: any): any;
     getConnectionCanvas(c: Connection): HTMLElement;
     getEndpointCanvas(ep: Endpoint): HTMLElement;
+    // (undocumented)
+    getEndpointCanvasPosition(ep: Endpoint): {
+        x: number;
+        y: number;
+        w: string;
+        h: string;
+    };
     getOverlayCanvas(overlay: Overlay): any;
     head(obj: any): any;
     // (undocumented)

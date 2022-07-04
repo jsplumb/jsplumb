@@ -1668,6 +1668,10 @@ export abstract class JsPlumbInstance<T extends {
     allowNestedGroups: boolean;
     // (undocumented)
     abstract _appendElement(el: T["E"], parent: T["E"]): void;
+    // (undocumented)
+    abstract _appendElementToContainer(e: T["E"]): void;
+    // (undocumented)
+    abstract _appendElementToGroup(group: UIGroup, e: T["E"]): void;
     // Warning: (ae-incompatible-release-tags) The symbol "applyConnectorType" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
     //
     // (undocumented)

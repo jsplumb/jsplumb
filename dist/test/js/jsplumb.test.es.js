@@ -395,6 +395,17 @@ var BrowserUITestSupport = function () {
       return c.connector.canvas;
     }
   }, {
+    key: "getEndpointCanvasPosition",
+    value: function getEndpointCanvasPosition(ep) {
+      var c = this.getEndpointCanvas(ep);
+      return {
+        x: parseInt(c.style.left, 10),
+        y: parseInt(c.style.top, 10),
+        w: c.getAttribute("width"),
+        h: c.getAttribute("height")
+      };
+    }
+  }, {
     key: "within",
     value: function within(val, target, msg) {
       this.ok(Math.abs(val - target) < VERY_SMALL_NUMBER, msg + "[expected: " + target + " got " + val + "] [diff:" + Math.abs(val - target) + "]");

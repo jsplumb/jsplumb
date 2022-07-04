@@ -12,6 +12,10 @@ declare type EndpointDropTarget = {
     targetEl: jsPlumbDOMElement;
     rank?: number;
 };
+/**
+ * Handles dragging of connections between endpoints.
+ * @internal
+ */
 export declare class EndpointDragHandler implements DragHandler {
     protected instance: BrowserJsPlumbInstance;
     jpc: Connection;
@@ -44,6 +48,35 @@ export declare class EndpointDragHandler implements DragHandler {
     constructor(instance: BrowserJsPlumbInstance);
     private _resolveDragParent;
     private _mousedownHandler;
+    /**
+     * Gets the position of this element with respect to the container's origin, in container coordinates.
+     *
+     * Previously this class would use the getOffset method from the underlying instance but as part of updating the code
+     * to support dragging SVG elements this has been changed to getBoundingClientRect. Ideally this
+     * method would be what all the positioning code uses, but there are a few edge cases, particularly
+     * involving scrolling, that need to be investigated.
+     *
+     * Note that we divide the position coords by the current zoom, as getBoundingClientRect() returns values that
+     * correspond to what the user sees.
+     *
+     * @param el
+     * @internal
+     */
+    private getPosition;
+    /**
+     * Gets the size of this element, in container coordinates. Note that we divide the size values from
+     * getBoundingClientRect by the current zoom, as getBoundingClientRect() returns values that
+     * correspond to what the user sees.
+     * @param el
+     * @internal
+     */
+    private getSize;
+    /**
+     * cleans up any endpoints added from a mousedown on a source that did not result in a connection drag replaces
+     * what in previous versions was a mousedown/mouseup handler per element.
+     * @param e
+     * @internal
+     */
     private _mouseupHandler;
     /**
      * At the beginning of a drag, this method can be used to perform some setup in a handler, and if it returns a DOM
@@ -66,11 +99,24 @@ export declare class EndpointDragHandler implements DragHandler {
      */
     private _makeDraggablePlaceholder;
     private _cleanupDraggablePlaceholder;
+    /**
+     * @internal
+     */
     reset(): void;
+    /**
+     * @internal
+     * @param drag
+     */
     init(drag: Drag): void;
+    /**
+     * @internal
+     * @param scope
+     * @param data
+     */
     private startNewConnectionDrag;
     /**
      * Starts the drag of an existing connection, either by its target or its source.
+     * @internal
      */
     private startExistingConnectionDrag;
     /**

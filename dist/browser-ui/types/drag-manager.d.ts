@@ -13,7 +13,7 @@ export interface DragHandler {
     onStart: (params: DragStartEventParams) => boolean;
     onDrag: (params: DragEventParams) => void;
     onStop: (params: DragStopEventParams) => void;
-    onDragInit: (el: Element) => Element;
+    onDragInit: (el: Element, e: MouseEvent) => Element;
     onDragAbort: (el: Element) => void;
     reset: () => void;
     init: (drag: Drag) => void;
