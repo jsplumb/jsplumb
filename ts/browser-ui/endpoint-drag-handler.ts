@@ -71,6 +71,7 @@ import {
     BoundingBox, isObject
 } from "@jsplumb/util"
 import {ATTRIBUTE_JTK_ENABLED, ELEMENT_DIV} from "./constants"
+import {svg} from "./svg-util"
 
 function _makeFloatingEndpoint (ep:Endpoint<Element>,
                                 endpoint:EndpointSpec | EndpointRepresentation<any>,
@@ -121,6 +122,10 @@ const SOURCE_SELECTOR_UNIQUE_ENDPOINT_DATA = "sourceSelectorEndpoint"
 
 type EndpointDropTarget = {el:jsPlumbDOMElement, endpoint:Endpoint, r:BoundingBox, def?:SourceOrTargetDefinition, targetEl:jsPlumbDOMElement, rank?:number}
 
+/**
+ * Handles dragging of connections between endpoints.
+ * @internal
+ */
 export class EndpointDragHandler implements DragHandler {
 
     jpc:Connection
@@ -220,6 +225,7 @@ export class EndpointDragHandler implements DragHandler {
                 // at this point we have a mousedown event on an element that is configured as a drag source.
                 def = sourceSelector.def.def
 
+                // check if we should not proceed...
                 if (def.canAcceptNewConnection != null && !def.canAcceptNewConnection(sourceEl, e)) {
                     return false
                 }
@@ -246,11 +252,6 @@ export class EndpointDragHandler implements DragHandler {
                     }
                     // otherwise we'll use the default scope
                 }
-
-                // what we want to do here is have `addEndpoint` contact the parameter extractor, because then we could use the same one
-                // between drag and programmatic. but we don't want to overwrite `anchor` or `deleteOnEmpty`, and also we want to get
-                // the original anchor back from the params, which wouldn't, of course, have been finalised until after addEndpoint had
-                // contacted the parameter extractor.
 
                 // perhaps extract some parameters from a parameter extractor
                 const extractedParameters = def.parameterExtractor ? def.parameterExtractor(sourceEl, eventTarget as Element, e) : {}
@@ -330,7 +331,6 @@ export class EndpointDragHandler implements DragHandler {
                 // if unique endpoint and it's already been created, push it onto the endpoint we create. at the end
                 // of a successful connection we'll switch to that endpoint.
                 if (tempEndpointParams.uniqueEndpoint) {
-
                     const elementId = this.ep.elementId
                     const existingUniqueEndpoint = this.instance.getManagedData(elementId, SOURCE_SELECTOR_UNIQUE_ENDPOINT_DATA, sourceSelector.id)//sourceSelector.getUniqueEndpoint(elementId)
                     if (existingUniqueEndpoint == null) {
@@ -352,24 +352,48 @@ export class EndpointDragHandler implements DragHandler {
                 this.instance.trigger((this.ep.endpoint as any).canvas, EVENT_MOUSEDOWN, e, payload)
             }
         }
-
     }
 
+    /**
+     * Gets the position of this element with respect to the container's origin, in container coordinates.
+     *
+     * Previously this class would use the getOffset method from the underlying instance but as part of updating the code
+     * to support dragging SVG elements this has been changed to getBoundingClientRect. Ideally this
+     * method would be what all the positioning code uses, but there are a few edge cases, particularly
+     * involving scrolling, that need to be investigated.
+     *
+     * Note that we divide the position coords by the current zoom, as getBoundingClientRect() returns values that
+     * correspond to what the user sees.
+     *
+     * @param el
+     * @internal
+     */
     private getPosition(el:Element) {
         const pc = this.instance.getContainer().getBoundingClientRect()
         const ec = el.getBoundingClientRect()
-        return { x: ec.left - pc.left, y:ec.top - pc.top }
+        const z = this.instance.currentZoom
+        return { x: (ec.left - pc.left) / z, y:(ec.top - pc.top) / z }
     }
 
+    /**
+     * Gets the size of this element, in container coordinates. Note that we divide the size values from
+     * getBoundingClientRect by the current zoom, as getBoundingClientRect() returns values that
+     * correspond to what the user sees.
+     * @param el
+     * @internal
+     */
     private getSize(el:Element):Size {
         const ec = el.getBoundingClientRect()
-        return { w:ec.width, h:ec.height }
+        const z = this.instance.currentZoom
+        return { w:ec.width / z, h:ec.height /z }
     }
 
-    //
-    // cleans up any endpoints added from a mousedown on a source that did not result in a connection drag
-    // replaces what in previous versions was a mousedown/mouseup handler per element.
-    //
+    /**
+     * cleans up any endpoints added from a mousedown on a source that did not result in a connection drag replaces
+     * what in previous versions was a mousedown/mouseup handler per element.
+     * @param e
+     * @internal
+     */
     private _mouseupHandler(e:MouseEvent) {
         let el:any = e.currentTarget || e.srcElement
         if (el._jsPlumbOrphanedEndpoints) {
@@ -388,9 +412,7 @@ export class EndpointDragHandler implements DragHandler {
      */
     onDragInit(el:Element):Element {
         const ipco = this.getPosition(el), ips = this.getSize(el)
-
         this._makeDraggablePlaceholder(ipco, ips)
-
         this.placeholderInfo.element.jtk = (el as jsPlumbDOMElement).jtk
         return this.placeholderInfo.element
     }
@@ -412,14 +434,19 @@ export class EndpointDragHandler implements DragHandler {
      */
     private _makeDraggablePlaceholder(ipco:PointXY, ips:Size):HTMLElement {
         this.placeholderInfo = this.placeholderInfo || {}
+        // TODO should be an SVG in order to minimise differences between SVG containers and HTML containers
+        // but currently this throws an error during drag (perhaps from trying to read offsetLeft/offsetTop)
+
         let n = createElement(ELEMENT_DIV, { position : "absolute" }) as jsPlumbDOMElement
-        this.instance._appendElement(n, this.instance.getContainer())
+        //let n = svg.node("svg", { position : "absolute" }) as unknown as jsPlumbDOMElement
+
+        this.instance._appendElementToContainer(n)
         let id = this.instance.getId(n)
         this.instance.setPosition(n, ipco)
         n.style.width = ips.w + "px"
         n.style.height = ips.h + "px"
         this.instance.manage(n); // TRANSIENT MANAGE
-        // create and assign an id, and initialize the offset.
+        // create and assign an id
         this.placeholderInfo.id = id
         this.placeholderInfo.element = n
         return n
@@ -433,14 +460,26 @@ export class EndpointDragHandler implements DragHandler {
         }
     }
 
+    /**
+     * @internal
+     */
     reset() {
         const c = this.instance.getContainer()
         this.instance.off(c, EVENT_MOUSEUP, this.mouseupHandler)
         this.instance.off(c, EVENT_MOUSEDOWN, this.mousedownHandler)
     }
 
+    /**
+     * @internal
+     * @param drag
+     */
     init(drag:Drag) {}
 
+    /**
+     * @internal
+     * @param scope
+     * @param data
+     */
     private startNewConnectionDrag(scope:string, data?:any) {
         // create a connection. one end is this endpoint, the other is a floating endpoint.
         this.jpc = this.instance._newConnection({
@@ -467,6 +506,7 @@ export class EndpointDragHandler implements DragHandler {
 
     /**
      * Starts the drag of an existing connection, either by its target or its source.
+     * @internal
      */
     private startExistingConnectionDrag() {
         this.existingJpc = true
@@ -791,8 +831,6 @@ export class EndpointDragHandler implements DragHandler {
         this._stopped = false
         let dragEl = p.drag.getDragElement()
         this.ep = dragEl.jtk.endpoint
-
-        const eventTarget = (p.e.srcElement || p.e.target) as Element
 
         if (!this.ep) {
             return false
@@ -1297,7 +1335,6 @@ export class EndpointDragHandler implements DragHandler {
         this.instance._finaliseConnection(this.jpc, null, originalEvent)
         this.instance.setHover(this.jpc, false)
 
-        // SP continuous anchor flush
         this.instance.revalidate(this.jpc.endpoints[0].element)
     }
 
