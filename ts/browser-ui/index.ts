@@ -36,6 +36,8 @@ export * from './element-facade'
 export * from './element-drag-handler'
 export * from './drag-manager'
 
+export {svg} from './svg-util'
+
 export function newInstance(defaults?:BrowserJsPlumbDefaults): BrowserJsPlumbInstance {
     return new BrowserJsPlumbInstance(getInstanceIndex(), defaults)
 }
