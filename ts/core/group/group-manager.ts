@@ -262,20 +262,16 @@ export class GroupManager<E> {
         const jel = el as unknown as jsPlumbElement<E>
         if (jel._jsPlumbParentGroup) {
             const currentParent = jel._jsPlumbParentGroup
-            const positionRelativeToGroup = this.instance.getOffset(jel)
             const id = this.instance.getId(jel)
             const pos = this.instance.getOffset(el);
-            (jel as any).parentNode.removeChild(jel)
 
             if (doNotTransferToAncestor !== true && currentParent.group) {
                 // if the current parent is itself a nested group, add the orphaned element to the parent group. This is not
                 // necessarily correct when the node is being orphaned as a result of a drag, since the node may not in fact
                 // be a child of any of the parents, and in that case the `doNotTransferToAncestor` will be set.
-                pos.x += positionRelativeToGroup.x
-                pos.y += positionRelativeToGroup.y
-                this.instance.getGroupContentArea(currentParent.group).appendChild(el)
+                this.instance._appendElementToGroup(currentParent.group, el)
             } else {
-                this.instance._appendElement(el, this.instance.getContainer()) // set back as child of container
+                this.instance._appendElementToContainer(el) // set back as child of container
             }
 
             this.instance.setPosition(el, pos)
