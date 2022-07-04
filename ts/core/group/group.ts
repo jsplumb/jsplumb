@@ -204,7 +204,7 @@ export class UIGroup<E = any> extends UINode<E> {
 
             this.children.push(group)
 
-            this.instance._appendElement(group.el, this.instance.getGroupContentArea(this))
+            this.instance._appendElementToGroup(this, group.el)
 
             group.group = this
             let newPosition = {x: elpos.x - cpos.x, y: elpos.y - cpos.y}
