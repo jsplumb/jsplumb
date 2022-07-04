@@ -188,10 +188,12 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
     }
 
     private _computeSingleLocation(loc:AnchorRecord, xy:PointXY, wh:Size, params:AnchorComputeParams):AnchorPlacement {
-        const candidate:AnchorPlacement = {curX:xy.x + (loc.x * wh.w) + loc.offx, curY:xy.y + (loc.y * wh.h) + loc.offy, x:loc.x, y:loc.y, ox:0, oy:0 }
 
         let pos:AnchorPlacement
-        const rotation = params.rotation;
+        //console.log(params.element.elementId, xy, wh, params)
+        const rotation = params.rotation
+        const candidate:AnchorPlacement = {curX:xy.x + (loc.x * wh.w) + loc.offx, curY:xy.y + (loc.y * wh.h) + loc.offy, x:loc.x, y:loc.y, ox:0, oy:0 }
+
         if (rotation != null && rotation.length > 0) {
 
             let o = [loc.iox,loc.ioy],
