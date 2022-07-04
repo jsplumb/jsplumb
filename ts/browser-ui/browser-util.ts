@@ -5,7 +5,7 @@ import {fastTrim, forEach, isString, log, PointXY, Size} from "@jsplumb/util"
 
 export function matchesSelector (el:jsPlumbDOMElement, selector:string, ctx?:Element) {
     ctx = (ctx || el.parentNode) as Element
-    let possibles = ctx.querySelectorAll(selector)
+    const possibles = ctx.querySelectorAll(selector)
     for (let i = 0; i < possibles.length; i++) {
         if (possibles[i] === el) {
             return true
@@ -14,6 +14,12 @@ export function matchesSelector (el:jsPlumbDOMElement, selector:string, ctx?:Ele
     return false
 }
 
+/**
+ * Consume the given event, using `stopPropagation()` if present or `returnValue` if not, and optionally
+ * also calling `preventDefault()`.
+ * @param e
+ * @param doNotPreventDefault
+ */
 export function consume (e:Event, doNotPreventDefault?:boolean) {
     if (e.stopPropagation) {
         e.stopPropagation()
@@ -27,7 +33,7 @@ export function consume (e:Event, doNotPreventDefault?:boolean) {
     }
 }
 
-export function findParent(el:jsPlumbDOMElement, selector:string, container:HTMLElement, matchOnElementAlso:boolean):jsPlumbDOMElement {
+export function findParent(el:jsPlumbDOMElement, selector:string, container:Element, matchOnElementAlso:boolean):jsPlumbDOMElement {
     if (matchOnElementAlso && matchesSelector(el, selector, container)) {
         return el
     } else {
@@ -73,7 +79,7 @@ function _setClassName (el:Element, cn:string, classList:Array<string>):void {
     }
     catch(e) {
         // not fatal
-        log("JSPLUMB: cannot set class list", e)
+        log("WARN: cannot set class list", e)
     }
 }
 
@@ -222,6 +228,12 @@ export function createElementNS(ns:string, tag:string, style?:Record<string, any
     return e
 }
 
+/**
+ * Gets the position of the given element relative to the browser viewport's origin. This method is safe for
+ * both HTML and SVG elements.
+ * @param el
+ * @internal
+ */
 export function offsetRelativeToRoot(el:Element):PointXY {
     const box = el.getBoundingClientRect(),
         body = document.body,
@@ -242,6 +254,10 @@ export function offsetRelativeToRoot(el:Element):PointXY {
     }
 }
 
+/**
+ * Gets the offset width and offset height of the given element. Not safe for SVG elements.
+ * @param el
+ */
 export function size(el:Element):Size {
     return { w:(el as any).offsetWidth, h:(el as any).offsetHeight }
 }
