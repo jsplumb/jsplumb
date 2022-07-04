@@ -32,6 +32,24 @@ function _getSize(el:HTMLElement):Size {
     }
 }
 
+// function _getPosition(el:HTMLElement, zoom:number):PointXY {
+//     const b = el.getBoundingClientRect()
+//     const c = el.offsetParent.getBoundingClientRect()
+//     const r = { x:b.left - c.left, y: b.top - c.top }
+//     return {
+//         x:r.x / zoom,
+//         y:r.y / zoom
+//     }
+// }
+//
+// function _getSize(el:HTMLElement, zoom:number):Size {
+//     const b = el.getBoundingClientRect()
+//     return {
+//         w:b.width / zoom,
+//         h:b.height / zoom
+//     }
+// }
+
 function _setPosition(el:HTMLElement, pos:PointXY) {
     el.style.left = pos.x + "px"
     el.style.top = pos.y + "px"
@@ -169,8 +187,14 @@ abstract class Base {
     uuid = uuid()
     private enabled = true
     scopes:Array<string> = []
+    /**
+     * @internal
+     */
+    protected eventManager:EventManager
 
-    protected constructor(protected el:jsPlumbDOMElement, protected k:Collicat) { }
+    protected constructor(protected el:jsPlumbDOMElement, protected manager:Collicat) {
+        this.eventManager = manager.eventManager
+    }
 
     setEnabled(e:boolean) {
         this.enabled = e
@@ -236,7 +260,7 @@ export interface DragHandlerOptions {
     stop?:(p:DragStopEventParams) => any
     drag?:(p:DragEventParams) => any
     beforeStart?:(beforeStartParams:BeforeStartEventParams) => void
-    dragInit?:(el:Element) => any
+    dragInit?:(el:Element, e:MouseEvent) => any
     dragAbort?:(el:Element) => any
     ghostProxy?:GhostProxyGenerator | boolean
     makeGhostProxy?:GhostProxyGenerator
@@ -327,11 +351,11 @@ export class Drag extends Base {
 
     listeners:Record<string, Array<Function>> = {"start":[], "drag":[], "stop":[], "over":[], "out":[], "beforeStart":[], "revert":[] }
 
-    constructor(el:jsPlumbDOMElement, params: DragParams, k:Collicat) {
+    constructor(el:jsPlumbDOMElement, params: DragParams, manager:Collicat) {
 
-        super(el, k)
+        super(el, manager)
 
-        this._class = this.k.css.draggable
+        this._class = this.manager.css.draggable
         addClass(this.el, this._class)
 
         this.downListener = this._downListener.bind(this)
@@ -383,7 +407,6 @@ export class Drag extends Base {
                     return el.cloneNode(true)
                 }
             }
-
         }
 
         if (params.selector) {
@@ -396,7 +419,7 @@ export class Drag extends Base {
             this._availableSelectors.push(params)
         }
 
-        this.k.eventManager.on(this.el, EVENT_MOUSEDOWN, this.downListener)
+        this.eventManager.on(this.el, EVENT_MOUSEDOWN, this.downListener)
     }
 
     private _trackScroll(e:Event) {
@@ -410,7 +433,7 @@ export class Drag extends Base {
 // ------------- from here we copy the existing code - 'pos' comes from a mouse event in the drag code - ..refactor:
                 dx = pos.x - this._downAt.x,
                 dy = pos.y - this._downAt.y,
-                z = this._ignoreZoom ? 1 : this.k.getZoom()
+                z = this._ignoreZoom ? 1 : this.manager.getZoom()
 
             if (this._dragEl && this._dragEl.parentNode)
             {
@@ -452,8 +475,8 @@ export class Drag extends Base {
         if (this._downAt) {
 
             this._downAt = null
-            this.k.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener)
-            this.k.eventManager.off(document, EVENT_MOUSEUP, this.upListener)
+            this.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener)
+            this.eventManager.off(document, EVENT_MOUSEUP, this.upListener)
             removeClass(document.body as any, _classes.noSelect)
             this.unmark(e)
             this.stop(e)
@@ -464,7 +487,7 @@ export class Drag extends Base {
                 this._dragEl = null
             } else {
                 if (this._activeSelectorParams && this._activeSelectorParams.revertFunction) {
-                    if (this._activeSelectorParams.revertFunction(this._dragEl, _getPosition(this._dragEl)) === true) {
+                    if (this._activeSelectorParams.revertFunction(this._dragEl, this.manager.getPosition(this._dragEl)) === true) {
                         _setPosition(this._dragEl, this._posAtDown)
                         this._dispatch<RevertEventParams>(EVENT_REVERT, this._dragEl)
                     }
@@ -479,7 +502,7 @@ export class Drag extends Base {
         const isNotRightClick = this.rightButtonCanDrag || (e.which !== 3 && e.button !== 2)
         if (isNotRightClick && this.isEnabled() && this._canDrag()) {
 
-            const _f =  this._testFilter(e) && _inputFilter(e, this.el, this.k)
+            const _f =  this._testFilter(e) && _inputFilter(e, this.el, this.manager)
             if (_f) {
 
                 this._activeSelectorParams = null
@@ -502,13 +525,13 @@ export class Drag extends Base {
 
                 // dragInit gives a handler a chance to provide the actual element to drag. in the case of the endpoint stuff, for instance,
                 // this is the drag placeholder. but for element drag the current value of `_elementToDrag` is the one we want to use.
-                const initial = this._activeSelectorParams.dragInit ? this._activeSelectorParams.dragInit(this._elementToDrag) : null
+                const initial = this._activeSelectorParams.dragInit ? this._activeSelectorParams.dragInit(this._elementToDrag, e) : null
                 if (initial != null) {
                     this._elementToDrag = initial
                 }
 
                 if (this.clone) {
-                    // here when doing a makeSource endpoint we dont end up with the right
+
                     this._dragEl = this._elementToDrag.cloneNode(true)
                     addClass(this._dragEl, _classes.clonedDrag)
 
@@ -516,14 +539,19 @@ export class Drag extends Base {
                     this._dragEl.style.position = "absolute"
 
                     if (this._parent != null) {
-                        const p = _getPosition(this.el)
+                        const p = this.manager.getPosition(this.el)
+
+                        // TODO not valid when using 'transform' or 'xy' strategy
                         this._dragEl.style.left = p.x + "px"
                         this._dragEl.style.top = p.y + "px"
+
                         this._parent.appendChild(this._dragEl)
                     } else {
                         // the clone node is added to the body; getOffsetRect gives us a value
                         // relative to the body.
                         const b = offsetRelativeToRoot(this._elementToDrag)
+
+                        // TODO not valid when using 'transform' or 'xy' strategy
                         this._dragEl.style.left = b.x + "px"
                         this._dragEl.style.top = b.y + "px"
 
@@ -538,21 +566,20 @@ export class Drag extends Base {
                     consume(e)
                 }
 
-
                 this._downAt = pageLocation(e)
 
                 if (this._dragEl && this._dragEl.parentNode) {
                     this._initialScroll = {x:this._dragEl.parentNode.scrollLeft, y:this._dragEl.parentNode.scrollTop}
                 }
 
-                this._posAtDown = _getPosition(this._dragEl)
+                this._posAtDown = this.manager.getPosition(this._dragEl)
 
                 this._pagePosAtDown = offsetRelativeToRoot(this._dragEl)
                 this._pageDelta = {x:this._pagePosAtDown.x - this._posAtDown.x, y:this._pagePosAtDown.y - this._posAtDown.y}
-                this._size = _getSize(this._dragEl)
+                this._size = this.manager.getSize(this._dragEl)
 
-                this.k.eventManager.on(document, EVENT_MOUSEMOVE, this.moveListener)
-                this.k.eventManager.on(document, EVENT_MOUSEUP, this.upListener)
+                this.eventManager.on(document, EVENT_MOUSEMOVE, this.moveListener)
+                this.eventManager.on(document, EVENT_MOUSEUP, this.upListener)
 
                 addClass(document.body as any, _classes.noSelect)
                 this._dispatch<BeforeStartEventParams>(EVENT_BEFORE_START, {el:this.el, pos:this._posAtDown, e:e, drag:this, size:this._size})
@@ -584,7 +611,7 @@ export class Drag extends Base {
                 let pos:PointXY = pageLocation(e),
                     dx = pos.x - this._downAt.x,
                     dy = pos.y - this._downAt.y,
-                    z = this._ignoreZoom ? 1 : this.k.getZoom()
+                    z = this._ignoreZoom ? 1 : this.manager.getZoom()
 
                 this._lastPosition = {x:pos.x, y:pos.y}
                 this._lastScrollValues = {x:document.documentElement.scrollLeft, y:document.documentElement.scrollTop}
@@ -605,12 +632,12 @@ export class Drag extends Base {
 
     private mark(payload:any) {
 
-        this._posAtDown = _getPosition(this._dragEl)
+        this._posAtDown = this.manager.getPosition(this._dragEl)
 
         this._pagePosAtDown = offsetRelativeToRoot(this._dragEl)
         this._pageDelta = {x:this._pagePosAtDown.x - this._posAtDown.x, y:this._pagePosAtDown.y - this._posAtDown.y}
-        this._size = _getSize(this._dragEl)
-        addClass(this._dragEl, this.k.css.drag)
+        this._size = this.manager.getSize(this._dragEl)
+        addClass(this._dragEl, this.manager.css.drag)
 
         this._constrainRect = getConstrainingRectangle(this._dragEl)
 
@@ -629,7 +656,7 @@ export class Drag extends Base {
             this._ghostProxyOffsets = null
         }
 
-        removeClass(this._dragEl, this.k.css.drag)
+        removeClass(this._dragEl, this.manager.css.drag)
         this._isConstrained = false
     }
 
@@ -705,7 +732,7 @@ export class Drag extends Base {
     stop (e?:MouseEvent, force?:boolean) {
         if (force || this._moving) {
             let positions:Array<[jsPlumbDOMElement, PointXY, Drag, Size]> = [],
-                dPos = _getPosition(this._dragEl)
+                dPos = this.manager.getPosition(this._dragEl)
 
             positions.push([ this._dragEl, dPos, this, this._size ])
 
@@ -843,9 +870,9 @@ export class Drag extends Base {
     }
 
     destroy() {
-        this.k.eventManager.off(this.el, EVENT_MOUSEDOWN, this.downListener)
-        this.k.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener)
-        this.k.eventManager.off(document, EVENT_MOUSEUP, this.upListener)
+        this.eventManager.off(this.el, EVENT_MOUSEDOWN, this.downListener)
+        this.eventManager.off(document, EVENT_MOUSEMOVE, this.moveListener)
+        this.eventManager.off(document, EVENT_MOUSEUP, this.upListener)
         this.downListener = null
         this.upListener = null
         this.moveListener = null
@@ -866,6 +893,8 @@ export interface CollicatOptions {
 }
 
 export interface jsPlumbDragManager {
+    getPosition(el:Element):PointXY
+    getSize(el:Element):Size
     getZoom():number
     setZoom(z:number):void
     getInputFilterSelector():string
@@ -891,6 +920,14 @@ export class Collicat implements jsPlumbDragManager {
         this.zoom = options.zoom || 1
         const _c = options.css || {}
         extend(this.css, _c)
+    }
+
+    getPosition(el:Element):PointXY {
+        return _getPosition(el as unknown as HTMLElement)
+    }
+
+    getSize(el:Element):Size {
+        return _getSize(el as unknown as HTMLElement)
     }
 
     getZoom():number {
