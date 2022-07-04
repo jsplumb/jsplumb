@@ -98,3 +98,9 @@ export function _size(svg:SVGElement, x:number, y:number, w:number, h:number) {
     (svg as any).height = h;
     (svg as any).width = w
 }
+
+export const svg = {
+    attr:_attr,
+    node:_node,
+    ns
+}
