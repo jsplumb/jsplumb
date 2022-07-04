@@ -522,6 +522,16 @@ export class BrowserUITestSupport {
         return (c as any).connector.canvas;
     }
 
+    getEndpointCanvasPosition(ep:Endpoint) {
+        const c = this.getEndpointCanvas(ep)
+        return {
+            x:parseInt(c.style.left, 10),
+            y:parseInt(c.style.top, 10),
+            w:c.getAttribute("width"),
+            h:c.getAttribute("height")
+        }
+    }
+
     /**
      * Helper to test that a value is the same as some target, within our tolerance.
      * Sometimes the trigonometry stuff needs a little bit of leeway.
