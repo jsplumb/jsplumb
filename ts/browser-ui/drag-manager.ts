@@ -35,7 +35,7 @@ export interface DragHandler {
     onStart:(params:DragStartEventParams) => boolean
     onDrag:(params:DragEventParams) => void
     onStop:(params:DragStopEventParams) => void
-    onDragInit: (el:Element) => Element
+    onDragInit: (el:Element, e:MouseEvent) => Element
     onDragAbort:(el:Element) => void
 
     reset:() => void
@@ -107,7 +107,7 @@ export class DragManager {
         const handlerBeforeStart = (handler.onBeforeStart || ((p:BeforeStartEventParams) =>  {})).bind(handler)
         o.beforeStart = wrap(o.beforeStart, (p:BeforeStartEventParams) => { return handlerBeforeStart(p) })
 
-        o.dragInit = (el:Element) => handler.onDragInit(el)
+        o.dragInit = (el:Element, e:MouseEvent) => handler.onDragInit(el, e)
         o.dragAbort = (el:Element) => handler.onDragAbort(el)
 
         if ((handler as GhostProxyingDragHandler).useGhostProxy) {
