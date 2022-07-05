@@ -159,7 +159,24 @@ const _classes:Record<string, string> = {
     clonedDrag:"katavorio-clone-drag"     // added to a node that is a clone of an element created at the start of a drag
 }
 
+export enum PositioningStrategies {
+    absolutePosition = "absolutePosition",
+    transform = "transform",
+    xyAttributes = "xyAttributes"
+}
 
+export type PositioningStrategy = keyof typeof PositioningStrategies
+
+const positioners:Map<PositioningStrategy, (el:Element, x:number, y:number) => void> = new Map()
+positioners.set(PositioningStrategies.absolutePosition, (el:Element, x:number, y:number) => {
+    ;(el as any).style.left = `${x}px`
+    ;(el as any).style.top = `${y}px`
+})
+
+positioners.set(PositioningStrategies.xyAttributes, (el:Element, x:number, y:number) => {
+    el.setAttribute("x", `${x}`)
+    el.setAttribute("y", `${y}`)
+})
 
 const _events = [ EVENT_STOP, EVENT_START, EVENT_DRAG, EVENT_DROP, EVENT_OVER, EVENT_OUT, EVENT_BEFORE_START ]
 const _devNull = function() {}
