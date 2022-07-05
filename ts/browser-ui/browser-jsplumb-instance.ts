@@ -61,11 +61,11 @@ import {GroupDragHandler} from "./group-drag-handler"
 import { jsPlumbDOMElement} from './element-facade'
 import {
     addClass,
-    consume,
+    consume, ElementType, ElementTypes,
     findParent,
-    getClass,
+    getClass, getElementType,
     getEventSource,
-    hasClass, isNodeList, offsetRelativeToRoot,
+    hasClass, isNodeList, isSVGElement, offsetRelativeToRoot,
     removeClass, size,
     toggleClass
 } from "./browser-util"
@@ -137,13 +137,6 @@ export interface UIComponent {
     canvas: HTMLElement
     svg:SVGElement
 }
-
-enum ContainerTypes {
-    SVG = "SVG",
-    HTML = "HTML"
-}
-
-type ContainerType = keyof typeof ContainerTypes
 
 export type EndpointHelperFunctions<E> = {
     makeNode:(ep:E, paintStyle:PaintStyle) => void,
@@ -235,8 +228,6 @@ export interface jsPlumbDOMInformation {
     overlay?:Overlay
 }
 
-export type ElementType = {E:Element}
-
 function isSVGElementOverlay(o:Overlay): o is SVGElementOverlay {
     return isArrowOverlay(o) || isDiamondOverlay(o) || isPlainArrowOverlay(o)
 }
@@ -315,9 +306,9 @@ type ResizeObserverEntries = Array<ResizeObserverEntry>
  * JsPlumbInstance that renders to the DOM in a browser, and supports dragging of elements/connections.
  * @public
  */
-export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
+export class BrowserJsPlumbInstance extends JsPlumbInstance<{E:Element}> {
 
-    private containerType:ContainerType
+    private containerType:ElementType = null
 
     private readonly dragSelection:DragSelection
     dragManager:DragManager
@@ -393,6 +384,10 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
         super(_instanceIndex, defaults)
 
         defaults = defaults || {}
+
+        // strictly speaking should not be necessary, but because of the way classes are written, the containerType member
+        // of this class is initialised to null after the super call.
+        this.containerType = getElementType(this.getContainer())
 
         // by default, elements are draggable
         this.elementsDraggable = defaults && defaults.elementsDraggable !== false
@@ -706,7 +701,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
      * @param el
      * @private
      */
-    _appendElementToGroup(group: UIGroup<any>, el: ElementType["E"]): void {
+    _appendElementToGroup(group: UIGroup<any>, el: Element): void {
         this.getGroupContentArea(group).appendChild(el)
     }
 
@@ -715,7 +710,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
      * @param el
      * @private
      */
-    _appendElementToContainer(el: ElementType["E"]): void {
+    _appendElementToContainer(el: Element): void {
         this._appendElement(el, this.getContainer())
     }
 
@@ -1004,7 +999,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
      * @internal
      * @param group
      */
-    getGroupContentArea(group: UIGroup<any>): ElementType["E"] {
+    getGroupContentArea(group: UIGroup<any>): Element {
         let da = this.getSelector(group.el, SELECTOR_GROUP_CONTAINER)
         return da && da.length > 0 ? da[0] : group.el
     }
@@ -1218,7 +1213,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
 
         super.setContainer(newContainer)
 
-        this.containerType = newContainer instanceof SVGElement ? ContainerTypes.SVG : ContainerTypes.HTML
+        this.containerType = getElementType(newContainer)
 
         if (this.eventManager != null) {
             this._attachEventDelegates()
@@ -1983,6 +1978,11 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
      * certain scenarios internally
      */
     manage (element:Element, internalId?:string, _recalc?:boolean):ManagedElement<Element> {
+
+        if(this.containerType === ElementTypes.SVG && !isSVGElement(element)) {
+            throw new Error("ERROR: cannot manage non-svg element when container is an SVG element.")
+        }
+
         const managedElement = super.manage(element, internalId, _recalc)
         if (managedElement != null && this._resizeObserver != null) {
             this._resizeObserver.observe(managedElement.el as unknown as Element)
