@@ -40,6 +40,21 @@ var testSuite = function () {
     });
 
 
+    test('SVG container recognised', function () {
+        equal(_jsPlumb.containerType, "SVG", "container recognised as SVG element")
+    })
+
+    test('Cannot manage a non-svg element', function () {
+        var d = document.createElement("div")
+        try {
+            _jsPlumb.manage(d)
+            ok(false, "Should not be able to manage a non-svg element")
+        }
+        catch (e) {
+            ok(true, "Error thrown when trying to manage non svg element")
+        }
+    })
+
     test('add SVG element', function () {
         var s = makeSvg("svg",{
             "width":50,
@@ -97,7 +112,7 @@ var testSuite = function () {
         equal(_jsPlumb.select().length, 1, "1 connection in instance")
     })
 
-    test('add non-SVG element (should fail)', function () {
+    test('not allowed to add non-SVG element', function () {
         var d = document.createElement("div")
         try {
             _jsPlumb.manage(d)
