@@ -12650,8 +12650,8 @@ var jsPlumbBrowserUI = (function (exports) {
           if (currentGroup !== elementsToProcess[0].originalGroup) {
             var originalElement = params.drag.getDragElement(true);
             if (elementsToProcess[0].originalGroup.ghost) {
-              var o1 = this.instance.getOffset(this.instance.getGroupContentArea(currentGroup));
-              var o2 = this.instance.getOffset(this.instance.getGroupContentArea(elementsToProcess[0].originalGroup));
+              var o1 = this.instance.getPosition(this.instance.getGroupContentArea(currentGroup));
+              var o2 = this.instance.getPosition(this.instance.getGroupContentArea(elementsToProcess[0].originalGroup));
               var o = {
                 x: o2.x + params.pos.x - o1.x,
                 y: o2.y + params.pos.y - o1.y
@@ -12773,13 +12773,13 @@ var jsPlumbBrowserUI = (function (exports) {
       value: function onStart(params) {
         var _this4 = this;
         var el = params.drag.getDragElement();
-        var elOffset = this.instance.getOffset(el);
+        var elOffset = this.instance.getPosition(el);
         this.originalPosition = {
           x: params.pos.x,
           y: params.pos.y
         };
         if (el._jsPlumbParentGroup) {
-          this._dragOffset = this.instance.getOffset(el.offsetParent);
+          this._dragOffset = this.instance.getPosition(el.offsetParent);
           this._currentDragParentGroup = el._jsPlumbParentGroup;
         }
         var cont = true;
@@ -12812,7 +12812,7 @@ var jsPlumbBrowserUI = (function (exports) {
                   if (group.droppable !== false && group.enabled !== false && _el._jsPlumbGroup !== group && !_this4.instance.groupManager.isDescendant(group, elementGroup)) {
                     var groupEl = group.el,
                         s = _this4.instance.getSize(groupEl),
-                        o = _this4.instance.getOffset(groupEl),
+                    o = _this4.instance.getPosition(groupEl),
                         boundingRect = {
                       x: o.x,
                       y: o.y,
@@ -12872,7 +12872,7 @@ var jsPlumbBrowserUI = (function (exports) {
             this._currentDragGroupOffsets.clear();
             this._currentDragGroupSizes.clear();
             this._currentDragGroup.members.forEach(function (jel) {
-              var off = _this4.instance.getOffset(jel.el);
+              var off = _this4.instance.getPosition(jel.el);
               _this4._currentDragGroupOffsets.set(jel.elId, [{
                 x: off.x - elOffset.x,
                 y: off.y - elOffset.y
