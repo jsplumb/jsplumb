@@ -210,7 +210,6 @@ var testSuite = function () {
         var e17 = _jsPlumb.addEndpoint(d17, {anchor: "Top"});
         var c = _jsPlumb.connect({ sourceEndpoint: e16, targetEndpoint: e17, connector: "Straight" })
 
-
         var e16Loc =  _jsPlumb.router.getEndpointLocation(e16)
 
         equal(600, e16Loc.curX, "x pos is 600 before rotation");
@@ -311,6 +310,85 @@ var testSuite = function () {
         equal(0, e16LocRotated.ox, "x orientation is 0 after rotation of group the node is a member of");
         equal(-1, e16LocRotated.oy, "y orientation is -1 after rotation of group the node is a member of");
 
+    });
+
+    // element rotation, fixed anchors.
+    test("element rotation, fixed anchors, drag connection", function () {
+        var d16 = support.addDiv("d16", null, null, 50, 50, 250, 250),
+            d17 = support.addDiv("d17", null, null, 450, 450, 250, 250),
+            e16 = _jsPlumb.addEndpoint(d16, {anchor: "Bottom", source:true}),
+            e17 = _jsPlumb.addEndpoint(d17, {anchor: "Top", target:true}),
+            c = support.dragConnection(e16, e17),
+            sa = c.endpoints[0]._anchor,
+            ta = c.endpoints[1]._anchor
+
+        var e16Loc = _jsPlumb.router.getEndpointLocation(c.endpoints[0]),
+            e17Loc = _jsPlumb.router.getEndpointLocation(c.endpoints[1]);
+
+        equal(e16Loc.curX, 100, "e16 x position is correct initially");
+        equal(e16Loc.curY, 200, "e16 y position is correct initially");
+        equal(e17Loc.curX, 500, "e17 x position is correct initially");
+        equal(e17Loc.curY, 450, "e17 y position is correct initially");
+
+        equal(e16Loc.x, 0.5, "e16 x position is middle");
+        equal(e16Loc.y, 1, "e16 y position is bottom");
+        equal(e17Loc.x, 0.5, "e17 x position is middle");
+        equal(e17Loc.y, 0, "e17 y position is top");
+
+        //var e16o = _jsPlumb.router.getEndpointOrientation(e16);
+        equal(e16Loc.ox, 0, "e16 x orientation is correct initially");
+        equal(e16Loc.oy, 1, "e16 y orientation is correct initially");
+
+        equal(e17Loc.ox, 0, "e17 x orientation is correct initially");
+        equal(e17Loc.oy, -1, "e17 y orientation is correct initially");
+
+        // now delete the connection, rotate e16 by 90 degrees, and connect again.
+        _jsPlumb.deleteConnection(c)
+        c = null
+        _jsPlumb.rotate(d16, 90);
+        c = support.dragConnection(e16, e17)
+
+        e16Loc = _jsPlumb.router.getEndpointLocation(c.endpoints[0])
+        e17Loc = _jsPlumb.router.getEndpointLocation(c.endpoints[1])
+
+        equal(e16Loc.x, 0.5, "e16 x position is still middle after rotation");
+        equal(e16Loc.y, 1, "e16 y position is still bottom after rotation");
+
+        // equal(e16Loc.x, 0, "e16 x position is still middle after rotation");
+        // equal(e16Loc.y, 0.5, "e16 y position is still bottom after rotation");
+
+        equal(e17Loc.x, 0.5, "e17 x position is still middle after rotation");
+        equal(e17Loc.y, 0, "e17 y position is still top after rotation");
+
+        // var e16Loc2 = sa.lastReturnValue.slice();
+        // var e17Loc2 = ta.lastReturnValue.slice();
+
+        ok(d16.style.transformOrigin == "center center" || d16.style.transformOrigin == "center center 0px", "transform origin was set");
+        equal(d16.style.transform, "rotate(90deg)", "rotate transform was set");
+
+        equal(e16Loc.curX, 25, "e16 x position is correct after rotation of d16");
+        equal(e16Loc.curY, 125, "e16 y position is correct after rotation of d16");
+        // these unchanged currently
+        equal(e17Loc.curX, 500, "e17 x position is unchanged after rotation of d16");
+        equal(e17Loc.curY, 450, "e17 y position is unchanged after rotation of d16");
+
+        // now delete the connection, rotate e17 by 90 degrees, and connect again.
+        _jsPlumb.deleteConnection(c)
+        c = null
+        _jsPlumb.rotate(d17, 90);
+        c = support.dragConnection(e16, e17)
+
+
+        e16Loc = _jsPlumb.router.getEndpointLocation(c.endpoints[0])
+        e17Loc = _jsPlumb.router.getEndpointLocation(c.endpoints[1]);
+
+        ok(d17.style.transformOrigin == "center center" || d17.style.transformOrigin == "center center 0px", "d17 transform origin was set");
+        equal(d17.style.transform, "rotate(90deg)", "d17 rotate transform was set");
+        equal(e16Loc.curX, 25, "e16 x position is correct after rotation of 1d7");
+        equal(e16Loc.curY, 125, "e16 y position is correct after rotation of d17");
+        // these unchanged currently
+        equal(e17Loc.curX, 575, "e17 x position is correct after rotation of d17");
+        equal(e17Loc.curY, 525, "e17 y position is correct after rotation of d17");
     });
 };
 
