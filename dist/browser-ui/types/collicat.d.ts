@@ -27,6 +27,16 @@ export declare const EVENT_DROP = "drop";
 export declare const EVENT_OVER = "over";
 export declare const EVENT_OUT = "out";
 export declare const EVENT_STOP = "stop";
+export declare type GetPositionFunction = (el: Element) => PointXY;
+export declare type SetPositionFunction = (el: Element, p: PointXY) => void;
+export declare type SetSizeFunction = (el: Element, s: Size) => void;
+export declare type GetSizeFunction = (el: Element) => Size;
+export declare enum PositioningStrategies {
+    absolutePosition = "absolutePosition",
+    transform = "transform",
+    xyAttributes = "xyAttributes"
+}
+export declare type PositioningStrategy = keyof typeof PositioningStrategies;
 declare abstract class Base {
     protected el: jsPlumbDOMElement;
     protected manager: Collicat;
@@ -160,12 +170,13 @@ export declare class Drag extends Base {
     addSelector(params: DragHandlerOptions, atStart?: boolean): void;
     destroy(): void;
 }
-export declare type ConstrainFunction = (desiredLoc: PointXY, dragEl: HTMLElement, constrainRect: Size, size: Size) => PointXY;
+export declare type ConstrainFunction = (desiredLoc: PointXY, dragEl: HTMLElement, constrainRect: Size, size: Size, e: MouseEvent) => PointXY;
 export declare type RevertFunction = (dragEl: HTMLElement, pos: PointXY) => boolean;
 export interface CollicatOptions {
     zoom?: number;
     css?: Record<string, string>;
     inputFilterSelector?: string;
+    positioningStrategy?: PositioningStrategy;
 }
 export interface jsPlumbDragManager {
     getPosition(el: Element): PointXY;
@@ -182,8 +193,14 @@ export declare class Collicat implements jsPlumbDragManager {
     private zoom;
     css: Record<string, string>;
     inputFilterSelector: string;
+    positioningStrategy: PositioningStrategy;
+    _positionSetter: SetPositionFunction;
+    _positionGetter: GetPositionFunction;
+    _sizeSetter: SetSizeFunction;
+    _sizeGetter: GetSizeFunction;
     constructor(options?: CollicatOptions);
     getPosition(el: Element): PointXY;
+    setPosition(el: Element, p: PointXY): void;
     getSize(el: Element): Size;
     getZoom(): number;
     setZoom(z: number): void;

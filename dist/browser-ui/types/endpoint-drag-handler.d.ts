@@ -49,29 +49,6 @@ export declare class EndpointDragHandler implements DragHandler {
     private _resolveDragParent;
     private _mousedownHandler;
     /**
-     * Gets the position of this element with respect to the container's origin, in container coordinates.
-     *
-     * Previously this class would use the getOffset method from the underlying instance but as part of updating the code
-     * to support dragging SVG elements this has been changed to getBoundingClientRect. Ideally this
-     * method would be what all the positioning code uses, but there are a few edge cases, particularly
-     * involving scrolling, that need to be investigated.
-     *
-     * Note that we divide the position coords by the current zoom, as getBoundingClientRect() returns values that
-     * correspond to what the user sees.
-     *
-     * @param el
-     * @internal
-     */
-    private getPosition;
-    /**
-     * Gets the size of this element, in container coordinates. Note that we divide the size values from
-     * getBoundingClientRect by the current zoom, as getBoundingClientRect() returns values that
-     * correspond to what the user sees.
-     * @param el
-     * @internal
-     */
-    private getSize;
-    /**
      * cleans up any endpoints added from a mousedown on a source that did not result in a connection drag replaces
      * what in previous versions was a mousedown/mouseup handler per element.
      * @param e

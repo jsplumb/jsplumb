@@ -108,9 +108,11 @@ export declare interface BrowserJsPlumbDefaults extends JsPlumbDefaults<Element>
  * JsPlumbInstance that renders to the DOM in a browser, and supports dragging of elements/connections.
  * @public
  */
-export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
+export declare class BrowserJsPlumbInstance extends JsPlumbInstance<{
+    E: Element;
+}> {
     _instanceIndex: number;
-    private containerType;
+    containerType: ElementType;
     private readonly dragSelection;
     dragManager: DragManager;
     _connectorClick: Function;
@@ -214,13 +216,13 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
      * @param el
      * @private
      */
-    _appendElementToGroup(group: UIGroup<any>, el: ElementType["E"]): void;
+    _appendElementToGroup(group: UIGroup<any>, el: Element): void;
     /**
      * @internal
      * @param el
      * @private
      */
-    _appendElementToContainer(el: ElementType["E"]): void;
+    _appendElementToContainer(el: Element): void;
     /**
      *
      * @param el
@@ -360,6 +362,11 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
      */
     getSize(el: Element): Size;
     /**
+     * get the position of the given element, allowing for svg elements and html elements
+     * @param el
+     */
+    getPosition(el: Element): PointXY;
+    /**
      * Gets a style property from some element.
      * Exposed on this class to assist core in abstracting out the specifics of the renderer.
      * @internal
@@ -373,7 +380,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
      * @internal
      * @param group
      */
-    getGroupContentArea(group: UIGroup<any>): ElementType["E"];
+    getGroupContentArea(group: UIGroup<any>): Element;
     /**
      * Exposed on this class to assist core in abstracting out the specifics of the renderer.
      * @internal
@@ -403,6 +410,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
      */
     isDraggable(el: Element): boolean;
     toggleDraggable(el: Element): boolean;
+    private _createEventListeners;
     private _attachEventDelegates;
     private _detachEventDelegates;
     /**
@@ -722,8 +730,14 @@ export declare class Collicat implements jsPlumbDragManager {
     private zoom;
     css: Record<string, string>;
     inputFilterSelector: string;
+    positioningStrategy: PositioningStrategy;
+    _positionSetter: SetPositionFunction;
+    _positionGetter: GetPositionFunction;
+    _sizeSetter: SetSizeFunction;
+    _sizeGetter: GetSizeFunction;
     constructor(options?: CollicatOptions);
     getPosition(el: Element): PointXY;
+    setPosition(el: Element, p: PointXY): void;
     getSize(el: Element): Size;
     getZoom(): number;
     setZoom(z: number): void;
@@ -747,6 +761,7 @@ export declare interface CollicatOptions {
     zoom?: number;
     css?: Record<string, string>;
     inputFilterSelector?: string;
+    positioningStrategy?: PositioningStrategy;
 }
 
 export declare function compoundEvent(stem: string, event: string, subevent?: string): string;
@@ -756,7 +771,7 @@ export declare function compoundEvent(stem: string, event: string, subevent?: st
  */
 export declare const CONNECTION = "connection";
 
-export declare type ConstrainFunction = (desiredLoc: PointXY, dragEl: HTMLElement, constrainRect: Size, size: Size) => PointXY;
+export declare type ConstrainFunction = (desiredLoc: PointXY, dragEl: HTMLElement, constrainRect: Size, size: Size, e: MouseEvent) => PointXY;
 
 /**
  * Consume the given event, using `stopPropagation()` if present or `returnValue` if not, and optionally
@@ -1119,9 +1134,12 @@ export declare class ElementDragHandler implements DragHandler {
     private _pruneOrOrphan;
 }
 
-export declare type ElementType = {
-    E: Element;
-};
+export declare type ElementType = keyof typeof ElementTypes;
+
+export declare enum ElementTypes {
+    SVG = "SVG",
+    HTML = "HTML"
+}
 
 /**
  * @public
@@ -1402,7 +1420,44 @@ export declare function findParent(el: jsPlumbDOMElement, selector: string, cont
 
 export declare function getClass(el: Element): string;
 
+/**
+ * Gets the position of this element with respect to the container's origin, in container coordinates.
+ *
+ * Previously, drag handlers would use getOffset method from the underlying instance but as part of updating the code
+ * to support dragging SVG elements this method, using getBoundingClientRect, has been introduced. Ideally this
+ * method would be what all the positioning code uses, but there are a few edge cases, particularly
+ * involving scrolling, that need to be investigated.
+ *
+ * Note that we divide the position coords by the current zoom, as getBoundingClientRect() returns values that
+ * correspond to what the user sees.
+ *
+ * Note also that currently this method fails when an element is rotated, as getBoundingClientRect() returns the
+ * rotated bounds. In fact "fails" is perhaps not precise: it fails at behaving the way the previous getOffset method
+ * worked, but depending on the use case, it may be desirable to get the rotated bounds. Currently this method is used
+ * by endpoint drag code, in which we know the elements are not rotated.
+ *
+ * @param el
+ * @internal
+ */
+export declare function getElementPosition(el: Element, instance: BrowserJsPlumbInstance): {
+    x: number;
+    y: number;
+};
+
+/**
+ * Gets the size of this element, in container coordinates. Note that we divide the size values from
+ * getBoundingClientRect by the current zoom, as getBoundingClientRect() returns values that
+ * correspond to what the user sees.
+ * @param el
+ * @internal
+ */
+export declare function getElementSize(el: Element, instance: BrowserJsPlumbInstance): Size;
+
+export declare function getElementType(el: Element): ElementType;
+
 export declare function getEventSource(e: Event): jsPlumbDOMElement;
+
+export declare type GetPositionFunction = (el: Element) => PointXY;
 
 /**
  * @internal
@@ -1411,6 +1466,8 @@ export declare function getEventSource(e: Event): jsPlumbDOMElement;
  * @param zoom
  */
 export declare function getPositionOnElement(evt: Event, el: Element, zoom: number): PointXY;
+
+export declare type GetSizeFunction = (el: Element) => Size;
 
 export declare function getTouch(touches: TouchList, idx: number): Touch;
 
@@ -1449,6 +1506,8 @@ export declare function isArrayLike(el: any): el is ArrayLike<Element>;
 export declare function isInsideParent(instance: BrowserJsPlumbInstance, _el: HTMLElement, pos: PointXY): boolean;
 
 export declare function isNodeList(el: any): el is NodeListOf<Element>;
+
+export declare function isSVGElement(el: Element): boolean;
 
 export declare interface jsPlumbDOMElement extends HTMLElement, jsPlumbElement<Element> {
     _isJsPlumbGroup: boolean;
@@ -1495,7 +1554,24 @@ declare function _node(name: string, attributes?: ElementAttributes): SVGElement
  */
 export declare function offsetRelativeToRoot(el: Element): PointXY;
 
+/**
+ * Gets the offset width and offset height of the given element. Not safe for SVG elements. This method was previously
+ * exported as `size` but has been renamed in order to reflect the fact that it uses offsetWidth and offsetHeight,
+ * which are not set on SVG elements.
+ * @param el
+ * @public
+ */
+export declare function offsetSize(el: Element): Size;
+
 export declare function pageLocation(e: Event): PointXY;
+
+export declare enum PositioningStrategies {
+    absolutePosition = "absolutePosition",
+    transform = "transform",
+    xyAttributes = "xyAttributes"
+}
+
+export declare type PositioningStrategy = keyof typeof PositioningStrategies;
 
 /**
  * @public
@@ -1537,11 +1613,9 @@ export declare const SELECTOR_GROUP_CONTAINER: string;
  */
 export declare const SELECTOR_OVERLAY: string;
 
-/**
- * Gets the offset width and offset height of the given element. Not safe for SVG elements.
- * @param el
- */
-export declare function size(el: Element): Size;
+export declare type SetPositionFunction = (el: Element, p: PointXY) => void;
+
+export declare type SetSizeFunction = (el: Element, s: Size) => void;
 
 export declare const svg: {
     attr: typeof _attr;
@@ -1550,6 +1624,10 @@ export declare const svg: {
         svg: string;
     };
 };
+
+export declare function svgWidthHeightSize(el: Element): Size;
+
+export declare function svgXYPosition(el: Element): PointXY;
 
 export declare function toggleClass(el: Element | NodeListOf<Element>, clazz: string): void;
 

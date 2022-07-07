@@ -1,5 +1,6 @@
 import { jsPlumbDOMElement } from './element-facade';
 import { PointXY, Size } from "@jsplumb/util";
+import { BrowserJsPlumbInstance } from "./browser-jsplumb-instance";
 export declare function matchesSelector(el: jsPlumbDOMElement, selector: string, ctx?: Element): boolean;
 /**
  * Consume the given event, using `stopPropagation()` if present or `returnValue` if not, and optionally
@@ -27,8 +28,51 @@ export declare function createElementNS(ns: string, tag: string, style?: Record<
  */
 export declare function offsetRelativeToRoot(el: Element): PointXY;
 /**
- * Gets the offset width and offset height of the given element. Not safe for SVG elements.
+ * Gets the offset width and offset height of the given element. Not safe for SVG elements. This method was previously
+ * exported as `size` but has been renamed in order to reflect the fact that it uses offsetWidth and offsetHeight,
+ * which are not set on SVG elements.
  * @param el
+ * @public
  */
-export declare function size(el: Element): Size;
+export declare function offsetSize(el: Element): Size;
+export declare function svgWidthHeightSize(el: Element): Size;
+export declare function svgXYPosition(el: Element): PointXY;
+/**
+ * Gets the position of this element with respect to the container's origin, in container coordinates.
+ *
+ * Previously, drag handlers would use getOffset method from the underlying instance but as part of updating the code
+ * to support dragging SVG elements this method, using getBoundingClientRect, has been introduced. Ideally this
+ * method would be what all the positioning code uses, but there are a few edge cases, particularly
+ * involving scrolling, that need to be investigated.
+ *
+ * Note that we divide the position coords by the current zoom, as getBoundingClientRect() returns values that
+ * correspond to what the user sees.
+ *
+ * Note also that currently this method fails when an element is rotated, as getBoundingClientRect() returns the
+ * rotated bounds. In fact "fails" is perhaps not precise: it fails at behaving the way the previous getOffset method
+ * worked, but depending on the use case, it may be desirable to get the rotated bounds. Currently this method is used
+ * by endpoint drag code, in which we know the elements are not rotated.
+ *
+ * @param el
+ * @internal
+ */
+export declare function getElementPosition(el: Element, instance: BrowserJsPlumbInstance): {
+    x: number;
+    y: number;
+};
+/**
+ * Gets the size of this element, in container coordinates. Note that we divide the size values from
+ * getBoundingClientRect by the current zoom, as getBoundingClientRect() returns values that
+ * correspond to what the user sees.
+ * @param el
+ * @internal
+ */
+export declare function getElementSize(el: Element, instance: BrowserJsPlumbInstance): Size;
+export declare enum ElementTypes {
+    SVG = "SVG",
+    HTML = "HTML"
+}
+export declare type ElementType = keyof typeof ElementTypes;
+export declare function getElementType(el: Element): ElementType;
+export declare function isSVGElement(el: Element): boolean;
 //# sourceMappingURL=browser-util.d.ts.map

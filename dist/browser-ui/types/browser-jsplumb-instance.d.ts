@@ -3,6 +3,7 @@ import { PointXY, Size, BoundingBox, Extents, Grid } from "@jsplumb/util";
 import { PaintStyle } from "@jsplumb/common";
 import { DragManager } from "./drag-manager";
 import { jsPlumbDOMElement } from './element-facade';
+import { ElementType } from "./browser-util";
 import { EventManager } from "./event-manager";
 import { DragStartEventParams, DragEventParams, DragStopEventParams, ContainmentType, BeforeStartEventParams, ConstrainFunction } from './collicat';
 export interface UIComponent {
@@ -65,9 +66,6 @@ export interface jsPlumbDOMInformation {
     endpoint?: Endpoint;
     overlay?: Overlay;
 }
-export declare type ElementType = {
-    E: Element;
-};
 /**
  * Definition of a drag group membership - either just the id of a drag group, or the id of a drag group and whether or not
  * this element plays an `active` role in the drag group.
@@ -89,9 +87,11 @@ export declare function groupDragConstrain(desiredLoc: PointXY, dragEl: jsPlumbD
  * JsPlumbInstance that renders to the DOM in a browser, and supports dragging of elements/connections.
  * @public
  */
-export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
+export declare class BrowserJsPlumbInstance extends JsPlumbInstance<{
+    E: Element;
+}> {
     _instanceIndex: number;
-    private containerType;
+    containerType: ElementType;
     private readonly dragSelection;
     dragManager: DragManager;
     _connectorClick: Function;
@@ -195,13 +195,13 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
      * @param el
      * @private
      */
-    _appendElementToGroup(group: UIGroup<any>, el: ElementType["E"]): void;
+    _appendElementToGroup(group: UIGroup<any>, el: Element): void;
     /**
      * @internal
      * @param el
      * @private
      */
-    _appendElementToContainer(el: ElementType["E"]): void;
+    _appendElementToContainer(el: Element): void;
     /**
      *
      * @param el
@@ -341,6 +341,11 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
      */
     getSize(el: Element): Size;
     /**
+     * get the position of the given element, allowing for svg elements and html elements
+     * @param el
+     */
+    getPosition(el: Element): PointXY;
+    /**
      * Gets a style property from some element.
      * Exposed on this class to assist core in abstracting out the specifics of the renderer.
      * @internal
@@ -354,7 +359,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
      * @internal
      * @param group
      */
-    getGroupContentArea(group: UIGroup<any>): ElementType["E"];
+    getGroupContentArea(group: UIGroup<any>): Element;
     /**
      * Exposed on this class to assist core in abstracting out the specifics of the renderer.
      * @internal
@@ -384,6 +389,7 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType>
      */
     isDraggable(el: Element): boolean;
     toggleDraggable(el: Element): boolean;
+    private _createEventListeners;
     private _attachEventDelegates;
     private _detachEventDelegates;
     /**

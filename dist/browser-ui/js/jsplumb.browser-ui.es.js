@@ -440,11 +440,65 @@ function offsetRelativeToRoot(el) {
     y: Math.round(top)
   };
 }
-function size(el) {
+function offsetSize(el) {
   return {
     w: el.offsetWidth,
     h: el.offsetHeight
   };
+}
+function svgWidthHeightSize(el) {
+  try {
+    return {
+      w: parseFloat(el.width.baseVal.value),
+      h: parseFloat(el.height.baseVal.value)
+    };
+  } catch (e) {
+    return {
+      w: 0,
+      h: 0
+    };
+  }
+}
+function svgXYPosition(el) {
+  try {
+    return {
+      x: parseFloat(el.x.baseVal.value),
+      y: parseFloat(el.y.baseVal.value)
+    };
+  } catch (e) {
+    return {
+      x: 0,
+      y: 0
+    };
+  }
+}
+function getElementPosition(el, instance) {
+  var pc = instance.getContainer().getBoundingClientRect();
+  var ec = el.getBoundingClientRect();
+  var z = instance.currentZoom;
+  return {
+    x: (ec.left - pc.left) / z,
+    y: (ec.top - pc.top) / z
+  };
+}
+function getElementSize(el, instance) {
+  var ec = el.getBoundingClientRect();
+  var z = instance.currentZoom;
+  return {
+    w: ec.width / z,
+    h: ec.height / z
+  };
+}
+var ElementTypes;
+(function (ElementTypes) {
+  ElementTypes["SVG"] = "SVG";
+  ElementTypes["HTML"] = "HTML";
+})(ElementTypes || (ElementTypes = {}));
+function getElementType(el) {
+  return el instanceof SVGElement ? ElementTypes.SVG : ElementTypes.HTML;
+}
+function isSVGElement(el) {
+  return getElementType(el) === ElementTypes.SVG;
 }
 
 var svgAttributeMap = {
@@ -1084,22 +1138,6 @@ function findDelegateElement(parentElement, childElement, selector) {
     }
   }
 }
-function _getPosition(el) {
-  return {
-    x: el.offsetLeft,
-    y: el.offsetTop
-  };
-}
-function _getSize(el) {
-  return {
-    w: el.offsetWidth,
-    h: el.offsetHeight
-  };
-}
-function _setPosition(el, pos) {
-  el.style.left = pos.x + "px";
-  el.style.top = pos.y + "px";
-}
 function _assignId(obj) {
   if (typeof obj === "function") {
     obj._katavorioId = uuid();
@@ -1163,6 +1201,56 @@ var _classes = {
   ghostProxy: "katavorio-ghost-proxy",
   clonedDrag: "katavorio-clone-drag"
 };
+var PositioningStrategies;
+(function (PositioningStrategies) {
+  PositioningStrategies["absolutePosition"] = "absolutePosition";
+  PositioningStrategies["transform"] = "transform";
+  PositioningStrategies["xyAttributes"] = "xyAttributes";
+})(PositioningStrategies || (PositioningStrategies = {}));
+var positionerSetters = new Map();
+positionerSetters.set(PositioningStrategies.absolutePosition, function (el, p) {
+  el.style.left = "".concat(p.x, "px");
+  el.style.top = "".concat(p.y, "px");
+});
+positionerSetters.set(PositioningStrategies.xyAttributes, function (el, p) {
+  el.setAttribute("x", "".concat(p.x));
+  el.setAttribute("y", "".concat(p.y));
+});
+var positionerGetters = new Map();
+positionerGetters.set(PositioningStrategies.absolutePosition, function (el) {
+  return {
+    x: el.offsetLeft,
+    y: el.offsetTop
+  };
+});
+positionerGetters.set(PositioningStrategies.xyAttributes, function (el) {
+  return {
+    x: parseFloat(el.getAttribute("x")),
+    y: parseFloat(el.getAttribute("y"))
+  };
+});
+var sizeSetters = new Map();
+sizeSetters.set(PositioningStrategies.absolutePosition, function (el, s) {
+  el.style.width = "".concat(s.w, "px");
+  el.style.height = "".concat(s.h, "px");
+});
+sizeSetters.set(PositioningStrategies.xyAttributes, function (el, s) {
+  el.setAttribute("width", "".concat(s.w));
+  el.setAttribute("height", "".concat(s.h));
+});
+var sizeGetters = new Map();
+sizeGetters.set(PositioningStrategies.absolutePosition, function (el) {
+  return {
+    w: el.offsetWidth,
+    h: el.offsetHeight
+  };
+});
+sizeGetters.set(PositioningStrategies.xyAttributes, function (el) {
+  return {
+    w: parseFloat(el.getAttribute("width")),
+    h: parseFloat(el.getAttribute("height"))
+  };
+});
 var _events = [EVENT_STOP, EVENT_START, EVENT_DRAG, EVENT_DROP, EVENT_OVER, EVENT_OUT, EVENT_BEFORE_START];
 var _devNull = function _devNull() {};
 var _each = function _each(obj, fn) {
@@ -1450,7 +1538,7 @@ var Drag = function (_Base) {
         } else {
           if (this._activeSelectorParams && this._activeSelectorParams.revertFunction) {
             if (this._activeSelectorParams.revertFunction(this._dragEl, this.manager.getPosition(this._dragEl)) === true) {
-              _setPosition(this._dragEl, this._posAtDown);
+              this.manager.setPosition(this._dragEl, this._posAtDown);
               this._dispatch(EVENT_REVERT, this._dragEl);
             }
           }
@@ -1619,7 +1707,7 @@ var Drag = function (_Base) {
         x: this._posAtDown.x + dx,
         y: this._posAtDown.y + dy
       }),
-          cPos = this._doConstrain(desiredLoc, this._dragEl, this._constrainRect, this._size);
+          cPos = this._doConstrain(desiredLoc, this._dragEl, this._constrainRect, this._size, e);
       if (this._useGhostProxy(this.el, this._dragEl)) {
         if (desiredLoc.x !== cPos.x || desiredLoc.y !== cPos.y) {
           if (!this._isConstrained) {
@@ -1650,7 +1738,7 @@ var Drag = function (_Base) {
           }
         }
       }
-      _setPosition(this._dragEl, {
+      this.manager.setPosition(this._dragEl, {
         x: cPos.x + this._ghostDx,
         y: cPos.y + this._ghostDy
       });
@@ -1756,9 +1844,9 @@ var Drag = function (_Base) {
     }
   }, {
     key: "_doConstrain",
-    value: function _doConstrain(pos, dragEl, _constrainRect, _size) {
+    value: function _doConstrain(pos, dragEl, _constrainRect, _size, e) {
       if (this._activeSelectorParams != null && this._activeSelectorParams.constrainFunction && typeof this._activeSelectorParams.constrainFunction === "function") {
-        return this._activeSelectorParams.constrainFunction(pos, dragEl, _constrainRect, _size);
+        return this._activeSelectorParams.constrainFunction(pos, dragEl, _constrainRect, _size, e);
       } else {
         return pos;
       }
@@ -1843,22 +1931,37 @@ var Collicat = function () {
     _defineProperty(this, "zoom", 1);
     _defineProperty(this, "css", {});
     _defineProperty(this, "inputFilterSelector", void 0);
+    _defineProperty(this, "positioningStrategy", void 0);
+    _defineProperty(this, "_positionSetter", void 0);
+    _defineProperty(this, "_positionGetter", void 0);
+    _defineProperty(this, "_sizeSetter", void 0);
+    _defineProperty(this, "_sizeGetter", void 0);
     options = options || {};
     this.inputFilterSelector = options.inputFilterSelector || DEFAULT_INPUT_FILTER_SELECTOR;
     this.eventManager = new EventManager();
     this.zoom = options.zoom || 1;
+    this.positioningStrategy = options.positioningStrategy || PositioningStrategies.absolutePosition;
+    this._positionGetter = positionerGetters.get(this.positioningStrategy);
+    this._positionSetter = positionerSetters.get(this.positioningStrategy);
+    this._sizeGetter = sizeGetters.get(this.positioningStrategy);
+    this._sizeSetter = sizeSetters.get(this.positioningStrategy);
     var _c = options.css || {};
     extend(this.css, _c);
   }
   _createClass(Collicat, [{
     key: "getPosition",
     value: function getPosition(el) {
-      return _getPosition(el);
+      return this._positionGetter(el);
+    }
+  }, {
+    key: "setPosition",
+    value: function setPosition(el, p) {
+      this._positionSetter(el, p);
     }
   }, {
     key: "getSize",
     value: function getSize(el) {
-      return _getSize(el);
+      return this._sizeGetter(el);
     }
   }, {
     key: "getZoom",
@@ -2975,27 +3078,6 @@ var EndpointDragHandler = function () {
       }
     }
   }, {
-    key: "getPosition",
-    value: function getPosition(el) {
-      var pc = this.instance.getContainer().getBoundingClientRect();
-      var ec = el.getBoundingClientRect();
-      var z = this.instance.currentZoom;
-      return {
-        x: (ec.left - pc.left) / z,
-        y: (ec.top - pc.top) / z
-      };
-    }
-  }, {
-    key: "getSize",
-    value: function getSize(el) {
-      var ec = el.getBoundingClientRect();
-      var z = this.instance.currentZoom;
-      return {
-        w: ec.width / z,
-        h: ec.height / z
-      };
-    }
-  }, {
     key: "_mouseupHandler",
     value: function _mouseupHandler(e) {
       var el = e.currentTarget || e.srcElement;
@@ -3008,8 +3090,8 @@ var EndpointDragHandler = function () {
   }, {
     key: "onDragInit",
     value: function onDragInit(el) {
-      var ipco = this.getPosition(el),
-          ips = this.getSize(el);
+      var ipco = getElementPosition(el, this.instance),
+          ips = getElementSize(el, this.instance);
       this._makeDraggablePlaceholder(ipco, ips);
       this.placeholderInfo.element.jtk = el.jtk;
       return this.placeholderInfo.element;
@@ -3163,8 +3245,8 @@ var EndpointDragHandler = function () {
       forEach(matchingEndpoints, function (candidate) {
         if ((_this.jpc != null || candidate !== canvasElement) && candidate !== _this.floatingElement && (_this.jpc != null || !candidate.jtk.endpoint.isFull())) {
           if (isSourceDrag && candidate.jtk.endpoint.isSource || !isSourceDrag && candidate.jtk.endpoint.isTarget) {
-            var o = _this.getPosition(candidate),
-                s = _this.getSize(candidate);
+            var o = getElementPosition(candidate, _this.instance),
+                s = getElementSize(candidate, _this.instance);
             boundingRect = {
               x: o.x,
               y: o.y,
@@ -3199,8 +3281,8 @@ var EndpointDragHandler = function () {
                 el: el
               };
               d.targetEl = findParent(el, SELECTOR_MANAGED_ELEMENT, _this.instance.getContainer(), true);
-              var o = _this.getPosition(d.el),
-                  s = _this.getSize(d.el);
+              var o = getElementPosition(d.el, _this.instance),
+                  s = getElementSize(d.el, _this.instance);
               d.r = {
                 x: o.x,
                 y: o.y,
@@ -3254,8 +3336,8 @@ var EndpointDragHandler = function () {
                   return;
                 }
               }
-              var o = _this.getPosition(el),
-                  s = _this.getSize(el);
+              var o = getElementPosition(el, _this.instance),
+                  s = getElementSize(el, _this.instance);
               d.r = {
                 x: o.x,
                 y: o.y,
@@ -3381,7 +3463,7 @@ var EndpointDragHandler = function () {
         return true;
       }
       if (this.placeholderInfo.element) {
-        var floatingElementSize = this.getSize(this.floatingElement);
+        var floatingElementSize = getElementSize(this.floatingElement, this.instance);
         this.instance.setElementPosition(this.placeholderInfo.element, params.pos.x, params.pos.y);
         var boundingRect = {
           x: params.pos.x,
@@ -3913,11 +3995,10 @@ var SvgComponent = function () {
   }
   _createClass(SvgComponent, null, [{
     key: "paint",
-    value: function paint(connector, useDivWrapper, paintStyle, extents) {
+    value: function paint(connector, instance, paintStyle, extents) {
       if (paintStyle != null) {
         var xy = [connector.x, connector.y],
-            wh = [connector.w, connector.h],
-            p;
+            wh = [connector.w, connector.h];
         if (extents != null) {
           if (extents.xmin < 0) {
             xy[0] += extents.xmin;
@@ -3929,12 +4010,20 @@ var SvgComponent = function () {
           wh[1] = extents.ymax + (extents.ymin < 0 ? -extents.ymin : 0);
         }
         if (isFinite(wh[0]) && isFinite(wh[1])) {
-          p = _pos([xy[0], xy[1]]);
-          _attr(connector.canvas, {
-            "style": p,
+          var attrs = {
             "width": "" + (wh[0] || 0),
             "height": "" + (wh[1] || 0)
-          });
+          };
+          if (instance.containerType === ElementTypes.HTML) {
+            _attr(connector.canvas, extend(attrs, {
+              style: _pos([xy[0], xy[1]])
+            }));
+          } else {
+            _attr(connector.canvas, extend(attrs, {
+              x: xy[0],
+              y: xy[1]
+            }));
+          }
         }
       }
     }
@@ -3944,7 +4033,7 @@ var SvgComponent = function () {
 
 function paintSvgConnector(instance, connector, paintStyle, extents) {
   getConnectorElement(instance, connector);
-  SvgComponent.paint(connector, false, paintStyle, extents);
+  SvgComponent.paint(connector, instance, paintStyle, extents);
   var p = "",
       offset = [0, 0];
   if (extents.xmin < 0) {
@@ -4036,7 +4125,7 @@ var SvgEndpoint = function () {
         for (var i = 0; i < scopes.length; i++) {
           ep.instance.setAttribute(canvas, ATTRIBUTE_SCOPE_PREFIX + scopes[i], TRUE$1);
         }
-        ep.instance._appendElement(canvas, ep.instance.getContainer());
+        ep.instance._appendElementToContainer(canvas);
         if (ep.cssClass != null) {
           ep.instance.addClass(canvas, ep.cssClass);
         }
@@ -4052,7 +4141,7 @@ var SvgEndpoint = function () {
     value: function paint(ep, handlers, paintStyle) {
       if (ep.endpoint.deleted !== true) {
         this.getEndpointElement(ep);
-        SvgComponent.paint(ep, true, paintStyle);
+        SvgComponent.paint(ep, ep.instance, paintStyle);
         var s = extend({}, paintStyle);
         if (s.outlineStroke) {
           s.stroke = s.outlineStroke;
@@ -4070,11 +4159,6 @@ var SvgEndpoint = function () {
   return SvgEndpoint;
 }();
 
-var ContainerTypes;
-(function (ContainerTypes) {
-  ContainerTypes["SVG"] = "SVG";
-  ContainerTypes["HTML"] = "HTML";
-})(ContainerTypes || (ContainerTypes = {}));
 var endpointMap = {};
 function registerEndpointRenderer(name, fns) {
   endpointMap[name] = fns;
@@ -4156,7 +4240,7 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
     _classCallCheck(this, BrowserJsPlumbInstance);
     _this = _super.call(this, _instanceIndex, defaults);
     _this._instanceIndex = _instanceIndex;
-    _defineProperty(_assertThisInitialized(_this), "containerType", void 0);
+    _defineProperty(_assertThisInitialized(_this), "containerType", null);
     _defineProperty(_assertThisInitialized(_this), "dragSelection", void 0);
     _defineProperty(_assertThisInitialized(_this), "dragManager", void 0);
     _defineProperty(_assertThisInitialized(_this), "_connectorClick", void 0);
@@ -4216,6 +4300,7 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
       }
     });
     defaults = defaults || {};
+    _this.containerType = getElementType(_this.getContainer());
     _this.elementsDraggable = defaults && defaults.elementsDraggable !== false;
     _this.managedElementsSelector = defaults ? defaults.managedElementsSelector || SELECTOR_MANAGED_ELEMENT : SELECTOR_MANAGED_ELEMENT;
     _this.eventManager = new EventManager();
@@ -4232,127 +4317,7 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
     if (defaults && defaults.dragOptions && defaults.dragOptions.filter) {
       _this.dragManager.addFilter(defaults.dragOptions.filter);
     }
-    var _connClick = function _connClick(event, e) {
-      if (!e.defaultPrevented && e._jsPlumbOverlay == null) {
-        var connectorElement = findParent(getEventSource(e), SELECTOR_CONNECTOR, this.getContainer(), true);
-        this.fire(event, connectorElement.jtk.connector.connection, e);
-      }
-    };
-    _this._connectorClick = _connClick.bind(_assertThisInitialized(_this), EVENT_CONNECTION_CLICK);
-    _this._connectorDblClick = _connClick.bind(_assertThisInitialized(_this), EVENT_CONNECTION_DBL_CLICK);
-    _this._connectorTap = _connClick.bind(_assertThisInitialized(_this), EVENT_CONNECTION_TAP);
-    _this._connectorDblTap = _connClick.bind(_assertThisInitialized(_this), EVENT_CONNECTION_DBL_TAP);
-    var _connectorHover = function _connectorHover(state, e) {
-      var el = getEventSource(e).parentNode;
-      if (el.jtk && el.jtk.connector) {
-        var connector = el.jtk.connector;
-        var connection = connector.connection;
-        this.setConnectorHover(connector, state);
-        if (state) {
-          this.addClass(connection.source, this.hoverSourceClass);
-          this.addClass(connection.target, this.hoverTargetClass);
-        } else {
-          this.removeClass(connection.source, this.hoverSourceClass);
-          this.removeClass(connection.target, this.hoverTargetClass);
-        }
-        this.fire(state ? EVENT_CONNECTION_MOUSEOVER : EVENT_CONNECTION_MOUSEOUT, el.jtk.connector.connection, e);
-      }
-    };
-    _this._connectorMouseover = _connectorHover.bind(_assertThisInitialized(_this), true);
-    _this._connectorMouseout = _connectorHover.bind(_assertThisInitialized(_this), false);
-    var _connectorMouseupdown = function _connectorMouseupdown(state, e) {
-      var el = getEventSource(e).parentNode;
-      if (el.jtk && el.jtk.connector) {
-        this.fire(state ? EVENT_CONNECTION_MOUSEUP : EVENT_CONNECTION_MOUSEDOWN, el.jtk.connector.connection, e);
-      }
-    };
-    _this._connectorMouseup = _connectorMouseupdown.bind(_assertThisInitialized(_this), true);
-    _this._connectorMousedown = _connectorMouseupdown.bind(_assertThisInitialized(_this), false);
-    _this._connectorContextmenu = function (e) {
-      var el = getEventSource(e).parentNode;
-      if (el.jtk && el.jtk.connector) {
-        this.fire(EVENT_CONNECTION_CONTEXTMENU, el.jtk.connector.connection, e);
-      }
-    }.bind(_assertThisInitialized(_this));
-    var _epClick = function _epClick(event, e, endpointElement) {
-      if (!e.defaultPrevented && e._jsPlumbOverlay == null) {
-        this.fire(event, endpointElement.jtk.endpoint, e);
-      }
-    };
-    _this._endpointClick = _epClick.bind(_assertThisInitialized(_this), EVENT_ENDPOINT_CLICK);
-    _this._endpointDblClick = _epClick.bind(_assertThisInitialized(_this), EVENT_ENDPOINT_DBL_CLICK);
-    var _endpointHover = function _endpointHover(state, e) {
-      var el = getEventSource(e);
-      if (el.jtk && el.jtk.endpoint) {
-        this.setEndpointHover(el.jtk.endpoint, state);
-        this.fire(state ? EVENT_ENDPOINT_MOUSEOVER : EVENT_ENDPOINT_MOUSEOUT, el.jtk.endpoint, e);
-      }
-    };
-    _this._endpointMouseover = _endpointHover.bind(_assertThisInitialized(_this), true);
-    _this._endpointMouseout = _endpointHover.bind(_assertThisInitialized(_this), false);
-    var _endpointMouseupdown = function _endpointMouseupdown(state, e) {
-      var el = getEventSource(e);
-      if (el.jtk && el.jtk.endpoint) {
-        this.fire(state ? EVENT_ENDPOINT_MOUSEUP : EVENT_ENDPOINT_MOUSEDOWN, el.jtk.endpoint, e);
-      }
-    };
-    _this._endpointMouseup = _endpointMouseupdown.bind(_assertThisInitialized(_this), true);
-    _this._endpointMousedown = _endpointMouseupdown.bind(_assertThisInitialized(_this), false);
-    var _oClick = function (method, e) {
-      var overlayElement = findParent(getEventSource(e), SELECTOR_OVERLAY, this.getContainer(), true);
-      var overlay = overlayElement.jtk.overlay;
-      if (overlay) {
-        this.fireOverlayMethod(overlay, method, e);
-      }
-    }.bind(_assertThisInitialized(_this));
-    _this._overlayClick = _oClick.bind(_assertThisInitialized(_this), EVENT_CLICK);
-    _this._overlayDblClick = _oClick.bind(_assertThisInitialized(_this), EVENT_DBL_CLICK);
-    _this._overlayTap = _oClick.bind(_assertThisInitialized(_this), EVENT_TAP);
-    _this._overlayDblTap = _oClick.bind(_assertThisInitialized(_this), EVENT_DBL_TAP);
-    var _overlayHover = function _overlayHover(state, e) {
-      var overlayElement = findParent(getEventSource(e), SELECTOR_OVERLAY, this.getContainer(), true);
-      var overlay = overlayElement.jtk.overlay;
-      if (overlay) {
-        this.setOverlayHover(overlay, state);
-      }
-    };
-    _this._overlayMouseover = _overlayHover.bind(_assertThisInitialized(_this), true);
-    _this._overlayMouseout = _overlayHover.bind(_assertThisInitialized(_this), false);
-    var _elementClick = function _elementClick(event, e, target) {
-      if (!e.defaultPrevented) {
-        this.fire(e.detail === 1 ? EVENT_ELEMENT_CLICK : EVENT_ELEMENT_DBL_CLICK, target, e);
-      }
-    };
-    _this._elementClick = _elementClick.bind(_assertThisInitialized(_this), EVENT_ELEMENT_CLICK);
-    var _elementTap = function _elementTap(event, e, target) {
-      if (!e.defaultPrevented) {
-        this.fire(EVENT_ELEMENT_TAP, target, e);
-      }
-    };
-    _this._elementTap = _elementTap.bind(_assertThisInitialized(_this), EVENT_ELEMENT_TAP);
-    var _elementDblTap = function _elementDblTap(event, e, target) {
-      if (!e.defaultPrevented) {
-        this.fire(EVENT_ELEMENT_DBL_TAP, target, e);
-      }
-    };
-    _this._elementDblTap = _elementDblTap.bind(_assertThisInitialized(_this), EVENT_ELEMENT_DBL_TAP);
-    var _elementHover = function _elementHover(state, e) {
-      this.fire(state ? EVENT_ELEMENT_MOUSE_OVER : EVENT_ELEMENT_MOUSE_OUT, getEventSource(e), e);
-    };
-    _this._elementMouseenter = _elementHover.bind(_assertThisInitialized(_this), true);
-    _this._elementMouseexit = _elementHover.bind(_assertThisInitialized(_this), false);
-    _this._elementMousemove = function (e) {
-      this.fire(EVENT_ELEMENT_MOUSE_MOVE, getEventSource(e), e);
-    }.bind(_assertThisInitialized(_this));
-    _this._elementMouseup = function (e) {
-      this.fire(EVENT_ELEMENT_MOUSE_UP, getEventSource(e), e);
-    }.bind(_assertThisInitialized(_this));
-    _this._elementMousedown = function (e) {
-      this.fire(EVENT_ELEMENT_MOUSE_DOWN, getEventSource(e), e);
-    }.bind(_assertThisInitialized(_this));
-    _this._elementContextmenu = function (e) {
-      this.fire(EVENT_ELEMENT_CONTEXTMENU, getEventSource(e), e);
-    }.bind(_assertThisInitialized(_this));
+    _this._createEventListeners();
     _this._attachEventDelegates();
     if (defaults.resizeObserver !== false) {
       try {
@@ -4547,10 +4512,7 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
     value: function getOffset(el) {
       var jel = el;
       var container = this.getContainer();
-      var out = {
-        x: jel.offsetLeft,
-        y: jel.offsetTop
-      },
+      var out = this.getPosition(jel),
           op = el !== container && jel.offsetParent !== container ? jel.offsetParent : null,
           _maybeAdjustScroll = function _maybeAdjustScroll(offsetParent) {
         if (offsetParent != null && offsetParent !== document.body && (offsetParent.scrollTop > 0 || offsetParent.scrollLeft > 0)) {
@@ -4565,7 +4527,6 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
         op = op.offsetParent === container ? null : op.offsetParent;
       }
       if (container != null && (container.scrollTop > 0 || container.scrollLeft > 0)) {
-        debugger;
         var pp = jel.offsetParent != null ? this.getStyle(jel.offsetParent, PROPERTY_POSITION) : STATIC,
         p = this.getStyle(jel, PROPERTY_POSITION);
         if (p !== ABSOLUTE && p !== FIXED && pp !== ABSOLUTE && pp !== FIXED) {
@@ -4578,7 +4539,25 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
   }, {
     key: "getSize",
     value: function getSize(el) {
-      return size(el);
+      var _el = el;
+      if (_el.offsetWidth != null) {
+        return offsetSize(el);
+      } else if (_el.width && _el.width.baseVal) {
+        return svgWidthHeightSize(_el);
+      }
+    }
+  }, {
+    key: "getPosition",
+    value: function getPosition(el) {
+      var _el = el;
+      if (_el.offsetLeft != null) {
+        return {
+          x: parseFloat(_el.offsetLeft),
+          y: parseFloat(_el.offsetTop)
+        };
+      } else if (_el.x && _el.x.baseVal) {
+        return svgXYPosition(_el);
+      }
     }
   }, {
     key: "getStyle",
@@ -4639,6 +4618,131 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
       var state = this.isDraggable(el);
       this.setDraggable(el, !state);
       return !state;
+    }
+  }, {
+    key: "_createEventListeners",
+    value: function _createEventListeners() {
+      var _connClick = function _connClick(event, e) {
+        if (!e.defaultPrevented && e._jsPlumbOverlay == null) {
+          var connectorElement = findParent(getEventSource(e), SELECTOR_CONNECTOR, this.getContainer(), true);
+          this.fire(event, connectorElement.jtk.connector.connection, e);
+        }
+      };
+      this._connectorClick = _connClick.bind(this, EVENT_CONNECTION_CLICK);
+      this._connectorDblClick = _connClick.bind(this, EVENT_CONNECTION_DBL_CLICK);
+      this._connectorTap = _connClick.bind(this, EVENT_CONNECTION_TAP);
+      this._connectorDblTap = _connClick.bind(this, EVENT_CONNECTION_DBL_TAP);
+      var _connectorHover = function _connectorHover(state, e) {
+        var el = getEventSource(e).parentNode;
+        if (el.jtk && el.jtk.connector) {
+          var connector = el.jtk.connector;
+          var connection = connector.connection;
+          this.setConnectorHover(connector, state);
+          if (state) {
+            this.addClass(connection.source, this.hoverSourceClass);
+            this.addClass(connection.target, this.hoverTargetClass);
+          } else {
+            this.removeClass(connection.source, this.hoverSourceClass);
+            this.removeClass(connection.target, this.hoverTargetClass);
+          }
+          this.fire(state ? EVENT_CONNECTION_MOUSEOVER : EVENT_CONNECTION_MOUSEOUT, el.jtk.connector.connection, e);
+        }
+      };
+      this._connectorMouseover = _connectorHover.bind(this, true);
+      this._connectorMouseout = _connectorHover.bind(this, false);
+      var _connectorMouseupdown = function _connectorMouseupdown(state, e) {
+        var el = getEventSource(e).parentNode;
+        if (el.jtk && el.jtk.connector) {
+          this.fire(state ? EVENT_CONNECTION_MOUSEUP : EVENT_CONNECTION_MOUSEDOWN, el.jtk.connector.connection, e);
+        }
+      };
+      this._connectorMouseup = _connectorMouseupdown.bind(this, true);
+      this._connectorMousedown = _connectorMouseupdown.bind(this, false);
+      this._connectorContextmenu = function (e) {
+        var el = getEventSource(e).parentNode;
+        if (el.jtk && el.jtk.connector) {
+          this.fire(EVENT_CONNECTION_CONTEXTMENU, el.jtk.connector.connection, e);
+        }
+      }.bind(this);
+      var _epClick = function _epClick(event, e, endpointElement) {
+        if (!e.defaultPrevented && e._jsPlumbOverlay == null) {
+          this.fire(event, endpointElement.jtk.endpoint, e);
+        }
+      };
+      this._endpointClick = _epClick.bind(this, EVENT_ENDPOINT_CLICK);
+      this._endpointDblClick = _epClick.bind(this, EVENT_ENDPOINT_DBL_CLICK);
+      var _endpointHover = function _endpointHover(state, e) {
+        var el = getEventSource(e);
+        if (el.jtk && el.jtk.endpoint) {
+          this.setEndpointHover(el.jtk.endpoint, state);
+          this.fire(state ? EVENT_ENDPOINT_MOUSEOVER : EVENT_ENDPOINT_MOUSEOUT, el.jtk.endpoint, e);
+        }
+      };
+      this._endpointMouseover = _endpointHover.bind(this, true);
+      this._endpointMouseout = _endpointHover.bind(this, false);
+      var _endpointMouseupdown = function _endpointMouseupdown(state, e) {
+        var el = getEventSource(e);
+        if (el.jtk && el.jtk.endpoint) {
+          this.fire(state ? EVENT_ENDPOINT_MOUSEUP : EVENT_ENDPOINT_MOUSEDOWN, el.jtk.endpoint, e);
+        }
+      };
+      this._endpointMouseup = _endpointMouseupdown.bind(this, true);
+      this._endpointMousedown = _endpointMouseupdown.bind(this, false);
+      var _oClick = function (method, e) {
+        var overlayElement = findParent(getEventSource(e), SELECTOR_OVERLAY, this.getContainer(), true);
+        var overlay = overlayElement.jtk.overlay;
+        if (overlay) {
+          this.fireOverlayMethod(overlay, method, e);
+        }
+      }.bind(this);
+      this._overlayClick = _oClick.bind(this, EVENT_CLICK);
+      this._overlayDblClick = _oClick.bind(this, EVENT_DBL_CLICK);
+      this._overlayTap = _oClick.bind(this, EVENT_TAP);
+      this._overlayDblTap = _oClick.bind(this, EVENT_DBL_TAP);
+      var _overlayHover = function _overlayHover(state, e) {
+        var overlayElement = findParent(getEventSource(e), SELECTOR_OVERLAY, this.getContainer(), true);
+        var overlay = overlayElement.jtk.overlay;
+        if (overlay) {
+          this.setOverlayHover(overlay, state);
+        }
+      };
+      this._overlayMouseover = _overlayHover.bind(this, true);
+      this._overlayMouseout = _overlayHover.bind(this, false);
+      var _elementClick = function _elementClick(event, e, target) {
+        if (!e.defaultPrevented) {
+          this.fire(e.detail === 1 ? EVENT_ELEMENT_CLICK : EVENT_ELEMENT_DBL_CLICK, target, e);
+        }
+      };
+      this._elementClick = _elementClick.bind(this, EVENT_ELEMENT_CLICK);
+      var _elementTap = function _elementTap(event, e, target) {
+        if (!e.defaultPrevented) {
+          this.fire(EVENT_ELEMENT_TAP, target, e);
+        }
+      };
+      this._elementTap = _elementTap.bind(this, EVENT_ELEMENT_TAP);
+      var _elementDblTap = function _elementDblTap(event, e, target) {
+        if (!e.defaultPrevented) {
+          this.fire(EVENT_ELEMENT_DBL_TAP, target, e);
+        }
+      };
+      this._elementDblTap = _elementDblTap.bind(this, EVENT_ELEMENT_DBL_TAP);
+      var _elementHover = function _elementHover(state, e) {
+        this.fire(state ? EVENT_ELEMENT_MOUSE_OVER : EVENT_ELEMENT_MOUSE_OUT, getEventSource(e), e);
+      };
+      this._elementMouseenter = _elementHover.bind(this, true);
+      this._elementMouseexit = _elementHover.bind(this, false);
+      this._elementMousemove = function (e) {
+        this.fire(EVENT_ELEMENT_MOUSE_MOVE, getEventSource(e), e);
+      }.bind(this);
+      this._elementMouseup = function (e) {
+        this.fire(EVENT_ELEMENT_MOUSE_UP, getEventSource(e), e);
+      }.bind(this);
+      this._elementMousedown = function (e) {
+        this.fire(EVENT_ELEMENT_MOUSE_DOWN, getEventSource(e), e);
+      }.bind(this);
+      this._elementContextmenu = function (e) {
+        this.fire(EVENT_ELEMENT_CONTEXTMENU, getEventSource(e), e);
+      }.bind(this);
     }
   }, {
     key: "_attachEventDelegates",
@@ -4736,7 +4840,7 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
         });
       }
       _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "setContainer", this).call(this, newContainer);
-      this.containerType = newContainer instanceof SVGElement ? ContainerTypes.SVG : ContainerTypes.HTML;
+      this.containerType = getElementType(newContainer);
       if (this.eventManager != null) {
         this._attachEventDelegates();
       }
@@ -5284,9 +5388,14 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
   }, {
     key: "manage",
     value: function manage(element, internalId, _recalc) {
+      if (this.containerType === ElementTypes.SVG && !isSVGElement(element)) {
+        throw new Error("ERROR: cannot manage non-svg element when container is an SVG element.");
+      }
       var managedElement = _get(_getPrototypeOf(BrowserJsPlumbInstance.prototype), "manage", this).call(this, element, internalId, _recalc);
-      if (managedElement != null && this._resizeObserver != null) {
-        this._resizeObserver.observe(managedElement.el);
+      if (managedElement != null) {
+        if (this._resizeObserver != null) {
+          this._resizeObserver.observe(managedElement.el);
+        }
       }
       return managedElement;
     }
@@ -5372,4 +5481,4 @@ function ready(f) {
   _do();
 }
 
-export { ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP_CONTENT, ATTRIBUTE_JTK_ENABLED, ATTRIBUTE_JTK_SCOPE, BrowserJsPlumbInstance, CLASS_DELEGATED_DRAGGABLE, CLASS_DRAGGABLE, CLASS_DRAGGED, CLASS_DRAG_ACTIVE, CLASS_DRAG_CONTAINER, CLASS_DRAG_HOVER, CLASS_GHOST_PROXY, CONNECTION, Collicat, ContainmentType, Drag, DragManager, ELEMENT, ELEMENT_DIV, ENDPOINT, EVENT_BEFORE_START, EVENT_CLICK, EVENT_CONNECTION_ABORT, EVENT_CONNECTION_CLICK, EVENT_CONNECTION_CONTEXTMENU, EVENT_CONNECTION_DBL_CLICK, EVENT_CONNECTION_DBL_TAP, EVENT_CONNECTION_DRAG, EVENT_CONNECTION_MOUSEDOWN, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEUP, EVENT_CONNECTION_TAP, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_DRAG, EVENT_DRAG_MOVE, EVENT_DRAG_START, EVENT_DRAG_STOP, EVENT_DROP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_CONTEXTMENU, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_DBL_TAP, EVENT_ELEMENT_MOUSE_DOWN, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_UP, EVENT_ELEMENT_TAP, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_DBL_TAP, EVENT_ENDPOINT_MOUSEDOWN, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEUP, EVENT_ENDPOINT_TAP, EVENT_FOCUS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_OUT, EVENT_OVER, EVENT_REVERT, EVENT_START, EVENT_STOP, EVENT_TAP, ElementDragHandler, EventManager, PROPERTY_POSITION, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP, SELECTOR_GROUP_CONTAINER, SELECTOR_OVERLAY, addClass, compoundEvent, consume, createElement, createElementNS, findParent, getClass, getEventSource, getPositionOnElement, getTouch, groupDragConstrain, hasClass, isArrayLike, isInsideParent, isNodeList, matchesSelector$1 as matchesSelector, newInstance, offsetRelativeToRoot, pageLocation, ready, registerEndpointRenderer, removeClass, size, svg, toggleClass, touchCount, touches };
+export { ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP_CONTENT, ATTRIBUTE_JTK_ENABLED, ATTRIBUTE_JTK_SCOPE, BrowserJsPlumbInstance, CLASS_DELEGATED_DRAGGABLE, CLASS_DRAGGABLE, CLASS_DRAGGED, CLASS_DRAG_ACTIVE, CLASS_DRAG_CONTAINER, CLASS_DRAG_HOVER, CLASS_GHOST_PROXY, CONNECTION, Collicat, ContainmentType, Drag, DragManager, ELEMENT, ELEMENT_DIV, ENDPOINT, EVENT_BEFORE_START, EVENT_CLICK, EVENT_CONNECTION_ABORT, EVENT_CONNECTION_CLICK, EVENT_CONNECTION_CONTEXTMENU, EVENT_CONNECTION_DBL_CLICK, EVENT_CONNECTION_DBL_TAP, EVENT_CONNECTION_DRAG, EVENT_CONNECTION_MOUSEDOWN, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEUP, EVENT_CONNECTION_TAP, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_DRAG, EVENT_DRAG_MOVE, EVENT_DRAG_START, EVENT_DRAG_STOP, EVENT_DROP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_CONTEXTMENU, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_DBL_TAP, EVENT_ELEMENT_MOUSE_DOWN, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_UP, EVENT_ELEMENT_TAP, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_DBL_TAP, EVENT_ENDPOINT_MOUSEDOWN, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEUP, EVENT_ENDPOINT_TAP, EVENT_FOCUS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_OUT, EVENT_OVER, EVENT_REVERT, EVENT_START, EVENT_STOP, EVENT_TAP, ElementDragHandler, ElementTypes, EventManager, PROPERTY_POSITION, PositioningStrategies, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP, SELECTOR_GROUP_CONTAINER, SELECTOR_OVERLAY, addClass, compoundEvent, consume, createElement, createElementNS, findParent, getClass, getElementPosition, getElementSize, getElementType, getEventSource, getPositionOnElement, getTouch, groupDragConstrain, hasClass, isArrayLike, isInsideParent, isNodeList, isSVGElement, matchesSelector$1 as matchesSelector, newInstance, offsetRelativeToRoot, offsetSize, pageLocation, ready, registerEndpointRenderer, removeClass, svg, svgWidthHeightSize, svgXYPosition, toggleClass, touchCount, touches };

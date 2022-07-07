@@ -2043,13 +2043,13 @@ export interface LightweightContinuousAnchor extends LightweightAnchor {
 
 // @public (undocumented)
 export class LightweightFloatingAnchor implements LightweightAnchor {
-    constructor(instance: JsPlumbInstance, element: any);
+    constructor(instance: JsPlumbInstance, element: Element);
     // (undocumented)
     cssClass: string;
     // (undocumented)
     currentLocation: number;
     // (undocumented)
-    element: any;
+    element: Element;
     // (undocumented)
     id: string;
     // (undocumented)

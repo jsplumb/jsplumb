@@ -88,7 +88,7 @@ export interface LightweightContinuousAnchor extends LightweightAnchor {
 }
 export declare class LightweightFloatingAnchor implements LightweightAnchor {
     instance: JsPlumbInstance;
-    element: any;
+    element: Element;
     isFloating: boolean;
     isContinuous: false;
     isDynamic: false;
@@ -101,7 +101,7 @@ export declare class LightweightFloatingAnchor implements LightweightAnchor {
     id: string;
     orientation: Orientation;
     size: Size;
-    constructor(instance: JsPlumbInstance, element: any);
+    constructor(instance: JsPlumbInstance, element: Element);
     private _updateOrientationInRouter;
     /**
      * notification the endpoint associated with this anchor is hovering

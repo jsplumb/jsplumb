@@ -180,7 +180,7 @@
       key: "dragNodeTo",
       value: function dragNodeTo(el, x, y, events) {
         events = events || {};
-        var size = this._jsPlumb.getSize(el);
+        var size = browserUi.offsetSize(el);
         if (events.before) events.before();
         var downEvent = this.makeEvent(el);
         this._jsPlumb.trigger(el, browserUi.EVENT_MOUSEDOWN, downEvent);
@@ -200,7 +200,7 @@
       value: function dragToGroup(el, targetGroupId, events) {
         var targetGroup = this._jsPlumb.getGroup(targetGroupId);
         var tgo = this._jsPlumb.getOffset(targetGroup.el),
-            tgs = this._jsPlumb.getSize(targetGroup.el),
+            tgs = browserUi.offsetSize(targetGroup.el),
             tx = tgo.x + tgs.w / 2,
             ty = tgo.y + tgs.h / 2;
         this.dragNodeTo(el, tx, ty, events);

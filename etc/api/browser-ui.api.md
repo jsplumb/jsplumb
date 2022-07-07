@@ -55,7 +55,9 @@ export interface BrowserJsPlumbDefaults extends JsPlumbDefaults<Element> {
 }
 
 // @public
-export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
+export class BrowserJsPlumbInstance extends JsPlumbInstance<{
+    E: Element;
+}> {
     constructor(_instanceIndex: number, defaults?: BrowserJsPlumbDefaults);
     addClass(el: Element | NodeListOf<Element>, clazz: string): void;
     // @internal (undocumented)
@@ -71,9 +73,9 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     // @internal (undocumented)
     _appendElement(el: Element, parent: Element): void;
     // @internal (undocumented)
-    _appendElementToContainer(el: ElementType["E"]): void;
+    _appendElementToContainer(el: Element): void;
     // @internal (undocumented)
-    _appendElementToGroup(group: UIGroup<any>, el: ElementType["E"]): void;
+    _appendElementToGroup(group: UIGroup<any>, el: Element): void;
     // @internal (undocumented)
     applyConnectorType(connector: AbstractConnector, t: TypeDescriptor): void;
     // @internal (undocumented)
@@ -98,6 +100,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     // (undocumented)
     _connectorTap: Function;
     consume(e: Event, doNotPreventDefault?: boolean): void;
+    // (undocumented)
+    containerType: ElementType;
     // @internal (undocumented)
     deleteConnection(connection: Connection, params?: DeleteConnectionOptions): boolean;
     destroy(): void;
@@ -159,11 +163,12 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<ElementType> {
     // @internal (undocumented)
     getEndpointClass(ep: Endpoint): string;
     // @internal
-    getGroupContentArea(group: UIGroup<any>): ElementType["E"];
+    getGroupContentArea(group: UIGroup<any>): Element;
     // @internal
     getOffset(el: Element): PointXY;
     // @internal
     getOffsetRelativeToRoot(el: Element): PointXY;
+    getPosition(el: Element): PointXY;
     // @internal
     getSelector(ctx: string | Element, spec?: string): ArrayLike<jsPlumbDOMElement>;
     // @internal
@@ -308,9 +313,21 @@ export class Collicat implements jsPlumbDragManager {
     getZoom(): number;
     // (undocumented)
     inputFilterSelector: string;
+    // (undocumented)
+    _positionGetter: GetPositionFunction;
+    // (undocumented)
+    positioningStrategy: PositioningStrategy;
+    // (undocumented)
+    _positionSetter: SetPositionFunction;
     setInputFilterSelector(selector: string): this;
     // (undocumented)
+    setPosition(el: Element, p: PointXY): void;
+    // (undocumented)
     setZoom(z: number): void;
+    // (undocumented)
+    _sizeGetter: GetSizeFunction;
+    // (undocumented)
+    _sizeSetter: SetSizeFunction;
 }
 
 // @public (undocumented)
@@ -319,6 +336,8 @@ export interface CollicatOptions {
     css?: Record<string, string>;
     // (undocumented)
     inputFilterSelector?: string;
+    // (undocumented)
+    positioningStrategy?: PositioningStrategy;
     // (undocumented)
     zoom?: number;
 }
@@ -330,7 +349,7 @@ export function compoundEvent(stem: string, event: string, subevent?: string): s
 export const CONNECTION = "connection";
 
 // @public (undocumented)
-export type ConstrainFunction = (desiredLoc: PointXY, dragEl: HTMLElement, constrainRect: Size, size: Size) => PointXY;
+export type ConstrainFunction = (desiredLoc: PointXY, dragEl: HTMLElement, constrainRect: Size, size: Size, e: MouseEvent) => PointXY;
 
 // @public
 export function consume(e: Event, doNotPreventDefault?: boolean): void;
@@ -730,9 +749,15 @@ export class ElementDragHandler implements DragHandler {
 }
 
 // @public (undocumented)
-export type ElementType = {
-    E: Element;
-};
+export type ElementType = keyof typeof ElementTypes;
+
+// @public (undocumented)
+export enum ElementTypes {
+    // (undocumented)
+    HTML = "HTML",
+    // (undocumented)
+    SVG = "SVG"
+}
 
 // @public (undocumented)
 export const ENDPOINT = "endpoint";
@@ -928,13 +953,35 @@ export function findParent(el: jsPlumbDOMElement, selector: string, container: E
 // @public (undocumented)
 export function getClass(el: Element): string;
 
+// Warning: (ae-internal-missing-underscore) The name "getElementPosition" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function getElementPosition(el: Element, instance: BrowserJsPlumbInstance): {
+    x: number;
+    y: number;
+};
+
+// Warning: (ae-internal-missing-underscore) The name "getElementSize" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function getElementSize(el: Element, instance: BrowserJsPlumbInstance): Size;
+
+// @public (undocumented)
+export function getElementType(el: Element): ElementType;
+
 // @public (undocumented)
 export function getEventSource(e: Event): jsPlumbDOMElement;
+
+// @public (undocumented)
+export type GetPositionFunction = (el: Element) => PointXY;
 
 // Warning: (ae-internal-missing-underscore) The name "getPositionOnElement" should be prefixed with an underscore because the declaration is marked as @internal
 //
 // @internal (undocumented)
 export function getPositionOnElement(evt: Event, el: Element, zoom: number): PointXY;
+
+// @public (undocumented)
+export type GetSizeFunction = (el: Element) => Size;
 
 // @public (undocumented)
 export function getTouch(touches: TouchList, idx: number): Touch;
@@ -980,6 +1027,9 @@ export function isInsideParent(instance: BrowserJsPlumbInstance, _el: HTMLElemen
 
 // @public (undocumented)
 export function isNodeList(el: any): el is NodeListOf<Element>;
+
+// @public (undocumented)
+export function isSVGElement(el: Element): boolean;
 
 // @public (undocumented)
 export interface jsPlumbDOMElement extends HTMLElement, jsPlumbElement<Element> {
@@ -1046,8 +1096,24 @@ export function newInstance(defaults?: BrowserJsPlumbDefaults): BrowserJsPlumbIn
 // @internal
 export function offsetRelativeToRoot(el: Element): PointXY;
 
+// @public
+export function offsetSize(el: Element): Size;
+
 // @public (undocumented)
 export function pageLocation(e: Event): PointXY;
+
+// @public (undocumented)
+export enum PositioningStrategies {
+    // (undocumented)
+    absolutePosition = "absolutePosition",
+    // (undocumented)
+    transform = "transform",
+    // (undocumented)
+    xyAttributes = "xyAttributes"
+}
+
+// @public (undocumented)
+export type PositioningStrategy = keyof typeof PositioningStrategies;
 
 // @public (undocumented)
 export const PROPERTY_POSITION = "position";
@@ -1082,8 +1148,11 @@ export const SELECTOR_GROUP_CONTAINER: string;
 // @public (undocumented)
 export const SELECTOR_OVERLAY: string;
 
-// @public
-export function size(el: Element): Size;
+// @public (undocumented)
+export type SetPositionFunction = (el: Element, p: PointXY) => void;
+
+// @public (undocumented)
+export type SetSizeFunction = (el: Element, s: Size) => void;
 
 // @public (undocumented)
 export const svg: {
@@ -1093,6 +1162,12 @@ export const svg: {
         svg: string;
     };
 };
+
+// @public (undocumented)
+export function svgWidthHeightSize(el: Element): Size;
+
+// @public (undocumented)
+export function svgXYPosition(el: Element): PointXY;
 
 // @public (undocumented)
 export function toggleClass(el: Element | NodeListOf<Element>, clazz: string): void;
