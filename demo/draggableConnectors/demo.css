@@ -3,9 +3,11 @@
     touch-action:none;
 }
 
+/*
 #canvas {
     transform:scale(0.75);
 }
+*/
 
 /** ELEMENT POSITIONS **/
 #dragDropWindow1 { top:76px;left:100px; }
