@@ -16,7 +16,6 @@ export interface ViewportPosition extends PointXY {
  * @internal
  */
 export interface ViewportElementBase<E> extends ViewportPosition {
-
     x2:number
     y2:number
     dirty:boolean
