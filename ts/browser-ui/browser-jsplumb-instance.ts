@@ -66,8 +66,8 @@ import {
     getClass, getElementType,
     getEventSource,
     hasClass, isNodeList, isSVGElement, offsetRelativeToRoot,
-    removeClass, size,
-    toggleClass
+    removeClass, offsetSize,
+    toggleClass, svgWidthHeightSize, svgXYPosition
 } from "./browser-util"
 import {EventManager, pageLocation} from "./event-manager"
 
@@ -308,7 +308,7 @@ type ResizeObserverEntries = Array<ResizeObserverEntry>
  */
 export class BrowserJsPlumbInstance extends JsPlumbInstance<{E:Element}> {
 
-    private containerType:ElementType = null
+    containerType:ElementType = null
 
     private readonly dragSelection:DragSelection
     dragManager:DragManager
@@ -414,162 +414,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<{E:Element}> {
             this.dragManager.addFilter(defaults.dragOptions.filter)
         }
 
-        // ---
-
-        const _connClick = function(event:string, e:MouseEvent) {
-            if (!e.defaultPrevented && (e as any)._jsPlumbOverlay == null) {
-                let connectorElement = findParent(getEventSource(e), SELECTOR_CONNECTOR, this.getContainer(), true)
-                this.fire(event, connectorElement.jtk.connector.connection, e)
-            }
-        }
-        this._connectorClick = _connClick.bind(this, EVENT_CONNECTION_CLICK)
-        this._connectorDblClick = _connClick.bind(this, EVENT_CONNECTION_DBL_CLICK)
-        this._connectorTap = _connClick.bind(this, EVENT_CONNECTION_TAP)
-        this._connectorDblTap = _connClick.bind(this, EVENT_CONNECTION_DBL_TAP)
-
-        const _connectorHover = function(state:boolean, e:MouseEvent) {
-            const el = getEventSource(e).parentNode
-            if (el.jtk && el.jtk.connector) {
-                const connector = el.jtk.connector
-                const connection = connector.connection
-                this.setConnectorHover(connector, state)
-
-                if (state) {
-                    this.addClass(connection.source, this.hoverSourceClass)
-                    this.addClass(connection.target, this.hoverTargetClass)
-                } else {
-                    this.removeClass(connection.source, this.hoverSourceClass)
-                    this.removeClass(connection.target, this.hoverTargetClass)
-                }
-
-                this.fire(state ? EVENT_CONNECTION_MOUSEOVER : EVENT_CONNECTION_MOUSEOUT, el.jtk.connector.connection, e)
-            }
-        }
-
-        this._connectorMouseover = _connectorHover.bind(this, true)
-        this._connectorMouseout = _connectorHover.bind(this, false)
-
-        const _connectorMouseupdown = function(state:boolean, e:MouseEvent) {
-            const el = getEventSource(e).parentNode
-            if (el.jtk && el.jtk.connector) {
-                this.fire(state ? EVENT_CONNECTION_MOUSEUP: EVENT_CONNECTION_MOUSEDOWN, el.jtk.connector.connection, e)
-            }
-        }
-
-        this._connectorMouseup = _connectorMouseupdown.bind(this, true)
-        this._connectorMousedown = _connectorMouseupdown.bind(this, false)
-
-        this._connectorContextmenu = function(e:MouseEvent) {
-            const el = getEventSource(e).parentNode
-            if (el.jtk && el.jtk.connector) {
-                this.fire(EVENT_CONNECTION_CONTEXTMENU, el.jtk.connector.connection, e)
-            }
-        }.bind(this)
-
-        // ---
-
-        const _epClick = function(event:string, e:MouseEvent, endpointElement:jsPlumbDOMElement) {
-            if (!e.defaultPrevented && (e as any)._jsPlumbOverlay == null) {
-                this.fire(event, endpointElement.jtk.endpoint, e)
-            }
-        }
-
-        this._endpointClick = _epClick.bind(this, EVENT_ENDPOINT_CLICK)
-        this._endpointDblClick = _epClick.bind(this, EVENT_ENDPOINT_DBL_CLICK)
-
-        const _endpointHover = function(state: boolean, e:MouseEvent) {
-            const el = getEventSource(e)
-            if (el.jtk && el.jtk.endpoint) {
-                this.setEndpointHover(el.jtk.endpoint, state)
-                this.fire(state ? EVENT_ENDPOINT_MOUSEOVER : EVENT_ENDPOINT_MOUSEOUT, el.jtk.endpoint, e)
-            }
-        }
-        this._endpointMouseover = _endpointHover.bind(this, true)
-        this._endpointMouseout = _endpointHover.bind(this, false)
-
-        const _endpointMouseupdown = function(state:boolean, e:MouseEvent) {
-            const el = getEventSource(e)
-            if (el.jtk && el.jtk.endpoint) {
-                this.fire(state ? EVENT_ENDPOINT_MOUSEUP: EVENT_ENDPOINT_MOUSEDOWN, el.jtk.endpoint, e)
-            }
-        }
-
-        this._endpointMouseup = _endpointMouseupdown.bind(this, true)
-        this._endpointMousedown = _endpointMouseupdown.bind(this, false)
-
-        // ---
-
-        const _oClick = function(method:string, e:MouseEvent) {
-            let overlayElement = findParent(getEventSource(e), SELECTOR_OVERLAY, this.getContainer(), true)
-            let overlay = overlayElement.jtk.overlay
-            if (overlay) {
-                this.fireOverlayMethod(overlay, method, e)
-            }
-        }.bind(this)
-
-        this._overlayClick = _oClick.bind(this, EVENT_CLICK)
-        this._overlayDblClick = _oClick.bind(this, EVENT_DBL_CLICK)
-        this._overlayTap = _oClick.bind(this, EVENT_TAP)
-        this._overlayDblTap = _oClick.bind(this, EVENT_DBL_TAP)
-
-        const _overlayHover = function(state:boolean, e:MouseEvent) {
-            let overlayElement = findParent(getEventSource(e), SELECTOR_OVERLAY, this.getContainer(), true)
-            let overlay = overlayElement.jtk.overlay
-            if (overlay) {
-                this.setOverlayHover(overlay, state)
-            }
-        }
-
-        this._overlayMouseover = _overlayHover.bind(this, true)
-        this._overlayMouseout = _overlayHover.bind(this, false)
-
-        // ---
-
-        const _elementClick = function(event:string, e:MouseEvent, target:HTMLElement) {
-            if (!e.defaultPrevented) {
-                this.fire(e.detail === 1 ? EVENT_ELEMENT_CLICK : EVENT_ELEMENT_DBL_CLICK, target, e)
-            }
-        }
-        this._elementClick = _elementClick.bind(this, EVENT_ELEMENT_CLICK)
-
-        const _elementTap = function(event:string, e:MouseEvent, target:HTMLElement) {
-            if (!e.defaultPrevented) {
-                this.fire(EVENT_ELEMENT_TAP, target, e)
-            }
-        }
-        this._elementTap = _elementTap.bind(this, EVENT_ELEMENT_TAP)
-
-        const _elementDblTap = function(event:string, e:MouseEvent, target:HTMLElement) {
-            if (!e.defaultPrevented) {
-                this.fire(EVENT_ELEMENT_DBL_TAP, target, e)
-            }
-        }
-        this._elementDblTap = _elementDblTap.bind(this, EVENT_ELEMENT_DBL_TAP)
-
-        const _elementHover = function(state:boolean, e:MouseEvent) {
-            this.fire(state ? EVENT_ELEMENT_MOUSE_OVER : EVENT_ELEMENT_MOUSE_OUT, getEventSource(e), e)
-        }
-
-        this._elementMouseenter = _elementHover.bind(this, true)
-        this._elementMouseexit = _elementHover.bind(this, false)
-
-        this._elementMousemove = function(e:MouseEvent) {
-            this.fire(EVENT_ELEMENT_MOUSE_MOVE, getEventSource(e), e)
-        }.bind(this)
-
-        this._elementMouseup = function(e:MouseEvent) {
-            this.fire(EVENT_ELEMENT_MOUSE_UP, getEventSource(e), e)
-        }.bind(this)
-
-        this._elementMousedown  = function(e:MouseEvent) {
-            this.fire(EVENT_ELEMENT_MOUSE_DOWN, getEventSource(e), e)
-        }.bind(this)
-
-        this._elementContextmenu = function(e:MouseEvent) {
-            this.fire(EVENT_ELEMENT_CONTEXTMENU, getEventSource(e), e)
-        }.bind(this)
-
-        this._attachEventDelegates();
+        this._createEventListeners()
+        this._attachEventDelegates()
 
         if (defaults.resizeObserver !== false) {
             try {
@@ -918,10 +764,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<{E:Element}> {
     getOffset(el:Element):PointXY {
         const jel = el as unknown as jsPlumbDOMElement
         const container = this.getContainer()
-        let out: PointXY = {
-                x: jel.offsetLeft,
-                y: jel.offsetTop
-            },
+        let out = this.getPosition(jel),
             op = ((el !== container && jel.offsetParent !== container) ? jel.offsetParent : null) as HTMLElement,
             _maybeAdjustScroll = (offsetParent: HTMLElement) => {
                 if (offsetParent != null && offsetParent !== document.body && (offsetParent.scrollTop > 0 || offsetParent.scrollLeft > 0)) {
@@ -956,15 +799,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<{E:Element}> {
             }
         }
 
-        // let cb = container.getBoundingClientRect()
-        // let eb = el.getBoundingClientRect()
-        //
-        // const candidate = {x:eb.left - cb.left, y:eb.top - cb.top}
-        //
-        // console.log(out, candidate)
-
         return out
-        // return candidate
     }
 
     /**
@@ -973,9 +808,28 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<{E:Element}> {
      * @param el
      */
     getSize(el:Element):Size {
-        return size(el as any)
-        // const b = el.getBoundingClientRect()
-        // return { w:b.width, h:b.height }
+        const _el = el as any
+        if (_el.offsetWidth != null) {
+            return offsetSize(el as any)
+        } else if (_el.width && _el.width.baseVal) {
+            return svgWidthHeightSize(_el as SVGElement)
+        }
+    }
+
+    /**
+     * get the position of the given element, allowing for svg elements and html elements
+     * @param el
+     */
+    getPosition(el:Element):PointXY {
+        const _el = el as any
+        if (_el.offsetLeft!= null) {
+            return {
+                x:parseFloat(_el.offsetLeft),
+                y:parseFloat(_el.offsetTop)
+            }
+        } else if (_el.x && _el.x.baseVal) {
+            return svgXYPosition(_el as SVGElement)
+        }
     }
 
     /**
@@ -1077,6 +931,161 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<{E:Element}> {
         let state = this.isDraggable(el)
         this.setDraggable(el, !state)
         return !state
+    }
+
+    private _createEventListeners() {
+        const _connClick = function(event:string, e:MouseEvent) {
+            if (!e.defaultPrevented && (e as any)._jsPlumbOverlay == null) {
+                let connectorElement = findParent(getEventSource(e), SELECTOR_CONNECTOR, this.getContainer(), true)
+                this.fire(event, connectorElement.jtk.connector.connection, e)
+            }
+        }
+        this._connectorClick = _connClick.bind(this, EVENT_CONNECTION_CLICK)
+        this._connectorDblClick = _connClick.bind(this, EVENT_CONNECTION_DBL_CLICK)
+        this._connectorTap = _connClick.bind(this, EVENT_CONNECTION_TAP)
+        this._connectorDblTap = _connClick.bind(this, EVENT_CONNECTION_DBL_TAP)
+
+        const _connectorHover = function(state:boolean, e:MouseEvent) {
+            const el = getEventSource(e).parentNode
+            if (el.jtk && el.jtk.connector) {
+                const connector = el.jtk.connector
+                const connection = connector.connection
+                this.setConnectorHover(connector, state)
+
+                if (state) {
+                    this.addClass(connection.source, this.hoverSourceClass)
+                    this.addClass(connection.target, this.hoverTargetClass)
+                } else {
+                    this.removeClass(connection.source, this.hoverSourceClass)
+                    this.removeClass(connection.target, this.hoverTargetClass)
+                }
+
+                this.fire(state ? EVENT_CONNECTION_MOUSEOVER : EVENT_CONNECTION_MOUSEOUT, el.jtk.connector.connection, e)
+            }
+        }
+
+        this._connectorMouseover = _connectorHover.bind(this, true)
+        this._connectorMouseout = _connectorHover.bind(this, false)
+
+        const _connectorMouseupdown = function(state:boolean, e:MouseEvent) {
+            const el = getEventSource(e).parentNode
+            if (el.jtk && el.jtk.connector) {
+                this.fire(state ? EVENT_CONNECTION_MOUSEUP: EVENT_CONNECTION_MOUSEDOWN, el.jtk.connector.connection, e)
+            }
+        }
+
+        this._connectorMouseup = _connectorMouseupdown.bind(this, true)
+        this._connectorMousedown = _connectorMouseupdown.bind(this, false)
+
+        this._connectorContextmenu = function(e:MouseEvent) {
+            const el = getEventSource(e).parentNode
+            if (el.jtk && el.jtk.connector) {
+                this.fire(EVENT_CONNECTION_CONTEXTMENU, el.jtk.connector.connection, e)
+            }
+        }.bind(this)
+
+        // ---
+
+        const _epClick = function(event:string, e:MouseEvent, endpointElement:jsPlumbDOMElement) {
+            if (!e.defaultPrevented && (e as any)._jsPlumbOverlay == null) {
+                this.fire(event, endpointElement.jtk.endpoint, e)
+            }
+        }
+
+        this._endpointClick = _epClick.bind(this, EVENT_ENDPOINT_CLICK)
+        this._endpointDblClick = _epClick.bind(this, EVENT_ENDPOINT_DBL_CLICK)
+
+        const _endpointHover = function(state: boolean, e:MouseEvent) {
+            const el = getEventSource(e)
+            if (el.jtk && el.jtk.endpoint) {
+                this.setEndpointHover(el.jtk.endpoint, state)
+                this.fire(state ? EVENT_ENDPOINT_MOUSEOVER : EVENT_ENDPOINT_MOUSEOUT, el.jtk.endpoint, e)
+            }
+        }
+        this._endpointMouseover = _endpointHover.bind(this, true)
+        this._endpointMouseout = _endpointHover.bind(this, false)
+
+        const _endpointMouseupdown = function(state:boolean, e:MouseEvent) {
+            const el = getEventSource(e)
+            if (el.jtk && el.jtk.endpoint) {
+                this.fire(state ? EVENT_ENDPOINT_MOUSEUP: EVENT_ENDPOINT_MOUSEDOWN, el.jtk.endpoint, e)
+            }
+        }
+
+        this._endpointMouseup = _endpointMouseupdown.bind(this, true)
+        this._endpointMousedown = _endpointMouseupdown.bind(this, false)
+
+        // ---
+
+        const _oClick = function(method:string, e:MouseEvent) {
+            let overlayElement = findParent(getEventSource(e), SELECTOR_OVERLAY, this.getContainer(), true)
+            let overlay = overlayElement.jtk.overlay
+            if (overlay) {
+                this.fireOverlayMethod(overlay, method, e)
+            }
+        }.bind(this)
+
+        this._overlayClick = _oClick.bind(this, EVENT_CLICK)
+        this._overlayDblClick = _oClick.bind(this, EVENT_DBL_CLICK)
+        this._overlayTap = _oClick.bind(this, EVENT_TAP)
+        this._overlayDblTap = _oClick.bind(this, EVENT_DBL_TAP)
+
+        const _overlayHover = function(state:boolean, e:MouseEvent) {
+            let overlayElement = findParent(getEventSource(e), SELECTOR_OVERLAY, this.getContainer(), true)
+            let overlay = overlayElement.jtk.overlay
+            if (overlay) {
+                this.setOverlayHover(overlay, state)
+            }
+        }
+
+        this._overlayMouseover = _overlayHover.bind(this, true)
+        this._overlayMouseout = _overlayHover.bind(this, false)
+
+        // ---
+
+        const _elementClick = function(event:string, e:MouseEvent, target:HTMLElement) {
+            if (!e.defaultPrevented) {
+                this.fire(e.detail === 1 ? EVENT_ELEMENT_CLICK : EVENT_ELEMENT_DBL_CLICK, target, e)
+            }
+        }
+        this._elementClick = _elementClick.bind(this, EVENT_ELEMENT_CLICK)
+
+        const _elementTap = function(event:string, e:MouseEvent, target:HTMLElement) {
+            if (!e.defaultPrevented) {
+                this.fire(EVENT_ELEMENT_TAP, target, e)
+            }
+        }
+        this._elementTap = _elementTap.bind(this, EVENT_ELEMENT_TAP)
+
+        const _elementDblTap = function(event:string, e:MouseEvent, target:HTMLElement) {
+            if (!e.defaultPrevented) {
+                this.fire(EVENT_ELEMENT_DBL_TAP, target, e)
+            }
+        }
+        this._elementDblTap = _elementDblTap.bind(this, EVENT_ELEMENT_DBL_TAP)
+
+        const _elementHover = function(state:boolean, e:MouseEvent) {
+            this.fire(state ? EVENT_ELEMENT_MOUSE_OVER : EVENT_ELEMENT_MOUSE_OUT, getEventSource(e), e)
+        }
+
+        this._elementMouseenter = _elementHover.bind(this, true)
+        this._elementMouseexit = _elementHover.bind(this, false)
+
+        this._elementMousemove = function(e:MouseEvent) {
+            this.fire(EVENT_ELEMENT_MOUSE_MOVE, getEventSource(e), e)
+        }.bind(this)
+
+        this._elementMouseup = function(e:MouseEvent) {
+            this.fire(EVENT_ELEMENT_MOUSE_UP, getEventSource(e), e)
+        }.bind(this)
+
+        this._elementMousedown  = function(e:MouseEvent) {
+            this.fire(EVENT_ELEMENT_MOUSE_DOWN, getEventSource(e), e)
+        }.bind(this)
+
+        this._elementContextmenu = function(e:MouseEvent) {
+            this.fire(EVENT_ELEMENT_CONTEXTMENU, getEventSource(e), e)
+        }.bind(this)
     }
 
     private _attachEventDelegates() {
@@ -1984,8 +1993,10 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<{E:Element}> {
         }
 
         const managedElement = super.manage(element, internalId, _recalc)
-        if (managedElement != null && this._resizeObserver != null) {
-            this._resizeObserver.observe(managedElement.el as unknown as Element)
+        if (managedElement != null) {
+            if (this._resizeObserver != null) {
+                this._resizeObserver.observe(managedElement.el as unknown as Element)
+            }
         }
         return managedElement
     }
