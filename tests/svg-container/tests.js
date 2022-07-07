@@ -102,7 +102,7 @@ var testSuite = function () {
         var ep1 = _jsPlumb.addEndpoint(s, {
             type:"Dot"
         })
-        equal(ep1.canvas.getAttribute("x"), 100, "ep at x 100")
+        equal(ep1.endpoint.canvas.getAttribute("x"), 70, "ep at x 70")
 
         _jsPlumb.connect({
             source:s,
