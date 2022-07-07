@@ -107,7 +107,7 @@ export class LightweightFloatingAnchor implements LightweightAnchor {
 
     size:Size
 
-    constructor(public instance:JsPlumbInstance, public element:any) {
+    constructor(public instance:JsPlumbInstance, public element:Element) {
         this.size = instance.getSize(element)
         this.locations.push({x:0.5, y:0.5, ox:this.orientation[0], oy:this.orientation[1], offx:0, offy:0, iox:this.orientation[0], ioy:this.orientation[1], cls:''})
     }
