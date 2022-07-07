@@ -66,6 +66,7 @@ export type DraggedElement = {el:jsPlumbDOMElement, id:string, pos:PointXY, orig
 
 /**
  * Payload for `drag:stop` event. In addition to the base payload, contains a redraw result object, listing all the connections and endpoints that were affected by the drag.
+ * @public
  */
 export interface DragStopPayload {
     elements:Array<DraggedElement>
@@ -76,17 +77,24 @@ export interface DragStopPayload {
 
 /**
  * Payload for `drag:move` event.
+ * @public
  */
 export interface DragMovePayload extends DragPayload { }
 
 /**
  * Payload for `drag:start` event.
+ * @public
  */
 export interface DragStartPayload extends DragPayload {
     dragGroup?:DragGroup
     dragGroupMemberSpec?:DragGroupMemberSpec
 }
 
+/**
+ * @internal
+ * @param instance
+ * @param spec
+ */
 function decodeDragGroupSpec(instance:JsPlumbInstance, spec:DragGroupSpec):{id:string, active:boolean} {
 
     if (isString(spec)) {
@@ -143,9 +151,7 @@ export class ElementDragHandler implements DragHandler {
     constructor(protected instance:BrowserJsPlumbInstance, protected _dragSelection:DragSelection) {}
 
     onDragInit(el:Element):Element { return null; }
-    onDragAbort(el: Element):void {
-        return null
-    }
+    onDragAbort(el: Element):void { return null }
 
     //
     //
@@ -203,6 +209,7 @@ export class ElementDragHandler implements DragHandler {
                 // and of course in the group drag constrain args in the jsplumb constructor
                 if (el._jsPlumbParentGroup && el._jsPlumbParentGroup.constrain) {
 
+                    // TODO not SVG safe (offsetWidth / offsetHeight)
                     const constrainRect = {
                         w: el.parentNode.offsetWidth + el.parentNode.scrollLeft,
                         h: el.parentNode.offsetHeight + el.parentNode.scrollTop
@@ -292,8 +299,8 @@ export class ElementDragHandler implements DragHandler {
             if (currentGroup !== elementsToProcess[0].originalGroup) {
                 const originalElement = params.drag.getDragElement(true)
                 if (elementsToProcess[0].originalGroup.ghost) {
-                    const o1 = this.instance.getOffset(this.instance.getGroupContentArea(currentGroup))
-                    const o2 = this.instance.getOffset(this.instance.getGroupContentArea(elementsToProcess[0].originalGroup))
+                    const o1 = this.instance.getPosition(this.instance.getGroupContentArea(currentGroup))
+                    const o2 = this.instance.getPosition(this.instance.getGroupContentArea(elementsToProcess[0].originalGroup))
                     const o = {x: o2.x + params.pos.x - o1.x, y: o2.y + params.pos.y - o1.y}
                     originalElement.style.left = o.x + "px"
                     originalElement.style.top = o.y + "px"
@@ -418,12 +425,12 @@ export class ElementDragHandler implements DragHandler {
     onStart(params:{e:MouseEvent, el:jsPlumbDOMElement, pos:PointXY, drag:Drag}):boolean {
 
         const el = params.drag.getDragElement() as jsPlumbDOMElement
-        const elOffset = this.instance.getOffset(el)
+        const elOffset = this.instance.getPosition(el)
 
         this.originalPosition = {x:params.pos.x, y:params.pos.y}
 
         if (el._jsPlumbParentGroup) {
-            this._dragOffset = this.instance.getOffset(el.offsetParent)
+            this._dragOffset = this.instance.getPosition(el.offsetParent)
             this._currentDragParentGroup = el._jsPlumbParentGroup
         }
 
@@ -483,7 +490,7 @@ export class ElementDragHandler implements DragHandler {
                             if (group.droppable !== false && group.enabled !== false && _el._jsPlumbGroup !== group && !this.instance.groupManager.isDescendant(group, elementGroup)) {
                                 let groupEl = group.el,
                                     s = this.instance.getSize(groupEl),
-                                    o = this.instance.getOffset(groupEl),
+                                    o = this.instance.getPosition(groupEl),
                                     boundingRect = {x: o.x, y: o.y, w: s.w, h: s.h}
 
                                 const groupLocation = {el: groupEl, r: boundingRect, group: group}
@@ -542,7 +549,7 @@ export class ElementDragHandler implements DragHandler {
                 this._currentDragGroupOffsets.clear()
                 this._currentDragGroupSizes.clear()
                 this._currentDragGroup.members.forEach((jel:DragGroupMemberSpec) => {
-                    let off = this.instance.getOffset(jel.el)
+                    let off = this.instance.getPosition(jel.el)
                     this._currentDragGroupOffsets.set(jel.elId, [ { x:off.x- elOffset.x, y:off.y - elOffset.y}, jel.el as jsPlumbDOMElement])
                     this._currentDragGroupSizes.set(jel.elId, this.instance.getSize(jel.el))
                     _one(jel.el, this._currentDragGroup, jel)
