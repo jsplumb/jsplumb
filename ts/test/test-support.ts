@@ -4,7 +4,7 @@ import {
     EVENT_MOUSEDOWN,
     EVENT_MOUSEMOVE,
     EVENT_MOUSEUP,
-    EventManager
+    EventManager, offsetSize
 } from "@jsplumb/browser-ui"
 import {Connection, Endpoint, Overlay} from "@jsplumb/core"
 import { uuid } from "@jsplumb/util"
@@ -188,7 +188,7 @@ export class BrowserUITestSupport {
      */
     dragNodeTo (el:Element, x:number, y:number, events?:EventHandlers) {
         events = events || {};
-        var size = this._jsPlumb.getSize(el);
+        var size = offsetSize(el);
         if (events.before) events.before();
         var downEvent = this.makeEvent(el);
         this._jsPlumb.trigger(el, EVENT_MOUSEDOWN, downEvent);
@@ -216,7 +216,7 @@ export class BrowserUITestSupport {
     dragToGroup (el:Element, targetGroupId:string, events?:EventHandlers) {
         const targetGroup = this._jsPlumb.getGroup(targetGroupId);
         const tgo = this._jsPlumb.getOffset(targetGroup.el),
-            tgs = this._jsPlumb.getSize(targetGroup.el),
+            tgs = offsetSize(targetGroup.el),
             tx = tgo.x + (tgs.w / 2),
             ty = tgo.y + (tgs.h / 2);
 
