@@ -12,7 +12,7 @@ export function paintSvgConnector(instance:BrowserJsPlumbInstance, connector:Abs
 
     getConnectorElement(instance, connector)
 
-    SvgComponent.paint(connector, false, paintStyle, extents)
+    SvgComponent.paint(connector, instance, paintStyle, extents)
 
     let p = "", offset = [0, 0]
     if (extents.xmin < 0) {
