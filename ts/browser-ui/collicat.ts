@@ -20,41 +20,6 @@ function findDelegateElement(parentElement:jsPlumbDOMElement, childElement:jsPlu
     }
 }
 
-function _getPosition(el:HTMLElement):PointXY {
-    return {
-        x: el.offsetLeft, y: el.offsetTop
-    }
-}
-
-function _getSize(el:HTMLElement):Size {
-    return {
-        w: el.offsetWidth, h: el.offsetHeight
-    }
-}
-
-// function _getPosition(el:HTMLElement, zoom:number):PointXY {
-//     const b = el.getBoundingClientRect()
-//     const c = el.offsetParent.getBoundingClientRect()
-//     const r = { x:b.left - c.left, y: b.top - c.top }
-//     return {
-//         x:r.x / zoom,
-//         y:r.y / zoom
-//     }
-// }
-//
-// function _getSize(el:HTMLElement, zoom:number):Size {
-//     const b = el.getBoundingClientRect()
-//     return {
-//         w:b.width / zoom,
-//         h:b.height / zoom
-//     }
-// }
-
-function _setPosition(el:HTMLElement, pos:PointXY) {
-    el.style.left = pos.x + "px"
-    el.style.top = pos.y + "px"
-}
-
 export interface DragStartEventParams {
     e:MouseEvent
     el:jsPlumbDOMElement
@@ -159,6 +124,13 @@ const _classes:Record<string, string> = {
     clonedDrag:"katavorio-clone-drag"     // added to a node that is a clone of an element created at the start of a drag
 }
 
+// ----------------
+
+export type GetPositionFunction = (el:Element) => PointXY
+export type SetPositionFunction = (el:Element, p:PointXY) => void
+export type SetSizeFunction = (el:Element, s:Size) => void
+export type GetSizeFunction = (el:Element) => Size
+
 export enum PositioningStrategies {
     absolutePosition = "absolutePosition",
     transform = "transform",
@@ -167,16 +139,49 @@ export enum PositioningStrategies {
 
 export type PositioningStrategy = keyof typeof PositioningStrategies
 
-const positioners:Map<PositioningStrategy, (el:Element, x:number, y:number) => void> = new Map()
-positioners.set(PositioningStrategies.absolutePosition, (el:Element, x:number, y:number) => {
-    ;(el as any).style.left = `${x}px`
-    ;(el as any).style.top = `${y}px`
+const positionerSetters:Map<PositioningStrategy, SetPositionFunction> = new Map()
+positionerSetters.set(PositioningStrategies.absolutePosition, (el:Element, p:PointXY) => {
+    ;(el as any).style.left = `${p.x}px`
+    ;(el as any).style.top = `${p.y}px`
 })
 
-positioners.set(PositioningStrategies.xyAttributes, (el:Element, x:number, y:number) => {
-    el.setAttribute("x", `${x}`)
-    el.setAttribute("y", `${y}`)
+positionerSetters.set(PositioningStrategies.xyAttributes, (el:Element, p:PointXY) => {
+    el.setAttribute("x", `${p.x}`)
+    el.setAttribute("y", `${p.y}`)
 })
+
+const positionerGetters:Map<PositioningStrategy, GetPositionFunction> = new Map()
+positionerGetters.set(PositioningStrategies.absolutePosition, (el:Element) => {
+    return { x:(el as any).offsetLeft, y:(el as any).offsetTop}
+})
+
+positionerGetters.set(PositioningStrategies.xyAttributes, (el:Element) => {
+    return { x:parseFloat(el.getAttribute("x")), y:parseFloat(el.getAttribute("y")) }
+})
+
+const sizeSetters:Map<PositioningStrategy, SetSizeFunction> = new Map()
+sizeSetters.set(PositioningStrategies.absolutePosition, (el:Element, s:Size) => {
+    ;(el as any).style.width = `${s.w}px`
+    ;(el as any).style.height = `${s.h}px`
+})
+
+sizeSetters.set(PositioningStrategies.xyAttributes, (el:Element, s:Size) => {
+    el.setAttribute("width", `${s.w}`)
+    el.setAttribute("height", `${s.h}`)
+})
+
+const sizeGetters:Map<PositioningStrategy, GetSizeFunction> = new Map()
+sizeGetters.set(PositioningStrategies.absolutePosition, (el:Element) => {
+    return {
+        w: (el as any).offsetWidth, h: (el as any).offsetHeight
+    }
+})
+
+sizeGetters.set(PositioningStrategies.xyAttributes, (el:Element) => {
+    return {w:parseFloat(el.getAttribute("width")), h:parseFloat(el.getAttribute("height")) }
+})
+
+// ----------------------------
 
 const _events = [ EVENT_STOP, EVENT_START, EVENT_DRAG, EVENT_DROP, EVENT_OVER, EVENT_OUT, EVENT_BEFORE_START ]
 const _devNull = function() {}
@@ -505,7 +510,8 @@ export class Drag extends Base {
             } else {
                 if (this._activeSelectorParams && this._activeSelectorParams.revertFunction) {
                     if (this._activeSelectorParams.revertFunction(this._dragEl, this.manager.getPosition(this._dragEl)) === true) {
-                        _setPosition(this._dragEl, this._posAtDown)
+
+                        this.manager.setPosition(this._dragEl, this._posAtDown)
                         this._dispatch<RevertEventParams>(EVENT_REVERT, this._dragEl)
                     }
                 }
@@ -680,7 +686,7 @@ export class Drag extends Base {
     moveBy (dx:number, dy:number, e?:MouseEvent) {
 
         let desiredLoc = this.toGrid({x:this._posAtDown.x + dx, y:this._posAtDown.y + dy}),
-            cPos:PointXY = this._doConstrain(desiredLoc, this._dragEl, this._constrainRect, this._size)
+            cPos:PointXY = this._doConstrain(desiredLoc, this._dragEl, this._constrainRect, this._size, e)
 
         // if we should use a ghost proxy...
         if (this._useGhostProxy(this.el, this._dragEl)) {
@@ -731,7 +737,7 @@ export class Drag extends Base {
             }
         }
 
-        _setPosition(this._dragEl, {x:cPos.x + this._ghostDx, y:cPos.y + this._ghostDy})
+        this.manager.setPosition(this._dragEl, {x:cPos.x + this._ghostDx, y:cPos.y + this._ghostDy})
 
         this._dispatch<DragEventParams>(EVENT_DRAG, {el:this.el, pos:cPos, e:e, drag:this, size:this._size, originalPos:this._posAtDown})
     }
@@ -824,9 +830,9 @@ export class Drag extends Base {
         this._useGhostProxy = val ? TRUE : FALSE
     }
 
-    private _doConstrain(pos:PointXY, dragEl:jsPlumbDOMElement, _constrainRect:Size, _size:Size) {
+    private _doConstrain(pos:PointXY, dragEl:jsPlumbDOMElement, _constrainRect:Size, _size:Size, e:MouseEvent) {
         if (this._activeSelectorParams != null && this._activeSelectorParams.constrainFunction && typeof this._activeSelectorParams.constrainFunction === "function") {
-            return this._activeSelectorParams.constrainFunction(pos, dragEl, _constrainRect, _size)
+            return this._activeSelectorParams.constrainFunction(pos, dragEl, _constrainRect, _size, e)
         } else {
             return pos
         }
@@ -897,16 +903,16 @@ export class Drag extends Base {
             document.removeEventListener("scroll", this.scrollTracker)
         }
     }
-
 }
 
-export type ConstrainFunction = (desiredLoc:PointXY, dragEl:HTMLElement, constrainRect:Size, size:Size) => PointXY
+export type ConstrainFunction = (desiredLoc:PointXY, dragEl:HTMLElement, constrainRect:Size, size:Size, e:MouseEvent) => PointXY
 export type RevertFunction = (dragEl:HTMLElement, pos:PointXY) => boolean
 
 export interface CollicatOptions {
     zoom?:number
     css?:Record<string, string>
     inputFilterSelector?:string
+    positioningStrategy?:PositioningStrategy
 }
 
 export interface jsPlumbDragManager {
@@ -929,22 +935,38 @@ export class Collicat implements jsPlumbDragManager {
     private zoom:number = 1
     css:Record<string, string> = {}
     inputFilterSelector:string
+    positioningStrategy:PositioningStrategy
+    _positionSetter:SetPositionFunction
+    _positionGetter:GetPositionFunction
+    _sizeSetter:SetSizeFunction
+    _sizeGetter:GetSizeFunction
 
     constructor(options?:CollicatOptions) {
         options = options || {}
         this.inputFilterSelector = options.inputFilterSelector || DEFAULT_INPUT_FILTER_SELECTOR
         this.eventManager = new EventManager()
         this.zoom = options.zoom || 1
+
+        this.positioningStrategy = options.positioningStrategy || PositioningStrategies.absolutePosition
+        this._positionGetter = positionerGetters.get(this.positioningStrategy)
+        this._positionSetter = positionerSetters.get(this.positioningStrategy)
+        this._sizeGetter = sizeGetters.get(this.positioningStrategy)
+        this._sizeSetter = sizeSetters.get(this.positioningStrategy)
+
         const _c = options.css || {}
         extend(this.css, _c)
     }
 
     getPosition(el:Element):PointXY {
-        return _getPosition(el as unknown as HTMLElement)
+        return this._positionGetter(el)
+    }
+
+    setPosition(el:Element, p:PointXY) {
+        this._positionSetter(el, p)
     }
 
     getSize(el:Element):Size {
-        return _getSize(el as unknown as HTMLElement)
+        return this._sizeGetter(el)
     }
 
     getZoom():number {
