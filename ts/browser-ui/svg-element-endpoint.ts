@@ -1,5 +1,5 @@
 import {SvgComponent} from "./svg-component"
-import {EndpointHelperFunctions} from "./browser-jsplumb-instance"
+import {BrowserJsPlumbInstance, EndpointHelperFunctions} from "./browser-jsplumb-instance"
 
 import {_node, _applyStyles, ELEMENT_SVG} from './svg-util'
 import {
@@ -44,7 +44,7 @@ export abstract class SvgEndpoint<C> {
                 ep.instance.setAttribute(<any>canvas, ATTRIBUTE_SCOPE_PREFIX + scopes[i], TRUE)
             }
 
-            ep.instance._appendElement(canvas, ep.instance.getContainer())
+            ep.instance._appendElementToContainer(canvas)
 
             if ((ep as any).cssClass != null) {
                 ep.instance.addClass(canvas, (ep as any).cssClass)
@@ -65,7 +65,7 @@ export abstract class SvgEndpoint<C> {
         if (ep.endpoint.deleted !== true) {
             this.getEndpointElement(ep)
 
-            SvgComponent.paint(ep, true, paintStyle)
+            SvgComponent.paint(ep, ep.instance as BrowserJsPlumbInstance, paintStyle)
             //
             let s: PaintStyle = extend({}, paintStyle)
             if (s.outlineStroke) {
