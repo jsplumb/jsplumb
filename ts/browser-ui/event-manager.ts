@@ -165,6 +165,27 @@ export function touchCount (e:Event):number {
     return touches(e).length
 }
 
+/**
+ * Gets the page location for the given event, abstracting out differences between touch and mouse events.
+ * @param e
+ */
+export function getPageLocation(e:any):PointXY {
+    if (e == null) {
+        return {x:0, y:0 }
+    } else if (e.pageX !== null) {
+        return { x:e.pageX, y:e.pageY }
+    } else {
+        const ts = touches(e), t = getTouch(ts, 0)
+        if (t != null && t.pageX != null) {
+            return { x:t.pageX, y:t.pageY }
+        } else {
+            return {x:0, y:0 }
+        }
+    }
+
+
+}
+
 function _bind (obj:any, type:string, fn:any, originalFn:any, options?:{passive?:boolean, capture?:boolean, once?:boolean}) {
     _store(obj, type, fn)
     originalFn.__tauid = fn.__tauid
