@@ -653,6 +653,24 @@ export class Drag extends Base {
         }
     }
 
+    /**
+     * Gets the delta between the mouse location of the down event that instigated a drag and the page location
+     * of the element that is being dragged. For internal use.
+     * @internal
+     */
+    getDragDelta():PointXY {
+        if (this._posAtDown != null && this._downAt != null) {
+            return {
+                x:this._downAt.x - this._posAtDown.x,
+                y:this._downAt.y - this._posAtDown.y
+            }
+        } else {
+            return {
+                x:0, y:0
+            }
+        }
+    }
+
     private mark(payload:any) {
 
         this._posAtDown = this.manager.getPosition(this._dragEl)
