@@ -47,8 +47,6 @@ export class BrowserUITestSupport {
     dragNodeBy(el: Element, x: number, y: number, events?: EventHandlers): void;
     dragNodeTo(el: Element, x: number, y: number, events?: EventHandlers): void;
     dragToGroup(el: Element, targetGroupId: string, events?: EventHandlers): void;
-    // (undocumented)
-    droppableClass: string;
     fireEventOnConnection(connection: Connection, ...events: Array<string>): void;
     fireEventOnElement(e: Element, ...events: Array<string>): void;
     fireEventOnEndpoint(ep: Endpoint, ...events: Array<string>): void;
@@ -67,10 +65,6 @@ export class BrowserUITestSupport {
     };
     getOverlayCanvas(overlay: Overlay): any;
     head(obj: any): any;
-    // (undocumented)
-    isSourceAttribute: string;
-    // (undocumented)
-    isTargetAttribute: string;
     length(obj: any): number;
     makeContent(s: string): ChildNode;
     makeEvent(el: Element): any;

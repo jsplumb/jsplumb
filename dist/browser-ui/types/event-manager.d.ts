@@ -3,6 +3,11 @@ export declare function pageLocation(e: Event): PointXY;
 export declare function getTouch(touches: TouchList, idx: number): Touch;
 export declare function touches(e: any): TouchList;
 export declare function touchCount(e: Event): number;
+/**
+ * Gets the page location for the given event, abstracting out differences between touch and mouse events.
+ * @param e
+ */
+export declare function getPageLocation(e: any): PointXY;
 export interface EventManagerOptions {
     clickThreshold?: number;
     dblClickThreshold?: number;

@@ -74,9 +74,6 @@
       this.equal = equal;
       _defineProperty(this, "_divs", []);
       _defineProperty(this, "mottle", void 0);
-      _defineProperty(this, "isTargetAttribute", "data-jtk-target");
-      _defineProperty(this, "isSourceAttribute", "data-jtk-source");
-      _defineProperty(this, "droppableClass", "jtk-droppable");
       this.mottle = new browserUi.EventManager();
     }
     _createClass(BrowserUITestSupport, [{
@@ -160,8 +157,7 @@
       }
     }, {
       key: "dragNodeBy",
-      value:
-      function dragNodeBy(el, x, y, events) {
+      value: function dragNodeBy(el, x, y, events) {
         events = events || {};
         if (events.before) events.before();
         var downEvent = this.makeEvent(el);
@@ -180,7 +176,7 @@
       key: "dragNodeTo",
       value: function dragNodeTo(el, x, y, events) {
         events = events || {};
-        var size = browserUi.offsetSize(el);
+        var size = this._jsPlumb.getSize(el);
         if (events.before) events.before();
         var downEvent = this.makeEvent(el);
         this._jsPlumb.trigger(el, browserUi.EVENT_MOUSEDOWN, downEvent);
@@ -199,8 +195,8 @@
       key: "dragToGroup",
       value: function dragToGroup(el, targetGroupId, events) {
         var targetGroup = this._jsPlumb.getGroup(targetGroupId);
-        var tgo = this._jsPlumb.getOffset(targetGroup.el),
-            tgs = browserUi.offsetSize(targetGroup.el),
+        var tgo = this._jsPlumb.getPosition(targetGroup.el),
+            tgs = this._jsPlumb.getSize(targetGroup.el),
             tx = tgo.x + tgs.w / 2,
             ty = tgo.y + tgs.h / 2;
         this.dragNodeTo(el, tx, ty, events);

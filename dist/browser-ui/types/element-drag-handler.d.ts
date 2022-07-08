@@ -46,6 +46,7 @@ export declare type DraggedElement = {
 };
 /**
  * Payload for `drag:stop` event. In addition to the base payload, contains a redraw result object, listing all the connections and endpoints that were affected by the drag.
+ * @public
  */
 export interface DragStopPayload {
     elements: Array<DraggedElement>;
@@ -55,11 +56,13 @@ export interface DragStopPayload {
 }
 /**
  * Payload for `drag:move` event.
+ * @public
  */
 export interface DragMovePayload extends DragPayload {
 }
 /**
  * Payload for `drag:start` event.
+ * @public
  */
 export interface DragStartPayload extends DragPayload {
     dragGroup?: DragGroup;

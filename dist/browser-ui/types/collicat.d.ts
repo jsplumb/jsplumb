@@ -148,6 +148,12 @@ export declare class Drag extends Base {
     private _upListener;
     private _downListener;
     private _moveListener;
+    /**
+     * Gets the delta between the mouse location of the down event that instigated a drag and the page location
+     * of the element that is being dragged. For internal use.
+     * @internal
+     */
+    getDragDelta(): PointXY;
     private mark;
     private unmark;
     moveBy(dx: number, dy: number, e?: MouseEvent): void;

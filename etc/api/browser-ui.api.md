@@ -408,6 +408,8 @@ export class Drag extends Base {
     _elementToDrag: jsPlumbDOMElement;
     // (undocumented)
     _filters: Record<string, [Function, boolean]>;
+    // @internal
+    getDragDelta(): PointXY;
     // (undocumented)
     getDragElement(retrieveOriginalElement?: boolean): jsPlumbDOMElement;
     // (undocumented)
@@ -971,6 +973,9 @@ export function getElementType(el: Element): ElementType;
 
 // @public (undocumented)
 export function getEventSource(e: Event): jsPlumbDOMElement;
+
+// @public
+export function getPageLocation(e: any): PointXY;
 
 // @public (undocumented)
 export type GetPositionFunction = (el: Element) => PointXY;

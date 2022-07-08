@@ -761,6 +761,33 @@
   function touchCount(e) {
     return touches(e).length;
   }
+  function getPageLocation(e) {
+    if (e == null) {
+      return {
+        x: 0,
+        y: 0
+      };
+    } else if (e.pageX !== null) {
+      return {
+        x: e.pageX,
+        y: e.pageY
+      };
+    } else {
+      var ts = touches(e),
+          t = getTouch(ts, 0);
+      if (t != null && t.pageX != null) {
+        return {
+          x: t.pageX,
+          y: t.pageY
+        };
+      } else {
+        return {
+          x: 0,
+          y: 0
+        };
+      }
+    }
+  }
   function _bind(obj, type, fn, originalFn, options) {
     _store(obj, type, fn);
     originalFn.__tauid = fn.__tauid;
@@ -1669,6 +1696,21 @@
             dy /= _z2;
             this.moveBy(dx, dy, e);
           }
+        }
+      }
+    }, {
+      key: "getDragDelta",
+      value: function getDragDelta() {
+        if (this._posAtDown != null && this._downAt != null) {
+          return {
+            x: this._downAt.x - this._posAtDown.x,
+            y: this._downAt.y - this._posAtDown.y
+          };
+        } else {
+          return {
+            x: 0,
+            y: 0
+          };
         }
       }
     }, {
@@ -2713,7 +2755,7 @@
                   if (group.droppable !== false && group.enabled !== false && _el._jsPlumbGroup !== group && !_this4.instance.groupManager.isDescendant(group, elementGroup)) {
                     var groupEl = group.el,
                         s = _this4.instance.getSize(groupEl),
-                    o = _this4.instance.getPosition(groupEl),
+                        o = _this4.instance.getPosition(groupEl),
                         boundingRect = {
                       x: o.x,
                       y: o.y,
@@ -5574,6 +5616,7 @@
   exports.getElementSize = getElementSize;
   exports.getElementType = getElementType;
   exports.getEventSource = getEventSource;
+  exports.getPageLocation = getPageLocation;
   exports.getPositionOnElement = getPositionOnElement;
   exports.getTouch = getTouch;
   exports.groupDragConstrain = groupDragConstrain;

@@ -1,4 +1,4 @@
-import { EventManager, EVENT_MOUSEDOWN, EVENT_MOUSEMOVE, EVENT_MOUSEUP, offsetSize, EVENT_CLICK, EVENT_DBL_CLICK } from '@jsplumb/browser-ui';
+import { EventManager, EVENT_MOUSEDOWN, EVENT_MOUSEMOVE, EVENT_MOUSEUP, EVENT_CLICK, EVENT_DBL_CLICK } from '@jsplumb/browser-ui';
 import { uuid } from '@jsplumb/util';
 
 function _classCallCheck(instance, Constructor) {
@@ -71,9 +71,6 @@ var BrowserUITestSupport = function () {
     this.equal = equal;
     _defineProperty(this, "_divs", []);
     _defineProperty(this, "mottle", void 0);
-    _defineProperty(this, "isTargetAttribute", "data-jtk-target");
-    _defineProperty(this, "isSourceAttribute", "data-jtk-source");
-    _defineProperty(this, "droppableClass", "jtk-droppable");
     this.mottle = new EventManager();
   }
   _createClass(BrowserUITestSupport, [{
@@ -157,8 +154,7 @@ var BrowserUITestSupport = function () {
     }
   }, {
     key: "dragNodeBy",
-    value:
-    function dragNodeBy(el, x, y, events) {
+    value: function dragNodeBy(el, x, y, events) {
       events = events || {};
       if (events.before) events.before();
       var downEvent = this.makeEvent(el);
@@ -177,7 +173,7 @@ var BrowserUITestSupport = function () {
     key: "dragNodeTo",
     value: function dragNodeTo(el, x, y, events) {
       events = events || {};
-      var size = offsetSize(el);
+      var size = this._jsPlumb.getSize(el);
       if (events.before) events.before();
       var downEvent = this.makeEvent(el);
       this._jsPlumb.trigger(el, EVENT_MOUSEDOWN, downEvent);
@@ -196,8 +192,8 @@ var BrowserUITestSupport = function () {
     key: "dragToGroup",
     value: function dragToGroup(el, targetGroupId, events) {
       var targetGroup = this._jsPlumb.getGroup(targetGroupId);
-      var tgo = this._jsPlumb.getOffset(targetGroup.el),
-          tgs = offsetSize(targetGroup.el),
+      var tgo = this._jsPlumb.getPosition(targetGroup.el),
+          tgs = this._jsPlumb.getSize(targetGroup.el),
           tx = tgo.x + tgs.w / 2,
           ty = tgo.y + tgs.h / 2;
       this.dragNodeTo(el, tx, ty, events);

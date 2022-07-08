@@ -37,9 +37,6 @@ export declare class BrowserUITestSupport {
     _registerDiv(div: string): void;
     private makeDragStartEvt;
     getAttribute(el: Element, att: string): string;
-    isTargetAttribute: string;
-    isSourceAttribute: string;
-    droppableClass: string;
     /**
      * Drag an element by a given delta in x and y
      * @param el Element to drag

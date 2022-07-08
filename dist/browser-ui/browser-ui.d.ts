@@ -842,6 +842,12 @@ export declare class Drag extends Base {
     private _upListener;
     private _downListener;
     private _moveListener;
+    /**
+     * Gets the delta between the mouse location of the down event that instigated a drag and the page location
+     * of the element that is being dragged. For internal use.
+     * @internal
+     */
+    getDragDelta(): PointXY;
     private mark;
     private unmark;
     moveBy(dx: number, dy: number, e?: MouseEvent): void;
@@ -966,6 +972,7 @@ export declare interface DragManagerOptions {
 
 /**
  * Payload for `drag:move` event.
+ * @public
  */
 export declare interface DragMovePayload extends DragPayload {
 }
@@ -1056,6 +1063,7 @@ export declare interface DragStartEventParams {
 
 /**
  * Payload for `drag:start` event.
+ * @public
  */
 export declare interface DragStartPayload extends DragPayload {
     dragGroup?: DragGroup;
@@ -1069,6 +1077,7 @@ export declare interface DragStopEventParams extends DragEventParams {
 
 /**
  * Payload for `drag:stop` event. In addition to the base payload, contains a redraw result object, listing all the connections and endpoints that were affected by the drag.
+ * @public
  */
 export declare interface DragStopPayload {
     elements: Array<DraggedElement>;
@@ -1456,6 +1465,12 @@ export declare function getElementSize(el: Element, instance: BrowserJsPlumbInst
 export declare function getElementType(el: Element): ElementType;
 
 export declare function getEventSource(e: Event): jsPlumbDOMElement;
+
+/**
+ * Gets the page location for the given event, abstracting out differences between touch and mouse events.
+ * @param e
+ */
+export declare function getPageLocation(e: any): PointXY;
 
 export declare type GetPositionFunction = (el: Element) => PointXY;
 
