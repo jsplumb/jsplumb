@@ -7,6 +7,7 @@
 ### UPDATES
 
 - Added `setDragConstrainFunction` method to `BrowserJsPlumbInstance`.
+- Added `getPageLocation` method for accessing page location agnostic of touch vs mouse device.
 
 ## 5.8.3
 
