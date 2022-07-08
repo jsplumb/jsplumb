@@ -4,7 +4,7 @@ import {
     EVENT_MOUSEDOWN,
     EVENT_MOUSEMOVE,
     EVENT_MOUSEUP,
-    EventManager, offsetSize
+    EventManager
 } from "@jsplumb/browser-ui"
 import {Connection, Endpoint, Overlay} from "@jsplumb/core"
 import { uuid } from "@jsplumb/util"
@@ -149,11 +149,6 @@ export class BrowserUITestSupport {
         return el.getAttribute(att);
     }
 
-    isTargetAttribute = "data-jtk-target"
-    isSourceAttribute =  "data-jtk-source"
-
-    droppableClass = "jtk-droppable"
-
     /**
      * Drag an element by a given delta in x and y
      * @param el Element to drag
@@ -188,12 +183,12 @@ export class BrowserUITestSupport {
      */
     dragNodeTo (el:Element, x:number, y:number, events?:EventHandlers) {
         events = events || {};
-        var size = offsetSize(el);
+        const size = this._jsPlumb.getSize(el);
         if (events.before) events.before();
-        var downEvent = this.makeEvent(el);
+        const downEvent = this.makeEvent(el);
         this._jsPlumb.trigger(el, EVENT_MOUSEDOWN, downEvent);
 
-        var cb = this._jsPlumb.getContainer().getBoundingClientRect()
+        const cb = this._jsPlumb.getContainer().getBoundingClientRect()
 
         if (events.beforeMouseMove) {
             events.beforeMouseMove();
@@ -215,8 +210,8 @@ export class BrowserUITestSupport {
      */
     dragToGroup (el:Element, targetGroupId:string, events?:EventHandlers) {
         const targetGroup = this._jsPlumb.getGroup(targetGroupId);
-        const tgo = this._jsPlumb.getOffset(targetGroup.el),
-            tgs = offsetSize(targetGroup.el),
+        const tgo = this._jsPlumb.getPosition(targetGroup.el),
+            tgs = this._jsPlumb.getSize(targetGroup.el),
             tx = tgo.x + (tgs.w / 2),
             ty = tgo.y + (tgs.h / 2);
 
@@ -240,7 +235,7 @@ export class BrowserUITestSupport {
             events.before()
         }
 
-        var downEvent = this.makeEvent(el);
+        const downEvent = this.makeEvent(el);
         this._jsPlumb.trigger(el, EVENT_MOUSEDOWN, downEvent);
         if (events.beforeMouseMove) {
             events.beforeMouseMove();
