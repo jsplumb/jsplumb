@@ -706,58 +706,66 @@ export class Drag extends Base {
         let desiredLoc = this.toGrid({x:this._posAtDown.x + dx, y:this._posAtDown.y + dy}),
             cPos:PointXY = this._doConstrain(desiredLoc, this._dragEl, this._constrainRect, this._size, e)
 
-        // if we should use a ghost proxy...
-        if (this._useGhostProxy(this.el, this._dragEl)) {
-            // and the element has been dragged outside of its parent bounds
-            if (desiredLoc.x !== cPos.x || desiredLoc.y !== cPos.y) {
+        if (cPos != null) {
+            // if we should use a ghost proxy...
+            if (this._useGhostProxy(this.el, this._dragEl)) {
+                // and the element has been dragged outside of its parent bounds
+                if (desiredLoc.x !== cPos.x || desiredLoc.y !== cPos.y) {
 
-                // ...if ghost proxy not yet created
-                if (!this._isConstrained) {
-                    // create it
-                    let gp = this._ghostProxyFunction(this._elementToDrag) as jsPlumbDOMElement
-                    addClass(gp, _classes.ghostProxy)
+                    // ...if ghost proxy not yet created
+                    if (!this._isConstrained) {
+                        // create it
+                        let gp = this._ghostProxyFunction(this._elementToDrag) as jsPlumbDOMElement
+                        addClass(gp, _classes.ghostProxy)
 
-                    if (this._ghostProxyParent) {
-                        this._ghostProxyParent.appendChild(gp)
-                        // find offset between drag el's parent the ghost parent
-                        this._currentParentPosition = offsetRelativeToRoot(this._elementToDrag.parentNode)
-                        this._ghostParentPosition = offsetRelativeToRoot(this._ghostProxyParent)
+                        if (this._ghostProxyParent) {
+                            this._ghostProxyParent.appendChild(gp)
+                            // find offset between drag el's parent the ghost parent
+                            this._currentParentPosition = offsetRelativeToRoot(this._elementToDrag.parentNode)
+                            this._ghostParentPosition = offsetRelativeToRoot(this._ghostProxyParent)
 
-                        this._ghostDx = this._currentParentPosition.x - this._ghostParentPosition.x
-                        this._ghostDy = this._currentParentPosition.y - this._ghostParentPosition.y
+                            this._ghostDx = this._currentParentPosition.x - this._ghostParentPosition.x
+                            this._ghostDy = this._currentParentPosition.y - this._ghostParentPosition.y
 
-                    } else {
-                        this._elementToDrag.parentNode.appendChild(gp)
+                        } else {
+                            this._elementToDrag.parentNode.appendChild(gp)
+                        }
+
+                        // the ghost proxy is the drag element
+                        this._dragEl = gp
+                        // set this flag so we dont recreate the ghost proxy
+                        this._isConstrained = true
                     }
+                    // now the drag position can be the desired position, as the ghost proxy can support it.
+                    cPos = desiredLoc
+                } else {
+                    // if the element is not outside of its parent bounds, and ghost proxy is in place,
+                    if (this._isConstrained) {
+                        // remove the ghost proxy from the dom
+                        this._dragEl.parentNode.removeChild(this._dragEl)
+                        // reset the drag element to the original element
+                        this._dragEl = this._elementToDrag
+                        // clear this flag.
+                        this._isConstrained = false
+                        this._currentParentPosition = null
+                        this._ghostParentPosition = null
+                        this._ghostDx = 0
+                        this._ghostDy = 0
+                    }
+                }
+            }
 
-                    // the ghost proxy is the drag element
-                    this._dragEl = gp
-                    // set this flag so we dont recreate the ghost proxy
-                    this._isConstrained = true
-                }
-                // now the drag position can be the desired position, as the ghost proxy can support it.
-                cPos = desiredLoc
-            }
-            else {
-                // if the element is not outside of its parent bounds, and ghost proxy is in place,
-                if (this._isConstrained) {
-                    // remove the ghost proxy from the dom
-                    this._dragEl.parentNode.removeChild(this._dragEl)
-                    // reset the drag element to the original element
-                    this._dragEl = this._elementToDrag
-                    // clear this flag.
-                    this._isConstrained = false
-                    this._currentParentPosition = null
-                    this._ghostParentPosition = null
-                    this._ghostDx = 0
-                    this._ghostDy = 0
-                }
-            }
+            this.manager.setPosition(this._dragEl, {x: cPos.x + this._ghostDx, y: cPos.y + this._ghostDy})
+
+            this._dispatch<DragEventParams>(EVENT_DRAG, {
+                el: this.el,
+                pos: cPos,
+                e: e,
+                drag: this,
+                size: this._size,
+                originalPos: this._posAtDown
+            })
         }
-
-        this.manager.setPosition(this._dragEl, {x:cPos.x + this._ghostDx, y:cPos.y + this._ghostDy})
-
-        this._dispatch<DragEventParams>(EVENT_DRAG, {el:this.el, pos:cPos, e:e, drag:this, size:this._size, originalPos:this._posAtDown})
     }
 
     abort() {
@@ -923,6 +931,18 @@ export class Drag extends Base {
     }
 }
 
+/**
+ * Definition of a function that can be used to constrain the movemement of an element that is being dragged. The function is
+ * given the "desiredLoc", which is the location the element would be moved to if not constrained, and it is expected to return
+ * either some other value, meaning place the element at that position, or null, meaning for the given desired location there
+ * is no preferred position and the element should not be moved.
+ *
+ * @param desiredLoc - Position the element will be placed at if unconstrained
+ * @param dragEl - the element that is being dragged
+ * @param constrainRect - The size of any parent drag area
+ * @param size - The size of the element being dragged
+ * @param e - The mouse event associated with this tick of the drag lifecycle.
+ */
 export type ConstrainFunction = (desiredLoc:PointXY, dragEl:HTMLElement, constrainRect:Size, size:Size, e:MouseEvent) => PointXY
 export type RevertFunction = (dragEl:HTMLElement, pos:PointXY) => boolean
 
