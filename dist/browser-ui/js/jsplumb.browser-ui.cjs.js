@@ -1754,48 +1754,50 @@ var Drag = function (_Base) {
         y: this._posAtDown.y + dy
       }),
           cPos = this._doConstrain(desiredLoc, this._dragEl, this._constrainRect, this._size, e);
-      if (this._useGhostProxy(this.el, this._dragEl)) {
-        if (desiredLoc.x !== cPos.x || desiredLoc.y !== cPos.y) {
-          if (!this._isConstrained) {
-            var gp = this._ghostProxyFunction(this._elementToDrag);
-            addClass(gp, _classes.ghostProxy);
-            if (this._ghostProxyParent) {
-              this._ghostProxyParent.appendChild(gp);
-              this._currentParentPosition = offsetRelativeToRoot(this._elementToDrag.parentNode);
-              this._ghostParentPosition = offsetRelativeToRoot(this._ghostProxyParent);
-              this._ghostDx = this._currentParentPosition.x - this._ghostParentPosition.x;
-              this._ghostDy = this._currentParentPosition.y - this._ghostParentPosition.y;
-            } else {
-              this._elementToDrag.parentNode.appendChild(gp);
+      if (cPos != null) {
+        if (this._useGhostProxy(this.el, this._dragEl)) {
+          if (desiredLoc.x !== cPos.x || desiredLoc.y !== cPos.y) {
+            if (!this._isConstrained) {
+              var gp = this._ghostProxyFunction(this._elementToDrag);
+              addClass(gp, _classes.ghostProxy);
+              if (this._ghostProxyParent) {
+                this._ghostProxyParent.appendChild(gp);
+                this._currentParentPosition = offsetRelativeToRoot(this._elementToDrag.parentNode);
+                this._ghostParentPosition = offsetRelativeToRoot(this._ghostProxyParent);
+                this._ghostDx = this._currentParentPosition.x - this._ghostParentPosition.x;
+                this._ghostDy = this._currentParentPosition.y - this._ghostParentPosition.y;
+              } else {
+                this._elementToDrag.parentNode.appendChild(gp);
+              }
+              this._dragEl = gp;
+              this._isConstrained = true;
             }
-            this._dragEl = gp;
-            this._isConstrained = true;
-          }
-          cPos = desiredLoc;
-        } else {
-          if (this._isConstrained) {
-            this._dragEl.parentNode.removeChild(this._dragEl);
-            this._dragEl = this._elementToDrag;
-            this._isConstrained = false;
-            this._currentParentPosition = null;
-            this._ghostParentPosition = null;
-            this._ghostDx = 0;
-            this._ghostDy = 0;
+            cPos = desiredLoc;
+          } else {
+            if (this._isConstrained) {
+              this._dragEl.parentNode.removeChild(this._dragEl);
+              this._dragEl = this._elementToDrag;
+              this._isConstrained = false;
+              this._currentParentPosition = null;
+              this._ghostParentPosition = null;
+              this._ghostDx = 0;
+              this._ghostDy = 0;
+            }
           }
         }
+        this.manager.setPosition(this._dragEl, {
+          x: cPos.x + this._ghostDx,
+          y: cPos.y + this._ghostDy
+        });
+        this._dispatch(EVENT_DRAG, {
+          el: this.el,
+          pos: cPos,
+          e: e,
+          drag: this,
+          size: this._size,
+          originalPos: this._posAtDown
+        });
       }
-      this.manager.setPosition(this._dragEl, {
-        x: cPos.x + this._ghostDx,
-        y: cPos.y + this._ghostDy
-      });
-      this._dispatch(EVENT_DRAG, {
-        el: this.el,
-        pos: cPos,
-        e: e,
-        drag: this,
-        size: this._size,
-        originalPos: this._posAtDown
-      });
     }
   }, {
     key: "abort",

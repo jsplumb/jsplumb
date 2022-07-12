@@ -348,7 +348,7 @@ export function compoundEvent(stem: string, event: string, subevent?: string): s
 // @public (undocumented)
 export const CONNECTION = "connection";
 
-// @public (undocumented)
+// @public
 export type ConstrainFunction = (desiredLoc: PointXY, dragEl: HTMLElement, constrainRect: Size, size: Size, e: MouseEvent) => PointXY;
 
 // @public

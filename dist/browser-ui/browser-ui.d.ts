@@ -771,6 +771,18 @@ export declare function compoundEvent(stem: string, event: string, subevent?: st
  */
 export declare const CONNECTION = "connection";
 
+/**
+ * Definition of a function that can be used to constrain the movemement of an element that is being dragged. The function is
+ * given the "desiredLoc", which is the location the element would be moved to if not constrained, and it is expected to return
+ * either some other value, meaning place the element at that position, or null, meaning for the given desired location there
+ * is no preferred position and the element should not be moved.
+ *
+ * @param desiredLoc - Position the element will be placed at if unconstrained
+ * @param dragEl - the element that is being dragged
+ * @param constrainRect - The size of any parent drag area
+ * @param size - The size of the element being dragged
+ * @param e - The mouse event associated with this tick of the drag lifecycle.
+ */
 export declare type ConstrainFunction = (desiredLoc: PointXY, dragEl: HTMLElement, constrainRect: Size, size: Size, e: MouseEvent) => PointXY;
 
 /**

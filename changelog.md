@@ -1,4 +1,12 @@
+## 5.9.1
+
+### UPDATES
+
+- Updated `constrainFunction` support to allow the user to return null, signifying that for the given desired location there is no allowed drag position and the element should not move from its last position. Drag is not aborted, but the element does not move from its last position.
+
 ## 5.9.0
+
+July 7th 2022
 
 ### BREAKING
 
@@ -13,6 +21,8 @@
 
 June 16th 2022
 
+### UPDATES
+
 - Updated event manager to prefer `Event.computedPath()` over `Event.path` as Chrome now reports `Event.path` is deprecated and will be removed in the not so distant future.
 - Updates to the Toolkit edition's React integration.
 
@@ -20,17 +30,23 @@ June 16th 2022
 
 June 15th 2022
 
+### UPDATES
+
 - Toolkit edition updates
 
 ## 5.8.1
 
 June 14th 2022
 
+### UPDATES
+
 - Toolkit edition updates
 
 ## 5.8.0
 
 June 9th 2022
+
+### UPDATES
 
 - Added support for template macros to Toolkit's `browser-ui-vanilla-2` package
 - Updated Toolkit's React and Vue 3 integrations to better handle asynchronous rendering
