@@ -981,6 +981,110 @@ var testSuite = function () {
     /**
      * Test constraining drag via a function
      */
+    test("dragging, constrain function returns null means element does not move", function() {
+
+        reinit({
+            dragOptions:{
+                // only move when desired location x value is 200 or more
+                constrainFunction:function(desiredLocation) {
+                    if (desiredLocation.x < 200) {
+                        return null
+                    } else {
+                        return desiredLocation
+                    }
+                }
+            }
+        });
+
+        _jsPlumb.getContainer().style.width = "500px"
+        _jsPlumb.getContainer().style.height = "500px"
+
+        var d = _addDiv("d1");
+        d.style.position = "absolute";
+        d.style.left = "50px";
+        d.style.top = "50px";
+        d.style.width = "100px";
+        d.style.height = "100px";
+
+        // should not be necessary
+        _jsPlumb.manage(d);
+
+        // drag node by 100, 100: should not move, as the constraint function returns null when desired x is less than 200
+        support.dragNodeBy(d, 100, 100);
+
+        equal(parseInt(d.style.left, 10), 50);
+        equal(parseInt(d.style.top, 10), 50);
+
+        support.dragNodeBy(d, 550, 550);
+
+        // should be placed where the entire node is visible in both axes
+        equal(parseInt(d.style.left, 10), 600);
+        equal(parseInt(d.style.top, 10), 600);
+    });
+
+    /**
+     * Test constraining drag via a function
+     */
+    test("dragging, constrain function returns null (for drag element) means all elements in drag selection do not move", function() {
+
+        reinit({
+            dragOptions:{
+                // only move when desired location x value is 200 or more
+                constrainFunction:function(desiredLocation) {
+                    if (desiredLocation.x < 200) {
+                        return null
+                    } else {
+                        return desiredLocation
+                    }
+                }
+            }
+        });
+
+        _jsPlumb.getContainer().style.width = "500px"
+        _jsPlumb.getContainer().style.height = "500px"
+
+        var d = _addDiv("d1");
+        d.style.position = "absolute";
+        d.style.left = "50px";
+        d.style.top = "50px";
+        d.style.width = "100px";
+        d.style.height = "100px";
+
+        var d2 = _addDiv("d2");
+        d2.style.position = "absolute";
+        d2.style.left = "450px";
+        d2.style.top = "450px";
+        d2.style.width = "100px";
+        d2.style.height = "100px";
+
+        // should not be necessary
+        _jsPlumb.manage(d);
+        _jsPlumb.manage(d2);
+
+        _jsPlumb.addToDragSelection(d2)
+
+        // drag node by 100, 100: should not move, as the constraint function returns null when desired x is less than 200
+        support.dragNodeBy(d, 100, 100);
+
+        equal(parseInt(d.style.left, 10), 50, "d1 hasnt moved in X as the constrain function returned null");
+        equal(parseInt(d.style.top, 10), 50, "d1 hasnt moved in Yas the constrain function returned null");
+
+        equal(parseInt(d2.style.left, 10), 450, "d2 hasnt moved in X as the constrain function returned null (for d1, but nothing should move)");
+        equal(parseInt(d2.style.top, 10), 450, "d2 hasnt moved in Yas the constrain function returned null");
+
+        support.dragNodeBy(d, 550, 550);
+
+        // should be placed where the entire node is visible in both axes
+        equal(parseInt(d.style.left, 10), 600, "d1 has now moved in X as the constrain function allowed it");
+        equal(parseInt(d.style.top, 10), 600, "d1 has now moved in Y as the constrain function allowed it");
+
+        equal(parseInt(d2.style.left, 10), 1000, "d2 has now moved in X as the constrain function allowed it");
+        equal(parseInt(d2.style.top, 10), 1000, "d2 has now moved in Y as the constrain function allowed it");
+    });
+
+    /**
+     * Test constraining drag via a function
+     */
     test("dragging, revert function", function() {
 
         reinit({
@@ -1372,5 +1476,58 @@ var testSuite = function () {
 
 
     });
+
+    // /**
+    //  * Tests the behaviour of element dragging when the document is scrolled during the drag. The element's position should
+    //  * be adjusted to account for the scroll delta.
+    //  */
+    // asyncTest("connection dragging, jsplumb container scrolled during drag", function() {
+    //     // debugger
+    //     window.scrollTo(0,0)
+    //     var d = _addDiv("d1", 50, 50, 100, 100);
+    //     d.style.outline = "10px solid green"
+    //
+    //     var c = _jsPlumb.getContainer();
+    //     c.style.outline = "1px solid"
+    //     c.style.height = "300px"
+    //     c.style.width = "500px"
+    //     c.style.overflow = "auto"
+    //
+    //     var d2 = _addDiv("d2");
+    //     d2.style.left = "250px";
+    //     d2.style.top="700px"
+    //     d2.style.width = "100px";
+    //     d2.style.height = "100px";
+    //     d2.style.outline="10px solid blue"
+    //
+    //     var d3 = _addDiv("d3", 450, 150, 100, 100);
+    //     d3.style.outline = "10px solid red"
+    //
+    //     _jsPlumb.importDefaults({
+    //         elementsDraggable:false
+    //     })
+    //
+    //     _jsPlumb.manage(d);
+    //     _jsPlumb.manage(d2);
+    //     _jsPlumb.manage(d3);
+    //
+    //     _jsPlumb.addSourceSelector("#d1")
+    //     _jsPlumb.addTargetSelector("#d2")
+    //
+    //     var scrollAtStart = _jsPlumb.getContainer().scrollTop
+    //
+    //     support.aSyncDragConnection(d, d2, {
+    //         beforeMouseMove:function() {
+    //             d2.scrollIntoView()
+    //         },
+    //         after:function(conn) {
+    //             var scrollDelta = _jsPlumb.getContainer().scrollTop - scrollAtStart
+    //             QUnit.start()
+    //             ok(conn != null, "connection was established")
+    //         }
+    //     })
+    //
+    //
+    // });
 
 };
