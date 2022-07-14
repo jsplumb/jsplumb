@@ -1,5 +1,7 @@
 ## 5.9.1
 
+14 Juillet 2022
+
 ### UPDATES
 
 - Updated `constrainFunction` support to allow the user to return null, signifying that for the given desired location there is no allowed drag position and the element should not move from its last position. Drag is not aborted, but the element does not move from its last position.
