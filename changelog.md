@@ -1,3 +1,9 @@
+## 5.9.4
+
+July 19th 2022
+
+- Upgraded to Typescript 4.x.
+
 ## 5.9.3
 
 July 18th 2022
