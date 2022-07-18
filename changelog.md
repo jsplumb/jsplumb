@@ -1,3 +1,10 @@
+## 5.9.2
+
+July 18th 2022
+
+- added a few utility methods from event manager to the exports.
+- Toolkit edition updates.
+
 ## 5.9.1
 
 14 Juillet 2022

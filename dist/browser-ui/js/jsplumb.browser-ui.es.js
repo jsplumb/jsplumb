@@ -595,6 +595,9 @@ var EVENT_MOUSEUP = "mouseup";
 var EVENT_MOUSEOUT = "mouseout";
 var EVENT_MOUSEOVER = "mouseover";
 var EVENT_TAP = "tap";
+var EVENT_TOUCHSTART = "touchstart";
+var EVENT_TOUCHEND = "touchend";
+var EVENT_TOUCHMOVE = "touchmove";
 var EVENT_DRAG_MOVE = "drag:move";
 var EVENT_DRAG_STOP = "drag:stop";
 var EVENT_DRAG_START = "drag:start";
@@ -635,6 +638,7 @@ var SELECTOR_GROUP = att(ATTRIBUTE_GROUP);
 var SELECTOR_GROUP_CONTAINER = att(ATTRIBUTE_GROUP_CONTENT);
 var SELECTOR_OVERLAY = cls(CLASS_OVERLAY);
 
+var _touchMap, _tapProfiles2;
 function _touch(target, pageX, pageY, screenX, screenY, clientX, clientY) {
   return new Touch({
     target: target,
@@ -715,17 +719,15 @@ function _d(l, fn) {
   }
 }
 var guid = 1;
+var forceTouchEvents = false;
+var forceMouseEvents = false;
 function isTouchDevice() {
-  return "ontouchstart" in document.documentElement || navigator.maxTouchPoints != null && navigator.maxTouchPoints > 0;
+  return forceTouchEvents || "ontouchstart" in document.documentElement || navigator.maxTouchPoints != null && navigator.maxTouchPoints > 0;
 }
 function isMouseDevice() {
-  return "onmousedown" in document.documentElement;
+  return forceMouseEvents || "onmousedown" in document.documentElement;
 }
-var touchMap = {
-  "mousedown": "touchstart",
-  "mouseup": "touchend",
-  "mousemove": "touchmove"
-};
+var touchMap = (_touchMap = {}, _defineProperty(_touchMap, EVENT_MOUSEDOWN, EVENT_TOUCHSTART), _defineProperty(_touchMap, EVENT_MOUSEUP, EVENT_TOUCHEND), _defineProperty(_touchMap, EVENT_MOUSEMOVE, EVENT_TOUCHMOVE), _touchMap);
 var PAGE = "page";
 var SCREEN = "screen";
 var CLIENT = "client";
@@ -907,20 +909,16 @@ var DefaultHandler = function DefaultHandler(obj, evt, fn, children, options) {
   }
   _bind(obj, evt, _curryChildFilter(children, obj, fn, evt), fn, options);
 };
-var _tapProfiles = {
-  "tap": {
-    touches: 1,
-    taps: 1
-  },
-  "dbltap": {
-    touches: 1,
-    taps: 2
-  },
-  "contextmenu": {
-    touches: 2,
-    taps: 1
-  }
-};
+var _tapProfiles = (_tapProfiles2 = {}, _defineProperty(_tapProfiles2, EVENT_TAP, {
+  touches: 1,
+  taps: 1
+}), _defineProperty(_tapProfiles2, EVENT_DBL_TAP, {
+  touches: 1,
+  taps: 2
+}), _defineProperty(_tapProfiles2, EVENT_CONTEXTMENU, {
+  touches: 2,
+  taps: 1
+}), _tapProfiles2);
 function meeHelper(type, evt, obj, target) {
   for (var i in obj.__tamee[type]) {
     if (obj.__tamee[type].hasOwnProperty(i)) {
@@ -1150,6 +1148,12 @@ var EventManager = function () {
   }]);
   return EventManager;
 }();
+function setForceTouchEvents(value) {
+  forceTouchEvents = value;
+}
+function setForceMouseEvents(value) {
+  forceMouseEvents = value;
+}
 
 function findDelegateElement(parentElement, childElement, selector) {
   if (matchesSelector$1(childElement, selector, parentElement)) {
@@ -5525,4 +5529,4 @@ function ready(f) {
   _do();
 }
 
-export { ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP_CONTENT, ATTRIBUTE_JTK_ENABLED, ATTRIBUTE_JTK_SCOPE, BrowserJsPlumbInstance, CLASS_DELEGATED_DRAGGABLE, CLASS_DRAGGABLE, CLASS_DRAGGED, CLASS_DRAG_ACTIVE, CLASS_DRAG_CONTAINER, CLASS_DRAG_HOVER, CLASS_GHOST_PROXY, CONNECTION, Collicat, ContainmentType, Drag, DragManager, ELEMENT, ELEMENT_DIV, ENDPOINT, EVENT_BEFORE_START, EVENT_CLICK, EVENT_CONNECTION_ABORT, EVENT_CONNECTION_CLICK, EVENT_CONNECTION_CONTEXTMENU, EVENT_CONNECTION_DBL_CLICK, EVENT_CONNECTION_DBL_TAP, EVENT_CONNECTION_DRAG, EVENT_CONNECTION_MOUSEDOWN, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEUP, EVENT_CONNECTION_TAP, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_DRAG, EVENT_DRAG_MOVE, EVENT_DRAG_START, EVENT_DRAG_STOP, EVENT_DROP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_CONTEXTMENU, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_DBL_TAP, EVENT_ELEMENT_MOUSE_DOWN, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_UP, EVENT_ELEMENT_TAP, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_DBL_TAP, EVENT_ENDPOINT_MOUSEDOWN, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEUP, EVENT_ENDPOINT_TAP, EVENT_FOCUS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_OUT, EVENT_OVER, EVENT_REVERT, EVENT_START, EVENT_STOP, EVENT_TAP, ElementDragHandler, ElementTypes, EventManager, PROPERTY_POSITION, PositioningStrategies, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP, SELECTOR_GROUP_CONTAINER, SELECTOR_OVERLAY, addClass, compoundEvent, consume, createElement, createElementNS, findParent, getClass, getElementPosition, getElementSize, getElementType, getEventSource, getPageLocation, getPositionOnElement, getTouch, groupDragConstrain, hasClass, isArrayLike, isInsideParent, isNodeList, isSVGElement, matchesSelector$1 as matchesSelector, newInstance, offsetRelativeToRoot, offsetSize, pageLocation, ready, registerEndpointRenderer, removeClass, svg, svgWidthHeightSize, svgXYPosition, toggleClass, touchCount, touches };
+export { ATTRIBUTE_CONTAINER, ATTRIBUTE_GROUP_CONTENT, ATTRIBUTE_JTK_ENABLED, ATTRIBUTE_JTK_SCOPE, BrowserJsPlumbInstance, CLASS_DELEGATED_DRAGGABLE, CLASS_DRAGGABLE, CLASS_DRAGGED, CLASS_DRAG_ACTIVE, CLASS_DRAG_CONTAINER, CLASS_DRAG_HOVER, CLASS_GHOST_PROXY, CONNECTION, Collicat, ContainmentType, Drag, DragManager, ELEMENT, ELEMENT_DIV, ENDPOINT, EVENT_BEFORE_START, EVENT_CLICK, EVENT_CONNECTION_ABORT, EVENT_CONNECTION_CLICK, EVENT_CONNECTION_CONTEXTMENU, EVENT_CONNECTION_DBL_CLICK, EVENT_CONNECTION_DBL_TAP, EVENT_CONNECTION_DRAG, EVENT_CONNECTION_MOUSEDOWN, EVENT_CONNECTION_MOUSEOUT, EVENT_CONNECTION_MOUSEOVER, EVENT_CONNECTION_MOUSEUP, EVENT_CONNECTION_TAP, EVENT_CONTEXTMENU, EVENT_DBL_CLICK, EVENT_DBL_TAP, EVENT_DRAG, EVENT_DRAG_MOVE, EVENT_DRAG_START, EVENT_DRAG_STOP, EVENT_DROP, EVENT_ELEMENT_CLICK, EVENT_ELEMENT_CONTEXTMENU, EVENT_ELEMENT_DBL_CLICK, EVENT_ELEMENT_DBL_TAP, EVENT_ELEMENT_MOUSE_DOWN, EVENT_ELEMENT_MOUSE_MOVE, EVENT_ELEMENT_MOUSE_OUT, EVENT_ELEMENT_MOUSE_OVER, EVENT_ELEMENT_MOUSE_UP, EVENT_ELEMENT_TAP, EVENT_ENDPOINT_CLICK, EVENT_ENDPOINT_DBL_CLICK, EVENT_ENDPOINT_DBL_TAP, EVENT_ENDPOINT_MOUSEDOWN, EVENT_ENDPOINT_MOUSEOUT, EVENT_ENDPOINT_MOUSEOVER, EVENT_ENDPOINT_MOUSEUP, EVENT_ENDPOINT_TAP, EVENT_FOCUS, EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEMOVE, EVENT_MOUSEOUT, EVENT_MOUSEOVER, EVENT_MOUSEUP, EVENT_OUT, EVENT_OVER, EVENT_REVERT, EVENT_START, EVENT_STOP, EVENT_TAP, EVENT_TOUCHEND, EVENT_TOUCHMOVE, EVENT_TOUCHSTART, ElementDragHandler, ElementTypes, EventManager, PROPERTY_POSITION, PositioningStrategies, SELECTOR_CONNECTOR, SELECTOR_ENDPOINT, SELECTOR_GROUP, SELECTOR_GROUP_CONTAINER, SELECTOR_OVERLAY, addClass, compoundEvent, consume, createElement, createElementNS, findParent, getClass, getElementPosition, getElementSize, getElementType, getEventSource, getPageLocation, getPositionOnElement, getTouch, groupDragConstrain, hasClass, isArrayLike, isInsideParent, isMouseDevice, isNodeList, isSVGElement, isTouchDevice, matchesSelector$1 as matchesSelector, newInstance, offsetRelativeToRoot, offsetSize, pageLocation, ready, registerEndpointRenderer, removeClass, setForceMouseEvents, setForceTouchEvents, svg, svgWidthHeightSize, svgXYPosition, toggleClass, touchCount, touches };

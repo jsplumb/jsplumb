@@ -1416,6 +1416,21 @@ export declare const EVENT_STOP = "stop";
  */
 export declare const EVENT_TAP = "tap";
 
+/**
+ * @public
+ */
+export declare const EVENT_TOUCHEND = "touchend";
+
+/**
+ * @public
+ */
+export declare const EVENT_TOUCHMOVE = "touchmove";
+
+/**
+ * @public
+ */
+export declare const EVENT_TOUCHSTART = "touchstart";
+
 export declare class EventManager {
     clickThreshold: number;
     dblClickThreshold: number;
@@ -1532,9 +1547,13 @@ export declare function isArrayLike(el: any): el is ArrayLike<Element>;
 
 export declare function isInsideParent(instance: BrowserJsPlumbInstance, _el: HTMLElement, pos: PointXY): boolean;
 
+export declare function isMouseDevice(): boolean;
+
 export declare function isNodeList(el: any): el is NodeListOf<Element>;
 
 export declare function isSVGElement(el: Element): boolean;
+
+export declare function isTouchDevice(): boolean;
 
 export declare interface jsPlumbDOMElement extends HTMLElement, jsPlumbElement<Element> {
     _isJsPlumbGroup: boolean;
@@ -1639,6 +1658,10 @@ export declare const SELECTOR_GROUP_CONTAINER: string;
  * @public
  */
 export declare const SELECTOR_OVERLAY: string;
+
+export declare function setForceMouseEvents(value: boolean): void;
+
+export declare function setForceTouchEvents(value: boolean): void;
 
 export declare type SetPositionFunction = (el: Element, p: PointXY) => void;
 

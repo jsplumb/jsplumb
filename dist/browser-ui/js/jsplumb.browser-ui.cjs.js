@@ -599,6 +599,9 @@ var EVENT_MOUSEUP = "mouseup";
 var EVENT_MOUSEOUT = "mouseout";
 var EVENT_MOUSEOVER = "mouseover";
 var EVENT_TAP = "tap";
+var EVENT_TOUCHSTART = "touchstart";
+var EVENT_TOUCHEND = "touchend";
+var EVENT_TOUCHMOVE = "touchmove";
 var EVENT_DRAG_MOVE = "drag:move";
 var EVENT_DRAG_STOP = "drag:stop";
 var EVENT_DRAG_START = "drag:start";
@@ -639,6 +642,7 @@ var SELECTOR_GROUP = core.att(core.ATTRIBUTE_GROUP);
 var SELECTOR_GROUP_CONTAINER = core.att(ATTRIBUTE_GROUP_CONTENT);
 var SELECTOR_OVERLAY = core.cls(core.CLASS_OVERLAY);
 
+var _touchMap, _tapProfiles2;
 function _touch(target, pageX, pageY, screenX, screenY, clientX, clientY) {
   return new Touch({
     target: target,
@@ -719,17 +723,15 @@ function _d(l, fn) {
   }
 }
 var guid = 1;
+var forceTouchEvents = false;
+var forceMouseEvents = false;
 function isTouchDevice() {
-  return "ontouchstart" in document.documentElement || navigator.maxTouchPoints != null && navigator.maxTouchPoints > 0;
+  return forceTouchEvents || "ontouchstart" in document.documentElement || navigator.maxTouchPoints != null && navigator.maxTouchPoints > 0;
 }
 function isMouseDevice() {
-  return "onmousedown" in document.documentElement;
+  return forceMouseEvents || "onmousedown" in document.documentElement;
 }
-var touchMap = {
-  "mousedown": "touchstart",
-  "mouseup": "touchend",
-  "mousemove": "touchmove"
-};
+var touchMap = (_touchMap = {}, _defineProperty(_touchMap, EVENT_MOUSEDOWN, EVENT_TOUCHSTART), _defineProperty(_touchMap, EVENT_MOUSEUP, EVENT_TOUCHEND), _defineProperty(_touchMap, EVENT_MOUSEMOVE, EVENT_TOUCHMOVE), _touchMap);
 var PAGE = "page";
 var SCREEN = "screen";
 var CLIENT = "client";
@@ -911,20 +913,16 @@ var DefaultHandler = function DefaultHandler(obj, evt, fn, children, options) {
   }
   _bind(obj, evt, _curryChildFilter(children, obj, fn, evt), fn, options);
 };
-var _tapProfiles = {
-  "tap": {
-    touches: 1,
-    taps: 1
-  },
-  "dbltap": {
-    touches: 1,
-    taps: 2
-  },
-  "contextmenu": {
-    touches: 2,
-    taps: 1
-  }
-};
+var _tapProfiles = (_tapProfiles2 = {}, _defineProperty(_tapProfiles2, EVENT_TAP, {
+  touches: 1,
+  taps: 1
+}), _defineProperty(_tapProfiles2, EVENT_DBL_TAP, {
+  touches: 1,
+  taps: 2
+}), _defineProperty(_tapProfiles2, EVENT_CONTEXTMENU, {
+  touches: 2,
+  taps: 1
+}), _tapProfiles2);
 function meeHelper(type, evt, obj, target) {
   for (var i in obj.__tamee[type]) {
     if (obj.__tamee[type].hasOwnProperty(i)) {
@@ -1154,6 +1152,12 @@ var EventManager = function () {
   }]);
   return EventManager;
 }();
+function setForceTouchEvents(value) {
+  forceTouchEvents = value;
+}
+function setForceMouseEvents(value) {
+  forceMouseEvents = value;
+}
 
 function findDelegateElement(parentElement, childElement, selector) {
   if (matchesSelector$1(childElement, selector, parentElement)) {
@@ -5601,6 +5605,9 @@ exports.EVENT_REVERT = EVENT_REVERT;
 exports.EVENT_START = EVENT_START;
 exports.EVENT_STOP = EVENT_STOP;
 exports.EVENT_TAP = EVENT_TAP;
+exports.EVENT_TOUCHEND = EVENT_TOUCHEND;
+exports.EVENT_TOUCHMOVE = EVENT_TOUCHMOVE;
+exports.EVENT_TOUCHSTART = EVENT_TOUCHSTART;
 exports.ElementDragHandler = ElementDragHandler;
 exports.EventManager = EventManager;
 exports.PROPERTY_POSITION = PROPERTY_POSITION;
@@ -5627,8 +5634,10 @@ exports.groupDragConstrain = groupDragConstrain;
 exports.hasClass = hasClass;
 exports.isArrayLike = isArrayLike;
 exports.isInsideParent = isInsideParent;
+exports.isMouseDevice = isMouseDevice;
 exports.isNodeList = isNodeList;
 exports.isSVGElement = isSVGElement;
+exports.isTouchDevice = isTouchDevice;
 exports.matchesSelector = matchesSelector$1;
 exports.newInstance = newInstance;
 exports.offsetRelativeToRoot = offsetRelativeToRoot;
@@ -5637,6 +5646,8 @@ exports.pageLocation = pageLocation;
 exports.ready = ready;
 exports.registerEndpointRenderer = registerEndpointRenderer;
 exports.removeClass = removeClass;
+exports.setForceMouseEvents = setForceMouseEvents;
+exports.setForceTouchEvents = setForceTouchEvents;
 exports.svg = svg;
 exports.svgWidthHeightSize = svgWidthHeightSize;
 exports.svgXYPosition = svgXYPosition;

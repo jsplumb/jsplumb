@@ -86,6 +86,18 @@ export declare const EVENT_TAP = "tap";
 /**
  * @public
  */
+export declare const EVENT_TOUCHSTART = "touchstart";
+/**
+ * @public
+ */
+export declare const EVENT_TOUCHEND = "touchend";
+/**
+ * @public
+ */
+export declare const EVENT_TOUCHMOVE = "touchmove";
+/**
+ * @public
+ */
 export declare const EVENT_DRAG_MOVE = "drag:move";
 /**
  * @public

@@ -10696,6 +10696,9 @@ var jsPlumbBrowserUI = (function (exports) {
   var EVENT_MOUSEOUT = "mouseout";
   var EVENT_MOUSEOVER = "mouseover";
   var EVENT_TAP = "tap";
+  var EVENT_TOUCHSTART = "touchstart";
+  var EVENT_TOUCHEND = "touchend";
+  var EVENT_TOUCHMOVE = "touchmove";
   var EVENT_DRAG_MOVE = "drag:move";
   var EVENT_DRAG_STOP = "drag:stop";
   var EVENT_DRAG_START = "drag:start";
@@ -10736,6 +10739,7 @@ var jsPlumbBrowserUI = (function (exports) {
   var SELECTOR_GROUP_CONTAINER = att(ATTRIBUTE_GROUP_CONTENT);
   var SELECTOR_OVERLAY = cls(CLASS_OVERLAY);
 
+  var _touchMap, _tapProfiles2;
   function _touch(target, pageX, pageY, screenX, screenY, clientX, clientY) {
     return new Touch({
       target: target,
@@ -10816,17 +10820,15 @@ var jsPlumbBrowserUI = (function (exports) {
     }
   }
   var guid = 1;
+  var forceTouchEvents = false;
+  var forceMouseEvents = false;
   function isTouchDevice() {
-    return "ontouchstart" in document.documentElement || navigator.maxTouchPoints != null && navigator.maxTouchPoints > 0;
+    return forceTouchEvents || "ontouchstart" in document.documentElement || navigator.maxTouchPoints != null && navigator.maxTouchPoints > 0;
   }
   function isMouseDevice() {
-    return "onmousedown" in document.documentElement;
+    return forceMouseEvents || "onmousedown" in document.documentElement;
   }
-  var touchMap = {
-    "mousedown": "touchstart",
-    "mouseup": "touchend",
-    "mousemove": "touchmove"
-  };
+  var touchMap = (_touchMap = {}, _defineProperty(_touchMap, EVENT_MOUSEDOWN, EVENT_TOUCHSTART), _defineProperty(_touchMap, EVENT_MOUSEUP, EVENT_TOUCHEND), _defineProperty(_touchMap, EVENT_MOUSEMOVE, EVENT_TOUCHMOVE), _touchMap);
   var PAGE = "page";
   var SCREEN = "screen";
   var CLIENT = "client";
@@ -11008,20 +11010,16 @@ var jsPlumbBrowserUI = (function (exports) {
     }
     _bind(obj, evt, _curryChildFilter(children, obj, fn, evt), fn, options);
   };
-  var _tapProfiles = {
-    "tap": {
-      touches: 1,
-      taps: 1
-    },
-    "dbltap": {
-      touches: 1,
-      taps: 2
-    },
-    "contextmenu": {
-      touches: 2,
-      taps: 1
-    }
-  };
+  var _tapProfiles = (_tapProfiles2 = {}, _defineProperty(_tapProfiles2, EVENT_TAP, {
+    touches: 1,
+    taps: 1
+  }), _defineProperty(_tapProfiles2, EVENT_DBL_TAP, {
+    touches: 1,
+    taps: 2
+  }), _defineProperty(_tapProfiles2, EVENT_CONTEXTMENU, {
+    touches: 2,
+    taps: 1
+  }), _tapProfiles2);
   function meeHelper(type, evt, obj, target) {
     for (var i in obj.__tamee[type]) {
       if (obj.__tamee[type].hasOwnProperty(i)) {
@@ -11251,6 +11249,12 @@ var jsPlumbBrowserUI = (function (exports) {
     }]);
     return EventManager;
   }();
+  function setForceTouchEvents(value) {
+    forceTouchEvents = value;
+  }
+  function setForceMouseEvents(value) {
+    forceMouseEvents = value;
+  }
 
   function findDelegateElement(parentElement, childElement, selector) {
     if (matchesSelector$1(childElement, selector, parentElement)) {
@@ -15787,6 +15791,9 @@ var jsPlumbBrowserUI = (function (exports) {
   exports.EVENT_START = EVENT_START;
   exports.EVENT_STOP = EVENT_STOP;
   exports.EVENT_TAP = EVENT_TAP;
+  exports.EVENT_TOUCHEND = EVENT_TOUCHEND;
+  exports.EVENT_TOUCHMOVE = EVENT_TOUCHMOVE;
+  exports.EVENT_TOUCHSTART = EVENT_TOUCHSTART;
   exports.EVENT_UNMANAGE_ELEMENT = EVENT_UNMANAGE_ELEMENT;
   exports.EVENT_ZOOM = EVENT_ZOOM;
   exports.ElementDragHandler = ElementDragHandler;
@@ -15924,6 +15931,7 @@ var jsPlumbBrowserUI = (function (exports) {
   exports.isFunction = isFunction;
   exports.isInsideParent = isInsideParent;
   exports.isLabelOverlay = isLabelOverlay;
+  exports.isMouseDevice = isMouseDevice;
   exports.isNamedFunction = isNamedFunction;
   exports.isNodeList = isNodeList;
   exports.isNumber = isNumber;
@@ -15932,6 +15940,7 @@ var jsPlumbBrowserUI = (function (exports) {
   exports.isPoint = isPoint;
   exports.isSVGElement = isSVGElement;
   exports.isString = isString;
+  exports.isTouchDevice = isTouchDevice;
   exports.lineIntersection = lineIntersection;
   exports.lineLength = lineLength;
   exports.lineRectangleIntersection = lineRectangleIntersection;
@@ -15965,6 +15974,8 @@ var jsPlumbBrowserUI = (function (exports) {
   exports.replace = replace;
   exports.rotateAnchorOrientation = rotateAnchorOrientation;
   exports.rotatePoint = rotatePoint;
+  exports.setForceMouseEvents = setForceMouseEvents;
+  exports.setForceTouchEvents = setForceTouchEvents;
   exports.setToArray = setToArray;
   exports.sgn = sgn$1;
   exports.snapToGrid = snapToGrid;

@@ -930,6 +930,15 @@ export const EVENT_STOP = "stop";
 export const EVENT_TAP = "tap";
 
 // @public (undocumented)
+export const EVENT_TOUCHEND = "touchend";
+
+// @public (undocumented)
+export const EVENT_TOUCHMOVE = "touchmove";
+
+// @public (undocumented)
+export const EVENT_TOUCHSTART = "touchstart";
+
+// @public (undocumented)
 export class EventManager {
     // Warning: (ae-forgotten-export) The symbol "EventManagerOptions" needs to be exported by the entry point index.d.ts
     constructor(params?: EventManagerOptions);
@@ -1031,10 +1040,16 @@ export function isArrayLike(el: any): el is ArrayLike<Element>;
 export function isInsideParent(instance: BrowserJsPlumbInstance, _el: HTMLElement, pos: PointXY): boolean;
 
 // @public (undocumented)
+export function isMouseDevice(): boolean;
+
+// @public (undocumented)
 export function isNodeList(el: any): el is NodeListOf<Element>;
 
 // @public (undocumented)
 export function isSVGElement(el: Element): boolean;
+
+// @public (undocumented)
+export function isTouchDevice(): boolean;
 
 // @public (undocumented)
 export interface jsPlumbDOMElement extends HTMLElement, jsPlumbElement<Element> {
@@ -1152,6 +1167,12 @@ export const SELECTOR_GROUP_CONTAINER: string;
 
 // @public (undocumented)
 export const SELECTOR_OVERLAY: string;
+
+// @public (undocumented)
+export function setForceMouseEvents(value: boolean): void;
+
+// @public (undocumented)
+export function setForceTouchEvents(value: boolean): void;
 
 // @public (undocumented)
 export type SetPositionFunction = (el: Element, p: PointXY) => void;
