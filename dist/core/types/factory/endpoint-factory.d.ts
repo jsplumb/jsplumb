@@ -5,10 +5,10 @@ import { Constructable } from "@jsplumb/util";
 import { AnchorPlacement } from "@jsplumb/common";
 export declare type EndpointComputeFunction<T> = (endpoint: EndpointRepresentation<T>, anchorPoint: AnchorPlacement, orientation: Orientation, endpointStyle: any) => T;
 export declare const EndpointFactory: {
-    get: (ep: Endpoint<any>, name: string, params: any) => EndpointRepresentation<any>;
+    get: (ep: Endpoint, name: string, params: any) => EndpointRepresentation<any>;
     clone: <C>(epr: EndpointRepresentation<C>) => EndpointRepresentation<C>;
-    compute: <T>(endpoint: EndpointRepresentation<T>, anchorPoint: AnchorPlacement, orientation: [import("./anchor-record-factory").AnchorOrientationHint, import("./anchor-record-factory").AnchorOrientationHint], endpointStyle: any) => T;
-    registerHandler: <E, T>(eph: EndpointHandler<E, T>) => void;
+    compute: <T>(endpoint: EndpointRepresentation<T>, anchorPoint: AnchorPlacement, orientation: Orientation, endpointStyle: any) => T;
+    registerHandler: <E, T_1>(eph: EndpointHandler<E, T_1>) => void;
 };
 export interface EndpointHandler<E, T> {
     type: string;

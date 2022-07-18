@@ -9098,7 +9098,7 @@ var jsPlumbBrowserUI = (function (exports) {
       _defineProperty$1(_assertThisInitialized$1(_this), "loopbackRadius", void 0);
       _defineProperty$1(_assertThisInitialized$1(_this), "clockwise", void 0);
       _defineProperty$1(_assertThisInitialized$1(_this), "isLoopbackCurrently", void 0);
-      _defineProperty$1(_assertThisInitialized$1(_this), "geometry", void 0);
+      _defineProperty$1(_assertThisInitialized$1(_this), "geometry", null);
       params = params || {};
       _this.showLoopback = params.showLoopback !== false;
       _this.curviness = params.curviness || 10;
@@ -10027,7 +10027,6 @@ var jsPlumbBrowserUI = (function (exports) {
       _this.connection = connection;
       _defineProperty$1(_assertThisInitialized$1(_this), "type", StateMachineConnector.type);
       _defineProperty$1(_assertThisInitialized$1(_this), "_controlPoint", void 0);
-      _defineProperty$1(_assertThisInitialized$1(_this), "proximityLimit", void 0);
       _this.curviness = params.curviness || 10;
       _this.margin = params.margin || 5;
       _this.proximityLimit = params.proximityLimit || 80;

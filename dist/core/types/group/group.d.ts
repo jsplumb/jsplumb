@@ -60,6 +60,6 @@ export declare class UIGroup<E = any> extends UINode<E> {
     removeGroup(group: UIGroup<E>): void;
     getGroups(): Array<UIGroup<E>>;
     getNodes(): Array<UINode<E>>;
-    readonly collapseParent: UIGroup<E>;
+    get collapseParent(): UIGroup<E>;
 }
 //# sourceMappingURL=group.d.ts.map

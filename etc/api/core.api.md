@@ -902,7 +902,7 @@ export type ConnectorComputeParams = {
 
 // @public (undocumented)
 export const Connectors: {
-    get: (connection: Connection<any>, name: string, params: any) => AbstractConnector;
+    get: (connection: Connection, name: string, params: any) => AbstractConnector;
     register: (name: string, conn: Constructable<AbstractConnector>) => void;
 };
 
@@ -1201,10 +1201,10 @@ export type EndpointComputeFunction<T> = (endpoint: EndpointRepresentation<T>, a
 
 // @public (undocumented)
 export const EndpointFactory: {
-    get: (ep: Endpoint<any>, name: string, params: any) => EndpointRepresentation<any>;
+    get: (ep: Endpoint, name: string, params: any) => EndpointRepresentation<any>;
     clone: <C>(epr: EndpointRepresentation<C>) => EndpointRepresentation<C>;
-    compute: <T>(endpoint: EndpointRepresentation<T>, anchorPoint: AnchorPlacement, orientation: [AnchorOrientationHint, AnchorOrientationHint], endpointStyle: any) => T;
-    registerHandler: <E, T>(eph: EndpointHandler<E, T>) => void;
+    compute: <T>(endpoint: EndpointRepresentation<T>, anchorPoint: AnchorPlacement, orientation: Orientation, endpointStyle: any) => T;
+    registerHandler: <E, T_1>(eph: EndpointHandler<E, T_1>) => void;
 };
 
 // @public (undocumented)
@@ -1702,11 +1702,11 @@ export abstract class JsPlumbInstance<T extends {
     // (undocumented)
     currentlyDragging: boolean;
     // (undocumented)
-    readonly currentZoom: number;
+    get currentZoom(): number;
     // (undocumented)
     defaults: JsPlumbDefaults<T["E"]>;
     // (undocumented)
-    readonly defaultScope: string;
+    get defaultScope(): string;
     deleteConnection(connection: Connection, params?: DeleteConnectionOptions): boolean;
     deleteConnectionsForElement(el: T["E"], params?: DeleteConnectionOptions): JsPlumbInstance;
     deleteEndpoint(object: string | Endpoint): JsPlumbInstance;
@@ -2211,7 +2211,7 @@ export abstract class Overlay extends EventGenerator {
 
 // @public (undocumented)
 export const OverlayFactory: {
-    get: (instance: JsPlumbInstance<any>, name: string, component: Component, params: any) => Overlay;
+    get: (instance: JsPlumbInstance, name: string, component: Component, params: any) => Overlay;
     register: (name: string, overlay: Constructable<Overlay>) => void;
 };
 
@@ -2562,7 +2562,7 @@ export class UIGroup<E = any> extends UINode<E> {
     // (undocumented)
     collapsed: boolean;
     // (undocumented)
-    readonly collapseParent: UIGroup<E>;
+    get collapseParent(): UIGroup<E>;
     // (undocumented)
     readonly connections: {
         source: Array<Connection>;

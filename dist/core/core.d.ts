@@ -1095,7 +1095,7 @@ export declare type ConnectorComputeParams = {
 };
 
 export declare const Connectors: {
-    get: (connection: Connection<any>, name: string, params: any) => AbstractConnector;
+    get: (connection: Connection, name: string, params: any) => AbstractConnector;
     register: (name: string, conn: Constructable<AbstractConnector>) => void;
 };
 
@@ -1414,10 +1414,10 @@ export declare class Endpoint<E = any> extends Component {
 export declare type EndpointComputeFunction<T> = (endpoint: EndpointRepresentation<T>, anchorPoint: AnchorPlacement, orientation: Orientation, endpointStyle: any) => T;
 
 export declare const EndpointFactory: {
-    get: (ep: Endpoint<any>, name: string, params: any) => EndpointRepresentation<any>;
+    get: (ep: Endpoint, name: string, params: any) => EndpointRepresentation<any>;
     clone: <C>(epr: EndpointRepresentation<C>) => EndpointRepresentation<C>;
-    compute: <T>(endpoint: EndpointRepresentation<T>, anchorPoint: AnchorPlacement, orientation: [AnchorOrientationHint, AnchorOrientationHint], endpointStyle: any) => T;
-    registerHandler: <E, T>(eph: EndpointHandler<E, T>) => void;
+    compute: <T>(endpoint: EndpointRepresentation<T>, anchorPoint: AnchorPlacement, orientation: Orientation, endpointStyle: any) => T;
+    registerHandler: <E, T_1>(eph: EndpointHandler<E, T_1>) => void;
 };
 
 export declare interface EndpointHandler<E, T> {
@@ -1853,9 +1853,9 @@ export declare abstract class JsPlumbInstance<T extends {
     private _container;
     protected _managedElements: Record<string, ManagedElement<T["E"]>>;
     private DEFAULT_SCOPE;
-    readonly defaultScope: string;
+    get defaultScope(): string;
     private _zoom;
-    readonly currentZoom: number;
+    get currentZoom(): number;
     constructor(_instanceIndex: number, defaults?: JsPlumbDefaults<T["E"]>);
     /**
      * @internal
@@ -2717,7 +2717,7 @@ export declare abstract class Overlay extends EventGenerator {
 }
 
 export declare const OverlayFactory: {
-    get: (instance: JsPlumbInstance<any>, name: string, component: Component, params: any) => Overlay;
+    get: (instance: JsPlumbInstance, name: string, component: Component, params: any) => Overlay;
     register: (name: string, overlay: Constructable<Overlay>) => void;
 };
 
@@ -2882,7 +2882,7 @@ declare class SelectionBase<T extends Component> {
     protected instance: JsPlumbInstance;
     protected entries: Array<T>;
     constructor(instance: JsPlumbInstance, entries: Array<T>);
-    readonly length: number;
+    get length(): number;
     each(handler: (arg0: T) => void): SelectionBase<T>;
     get(index: number): T;
     addClass(clazz: string, cascade?: boolean): SelectionBase<T>;
@@ -3120,7 +3120,7 @@ export declare class UIGroup<E = any> extends UINode<E> {
     removeGroup(group: UIGroup<E>): void;
     getGroups(): Array<UIGroup<E>>;
     getNodes(): Array<UINode<E>>;
-    readonly collapseParent: UIGroup<E>;
+    get collapseParent(): UIGroup<E>;
 }
 
 export declare class UINode<E> {

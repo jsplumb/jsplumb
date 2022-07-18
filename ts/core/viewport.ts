@@ -37,8 +37,8 @@ export interface TranslatedViewportElementBase<E> extends ViewportElementBase<E>
 }
 
 // use Omit once we can upgrade past ~3.4.0
-//export type TranslatedViewportElement<E> = Omit<TranslatedViewportElementBase<E>, "dirty">
-export type TranslatedViewportElement<E> = Pick<TranslatedViewportElementBase<E>, Exclude<keyof TranslatedViewportElementBase<E>, "dirty">>
+export type TranslatedViewportElement<E> = Omit<TranslatedViewportElementBase<E>, "dirty">
+// export type TranslatedViewportElement<E> = Pick<TranslatedViewportElementBase<E>, Exclude<keyof TranslatedViewportElementBase<E>, "dirty">>
 
 /**
  * Captures a set of elements affected by some given operation. For internal use.

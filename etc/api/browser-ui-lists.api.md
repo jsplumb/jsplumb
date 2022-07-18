@@ -16,7 +16,7 @@ export const ATTR_SCROLLABLE_LIST = "jtk-scrollable-list";
 
 // @public (undocumented)
 export const DEFAULT_LIST_OPTIONS: {
-    deriveAnchor: (edge: SupportedEdge, index: number, ep: Endpoint<any>, conn: Connection<any>) => string;
+    deriveAnchor: (edge: SupportedEdge, index: number, ep: Endpoint, conn: Connection) => string;
 };
 
 // @public (undocumented)

@@ -92,7 +92,6 @@ export class StateMachineConnector extends AbstractBezierConnector {
     type = StateMachineConnector.type
 
     _controlPoint:PointXY
-    proximityLimit:number
 
     constructor(public connection:Connection, params:StateMachineOptions) {
         super(connection, params)

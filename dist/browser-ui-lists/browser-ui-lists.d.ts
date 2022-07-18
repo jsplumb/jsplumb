@@ -14,7 +14,7 @@ import { jsPlumbDOMElement } from '@jsplumb/browser-ui';
 export declare const ATTR_SCROLLABLE_LIST = "jtk-scrollable-list";
 
 export declare const DEFAULT_LIST_OPTIONS: {
-    deriveAnchor: (edge: SupportedEdge, index: number, ep: Endpoint<any>, conn: Connection<any>) => string;
+    deriveAnchor: (edge: SupportedEdge, index: number, ep: Endpoint, conn: Connection) => string;
 };
 
 export declare const EVENT_SCROLL = "scroll";

@@ -9,7 +9,6 @@ export declare class StateMachineConnector extends AbstractBezierConnector {
     static type: string;
     type: string;
     _controlPoint: PointXY;
-    proximityLimit: number;
     constructor(connection: Connection, params: StateMachineOptions);
     _computeBezier(paintInfo: PaintGeometry, params: ConnectorComputeParams, sp: AnchorPlacement, tp: AnchorPlacement, w: number, h: number): void;
 }

@@ -5,7 +5,10 @@ import { AnchorPlacement, ConnectorOptions, Geometry } from "@jsplumb/common";
  * The bezier connector's internal representation of a path.
  */
 export interface BezierConnectorGeometry extends Geometry {
-    controlPoints: [PointXY, PointXY];
+    controlPoints: [
+        PointXY,
+        PointXY
+    ];
     source: AnchorPlacement;
     target: AnchorPlacement;
 }

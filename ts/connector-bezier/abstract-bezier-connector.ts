@@ -47,7 +47,7 @@ export abstract class AbstractBezierConnector extends AbstractConnector {
     clockwise:boolean
     isLoopbackCurrently:boolean
 
-    geometry: BezierConnectorGeometry
+    geometry: BezierConnectorGeometry = null
 
     getDefaultStubs():[number, number] {
         return [0,0]

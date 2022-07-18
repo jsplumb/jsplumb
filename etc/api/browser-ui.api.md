@@ -256,8 +256,8 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<{
     sourceElementDraggingClass: string;
     // (undocumented)
     svg: {
-        node: (name: string, attributes?: Record<string, string | number>) => SVGElement;
-        attr: (node: SVGElement, attributes: Record<string, string | number>) => void;
+        node: (name: string, attributes?: ElementAttributes) => SVGElement;
+        attr: (node: SVGElement, attributes: ElementAttributes) => void;
         pos: (d: [number, number]) => string;
     };
     // (undocumented)
@@ -1214,6 +1214,7 @@ export interface UIComponent {
 
 // Warnings were encountered during analysis:
 //
+// /Users/simon/programming/jsplumb/jsplumb/dist/browser-ui/types/browser-jsplumb-instance.d.ts:489:9 - (ae-forgotten-export) The symbol "ElementAttributes" needs to be exported by the entry point index.d.ts
 // /Users/simon/programming/jsplumb/jsplumb/dist/browser-ui/types/svg-util.d.ts:17:5 - (ae-forgotten-export) The symbol "_attr" needs to be exported by the entry point index.d.ts
 // /Users/simon/programming/jsplumb/jsplumb/dist/browser-ui/types/svg-util.d.ts:18:5 - (ae-forgotten-export) The symbol "_node" needs to be exported by the entry point index.d.ts
 

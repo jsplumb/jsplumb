@@ -1,64 +1,80 @@
 {
-  "private" : true,
-  "version" : "5.9.3",
-  "workspaces" : [ "ts/*" ],
-  "description" : "Visual connectivity for webapps",
-  "directories" : {
-    "doc" : "doc",
-    "test" : "tests"
+  "private": true,
+  "version": "5.9.4",
+  "workspaces": [
+    "ts/*"
+  ],
+  "description": "Visual connectivity for webapps",
+  "directories": {
+    "doc": "doc",
+    "test": "tests"
   },
-  "scripts" : {
-    "test" : "echo \"Error: no test specified\" && exit 1",
-    "init" : "node ./install.js",
-    "build" : "set -e;echo \"\n--- Running Typescript build\";tsc",
-    "babel" : "echo \"--- Running Babel. This build target is just for debugging any build issues, and not part of the normal build\n\";./node_modules/.bin/babel ./ts --out-dir _build --extensions \".ts,.tsx\" --source-maps",
-    "package" : "echo \"\n--- Building and packaging...\n\"; set -e;rm -rf dist;mkdir dist;npm run build;npm run rollup;npm run copy-defs;npm run copy-package-json;npm run copy-css",
-    "copy-css" : "node ./scripts/copy-css.js",
-    "copy-package-json" : "echo \"\n--- Copying package jsons into distribution directories...\n\"; node ./scripts/copy-package-json.js",
-    "copy-defs" : "echo \"\n--- Copying typescript definitions into distribution directories...\n\"; node ./scripts/copy-typescript-defs.js",
-    "create-distribution" : "set -e;npm run package;echo \"\n-- Building apidocs...\n\";npm run apidocs; echo \"\n-- Building distribution packages...\n\";node ./scripts/create-packages.js;npm run build:bundle",
-    "build:bundle" : "node ./bundle/build.js",
-    "rollup" : "echo \"\n--- Running Rollup...\n\"; rollup -c",
-    "rollup-dev" : "rollup -c -w",
-    "link" : "node scripts/link.js",
-    "apidocs" : "node scripts/create-apidocs.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "init": "node ./install.js",
+    "build": "set -e;echo \"\n--- Running Typescript build\";tsc",
+    "babel": "echo \"--- Running Babel. This build target is just for debugging any build issues, and not part of the normal build\n\";./node_modules/.bin/babel ./ts --out-dir _build --extensions \".ts,.tsx\" --source-maps",
+    "package": "echo \"\n--- Building and packaging...\n\"; set -e;rm -rf dist;mkdir dist;npm run build;npm run rollup;npm run copy-defs;npm run copy-package-json;npm run copy-css",
+    "copy-css": "node ./scripts/copy-css.js",
+    "copy-package-json": "echo \"\n--- Copying package jsons into distribution directories...\n\"; node ./scripts/copy-package-json.js",
+    "copy-defs": "echo \"\n--- Copying typescript definitions into distribution directories...\n\"; node ./scripts/copy-typescript-defs.js",
+    "create-distribution": "set -e;npm run package;echo \"\n-- Building apidocs...\n\";npm run apidocs; echo \"\n-- Building distribution packages...\n\";node ./scripts/create-packages.js;npm run build:bundle",
+    "build:bundle": "node ./bundle/build.js",
+    "rollup": "echo \"\n--- Running Rollup...\n\"; rollup -c",
+    "rollup-dev": "rollup -c -w",
+    "link": "node scripts/link.js",
+    "apidocs": "node scripts/create-apidocs.js",
     "update-versions": "node scripts/update-version.js"
   },
-  "repository" : {
-    "type" : "git",
-    "url" : "git://github.com/jsplumb/jsplumb.git"
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jsplumb/jsplumb.git"
   },
-  "keywords" : [ "javascript", "svg", "visual", "connectivity" ],
-  "packages" : [ "util", "common", "core", "connector-bezier", "connector-flowchart", "browser-ui", "browser-ui-lists", "test" ],
-  "packageNames" : {
-    "@jsplumb/core" : "jsPlumb",
-    "@jsplumb/util" : "jsPlumbUtil",
-    "@jsplumb/common" : "jsPlumbCommon",
-    "@jsplumb/browser-ui" : "jsPlumbBrowserUI",
-    "@jsplumb/browser-ui-lists" : "jsPlumbBrowserUILists",
-    "@jsplumb/connector-bezier" : "jsPlumbConnectorBezier",
-    "@jsplumb/connector-flowchart" : "jsPlumbConnectorFlowchart",
-    "@jsplumb/test" : "jsPlumbTestSupport"
+  "keywords": [
+    "javascript",
+    "svg",
+    "visual",
+    "connectivity"
+  ],
+  "packages": [
+    "util",
+    "common",
+    "core",
+    "connector-bezier",
+    "connector-flowchart",
+    "browser-ui",
+    "browser-ui-lists",
+    "test"
+  ],
+  "packageNames": {
+    "@jsplumb/core": "jsPlumb",
+    "@jsplumb/util": "jsPlumbUtil",
+    "@jsplumb/common": "jsPlumbCommon",
+    "@jsplumb/browser-ui": "jsPlumbBrowserUI",
+    "@jsplumb/browser-ui-lists": "jsPlumbBrowserUILists",
+    "@jsplumb/connector-bezier": "jsPlumbConnectorBezier",
+    "@jsplumb/connector-flowchart": "jsPlumbConnectorFlowchart",
+    "@jsplumb/test": "jsPlumbTestSupport"
   },
-  "author" : "jsPlumb (hello@jsplumbtoolkit.com)",
-  "license" : "(MIT OR GPL-2.0)",
-  "dependencies" : { },
-  "devDependencies" : {
-    "@babel/cli" : "^7.4.4",
-    "@babel/core" : "^7.4.4",
-    "@babel/plugin-proposal-class-properties" : "^7.4.4",
-    "@babel/plugin-proposal-object-rest-spread" : "^7.4.4",
-    "@babel/preset-env" : "^7.4.4",
-    "@babel/preset-typescript" : "^7.3.3",
-    "@microsoft/api-documenter" : "^7.13.39",
-    "@microsoft/api-extractor" : "^7.18.5",
-    "@rollup/plugin-babel" : "^5.2.1",
-    "@rollup/plugin-commonjs" : "^15.0.0",
-    "@rollup/plugin-node-resolve" : "^9.0.0",
-    "babel-loader" : "^8.0.6",
-    "rollup" : "^2.26.11",
-    "rollup-plugin-cleanup" : "^3.2.1",
-    "typedoc" : "0.15.0",
-    "typescript" : "~3.4.0"
+  "author": "jsPlumb (hello@jsplumbtoolkit.com)",
+  "license": "(MIT OR GPL-2.0)",
+  "dependencies": {},
+  "devDependencies": {
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.4",
+    "@babel/plugin-proposal-class-properties": "^7.4.4",
+    "@babel/plugin-proposal-object-rest-spread": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
+    "@babel/preset-typescript": "^7.3.3",
+    "@microsoft/api-documenter": "^7.13.39",
+    "@microsoft/api-extractor": "^7.18.5",
+    "@rollup/plugin-babel": "^5.2.1",
+    "@rollup/plugin-commonjs": "^15.0.0",
+    "@rollup/plugin-node-resolve": "^9.0.0",
+    "babel-loader": "^8.0.6",
+    "rollup": "^2.26.11",
+    "rollup-plugin-cleanup": "^3.2.1",
+    "typedoc": "0.15.0",
+    "typescript": "^4.0.0"
   }
 }

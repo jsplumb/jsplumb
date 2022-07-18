@@ -10,9 +10,9 @@ export declare class DragSelection {
     private _dragElementStartPositions;
     private _dragElementPositions;
     private __activeSet;
-    private readonly _activeSet;
+    private get _activeSet();
     constructor(instance: BrowserJsPlumbInstance);
-    readonly length: number;
+    get length(): number;
     filterActiveSet(fn: (p: {
         id: string;
         jel: jsPlumbDOMElement;

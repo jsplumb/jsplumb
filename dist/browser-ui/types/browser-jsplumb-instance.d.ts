@@ -1,6 +1,7 @@
 import { JsPlumbDefaults, TypeDescriptor, JsPlumbInstance, AbstractConnector, Endpoint, Overlay, RedrawResult, LabelOverlay, Connection, Component, DeleteConnectionOptions, BehaviouralTypeDescriptor, UIGroup, ManagedElement, ConnectionDragSelector } from '@jsplumb/core';
 import { PointXY, Size, BoundingBox, Extents, Grid } from "@jsplumb/util";
 import { PaintStyle } from "@jsplumb/common";
+import { ElementAttributes } from './svg-util';
 import { DragManager } from "./drag-manager";
 import { jsPlumbDOMElement } from './element-facade';
 import { ElementType } from "./browser-util";
@@ -485,8 +486,8 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<{
      */
     rotate(element: Element, rotation: number, doNotRepaint?: boolean): RedrawResult;
     svg: {
-        node: (name: string, attributes?: Record<string, string | number>) => SVGElement;
-        attr: (node: SVGElement, attributes: Record<string, string | number>) => void;
+        node: (name: string, attributes?: ElementAttributes) => SVGElement;
+        attr: (node: SVGElement, attributes: ElementAttributes) => void;
         pos: (d: [number, number]) => string;
     };
     /**

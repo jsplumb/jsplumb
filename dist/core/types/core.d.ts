@@ -109,9 +109,9 @@ export declare abstract class JsPlumbInstance<T extends {
     private _container;
     protected _managedElements: Record<string, ManagedElement<T["E"]>>;
     private DEFAULT_SCOPE;
-    readonly defaultScope: string;
+    get defaultScope(): string;
     private _zoom;
-    readonly currentZoom: number;
+    get currentZoom(): number;
     constructor(_instanceIndex: number, defaults?: JsPlumbDefaults<T["E"]>);
     /**
      * @internal

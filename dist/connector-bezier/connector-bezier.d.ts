@@ -79,7 +79,10 @@ export declare class BezierConnector extends AbstractBezierConnector {
  * The bezier connector's internal representation of a path.
  */
 export declare interface BezierConnectorGeometry extends Geometry {
-    controlPoints: [PointXY, PointXY];
+    controlPoints: [
+    PointXY,
+    PointXY
+    ];
     source: AnchorPlacement;
     target: AnchorPlacement;
 }
@@ -256,7 +259,6 @@ export declare class StateMachineConnector extends AbstractBezierConnector {
     static type: string;
     type: string;
     _controlPoint: PointXY;
-    proximityLimit: number;
     constructor(connection: Connection, params: StateMachineOptions);
     _computeBezier(paintInfo: PaintGeometry, params: ConnectorComputeParams, sp: AnchorPlacement, tp: AnchorPlacement, w: number, h: number): void;
 }

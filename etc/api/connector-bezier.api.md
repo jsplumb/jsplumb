@@ -100,7 +100,10 @@ export class BezierConnector extends AbstractBezierConnector {
 // @public
 export interface BezierConnectorGeometry extends Geometry {
     // (undocumented)
-    controlPoints: [PointXY, PointXY];
+    controlPoints: [
+    PointXY,
+    PointXY
+    ];
     // (undocumented)
     source: AnchorPlacement;
     // (undocumented)
@@ -230,8 +233,6 @@ export class StateMachineConnector extends AbstractBezierConnector {
     connection: Connection;
     // (undocumented)
     _controlPoint: PointXY;
-    // (undocumented)
-    proximityLimit: number;
     // (undocumented)
     static type: string;
     // (undocumented)

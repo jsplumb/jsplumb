@@ -5,7 +5,7 @@ export declare class SelectionBase<T extends Component> {
     protected instance: JsPlumbInstance;
     protected entries: Array<T>;
     constructor(instance: JsPlumbInstance, entries: Array<T>);
-    readonly length: number;
+    get length(): number;
     each(handler: (arg0: T) => void): SelectionBase<T>;
     get(index: number): T;
     addClass(clazz: string, cascade?: boolean): SelectionBase<T>;

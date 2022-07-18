@@ -138,7 +138,7 @@ var AbstractBezierConnector = function (_AbstractConnector) {
     _defineProperty(_assertThisInitialized(_this), "loopbackRadius", void 0);
     _defineProperty(_assertThisInitialized(_this), "clockwise", void 0);
     _defineProperty(_assertThisInitialized(_this), "isLoopbackCurrently", void 0);
-    _defineProperty(_assertThisInitialized(_this), "geometry", void 0);
+    _defineProperty(_assertThisInitialized(_this), "geometry", null);
     params = params || {};
     _this.showLoopback = params.showLoopback !== false;
     _this.curviness = params.curviness || 10;
@@ -1067,7 +1067,6 @@ var StateMachineConnector = function (_AbstractBezierConnec) {
     _this.connection = connection;
     _defineProperty(_assertThisInitialized(_this), "type", StateMachineConnector.type);
     _defineProperty(_assertThisInitialized(_this), "_controlPoint", void 0);
-    _defineProperty(_assertThisInitialized(_this), "proximityLimit", void 0);
     _this.curviness = params.curviness || 10;
     _this.margin = params.margin || 5;
     _this.proximityLimit = params.proximityLimit || 80;

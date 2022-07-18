@@ -506,8 +506,8 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<{
      */
     rotate(element: Element, rotation: number, doNotRepaint?: boolean): RedrawResult;
     svg: {
-        node: (name: string, attributes?: Record<string, string | number>) => SVGElement;
-        attr: (node: SVGElement, attributes: Record<string, string | number>) => void;
+        node: (name: string, attributes?: ElementAttributes) => SVGElement;
+        attr: (node: SVGElement, attributes: ElementAttributes) => void;
         pos: (d: [number, number]) => string;
     };
     /**
@@ -1036,9 +1036,9 @@ declare class DragSelection {
     private _dragElementStartPositions;
     private _dragElementPositions;
     private __activeSet;
-    private readonly _activeSet;
+    private get _activeSet();
     constructor(instance: BrowserJsPlumbInstance);
-    readonly length: number;
+    get length(): number;
     filterActiveSet(fn: (p: {
         id: string;
         jel: jsPlumbDOMElement;
