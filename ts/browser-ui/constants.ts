@@ -102,7 +102,18 @@ export const EVENT_MOUSEOVER = "mouseover"
  * @public
  */
 export const EVENT_TAP = "tap"
-
+/**
+ * @public
+ */
+export const EVENT_TOUCHSTART = "touchstart"
+/**
+ * @public
+ */
+export const EVENT_TOUCHEND = "touchend"
+/**
+ * @public
+ */
+export const EVENT_TOUCHMOVE = "touchmove"
 /**
  * @public
  */
