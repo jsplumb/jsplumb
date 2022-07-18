@@ -7,8 +7,21 @@ import {forEach, PointXY, removeWithFunction, uuid} from "@jsplumb/util"
 
 import { jsPlumbDOMElement} from './element-facade'
 
-import { EVENT_MOUSEDOWN, EVENT_MOUSEENTER, EVENT_MOUSEEXIT, EVENT_MOUSEOUT, EVENT_MOUSEOVER,
-    EVENT_MOUSEUP, EVENT_TAP, EVENT_DBL_TAP, EVENT_CONTEXTMENU, EVENT_FOCUS } from './constants'
+import {
+    EVENT_MOUSEDOWN,
+    EVENT_MOUSEENTER,
+    EVENT_MOUSEEXIT,
+    EVENT_MOUSEOUT,
+    EVENT_MOUSEOVER,
+    EVENT_MOUSEUP,
+    EVENT_TAP,
+    EVENT_DBL_TAP,
+    EVENT_CONTEXTMENU,
+    EVENT_FOCUS,
+    EVENT_TOUCHEND,
+    EVENT_TOUCHSTART,
+    EVENT_MOUSEMOVE, EVENT_TOUCHMOVE
+} from './constants'
 import {WILDCARD} from "@jsplumb/common"
 
 /**
@@ -125,9 +138,9 @@ let guid = 1
 
 let forceTouchEvents = false
 let forceMouseEvents = false
-function isTouchDevice():boolean { return  forceTouchEvents || "ontouchstart" in document.documentElement || (navigator.maxTouchPoints != null && navigator.maxTouchPoints > 0) }
-function isMouseDevice():boolean { return forceMouseEvents || "onmousedown" in document.documentElement }
-const touchMap = { "mousedown": "touchstart", "mouseup": "touchend", "mousemove": "touchmove" }
+export function isTouchDevice():boolean { return  forceTouchEvents || "ontouchstart" in document.documentElement || (navigator.maxTouchPoints != null && navigator.maxTouchPoints > 0) }
+export function isMouseDevice():boolean { return forceMouseEvents || "onmousedown" in document.documentElement }
+const touchMap = { [EVENT_MOUSEDOWN]: EVENT_TOUCHSTART, [EVENT_MOUSEUP]: EVENT_TOUCHEND, [EVENT_MOUSEMOVE]: EVENT_TOUCHMOVE }
 
 const PAGE = "page"
 const SCREEN = "screen"
@@ -348,9 +361,9 @@ const DefaultHandler:Handler = (obj:any, evt:string, fn:FunctionFacade, children
 }
 
 const _tapProfiles = {
-    "tap": {touches: 1, taps: 1},
-    "dbltap": {touches: 1, taps: 2},
-    "contextmenu": {touches: 2, taps: 1}
+    [EVENT_TAP]: {touches: 1, taps: 1},
+    [EVENT_DBL_TAP]: {touches: 1, taps: 2},
+    [EVENT_CONTEXTMENU]: {touches: 2, taps: 1}
 }
 
 function meeHelper (type:string, evt:Event, obj:any, target:EventTarget) {
