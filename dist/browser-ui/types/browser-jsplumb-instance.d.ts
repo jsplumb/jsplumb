@@ -469,6 +469,12 @@ export declare class BrowserJsPlumbInstance extends JsPlumbInstance<{
      */
     setDragGroupState(state: boolean, ...els: Array<Element>): void;
     /**
+     * Removes all members from the drag group with the given name.
+     * @param name
+     * @public
+     */
+    clearDragGroup(name: string): void;
+    /**
      * Consumes the given event.
      * @param e
      * @param doNotPreventDefault

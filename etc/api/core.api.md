@@ -2530,7 +2530,7 @@ export const TOP = FaceValues.top;
 // Warning: (ae-incompatible-release-tags) The symbol "TranslatedViewportElement" is marked as @public, but its signature references "TranslatedViewportElementBase" which is marked as @internal
 //
 // @public (undocumented)
-export type TranslatedViewportElement<E> = Pick<TranslatedViewportElementBase<E>, Exclude<keyof TranslatedViewportElementBase<E>, "dirty">>;
+export type TranslatedViewportElement<E> = Omit<TranslatedViewportElementBase<E>, "dirty">;
 
 // Warning: (ae-internal-missing-underscore) The name "TranslatedViewportElementBase" should be prefixed with an underscore because the declaration is marked as @internal
 //

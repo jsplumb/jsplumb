@@ -2886,7 +2886,7 @@ var ElementDragHandler = function () {
     }
   }, {
     key: "setDragGroupState",
-    value: function setDragGroupState(state) {
+    value: function setDragGroupState(active) {
       var _this7 = this;
       for (var _len3 = arguments.length, els = new Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
         els[_key3 - 1] = arguments[_key3];
@@ -2901,10 +2901,22 @@ var ElementDragHandler = function () {
             return m.elId === id;
           });
           if (member != null) {
-            member.active = state;
+            member.active = active;
           }
         }
       });
+    }
+  }, {
+    key: "clearDragGroup",
+    value: function clearDragGroup(name) {
+      var _this8 = this;
+      var dragGroup = this._dragGroupMap[name];
+      if (dragGroup != null) {
+        dragGroup.members.forEach(function (member) {
+          delete _this8._dragGroupByElementIdMap[member.elId];
+        });
+        dragGroup.members.clear();
+      }
     }
   }, {
     key: "_pruneOrOrphan",
@@ -4999,6 +5011,11 @@ var BrowserJsPlumbInstance = function (_JsPlumbInstance) {
         els[_key5 - 1] = arguments[_key5];
       }
       (_this$elementDragHand3 = this.elementDragHandler).setDragGroupState.apply(_this$elementDragHand3, [state].concat(els));
+    }
+  }, {
+    key: "clearDragGroup",
+    value: function clearDragGroup(name) {
+      this.elementDragHandler.clearDragGroup(name);
     }
   }, {
     key: "consume",

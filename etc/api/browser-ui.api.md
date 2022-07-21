@@ -80,6 +80,7 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<{
     applyConnectorType(connector: AbstractConnector, t: TypeDescriptor): void;
     // @internal (undocumented)
     applyEndpointType<C>(ep: Endpoint, t: TypeDescriptor): void;
+    clearDragGroup(name: string): void;
     clearDragSelection(): void;
     // (undocumented)
     _connectorClick: Function;
@@ -709,8 +710,10 @@ export const ELEMENT_DIV = "div";
 // @public (undocumented)
 export class ElementDragHandler implements DragHandler {
     constructor(instance: BrowserJsPlumbInstance, _dragSelection: DragSelection);
-    // (undocumented)
+    // @internal (undocumented)
     addToDragGroup(spec: DragGroupSpec, ...els: Array<Element>): void;
+    // @internal (undocumented)
+    clearDragGroup(name: string): void;
     // (undocumented)
     protected drag: Drag;
     // (undocumented)
@@ -740,14 +743,14 @@ export class ElementDragHandler implements DragHandler {
     onStop(params: DragStopEventParams): void;
     // (undocumented)
     originalPosition: PointXY;
-    // (undocumented)
+    // @internal (undocumented)
     removeFromDragGroup(...els: Array<Element>): void;
     // (undocumented)
     reset(): void;
     // (undocumented)
     selector: string;
-    // (undocumented)
-    setDragGroupState(state: boolean, ...els: Array<Element>): void;
+    // @internal (undocumented)
+    setDragGroupState(active: boolean, ...els: Array<Element>): void;
 }
 
 // @public (undocumented)
@@ -1214,7 +1217,7 @@ export interface UIComponent {
 
 // Warnings were encountered during analysis:
 //
-// /Users/simon/programming/jsplumb/jsplumb/dist/browser-ui/types/browser-jsplumb-instance.d.ts:489:9 - (ae-forgotten-export) The symbol "ElementAttributes" needs to be exported by the entry point index.d.ts
+// /Users/simon/programming/jsplumb/jsplumb/dist/browser-ui/types/browser-jsplumb-instance.d.ts:495:9 - (ae-forgotten-export) The symbol "ElementAttributes" needs to be exported by the entry point index.d.ts
 // /Users/simon/programming/jsplumb/jsplumb/dist/browser-ui/types/svg-util.d.ts:17:5 - (ae-forgotten-export) The symbol "_attr" needs to be exported by the entry point index.d.ts
 // /Users/simon/programming/jsplumb/jsplumb/dist/browser-ui/types/svg-util.d.ts:18:5 - (ae-forgotten-export) The symbol "_node" needs to be exported by the entry point index.d.ts
 

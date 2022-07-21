@@ -3044,7 +3044,7 @@ export declare interface TargetDefinition extends SourceOrTargetDefinition {
 
 export declare const TOP = FaceValues.top;
 
-export declare type TranslatedViewportElement<E> = Pick<TranslatedViewportElementBase<E>, Exclude<keyof TranslatedViewportElementBase<E>, "dirty">>;
+export declare type TranslatedViewportElement<E> = Omit<TranslatedViewportElementBase<E>, "dirty">;
 
 /**
  * @internal
