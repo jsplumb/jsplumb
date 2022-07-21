@@ -559,6 +559,9 @@ export class ElementDragHandler implements DragHandler {
         return cont
     }
 
+    /**
+     * @internal
+     */
     addToDragGroup(spec:DragGroupSpec, ...els:Array<Element>) {
 
         const details = decodeDragGroupSpec(this.instance, spec)
@@ -577,6 +580,9 @@ export class ElementDragHandler implements DragHandler {
         })
     }
 
+    /**
+     * @internal
+     */
     removeFromDragGroup(...els:Array<Element>) {
         forEach(els,(el:Element) => {
             const id = this.instance.getId(el)
@@ -595,17 +601,36 @@ export class ElementDragHandler implements DragHandler {
         })
     }
 
-    setDragGroupState (state:boolean, ...els:Array<Element>) {
+    /**
+     * @internal
+     */
+    setDragGroupState (active:boolean, ...els:Array<Element>) {
         const elementIds = els.map(el => this.instance.getId(el))
         forEach(elementIds,(id:string) => {
             const dragGroup = this._dragGroupByElementIdMap[id]
             if (dragGroup != null) {
                 const member = getFromSetWithFunction(dragGroup.members,(m:DragGroupMemberSpec) => m.elId === id)
                 if (member != null) {
-                    member.active = state
+                    member.active = active
                 }
             }
         })
+    }
+
+    /**
+     * @internal
+     * @param name
+     */
+    clearDragGroup(name:string) {
+        const dragGroup = this._dragGroupMap[name]
+        if (dragGroup != null) {
+            dragGroup.members.forEach(member => {
+                delete this._dragGroupByElementIdMap[member.elId]
+            })
+
+            dragGroup.members.clear()
+        }
+
     }
 
     /**
