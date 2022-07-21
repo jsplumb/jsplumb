@@ -1,3 +1,9 @@
+## 5.10.1
+
+July 21st 2022
+
+- Updates to the Toolkit's lasso
+
 ## 5.10.0
 
 July 21st 2022
