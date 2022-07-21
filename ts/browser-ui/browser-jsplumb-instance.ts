@@ -1365,6 +1365,15 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<{E:Element}> {
     }
 
     /**
+     * Removes all members from the drag group with the given name.
+     * @param name
+     * @public
+     */
+    clearDragGroup(name:string) {
+        this.elementDragHandler.clearDragGroup(name)
+    }
+
+    /**
      * Consumes the given event.
      * @param e
      * @param doNotPreventDefault
