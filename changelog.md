@@ -1,3 +1,9 @@
+## 5.10.0
+
+July 21st 2022
+
+- Added the `clearDragGroup` method, allowing you to remove all the members of some specific drag group at once.
+
 ## 5.9.4
 
 July 19th 2022
