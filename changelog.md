@@ -1,3 +1,9 @@
+## 5.10.2
+
+July 22nd 2022
+
+- Updates to the Toolkit's selection policy
+
 ## 5.10.1
 
 July 21st 2022
