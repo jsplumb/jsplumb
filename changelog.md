@@ -1,3 +1,9 @@
+## 5.10.3
+
+July 25th 2022
+
+- Minor internal refactoring in the Toolkit edition.
+
 ## 5.10.2
 
 July 22nd 2022
