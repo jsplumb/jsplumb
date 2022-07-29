@@ -66,7 +66,7 @@ export class DragSelection {
             }
             this._dragElementStartPositions.set(p.id, off)
             this._dragElementPositions.set(p.id, off)
-            this._dragSizes.set(p.id, this.instance.getSize(p.jel))
+            this._dragSizes.set(p.id, this.instance.viewport.getPosition(p.id))
         })
     }
 
@@ -84,6 +84,7 @@ export class DragSelection {
 
                 // TODO this is duplicated in the onStop of element DragHandler
                 if (p.jel._jsPlumbParentGroup && p.jel._jsPlumbParentGroup.constrain) {
+                    console.log("GC")
 
                     const constrainRect = {
                         w: p.jel.parentNode.offsetWidth + p.jel.parentNode.scrollLeft,
