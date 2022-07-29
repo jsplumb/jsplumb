@@ -71,15 +71,15 @@ import {
     BoundingBox, isObject
 } from "@jsplumb/util"
 import {ATTRIBUTE_JTK_ENABLED, ELEMENT_DIV} from "./constants"
-import {svg} from "./svg-util"
 
 function _makeFloatingEndpoint (ep:Endpoint<Element>,
                                 endpoint:EndpointSpec | EndpointRepresentation<any>,
                                 referenceCanvas:Element,
                                 sourceElement:jsPlumbDOMElement,
+                                sourceElementId:string,
                                 instance:BrowserJsPlumbInstance)
 {
-    let floatingAnchor = createFloatingAnchor(instance, sourceElement)
+    let floatingAnchor = createFloatingAnchor(instance, sourceElement, sourceElementId)
 
     const p:InternalEndpointOptions<any> = {
         paintStyle: ep.getPaintStyle(),
@@ -585,7 +585,7 @@ export class EndpointDragHandler implements DragHandler {
             endpointToFloat = aae.endpoints[1]
         }
 
-        this.floatingEndpoint = _makeFloatingEndpoint(this.ep, endpointToFloat, canvasElement, this.placeholderInfo.element, this.instance)
+        this.floatingEndpoint = _makeFloatingEndpoint(this.ep, endpointToFloat, canvasElement, this.placeholderInfo.element, this.placeholderInfo.id, this.instance)
         this.floatingAnchor = this.floatingEndpoint._anchor as LightweightFloatingAnchor
 
         this.floatingEndpoint.deleteOnEmpty = true
