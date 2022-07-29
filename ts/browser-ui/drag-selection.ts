@@ -84,8 +84,6 @@ export class DragSelection {
 
                 // TODO this is duplicated in the onStop of element DragHandler
                 if (p.jel._jsPlumbParentGroup && p.jel._jsPlumbParentGroup.constrain) {
-                    console.log("GC")
-
                     const constrainRect = {
                         w: p.jel.parentNode.offsetWidth + p.jel.parentNode.scrollLeft,
                         h: p.jel.parentNode.offsetHeight + p.jel.parentNode.scrollTop
