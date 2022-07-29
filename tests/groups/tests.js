@@ -668,8 +668,21 @@ var testSuite = function () {
         equal(newAnchorPos.curY - anchorPos.curY, 60, "anchor has moved by 60 pixels in x axis")
     })
 
-    test("dragging nodes inside groups, multiple nodes", function() {
+    /**
+     * We test here dragging inside of a group when the group has 'constrain' set - elements should only be draggable to
+     * positions where they are entirely visible. in this test we also adjust the size of c1_1 to be 250px wide,
+     * to specifically test the clamping functionality of the _drag selection_: c1_2 is the node we drag, but c1_1 is
+     * in the drag selection.
+     *
+     * Note that we have to do a manual `revalidate` here because this test is not async. There is an automatic version
+     * directly below, in which we set a timeout and rely on the instance's ResizeObserver to detect the change.
+     *
+     */
+    test("dragging nodes inside groups, multiple nodes, constrain, manual revalidation", function() {
         _setupGroups();
+
+        c1_1.style.width = "250px"
+        _jsPlumb.revalidate(c1_1)
 
         var c1_2_pos = getNodePosition(c1_2)
         var c1_1_pos = getNodePosition(c1_1)
@@ -682,11 +695,44 @@ var testSuite = function () {
 
         var c1_2_newPos = getNodePosition(c1_2)
         equal(c1_2_newPos[0] - c1_2_pos[0], 50, "c1_2, the dragged node, has moved by 50 pixels in x axis")
-        equal(c1_2_newPos[1] - c1_2_pos[1], 60, "c1_2, the dragged node, has moved by 60 pixels in x axis")
+        equal(c1_2_newPos[1] - c1_2_pos[1], 60, "c1_2, the dragged node, has moved by 60 pixels in y axis")
 
         var c1_1_newPos = getNodePosition(c1_1)
-        equal(c1_1_newPos[0] - c1_1_pos[0], 50, "c1_1, a node in the drag selection, has moved by 50 pixels in x axis")
-        equal(c1_1_newPos[1] - c1_1_pos[1], 60, "c1_1, a node in the drag selection,has moved by 60 pixels in x axis")
+        // c1_1 is at x 50 since it is 250px wide and the group is 300, and constrain is switched on.
+        equal(c1_1_newPos[0], 50, "c1_1, a node in the drag selection, has moved and been clamped by the group size")
+    })
+
+    /**
+     * Async version of the test above. Here, instead of calling `revalidate` ourselves, we rely on the resize
+     * observer to detect the change.
+     *
+     */
+    asyncTest("dragging nodes inside groups, multiple nodes, constrain, automatic revalidation", function() {
+        _setupGroups();
+
+        c1_1.style.width = "250px"
+
+        setTimeout(() => {
+            QUnit.start()
+            var c1_2_pos = getNodePosition(c1_2)
+            var c1_1_pos = getNodePosition(c1_1)
+
+            _jsPlumb.addToDragSelection(c1_1)
+
+            // try dragging 1_2 right out of the box and dropping it. it should not work: c1 has constrain switched on.
+            // 1_2 will end up in the bottom right corner of the group.
+            support.dragNodeBy(c1_2, 50, 60);
+
+            var c1_2_newPos = getNodePosition(c1_2)
+            equal(c1_2_newPos[0] - c1_2_pos[0], 50, "c1_2, the dragged node, has moved by 50 pixels in x axis")
+            equal(c1_2_newPos[1] - c1_2_pos[1], 60, "c1_2, the dragged node, has moved by 60 pixels in y axis")
+
+            var c1_1_newPos = getNodePosition(c1_1)
+            // c1_1 is at x 50 since it is 250px wide and the group is 300, and constrain is switched on.
+            equal(c1_1_newPos[0], 50, "c1_1, a node in the drag selection, has moved and been clamped by the group size")
+        }, 0)
+
+
     })
 
     test("dragging nodes out of groups, single nodes", function() {
