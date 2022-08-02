@@ -60,13 +60,14 @@ export class DragSelection {
 
     initialisePositions() {
         forEach(this._activeSet, (p:{id:string, jel:jsPlumbDOMElement}) => {
+            const vp = this.instance.viewport.getPosition(p.id)
             let off = {
                 x:parseInt("" + p.jel.offsetLeft, 10),
                 y:parseInt("" + p.jel.offsetTop, 10)
             }
             this._dragElementStartPositions.set(p.id, off)
             this._dragElementPositions.set(p.id, off)
-            this._dragSizes.set(p.id, this.instance.viewport.getPosition(p.id))
+            this._dragSizes.set(p.id, {w:vp.w,h:vp.h})
         })
     }
 
