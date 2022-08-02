@@ -2019,7 +2019,7 @@
   var X_AXIS_FACES = [LEFT, RIGHT];
   var Y_AXIS_FACES = [TOP, BOTTOM];
   var LightweightFloatingAnchor = function () {
-    function LightweightFloatingAnchor(instance, element) {
+    function LightweightFloatingAnchor(instance, element, elementId) {
       _classCallCheck(this, LightweightFloatingAnchor);
       this.instance = instance;
       this.element = element;
@@ -2035,7 +2035,7 @@
       _defineProperty(this, "id", util.uuid());
       _defineProperty(this, "orientation", [0, 0]);
       _defineProperty(this, "size", void 0);
-      this.size = instance.getSize(element);
+      this.size = instance.viewport.getPosition(elementId);
       this.locations.push({
         x: 0.5,
         y: 0.5,
@@ -2251,8 +2251,8 @@
       cssClass: params.cssClass || ""
     };
   }
-  function createFloatingAnchor(instance, element) {
-    return new LightweightFloatingAnchor(instance, element);
+  function createFloatingAnchor(instance, element, elementId) {
+    return new LightweightFloatingAnchor(instance, element, elementId);
   }
   var PROPERTY_CURRENT_FACE = "currentFace";
   function _createContinuousAnchor(type, faces, params) {

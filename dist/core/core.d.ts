@@ -1216,7 +1216,7 @@ export declare interface ConnectParams<E> {
  */
 export declare function convertToFullOverlaySpec(spec: string | OverlaySpec): FullOverlaySpec;
 
-export declare function createFloatingAnchor(instance: JsPlumbInstance, element: any): LightweightFloatingAnchor;
+export declare function createFloatingAnchor(instance: JsPlumbInstance, element: Element, elementId: string): LightweightFloatingAnchor;
 
 export declare function _createPerimeterAnchor(params: Record<string, any>): LightweightPerimeterAnchor;
 
@@ -2558,7 +2558,7 @@ export declare class LightweightFloatingAnchor implements LightweightAnchor {
     id: string;
     orientation: Orientation;
     size: Size;
-    constructor(instance: JsPlumbInstance, element: Element);
+    constructor(instance: JsPlumbInstance, element: Element, elementId: string);
     private _updateOrientationInRouter;
     /**
      * notification the endpoint associated with this anchor is hovering

@@ -101,7 +101,7 @@ export declare class LightweightFloatingAnchor implements LightweightAnchor {
     id: string;
     orientation: Orientation;
     size: Size;
-    constructor(instance: JsPlumbInstance, element: Element);
+    constructor(instance: JsPlumbInstance, element: Element, elementId: string);
     private _updateOrientationInRouter;
     /**
      * notification the endpoint associated with this anchor is hovering
@@ -129,7 +129,7 @@ export declare function getDefaultFace(a: LightweightContinuousAnchor): Face;
  * @internal
  */
 export declare function isEdgeSupported(a: LightweightContinuousAnchor, edge: Face): boolean;
-export declare function createFloatingAnchor(instance: JsPlumbInstance, element: any): LightweightFloatingAnchor;
+export declare function createFloatingAnchor(instance: JsPlumbInstance, element: Element, elementId: string): LightweightFloatingAnchor;
 export declare function makeLightweightAnchorFromSpec(spec: AnchorSpec | Array<AnchorSpec>): LightweightAnchor;
 export declare function _createPerimeterAnchor(params: Record<string, any>): LightweightPerimeterAnchor;
 export {};

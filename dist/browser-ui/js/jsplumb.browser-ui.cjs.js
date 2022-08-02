@@ -2138,13 +2138,17 @@ var DragSelection = function () {
     value: function initialisePositions() {
       var _this3 = this;
       util.forEach(this._activeSet, function (p) {
+        var vp = _this3.instance.viewport.getPosition(p.id);
         var off = {
           x: parseInt("" + p.jel.offsetLeft, 10),
           y: parseInt("" + p.jel.offsetTop, 10)
         };
         _this3._dragElementStartPositions.set(p.id, off);
         _this3._dragElementPositions.set(p.id, off);
-        _this3._dragSizes.set(p.id, _this3.instance.getSize(p.jel));
+        _this3._dragSizes.set(p.id, {
+          w: vp.w,
+          h: vp.h
+        });
       });
     }
   }, {
@@ -2652,8 +2656,9 @@ var ElementDragHandler = function () {
     value: function onDrag(params) {
       var _this3 = this;
       var el = params.drag.getDragElement();
+      var id = this.instance.getId(el);
       var finalPos = params.pos;
-      var elSize = this.instance.getSize(el);
+      var elSize = this.instance.viewport.getPosition(id);
       var ui = {
         x: finalPos.x,
         y: finalPos.y
@@ -2762,13 +2767,13 @@ var ElementDragHandler = function () {
                 var elementGroup = _el._jsPlumbGroup;
                 if (group.droppable !== false && group.enabled !== false && _el._jsPlumbGroup !== group && !_this4.instance.groupManager.isDescendant(group, elementGroup)) {
                   var groupEl = group.el,
-                      s = _this4.instance.getSize(groupEl),
-                      o = _this4.instance.getPosition(groupEl),
+                      groupElId = _this4.instance.getId(groupEl),
+                      p = _this4.instance.viewport.getPosition(groupElId),
                       boundingRect = {
-                    x: o.x,
-                    y: o.y,
-                    w: s.w,
-                    h: s.h
+                    x: p.x,
+                    y: p.y,
+                    w: p.w,
+                    h: p.h
                   };
                   var groupLocation = {
                     el: groupEl,
@@ -2823,12 +2828,12 @@ var ElementDragHandler = function () {
           this._currentDragGroupOffsets.clear();
           this._currentDragGroupSizes.clear();
           this._currentDragGroup.members.forEach(function (jel) {
-            var off = _this4.instance.getPosition(jel.el);
+            var vp = _this4.instance.viewport.getPosition(jel.elId);
             _this4._currentDragGroupOffsets.set(jel.elId, [{
-              x: off.x - elOffset.x,
-              y: off.y - elOffset.y
+              x: vp.x - elOffset.x,
+              y: vp.y - elOffset.y
             }, jel.el]);
-            _this4._currentDragGroupSizes.set(jel.elId, _this4.instance.getSize(jel.el));
+            _this4._currentDragGroupSizes.set(jel.elId, vp);
             _one(jel.el, _this4._currentDragGroup, jel);
           });
         }
@@ -2950,8 +2955,8 @@ var ElementDragHandler = function () {
   return ElementDragHandler;
 }();
 
-function _makeFloatingEndpoint(ep, endpoint, referenceCanvas, sourceElement, instance) {
-  var floatingAnchor = core.createFloatingAnchor(instance, sourceElement);
+function _makeFloatingEndpoint(ep, endpoint, referenceCanvas, sourceElement, sourceElementId, instance) {
+  var floatingAnchor = core.createFloatingAnchor(instance, sourceElement, sourceElementId);
   var p = {
     paintStyle: ep.getPaintStyle(),
     preparedAnchor: floatingAnchor,
@@ -3293,7 +3298,7 @@ var EndpointDragHandler = function () {
         var aae = this.instance._deriveEndpointAndAnchorSpec(this.ep.edgeType);
         endpointToFloat = aae.endpoints[1];
       }
-      this.floatingEndpoint = _makeFloatingEndpoint(this.ep, endpointToFloat, canvasElement, this.placeholderInfo.element, this.instance);
+      this.floatingEndpoint = _makeFloatingEndpoint(this.ep, endpointToFloat, canvasElement, this.placeholderInfo.element, this.placeholderInfo.id, this.instance);
       this.floatingAnchor = this.floatingEndpoint._anchor;
       this.floatingEndpoint.deleteOnEmpty = true;
       this.floatingElement = this.floatingEndpoint.endpoint.canvas;

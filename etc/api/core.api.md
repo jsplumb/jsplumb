@@ -952,7 +952,7 @@ export interface ConnectParams<E> {
 export function convertToFullOverlaySpec(spec: string | OverlaySpec): FullOverlaySpec;
 
 // @public (undocumented)
-export function createFloatingAnchor(instance: JsPlumbInstance, element: any): LightweightFloatingAnchor;
+export function createFloatingAnchor(instance: JsPlumbInstance, element: Element, elementId: string): LightweightFloatingAnchor;
 
 // @public (undocumented)
 export function _createPerimeterAnchor(params: Record<string, any>): LightweightPerimeterAnchor;
@@ -2043,7 +2043,7 @@ export interface LightweightContinuousAnchor extends LightweightAnchor {
 
 // @public (undocumented)
 export class LightweightFloatingAnchor implements LightweightAnchor {
-    constructor(instance: JsPlumbInstance, element: Element);
+    constructor(instance: JsPlumbInstance, element: Element, elementId: string);
     // (undocumented)
     cssClass: string;
     // (undocumented)
