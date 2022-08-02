@@ -1297,8 +1297,8 @@ var testSuite = function () {
         d2.style.left = "450px";
         d2.style.top = "450px";
 
-        _jsPlumb.manage(d,d2);
-        _jsPlumb.addToDragGroup("dragGroup", d1, d2);
+        _jsPlumb.manageAll([d,d2]);
+        _jsPlumb.addToDragGroup("dragGroup", d, d2);
 
         support.dragNodeBy(d, 100, 100, {
             beforeMouseUp:function() {
