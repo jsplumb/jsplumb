@@ -36,6 +36,19 @@ import {
 } from "@jsplumb/util"
 import {DragSelection} from "./drag-selection"
 
+// // TODO would be nice to be able to set a tolerance here. "is half inside parent" etc
+// function isInsideParent(instance:BrowserJsPlumbInstance, _el:HTMLElement, pos:PointXY):boolean {
+//     const p = <any>_el.parentNode,
+//         s = instance.getSize(p),
+//         ss = instance.getSize(_el),
+//         leftEdge = pos.x,
+//         rightEdge = leftEdge + ss.w,
+//         topEdge = pos.y,
+//         bottomEdge = topEdge + ss.h
+//
+//     return rightEdge > 0 && leftEdge < s.w && bottomEdge > 0 && topEdge < s.h
+// }
+
 export type IntersectingGroup = {
     groupLoc:GroupLocation
     d:number
@@ -351,8 +364,9 @@ export class ElementDragHandler implements DragHandler {
     onDrag(params:DragEventParams):void {
 
         const el = params.drag.getDragElement()
+        const id = this.instance.getId(el)
         const finalPos = params.pos
-        const elSize = this.instance.getSize(el)
+        const elSize = this.instance.viewport.getPosition(id)
         const ui = { x:finalPos.x, y:finalPos.y }
 
         this._intersectingGroups.length = 0
@@ -489,9 +503,9 @@ export class ElementDragHandler implements DragHandler {
 
                             if (group.droppable !== false && group.enabled !== false && _el._jsPlumbGroup !== group && !this.instance.groupManager.isDescendant(group, elementGroup)) {
                                 let groupEl = group.el,
-                                    s = this.instance.getSize(groupEl),
-                                    o = this.instance.getPosition(groupEl),
-                                    boundingRect = {x: o.x, y: o.y, w: s.w, h: s.h}
+                                    groupElId = this.instance.getId(groupEl),
+                                    p = this.instance.viewport.getPosition(groupElId),
+                                    boundingRect = {x: p.x, y: p.y, w: p.w, h: p.h}
 
                                 const groupLocation = {el: groupEl, r: boundingRect, group: group}
                                 this._groupLocations.push(groupLocation)
@@ -549,9 +563,9 @@ export class ElementDragHandler implements DragHandler {
                 this._currentDragGroupOffsets.clear()
                 this._currentDragGroupSizes.clear()
                 this._currentDragGroup.members.forEach((jel:DragGroupMemberSpec) => {
-                    let off = this.instance.getPosition(jel.el)
-                    this._currentDragGroupOffsets.set(jel.elId, [ { x:off.x- elOffset.x, y:off.y - elOffset.y}, jel.el as jsPlumbDOMElement])
-                    this._currentDragGroupSizes.set(jel.elId, this.instance.getSize(jel.el))
+                    const vp = this.instance.viewport.getPosition(jel.elId)
+                    this._currentDragGroupOffsets.set(jel.elId, [ { x:vp.x- elOffset.x, y:vp.y - elOffset.y}, jel.el as jsPlumbDOMElement])
+                    this._currentDragGroupSizes.set(jel.elId, vp)
                     _one(jel.el, this._currentDragGroup, jel)
                 })
             }
