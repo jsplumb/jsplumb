@@ -183,7 +183,7 @@ export class BrowserUITestSupport {
      */
     dragNodeTo (el:Element, x:number, y:number, events?:EventHandlers) {
         events = events || {};
-        const size = this._jsPlumb.getSize(el);
+        const size = this._jsPlumb.viewport.getPosition(this._jsPlumb.getId(el));
         if (events.before) events.before();
         const downEvent = this.makeEvent(el);
         this._jsPlumb.trigger(el, EVENT_MOUSEDOWN, downEvent);
@@ -210,10 +210,9 @@ export class BrowserUITestSupport {
      */
     dragToGroup (el:Element, targetGroupId:string, events?:EventHandlers) {
         const targetGroup = this._jsPlumb.getGroup(targetGroupId);
-        const tgo = this._jsPlumb.getPosition(targetGroup.el),
-            tgs = this._jsPlumb.getSize(targetGroup.el),
-            tx = tgo.x + (tgs.w / 2),
-            ty = tgo.y + (tgs.h / 2);
+        const tgo = this._jsPlumb.viewport.getPosition(targetGroup.elId),
+                tx = tgo.x + (tgo.w / 2),
+                ty = tgo.y + (tgo.h / 2);
 
         this.dragNodeTo(el, tx, ty, events);
     }
