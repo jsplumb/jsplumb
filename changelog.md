@@ -1,3 +1,7 @@
+## 5.10.4
+
+- Internal refactoring to use the viewport's position and size information instead of going back to the DOM
+
 ## 5.10.3
 
 July 25th 2022
