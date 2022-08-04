@@ -111,6 +111,11 @@ export interface ConnectParams<E> {
      */
     cost?:number
 
+    /**
+     * Optional extra parameters to associate with the connection
+     */
+    parameters?:Record<string, any>
+
     id?:string
 
     data?:any
