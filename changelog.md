@@ -1,4 +1,12 @@
+## 5.10.5
+
+August 5th 2022
+
+- Expose `parameters` on the `ConnectOptions` interface.
+
 ## 5.10.4
+
+August 3rd 2022
 
 - Internal refactoring to use the viewport's position and size information instead of going back to the DOM
 

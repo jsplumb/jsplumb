@@ -938,6 +938,7 @@ export interface ConnectParams<E> {
     outlineWidth?: number;
     overlays?: Array<OverlaySpec>;
     paintStyle?: PaintStyle;
+    parameters?: Record<string, any>;
     ports?: [string, string];
     reattach?: boolean;
     // (undocumented)

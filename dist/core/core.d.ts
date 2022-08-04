@@ -1201,6 +1201,10 @@ export declare interface ConnectParams<E> {
      * Cost of the connection. Defaults to 1.
      */
     cost?: number;
+    /**
+     * Optional extra parameters to associate with the connection
+     */
+    parameters?: Record<string, any>;
     id?: string;
     data?: any;
     cssClass?: string;
