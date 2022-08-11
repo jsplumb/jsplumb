@@ -82,6 +82,10 @@ export class UIGroup<E = any> extends UINode<E> {
         instance.setAttribute(el, Constants.ATTRIBUTE_GROUP, "")
     }
 
+    get contentArea():any {
+        return this.instance.getGroupContentArea(this)
+    }
+
     overrideDrop(el:any, targetGroup:UIGroup<E>):boolean {
         return this.dropOverride && (this.revert || this.prune || this.orphan)
     }
