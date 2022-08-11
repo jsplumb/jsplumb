@@ -94,14 +94,16 @@ var testSuite = function () {
     var NODE_HEIGHT = 50;
 
     var gpointer = 100, gx = 0, gy = 0;
-    var _addGroupAndContainer = function(w, h, j) {
+    var _addGroupAndContainer = function(w, h, x, y, j) {
 
         j = j || _jsPlumb;
 
         w = w || GROUP_WIDTH;
         h = h || GROUP_HEIGHT;
+        x = x || gx;
+        y = y || gy;
         var cId = "container_" + gpointer;
-        var c = support.addDiv(cId, null, "container", gx, gy, w, h);
+        var c = support.addDiv(cId, null, "container", x, y, w, h);
         c.style.outline = "1px solid black";
         gx += w;
         gy += h;
@@ -2355,8 +2357,8 @@ var testSuite = function () {
             allowNestedGroups:false
         });
 
-        var g1 = _addGroupAndContainer(100,100, j),
-            g2 = _addGroupAndContainer(400,400, j);
+        var g1 = _addGroupAndContainer(100,100, null, null, j),
+            g2 = _addGroupAndContainer(400,400, null, null, j);
 
         g2.addGroup(g1);
 
@@ -2373,8 +2375,8 @@ var testSuite = function () {
         }),
             support2 = jsPlumbTestSupport.getInstanceQUnit(j)
 
-        var groupA = _addGroupAndContainer(400,400, j),
-            groupB = _addGroupAndContainer(100,100, j);
+        var groupA = _addGroupAndContainer(400,400, null, null, j),
+            groupB = _addGroupAndContainer(100,100, null, null, j);
 
         support2.dragToGroup(groupB.el, groupA);
 
@@ -2823,4 +2825,21 @@ var testSuite = function () {
         equal(collapseCount, 3, "3 collapse events in total after group A was collapsed")
     })
 
+    //
+    test("nested groups, drag/drop positioning takes nested groups into account", function() {
+        var groupA = _addGroupAndContainer(600, 400, 400, 0),
+            groupB = _addGroupAndContainer(300, 350, 450, 50),
+            node = _addNode(100, 100, 50, 50);
+
+        groupA.addGroup(groupB)
+
+        // groupB is nested, at [50,50] to [350, 400]
+        // node is located at [100,100].
+        // if we move node by 10px it should NOT end up as a child of groupB. but if the positioning fails to take groupB's nested parent
+        // into account, that is what will happen. in 5.10.4 this test should fail.
+
+        equal(groupB.children.length, 0, "group B has no children")
+        support.dragNodeBy(node, 20, 20)
+        equal(groupB.children.length, 0, "group B still has no children")
+    });
 };
