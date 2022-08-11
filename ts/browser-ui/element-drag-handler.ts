@@ -267,7 +267,7 @@ export class ElementDragHandler implements DragHandler {
                     }
                 }
             } else if (wasInGroup && isInOriginalGroup) {
-                parentOffset = this.instance.viewport.getPosition(p.originalGroup.elId)
+                parentOffset = this._computeOffsetByParentGroup(p.originalGroup) //this.instance.viewport.getPosition(p.originalGroup.elId)
             }
 
             if (dropGroup != null && !isInOriginalGroup) {
@@ -433,7 +433,22 @@ export class ElementDragHandler implements DragHandler {
             v[1].style.top = _b.y + "px"
             _one(v[1], _b, false)
         })
+    }
 
+    private _computeOffsetByParentGroup(group:UIGroup<Element>) {
+        const parentGroupOffset = this.instance.getPosition(group.el)
+        const contentArea = group.contentArea
+        if (contentArea !== group.el) {
+            const caOffset = this.instance.getPosition(contentArea)
+            parentGroupOffset.x += caOffset.x
+            parentGroupOffset.y += caOffset.y
+        }
+        if ((group.el as any)._jsPlumbParentGroup) {
+            const ancestorOffset = this._computeOffsetByParentGroup((group.el as any)._jsPlumbParentGroup)
+            parentGroupOffset.x += ancestorOffset.x
+            parentGroupOffset.y += ancestorOffset.y
+        }
+        return parentGroupOffset
     }
 
     onStart(params:{e:MouseEvent, el:jsPlumbDOMElement, pos:PointXY, drag:Drag}):boolean {
@@ -444,7 +459,7 @@ export class ElementDragHandler implements DragHandler {
         this.originalPosition = {x:params.pos.x, y:params.pos.y}
 
         if (el._jsPlumbParentGroup) {
-            this._dragOffset = this.instance.getPosition(el.offsetParent)
+            this._dragOffset = this._computeOffsetByParentGroup(el._jsPlumbParentGroup)
             this._currentDragParentGroup = el._jsPlumbParentGroup
         }
 
