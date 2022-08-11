@@ -1141,6 +1141,7 @@ export declare class ElementDragHandler implements DragHandler {
     reset(): void;
     init(drag: Drag): void;
     onDrag(params: DragEventParams): void;
+    private _computeOffsetByParentGroup;
     onStart(params: {
         e: MouseEvent;
         el: jsPlumbDOMElement;

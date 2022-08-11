@@ -3257,6 +3257,11 @@ var UIGroup = function (_UINode) {
     return _this;
   }
   _createClass(UIGroup, [{
+    key: "contentArea",
+    get: function get() {
+      return this.instance.getGroupContentArea(this);
+    }
+  }, {
     key: "overrideDrop",
     value: function overrideDrop(el, targetGroup) {
       return this.dropOverride && (this.revert || this.prune || this.orphan);

@@ -47,6 +47,7 @@ export declare class UIGroup<E = any> extends UINode<E> {
     id: string;
     readonly elId: string;
     constructor(instance: JsPlumbInstance, el: E, options: GroupOptions);
+    get contentArea(): any;
     overrideDrop(el: any, targetGroup: UIGroup<E>): boolean;
     getAnchor(conn: Connection, endpointIndex: number): AnchorSpec;
     getEndpoint(conn: Connection, endpointIndex: number): EndpointSpec;

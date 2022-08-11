@@ -2573,6 +2573,8 @@ export class UIGroup<E = any> extends UINode<E> {
     // (undocumented)
     constrain: boolean;
     // (undocumented)
+    get contentArea(): any;
+    // (undocumented)
     dropOverride: boolean;
     // (undocumented)
     droppable: boolean;

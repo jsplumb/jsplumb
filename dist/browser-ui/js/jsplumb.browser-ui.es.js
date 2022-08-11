@@ -2577,7 +2577,7 @@ var ElementDragHandler = function () {
             }
           }
         } else if (wasInGroup && isInOriginalGroup) {
-          parentOffset = _this.instance.viewport.getPosition(p.originalGroup.elId);
+          parentOffset = _this._computeOffsetByParentGroup(p.originalGroup);
         }
         if (dropGroup != null && !isInOriginalGroup) {
           _this.instance.groupManager.addToGroup(dropGroup.groupLoc.group, false, p.el);
@@ -2721,6 +2721,23 @@ var ElementDragHandler = function () {
       });
     }
   }, {
+    key: "_computeOffsetByParentGroup",
+    value: function _computeOffsetByParentGroup(group) {
+      var parentGroupOffset = this.instance.getPosition(group.el);
+      var contentArea = group.contentArea;
+      if (contentArea !== group.el) {
+        var caOffset = this.instance.getPosition(contentArea);
+        parentGroupOffset.x += caOffset.x;
+        parentGroupOffset.y += caOffset.y;
+      }
+      if (group.el._jsPlumbParentGroup) {
+        var ancestorOffset = this._computeOffsetByParentGroup(group.el._jsPlumbParentGroup);
+        parentGroupOffset.x += ancestorOffset.x;
+        parentGroupOffset.y += ancestorOffset.y;
+      }
+      return parentGroupOffset;
+    }
+  }, {
     key: "onStart",
     value: function onStart(params) {
       var _this4 = this;
@@ -2731,7 +2748,7 @@ var ElementDragHandler = function () {
         y: params.pos.y
       };
       if (el._jsPlumbParentGroup) {
-        this._dragOffset = this.instance.getPosition(el.offsetParent);
+        this._dragOffset = this._computeOffsetByParentGroup(el._jsPlumbParentGroup);
         this._currentDragParentGroup = el._jsPlumbParentGroup;
       }
       var cont = true;
