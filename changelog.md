@@ -1,6 +1,6 @@
 ## 5.10.6
 
-August 11th 2022
+August 12th 2022
 
 - Fixed a couple of issues with connector placement when dragging nested nodes/groups.
 
