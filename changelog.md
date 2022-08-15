@@ -1,3 +1,9 @@
+## 5.10.7
+
+August 15th 2022
+
+- Addition of generated grid backgrounds to Toolkit edition.
+
 ## 5.10.6
 
 August 12th 2022
