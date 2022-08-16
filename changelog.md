@@ -1,3 +1,16 @@
+## 5.10.9
+
+August 16th 2022
+
+- Added `setColor(connection, color)`, `setOutlineColor(connection, color)`, `setLineWidth(connection, width)`, `setOutlineWidth(connection, width)` methods to jsPlumbInstance.
+
+- Added support for four new options in `ConnectParams` (the args to the `connect` method):
+
+    - outlineColor:string
+    - outlineWidth:number
+    - color:string
+    - lineWidth:number
+ 
 ## 5.10.8
 
 August 16th 2022
