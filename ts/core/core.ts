@@ -2256,6 +2256,50 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     }
 
     /**
+     * Set the outline color for the given connection
+     * @param conn
+     * @param color
+     * @public
+     */
+    setOutlineColor(conn:Connection, color:string) {
+        conn.paintStyleInUse.outlineStroke = color
+        this._paintConnection(conn)
+    }
+
+    /**
+     * Sets the outline width for the given connection
+     * @param conn
+     * @param width
+     * @public
+     */
+    setOutlineWidth(conn:Connection, width:number) {
+        conn.paintStyleInUse.outlineWidth = width
+        this._paintConnection(conn)
+    }
+
+    /**
+     * Sets the color of the connection.
+     * @param conn
+     * @param color
+     * @public
+     */
+    setColor(conn:Connection, color:string) {
+        conn.paintStyleInUse.stroke = color
+        this._paintConnection(conn)
+    }
+
+    /**
+     * Sets the line width of the connection
+     * @param conn
+     * @param width
+     * @public
+     */
+    setLineWidth(conn:Connection, width:number) {
+        conn.paintStyleInUse.strokeWidth = width
+        this._paintConnection(conn)
+    }
+
+    /**
      * For some given element, find any other elements we want to draw whenever that element
      * is being drawn. for groups, for example, this means any child elements of the group. For an element that has child
      * elements that are also managed, it means those child elements.
