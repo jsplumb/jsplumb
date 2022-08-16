@@ -203,6 +203,54 @@ var testSuite = function () {
         ok(has(_jsPlumb.connectorClass), "basic connector class set correctly");
     });
 
+    test(": _jsPlumb.connect (setting paintStyle on Connector)", function () {
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+        var c = _jsPlumb.connect({
+            source: d1,
+            target: d2,
+            paintStyle:{
+                outlineStroke:"green",
+                outlineWidth:6,
+                strokeWidth:4,
+                stroke:"red"
+            }
+        });
+        var conn = support.getConnectionCanvas(c);
+        var paths = conn.querySelectorAll("path")
+        equal(paths[0].getAttribute("stroke"), "green", "outline stroke was set")
+        equal(paths[1].getAttribute("stroke"), "red", "stroke was set")
+        equal(paths[0].getAttribute("stroke-width"), "16", "outline stroke width was set")
+        equal(paths[1].getAttribute("stroke-width"), "4", "stroke width was set")
+    });
+
+    test(": _jsPlumb.connect (setting colors and line widths directly on Connector (without paint style)", function () {
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
+        var c = _jsPlumb.connect({
+            source: d1,
+            target: d2,
+            outlineColor:"green",
+            outlineWidth:6,
+            lineWidth:4,
+            color:"red"
+        });
+        var conn = support.getConnectionCanvas(c);
+        var paths = conn.querySelectorAll("path")
+        equal(paths[0].getAttribute("stroke"), "green", "outline stroke was set")
+        equal(paths[1].getAttribute("stroke"), "red", "stroke was set")
+        equal(paths[0].getAttribute("stroke-width"), "16", "outline stroke width was set")
+        equal(paths[1].getAttribute("stroke-width"), "4", "stroke width was set")
+
+        _jsPlumb.setOutlineColor(c, "pink")
+        _jsPlumb.setOutlineWidth(c, 10)
+        _jsPlumb.setLineWidth(c, 5)
+        _jsPlumb.setColor(c, "yellow")
+        //
+        equal(paths[0].getAttribute("stroke"), "pink", "outline stroke was changed")
+        equal(paths[1].getAttribute("stroke"), "yellow", "stroke was changed")
+        equal(paths[0].getAttribute("stroke-width"), "25", "outline stroke width was changed")
+        equal(paths[1].getAttribute("stroke-width"), "5", "stroke width was changed")
+    });
+
     test(": _jsPlumb.addEndpoint (setting cssClass on Endpoint)", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var e = _jsPlumb.addEndpoint(d1, {cssClass: "CSS"});

@@ -910,6 +910,8 @@ export const Connectors: {
 export interface ConnectParams<E> {
     anchor?: AnchorSpec;
     anchors?: [AnchorSpec, AnchorSpec];
+    // (undocumented)
+    color?: string;
     connector?: ConnectorSpec;
     cost?: number;
     // (undocumented)
@@ -933,7 +935,9 @@ export interface ConnectParams<E> {
     id?: string;
     label?: string;
     // (undocumented)
-    outlineStroke?: number;
+    lineWidth?: number;
+    // (undocumented)
+    outlineColor?: string;
     // (undocumented)
     outlineWidth?: number;
     overlays?: Array<OverlaySpec>;
@@ -1898,6 +1902,7 @@ export abstract class JsPlumbInstance<T extends {
     abstract setAttribute(el: T["E"], name: string, value: string): void;
     // (undocumented)
     abstract setAttributes(el: T["E"], atts: Record<string, string>): void;
+    setColor(conn: Connection, color: string): void;
     setConnectionType(connection: Connection, type: string, params?: any): void;
     // @internal (undocumented)
     abstract setConnectorHover(connector: AbstractConnector, h: boolean, sourceEndpoint?: Endpoint): void;
@@ -1917,8 +1922,11 @@ export abstract class JsPlumbInstance<T extends {
     abstract setGroupVisible(group: UIGroup, state: boolean): void;
     // (undocumented)
     abstract setHover(component: Component, hover: boolean): void;
+    setLineWidth(conn: Connection, width: number): void;
     // @internal
     setManagedData(elementId: string, dataIdentifier: string, key: string, data: any): void;
+    setOutlineColor(conn: Connection, color: string): void;
+    setOutlineWidth(conn: Connection, width: number): void;
     // (undocumented)
     abstract setOverlayHover(o: Overlay, hover: boolean): void;
     // (undocumented)

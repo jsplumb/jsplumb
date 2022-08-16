@@ -1209,8 +1209,10 @@ export declare interface ConnectParams<E> {
     data?: any;
     cssClass?: string;
     hoverClass?: string;
-    outlineStroke?: number;
+    outlineColor?: string;
     outlineWidth?: number;
+    color?: string;
+    lineWidth?: number;
     scope?: string;
 }
 
@@ -2412,6 +2414,34 @@ export declare abstract class JsPlumbInstance<T extends {
      * @public
      */
     removeOverlay(component: Component, overlayId: string): void;
+    /**
+     * Set the outline color for the given connection
+     * @param conn
+     * @param color
+     * @public
+     */
+    setOutlineColor(conn: Connection, color: string): void;
+    /**
+     * Sets the outline width for the given connection
+     * @param conn
+     * @param width
+     * @public
+     */
+    setOutlineWidth(conn: Connection, width: number): void;
+    /**
+     * Sets the color of the connection.
+     * @param conn
+     * @param color
+     * @public
+     */
+    setColor(conn: Connection, color: string): void;
+    /**
+     * Sets the line width of the connection
+     * @param conn
+     * @param width
+     * @public
+     */
+    setLineWidth(conn: Connection, width: number): void;
     /**
      * For some given element, find any other elements we want to draw whenever that element
      * is being drawn. for groups, for example, this means any child elements of the group. For an element that has child

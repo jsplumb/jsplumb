@@ -112,8 +112,10 @@ export interface ConnectParams<E> {
     data?: any;
     cssClass?: string;
     hoverClass?: string;
-    outlineStroke?: number;
+    outlineColor?: string;
     outlineWidth?: number;
+    color?: string;
+    lineWidth?: number;
     scope?: string;
 }
 /**

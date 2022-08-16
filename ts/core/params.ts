@@ -101,6 +101,12 @@ export interface ConnectParams<E> {
      */
     hoverPaintStyle?:PaintStyle
 
+
+    // outlineColor?:string
+    // outlineWidth?:number
+    // lineWidth?:number
+    // color?:string
+
     /**
      * Whether or not the connection is considered to be 'directed'
      */
@@ -123,8 +129,10 @@ export interface ConnectParams<E> {
     cssClass?:string
     hoverClass?:string
 
-    outlineStroke?:number
+    outlineColor?:string
     outlineWidth?:number
+    color?:string
+    lineWidth?:number
 
     scope?:string
 }

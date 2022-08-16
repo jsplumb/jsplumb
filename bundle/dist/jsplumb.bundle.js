@@ -3704,12 +3704,25 @@ var jsPlumbBrowserUI = (function (exports) {
       _this.endpointsSpec = params.endpoints || [null, null];
       _this.endpointSpec = params.endpoint || null;
       var _reattach = params.reattach || _this.endpoints[0].reattachConnections || _this.endpoints[1].reattachConnections || _this.instance.defaults.reattachConnections;
+      var initialPaintStyle = _this.endpoints[0].connectorStyle || _this.endpoints[1].connectorStyle || params.paintStyle || _this.instance.defaults.paintStyle;
       _this.appendToDefaultType({
         detachable: _detachable,
         reattach: _reattach,
-        paintStyle: _this.endpoints[0].connectorStyle || _this.endpoints[1].connectorStyle || params.paintStyle || _this.instance.defaults.paintStyle,
+        paintStyle: initialPaintStyle,
         hoverPaintStyle: _this.endpoints[0].connectorHoverStyle || _this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _this.instance.defaults.hoverPaintStyle
       });
+      if (params.outlineWidth) {
+        initialPaintStyle.outlineWidth = params.outlineWidth;
+      }
+      if (params.outlineColor) {
+        initialPaintStyle.outlineStroke = params.outlineColor;
+      }
+      if (params.lineWidth) {
+        initialPaintStyle.strokeWidth = params.lineWidth;
+      }
+      if (params.color) {
+        initialPaintStyle.stroke = params.color;
+      }
       if (!_this.instance._suspendDrawing) {
         var initialTimestamp = _this.instance._suspendedAt || uuid();
         _this.instance._paintEndpoint(_this.endpoints[0], {
@@ -8225,6 +8238,30 @@ var jsPlumbBrowserUI = (function (exports) {
         component.removeOverlay(overlayId);
         var relatedElement = component instanceof Endpoint ? component.element : component.source;
         this.revalidate(relatedElement);
+      }
+    }, {
+      key: "setOutlineColor",
+      value: function setOutlineColor(conn, color) {
+        conn.paintStyleInUse.outlineStroke = color;
+        this._paintConnection(conn);
+      }
+    }, {
+      key: "setOutlineWidth",
+      value: function setOutlineWidth(conn, width) {
+        conn.paintStyleInUse.outlineWidth = width;
+        this._paintConnection(conn);
+      }
+    }, {
+      key: "setColor",
+      value: function setColor(conn, color) {
+        conn.paintStyleInUse.stroke = color;
+        this._paintConnection(conn);
+      }
+    }, {
+      key: "setLineWidth",
+      value: function setLineWidth(conn, width) {
+        conn.paintStyleInUse.strokeWidth = width;
+        this._paintConnection(conn);
       }
     }, {
       key: "getPathData",
