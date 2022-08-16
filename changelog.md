@@ -1,3 +1,9 @@
+## 5.10.8
+
+August 16th 2022
+
+- Internal refactoring of grid backgrounds in Toolkit edition.
+
 ## 5.10.7
 
 August 15th 2022
