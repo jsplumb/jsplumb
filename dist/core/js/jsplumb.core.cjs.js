@@ -7161,6 +7161,23 @@ var JsPlumbInstance = function (_EventGenerator) {
       this._paintConnection(conn);
     }
   }, {
+    key: "setLineStyle",
+    value: function setLineStyle(conn, style) {
+      if (style.lineWidth != null) {
+        conn.paintStyleInUse.strokeWidth = style.lineWidth;
+      }
+      if (style.outlineWidth != null) {
+        conn.paintStyleInUse.outlineWidth = style.outlineWidth;
+      }
+      if (style.color != null) {
+        conn.paintStyleInUse.stroke = style.color;
+      }
+      if (style.outlineColor != null) {
+        conn.paintStyleInUse.outlineStroke = style.outlineColor;
+      }
+      this._paintConnection(conn);
+    }
+  }, {
     key: "getPathData",
     value:
     function getPathData(connector) {

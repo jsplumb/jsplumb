@@ -1922,6 +1922,12 @@ export abstract class JsPlumbInstance<T extends {
     abstract setGroupVisible(group: UIGroup, state: boolean): void;
     // (undocumented)
     abstract setHover(component: Component, hover: boolean): void;
+    setLineStyle(conn: Connection, style: {
+        lineWidth?: number;
+        outlineWidth?: number;
+        color?: string;
+        outlineColor?: string;
+    }): void;
     setLineWidth(conn: Connection, width: number): void;
     // @internal
     setManagedData(elementId: string, dataIdentifier: string, key: string, data: any): void;
