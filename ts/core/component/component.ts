@@ -36,6 +36,7 @@ const DEFAULT_TYPE_KEY = "__default"
 const ANCHOR = "anchor"
 const ANCHORS = "anchors"
 const _internalLabelOverlayId = "__label"
+const _internalLabelOverlayClass = "jtk-default-label"
 const TYPE_ITEM_OVERLAY = "overlay"
 const LOCATION_ATTRIBUTE = "labelLocation"
 const ACTION_ADD = "add"
@@ -323,7 +324,8 @@ export abstract class Component extends EventGenerator {
                 options:{
                     label: params.label,
                     location: params.labelLocation || this.defaultLabelLocation,
-                    id:_internalLabelOverlayId
+                    id:_internalLabelOverlayId,
+                    cssClass:_internalLabelOverlayClass
                 }
             }
         }
