@@ -2300,6 +2300,31 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
     }
 
     /**
+     * Sets color, outline color, line width and outline width.
+     * Any values for which the key is present will not be set, but if
+     * the key is present and the value is null, the corresponding value in
+     * the connection's paint style will be set to null.
+     * @param conn
+     * @param style
+     * @public
+     */
+    setLineStyle(conn:Connection, style:{lineWidth?:number, outlineWidth?:number, color?:string, outlineColor?:string}) {
+        if (style.lineWidth != null) {
+            conn.paintStyleInUse.strokeWidth = style.lineWidth
+        }
+        if (style.outlineWidth != null) {
+            conn.paintStyleInUse.outlineWidth = style.outlineWidth
+        }
+        if (style.color!= null) {
+            conn.paintStyleInUse.stroke = style.color
+        }
+        if (style.outlineColor != null) {
+            conn.paintStyleInUse.outlineStroke = style.outlineColor
+        }
+        this._paintConnection(conn)
+    }
+
+    /**
      * For some given element, find any other elements we want to draw whenever that element
      * is being drawn. for groups, for example, this means any child elements of the group. For an element that has child
      * elements that are also managed, it means those child elements.
