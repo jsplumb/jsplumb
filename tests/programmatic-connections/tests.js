@@ -891,6 +891,67 @@ var testSuite = function () {
         equal(lo.location, 0.2, "label overlay has correct location");
     });
 
+
+    test(": _jsPlumb.connect (stroke color and width set using 'color' and `lineWidth')", function () {
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
+            c = _jsPlumb.connect({
+                source: d1,
+                target: d2,
+                color: "pink",
+                lineWidth:15
+            });
+
+        equal(c.connector.canvas.querySelector("path").getAttribute("stroke"), "pink", "stroke color set via 'color' on connect call");
+        equal(c.connector.canvas.querySelector("path").getAttribute("stroke-width"), "15", "stroke width set via 'lineWidth' on connect call");
+
+        _jsPlumb.setColor(c, "yellow")
+        _jsPlumb.setLineWidth(c, 25)
+
+        equal(c.connector.canvas.querySelector("path").getAttribute("stroke"), "yellow", "stroke color changed via setColor call");
+        equal(c.connector.canvas.querySelector("path").getAttribute("stroke-width"), "25", "stroke width changed via setLineWidth call");
+
+    });
+
+    test(": _jsPlumb.connect (outline color and outlinewidth set using 'outlineColor' and `outlineWidth')", function () {
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
+            c = _jsPlumb.connect({
+                source: d1,
+                target: d2,
+                color: "red",
+                outlineColor: "pink",
+                lineWidth:5,
+                outlineWidth:15
+            });
+
+        equal(c.connector.canvas.querySelectorAll("path")[0].getAttribute("stroke"), "pink", "outline color set via 'color' on connect call");
+        equal(c.connector.canvas.querySelectorAll("path")[0].getAttribute("stroke-width"), "35", "outline width set via 'lineWidth' on connect call");
+        equal(c.connector.canvas.querySelectorAll("path")[1].getAttribute("stroke"), "red", "stroke color set via 'color' on connect call");
+        equal(c.connector.canvas.querySelectorAll("path")[1].getAttribute("stroke-width"), "5", "stroke width set via 'lineWidth' on connect call");
+
+        _jsPlumb.setColor(c, "yellow")
+        _jsPlumb.setLineWidth(c, 25)
+        _jsPlumb.setOutlineColor(c, "blue")
+        _jsPlumb.setOutlineWidth(c, 35)
+
+        equal(c.connector.canvas.querySelectorAll("path")[0].getAttribute("stroke"), "blue", "outline color changed via setOutlineColor call");
+        equal(c.connector.canvas.querySelectorAll("path")[0].getAttribute("stroke-width"), "95", "stroke width changed via setOutlineWidth call");
+        equal(c.connector.canvas.querySelectorAll("path")[1].getAttribute("stroke"), "yellow", "stroke color changed via setColor call");
+        equal(c.connector.canvas.querySelectorAll("path")[1].getAttribute("stroke-width"), "25", "stroke width changed via setLineWidth call");
+
+        _jsPlumb.setLineStyle(c, {
+            color:"brown",
+            lineWidth:2,
+            outlineWidth:5,
+            outlineColor:"cadetblue"
+        })
+
+        equal(c.connector.canvas.querySelectorAll("path")[0].getAttribute("stroke"), "cadetblue", "outline color changed via setLineStyle call");
+        equal(c.connector.canvas.querySelectorAll("path")[0].getAttribute("stroke-width"), "12", "stroke width changed via setLineStyle call");
+        equal(c.connector.canvas.querySelectorAll("path")[1].getAttribute("stroke"), "brown", "stroke color changed via setLineStyle call");
+        equal(c.connector.canvas.querySelectorAll("path")[1].getAttribute("stroke-width"), "2", "stroke width changed via setLineStyle call");
+
+    });
+
     test(": _jsPlumb.connect (remove single overlay by id)", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var arrowSpec = {
