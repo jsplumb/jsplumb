@@ -1,3 +1,11 @@
+## 5.11.0
+
+August 17th 2022
+
+- Added some unit tests for the color/lineWidth/outlineWidth/outlineColor parameters on a `connect` call
+
+- Added `setLineStyle` method to `JsPlumbInstance`.
+
 ## 5.10.9
 
 August 16th 2022
