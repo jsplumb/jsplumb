@@ -320,12 +320,12 @@ export class Connection<E = any> extends Component {
 
         let _reattach = params.reattach || this.endpoints[0].reattachConnections || this.endpoints[1].reattachConnections || this.instance.defaults.reattachConnections
 
-        const initialPaintStyle = this.endpoints[0].connectorStyle || this.endpoints[1].connectorStyle || params.paintStyle || this.instance.defaults.paintStyle
+        const initialPaintStyle = extend({}, this.endpoints[0].connectorStyle || this.endpoints[1].connectorStyle || params.paintStyle || this.instance.defaults.paintStyle)
         this.appendToDefaultType({
             detachable: _detachable,
             reattach: _reattach,
             paintStyle:initialPaintStyle,
-            hoverPaintStyle:this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || this.instance.defaults.hoverPaintStyle
+            hoverPaintStyle:extend({}, this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || this.instance.defaults.hoverPaintStyle)
         })
         if (params.outlineWidth) {
             initialPaintStyle.outlineWidth = params.outlineWidth
