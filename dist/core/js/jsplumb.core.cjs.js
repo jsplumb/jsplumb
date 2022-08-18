@@ -1385,6 +1385,7 @@ var DEFAULT_TYPE_KEY = "__default";
 var ANCHOR = "anchor";
 var ANCHORS = "anchors";
 var _internalLabelOverlayId = "__label";
+var _internalLabelOverlayClass = "jtk-default-label";
 var TYPE_ITEM_OVERLAY = "overlay";
 var LOCATION_ATTRIBUTE = "labelLocation";
 var ACTION_ADD = "add";
@@ -1542,7 +1543,8 @@ var Component = function (_EventGenerator) {
         options: {
           label: params.label,
           location: params.labelLocation || _this.defaultLabelLocation,
-          id: _internalLabelOverlayId
+          id: _internalLabelOverlayId,
+          cssClass: _internalLabelOverlayClass
         }
       };
     }

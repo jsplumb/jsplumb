@@ -1,3 +1,7 @@
+## 5.11.1
+
+- When extracting a `label` to create a default label overlay in a `connect` call, the created label overlay is now assigned a class of `jtk-default-label`.
+
 ## 5.11.0
 
 August 17th 2022

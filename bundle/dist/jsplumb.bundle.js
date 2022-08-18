@@ -2488,6 +2488,7 @@ var jsPlumbBrowserUI = (function (exports) {
   var ANCHOR = "anchor";
   var ANCHORS = "anchors";
   var _internalLabelOverlayId = "__label";
+  var _internalLabelOverlayClass = "jtk-default-label";
   var TYPE_ITEM_OVERLAY = "overlay";
   var LOCATION_ATTRIBUTE = "labelLocation";
   var ACTION_ADD = "add";
@@ -2645,7 +2646,8 @@ var jsPlumbBrowserUI = (function (exports) {
           options: {
             label: params.label,
             location: params.labelLocation || _this.defaultLabelLocation,
-            id: _internalLabelOverlayId
+            id: _internalLabelOverlayId,
+            cssClass: _internalLabelOverlayClass
           }
         };
       }
