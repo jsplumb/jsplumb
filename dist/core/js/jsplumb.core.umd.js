@@ -2602,12 +2602,12 @@
       _this.endpointsSpec = params.endpoints || [null, null];
       _this.endpointSpec = params.endpoint || null;
       var _reattach = params.reattach || _this.endpoints[0].reattachConnections || _this.endpoints[1].reattachConnections || _this.instance.defaults.reattachConnections;
-      var initialPaintStyle = _this.endpoints[0].connectorStyle || _this.endpoints[1].connectorStyle || params.paintStyle || _this.instance.defaults.paintStyle;
+      var initialPaintStyle = util.extend({}, _this.endpoints[0].connectorStyle || _this.endpoints[1].connectorStyle || params.paintStyle || _this.instance.defaults.paintStyle);
       _this.appendToDefaultType({
         detachable: _detachable,
         reattach: _reattach,
         paintStyle: initialPaintStyle,
-        hoverPaintStyle: _this.endpoints[0].connectorHoverStyle || _this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _this.instance.defaults.hoverPaintStyle
+        hoverPaintStyle: util.extend({}, _this.endpoints[0].connectorHoverStyle || _this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _this.instance.defaults.hoverPaintStyle)
       });
       if (params.outlineWidth) {
         initialPaintStyle.outlineWidth = params.outlineWidth;

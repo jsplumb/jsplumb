@@ -1,3 +1,10 @@
+## 5.11.2
+
+August 18th 2022
+
+- Toolkit edition updates
+- Clone initial paint style to ensure values dont leak into other connections
+
 ## 5.11.1
 
 August 18th 2022
