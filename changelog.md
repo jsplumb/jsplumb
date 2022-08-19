@@ -1,9 +1,12 @@
 ## 5.11.2
 
-August 18th 2022
+August 19th 2022
 
 - Toolkit edition updates
-- Clone initial paint style to ensure values dont leak into other connections
+- Clone initial paint style in connection class to ensure values dont leak into other connections
+- `updateFrom` method of label overlay now takes new 'location' value into account and repositions the overlay accordingly.
+- overlay locations that do not parse as a number are rejected. For new overlays this results in using the default position of 0.5; for
+existing overlays the location remains at its previous value.
 
 ## 5.11.1
 

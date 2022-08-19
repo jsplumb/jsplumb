@@ -2367,7 +2367,7 @@ var jsPlumbBrowserUI = (function (exports) {
       p = p || {};
       _this.id = p.id || uuid();
       _this.cssClass = p.cssClass || "";
-      _this.location = p.location || 0.5;
+      _this.setLocation(p.location);
       _this.events = p.events || {};
       _this.attributes = p.attributes || {};
       for (var _event in _this.events) {
@@ -2376,6 +2376,21 @@ var jsPlumbBrowserUI = (function (exports) {
       return _this;
     }
     _createClass$3(Overlay, [{
+      key: "setLocation",
+      value: function setLocation(l) {
+        var newLocation = this.location == null ? 0.5 : this.location;
+        if (l != null) {
+          try {
+            var _l = typeof l === "string" ? parseFloat(l) : l;
+            if (!isNaN(_l)) {
+              newLocation = _l;
+            }
+          } catch (e) {
+          }
+        }
+        this.location = newLocation;
+      }
+    }, {
       key: "shouldFireEvent",
       value: function shouldFireEvent(event, value, originalEvent) {
         return true;
@@ -2461,6 +2476,10 @@ var jsPlumbBrowserUI = (function (exports) {
         if (d.label != null) {
           this.setLabel(d.label);
         }
+        if (d.location != null) {
+          this.setLocation(d.location);
+          this.instance.updateLabel(this);
+        }
       }
     }]);
     return LabelOverlay;
@@ -2469,7 +2488,7 @@ var jsPlumbBrowserUI = (function (exports) {
   function isLabelOverlay(o) {
     return o.type === LabelOverlay.type;
   }
-  OverlayFactory.register("Label", LabelOverlay);
+  OverlayFactory.register(LabelOverlay.type, LabelOverlay);
 
   function _splitType(t) {
     return t == null ? null : t.split(" ").filter(function (t) {

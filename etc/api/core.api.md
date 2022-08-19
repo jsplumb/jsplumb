@@ -2213,6 +2213,8 @@ export abstract class Overlay extends EventGenerator {
     // (undocumented)
     location: number | Array<number>;
     // (undocumented)
+    setLocation(l: number | string): void;
+    // (undocumented)
     setVisible(v: boolean): void;
     // (undocumented)
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
