@@ -46,13 +46,31 @@ export abstract class Overlay extends EventGenerator {
         p = p || {}
         this.id = p.id  || uuid()
         this.cssClass = p.cssClass || ""
-        this.location = p.location || 0.5
+
+        this.setLocation(p.location as any)
+
         this.events = p.events || {}
         this.attributes = p.attributes || {}
 
         for (let event in this.events) {
             this.bind(event, this.events[event])
         }
+    }
+
+    setLocation(l:number|string) {
+        let newLocation = this.location == null ? 0.5 : this.location
+        if (l != null) {
+            try {
+                const _l = typeof l === "string" ? parseFloat(l) : l
+                if (!isNaN(_l)) {
+                    newLocation = _l
+                }
+            } catch (e) {
+                // not parsable. use default.
+            }
+        }
+
+        this.location = newLocation
     }
 
     shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean {
