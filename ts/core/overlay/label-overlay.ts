@@ -40,10 +40,13 @@ export class LabelOverlay extends Overlay {
 
     getDimensions():Size { return {w:1,h:1} }
 
-
     updateFrom(d: any): void {
         if(d.label != null){
             this.setLabel(d.label)
+        }
+        if (d.location != null) {
+            this.setLocation(d.location)
+            this.instance.updateLabel(this)
         }
     }
 }
@@ -53,4 +56,4 @@ export function isLabelOverlay(o:Overlay):o is LabelOverlay {
 }
 
 
-OverlayFactory.register("Label", LabelOverlay)
+OverlayFactory.register(LabelOverlay.type, LabelOverlay)
