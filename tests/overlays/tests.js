@@ -287,6 +287,80 @@ var testSuite = function () {
         equal(lo.location, 0.9, "label overlay has correct location");
     });
 
+    test(": _jsPlumb.connect (testing the updateFrom method of the label overlay, with valid data)", function () {
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
+            c = _jsPlumb.connect({
+                source: d1,
+                target: d2,
+                label: "FOO",
+                labelLocation: 0.2
+            });
+
+        var lo = c.getLabelOverlay();
+        equal(lo.location, 0.2, "label overlay has correct location");
+
+        lo.updateFrom({
+            label: "BAZ",
+            cssClass: "CLASSY",
+            location: 0.9
+        });
+
+        ok(lo != null, "label overlay exists");
+        equal(lo.getLabel(), "BAZ", "label overlay has correct value");
+        equal(lo.location, 0.9, "label overlay has correct location");
+    });
+
+    test(": _jsPlumb.connect (testing the updateFrom method of the label overlay, with invalid data)", function () {
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
+            c = _jsPlumb.connect({
+                source: d1,
+                target: d2,
+                label: "FOO",
+                labelLocation: 0.2
+            });
+
+        var lo = c.getLabelOverlay();
+        equal(lo.location, 0.2, "label overlay has correct location");
+
+        lo.updateFrom({
+            label: "BAZ",
+            cssClass: "CLASSY",
+            location: ""
+        });
+
+        equal(lo.getLabel(), "BAZ", "label overlay has correct value");
+        equal(lo.location, 0.2, "label overlay has correct location (it was not changed because the new value was invalid");
+
+        lo.updateFrom({
+            label: "BAZZ",
+            location: "not a number"
+        });
+
+        equal(lo.getLabel(), "BAZZ", "label overlay has correct value");
+        equal(lo.location, 0.2, "label overlay has correct location (it was not changed because the new value was invalid");
+
+        lo.updateFrom({
+            location: 0.1
+        });
+
+        equal(lo.location, 0.1, "label overlay has correct new location");
+
+    });
+
+    test(": _jsPlumb.connect (testing the updateFrom method of the label overlay, with invalid data)", function () {
+        var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
+            c = _jsPlumb.connect({
+                source: d1,
+                target: d2,
+                label: "FOO",
+                labelLocation: "not a number"
+            });
+
+        var lo = c.getLabelOverlay();
+        equal(lo.location, 0.5, "label overlay has default location because the one passed in is not valid");
+
+    });
+
     test(": _jsPlumb.connect (getLabelOverlay, label on connect call)", function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2"),
             c = _jsPlumb.connect({
