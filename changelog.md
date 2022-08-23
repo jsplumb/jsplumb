@@ -1,3 +1,9 @@
+## 5.11.3
+
+August 23rd 2022
+
+- Improved docs in the Toolkit edition
+
 ## 5.11.2
 
 August 19th 2022
