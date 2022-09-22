@@ -2478,6 +2478,7 @@ var ElementDragHandler = function () {
     _defineProperty(this, "_currentDragGroup", null);
     _defineProperty(this, "_currentDragGroupOffsets", new Map());
     _defineProperty(this, "_currentDragGroupSizes", new Map());
+    _defineProperty(this, "_currentDragGroupOriginalPositions", new Map());
     _defineProperty(this, "_dragPayload", null);
     _defineProperty(this, "drag", void 0);
     _defineProperty(this, "originalPosition", void 0);
@@ -2511,7 +2512,8 @@ var ElementDragHandler = function () {
   }, {
     key: "onStop",
     value: function onStop(params) {
-      var _this = this;
+      var _this$_currentDragGro,
+          _this = this;
       var jel = params.drag.getDragElement();
       var dropGroup = this.getDropGroup();
       var elementsToProcess = [];
@@ -2525,36 +2527,49 @@ var ElementDragHandler = function () {
         reverted: false,
         dropGroup: dropGroup != null ? dropGroup.groupLoc.group : null
       });
-      this._dragSelection.each(function (el, id, o, s, orig) {
+      function addElementToProcess(el, id, currentPos, s, originalPosition) {
+        var x = currentPos.x,
+            y = currentPos.y;
+        if (el._jsPlumbParentGroup && el._jsPlumbParentGroup.constrain) {
+          var constrainRect = {
+            w: el.parentNode.offsetWidth + el.parentNode.scrollLeft,
+            h: el.parentNode.offsetHeight + el.parentNode.scrollTop
+          };
+          x = Math.max(x, 0);
+          y = Math.max(y, 0);
+          x = Math.min(x, constrainRect.w - s.w);
+          y = Math.min(y, constrainRect.h - s.h);
+          currentPos.x = x;
+          currentPos.y = y;
+        }
+        elementsToProcess.push({
+          el: el,
+          id: id,
+          pos: currentPos,
+          originalPos: originalPosition,
+          originalGroup: el._jsPlumbParentGroup,
+          redrawResult: null,
+          reverted: false,
+          dropGroup: dropGroup === null || dropGroup === void 0 ? void 0 : dropGroup.groupLoc.group
+        });
+      }
+      this._dragSelection.each(function (el, id, o, s, originalPosition) {
         if (el !== params.el) {
-          var pp = {
+          addElementToProcess(el, id, {
             x: o.x,
             y: o.y
+          }, s, originalPosition);
+        }
+      });
+      (_this$_currentDragGro = this._currentDragGroup) === null || _this$_currentDragGro === void 0 ? void 0 : _this$_currentDragGro.members.forEach(function (d) {
+        if (d.el !== params.el) {
+          var offset = _this._currentDragGroupOffsets.get(d.elId);
+          var s = _this._currentDragGroupSizes.get(d.elId);
+          var pp = {
+            x: params.finalPos.x + offset[0].x,
+            y: params.finalPos.y + offset[0].y
           };
-          var x = pp.x,
-              y = pp.y;
-          if (el._jsPlumbParentGroup && el._jsPlumbParentGroup.constrain) {
-            var constrainRect = {
-              w: el.parentNode.offsetWidth + el.parentNode.scrollLeft,
-              h: el.parentNode.offsetHeight + el.parentNode.scrollTop
-            };
-            x = Math.max(x, 0);
-            y = Math.max(y, 0);
-            x = Math.min(x, constrainRect.w - s.w);
-            y = Math.min(y, constrainRect.h - s.h);
-            pp.x = x;
-            pp.y = y;
-          }
-          elementsToProcess.push({
-            el: el,
-            id: id,
-            pos: pp,
-            originalPos: orig,
-            originalGroup: el._jsPlumbParentGroup,
-            redrawResult: null,
-            reverted: false,
-            dropGroup: dropGroup != null ? dropGroup.groupLoc.group : null
-          });
+          addElementToProcess(d.el, d.elId, pp, s, _this._currentDragGroupOriginalPositions.get(d.elId));
         }
       });
       forEach(elementsToProcess, function (p) {
@@ -2637,6 +2652,7 @@ var ElementDragHandler = function () {
       this._dragPayload = null;
       this._currentDragGroupOffsets.clear();
       this._currentDragGroupSizes.clear();
+      this._currentDragGroupOriginalPositions.clear();
       this._currentDragGroup = null;
     }
   }, {
@@ -2847,6 +2863,10 @@ var ElementDragHandler = function () {
               y: vp.y - elOffset.y
             }, jel.el]);
             _this4._currentDragGroupSizes.set(jel.elId, vp);
+            _this4._currentDragGroupOriginalPositions.set(jel.elId, {
+              x: vp.x,
+              y: vp.y
+            });
             _one(jel.el, _this4._currentDragGroup, jel);
           });
         }

@@ -1209,6 +1209,14 @@ var testSuite = function () {
 
         _jsPlumb.addToDragGroup("DragGroup", d, d2);
 
+        var checkedElementsLength = false
+        _jsPlumb.bind("drag:stop", function(p) {
+            if (!checkedElementsLength) {
+                equal(p.elements.length, 2, "there are 2 elements in the list of elements that were dragged")
+                checkedElementsLength = true
+            }
+        })
+
         support.dragNodeBy(d, 100, 100, {
             beforeMouseUp:function() {
                 ok(d.classList.contains("jtk-drag"), "drag class set on element");

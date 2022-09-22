@@ -8,18 +8,60 @@ import { PointXY } from "@jsplumb/util";
  * @public
  */
 interface TypeDescriptorBase {
+    /**
+     * CSS class to add to the given component's representation in the UI
+     */
     cssClass?: string;
+    /**
+     * Paint style to use for the component.
+     */
     paintStyle?: PaintStyle;
+    /**
+     * Paint style to use for the component when the pointer is hovering over it.
+     */
     hoverPaintStyle?: PaintStyle;
-    parameters?: any;
+    /**
+     * Optional set of parameters to store on the component that is generated from this type.
+     */
+    parameters?: Record<string, any>;
+    /**
+     * [source, target] anchor specs for edges.
+     */
     anchors?: [AnchorSpec, AnchorSpec];
+    /**
+     * Spec for the anchor to use for both source and target.
+     */
     anchor?: AnchorSpec;
+    /**
+     * Provides a simple means for controlling connectivity in the UI.
+     */
     scope?: string;
+    /**
+     * When merging a type description into its parent(s), values in the child for `connector`, `anchor` and `anchors` will
+     * always overwrite any such values in the parent. But other values, such as `overlays`, will be merged with their
+     * parent's entry for that key. You can force a child's type to override _every_ corresponding value in its parent by
+     * setting `mergeStrategy:'override'`.
+     */
     mergeStrategy?: string;
+    /**
+     * Spec for an endpoint created for this type.
+     */
     endpoint?: EndpointSpec;
+    /**
+     * Paint style for connectors created for this type.
+     */
     connectorStyle?: PaintStyle;
+    /**
+     * Paint style for connectors created for this type when pointer is hovering over the component.
+     */
     connectorHoverStyle?: PaintStyle;
+    /**
+     * Spec for connectors created for this type.
+     */
     connector?: ConnectorSpec;
+    /**
+     * Class to add to any connectors created for this type.
+     */
     connectorClass?: string;
 }
 /**
@@ -27,6 +69,9 @@ interface TypeDescriptorBase {
  * @public
  */
 export interface TypeDescriptor extends TypeDescriptorBase {
+    /**
+     * Array of overlays to add.
+     */
     overlays?: Array<OverlaySpec>;
 }
 /**
@@ -41,8 +86,18 @@ export interface ComponentTypeDescriptor extends TypeDescriptorBase {
  * @public
  */
 export interface EndpointTypeDescriptor extends TypeDescriptor {
+    /**
+     * Whether or not connections created from this endpoint should be detachable via the mouse. Defaults to true.
+     */
     connectionsDetachable?: boolean;
+    /**
+     * Whether or not when a user detaches a connection that was created from this endpoint it should be automatically
+     * reattached. Defaults to false.
+     */
     reattachConnections?: boolean;
+    /**
+     * Maximum number of connections this endpoint can support. Defaults to 1. A value of -1 means unlimited.
+     */
     maxConnections?: number;
 }
 /**
@@ -50,8 +105,18 @@ export interface EndpointTypeDescriptor extends TypeDescriptor {
  * @public
  */
 export interface ConnectionTypeDescriptor extends TypeDescriptor {
+    /**
+     * Whether or not connections of this type should be detachable with the mouse. Defaults to true.
+     */
     detachable?: boolean;
+    /**
+     * Whether or not when a user detaches a connection of this type it should be automatically
+     * reattached. Defaults to false.
+     */
     reattach?: boolean;
+    /**
+     * Specs for the [source, target] endpoints for connections of this type.
+     */
     endpoints?: [EndpointSpec, EndpointSpec];
 }
 /**

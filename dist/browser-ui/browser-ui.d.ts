@@ -1129,6 +1129,7 @@ export declare class ElementDragHandler implements DragHandler {
     private _currentDragGroup;
     private _currentDragGroupOffsets;
     private _currentDragGroupSizes;
+    private _currentDragGroupOriginalPositions;
     private _dragPayload;
     protected drag: Drag;
     originalPosition: PointXY;
