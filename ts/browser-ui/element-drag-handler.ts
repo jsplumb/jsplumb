@@ -155,6 +155,7 @@ export class ElementDragHandler implements DragHandler {
     private _currentDragGroup:DragGroup = null
     private _currentDragGroupOffsets:Map<string, [PointXY, jsPlumbDOMElement]> = new Map()
     private _currentDragGroupSizes:Map<string, Size> = new Map()
+    private _currentDragGroupOriginalPositions:Map<string, PointXY> = new Map()
 
     private _dragPayload:Record<string, any> = null
 
@@ -210,36 +211,56 @@ export class ElementDragHandler implements DragHandler {
             dropGroup:dropGroup != null ? dropGroup.groupLoc.group : null
         })
 
-        this._dragSelection.each((el, id, o, s, orig) => {
+        function addElementToProcess(el:jsPlumbDOMElement, id:string, currentPos:PointXY, s:Size, originalPosition:PointXY) {
+            let x = currentPos.x, y = currentPos.y
+
+            // TODO this is duplicated in dragSelection's update offsets method.
+            // and of course in the group drag constrain args in the jsplumb constructor
+            if (el._jsPlumbParentGroup && el._jsPlumbParentGroup.constrain) {
+
+                // TODO not SVG safe (offsetWidth / offsetHeight)
+                const constrainRect = {
+                    w: el.parentNode.offsetWidth + el.parentNode.scrollLeft,
+                    h: el.parentNode.offsetHeight + el.parentNode.scrollTop
+                };
+
+                x = Math.max(x, 0)
+                y = Math.max(y, 0)
+                x = Math.min(x, constrainRect.w - s.w)
+                y = Math.min(y, constrainRect.h - s.h)
+
+                currentPos.x = x
+                currentPos.y = y
+            }
+
+            elementsToProcess.push({
+                el,
+                id,
+                pos:currentPos,
+                originalPos:originalPosition,
+                originalGroup:el._jsPlumbParentGroup,
+                redrawResult:null,
+                reverted:false,
+                dropGroup:dropGroup?.groupLoc.group
+            })
+        }
+
+        this._dragSelection.each((el:jsPlumbDOMElement, id:string, o:PointXY, s:Size, originalPosition:PointXY) => {
             if (el !== params.el) {
+               addElementToProcess(el, id, { x:o.x, y:o.y }, s, originalPosition)
+            }
+        })
+
+        this._currentDragGroup?.members.forEach((d:DragGroupMemberSpec) => {
+            if (d.el !== params.el) {
+                const offset = this._currentDragGroupOffsets.get(d.elId)
+                const s = this._currentDragGroupSizes.get(d.elId)
                 const pp = {
-                    x:o.x,
-                    y:o.y
-                }
-                let x = pp.x, y = pp.y
-
-                // TODO this is duplicated in dragSelection's update offsets method.
-                // and of course in the group drag constrain args in the jsplumb constructor
-                if (el._jsPlumbParentGroup && el._jsPlumbParentGroup.constrain) {
-
-                    // TODO not SVG safe (offsetWidth / offsetHeight)
-                    const constrainRect = {
-                        w: el.parentNode.offsetWidth + el.parentNode.scrollLeft,
-                        h: el.parentNode.offsetHeight + el.parentNode.scrollTop
-                    };
-
-                    x = Math.max(x, 0)
-                    y = Math.max(y, 0)
-                    x = Math.min(x, constrainRect.w - s.w)
-                    y = Math.min(y, constrainRect.h - s.h)
-
-                    pp.x = x
-                    pp.y = y
+                    x:params.finalPos.x + offset[0].x,
+                    y:params.finalPos.y + offset[0].y
                 }
 
-                elementsToProcess.push({
-                    el, id, pos:pp, originalPos:orig, originalGroup:el._jsPlumbParentGroup, redrawResult:null, reverted:false, dropGroup:dropGroup != null ? dropGroup.groupLoc.group : null
-                })
+                addElementToProcess(d.el, d.elId, pp, s, this._currentDragGroupOriginalPositions.get(d.elId))
             }
         })
 
@@ -351,6 +372,7 @@ export class ElementDragHandler implements DragHandler {
 
         this._currentDragGroupOffsets.clear()
         this._currentDragGroupSizes.clear()
+        this._currentDragGroupOriginalPositions.clear()
 
         this._currentDragGroup = null
     }
@@ -581,6 +603,7 @@ export class ElementDragHandler implements DragHandler {
                     const vp = this.instance.viewport.getPosition(jel.elId)
                     this._currentDragGroupOffsets.set(jel.elId, [ { x:vp.x- elOffset.x, y:vp.y - elOffset.y}, jel.el as jsPlumbDOMElement])
                     this._currentDragGroupSizes.set(jel.elId, vp)
+                    this._currentDragGroupOriginalPositions.set(jel.elId, {x:vp.x, y:vp.y})
                     _one(jel.el, this._currentDragGroup, jel)
                 })
             }
