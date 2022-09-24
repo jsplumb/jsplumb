@@ -1,6 +1,6 @@
-## 5.11.4
+## 5.12.0
 
-September 22nd 2022
+September 24th 2022
 
 - include drag group members in list of dragged elements that the drag:stop event contains
 
