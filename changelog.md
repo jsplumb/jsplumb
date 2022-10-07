@@ -1,3 +1,10 @@
+## 5.12.1
+
+October 7th 2022
+
+- updates to packaging in the Toolkit edition's background plugin
+- addition of methods to hide/show backgrounds in Toolkit edition. 
+
 ## 5.12.0
 
 September 24th 2022
