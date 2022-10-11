@@ -44,7 +44,13 @@
             endpoint: "Rectangle",
             anchors: ["TopCenter", "TopCenter"],
             container: canvas,
-            dropOptions:{activeClass:"dragActive", hoverClass:"dropHover"}
+            dropOptions:{activeClass:"dragActive", hoverClass:"dropHover"},
+            connectionOverlays:[
+                {
+                    type:"Arrow",
+                    options:{location:1}
+                }
+            ]
         });
 
         // suspend drawing and initialise.

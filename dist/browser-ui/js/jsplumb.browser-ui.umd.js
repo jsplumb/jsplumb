@@ -5112,7 +5112,7 @@
           o.canvas.style.left = XY.x + params.d.minx + "px";
           o.canvas.style.top = XY.y + params.d.miny + "px";
         } else if (isSVGElementOverlay(o)) {
-          var path = isNaN(params.d.cxy.x) || isNaN(params.d.cxy.y) ? "M 0 0" : "M" + params.d.hxy.x + "," + params.d.hxy.y + " L" + params.d.tail[0].x + "," + params.d.tail[0].y + " L" + params.d.cxy.x + "," + params.d.cxy.y + " L" + params.d.tail[1].x + "," + params.d.tail[1].y + " L" + params.d.hxy.x + "," + params.d.hxy.y;
+          var path = isNaN(params.d.cxy.x) || isNaN(params.d.cxy.y) ? "M 0 0" : "M" + params.d.hxy.x + "," + params.d.hxy.y + " L" + params.d.tail[0].x + "," + params.d.tail[0].y + " L" + params.d.cxy.x + "," + params.d.cxy.y + " L" + params.d.tail[1].x + "," + params.d.tail[1].y + " Z";
           paintSVGOverlay(o, path, params, extents);
         } else if (core.isCustomOverlay(o)) {
           getCustomElement(o);
