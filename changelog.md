@@ -1,3 +1,9 @@
+## 5.12.2
+
+October 12th 2022
+
+- updated to Arrow overlay to ensure the arrow head is drawn as a point, not a bevel.s
+
 ## 5.12.1
 
 October 7th 2022
