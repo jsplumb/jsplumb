@@ -76,6 +76,7 @@ var testSuite = function () {
 
     module("jsPlumb", {
         teardown: function () {
+            _jsPlumb.destroy()
             for (var i in _divs) {
                 var d = document.getElementById(_divs[i]);
                 d && d.parentNode.removeChild(d);
