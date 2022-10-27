@@ -675,10 +675,10 @@ var EventGenerator = function () {
           if (!this.shouldFireEvent || this.shouldFireEvent(event, value, originalEvent)) {
             while (!_gone && i < l && ret !== false) {
               if (this.eventsToDieOn[event]) {
-                this._listeners[event][i].apply(this, [value, originalEvent]);
+                this._listeners[event][i](value, originalEvent);
               } else {
                 try {
-                  ret = this._listeners[event][i].apply(this, [value, originalEvent]);
+                  ret = this._listeners[event][i](value, originalEvent);
                 } catch (e) {
                   log("jsPlumb: fire failed for event " + event + " : " + (e.message || e));
                 }

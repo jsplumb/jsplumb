@@ -1,3 +1,9 @@
+## 5.12.3
+
+October 27th 2022
+
+- EventGenerator now directly invokes listener functions instead of using `apply` to bind `this`. This approach is more compatible with arrow functions in ES6.
+
 ## 5.12.2
 
 October 12th 2022
