@@ -1,3 +1,11 @@
+## 5.12.4
+
+November 7th 2022
+
+- Toolkit edition updates to support OnPush change detection
+- Updates to handling of Angular component overlays in Toolkit edition.
+
+
 ## 5.12.3
 
 October 27th 2022

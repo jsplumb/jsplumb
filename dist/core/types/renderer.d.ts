@@ -2,7 +2,7 @@ import { BoundingBox, Extents, PointXY, Size } from "@jsplumb/util";
 import { OverlayBase } from "./overlay/overlay";
 import { LabelOverlay } from "./overlay/label-overlay";
 import { Component } from "./component/component";
-import { PaintStyle } from "@jsplumb/common";
+import { PaintStyle } from "./definitions";
 import { Connection } from "./connector/declarations";
 import { Endpoint } from "./endpoint/endpoint";
 import { TypeDescriptor } from "./type-descriptors";

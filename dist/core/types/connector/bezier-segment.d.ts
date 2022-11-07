@@ -1,4 +1,4 @@
-import { Segment, SegmentParams } from "@jsplumb/common";
+import { Segment, SegmentParams } from "./segments";
 import { Curve } from "./bezier";
 export interface CubicBezierSegmentParams extends SegmentParams {
     cp1x: number;

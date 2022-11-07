@@ -17,4 +17,12 @@ export declare type ManagedElement<E> = {
     group?: string;
     data: Record<string, Record<string, any>>;
 };
+export interface PaintStyle {
+    stroke?: string;
+    fill?: string;
+    strokeWidth?: number;
+    outlineStroke?: string;
+    outlineWidth?: number;
+    dashstyle?: string;
+}
 //# sourceMappingURL=definitions.d.ts.map

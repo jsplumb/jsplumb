@@ -1,6 +1,6 @@
 import { PointXY } from "@jsplumb/util";
-import { Connection } from './declarations';
-import { AnchorPlacement, ConnectorOptions, Geometry } from "@jsplumb/common";
+import { ConnectorOptions, Geometry, Connection } from './declarations';
+import { AnchorPlacement } from "../anchor";
 import { ConnectorBase, ConnectorComputeParams, PaintGeometry } from "./abstract-connector";
 export interface BaseBezierConnectorGeometry extends Geometry {
     source: AnchorPlacement;

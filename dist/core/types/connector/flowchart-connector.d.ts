@@ -1,6 +1,6 @@
-import { ConnectorOptions } from "@jsplumb/common";
 import { ConnectorHandler } from "./connectors";
 import { ConnectorBase } from "./abstract-connector";
+import { ConnectorOptions } from "./declarations";
 /**
  * Options for a flowchart connector
  * @public

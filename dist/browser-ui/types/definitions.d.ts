@@ -1,7 +1,7 @@
-import { ConnectorBase, Endpoint, JsPlumbDefaults, jsPlumbElement, OverlayBase } from "@jsplumb/core";
+import { ConnectorBase, Endpoint, JsPlumbDefaults, jsPlumbElement, OverlayBase } from "@jsplumb/ui-core";
 import { Grid, PointXY, Size } from "@jsplumb/util";
 import { Drag, GhostProxyGenerator } from "./collicat";
-import { PaintStyle } from "@jsplumb/common";
+import { PaintStyle } from "@jsplumb/ui-core";
 /**
  * Definition of a function that can be used to constrain the movemement of an element that is being dragged. The function is
  * given the "desiredLoc", which is the location the element would be moved to if not constrained, and it is expected to return
@@ -98,6 +98,12 @@ export interface DragParams {
     parent?: any;
     ignoreZoom?: boolean;
     scope?: string;
+    /**
+     * Optional element that should be used as the parent for elements acting as a ghost proxy for some other
+     * draggable element. When this is not specified, the related drag's element is used instead (which is the case for
+     * the majority of scenarios)
+     */
+    ghostProxyParent?: Element;
 }
 export interface DragOptions {
     containment?: ContainmentType;

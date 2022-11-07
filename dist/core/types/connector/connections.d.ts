@@ -1,6 +1,7 @@
+import { ConnectorSpec } from '../connector/declarations';
 import { ConnectorBase } from "../connector/abstract-connector";
-import { Endpoint } from '../endpoint/endpoint';
-import { AnchorSpec, ConnectorSpec, EndpointSpec } from "@jsplumb/common";
+import { Endpoint, EndpointSpec } from '../endpoint/endpoint';
+import { AnchorSpec } from "../anchor";
 import { ConnectionTypeDescriptor } from "../type-descriptors";
 import { JsPlumbUICore } from "../core";
 import { Connection, ConnectionOptions } from './declarations';

@@ -1,7 +1,7 @@
-import { JsPlumbRenderer } from "@jsplumb/core";
-import { Component, Connection, Endpoint, LabelOverlay, OverlayBase, TypeDescriptor } from "@jsplumb/core";
+import { JsPlumbRenderer } from "@jsplumb/ui-core";
+import { Component, Connection, Endpoint, LabelOverlay, OverlayBase, TypeDescriptor } from "@jsplumb/ui-core";
 import { BoundingBox, Extents, PointXY, Size } from "@jsplumb/util";
-import { PaintStyle } from "@jsplumb/common";
+import { PaintStyle } from "@jsplumb/ui-core";
 import { EndpointHelperFunctions } from "./definitions";
 import { BrowserJsPlumbInstance } from "./browser-jsplumb-instance";
 import { EventManager } from "./event-manager";

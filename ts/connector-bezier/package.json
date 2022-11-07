@@ -1,6 +1,6 @@
 {
     "name": "@jsplumb/connector-bezier",
-    "version": "5.12.3",
+    "version": "5.12.4",
     "description": "The Bezier and StateMachine connectors",
     "main": "js/jsplumb.connector-bezier.cjs.js",
     "module": "js/jsplumb.connector-bezier.es.js",
@@ -30,7 +30,7 @@
     "author": "jsPlumb (hello@jsplumbtoolkit.com)",
     "license": "(MIT OR GPL-2.0)",
     "dependencies": {
-        "@jsplumb/core": "5.12.3"
+        "@jsplumb/core": "5.12.4"
     },
     "devDependencies": {}
 }
