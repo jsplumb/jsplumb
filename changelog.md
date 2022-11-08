@@ -1,3 +1,9 @@
+## 5.12.5
+
+November 8th 2022
+
+- Updates to handling of Angular component overlays in Toolkit edition.
+
 ## 5.12.4
 
 November 7th 2022
