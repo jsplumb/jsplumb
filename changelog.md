@@ -1,3 +1,9 @@
+## 5.12.6
+
+November 9th 2022
+
+- Refactoring of the Toolkit's templates-2 package
+
 ## 5.12.5
 
 November 8th 2022
