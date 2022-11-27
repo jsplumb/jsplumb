@@ -1,6 +1,6 @@
-## 5.13.0
+## 5.13.1
 
-November 27th 2022
+November 28th 2022
 
 - Updates to the Toolkit's Hierarchy layout.
 - Addition of `groupUnattachedRoots` option to Toolkit's Hierarchy layout.
