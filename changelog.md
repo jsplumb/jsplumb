@@ -1,3 +1,10 @@
+## 5.13.0
+
+November 27th 2022
+
+- Updates to the Toolkit's Hierarchy layout.
+- Addition of `groupUnattachedRoots` option to Toolkit's Hierarchy layout.
+
 ## 5.12.6
 
 November 9th 2022
@@ -28,7 +35,7 @@ October 27th 2022
 
 October 12th 2022
 
-- updated to Arrow overlay to ensure the arrow head is drawn as a point, not a bevel.s
+- updated to Arrow overlay to ensure the arrow head is drawn as a point, not a bevel.
 
 ## 5.12.1
 
@@ -41,7 +48,7 @@ October 7th 2022
 
 September 24th 2022
 
-- include drag group members in list of dragged elements that the drag:stop event contains
+- include drag group members in list of dragged elements that the `drag:stop` event contains
 
 ## 5.11.3
 
