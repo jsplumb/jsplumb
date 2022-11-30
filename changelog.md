@@ -1,3 +1,9 @@
+## 5.13.2
+
+December 1st 2022
+
+- Updated the Toolkit's lasso plugin to remove a global reference to `document` and instead use a lazy init method
+
 ## 5.13.1
 
 November 28th 2022
