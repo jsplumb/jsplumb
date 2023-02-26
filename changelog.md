@@ -1,3 +1,9 @@
+## 5.13.4
+
+February 26th 2023
+
+- Packaging updates for integrations
+
 ## 5.13.3
 
 February 18th 2023
