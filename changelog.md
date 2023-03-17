@@ -2,7 +2,7 @@
 
 March 17th 2023
 
-- Fixed issue with endpoint cleanup after drag
+- Fixed issue with endpoint cleanup after aborted connection drag
 
 ## 5.13.4
 
