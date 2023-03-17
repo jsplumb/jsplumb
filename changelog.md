@@ -1,3 +1,9 @@
+## 5.13.5
+
+March 17th 2023
+
+- Fixed issue with endpoint cleanup after drag
+
 ## 5.13.4
 
 February 26th 2023
