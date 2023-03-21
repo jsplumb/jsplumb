@@ -6405,13 +6405,9 @@ var JsPlumbInstance = function (_EventGenerator) {
       removeManagedEndpoint(this._managedElements[endpoint.elementId], endpoint);
       var ebe = this.endpointsByElement[endpoint.elementId];
       if (ebe != null) {
-        if (ebe.length > 1) {
-          this.endpointsByElement[endpoint.elementId] = ebe.filter(function (e) {
-            return e !== endpoint;
-          });
-        } else {
-          delete this.endpointsByElement[endpoint.elementId];
-        }
+        this.endpointsByElement[endpoint.elementId] = ebe.filter(function (e) {
+          return e !== endpoint;
+        });
       }
       this.fire(EVENT_INTERNAL_ENDPOINT_UNREGISTERED, endpoint);
     }

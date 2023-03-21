@@ -1,3 +1,9 @@
+## 5.13.6
+
+March 21st 2023
+
+- Update to the fix applied in 5.13.5
+
 ## 5.13.5
 
 March 17th 2023
