@@ -1206,11 +1206,7 @@ export abstract class JsPlumbInstance<T extends { E:unknown } = any> extends Eve
         const ebe = this.endpointsByElement[endpoint.elementId]
 
         if (ebe != null) {
-            if (ebe.length > 1) {
-                this.endpointsByElement[endpoint.elementId] = ebe.filter(e => e !== endpoint)
-            } else {
-                delete this.endpointsByElement[endpoint.elementId]
-            }
+            this.endpointsByElement[endpoint.elementId] = ebe.filter(e => e !== endpoint)
         }
 
         this.fire(Constants.EVENT_INTERNAL_ENDPOINT_UNREGISTERED, endpoint)
