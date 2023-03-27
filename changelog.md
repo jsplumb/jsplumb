@@ -1,3 +1,9 @@
+## 5.13.7
+
+March 28th 2023
+
+- Added support for injecting props into components in the Vue2/Vue3 integration packages in the Toolkit edition.
+
 ## 5.13.6
 
 March 21st 2023
