@@ -1,3 +1,19 @@
+## 6.0.0
+
+jsPlumb 6.x consists of only one package - `@jsplumb/browser-ui` - which exports everything from the various packages in 5.x. The thinking behind this decision is twofold:
+
+- it's easier to import things when you don't have to hunt around for the package the thing you want is in
+- Tree shaking is more efficient when everything is exported by a single package
+
+Since the overwhelming majority of JS/TS development involves bundlers and tree-shakers these days, it seemed a good time to update jsPlumb to sit more nicely in that world.  You can still use jsPlumb as a standalone import, via the UMD bundle, and in that case it's also easier to work with, since there's a single global export - `jsPlumb` on the window object.
+
+
+
+### BREAKING
+
+- `newInstance` method removed from `@jsplumb/browser-ui-lists`. Use `new JsPlumbListManager(instance, params)` instead.
+
+
 ## 5.13.7
 
 March 28th 2023
