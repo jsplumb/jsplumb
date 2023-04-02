@@ -24,42 +24,35 @@ const packages = require("./package.json").packages
 const packageNames = require("./package.json").packageNames
 
 const out = []
-packages.filter(p => {
-    const name = packageNames[`@jsplumb/${p}`]
-    if (name == null) {
-        throw `No package name found in package.json for package ${p}. Add a mapping in the "packageNames" map for this package.`
-    }
-    out.push({
-        input: `./ts/${p}/index.ts`,
-        // every package except the current one is considered external.
-        external: moduleId => moduleId.indexOf("@jsplumb") === 0 && moduleId !== `@jsplumb/${p}`,
-        output: [
-            {
-                name: name,
-                file: `dist/${p}/js/jsplumb.${p}.cjs.js`,
-                format: 'cjs'
-            },
-            {
-                name: name,
-                file: `dist/${p}/js/jsplumb.${p}.es.js`,
-                format: 'es'
-            },
-            {
-                name: name,
-                file: `dist/${p}/js/jsplumb.${p}.umd.js`,
-                format: 'umd',
-                globals:packageNames
-            }
-        ],
-        plugins: [
-            resolve({ extensions }),
-            commonjs(),
-            babel({ extensions, include: [`ts/${p}/**/*`], babelHelpers:"bundled" }),
-            cleanup({ extensions:['ts', 'js']})
-        ],
-        onwarn:ON_WARN
-    })
+
+out.push({
+    input: `./ts/index.ts`,
+    output: [
+        {
+            name: "jsPlumb",
+            file: `dist/browser-ui/js/jsplumb.browser-ui.cjs.js`,
+            format: 'cjs'
+        },
+        {
+            name: "jsPlumb",
+            file: `dist/browser-ui/js/jsplumb.browser-ui.es.js`,
+            format: 'es'
+        },
+        {
+            name: "jsPlumb",
+            file: `dist/browser-ui/js/jsplumb.browser-ui.umd.js`,
+            format: 'umd'
+        }
+    ],
+    plugins: [
+        resolve({ extensions }),
+        commonjs(),
+        babel({ extensions, include: [`ts/**/*`], babelHelpers:"bundled" }),
+        cleanup({ extensions:['ts', 'js']})
+    ],
+    onwarn:ON_WARN
 })
+
 
 export default out
 
