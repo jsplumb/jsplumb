@@ -24,9 +24,9 @@ var testSuite = function () {
         },
         setup: function () {
             makeContainer()
-            _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
-            support = jsPlumbTestSupport.getInstanceQUnit(_jsPlumb);
-            defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
+            _jsPlumb = jsPlumb.newInstance(({container:container}));
+            support = jsPlumb.createTestSupportInstanceQUnit(_jsPlumb);
+            defaults = jsPlumb.extend({}, _jsPlumb.defaults);
         }
     });
 
@@ -100,10 +100,10 @@ var testSuite = function () {
         ok(d1.getAttribute("data-jtk-managed") != null, "d1 is marked data-jtk-managed");
     });
 
-    test("jsPlumbUtil.lineIntersection", function () {
-        var i = jsPlumbUtil.lineIntersection([{x:592,y:197}, {x:692,y:197}], [{x:642,y:157},{x:608.35,y:745.10423240126}])
+    test("jsPlumb.lineIntersection", function () {
+        var i = jsPlumb.lineIntersection([{x:592,y:197}, {x:692,y:197}], [{x:642,y:157},{x:608.35,y:745.10423240126}])
         equal(i.y, 197, "intersection crosses at y = 197")
-        var i2 = jsPlumbUtil.lineIntersection([{x:592,y:197}, {x:692,y:197}], [{x:642,y:157},{x:608.35,y:745.1042324012622}])
+        var i2 = jsPlumb.lineIntersection([{x:592,y:197}, {x:692,y:197}], [{x:642,y:157},{x:608.35,y:745.1042324012622}])
         equal(i2.y, 197, "intersection crosses at y = 197")
 
 
@@ -113,7 +113,7 @@ var testSuite = function () {
         var r = {x: 211, y: 8.04, w: 100, h: 80}
         var l = [{x: 304, y: 204}, {x: 261, y: 48.04}]
 
-        var i = jsPlumbUtil.lineRectangleIntersection(l, r)[0]
+        var i = jsPlumb.lineRectangleIntersection(l, r)[0]
         ok(i != null)
 
         var l2 = [{x: 106.9, y: 40.355}, {x: 104.1, y: 159}]
@@ -121,19 +121,19 @@ var testSuite = function () {
         // center: {x: 106.9, y: 40.355}
         var r2 = {h: 80, w: 100, x: 56.9, y: 0.355}
 
-        var i2 = jsPlumbUtil.lineRectangleIntersection(l2, r2)[0]
+        var i2 = jsPlumb.lineRectangleIntersection(l2, r2)[0]
         ok(i2 != null)
 
         var r3 = {h: 80,w: 100,x: 653,y: 683}
         var l3 =  [{x: 412, y: 105.8},{x: 703, y: 723}]
 
-        var i3 = jsPlumbUtil.lineRectangleIntersection(l3, r3)[0]
+        var i3 = jsPlumb.lineRectangleIntersection(l3, r3)[0]
         ok(i3 != null)
 
         var r4 = {x: 13.5, y: 99.3, w: 100, h: 80}
         var l4 = [{x: 63.5, y: 139.3}, {x: 610, y: 140}]
 
-        var i4 = jsPlumbUtil.lineRectangleIntersection(l4, r4)[0]
+        var i4 = jsPlumb.lineRectangleIntersection(l4, r4)[0]
         ok(i4 != null)
     })
 
@@ -243,7 +243,7 @@ var testSuite = function () {
 
         _jsPlumb.destroy()
 
-        var j2 = jsPlumbBrowserUI.newInstance({
+        var j2 = jsPlumb.newInstance({
             container:container,
             paintStyle: { stroke: '#666'}
         });
@@ -254,7 +254,7 @@ var testSuite = function () {
 
         j2.destroy()
 
-        var j3 = jsPlumbBrowserUI.newInstance({
+        var j3 = jsPlumb.newInstance({
             container:container,
             paintStyle: { stroke: '#666', strokeWidth:12}
         });

@@ -66,9 +66,9 @@ var testSuite = function () {
         setup: function () {
             consoleOutput = null
             makeContainer()
-            _jsPlumb = jsPlumbBrowserUI.newInstance({container:container});
-            support = jsPlumbTestSupport.getInstanceQUnit(_jsPlumb);
-            defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
+            _jsPlumb = jsPlumb.newInstance({container:container});
+            support = jsPlumb.createTestSupportInstanceQUnit(_jsPlumb);
+            defaults = jsPlumb.extend({}, _jsPlumb.defaults);
         }
     });
 
@@ -974,9 +974,9 @@ var testSuite = function () {
         _jsPlumb.deleteEndpoint(e);
         equal(_jsPlumb.selectEndpoints().length, 0, "0 endpoints registered");
 
-//        equal(_jsPlumbUtil.isEmpty(dt.endpoints), false, "one endpoint to delete");
+//        equal(_jsPlumb.isEmpty(dt.endpoints), false, "one endpoint to delete");
 //        equal(dt.endpointCount, 1, "one endpoint to delete");
-//        equal(_jsPlumbUtil.isEmpty(dt.connections), true, "zero connections to delete");
+//        equal(_jsPlumb.isEmpty(dt.connections), true, "zero connections to delete");
 //        equal(dt.connectionCount, 0, "zero connections to delete");
 
         // 2. create two endpoints and connect them, then delete one. the other endpoint should
@@ -992,8 +992,8 @@ var testSuite = function () {
         equal(_jsPlumb.getEndpoints(d3).length, 1, "one endpoint on d3");
         _jsPlumb.deleteEndpoint(e2);
 //        var dt2 = _jsPlumb.deleteObject({endpoint: e2});
-//        equal(_jsPlumbUtil.isEmpty(dt2.endpoints), false, "one endpoint to delete");
-//        equal(_jsPlumbUtil.isEmpty(dt2.connections), false, "one connection to delete");
+//        equal(_jsPlumb.isEmpty(dt2.endpoints), false, "one endpoint to delete");
+//        equal(_jsPlumb.isEmpty(dt2.connections), false, "one connection to delete");
         equal(_jsPlumb.select({source: d2}).length, 0, "zero connections exist");
         equal(_jsPlumb.getEndpoints(d2).length, 0, "zero endpoints on d2");
         equal(_jsPlumb.getEndpoints(d3).length, 1, "one endpoint on d3");
@@ -1177,7 +1177,7 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var returnedParams = null;
         _jsPlumb.bind("connection", function (params) {
-            returnedParams = jsPlumbUtil.extend({}, params);
+            returnedParams = jsPlumb.extend({}, params);
         });
         var c = _jsPlumb.connect({source: d1, target: d2});
         ok(returnedParams != null, "new connection listener event was fired");
@@ -1189,7 +1189,7 @@ var testSuite = function () {
         ok(returnedParams.sourceEndpoint != null, "source endpoint is not null");
         ok(returnedParams.targetEndpoint != null, "target endpoint is not null");
         _jsPlumb.bind("connection:detach", function (params) {
-            returnedParams = jsPlumbUtil.extend({}, params);
+            returnedParams = jsPlumb.extend({}, params);
         });
         _jsPlumb.deleteConnection(c);
         ok(returnedParams.connection != null, 'connection is set');
@@ -1199,7 +1199,7 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var returnedParams = null;
         _jsPlumb.bind("connection:detach", function (params) {
-            returnedParams = jsPlumbUtil.extend({}, params);
+            returnedParams = jsPlumb.extend({}, params);
         });
         var conn = _jsPlumb.connect({source: d1, target: d2});
         _jsPlumb.deleteConnection(conn);
@@ -1211,7 +1211,7 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var returnedParams = null;
         _jsPlumb.bind("connection:detach", function (params) {
-            returnedParams = jsPlumbUtil.extend({}, params);
+            returnedParams = jsPlumb.extend({}, params);
         });
         _jsPlumb.connect({source: d1, target: d2});
         _jsPlumb.select({source: d1, target: d2}).deleteAll();
@@ -1222,7 +1222,7 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var returnedParams = null;
         _jsPlumb.bind("connection:detach", function (params) {
-            returnedParams = jsPlumbUtil.extend({}, params);
+            returnedParams = jsPlumb.extend({}, params);
         });
         var conn = _jsPlumb.connect({source: d1, target: d2});
         _jsPlumb.select({source: d1, target: d2}).deleteAll();
@@ -1235,7 +1235,7 @@ var testSuite = function () {
         var e2 = _jsPlumb.addEndpoint(d2, {});
         var returnedParams = null;
         _jsPlumb.bind("connection:detach", function (params) {
-            returnedParams = jsPlumbUtil.extend({}, params);
+            returnedParams = jsPlumb.extend({}, params);
         });
         var conn = _jsPlumb.connect({sourceEndpoint: e1, targetEndpoint: e2});
         _jsPlumb.deleteConnection(conn);
@@ -1248,7 +1248,7 @@ var testSuite = function () {
         var e2 = _jsPlumb.addEndpoint(d2, {});
         var returnedParams = null;
         _jsPlumb.bind("connection:detach", function (params) {
-            returnedParams = jsPlumbUtil.extend({}, params);
+            returnedParams = jsPlumb.extend({}, params);
         });
         _jsPlumb.connect({sourceEndpoint: e1, targetEndpoint: e2});
         e1.detachFrom(e2);
@@ -1261,7 +1261,7 @@ var testSuite = function () {
         var e2 = _jsPlumb.addEndpoint(d2, {});
         var returnedParams = null;
         _jsPlumb.bind("connection:detach", function (params) {
-            returnedParams = jsPlumbUtil.extend({}, params);
+            returnedParams = jsPlumb.extend({}, params);
         });
         _jsPlumb.connect({sourceEndpoint: e1, targetEndpoint: e2});
         e1.deleteEveryConnection();
@@ -1274,7 +1274,7 @@ var testSuite = function () {
         var e2 = _jsPlumb.addEndpoint(d2, {});
         var returnedParams = null;
         _jsPlumb.bind("connection:detach", function (params) {
-            returnedParams = jsPlumbUtil.extend({}, params);
+            returnedParams = jsPlumb.extend({}, params);
         });
         _jsPlumb.connect({sourceEndpoint: e1, targetEndpoint: e2});
         _jsPlumb.deleteEndpoint(e1);
@@ -1285,7 +1285,7 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var returnedParams = null;
         _jsPlumb.bind("connection:detach", function (params) {
-            returnedParams = jsPlumbUtil.extend({}, params);
+            returnedParams = jsPlumb.extend({}, params);
         });
         var conn = _jsPlumb.connect({source: d1, target: d2});
         _jsPlumb.select({source: d1, target: d2}).deleteAll();
@@ -1302,7 +1302,7 @@ var testSuite = function () {
         var d1 = support.addDiv("d1"), d2 = support.addDiv("d2");
         var returnedParams = null, returnedParams2 = null;
         _jsPlumb.bind("connection", function (params) {
-            returnedParams = jsPlumbUtil.extend({}, params);
+            returnedParams = jsPlumb.extend({}, params);
             throw "oh no!";
         });
         _jsPlumb.connect({source: d1, target: d2});
@@ -3163,14 +3163,14 @@ var testSuite = function () {
         var foo = document.createElement("FOO");
         document.body.appendChild(foo);
         ok(_jsPlumb.defaults.anchors[0] == null, "no anchors set (to take one example, one's enough)");
-        var j = jsPlumbBrowserUI.newInstance({
+        var j = jsPlumb.newInstance({
             container:foo,
             anchors:["Left", "Right"]
         });
 
         ok(_jsPlumb.defaults.anchors[0] == null, "still no anchors set after providing Anchors to an instance");
 
-        jsPlumbTestSupport.getInstanceQUnit(j).cleanup();
+        jsPlumb.createTestSupportInstanceQUnit(j).cleanup();
         foo.parentNode.removeChild(foo);
 
     });
@@ -4591,13 +4591,13 @@ var testSuite = function () {
 
     test("insert sorted", function() {
         var a = [1,2,3,4,6]
-        jsPlumbUtil.insertSorted(5, a, function(a, b) { return a - b})
+        jsPlumb.insertSorted(5, a, function(a, b) { return a - b})
         equal(5, a[4], "value '5' inserted in the correct place")
     })
 
     test("insert sorted, descending", function() {
         var a = [6,4,3,2,1]
-        jsPlumbUtil.insertSorted(5, a, function(a, b) { return a - b}, true)
+        jsPlumb.insertSorted(5, a, function(a, b) { return a - b}, true)
         equal(5, a[1], "value '5' inserted in the correct place")
     })
 
@@ -4610,13 +4610,13 @@ var testSuite = function () {
         var sel = document.querySelectorAll(".foo")
         var array = [ d, d2 ]
 
-        equal(true, jsPlumbBrowserUI.isNodeList(sel), "NodeList is identified correctly")
-        equal(false, jsPlumbBrowserUI.isNodeList(array), "Array is NOT identified as a NodeList")
-        equal(false, jsPlumbBrowserUI.isNodeList(str), "string is NOT identified as a NodeList")
+        equal(true, jsPlumb.isNodeList(sel), "NodeList is identified correctly")
+        equal(false, jsPlumb.isNodeList(array), "Array is NOT identified as a NodeList")
+        equal(false, jsPlumb.isNodeList(str), "string is NOT identified as a NodeList")
 
-        equal(true, jsPlumbBrowserUI.isArrayLike(sel), "selector identified as array like")
-        equal(true, jsPlumbBrowserUI.isArrayLike(array), "array identified as array like")
-        equal(false, jsPlumbBrowserUI.isArrayLike(str), "string is NOT identified as array like")
+        equal(true, jsPlumb.isArrayLike(sel), "selector identified as array like")
+        equal(true, jsPlumb.isArrayLike(array), "array identified as array like")
+        equal(false, jsPlumb.isArrayLike(str), "string is NOT identified as array like")
     })
 
     test("merge function, default behaviour", function() {
@@ -4650,7 +4650,7 @@ var testSuite = function () {
             },
             "fooFunction":function() { return "child"}
         },
-        c = jsPlumbUtil.merge(a, b)
+        c = jsPlumb.merge(a, b)
 
         equal(c.foo, "child", "foo property overridden; child value present")
         equal(c.bar, "parent", "bar property not overridden; no child value")
@@ -4699,7 +4699,7 @@ var testSuite = function () {
                 },
                 "fooFunction":function() { return "child"}
             },
-            c = jsPlumbUtil.merge(a, b, ["foo", "bar", "fooNumber", "barNumber", "fooArray", "fooObject", "fooFunction", "fooBoolean", "barBoolean"])
+            c = jsPlumb.merge(a, b, ["foo", "bar", "fooNumber", "barNumber", "fooArray", "fooObject", "fooFunction", "fooBoolean", "barBoolean"])
 
         equal(c.foo.length, 2, "foo property collated")
         equal(c.bar, "parent", "bar property not collated; there was only one value")
@@ -4746,7 +4746,7 @@ var testSuite = function () {
                 },
                 "fooFunction":function() { return "child"}
             },
-            c = jsPlumbUtil.merge(a, b, null, ["foo", "bar", "fooNumber", "barNumber", "fooArray", "fooObject", "fooFunction", "fooBoolean", "barBoolean"])
+            c = jsPlumb.merge(a, b, null, ["foo", "bar", "fooNumber", "barNumber", "fooArray", "fooObject", "fooFunction", "fooBoolean", "barBoolean"])
 
         equal(c.foo, "child", "foo property overridden")
         equal(c.bar, "parent", "bar property not overridden; there was only one value")

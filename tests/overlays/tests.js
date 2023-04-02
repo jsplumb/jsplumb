@@ -25,8 +25,8 @@ var testSuite = function () {
         },
         setup: function () {
             makeContainer()
-            _jsPlumb = jsPlumbBrowserUI.newInstance({container:container});
-            support = jsPlumbTestSupport.getInstanceQUnit(_jsPlumb);
+            _jsPlumb = jsPlumb.newInstance({container:container});
+            support = jsPlumb.createTestSupportInstanceQUnit(_jsPlumb);
         }
     });
 
@@ -474,7 +474,7 @@ var testSuite = function () {
             anchors: ["Bottom", [ 0.75, 0, 0, -1 ]],
             overlays: [
                 { type:"Label", options:{label: "CONNECTION 1", location: 0.3, id:"l"}},
-                { type:"Arrow", options:jsPlumbUtil.extend(arrowSpec, loc)}
+                { type:"Arrow", options:jsPlumb.extend(arrowSpec, loc)}
             ]
         });
         equal(2, support.length(connection1.overlays));
@@ -529,7 +529,7 @@ var testSuite = function () {
             anchors: ["Bottom", [ 0.75, 0, 0, -1 ]],
             overlays: [
                 { type:"Label", options:{label: "CONNECTION 1", location: 0.3, cssClass: "PPPP", id:"l"}},
-                { type:"Arrow", options:jsPlumbUtil.extend(arrowSpec, loc) }
+                { type:"Arrow", options:jsPlumb.extend(arrowSpec, loc) }
             ]
         });
         equal(2, support.length(connection1.overlays));

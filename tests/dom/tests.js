@@ -24,9 +24,9 @@ var testSuite = function () {
         },
         setup: function () {
             makeContainer()
-            _jsPlumb = jsPlumbBrowserUI.newInstance(({container: container}));
-            support = jsPlumbTestSupport.getInstanceQUnit(_jsPlumb);
-            defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
+            _jsPlumb = jsPlumb.newInstance(({container: container}));
+            support = jsPlumb.createTestSupportInstanceQUnit(_jsPlumb);
+            defaults = jsPlumb.extend({}, _jsPlumb.defaults);
         }
     });
 

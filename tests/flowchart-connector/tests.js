@@ -55,12 +55,12 @@ var testSuite = function () {
         },
         setup: function () {
             makeContainer()
-            _jsPlumb = jsPlumbBrowserUI.newInstance(({
+            _jsPlumb = jsPlumb.newInstance(({
                 container:container,
                 connector:"Flowchart"
             }));
-            support = jsPlumbTestSupport.getInstanceQUnit(_jsPlumb);
-            defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
+            support = jsPlumb.createTestSupportInstanceQUnit(_jsPlumb);
+            defaults = jsPlumb.extend({}, _jsPlumb.defaults);
 
 
         }

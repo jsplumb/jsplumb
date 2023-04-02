@@ -76,13 +76,13 @@ var testSuite = function () {
             container.parentNode && container.parentNode.removeChild(container)
         },
         setup: function () {
-            container = document.createElement("j" + jsPlumbUtil.uuid().replace(/-/g, ""))
+            container = document.createElement("j" + jsPlumb.uuid().replace(/-/g, ""))
             container.style.position = "relative"
             document.body.appendChild(container)
-            _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
-            support = jsPlumbTestSupport.getInstanceQUnit(_jsPlumb);
-            defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
-            listManager = jsPlumbBrowserUILists.newInstance(_jsPlumb)
+            _jsPlumb = jsPlumb.newInstance(({container:container}));
+            support = jsPlumb.createTestSupportInstanceQUnit(_jsPlumb);
+            defaults = jsPlumb.extend({}, _jsPlumb.defaults);
+            listManager = new jsPlumb.JsPlumbListManager(_jsPlumb)
         }
     });
 

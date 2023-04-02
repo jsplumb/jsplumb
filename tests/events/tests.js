@@ -55,9 +55,9 @@ var testSuite = function () {
         },
         setup: function () {
             makeContainer()
-            _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
-            support = jsPlumbTestSupport.getInstanceQUnit(_jsPlumb);
-            defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
+            _jsPlumb = jsPlumb.newInstance(({container:container}));
+            support = jsPlumb.createTestSupportInstanceQUnit(_jsPlumb);
+            defaults = jsPlumb.extend({}, _jsPlumb.defaults);
 
 
         }
@@ -548,7 +548,7 @@ var testSuite = function () {
     test("event unbind", function() {
         var d = _addDiv("one", 0, 0, 1000, 1000), count = 0,
             d2 = _addDiv("two", 50, 50, 1000, 1000),
-            e = new jsPlumbBrowserUI.EventManager()
+            e = new jsPlumb.EventManager()
 
         d2.className = "button"
         d.appendChild(d2)

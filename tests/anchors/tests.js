@@ -3,12 +3,12 @@ QUnit.config.reorder = false;
 var defaults = null, support, _jsPlumb;
 
 var reinit = function(defaults) {
-    var d = jsPlumbUtil.extend({container:container}, defaults || {});
+    var d = jsPlumb.extend({container:container}, defaults || {});
     support.cleanup()
 
-    _jsPlumb = jsPlumbBrowserUI.newInstance((d));
-    support = jsPlumbTestSupport.getInstanceQUnit(_jsPlumb);
-    defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
+    _jsPlumb = jsPlumb.newInstance((d));
+    support = jsPlumb.getInstanceQUnit(_jsPlumb);
+    defaults = jsPlumb.extend({}, _jsPlumb.defaults);
 }
 
 /**
@@ -47,9 +47,9 @@ var testSuite = function () {
             support.cleanup();
         },
         setup: function () {
-            _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
-            support = jsPlumbTestSupport.getInstanceQUnit(_jsPlumb);
-            defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
+            _jsPlumb = jsPlumb.newInstance(({container:container}));
+            support = jsPlumb.createTestSupportInstanceQUnit(_jsPlumb);
+            defaults = jsPlumb.extend({}, _jsPlumb.defaults);
 
 
         }

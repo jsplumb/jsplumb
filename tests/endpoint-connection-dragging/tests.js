@@ -21,12 +21,12 @@ var reinit = function(defaults) {
     removeContainer()
     makeContainer()
 
-    var d = jsPlumbUtil.extend({container:container}, defaults || {});
+    var d = jsPlumb.extend({container:container}, defaults || {});
     support.cleanup()
 
-    _jsPlumb = jsPlumbBrowserUI.newInstance((d));
-    support = jsPlumbTestSupport.getInstanceQUnit(_jsPlumb);
-    defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
+    _jsPlumb = jsPlumb.newInstance((d));
+    support = jsPlumb.createTestSupportInstanceQUnit(_jsPlumb);
+    defaults = jsPlumb.extend({}, _jsPlumb.defaults);
 }
 
 /**
@@ -72,9 +72,9 @@ var testSuite = function () {
 
             makeContainer()
 
-            _jsPlumb = jsPlumbBrowserUI.newInstance(({container:container}));
-            support = jsPlumbTestSupport.getInstanceQUnit(_jsPlumb);
-            defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
+            _jsPlumb = jsPlumb.newInstance(({container:container}));
+            support = jsPlumb.createTestSupportInstanceQUnit(_jsPlumb);
+            defaults = jsPlumb.extend({}, _jsPlumb.defaults);
 
             var epElCount = document.querySelectorAll(".jtk-endpoint").length,
                 connElCount = document.querySelectorAll(".jtk-connector").length;

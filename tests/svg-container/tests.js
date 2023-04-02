@@ -3,7 +3,7 @@ var defaults = null, support, _jsPlumb, container;
 
 var makeContainer = function() {
     //container = document.createElement("div")
-    container = jsPlumbBrowserUI.svg.node("svg")
+    container = jsPlumb.svg.node("svg")
     document.documentElement.appendChild(container)
     container.style.position = "relative"
     container.style.overflow = "hidden"
@@ -17,7 +17,7 @@ var removeContainer = function() {
 }
 
 var makeSvg = function(el, atts, parent) {
-    var d = jsPlumbBrowserUI.svg.node(el, atts)
+    var d = jsPlumb.svg.node(el, atts)
     if (parent) {
         parent.appendChild(d)
     }
@@ -33,9 +33,9 @@ var testSuite = function () {
         },
         setup: function () {
             makeContainer()
-            _jsPlumb = jsPlumbBrowserUI.newInstance(({container: container}));
-            support = jsPlumbTestSupport.getInstanceQUnit(_jsPlumb);
-            defaults = jsPlumbUtil.extend({}, _jsPlumb.defaults);
+            _jsPlumb = jsPlumb.newInstance(({container: container}));
+            support = jsPlumb.createTestSupportInstanceQUnit(_jsPlumb);
+            defaults = jsPlumb.extend({}, _jsPlumb.defaults);
         }
     });
 
