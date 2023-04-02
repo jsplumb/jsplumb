@@ -1,10 +1,6 @@
 const fs = require('fs');
 const g = require('./gatlight');
 
-const packages = require("../package.json").packages
-
-
-
 function isDirectory(path) {
     return fs.lstatSync(path).isDirectory()
 }
@@ -40,9 +36,6 @@ const _one = (dir, subdir, targetBase) => {
 
 };
 
-packages.forEach(pkg => {
-    //g.copy(`ts/${pkg}/package.json`, `dist/${pkg}/package.json`)
-    g.mkdirs(`./dist/${pkg}/types`);
-    _one(`./_build_es6/ts/${pkg}`,null, `./dist/${pkg}/types`);
-})
+g.mkdirs(`./dist/browser-ui/types`);
+_one(`./_build_es6/ts`,null, `./dist/browser-ui/types`);
 

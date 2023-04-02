@@ -5,38 +5,18 @@
 const g = require('./gatlight')
 
 const communityVersion = require("../package.json").version
+const filePath = "./ts/package.json"
 
-const packages = require("../package.json").packages
+try {
 
-function _one(filePath) {
-    try {
-        const p = JSON.parse(g.readString(filePath + "/package.json"))
-        p.version = communityVersion
+    const p = JSON.parse(g.readString(filePath))
+    p.version = communityVersion
 
-        const deps = p.dependencies
-        for (let dep in deps) {
-            if (dep.indexOf("@jsplumb") === 0) {
-                deps[dep] = communityVersion
-            }
-        }
+    const deps = p.dependencies
 
-        const peerDeps = p.peerDependencies
-        for (let dep in peerDeps) {
-            if (dep.indexOf("@jsplumb") === 0) {
-                peerDeps[dep] = communityVersion
-            }
-        }
-
-        console.log(`Updating ${filePath} to version ${communityVersion}`)
-        g.write(filePath + "/package.json", JSON.stringify(p, 4, 4))
-    } catch (e) {
-        console.log("Did not update " + filePath)
-    }
-
-
+    console.log(`Updating ${filePath} to version ${communityVersion}`)
+    g.write(filePath, JSON.stringify(p, 4, 4))
+} catch (e) {
+    console.log("Did not update " + filePath, e)
 }
-
-packages.forEach((package) => {
-    _one("./ts/" + package)
-})
 

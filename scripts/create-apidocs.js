@@ -1,25 +1,19 @@
 const fs = require('fs');
 const g = require('./gatlight');
-const packages = require("../package.json").packages
 const cp = require("child_process")
 
-packages.forEach(pkg => {
 
-    const conf = {
-        "extends": "../../api-extractor-common.json",
-        "mainEntryPointFilePath": "../../dist/<unscopedPackageName>/types/index.d.ts"
-    }
+const conf = {
+    "extends": "../api-extractor-common.json",
+    "mainEntryPointFilePath": "../dist/browser-ui/types/index.d.ts"
+}
 
-    g.write(`ts/${pkg}/api-extractor.json`, JSON.stringify(conf))
+g.write(`ts/api-extractor.json`, JSON.stringify(conf))
 
-    cp.execSync("../../node_modules/@microsoft/api-extractor/bin/api-extractor run  --local --verbose", {cwd:`ts/${pkg}`, env: process.env, stdio: 'inherit' })
-
-})
+cp.execSync("../node_modules/@microsoft/api-extractor/bin/api-extractor run  --local --verbose", {cwd:`ts`, env: process.env, stdio: 'inherit' })
 
 // api-documented
 
 cp.execSync("npx api-documenter markdown -i ./_apidoc_models -o ./apidocs", {cwd:".", env: process.env, stdio: 'inherit' })
 
-packages.forEach(pkg => {
-    g.remove(`ts/${pkg}/api-extractor.json`)
-})
+g.remove(`ts/api-extractor.json`)
