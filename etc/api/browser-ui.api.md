@@ -4,34 +4,462 @@
 
 ```ts
 
-import { AbstractConnector } from '@jsplumb/core';
-import { BehaviouralTypeDescriptor } from '@jsplumb/core';
-import { BoundingBox } from '@jsplumb/util';
-import { Component } from '@jsplumb/core';
-import { Connection } from '@jsplumb/core';
-import { ConnectionDragSelector } from '@jsplumb/core';
-import { DeleteConnectionOptions } from '@jsplumb/core';
-import { Endpoint } from '@jsplumb/core';
-import { Extents } from '@jsplumb/util';
-import { Grid } from '@jsplumb/util';
-import { JsPlumbDefaults } from '@jsplumb/core';
-import { jsPlumbElement } from '@jsplumb/core';
-import { JsPlumbInstance } from '@jsplumb/core';
-import { LabelOverlay } from '@jsplumb/core';
-import { ManagedElement } from '@jsplumb/core';
-import { Overlay } from '@jsplumb/core';
-import { PaintStyle } from '@jsplumb/common';
-import { PointXY } from '@jsplumb/util';
-import { RedrawResult } from '@jsplumb/core';
-import { Size } from '@jsplumb/util';
-import { TypeDescriptor } from '@jsplumb/core';
-import { UIGroup } from '@jsplumb/core';
+// @public (undocumented)
+export const ABSOLUTE = "absolute";
+
+// Warning: (ae-internal-missing-underscore) The name "AbstractBezierConnector" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export abstract class AbstractBezierConnector extends AbstractConnector {
+    constructor(connection: Connection, params: any);
+    // (undocumented)
+    clockwise: boolean;
+    // (undocumented)
+    _compute(paintInfo: PaintGeometry, p: ConnectorComputeParams): void;
+    // (undocumented)
+    abstract _computeBezier(paintInfo: PaintGeometry, p: ConnectorComputeParams, sp: PointXY, tp: PointXY, _w: number, _h: number): void;
+    // (undocumented)
+    connection: Connection;
+    // (undocumented)
+    curviness: number;
+    // (undocumented)
+    exportGeometry(): BezierConnectorGeometry;
+    // (undocumented)
+    geometry: BezierConnectorGeometry;
+    // (undocumented)
+    getDefaultStubs(): [number, number];
+    // (undocumented)
+    importGeometry(geometry: BezierConnectorGeometry): boolean;
+    // (undocumented)
+    isLoopbackCurrently: boolean;
+    // (undocumented)
+    loopbackRadius: number;
+    // (undocumented)
+    margin: number;
+    // (undocumented)
+    orientation: string;
+    // (undocumented)
+    proximityLimit: number;
+    // (undocumented)
+    showLoopback: boolean;
+    // (undocumented)
+    transformGeometry(g: BezierConnectorGeometry, dx: number, dy: number): BezierConnectorGeometry;
+}
+
+// @public
+export interface AbstractBezierOptions extends ConnectorOptions {
+    curviness?: number;
+    // (undocumented)
+    loopbackRadius?: number;
+    // (undocumented)
+    margin?: number;
+    // (undocumented)
+    orientation?: string;
+    // (undocumented)
+    proximityLimit?: number;
+    showLoopback?: boolean;
+}
+
+// Warning: (ae-internal-missing-underscore) The name "AbstractConnector" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export abstract class AbstractConnector implements Connector {
+    constructor(connection: Connection, params: ConnectorOptions);
+    // (undocumented)
+    _addSegment(clazz: Constructable<Segment>, params: any): void;
+    // (undocumented)
+    boundingBoxIntersection(box: any): Array<PointXY>;
+    // (undocumented)
+    bounds: Extents;
+    // (undocumented)
+    boxIntersection(x: number, y: number, w: number, h: number): Array<PointXY>;
+    // (undocumented)
+    _clearSegments(): void;
+    // (undocumented)
+    compute(params: ConnectorComputeParams): void;
+    // (undocumented)
+    abstract _compute(geometry: PaintGeometry, params: ConnectorComputeParams): void;
+    // (undocumented)
+    connection: Connection;
+    // (undocumented)
+    cssClass: string;
+    // (undocumented)
+    edited: boolean;
+    exportGeometry(): Geometry;
+    _findSegmentForLocation(location: number, absolute?: boolean): {
+        segment: Segment;
+        proportion: number;
+        index: number;
+    };
+    // Warning: (ae-forgotten-export) The symbol "SegmentForPoint" needs to be exported by the entry point index.d.ts
+    findSegmentForPoint(x: number, y: number): SegmentForPoint;
+    // (undocumented)
+    gap: number;
+    // (undocumented)
+    geometry: Geometry;
+    // (undocumented)
+    abstract getDefaultStubs(): [number, number];
+    // (undocumented)
+    getIdPrefix(): string;
+    // (undocumented)
+    getLength(): number;
+    // (undocumented)
+    getTypeDescriptor(): string;
+    // (undocumented)
+    gradientAtPoint(location: number, absolute?: boolean): number;
+    // (undocumented)
+    h: number;
+    // (undocumented)
+    hoverClass: string;
+    importGeometry(g: Geometry): boolean;
+    // (undocumented)
+    lineIntersection(x1: number, y1: number, x2: number, y2: number): Array<PointXY>;
+    // (undocumented)
+    maxStub: number;
+    // (undocumented)
+    protected paintInfo: PaintGeometry;
+    // (undocumented)
+    pointAlongPathFrom(location: number, distance: number, absolute?: boolean): PointXY;
+    // (undocumented)
+    pointOnPath(location: number, absolute?: boolean): PointXY;
+    // (undocumented)
+    resetBounds(): void;
+    // (undocumented)
+    resetGeometry(): void;
+    // (undocumented)
+    segment: number;
+    // (undocumented)
+    segmentProportionalLengths: Array<number>;
+    // (undocumented)
+    segmentProportions: Array<[number, number]>;
+    // (undocumented)
+    segments: Array<Segment>;
+    // (undocumented)
+    setAnchorOrientation(idx: number, orientation: number[]): void;
+    // (undocumented)
+    protected setGeometry(g: Geometry, internal: boolean): void;
+    // (undocumented)
+    sourceGap: number;
+    // (undocumented)
+    sourceStub: number;
+    // (undocumented)
+    strokeWidth: number;
+    // (undocumented)
+    stub: number | number[];
+    // (undocumented)
+    targetGap: number;
+    // (undocumented)
+    targetStub: number;
+    // (undocumented)
+    totalLength: number;
+    protected transformAnchorPlacement(a: AnchorPlacement, dx: number, dy: number): AnchorPlacement;
+    // (undocumented)
+    abstract transformGeometry(g: Geometry, dx: number, dy: number): Geometry;
+    // (undocumented)
+    abstract type: string;
+    // (undocumented)
+    typeId: string;
+    // (undocumented)
+    updateBounds(segment: Segment): void;
+    // (undocumented)
+    _updateSegmentProportions(): void;
+    // (undocumented)
+    w: number;
+    // (undocumented)
+    x: number;
+    // (undocumented)
+    y: number;
+}
+
+// Warning: (ae-internal-missing-underscore) The name "AbstractSegment" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export abstract class AbstractSegment implements Segment {
+    constructor(params: SegmentParams);
+    boundingBoxIntersection(box: BoundingBox): Array<PointXY>;
+    boxIntersection(x: number, y: number, w: number, h: number): Array<PointXY>;
+    // (undocumented)
+    extents: Extents;
+    findClosestPointOnPath(x: number, y: number): PointNearPath;
+    abstract getLength(): number;
+    // (undocumented)
+    abstract getPath(isFirstSegment: boolean): string;
+    // (undocumented)
+    abstract gradientAtPoint(location: number, absolute?: boolean): number;
+    lineIntersection(x1: number, y1: number, x2: number, y2: number): Array<PointXY>;
+    // (undocumented)
+    protected params: SegmentParams;
+    // (undocumented)
+    abstract pointAlongPathFrom(location: number, distance: number, absolute?: boolean): PointXY;
+    // (undocumented)
+    abstract pointOnPath(location: number, absolute?: boolean): PointXY;
+    // (undocumented)
+    abstract type: string;
+    // (undocumented)
+    x1: number;
+    // (undocumented)
+    x2: number;
+    // (undocumented)
+    y1: number;
+    // (undocumented)
+    y2: number;
+}
+
+// @public (undocumented)
+export interface AbstractSelectOptions<E> {
+    // (undocumented)
+    scope?: SelectionList;
+    // (undocumented)
+    source?: ElementSelectionSpecifier<E>;
+    // (undocumented)
+    target?: ElementSelectionSpecifier<E>;
+}
+
+// @public
+export function add(p1: PointXY, p2: PointXY): PointXY;
+
+// @public (undocumented)
+export const ADD_CLASS_ACTION = "add";
 
 // @public (undocumented)
 export function addClass(el: Element | NodeListOf<Element>, clazz: string): void;
 
 // @public (undocumented)
+export interface AddGroupOptions<E> extends GroupOptions {
+    // (undocumented)
+    collapsed?: boolean;
+    // (undocumented)
+    el: E;
+}
+
+// Warning: (ae-internal-missing-underscore) The name "addToDictionary" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function addToDictionary<T>(map: Record<string, Array<T>>, key: string, value: any, insertAtStart?: boolean): Array<any>;
+
+// Warning: (ae-internal-missing-underscore) The name "addToList" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function addToList<T>(map: Map<string, Array<T>>, key: string, value: any, insertAtStart?: boolean): Array<any>;
+
+// Warning: (ae-internal-missing-underscore) The name "addWithFunction" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function addWithFunction<T>(list: Array<T>, item: T, hashFunction: (_a: T) => boolean): void;
+
+// Warning: (ae-internal-missing-underscore) The name "AnchorComputeParams" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export type AnchorComputeParams = {
+    xy?: PointXY;
+    wh?: Size;
+    txy?: PointXY;
+    twh?: Size;
+    element?: Endpoint;
+    timestamp?: string;
+    index?: number;
+    tElement?: Endpoint;
+    connection?: Connection;
+    elementId?: string;
+    rotation?: Rotations;
+    tRotation?: Rotations;
+};
+
+// @public
+export type AnchorId = keyof typeof AnchorLocations;
+
+// @public
+export enum AnchorLocations {
+    // (undocumented)
+    Assign = "Assign",
+    AutoDefault = "AutoDefault",
+    Bottom = "Bottom",
+    BottomLeft = "BottomLeft",
+    BottomRight = "BottomRight",
+    Center = "Center",
+    Continuous = "Continuous",
+    ContinuousBottom = "ContinuousBottom",
+    ContinuousLeft = "ContinuousLeft",
+    ContinuousLeftRight = "ContinuousLeftRight",
+    ContinuousRight = "ContinuousRight",
+    ContinuousTop = "ContinuousTop",
+    ContinuousTopBottom = "ContinuousTopBottom",
+    Left = "Left",
+    Perimeter = "Perimeter",
+    Right = "Right",
+    Top = "Top",
+    TopLeft = "TopLeft",
+    TopRight = "TopRight"
+}
+
+// @public (undocumented)
+export interface AnchorOptions extends Record<string, any> {
+    cssClass?: string;
+}
+
+// @public (undocumented)
+export type AnchorOrientationHint = -1 | 0 | 1;
+
+// Warning: (ae-internal-missing-underscore) The name "AnchorPlacement" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export type AnchorPlacement = {
+    curX: number;
+    curY: number;
+    x: number;
+    y: number;
+    ox: AnchorOrientationHint;
+    oy: AnchorOrientationHint;
+};
+
+// Warning: (ae-internal-missing-underscore) The name "AnchorRecord" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export interface AnchorRecord {
+    // (undocumented)
+    cls: string;
+    // (undocumented)
+    iox: AnchorOrientationHint;
+    // (undocumented)
+    ioy: AnchorOrientationHint;
+    // (undocumented)
+    offx: number;
+    // (undocumented)
+    offy: number;
+    // (undocumented)
+    ox: AnchorOrientationHint;
+    // (undocumented)
+    oy: AnchorOrientationHint;
+    // (undocumented)
+    x: number;
+    // (undocumented)
+    y: number;
+}
+
+// @public
+export type AnchorSpec = SingleAnchorSpec | Array<SingleAnchorSpec>;
+
+// Warning: (ae-internal-missing-underscore) The name "ArcSegment" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export class ArcSegment extends AbstractSegment {
+    constructor(params: ArcSegmentParams);
+    // (undocumented)
+    anticlockwise: boolean;
+    // (undocumented)
+    circumference: number;
+    // (undocumented)
+    cx: number;
+    // (undocumented)
+    cy: number;
+    // (undocumented)
+    endAngle: number;
+    // (undocumented)
+    frac: number;
+    // (undocumented)
+    getLength(): number;
+    // (undocumented)
+    getPath(isFirstSegment: boolean): string;
+    gradientAtPoint(location: number, absolute?: boolean): number;
+    // (undocumented)
+    length: number;
+    // (undocumented)
+    pointAlongPathFrom(location: number, distance: number, absolute?: boolean): PointXY;
+    pointOnPath(location: number, absolute?: boolean): PointXY;
+    // (undocumented)
+    radius: number;
+    // (undocumented)
+    static segmentType: string;
+    // (undocumented)
+    startAngle: number;
+    // (undocumented)
+    sweep: number;
+    // (undocumented)
+    type: string;
+}
+
+// Warning: (ae-internal-missing-underscore) The name "ArcSegmentParams" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export interface ArcSegmentParams extends SegmentParams {
+    // (undocumented)
+    ac: boolean;
+    // (undocumented)
+    cx: number;
+    // (undocumented)
+    cy: number;
+    // (undocumented)
+    endAngle?: number;
+    // (undocumented)
+    r: number;
+    // (undocumented)
+    startAngle?: number;
+}
+
+// @public
+export type ArrayAnchorSpec = [number, number, AnchorOrientationHint, AnchorOrientationHint, number?, number?];
+
+// Warning: (ae-internal-missing-underscore) The name "arraysEqual" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function arraysEqual(a: Array<any>, b: Array<any>): boolean;
+
+// @public (undocumented)
+export class ArrowOverlay extends Overlay {
+    constructor(instance: JsPlumbInstance, component: Component, p: ArrowOverlayOptions);
+    // (undocumented)
+    cachedDimensions: Size;
+    // (undocumented)
+    component: Component;
+    // (undocumented)
+    direction: number;
+    // (undocumented)
+    draw(component: Component, currentConnectionPaintStyle: PaintStyle, absolutePosition?: PointXY): any;
+    // (undocumented)
+    foldback: number;
+    // (undocumented)
+    instance: JsPlumbInstance;
+    // (undocumented)
+    length: number;
+    // (undocumented)
+    location: number;
+    // (undocumented)
+    paintStyle: PaintStyle;
+    // (undocumented)
+    static type: string;
+    // (undocumented)
+    type: string;
+    // (undocumented)
+    updateFrom(d: any): void;
+    // (undocumented)
+    width: number;
+}
+
+// @public (undocumented)
+export interface ArrowOverlayOptions extends OverlayOptions {
+    // (undocumented)
+    direction?: number;
+    // (undocumented)
+    foldback?: number;
+    // (undocumented)
+    length?: number;
+    // (undocumented)
+    paintStyle?: PaintStyle;
+    // (undocumented)
+    width?: number;
+}
+
+// @public (undocumented)
+export function att(...attName: Array<string>): string;
+
+// @public (undocumented)
+export const ATTR_SCROLLABLE_LIST = "jtk-scrollable-list";
+
+// @public (undocumented)
 export const ATTRIBUTE_CONTAINER = "data-jtk-container";
+
+// @public (undocumented)
+export const ATTRIBUTE_GROUP = "data-jtk-group";
 
 // @public (undocumented)
 export const ATTRIBUTE_GROUP_CONTENT = "data-jtk-group-content";
@@ -43,8 +471,227 @@ export const ATTRIBUTE_JTK_ENABLED = "data-jtk-enabled";
 export const ATTRIBUTE_JTK_SCOPE = "data-jtk-scope";
 
 // @public (undocumented)
+export const ATTRIBUTE_MANAGED = "data-jtk-managed";
+
+// @public (undocumented)
+export const ATTRIBUTE_NOT_DRAGGABLE = "data-jtk-not-draggable";
+
+// @public (undocumented)
+export const ATTRIBUTE_SCOPE = "data-jtk-scope";
+
+// @public (undocumented)
+export const ATTRIBUTE_SCOPE_PREFIX: string;
+
+// @public (undocumented)
+export const ATTRIBUTE_TABINDEX = "tabindex";
+
+// @public (undocumented)
+export type Axis = [Face, Face];
+
+// @public (undocumented)
+export type AxisCoefficients = [number, number, number, number];
+
+// @public
+export type BeforeDetachInterceptor = (c: Connection) => boolean;
+
+// @public
+export type BeforeDragInterceptor<E = any> = (params: BeforeDragParams<E>) => boolean | Record<string, any>;
+
+// @public
+export interface BeforeDragParams<E> {
+    // (undocumented)
+    connection: Connection;
+    // (undocumented)
+    endpoint: Endpoint;
+    // (undocumented)
+    source: E;
+    // (undocumented)
+    sourceId: string;
+}
+
+// @public
+export type BeforeDropInterceptor = (params: BeforeDropParams) => boolean;
+
+// @public
+export interface BeforeDropParams {
+    // (undocumented)
+    connection: Connection;
+    // (undocumented)
+    dropEndpoint: Endpoint;
+    // (undocumented)
+    scope: string;
+    // (undocumented)
+    sourceId: string;
+    // (undocumented)
+    targetId: string;
+}
+
+// @public
+export type BeforeStartDetachInterceptor<E = any> = (params: BeforeStartDetachParams<E>) => boolean;
+
+// @public
+export interface BeforeStartDetachParams<E> extends BeforeDragParams<E> {
+}
+
+// @public (undocumented)
 export interface BeforeStartEventParams extends DragStartEventParams {
 }
+
+// @public
+export interface BehaviouralTypeDescriptor<T = any> extends EndpointTypeDescriptor {
+    allowLoopback?: boolean;
+    anchorPositionFinder?: (el: Element, elxy: PointXY, def: BehaviouralTypeDescriptor, e: Event) => AnchorSpec | null;
+    canAcceptNewConnection?: (el: Element, e: Event) => boolean;
+    edgeType?: string;
+    extract?: Record<string, string>;
+    onMaxConnections?: (value: any, event?: any) => any;
+    parameterExtractor?: (el: T, eventTarget: T, event: Event) => Record<string, any>;
+    parentSelector?: string;
+    portId?: string;
+    rank?: number;
+    redrop?: RedropPolicy;
+    source?: boolean;
+    target?: boolean;
+    uniqueEndpoint?: boolean;
+}
+
+// Warning: (ae-incompatible-release-tags) The symbol "BezierConnector" is marked as @public, but its signature references "AbstractBezierConnector" which is marked as @internal
+//
+// @public (undocumented)
+export class BezierConnector extends AbstractBezierConnector {
+    constructor(connection: Connection, params: BezierOptions);
+    // Warning: (ae-incompatible-release-tags) The symbol "_computeBezier" is marked as @public, but its signature references "PaintGeometry" which is marked as @internal
+    // Warning: (ae-incompatible-release-tags) The symbol "_computeBezier" is marked as @public, but its signature references "AnchorPlacement" which is marked as @internal
+    //
+    // (undocumented)
+    _computeBezier(paintInfo: PaintGeometry, p: ConnectorComputeParams, sp: AnchorPlacement, tp: AnchorPlacement, _w: number, _h: number): void;
+    // (undocumented)
+    connection: Connection;
+    // Warning: (ae-incompatible-release-tags) The symbol "_findControlPoint" is marked as @public, but its signature references "AnchorPlacement" which is marked as @internal
+    //
+    // (undocumented)
+    protected _findControlPoint(point: PointXY, sourceAnchorPosition: AnchorPlacement, targetAnchorPosition: AnchorPlacement, soo: [number, number], too: [number, number]): PointXY;
+    // (undocumented)
+    getCurviness(): number;
+    // (undocumented)
+    majorAnchor: number;
+    // (undocumented)
+    minorAnchor: number;
+    // (undocumented)
+    static type: string;
+    // (undocumented)
+    type: string;
+}
+
+// @public (undocumented)
+export interface BezierConnectorGeometry extends Geometry {
+    // (undocumented)
+    controlPoints: [
+    PointXY,
+    PointXY
+    ];
+    // Warning: (ae-incompatible-release-tags) The symbol "source" is marked as @public, but its signature references "AnchorPlacement" which is marked as @internal
+    //
+    // (undocumented)
+    source: AnchorPlacement;
+    // Warning: (ae-incompatible-release-tags) The symbol "target" is marked as @public, but its signature references "AnchorPlacement" which is marked as @internal
+    //
+    // (undocumented)
+    target: AnchorPlacement;
+}
+
+// @public
+export function bezierLineIntersection(x1: number, y1: number, x2: number, y2: number, curve: Curve): Array<PointXY>;
+
+// @public
+export interface BezierOptions extends AbstractBezierOptions {
+}
+
+// Warning: (ae-incompatible-release-tags) The symbol "BezierSegment" is marked as @public, but its signature references "AbstractSegment" which is marked as @internal
+//
+// @public (undocumented)
+export class BezierSegment extends AbstractSegment {
+    constructor(params: BezierSegmentParams);
+    // (undocumented)
+    cp1x: number;
+    // (undocumented)
+    cp1y: number;
+    // (undocumented)
+    cp2x: number;
+    // (undocumented)
+    cp2y: number;
+    // (undocumented)
+    curve: Curve;
+    // Warning: (ae-incompatible-release-tags) The symbol "findClosestPointOnPath" is marked as @public, but its signature references "PointNearPath" which is marked as @internal
+    //
+    // (undocumented)
+    findClosestPointOnPath(x: number, y: number): PointNearPath;
+    // (undocumented)
+    getLength(): number;
+    // (undocumented)
+    getPath(isFirstSegment: boolean): string;
+    gradientAtPoint(location: number, absolute?: boolean): number;
+    // (undocumented)
+    length: number;
+    // (undocumented)
+    lineIntersection(x1: number, y1: number, x2: number, y2: number): Array<PointXY>;
+    // (undocumented)
+    pointAlongPathFrom(location: number, distance: number, absolute?: boolean): PointXY;
+    pointOnPath(location: number, absolute?: boolean): PointXY;
+    // (undocumented)
+    static segmentType: string;
+    // (undocumented)
+    type: string;
+}
+
+// @public (undocumented)
+export interface BezierSegmentParams extends SegmentParams {
+    // (undocumented)
+    cp1x: number;
+    // (undocumented)
+    cp1y: number;
+    // (undocumented)
+    cp2x: number;
+    // (undocumented)
+    cp2y: number;
+}
+
+// @public (undocumented)
+export class BlankEndpoint extends EndpointRepresentation<ComputedBlankEndpoint> {
+    constructor(endpoint: Endpoint, params?: BlankEndpointParams);
+    // (undocumented)
+    static type: string;
+    // (undocumented)
+    type: string;
+}
+
+// @public (undocumented)
+export const BlankEndpointHandler: EndpointHandler<BlankEndpoint, ComputedBlankEndpoint>;
+
+// @public (undocumented)
+export interface BlankEndpointParams extends EndpointRepresentationParams {
+}
+
+// @public (undocumented)
+export const BLOCK = "block";
+
+// @public (undocumented)
+export const BOTTOM = FaceValues.bottom;
+
+// @public
+export type BoundingBox = {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    center?: PointXY;
+};
+
+// @public
+export function boundingBoxIntersection(boundingBox: BoundingBox, curve: Curve): Array<PointXY>;
+
+// @public
+export function boxIntersection(x: number, y: number, w: number, h: number, curve: Curve): Array<PointXY>;
 
 // @public
 export interface BrowserJsPlumbDefaults extends JsPlumbDefaults<Element> {
@@ -274,6 +921,93 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<{
 }
 
 // @public (undocumented)
+export class BrowserUITestSupport {
+    constructor(_jsPlumb: BrowserJsPlumbInstance, ok: (b: boolean, m: string) => any, equal: (v1: any, v2: any, m?: string) => any);
+    addDiv(id: string, parent?: Element, className?: string, x?: number, y?: number, w?: number, h?: number): Element;
+    // (undocumented)
+    addDivs(ids: Array<string>, parent?: Element): void;
+    // (undocumented)
+    assertEndpointCount(el: Element, count: number): void;
+    assertManagedConnectionCount(el: Element, count: number): void;
+    // (undocumented)
+    _assertManagedConnectionCount(el: Element, count: number): void;
+    assertManagedEndpointCount(el: Element, count: number): void;
+    // (undocumented)
+    _assertManagedEndpointCount(el: Element, count: number): void;
+    aSyncDragConnection(d1: Element | Endpoint, d2: Element | Endpoint, events?: EventHandlers<Connection>): void;
+    aSyncDragNodeBy(el: Element, x: number, y: number, events?: EventHandlers): void;
+    cleanup(): void;
+    clickOnConnection(connection: Connection): void;
+    clickOnElement(element: Element, clickCount?: number): void;
+    clickOnOverlay(connection: Connection, overlayId: string): void;
+    dblClickOnConnection(connection: Connection): void;
+    dblClickOnElement(element: Element): void;
+    dblClickOnOverlay(connection: Connection, overlayId: string): void;
+    dblTapOnConnection(connection: Connection): void;
+    dblTapOnElement(element: Element): void;
+    dblTapOnOverlay(connection: Connection, overlayId: string): void;
+    detachAndReattachConnection(e: Endpoint, events?: EventHandlers): void;
+    detachConnection(e: Endpoint, events?: EventHandlers): void;
+    detachConnectionByTarget(c: Connection, events?: EventHandlers): void;
+    // (undocumented)
+    _divs: Array<string>;
+    dragAndAbortConnection(d1: Element | Endpoint): void;
+    dragANodeAround(el: HTMLElement, functionToAssertWhileDragging?: () => boolean, assertMessage?: string): void;
+    dragConnection(d1: Element | Endpoint, d2: Element | Endpoint, mouseUpOnTarget?: boolean, events?: EventHandlers<Connection>): Connection;
+    dragNodeBy(el: Element, x: number, y: number, events?: EventHandlers): void;
+    dragNodeTo(el: Element, x: number, y: number, events?: EventHandlers): void;
+    dragToGroup(el: Element, targetGroupId: string, events?: EventHandlers): void;
+    fireEventOnConnection(connection: Connection, ...events: Array<string>): void;
+    fireEventOnElement(e: Element, ...events: Array<string>): void;
+    fireEventOnEndpoint(ep: Endpoint, ...events: Array<string>): void;
+    fireEventOnOverlay(connection: Connection, overlayId: string, event: string): void;
+    // (undocumented)
+    getAttribute(el: Element, att: string): string;
+    getCanvas(epOrEl: any): any;
+    getConnectionCanvas(c: Connection): HTMLElement;
+    getEndpointCanvas(ep: Endpoint): HTMLElement;
+    // (undocumented)
+    getEndpointCanvasPosition(ep: Endpoint): {
+        x: number;
+        y: number;
+        w: string;
+        h: string;
+    };
+    getOverlayCanvas(overlay: Overlay): any;
+    head(obj: any): any;
+    length(obj: any): number;
+    makeContent(s: string): ChildNode;
+    makeEvent(el: Element): any;
+    // (undocumented)
+    mottle: EventManager;
+    // (undocumented)
+    _registerDiv(div: string): void;
+    relocate(conn: Connection, idx: number, newEl: Element, events?: EventHandlers): void;
+    relocateSource(conn: Connection, newEl: Element, events?: EventHandlers): void;
+    relocateTarget(conn: Connection, newEl: Element, events?: EventHandlers): void;
+    tapOnConnection(connection: Connection): void;
+    tapOnElement(element: Element): void;
+    tapOnOverlay(connection: Connection, overlayId: string): void;
+    uuid(): string;
+    within(val: number, target: number, msg: string): void;
+}
+
+// @public (undocumented)
+export const CHECK_CONDITION = "checkCondition";
+
+// @public (undocumented)
+export const CHECK_DROP_ALLOWED = "checkDropAllowed";
+
+// @public (undocumented)
+export const CLASS_CONNECTED = "jtk-connected";
+
+// @public (undocumented)
+export const CLASS_CONNECTOR = "jtk-connector";
+
+// @public (undocumented)
+export const CLASS_CONNECTOR_OUTLINE = "jtk-connector-outline";
+
+// @public (undocumented)
 export const CLASS_DELEGATED_DRAGGABLE = "jtk-delegated-draggable";
 
 // @public (undocumented)
@@ -292,7 +1026,53 @@ export const CLASS_DRAGGABLE = "jtk-draggable";
 export const CLASS_DRAGGED = "jtk-dragged";
 
 // @public (undocumented)
+export const CLASS_ENDPOINT = "jtk-endpoint";
+
+// @public (undocumented)
+export const CLASS_ENDPOINT_ANCHOR_PREFIX = "jtk-endpoint-anchor";
+
+// @public (undocumented)
+export const CLASS_ENDPOINT_CONNECTED = "jtk-endpoint-connected";
+
+// @public (undocumented)
+export const CLASS_ENDPOINT_DROP_ALLOWED = "jtk-endpoint-drop-allowed";
+
+// @public (undocumented)
+export const CLASS_ENDPOINT_DROP_FORBIDDEN = "jtk-endpoint-drop-forbidden";
+
+// @public (undocumented)
+export const CLASS_ENDPOINT_FLOATING = "jtk-floating-endpoint";
+
+// @public (undocumented)
+export const CLASS_ENDPOINT_FULL = "jtk-endpoint-full";
+
+// @public (undocumented)
 export const CLASS_GHOST_PROXY = "jtk-ghost-proxy";
+
+// @public (undocumented)
+export const CLASS_GROUP_COLLAPSED = "jtk-group-collapsed";
+
+// @public (undocumented)
+export const CLASS_GROUP_EXPANDED = "jtk-group-expanded";
+
+// @public (undocumented)
+export const CLASS_OVERLAY = "jtk-overlay";
+
+// Warning: (ae-internal-missing-underscore) The name "ClassAction" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export type ClassAction = typeof ADD_CLASS_ACTION | typeof REMOVE_CLASS_ACTION;
+
+// @public (undocumented)
+export function classList(...className: Array<string>): string;
+
+// Warning: (ae-internal-missing-underscore) The name "clone" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function clone(a: any): any;
+
+// @public (undocumented)
+export function cls(...className: Array<string>): string;
 
 // @public (undocumented)
 export class Collicat implements jsPlumbDragManager {
@@ -343,14 +1123,536 @@ export interface CollicatOptions {
     zoom?: number;
 }
 
+// @public
+export abstract class Component extends EventGenerator {
+    // Warning: (ae-incompatible-release-tags) The symbol "__constructor" is marked as @public, but its signature references "ComponentOptions" which is marked as @internal
+    protected constructor(instance: JsPlumbInstance, params?: ComponentOptions);
+    addClass(clazz: string, cascade?: boolean): void;
+    // @internal
+    addOverlay(overlay: OverlaySpec): Overlay;
+    // @internal (undocumented)
+    addType(typeId: string, params?: any): void;
+    // @internal (undocumented)
+    appendToDefaultType(obj: Record<string, any>): void;
+    // @internal (undocumented)
+    applyType(t: any, params?: any): void;
+    // (undocumented)
+    beforeDetach: BeforeDetachInterceptor;
+    // (undocumented)
+    beforeDrop: BeforeDropInterceptor;
+    // @internal (undocumented)
+    cacheTypeItem(key: string, item: any, typeId: string): void;
+    // @internal (undocumented)
+    clearTypes(params?: any): void;
+    // (undocumented)
+    clone: () => Component;
+    // (undocumented)
+    cssClass: string;
+    // (undocumented)
+    data: Record<string, any>;
+    // (undocumented)
+    defaultLabelLocation: number | [number, number];
+    // Warning: (ae-incompatible-release-tags) The symbol "_defaultType" is marked as @public, but its signature references "ComponentTypeDescriptor" which is marked as @internal
+    //
+    // (undocumented)
+    _defaultType: ComponentTypeDescriptor;
+    // (undocumented)
+    deleted: boolean;
+    // @internal (undocumented)
+    destroy(): void;
+    // (undocumented)
+    events: any;
+    // @internal (undocumented)
+    getAbsoluteOverlayPosition(overlay: Overlay): PointXY;
+    // @internal (undocumented)
+    getCachedTypeItem(key: string, typeId: string): any;
+    getClass(): string;
+    getData(): Record<string, any>;
+    // (undocumented)
+    abstract getDefaultOverlayKey(): string;
+    // @internal (undocumented)
+    getDefaultType(): ComponentTypeDescriptor;
+    // @internal (undocumented)
+    getHoverPaintStyle(): PaintStyle;
+    // @internal (undocumented)
+    getId(): string;
+    // (undocumented)
+    abstract getIdPrefix(): string;
+    getLabel(): string;
+    // @internal (undocumented)
+    getLabelOverlay(): LabelOverlay;
+    getOverlay<T extends Overlay>(id: string): T;
+    getOverlays(): Record<string, Overlay>;
+    // @internal (undocumented)
+    getPaintStyle(): PaintStyle;
+    // @internal (undocumented)
+    getType(): string[];
+    // (undocumented)
+    abstract getTypeDescriptor(): string;
+    // (undocumented)
+    abstract getXY(): PointXY;
+    // (undocumented)
+    h: number;
+    // @internal (undocumented)
+    hasType(typeId: string): boolean;
+    hideOverlay(id: string): void;
+    hideOverlays(...ids: Array<string>): void;
+    // (undocumented)
+    _hover: boolean;
+    // (undocumented)
+    hoverClass: string;
+    // (undocumented)
+    hoverPaintStyle: PaintStyle;
+    // (undocumented)
+    id: string;
+    // (undocumented)
+    instance: JsPlumbInstance;
+    // @internal
+    isDetachAllowed(connection: Connection): boolean;
+    // @internal (undocumented)
+    isDropAllowed(sourceId: string, targetId: string, scope: string, connection: Connection, dropEndpoint: Endpoint): boolean;
+    // @internal (undocumented)
+    isHover(): boolean;
+    // @internal (undocumented)
+    isVisible(): boolean;
+    // (undocumented)
+    lastPaintedAt: string;
+    mergeData(d: any): void;
+    // @internal (undocumented)
+    mergeParameters(p: ComponentParameters): void;
+    // Warning: (ae-incompatible-release-tags) The symbol "overlayPlacements" is marked as @public, but its signature references "Extents" which is marked as @internal
+    //
+    // (undocumented)
+    overlayPlacements: Record<string, Extents>;
+    // (undocumented)
+    overlayPositions: Record<string, PointXY>;
+    // (undocumented)
+    overlays: Record<string, Overlay>;
+    // (undocumented)
+    paintStyle: PaintStyle;
+    // (undocumented)
+    paintStyleInUse: PaintStyle;
+    // (undocumented)
+    parameters: ComponentParameters;
+    // (undocumented)
+    params: Record<string, any>;
+    // @internal (undocumented)
+    reapplyTypes(params?: any): void;
+    removeAllOverlays(): void;
+    removeClass(clazz: string, cascade?: boolean): void;
+    // @internal
+    removeOverlay(overlayId: string, dontCleanup?: boolean): void;
+    removeOverlays(...overlays: string[]): void;
+    // @internal (undocumented)
+    removeType(typeId: string, params?: any): void;
+    // (undocumented)
+    segment: number;
+    // @internal (undocumented)
+    setAbsoluteOverlayPosition(overlay: Overlay, xy: PointXY): void;
+    setData(d: any): void;
+    // @internal (undocumented)
+    setHoverPaintStyle(style: PaintStyle): void;
+    setLabel(l: string | Function | LabelOverlay): void;
+    // @internal (undocumented)
+    setPaintStyle(style: PaintStyle): void;
+    // @internal (undocumented)
+    setType(typeId: string, params?: any): void;
+    // @internal (undocumented)
+    setVisible(v: boolean): void;
+    // @internal (undocumented)
+    shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
+    showOverlay(id: string): void;
+    showOverlays(...ids: Array<string>): void;
+    // @internal (undocumented)
+    toggleType(typeId: string, params?: any): void;
+    // (undocumented)
+    _typeCache: {};
+    // (undocumented)
+    typeId: string;
+    // (undocumented)
+    _types: Set<string>;
+    // (undocumented)
+    visible: boolean;
+    // (undocumented)
+    w: number;
+    // (undocumented)
+    x: number;
+    // (undocumented)
+    y: number;
+}
+
+// Warning: (ae-internal-missing-underscore) The name "ComponentOptions" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export interface ComponentOptions {
+    // (undocumented)
+    beforeDetach?: BeforeDetachInterceptor;
+    // (undocumented)
+    beforeDrop?: BeforeDropInterceptor;
+    // (undocumented)
+    cssClass?: string;
+    // (undocumented)
+    data?: any;
+    // (undocumented)
+    events?: Record<string, (value: any, event: any) => any>;
+    // (undocumented)
+    hoverClass?: string;
+    // (undocumented)
+    id?: string;
+    // (undocumented)
+    label?: string;
+    // (undocumented)
+    labelLocation?: number;
+    // (undocumented)
+    overlays?: Array<OverlaySpec>;
+    // (undocumented)
+    parameters?: Record<string, any>;
+    // (undocumented)
+    scope?: string;
+}
+
+// @public (undocumented)
+export type ComponentParameters = Record<string, any>;
+
+// Warning: (ae-forgotten-export) The symbol "TypeDescriptorBase" needs to be exported by the entry point index.d.ts
+// Warning: (ae-internal-missing-underscore) The name "ComponentTypeDescriptor" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export interface ComponentTypeDescriptor extends TypeDescriptorBase {
+    // (undocumented)
+    overlays: Record<string, OverlaySpec>;
+}
+
 // @public (undocumented)
 export function compoundEvent(stem: string, event: string, subevent?: string): string;
 
 // @public (undocumented)
+export function computeBezierLength(curve: Curve): number;
+
+// @public (undocumented)
+export type ComputedBlankEndpoint = [number, number, number, number];
+
+// @public (undocumented)
+export type ComputedDotEndpoint = [number, number, number, number, number];
+
+// Warning: (ae-internal-missing-underscore) The name "ComputedPosition" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export interface ComputedPosition {
+    // (undocumented)
+    curX: number;
+    // (undocumented)
+    curY: number;
+    // (undocumented)
+    ox: AnchorOrientationHint;
+    // (undocumented)
+    oy: AnchorOrientationHint;
+    // (undocumented)
+    x: number;
+    // (undocumented)
+    y: number;
+}
+
+// @public (undocumented)
+export type ComputedRectangleEndpoint = [number, number, number, number];
+
+// @public (undocumented)
 export const CONNECTION = "connection";
+
+// @public (undocumented)
+export class Connection<E = any> extends Component {
+    // @internal
+    constructor(instance: JsPlumbInstance, params: ConnectionOptions<E>);
+    addClass(c: string, cascade?: boolean): void;
+    // (undocumented)
+    applyType(t: ConnectionTypeDescriptor, typeMap: any): void;
+    // Warning: (ae-incompatible-release-tags) The symbol "connector" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
+    //
+    // (undocumented)
+    connector: AbstractConnector;
+    cost: number;
+    // (undocumented)
+    defaultLabelLocation: number;
+    // @internal (undocumented)
+    destroy(): void;
+    detachable: boolean;
+    directed: boolean;
+    // (undocumented)
+    endpointHoverStyle: PaintStyle;
+    // (undocumented)
+    readonly endpointHoverStyles: [PaintStyle, PaintStyle];
+    endpoints: [Endpoint<E>, Endpoint<E>];
+    // (undocumented)
+    readonly endpointSpec: EndpointSpec;
+    // (undocumented)
+    readonly endpointsSpec: [EndpointSpec, EndpointSpec];
+    // (undocumented)
+    endpointStyle: PaintStyle;
+    // (undocumented)
+    endpointStyles: [PaintStyle, PaintStyle];
+    // @internal (undocumented)
+    _forceDetach: boolean;
+    // @internal (undocumented)
+    _forceReattach: boolean;
+    // (undocumented)
+    getDefaultOverlayKey(): string;
+    // (undocumented)
+    getIdPrefix(): string;
+    // (undocumented)
+    getTypeDescriptor(): string;
+    // (undocumented)
+    getUuids(): [string, string];
+    // (undocumented)
+    getXY(): {
+        x: number;
+        y: number;
+    };
+    // (undocumented)
+    instance: JsPlumbInstance;
+    // (undocumented)
+    isDetachable(ep?: Endpoint): boolean;
+    // (undocumented)
+    isReattach(): boolean;
+    // (undocumented)
+    makeEndpoint(isSource: boolean, el: any, elId: string, anchor?: AnchorSpec, ep?: Endpoint): Endpoint;
+    // @internal (undocumented)
+    pending: boolean;
+    // @internal (undocumented)
+    prepareConnector(connectorSpec: ConnectorSpec, typeId?: string): AbstractConnector;
+    // (undocumented)
+    previousConnection: Connection;
+    // @internal
+    proxies: Array<{
+        ep: Endpoint<E>;
+        originalEp: Endpoint<E>;
+    }>;
+    reattach: boolean;
+    removeClass(c: string, cascade?: boolean): void;
+    replaceEndpoint(idx: number, endpointDef: EndpointSpec): void;
+    // (undocumented)
+    scope: string;
+    // @internal (undocumented)
+    _setConnector(connectorSpec: ConnectorSpec, doNotRepaint?: boolean, doNotChangeListenerComponent?: boolean, typeId?: string): void;
+    // (undocumented)
+    setDetachable(detachable: boolean): void;
+    // @internal (undocumented)
+    setPreparedConnector(connector: AbstractConnector, doNotRepaint?: boolean, doNotChangeListenerComponent?: boolean, typeId?: string): void;
+    // (undocumented)
+    setReattach(reattach: boolean): void;
+    setVisible(v: boolean): void;
+    source: E;
+    sourceId: string;
+    // @internal (undocumented)
+    suspendedElement: E;
+    // @internal (undocumented)
+    suspendedElementId: string;
+    // @internal (undocumented)
+    suspendedElementType: string;
+    // @internal (undocumented)
+    suspendedEndpoint: Endpoint<E>;
+    // @internal (undocumented)
+    suspendedIndex: number;
+    target: E;
+    targetId: string;
+    // (undocumented)
+    static type: string;
+    // (undocumented)
+    typeId: string;
+    readonly uuids: [string, string];
+}
+
+// @public
+export interface ConnectionDetachedParams<E = any> extends ConnectionEstablishedParams<E> {
+}
+
+// @public (undocumented)
+export class ConnectionDragSelector {
+    constructor(selector: string, def: SourceOrTargetDefinition, exclude?: boolean);
+    // (undocumented)
+    def: SourceOrTargetDefinition;
+    // (undocumented)
+    exclude: boolean;
+    // (undocumented)
+    readonly id: string;
+    // (undocumented)
+    isEnabled(): boolean;
+    // (undocumented)
+    redrop: RedropPolicy;
+    // (undocumented)
+    selector: string;
+    // (undocumented)
+    setEnabled(enabled: boolean): void;
+}
+
+// @public
+export interface ConnectionEstablishedParams<E = any> {
+    // (undocumented)
+    connection: Connection<E>;
+    // (undocumented)
+    source: E;
+    // (undocumented)
+    sourceEndpoint: Endpoint<E>;
+    // (undocumented)
+    sourceId: string;
+    // (undocumented)
+    target: E;
+    // (undocumented)
+    targetEndpoint: Endpoint<E>;
+    // (undocumented)
+    targetId: string;
+}
+
+// @public
+export interface ConnectionMovedParams<E = any> {
+    // (undocumented)
+    connection: Connection<E>;
+    // (undocumented)
+    index: number;
+    // (undocumented)
+    newEndpoint: Endpoint<E>;
+    // (undocumented)
+    newSourceId: string;
+    // (undocumented)
+    newTargetId: string;
+    // (undocumented)
+    originalEndpoint: Endpoint<E>;
+    // (undocumented)
+    originalSourceId: string;
+    // (undocumented)
+    originalTargetId: string;
+}
+
+// Warning: (ae-internal-missing-underscore) The name "ConnectionOptions" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export type ConnectionOptions<E = any> = Merge<ConnectParams<E>, {
+    source?: E;
+    target?: E;
+    sourceEndpoint?: Endpoint;
+    targetEndpoint?: Endpoint;
+    previousConnection?: Connection<E>;
+    geometry?: any;
+}>;
+
+// Warning: (ae-forgotten-export) The symbol "SelectionBase" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export class ConnectionSelection extends SelectionBase<Connection> {
+    // (undocumented)
+    deleteAll(): void;
+    // (undocumented)
+    repaint(): ConnectionSelection;
+    // (undocumented)
+    setConnector(spec: ConnectorSpec): ConnectionSelection;
+    // (undocumented)
+    setDetachable(d: boolean): ConnectionSelection;
+    // (undocumented)
+    setReattach(d: boolean): ConnectionSelection;
+}
+
+// @public
+export interface ConnectionTypeDescriptor extends TypeDescriptor {
+    detachable?: boolean;
+    endpoints?: [EndpointSpec, EndpointSpec];
+    reattach?: boolean;
+}
+
+// @public
+export interface Connector {
+    type: string;
+}
+
+// @public (undocumented)
+export type ConnectorComputeParams = {
+    sourcePos: AnchorPlacement;
+    targetPos: AnchorPlacement;
+    sourceEndpoint: Endpoint;
+    targetEndpoint: Endpoint;
+    strokeWidth: number;
+    sourceInfo: ViewportElement<any>;
+    targetInfo: ViewportElement<any>;
+};
+
+// @public
+export type ConnectorId = string;
+
+// @public
+export interface ConnectorOptions extends Record<string, any> {
+    cssClass?: string;
+    gap?: number;
+    hoverClass?: string;
+    stub?: number | number[];
+}
+
+// @public (undocumented)
+export const Connectors: {
+    get: (connection: Connection, name: string, params: any) => AbstractConnector;
+    register: (name: string, conn: Constructable<AbstractConnector>) => void;
+};
+
+// @public
+export type ConnectorSpec = ConnectorId | ConnectorWithOptions;
+
+// @public
+export type ConnectorWithOptions = {
+    type: ConnectorId;
+    options: ConnectorOptions;
+};
+
+// @public
+export interface ConnectParams<E> {
+    anchor?: AnchorSpec;
+    anchors?: [AnchorSpec, AnchorSpec];
+    // (undocumented)
+    color?: string;
+    connector?: ConnectorSpec;
+    cost?: number;
+    // (undocumented)
+    cssClass?: string;
+    // (undocumented)
+    data?: any;
+    deleteEndpointsOnDetach?: boolean;
+    deleteEndpointsOnEmpty?: boolean;
+    detachable?: boolean;
+    directed?: boolean;
+    endpoint?: EndpointSpec;
+    endpointHoverStyle?: EndpointStyle;
+    endpointHoverStyles?: [EndpointStyle, EndpointStyle];
+    endpoints?: [EndpointSpec, EndpointSpec];
+    endpointStyle?: EndpointStyle;
+    endpointStyles?: [EndpointStyle, EndpointStyle];
+    // (undocumented)
+    hoverClass?: string;
+    hoverPaintStyle?: PaintStyle;
+    // (undocumented)
+    id?: string;
+    label?: string;
+    // (undocumented)
+    lineWidth?: number;
+    // (undocumented)
+    outlineColor?: string;
+    // (undocumented)
+    outlineWidth?: number;
+    overlays?: Array<OverlaySpec>;
+    paintStyle?: PaintStyle;
+    parameters?: Record<string, any>;
+    ports?: [string, string];
+    reattach?: boolean;
+    // (undocumented)
+    scope?: string;
+    source?: Element | Endpoint;
+    target?: Element | Endpoint;
+    type?: string;
+    uuids?: [UUID, UUID];
+}
 
 // @public
 export type ConstrainFunction = (desiredLoc: PointXY, dragEl: HTMLElement, constrainRect: Size, size: Size, e: MouseEvent) => PointXY;
+
+// @public
+export type Constructable<T> = {
+    new (...args: any[]): T;
+};
 
 // @public
 export function consume(e: Event, doNotPreventDefault?: boolean): void;
@@ -365,11 +1667,178 @@ export enum ContainmentType {
     parentEnclosed = "parentEnclosed"
 }
 
+// @public
+export function convertToFullOverlaySpec(spec: string | OverlaySpec): FullOverlaySpec;
+
 // @public (undocumented)
 export function createElement(tag: string, style?: Record<string, any>, clazz?: string, atts?: Record<string, string>): jsPlumbDOMElement;
 
 // @public (undocumented)
 export function createElementNS(ns: string, tag: string, style?: Record<string, any>, clazz?: string, atts?: Record<string, string | number>): jsPlumbDOMElement;
+
+// @public (undocumented)
+export function createFloatingAnchor(instance: JsPlumbInstance, element: Element, elementId: string): LightweightFloatingAnchor;
+
+// @public (undocumented)
+export function _createPerimeterAnchor(params: Record<string, any>): LightweightPerimeterAnchor;
+
+// @public
+export function createTestSupportInstance(instance: BrowserJsPlumbInstance, ok: (b: boolean, msg: string) => any, equal: (v1: any, v2: any, m?: string) => any): BrowserUITestSupport;
+
+// @public
+export function createTestSupportInstanceQUnit(instance: BrowserJsPlumbInstance): BrowserUITestSupport;
+
+// @public (undocumented)
+export type Curve = Array<PointXY>;
+
+// @public (undocumented)
+export class CustomOverlay extends Overlay {
+    constructor(instance: JsPlumbInstance, component: Component, p: CustomOverlayOptions);
+    // (undocumented)
+    component: Component;
+    // (undocumented)
+    create: (c: Component) => any;
+    // (undocumented)
+    instance: JsPlumbInstance;
+    // (undocumented)
+    static type: string;
+    // (undocumented)
+    type: string;
+    // (undocumented)
+    updateFrom(d: any): void;
+}
+
+// @public (undocumented)
+export interface CustomOverlayOptions extends OverlayOptions {
+    // (undocumented)
+    create: (c: Component) => any;
+}
+
+// @public
+export const DEFAULT = "default";
+
+// @public (undocumented)
+export const DEFAULT_KEY_ALLOW_NESTED_GROUPS = "allowNestedGroups";
+
+// @public (undocumented)
+export const DEFAULT_KEY_ANCHOR = "anchor";
+
+// @public (undocumented)
+export const DEFAULT_KEY_ANCHORS = "anchors";
+
+// @public (undocumented)
+export const DEFAULT_KEY_CONNECTION_OVERLAYS = "connectionOverlays";
+
+// @public (undocumented)
+export const DEFAULT_KEY_CONNECTIONS_DETACHABLE = "connectionsDetachable";
+
+// @public (undocumented)
+export const DEFAULT_KEY_CONNECTOR = "connector";
+
+// @public (undocumented)
+export const DEFAULT_KEY_CONTAINER = "container";
+
+// @public (undocumented)
+export const DEFAULT_KEY_ENDPOINT = "endpoint";
+
+// @public (undocumented)
+export const DEFAULT_KEY_ENDPOINT_HOVER_STYLE = "endpointHoverStyle";
+
+// @public (undocumented)
+export const DEFAULT_KEY_ENDPOINT_HOVER_STYLES = "endpointHoverStyles";
+
+// @public (undocumented)
+export const DEFAULT_KEY_ENDPOINT_OVERLAYS = "endpointOverlays";
+
+// @public (undocumented)
+export const DEFAULT_KEY_ENDPOINT_STYLE = "endpointStyle";
+
+// @public (undocumented)
+export const DEFAULT_KEY_ENDPOINT_STYLES = "endpointStyles";
+
+// @public (undocumented)
+export const DEFAULT_KEY_ENDPOINTS = "endpoints";
+
+// @public (undocumented)
+export const DEFAULT_KEY_HOVER_CLASS = "hoverClass";
+
+// @public (undocumented)
+export const DEFAULT_KEY_HOVER_PAINT_STYLE = "hoverPaintStyle";
+
+// @public (undocumented)
+export const DEFAULT_KEY_LIST_STYLE = "listStyle";
+
+// @public (undocumented)
+export const DEFAULT_KEY_MAX_CONNECTIONS = "maxConnections";
+
+// @public (undocumented)
+export const DEFAULT_KEY_PAINT_STYLE = "paintStyle";
+
+// @public (undocumented)
+export const DEFAULT_KEY_REATTACH_CONNECTIONS = "reattachConnections";
+
+// @public (undocumented)
+export const DEFAULT_KEY_SCOPE = "scope";
+
+// @public (undocumented)
+export const DEFAULT_LIST_OPTIONS: {
+    deriveAnchor: (edge: SupportedEdge, index: number, ep: Endpoint, conn: Connection) => string;
+};
+
+// @public
+export type DeleteConnectionOptions = {
+    force?: boolean;
+    fireEvent?: boolean;
+    originalEvent?: Event;
+    endpointToIgnore?: Endpoint;
+};
+
+// @public (undocumented)
+export class DiamondOverlay extends ArrowOverlay {
+    constructor(instance: JsPlumbInstance, component: Component, p: ArrowOverlayOptions);
+    // (undocumented)
+    instance: JsPlumbInstance;
+    // (undocumented)
+    static type: string;
+    // (undocumented)
+    type: string;
+}
+
+// @public (undocumented)
+export function dist(p1: PointXY, p2: PointXY): number;
+
+// @public (undocumented)
+export type DistanceFromCurve = {
+    location: number;
+    distance: number;
+};
+
+// @public
+export function distanceFromCurve(point: PointXY, curve: Curve): DistanceFromCurve;
+
+// @public (undocumented)
+export class DotEndpoint extends EndpointRepresentation<ComputedDotEndpoint> {
+    constructor(endpoint: Endpoint, params?: DotEndpointParams);
+    // (undocumented)
+    defaultInnerRadius: number;
+    // (undocumented)
+    defaultOffset: number;
+    // (undocumented)
+    radius: number;
+    // (undocumented)
+    static type: string;
+    // (undocumented)
+    type: string;
+}
+
+// @public (undocumented)
+export const DotEndpointHandler: EndpointHandler<DotEndpoint, ComputedDotEndpoint>;
+
+// @public (undocumented)
+export interface DotEndpointParams extends EndpointRepresentationParams {
+    // (undocumented)
+    radius?: number;
+}
 
 // Warning: (ae-forgotten-export) The symbol "Base" needs to be exported by the entry point index.d.ts
 //
@@ -701,6 +2170,11 @@ export interface DragStopPayload {
     payload?: Record<string, any>;
 }
 
+// Warning: (ae-internal-missing-underscore) The name "each" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function each(obj: any, fn: Function): void;
+
 // @public (undocumented)
 export const ELEMENT = "element";
 
@@ -754,6 +2228,9 @@ export class ElementDragHandler implements DragHandler {
 }
 
 // @public (undocumented)
+export type ElementSelectionSpecifier<E> = E | Array<E> | '*';
+
+// @public (undocumented)
 export type ElementType = keyof typeof ElementTypes;
 
 // @public (undocumented)
@@ -764,8 +2241,154 @@ export enum ElementTypes {
     SVG = "SVG"
 }
 
+// Warning: (ae-internal-missing-underscore) The name "EMPTY_BOUNDS" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function EMPTY_BOUNDS(): Extents;
+
+// @public
+export function encloses(r1: RectangleXY, r2: RectangleXY, allowSharedEdges?: boolean): boolean;
+
 // @public (undocumented)
 export const ENDPOINT = "endpoint";
+
+// @public (undocumented)
+export class Endpoint<E = any> extends Component {
+    constructor(instance: JsPlumbInstance, params: InternalEndpointOptions<E>);
+    // (undocumented)
+    addClass(clazz: string, cascade?: boolean): void;
+    // (undocumented)
+    addConnection(conn: Connection): void;
+    // (undocumented)
+    _anchor: LightweightAnchor;
+    _anchorLocationChanged(currentAnchor: LightweightAnchor): void;
+    // (undocumented)
+    applyType(t: any, typeMap: any): void;
+    // (undocumented)
+    connectionCost: number;
+    // (undocumented)
+    connections: Array<Connection<E>>;
+    // (undocumented)
+    connectionsDetachable: boolean;
+    // (undocumented)
+    connectionsDirected: boolean;
+    // (undocumented)
+    connector: ConnectorSpec;
+    // (undocumented)
+    connectorClass: string;
+    // (undocumented)
+    connectorHoverClass: string;
+    // (undocumented)
+    connectorHoverStyle: PaintStyle;
+    // (undocumented)
+    connectorOverlays: Array<OverlaySpec>;
+    // (undocumented)
+    connectorSelector(): Connection;
+    // (undocumented)
+    connectorStyle: PaintStyle;
+    // (undocumented)
+    currentAnchorClass: string;
+    // (undocumented)
+    defaultLabelLocation: [number, number];
+    deleteEveryConnection(params?: DeleteConnectionOptions): void;
+    // (undocumented)
+    deleteOnEmpty: boolean;
+    // (undocumented)
+    destroy(): void;
+    detachFrom(otherEndpoint: Endpoint): Endpoint;
+    detachFromConnection(connection: Connection, idx?: number, transientDetach?: boolean): void;
+    // (undocumented)
+    dragAllowedWhenFull: boolean;
+    // (undocumented)
+    edgeType: string;
+    // (undocumented)
+    element: E;
+    // (undocumented)
+    elementId: string;
+    // (undocumented)
+    enabled: boolean;
+    // (undocumented)
+    endpoint: EndpointRepresentation<any>;
+    // (undocumented)
+    finalEndpoint: Endpoint<E>;
+    // (undocumented)
+    getDefaultOverlayKey(): string;
+    // (undocumented)
+    getIdPrefix(): string;
+    // (undocumented)
+    getTypeDescriptor(): string;
+    // (undocumented)
+    getUuid(): string;
+    // (undocumented)
+    getXY(): {
+        x: number;
+        y: number;
+    };
+    // (undocumented)
+    instance: JsPlumbInstance;
+    isConnectedTo(otherEndpoint: Endpoint): boolean;
+    // (undocumented)
+    isFloating(): boolean;
+    // (undocumented)
+    isFull(): boolean;
+    // (undocumented)
+    isSource: boolean;
+    // (undocumented)
+    isTarget: boolean;
+    // (undocumented)
+    isTemporarySource: boolean;
+    // (undocumented)
+    maxConnections: number;
+    // (undocumented)
+    portId: string;
+    // (undocumented)
+    proxiedBy: Endpoint<E>;
+    // (undocumented)
+    reattachConnections: boolean;
+    // (undocumented)
+    referenceEndpoint: Endpoint<E>;
+    // (undocumented)
+    removeClass(clazz: string, cascade?: boolean): void;
+    // (undocumented)
+    scope: string;
+    // (undocumented)
+    setAnchor(anchorParams: AnchorSpec | Array<AnchorSpec>): Endpoint;
+    // (undocumented)
+    setDragAllowedWhenFull(allowed: boolean): void;
+    // (undocumented)
+    setEndpoint<C>(ep: EndpointSpec | EndpointRepresentation<C>): void;
+    // (undocumented)
+    setVisible(v: boolean, doNotChangeConnections?: boolean, doNotNotifyOtherEndpoint?: boolean): void;
+    // (undocumented)
+    timestamp: string;
+    // (undocumented)
+    uuid: string;
+}
+
+// Warning: (ae-incompatible-release-tags) The symbol "EndpointComputeFunction" is marked as @public, but its signature references "AnchorPlacement" which is marked as @internal
+//
+// @public (undocumented)
+export type EndpointComputeFunction<T> = (endpoint: EndpointRepresentation<T>, anchorPoint: AnchorPlacement, orientation: Orientation, endpointStyle: any) => T;
+
+// @public (undocumented)
+export const EndpointFactory: {
+    get: (ep: Endpoint, name: string, params: any) => EndpointRepresentation<any>;
+    clone: <C>(epr: EndpointRepresentation<C>) => EndpointRepresentation<C>;
+    compute: <T>(endpoint: EndpointRepresentation<T>, anchorPoint: AnchorPlacement, orientation: Orientation, endpointStyle: any) => T;
+    registerHandler: <E, T_1>(eph: EndpointHandler<E, T_1>) => void;
+};
+
+// @public (undocumented)
+export interface EndpointHandler<E, T> {
+    // (undocumented)
+    cls: Constructable<EndpointRepresentation<T>>;
+    // (undocumented)
+    compute: EndpointComputeFunction<T>;
+    // (undocumented)
+    getParams(endpoint: E): Record<string, any>;
+    // (undocumented)
+    type: string;
+}
 
 // @public (undocumented)
 export type EndpointHelperFunctions<E> = {
@@ -774,10 +2397,144 @@ export type EndpointHelperFunctions<E> = {
 };
 
 // @public (undocumented)
+export type EndpointId = "Rectangle" | "Dot" | "Blank" | UserDefinedEndpointId;
+
+// @public (undocumented)
+export interface EndpointOptions<E = any> {
+    anchor?: AnchorSpec;
+    anchors?: [AnchorSpec, AnchorSpec];
+    connectionCost?: number;
+    connectionsDetachable?: boolean;
+    connectionsDirected?: boolean;
+    connector?: ConnectorSpec;
+    connectorClass?: string;
+    connectorHoverClass?: string;
+    connectorHoverStyle?: PaintStyle;
+    connectorOverlays?: Array<OverlaySpec>;
+    connectorStyle?: PaintStyle;
+    // (undocumented)
+    cssClass?: string;
+    // (undocumented)
+    data?: any;
+    deleteOnEmpty?: boolean;
+    dragAllowedWhenFull?: boolean;
+    edgeType?: string;
+    enabled?: boolean;
+    endpoint?: EndpointSpec;
+    // (undocumented)
+    hoverClass?: string;
+    hoverPaintStyle?: PaintStyle;
+    maxConnections?: number;
+    onMaxConnections?: (value: any, event?: any) => any;
+    paintStyle?: PaintStyle;
+    // (undocumented)
+    parameters?: Record<string, any>;
+    portId?: string;
+    reattachConnections?: boolean;
+    // (undocumented)
+    scope?: string;
+    source?: boolean;
+    target?: boolean;
+    uuid?: string;
+}
+
+// @public (undocumented)
+export type EndpointParams = any;
+
+// @public
+export abstract class EndpointRepresentation<C> {
+    protected constructor(endpoint: Endpoint, params?: EndpointRepresentationParams);
+    // (undocumented)
+    addClass(c: string): void;
+    // Warning: (ae-incompatible-release-tags) The symbol "bounds" is marked as @public, but its signature references "Extents" which is marked as @internal
+    //
+    // (undocumented)
+    bounds: Extents;
+    // (undocumented)
+    classes: Array<string>;
+    // Warning: (ae-incompatible-release-tags) The symbol "compute" is marked as @public, but its signature references "AnchorPlacement" which is marked as @internal
+    //
+    // (undocumented)
+    compute(anchorPoint: AnchorPlacement, orientation: Orientation, endpointStyle: any): void;
+    // (undocumented)
+    computedValue: C;
+    // (undocumented)
+    endpoint: Endpoint;
+    // (undocumented)
+    h: number;
+    // (undocumented)
+    instance: JsPlumbInstance;
+    // (undocumented)
+    removeClass(c: string): void;
+    // (undocumented)
+    setVisible(v: boolean): void;
+    // (undocumented)
+    abstract type: string;
+    // (undocumented)
+    typeId: string;
+    // (undocumented)
+    w: number;
+    // (undocumented)
+    x: number;
+    // (undocumented)
+    y: number;
+}
+
+// @public (undocumented)
+export interface EndpointRepresentationParams {
+    // (undocumented)
+    cssClass?: string;
+}
+
+// @public (undocumented)
+export class EndpointSelection extends SelectionBase<Endpoint> {
+    // (undocumented)
+    deleteAll(): EndpointSelection;
+    // (undocumented)
+    deleteEveryConnection(): EndpointSelection;
+    // (undocumented)
+    setAnchor(a: AnchorSpec): EndpointSelection;
+    // (undocumented)
+    setEnabled(e: boolean): EndpointSelection;
+}
+
+// @public (undocumented)
+export type EndpointSpec = EndpointId | FullEndpointSpec;
+
+// @public (undocumented)
+export interface EndpointStyle extends PaintStyle, Record<string, any> {
+}
+
+// @public
+export interface EndpointTypeDescriptor extends TypeDescriptor {
+    connectionsDetachable?: boolean;
+    maxConnections?: number;
+    reattachConnections?: boolean;
+}
+
+// @public (undocumented)
+export const ERROR_SOURCE_DOES_NOT_EXIST = "Cannot establish connection: source does not exist";
+
+// @public (undocumented)
+export const ERROR_SOURCE_ENDPOINT_FULL = "Cannot establish connection: source endpoint is full";
+
+// @public (undocumented)
+export const ERROR_TARGET_DOES_NOT_EXIST = "Cannot establish connection: target does not exist";
+
+// @public (undocumented)
+export const ERROR_TARGET_ENDPOINT_FULL = "Cannot establish connection: target endpoint is full";
+
+// @public (undocumented)
+export const EVENT_ANCHOR_CHANGED = "anchor:changed";
+
+// @public (undocumented)
 export const EVENT_BEFORE_START = "beforeStart";
 
 // @public (undocumented)
 export const EVENT_CLICK = "click";
+
+// @public (undocumented)
+export const EVENT_CONNECTION = "connection";
 
 // @public (undocumented)
 export const EVENT_CONNECTION_ABORT = "connection:abort";
@@ -795,6 +2552,9 @@ export const EVENT_CONNECTION_DBL_CLICK: string;
 export const EVENT_CONNECTION_DBL_TAP: string;
 
 // @public (undocumented)
+export const EVENT_CONNECTION_DETACHED = "connection:detach";
+
+// @public (undocumented)
 export const EVENT_CONNECTION_DRAG = "connection:drag";
 
 // @public (undocumented)
@@ -810,7 +2570,13 @@ export const EVENT_CONNECTION_MOUSEOVER: string;
 export const EVENT_CONNECTION_MOUSEUP: string;
 
 // @public (undocumented)
+export const EVENT_CONNECTION_MOVED = "connection:move";
+
+// @public (undocumented)
 export const EVENT_CONNECTION_TAP: string;
+
+// @public (undocumented)
+export const EVENT_CONTAINER_CHANGE = "container:change";
 
 // @public (undocumented)
 export const EVENT_CONTEXTMENU = "contextmenu";
@@ -888,10 +2654,46 @@ export const EVENT_ENDPOINT_MOUSEOVER: string;
 export const EVENT_ENDPOINT_MOUSEUP: string;
 
 // @public (undocumented)
+export const EVENT_ENDPOINT_REPLACED = "endpoint:replaced";
+
+// @public (undocumented)
 export const EVENT_ENDPOINT_TAP: string;
 
 // @public (undocumented)
 export const EVENT_FOCUS = "focus";
+
+// @public (undocumented)
+export const EVENT_GROUP_ADDED = "group:added";
+
+// @public (undocumented)
+export const EVENT_GROUP_COLLAPSE = "group:collapse";
+
+// @public (undocumented)
+export const EVENT_GROUP_EXPAND = "group:expand";
+
+// @public (undocumented)
+export const EVENT_GROUP_MEMBER_ADDED = "group:member:added";
+
+// @public (undocumented)
+export const EVENT_GROUP_MEMBER_REMOVED = "group:member:removed";
+
+// @public (undocumented)
+export const EVENT_GROUP_REMOVED = "group:removed";
+
+// @public (undocumented)
+export const EVENT_INTERNAL_CONNECTION = "internal.connection";
+
+// @public (undocumented)
+export const EVENT_INTERNAL_CONNECTION_DETACHED = "internal.connection:detached";
+
+// @public (undocumented)
+export const EVENT_INTERNAL_ENDPOINT_UNREGISTERED = "internal.endpoint:unregistered";
+
+// @public (undocumented)
+export const EVENT_MANAGE_ELEMENT = "element:manage";
+
+// @public (undocumented)
+export const EVENT_MAX_CONNECTIONS = "maxConnections";
 
 // @public (undocumented)
 export const EVENT_MOUSEDOWN = "mousedown";
@@ -915,6 +2717,12 @@ export const EVENT_MOUSEOVER = "mouseover";
 export const EVENT_MOUSEUP = "mouseup";
 
 // @public (undocumented)
+export const EVENT_NESTED_GROUP_ADDED = "group:nested:added";
+
+// @public (undocumented)
+export const EVENT_NESTED_GROUP_REMOVED = "group:nested:removed";
+
+// @public (undocumented)
 export const EVENT_OUT = "out";
 
 // @public (undocumented)
@@ -922,6 +2730,9 @@ export const EVENT_OVER = "over";
 
 // @public (undocumented)
 export const EVENT_REVERT = "revert";
+
+// @public (undocumented)
+export const EVENT_SCROLL = "scroll";
 
 // @public (undocumented)
 export const EVENT_START = "start";
@@ -940,6 +2751,34 @@ export const EVENT_TOUCHMOVE = "touchmove";
 
 // @public (undocumented)
 export const EVENT_TOUCHSTART = "touchstart";
+
+// @public (undocumented)
+export const EVENT_UNMANAGE_ELEMENT = "element:unmanage";
+
+// @public (undocumented)
+export const EVENT_ZOOM = "zoom";
+
+// @public
+export abstract class EventGenerator {
+    constructor();
+    bind<T = any>(event: string | Array<String>, listener: (a: T, e?: any) => any, insertAtStart?: boolean): EventGenerator;
+    fire<T>(event: string, value?: T, originalEvent?: Event): any;
+    getListener(forEvent: string): Array<any>;
+    isSuspendEvents(): boolean;
+    setSuspendEvents(val: boolean): void;
+    // (undocumented)
+    protected abstract shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
+    silently(fn: Function): void;
+    unbind(eventOrListener?: string | Function, listener?: Function): EventGenerator;
+}
+
+// @public
+export interface EventHandlers<T = any> {
+    after?: (payload?: T) => any;
+    before?: () => any;
+    beforeMouseMove?: () => any;
+    beforeMouseUp?: () => any;
+}
 
 // @public (undocumented)
 export class EventManager {
@@ -961,11 +2800,161 @@ export class EventManager {
     trigger(el: any, event: string, originalEvent: any, payload?: any, detail?: number): this;
 }
 
+// @public
+export function extend<T>(o1: T, o2: T, keys?: string[]): T;
+
+// Warning: (ae-internal-missing-underscore) The name "Extents" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export interface Extents {
+    // (undocumented)
+    xmax: number;
+    // (undocumented)
+    xmin: number;
+    // (undocumented)
+    ymax: number;
+    // (undocumented)
+    ymin: number;
+}
+
+// Warning: (ae-forgotten-export) The symbol "FaceValues" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export type Face = keyof typeof FaceValues;
+
+// @public
+export const FALSE = "false";
+
+// @public
+export function fastTrim(s: string): string;
+
+// Warning: (ae-internal-missing-underscore) The name "filterList" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function filterList(list: Array<any> | string, value: any, missingIsFalse?: boolean): boolean;
+
+// Warning: (ae-internal-missing-underscore) The name "filterNull" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function filterNull(obj: Record<string, any>): Record<string, any>;
+
+// Warning: (ae-internal-missing-underscore) The name "findAllWithFunction" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function findAllWithFunction<T>(a: ArrayLike<T>, predicate: (_a: T) => boolean): Array<number>;
+
 // @public (undocumented)
 export function findParent(el: jsPlumbDOMElement, selector: string, container: Element, matchOnElementAlso: boolean): jsPlumbDOMElement;
 
+// Warning: (ae-internal-missing-underscore) The name "findWithFunction" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function findWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): number;
+
+// @public (undocumented)
+export const FIXED = "fixed";
+
+// @public
+export function fixPrecision(n: number, digits?: number): number;
+
+// Warning: (ae-incompatible-release-tags) The symbol "FlowchartConnector" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
+//
+// @public
+export class FlowchartConnector extends AbstractConnector {
+    constructor(connection: Connection, params: FlowchartConnectorOptions);
+    // (undocumented)
+    alwaysRespectStubs: boolean;
+    // Warning: (ae-incompatible-release-tags) The symbol "_compute" is marked as @public, but its signature references "PaintGeometry" which is marked as @internal
+    //
+    // (undocumented)
+    _compute(paintInfo: PaintGeometry, params: ConnectorComputeParams): void;
+    // (undocumented)
+    connection: Connection;
+    // (undocumented)
+    cornerRadius: number;
+    // (undocumented)
+    getDefaultStubs(): [number, number];
+    // (undocumented)
+    isLoopbackCurrently: boolean;
+    // (undocumented)
+    lastOrientation: any;
+    // (undocumented)
+    lastx: number;
+    // (undocumented)
+    lasty: number;
+    // (undocumented)
+    loopbackRadius: number;
+    // (undocumented)
+    midpoint: number;
+    // (undocumented)
+    transformGeometry(g: Geometry, dx: number, dy: number): Geometry;
+    // (undocumented)
+    static type: string;
+    // (undocumented)
+    type: string;
+}
+
+// @public (undocumented)
+export interface FlowchartConnectorOptions extends ConnectorOptions {
+    alwaysRespectStubs?: boolean;
+    cornerRadius?: number;
+    loopbackRadius?: number;
+    midpoint?: number;
+}
+
+// Warning: (ae-internal-missing-underscore) The name "forEach" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function forEach<T>(a: ArrayLike<T>, f: (_a: T) => any): void;
+
+// Warning: (ae-internal-missing-underscore) The name "fromArray" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function fromArray<T>(a: ArrayLike<T>): Array<T>;
+
+// @public
+export type FullAnchorSpec = {
+    type: AnchorId;
+    options: AnchorOptions;
+};
+
+// @public (undocumented)
+export type FullEndpointSpec = {
+    type: EndpointId;
+    options: EndpointParams;
+};
+
+// @public (undocumented)
+export type FullOverlaySpec = {
+    type: string;
+    options: OverlayOptions;
+};
+
+// Warning: (ae-internal-missing-underscore) The name "functionChain" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function functionChain(successValue: any, failValue: any, fns: Array<Array<any>>): any;
+
+// @public
+export interface Geometry {
+    // (undocumented)
+    source: any;
+    // (undocumented)
+    target: any;
+}
+
+// Warning: (ae-internal-missing-underscore) The name "getAllWithFunction" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function getAllWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): Array<T>;
+
 // @public (undocumented)
 export function getClass(el: Element): string;
+
+// Warning: (ae-internal-missing-underscore) The name "getDefaultFace" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export function getDefaultFace(a: LightweightContinuousAnchor): Face;
 
 // Warning: (ae-internal-missing-underscore) The name "getElementPosition" should be prefixed with an underscore because the declaration is marked as @internal
 //
@@ -986,6 +2975,11 @@ export function getElementType(el: Element): ElementType;
 // @public (undocumented)
 export function getEventSource(e: Event): jsPlumbDOMElement;
 
+// Warning: (ae-internal-missing-underscore) The name "getFromSetWithFunction" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function getFromSetWithFunction<T>(s: Set<T>, f: (_a: T) => boolean): T;
+
 // @public
 export function getPageLocation(e: any): PointXY;
 
@@ -997,11 +2991,19 @@ export type GetPositionFunction = (el: Element) => PointXY;
 // @internal (undocumented)
 export function getPositionOnElement(evt: Event, el: Element, zoom: number): PointXY;
 
+// @public
+export function getsert<K, V>(map: Map<K, V>, key: K, valueGenerator: () => V): V;
+
 // @public (undocumented)
 export type GetSizeFunction = (el: Element) => Size;
 
 // @public (undocumented)
 export function getTouch(touches: TouchList, idx: number): Touch;
+
+// Warning: (ae-internal-missing-underscore) The name "getWithFunction" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function getWithFunction<T>(a: ArrayLike<T>, f: (_a: T) => boolean): T;
 
 // @public (undocumented)
 export type GhostProxyGenerator = (el: Element) => Element;
@@ -1014,10 +3016,39 @@ export interface GhostProxyingDragHandler extends DragHandler {
     useGhostProxy: (container: any, dragEl: Element) => boolean;
 }
 
+// @public
+export function gradient(p1: PointXY, p2: PointXY): number;
+
+// @public
+export function gradientAtPoint(curve: Curve, location: number): number;
+
+// @public
+export function gradientAtPointAlongPathFrom(curve: Curve, location: number, distance: number): number;
+
+// @public
+export interface Grid extends Size {
+    // (undocumented)
+    thresholdX?: number;
+    // (undocumented)
+    thresholdY?: number;
+}
+
+// @public (undocumented)
+export interface GroupCollapsedParams<E> {
+    // (undocumented)
+    group: UIGroup<E>;
+}
+
 // Warning: (ae-internal-missing-underscore) The name "groupDragConstrain" should be prefixed with an underscore because the declaration is marked as @internal
 //
 // @internal (undocumented)
 export function groupDragConstrain(desiredLoc: PointXY, dragEl: jsPlumbDOMElement, constrainRect: BoundingBox, size: Size): PointXY;
+
+// @public (undocumented)
+export interface GroupExpandedParams<E> {
+    // (undocumented)
+    group: UIGroup<E>;
+}
 
 // @public (undocumented)
 export type GroupLocation = {
@@ -1027,7 +3058,144 @@ export type GroupLocation = {
 };
 
 // @public (undocumented)
+export class GroupManager<E> {
+    constructor(instance: JsPlumbInstance);
+    // (undocumented)
+    addGroup(params: AddGroupOptions<E>): UIGroup<E>;
+    // (undocumented)
+    addToGroup(group: string | UIGroup<E>, doNotFireEvent: boolean, ...el: Array<E>): void;
+    cascadeCollapse(collapsedGroup: UIGroup<E>, targetGroup: UIGroup<E>, collapsedIds: Set<string>): void;
+    // (undocumented)
+    collapseGroup(group: string | UIGroup<E>): void;
+    // (undocumented)
+    _connectionSourceMap: Record<string, UIGroup<E>>;
+    // (undocumented)
+    _connectionTargetMap: Record<string, UIGroup<E>>;
+    // (undocumented)
+    expandGroup(group: string | UIGroup<E>, doNotFireEvent?: boolean): void;
+    // (undocumented)
+    forEach(f: (g: UIGroup<E>) => any): void;
+    // (undocumented)
+    getAncestors(group: UIGroup<E>): Array<UIGroup<E>>;
+    // (undocumented)
+    getDescendants(group: UIGroup<E>): Array<UIGroup<E>>;
+    // (undocumented)
+    getGroup(groupId: string | UIGroup<E>): UIGroup<E>;
+    // (undocumented)
+    getGroupFor(el: E): UIGroup<E>;
+    // (undocumented)
+    getGroups(): Array<UIGroup<E>>;
+    // (undocumented)
+    groupMap: Record<string, UIGroup<E>>;
+    // (undocumented)
+    instance: JsPlumbInstance;
+    isAncestor(group: UIGroup<E>, possibleAncestor: UIGroup<E>): boolean;
+    // (undocumented)
+    isDescendant(possibleDescendant: UIGroup<E>, ancestor: UIGroup<E>): boolean;
+    // (undocumented)
+    orphan(el: E, doNotTransferToAncestor: boolean): {
+        id: string;
+        pos: PointXY;
+    };
+    // (undocumented)
+    removeAllGroups(deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): void;
+    // (undocumented)
+    removeFromGroup(group: string | UIGroup<E>, doNotFireEvent: boolean, ...el: Array<E>): void;
+    // (undocumented)
+    removeGroup(group: string | UIGroup<E>, deleteMembers?: boolean, manipulateView?: boolean, doNotFireEvent?: boolean): Record<string, PointXY>;
+    // (undocumented)
+    repaintGroup(group: string | UIGroup<E>): void;
+    // (undocumented)
+    reset(): void;
+    // (undocumented)
+    toggleGroup(group: string | UIGroup<E>): void;
+    // (undocumented)
+    _updateConnectionsForGroup(group: UIGroup<E>): void;
+}
+
+// @public (undocumented)
+export interface GroupOptions {
+    // (undocumented)
+    anchor?: AnchorSpec;
+    // (undocumented)
+    constrain?: boolean;
+    // (undocumented)
+    dropOverride?: boolean;
+    // (undocumented)
+    droppable?: boolean;
+    // (undocumented)
+    enabled?: boolean;
+    // (undocumented)
+    endpoint?: EndpointSpec;
+    // (undocumented)
+    ghost?: boolean;
+    // (undocumented)
+    id?: string;
+    // (undocumented)
+    orphan?: boolean;
+    // (undocumented)
+    proxied?: boolean;
+    // (undocumented)
+    prune?: boolean;
+    // (undocumented)
+    revert?: boolean;
+}
+
+// @public (undocumented)
 export function hasClass(el: Element, clazz: string): boolean;
+
+// @public
+export function insertSorted<T>(value: T, array: Array<T>, comparator: (v1: T, v2: T) => number, sortDescending?: boolean): void;
+
+// @public (undocumented)
+export const INTERCEPT_BEFORE_DETACH = "beforeDetach";
+
+// @public (undocumented)
+export const INTERCEPT_BEFORE_DRAG = "beforeDrag";
+
+// @public (undocumented)
+export const INTERCEPT_BEFORE_DROP = "beforeDrop";
+
+// @public (undocumented)
+export const INTERCEPT_BEFORE_START_DETACH = "beforeStartDetach";
+
+// @public
+export interface InternalConnectParams<E> extends ConnectParams<E> {
+    // (undocumented)
+    id?: string;
+    // (undocumented)
+    newConnection?: (p: any) => Connection;
+    // (undocumented)
+    scope?: string;
+    // (undocumented)
+    sourceEndpoint?: Endpoint<E>;
+    // (undocumented)
+    targetEndpoint?: Endpoint<E>;
+    // (undocumented)
+    type?: string;
+}
+
+// @public (undocumented)
+export interface InternalEndpointOptions<E> extends EndpointOptions<E> {
+    // (undocumented)
+    connections?: Array<Connection>;
+    // (undocumented)
+    element?: E;
+    // (undocumented)
+    elementId?: string;
+    // (undocumented)
+    existingEndpoint?: EndpointRepresentation<E>;
+    // (undocumented)
+    id?: string;
+    // (undocumented)
+    isTemporarySource?: boolean;
+    // (undocumented)
+    preparedAnchor?: LightweightAnchor;
+    // (undocumented)
+    _transient?: boolean;
+    // (undocumented)
+    type?: string;
+}
 
 // @public (undocumented)
 export type IntersectingGroup = {
@@ -1036,23 +3204,137 @@ export type IntersectingGroup = {
     intersectingElement: Element;
 };
 
+// @public
+export function intersects(r1: RectangleXY, r2: RectangleXY): boolean;
+
+// @public (undocumented)
+export const IS_DETACH_ALLOWED = "isDetachAllowed";
+
 // @public (undocumented)
 export function isArrayLike(el: any): el is ArrayLike<Element>;
+
+// @public (undocumented)
+export function isArrowOverlay(o: Overlay): o is ArrowOverlay;
+
+// @public
+export function isAssignableFrom(object: any, cls: any): boolean;
+
+// @public
+export function isBoolean(s: any): boolean;
+
+// @public (undocumented)
+export function isContinuous(a: LightweightAnchor): a is LightweightContinuousAnchor;
+
+// @public (undocumented)
+export function isCustomOverlay(o: Overlay): o is CustomOverlay;
+
+// @public
+export function isDate(o: any): o is Date;
+
+// @public (undocumented)
+export function isDiamondOverlay(o: Overlay): o is DiamondOverlay;
+
+// @public (undocumented)
+export function isDynamic(a: LightweightAnchor): boolean;
+
+// Warning: (ae-internal-missing-underscore) The name "isEdgeSupported" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export function isEdgeSupported(a: LightweightContinuousAnchor, edge: Face): boolean;
+
+// @public
+export function isEmpty(o: any): boolean;
+
+// @public (undocumented)
+export function isFloating(a: LightweightAnchor): a is LightweightFloatingAnchor;
+
+// @public
+export function isFullOverlaySpec(o: OverlaySpec): o is FullOverlaySpec;
+
+// @public
+export function isFunction(o: any): o is Function;
 
 // @public (undocumented)
 export function isInsideParent(instance: BrowserJsPlumbInstance, _el: HTMLElement, pos: PointXY): boolean;
 
 // @public (undocumented)
+export function isLabelOverlay(o: Overlay): o is LabelOverlay;
+
+// @public (undocumented)
 export function isMouseDevice(): boolean;
+
+// @public
+export function isNamedFunction(o: any): boolean;
 
 // @public (undocumented)
 export function isNodeList(el: any): el is NodeListOf<Element>;
+
+// @public
+export function isNumber(n: any): boolean;
+
+// @public
+export function isObject(o: any): boolean;
+
+// @public (undocumented)
+export function isPlainArrowOverlay(o: Overlay): o is PlainArrowOverlay;
+
+// @public (undocumented)
+export function isPoint(curve: Curve): boolean;
+
+// @public
+export function isString(s: any): boolean;
 
 // @public (undocumented)
 export function isSVGElement(el: Element): boolean;
 
 // @public (undocumented)
 export function isTouchDevice(): boolean;
+
+// @public (undocumented)
+export interface JsPlumbDefaults<E> {
+    // (undocumented)
+    [DEFAULT_KEY_ALLOW_NESTED_GROUPS]?: boolean;
+    // (undocumented)
+    [DEFAULT_KEY_ANCHOR]?: AnchorSpec;
+    // (undocumented)
+    [DEFAULT_KEY_ANCHORS]?: [AnchorSpec, AnchorSpec];
+    // (undocumented)
+    [DEFAULT_KEY_CONNECTION_OVERLAYS]?: Array<OverlaySpec>;
+    // (undocumented)
+    [DEFAULT_KEY_CONNECTIONS_DETACHABLE]?: boolean;
+    // (undocumented)
+    [DEFAULT_KEY_CONNECTOR]?: ConnectorSpec;
+    // (undocumented)
+    [DEFAULT_KEY_CONTAINER]?: E;
+    // (undocumented)
+    [DEFAULT_KEY_ENDPOINT]?: EndpointSpec;
+    // (undocumented)
+    [DEFAULT_KEY_ENDPOINT_HOVER_STYLE]?: EndpointStyle;
+    // (undocumented)
+    [DEFAULT_KEY_ENDPOINT_HOVER_STYLES]?: [EndpointStyle, EndpointStyle];
+    // (undocumented)
+    [DEFAULT_KEY_ENDPOINT_OVERLAYS]?: Array<OverlaySpec>;
+    // (undocumented)
+    [DEFAULT_KEY_ENDPOINTS]?: [EndpointSpec, EndpointSpec];
+    // (undocumented)
+    [DEFAULT_KEY_ENDPOINT_STYLE]?: EndpointStyle;
+    // (undocumented)
+    [DEFAULT_KEY_ENDPOINT_STYLES]?: [EndpointStyle, EndpointStyle];
+    // (undocumented)
+    [DEFAULT_KEY_HOVER_CLASS]?: string;
+    // (undocumented)
+    [DEFAULT_KEY_HOVER_PAINT_STYLE]?: PaintStyle;
+    // (undocumented)
+    [DEFAULT_KEY_LIST_STYLE]?: ListSpec;
+    // (undocumented)
+    [DEFAULT_KEY_MAX_CONNECTIONS]?: number;
+    // (undocumented)
+    [DEFAULT_KEY_PAINT_STYLE]?: PaintStyle;
+    // (undocumented)
+    [DEFAULT_KEY_REATTACH_CONNECTIONS]?: boolean;
+    // (undocumented)
+    [DEFAULT_KEY_SCOPE]?: string;
+}
 
 // @public (undocumented)
 export interface jsPlumbDOMElement extends HTMLElement, jsPlumbElement<Element> {
@@ -1109,10 +3391,670 @@ export interface jsPlumbDragManager {
 }
 
 // @public (undocumented)
-export function matchesSelector(el: jsPlumbDOMElement, selector: string, ctx?: Element): boolean;
+export interface jsPlumbElement<E> {
+    // (undocumented)
+    _isJsPlumbGroup: boolean;
+    // (undocumented)
+    _jsPlumbGroup: UIGroup<E>;
+    // (undocumented)
+    _jsPlumbParentGroup: UIGroup<E>;
+    // (undocumented)
+    _jsPlumbProxies: Array<[Connection, number]>;
+    // (undocumented)
+    parentNode: jsPlumbElement<E>;
+}
 
 // @public (undocumented)
+export abstract class JsPlumbInstance<T extends {
+    E: unknown;
+} = any> extends EventGenerator {
+    constructor(_instanceIndex: number, defaults?: JsPlumbDefaults<T["E"]>);
+    // (undocumented)
+    abstract addClass(el: T["E"] | ArrayLike<T["E"]>, clazz: string): void;
+    // @internal (undocumented)
+    abstract addConnectorClass(connector: AbstractConnector, clazz: string): void;
+    addEndpoint(el: T["E"], params?: EndpointOptions<T["E"]>, referenceParams?: EndpointOptions<T["E"]>): Endpoint;
+    // (undocumented)
+    abstract addEndpointClass(ep: Endpoint<T>, c: string): void;
+    addEndpoints(el: T["E"], endpoints: Array<EndpointOptions<T["E"]>>, referenceParams?: EndpointOptions<T["E"]>): Array<Endpoint>;
+    addGroup(params: AddGroupOptions<T["E"]>): UIGroup<T["E"]>;
+    addOverlay(component: Component, overlay: OverlaySpec, doNotRevalidate?: boolean): void;
+    // (undocumented)
+    abstract addOverlayClass(o: Overlay, clazz: string): void;
+    addSourceSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): ConnectionDragSelector;
+    addTargetSelector(selector: string, params?: BehaviouralTypeDescriptor, exclude?: boolean): ConnectionDragSelector;
+    addToGroup(group: string | UIGroup<T["E"]>, ...el: Array<T["E"]>): void;
+    // (undocumented)
+    allowNestedGroups: boolean;
+    // (undocumented)
+    abstract _appendElement(el: T["E"], parent: T["E"]): void;
+    // (undocumented)
+    abstract _appendElementToContainer(e: T["E"]): void;
+    // (undocumented)
+    abstract _appendElementToGroup(group: UIGroup, e: T["E"]): void;
+    // Warning: (ae-incompatible-release-tags) The symbol "applyConnectorType" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
+    //
+    // (undocumented)
+    abstract applyConnectorType(connector: AbstractConnector, t: TypeDescriptor): void;
+    // (undocumented)
+    abstract applyEndpointType(ep: Endpoint<T>, t: TypeDescriptor): void;
+    // @internal
+    _applyRotations(point: [number, number, number, number], rotations: Rotations): RotatedPointXY;
+    // @internal
+    _applyRotationsXY(point: PointXY, rotations: Rotations): PointXY;
+    // @internal (undocumented)
+    areDefaultAnchorsSet(): boolean;
+    batch(fn: Function, doNotRepaintAfterwards?: boolean): void;
+    // (undocumented)
+    checkCondition<RetVal>(conditionName: string, args?: any): RetVal;
+    collapseGroup(group: string | UIGroup<T["E"]>): void;
+    connect(params: ConnectParams<T["E"]>, referenceParams?: ConnectParams<T["E"]>): Connection;
+    // (undocumented)
+    connectedClass: string;
+    // (undocumented)
+    readonly connections: Array<Connection>;
+    // (undocumented)
+    connectorClass: string;
+    // (undocumented)
+    connectorOutlineClass: string;
+    // (undocumented)
+    protected _createSourceDefinition(params?: BehaviouralTypeDescriptor, referenceParams?: BehaviouralTypeDescriptor): SourceDefinition;
+    // (undocumented)
+    currentlyDragging: boolean;
+    // (undocumented)
+    get currentZoom(): number;
+    // (undocumented)
+    defaults: JsPlumbDefaults<T["E"]>;
+    // (undocumented)
+    get defaultScope(): string;
+    deleteConnection(connection: Connection, params?: DeleteConnectionOptions): boolean;
+    deleteConnectionsForElement(el: T["E"], params?: DeleteConnectionOptions): JsPlumbInstance;
+    deleteEndpoint(object: string | Endpoint): JsPlumbInstance;
+    // (undocumented)
+    deleteEveryConnection(params?: DeleteConnectionOptions): number;
+    // @internal
+    _deriveEndpointAndAnchorSpec(type: string, dontPrependDefault?: boolean): {
+        endpoints: [EndpointSpec, EndpointSpec];
+        anchors: [AnchorSpec, AnchorSpec];
+    };
+    destroy(): void;
+    // @internal (undocumented)
+    abstract destroyConnector(connection: Connection, force?: boolean): void;
+    // (undocumented)
+    abstract destroyEndpoint(ep: Endpoint<T>): void;
+    // (undocumented)
+    abstract destroyOverlay(o: Overlay): void;
+    // (undocumented)
+    abstract drawOverlay(overlay: Overlay, component: any, paintStyle: PaintStyle, absolutePosition?: PointXY): any;
+    each(spec: T["E"] | Array<T["E"]>, fn: (e: T["E"]) => any): JsPlumbInstance;
+    // (undocumented)
+    endpointAnchorClassPrefix: string;
+    // (undocumented)
+    endpointClass: string;
+    // (undocumented)
+    endpointConnectedClass: string;
+    // (undocumented)
+    endpointDropAllowedClass: string;
+    // (undocumented)
+    endpointDropForbiddenClass: string;
+    // (undocumented)
+    endpointFloatingClass: string;
+    // (undocumented)
+    endpointFullClass: string;
+    // (undocumented)
+    endpointsByElement: Record<string, Array<Endpoint>>;
+    expandGroup(group: string | UIGroup<T["E"]>): void;
+    // @internal
+    _finaliseConnection(jpc: Connection, params?: any, originalEvent?: Event): void;
+    // (undocumented)
+    fireMoveEvent(params?: ConnectionMovedParams, evt?: Event): void;
+    // @internal
+    abstract _getAssociatedElements(el: T["E"]): Array<T["E"]>;
+    // (undocumented)
+    abstract getAttribute(el: T["E"], name: string): string;
+    // (undocumented)
+    abstract getClass(el: T["E"]): string;
+    // (undocumented)
+    getConnections(options?: SelectOptions<T["E"]>, flat?: boolean): Record<string, Connection> | Array<Connection>;
+    getConnectionType(id: string): ConnectionTypeDescriptor;
+    // Warning: (ae-incompatible-release-tags) The symbol "getConnectorClass" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
+    //
+    // (undocumented)
+    abstract getConnectorClass(connector: AbstractConnector): string;
+    // (undocumented)
+    getContainer(): any;
+    getEndpoint(uuid: string): Endpoint;
+    // (undocumented)
+    abstract getEndpointClass(ep: Endpoint<T>): string;
+    getEndpoints(el: T["E"]): Array<Endpoint>;
+    getEndpointType(id: string): EndpointTypeDescriptor;
+    getGroup(groupId: string): UIGroup<T["E"]>;
+    // (undocumented)
+    abstract getGroupContentArea(group: UIGroup): T["E"];
+    getGroupFor(el: T["E"]): UIGroup<T["E"]>;
+    // (undocumented)
+    getId(element: T["E"], uuid?: string): string;
+    // @internal
+    getManagedData(elementId: string, dataIdentifier: string, key: string): any;
+    getManagedElement(id: string): T["E"];
+    getManagedElements(): Record<string, ManagedElement<T["E"]>>;
+    // (undocumented)
+    abstract getOffset(el: T["E"]): PointXY;
+    // (undocumented)
+    abstract getOffsetRelativeToRoot(el: T["E"] | string): PointXY;
+    // @internal (undocumented)
+    getPathData(connector: AbstractConnector): any;
+    // @internal
+    _getRotation(elementId: string): number;
+    // @internal
+    _getRotations(elementId: string): Rotations;
+    // (undocumented)
+    abstract getSelector(ctx: string | T["E"], spec?: string): ArrayLike<T["E"]>;
+    // (undocumented)
+    abstract getSize(el: T["E"]): Size;
+    // (undocumented)
+    abstract getStyle(el: T["E"], prop: string): any;
+    // (undocumented)
+    getSuspendedAt(): string;
+    getType(id: string, typeDescriptor: string): TypeDescriptor;
+    // (undocumented)
+    readonly groupManager: GroupManager<T["E"]>;
+    // (undocumented)
+    abstract hasClass(el: T["E"], clazz: string): boolean;
+    // (undocumented)
+    hide(el: T["E"], changeEndpoints?: boolean): JsPlumbInstance;
+    // (undocumented)
+    hoverSuspended: boolean;
+    // (undocumented)
+    _idstamp(): string;
+    importDefaults(d: JsPlumbDefaults<T["E"]>): JsPlumbInstance;
+    // (undocumented)
+    readonly _instanceIndex: number;
+    // @internal
+    _internal_newEndpoint(params: InternalEndpointOptions<T["E"]>): Endpoint;
+    // (undocumented)
+    isConnectionBeingDragged: boolean;
+    isHoverSuspended(): boolean;
+    // @internal
+    _makeConnector(connection: Connection<T["E"]>, name: string, args: any): AbstractConnector;
+    manage(element: T["E"], internalId?: string, _recalc?: boolean): ManagedElement<T["E"]>;
+    manageAll(elements: ArrayLike<T["E"]> | string, recalc?: boolean): void;
+    // (undocumented)
+    protected _managedElements: Record<string, ManagedElement<T["E"]>>;
+    // @internal
+    _maybePruneEndpoint(endpoint: Endpoint): boolean;
+    // @internal
+    _newConnection(params: ConnectionOptions<T["E"]>): Connection;
+    // (undocumented)
+    abstract off(el: Document | T["E"] | ArrayLike<T["E"]>, event: string, callback: Function): void;
+    // (undocumented)
+    abstract on(el: Document | T["E"] | ArrayLike<T["E"]>, event: string, callbackOrSelector: Function | string, callback?: Function): void;
+    // (undocumented)
+    overlayClass: string;
+    // @internal (undocumented)
+    _paintConnection(connection: Connection, params?: {
+        timestamp?: string;
+    }): void;
+    // @internal (undocumented)
+    abstract paintConnector(connector: AbstractConnector, paintStyle: PaintStyle, extents?: Extents): void;
+    // @internal (undocumented)
+    _paintEndpoint(endpoint: Endpoint, params: {
+        timestamp?: string;
+        offset?: ViewportElement<T["E"]>;
+        recalc?: boolean;
+        elementWithPrecedence?: string;
+        connectorPaintStyle?: PaintStyle;
+        anchorLoc?: AnchorPlacement;
+    }): void;
+    // @internal (undocumented)
+    abstract _paintOverlay(o: Overlay, params: any, extents: any): void;
+    // @internal (undocumented)
+    proxyConnection(connection: Connection, index: number, proxyEl: T["E"], endpointGenerator: (c: Connection, idx: number) => EndpointSpec, anchorGenerator: (c: Connection, idx: number) => AnchorSpec): void;
+    // (undocumented)
+    abstract reattachOverlay(o: Overlay, c: Component): void;
+    // @internal (undocumented)
+    _refreshEndpoint(endpoint: Endpoint): void;
+    registerConnectionType(id: string, type: ConnectionTypeDescriptor): void;
+    registerConnectionTypes(types: Record<string, ConnectionTypeDescriptor>): void;
+    registerEndpointType(id: string, type: EndpointTypeDescriptor): void;
+    registerEndpointTypes(types: Record<string, EndpointTypeDescriptor>): void;
+    removeAllEndpoints(el: T["E"], recurse?: boolean): JsPlumbInstance;
+    removeAllGroups(deleteMembers?: boolean, _manipulateView?: boolean): void;
+    // (undocumented)
+    abstract removeAttribute(el: T["E"], attName: string): void;
+    // (undocumented)
+    abstract removeClass(el: T["E"] | ArrayLike<T["E"]>, clazz: string): void;
+    // Warning: (ae-incompatible-release-tags) The symbol "removeConnectorClass" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
+    //
+    // (undocumented)
+    abstract removeConnectorClass(connector: AbstractConnector, clazz: string): void;
+    // (undocumented)
+    abstract _removeElement(el: T["E"]): void;
+    // (undocumented)
+    abstract removeEndpointClass(ep: Endpoint<T>, c: string): void;
+    removeFromGroup(group: string | UIGroup<T["E"]>, el: T["E"], _doNotFireEvent?: boolean): void;
+    removeGroup(group: string | UIGroup<T["E"]>, deleteMembers?: boolean, _manipulateView?: boolean, _doNotFireEvent?: boolean): Record<string, PointXY>;
+    removeOverlay(component: Component, overlayId: string): void;
+    // (undocumented)
+    abstract removeOverlayClass(o: Overlay, clazz: string): void;
+    removeSourceSelector(selector: ConnectionDragSelector): void;
+    removeTargetSelector(selector: ConnectionDragSelector): void;
+    // (undocumented)
+    abstract renderEndpoint(ep: Endpoint<T>, paintStyle: PaintStyle): void;
+    repaint(el: T["E"], timestamp?: string, offsetsWereJustCalculated?: boolean): RedrawResult;
+    repaintEverything(): JsPlumbInstance;
+    reset(): void;
+    restoreDefaults(): JsPlumbInstance;
+    revalidate(el: T["E"], timestamp?: string): RedrawResult;
+    rotate(element: T["E"], rotation: number, _doNotRepaint?: boolean): RedrawResult;
+    // (undocumented)
+    readonly router: Router<T, any>;
+    // (undocumented)
+    select(params?: SelectOptions<T["E"]>): ConnectionSelection;
+    // (undocumented)
+    selectEndpoints(params?: SelectEndpointOptions<T["E"]>): EndpointSelection;
+    // (undocumented)
+    abstract setAttribute(el: T["E"], name: string, value: string): void;
+    // (undocumented)
+    abstract setAttributes(el: T["E"], atts: Record<string, string>): void;
+    setColor(conn: Connection, color: string): void;
+    setConnectionType(connection: Connection, type: string, params?: any): void;
+    // @internal (undocumented)
+    abstract setConnectorHover(connector: AbstractConnector, h: boolean, sourceEndpoint?: Endpoint): void;
+    // Warning: (ae-incompatible-release-tags) The symbol "setConnectorVisible" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
+    //
+    // (undocumented)
+    abstract setConnectorVisible(connector: AbstractConnector, v: boolean): void;
+    // (undocumented)
+    setContainer(c: T["E"]): void;
+    setElementPosition(el: T["E"], x: number, y: number): RedrawResult;
+    // (undocumented)
+    abstract setEndpointHover(endpoint: Endpoint<T>, h: boolean, endpointIndex: number, doNotCascade?: boolean): void;
+    setEndpointUuid(endpoint: Endpoint, uuid: string): void;
+    // (undocumented)
+    abstract setEndpointVisible(ep: Endpoint<T>, v: boolean): void;
+    // (undocumented)
+    abstract setGroupVisible(group: UIGroup, state: boolean): void;
+    // (undocumented)
+    abstract setHover(component: Component, hover: boolean): void;
+    setLineStyle(conn: Connection, style: {
+        lineWidth?: number;
+        outlineWidth?: number;
+        color?: string;
+        outlineColor?: string;
+    }): void;
+    setLineWidth(conn: Connection, width: number): void;
+    // @internal
+    setManagedData(elementId: string, dataIdentifier: string, key: string, data: any): void;
+    setOutlineColor(conn: Connection, color: string): void;
+    setOutlineWidth(conn: Connection, width: number): void;
+    // (undocumented)
+    abstract setOverlayHover(o: Overlay, hover: boolean): void;
+    // (undocumented)
+    abstract setOverlayVisible(o: Overlay, visible: boolean): void;
+    // (undocumented)
+    abstract setPosition(el: T["E"], p: PointXY): void;
+    setSource(connection: Connection, el: T["E"] | Endpoint): void;
+    setSuspendDrawing(val?: boolean, repaintAfterwards?: boolean): boolean;
+    setTarget(connection: Connection, el: T["E"] | Endpoint): void;
+    // (undocumented)
+    setZoom(z: number, repaintEverything?: boolean): boolean;
+    // (undocumented)
+    show(el: T["E"], changeEndpoints?: boolean): JsPlumbInstance;
+    // @internal (undocumented)
+    sourceOrTargetChanged(originalId: string, newId: string, connection: Connection, newElement: T["E"], index: number): void;
+    // (undocumented)
+    sourceSelectors: Array<ConnectionDragSelector>;
+    // (undocumented)
+    _suspendDrawing: boolean;
+    // (undocumented)
+    _suspendedAt: string;
+    // (undocumented)
+    targetSelectors: Array<ConnectionDragSelector>;
+    // (undocumented)
+    abstract toggleClass(el: T["E"] | ArrayLike<T["E"]>, clazz: string): void;
+    toggleGroup(group: string | UIGroup<T["E"]>): void;
+    toggleVisible(el: T["E"], changeEndpoints?: boolean): void;
+    // (undocumented)
+    abstract trigger(el: Document | T["E"], event: string, originalEvent?: Event, payload?: any, detail?: number): void;
+    unmanage(el: T["E"], removeElement?: boolean): void;
+    // @internal (undocumented)
+    unproxyConnection(connection: Connection, index: number): void;
+    // (undocumented)
+    abstract updateLabel(o: LabelOverlay): void;
+    // Warning: (ae-incompatible-release-tags) The symbol "updateOffset" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
+    updateOffset(params?: UpdateOffsetOptions): ViewportElement<T["E"]>;
+    // @internal (undocumented)
+    validAnchorsSpec(anchors: [AnchorSpec, AnchorSpec]): boolean;
+    // (undocumented)
+    readonly viewport: Viewport<T>;
+}
+
+// @public
+export class JsPlumbList {
+    constructor(instance: BrowserJsPlumbInstance, el: Element, options: JsPlumbListOptions, id: string);
+    destroy(): void;
+    // (undocumented)
+    readonly domElement: jsPlumbDOMElement;
+    // (undocumented)
+    readonly id: string;
+    newConnection(c: Connection, el: jsPlumbDOMElement, index: number): void;
+    // (undocumented)
+    _scrollHandler: Function;
+}
+
+// @public
+export class JsPlumbListManager {
+    constructor(instance: BrowserJsPlumbInstance, params?: ListManagerOptions);
+    addList(el: Element, options?: JsPlumbListOptions): JsPlumbList;
+    // (undocumented)
+    count: number;
+    // (undocumented)
+    findParentList(el: jsPlumbDOMElement): JsPlumbList;
+    getList(el: Element): JsPlumbList;
+    // (undocumented)
+    lists: Record<string, JsPlumbList>;
+    // (undocumented)
+    options: ListManagerOptions;
+    removeList(el: Element): void;
+}
+
+// @public
+export interface JsPlumbListOptions {
+    anchor?: AnchorSpec;
+    deriveAnchor?: (edge: SupportedEdge, index: number, ep: Endpoint, conn: Connection) => AnchorSpec;
+    deriveEndpoint?: (edge: SupportedEdge, index: number, ep: Endpoint, conn: Connection) => EndpointSpec;
+    endpoint?: EndpointSpec;
+}
+
+// @public (undocumented)
+export const KEY_CONNECTION_OVERLAYS = "connectionOverlays";
+
+// @public (undocumented)
+export class LabelOverlay extends Overlay {
+    constructor(instance: JsPlumbInstance, component: Component, p: LabelOverlayOptions);
+    // (undocumented)
+    cachedDimensions: Size;
+    // (undocumented)
+    component: Component;
+    // (undocumented)
+    getDimensions(): Size;
+    // (undocumented)
+    getLabel(): string;
+    // (undocumented)
+    instance: JsPlumbInstance;
+    // (undocumented)
+    label: string | Function;
+    // (undocumented)
+    labelText: string;
+    // (undocumented)
+    setLabel(l: string | Function): void;
+    // (undocumented)
+    static type: string;
+    // (undocumented)
+    type: string;
+    // (undocumented)
+    updateFrom(d: any): void;
+}
+
+// @public (undocumented)
+export interface LabelOverlayOptions extends OverlayOptions {
+    // (undocumented)
+    label: string | Function;
+    // (undocumented)
+    labelLocationAttribute?: string;
+}
+
+// @public (undocumented)
+export const LEFT = FaceValues.left;
+
+// @public (undocumented)
+export interface LightweightAnchor {
+    // Warning: (ae-incompatible-release-tags) The symbol "computedPosition" is marked as @public, but its signature references "ComputedPosition" which is marked as @internal
+    //
+    // (undocumented)
+    computedPosition?: ComputedPosition;
+    // (undocumented)
+    cssClass: string;
+    // (undocumented)
+    currentLocation: number;
+    // (undocumented)
+    id: string;
+    // (undocumented)
+    isContinuous: boolean;
+    // (undocumented)
+    isDynamic: boolean;
+    // (undocumented)
+    isFloating: boolean;
+    // Warning: (ae-incompatible-release-tags) The symbol "locations" is marked as @public, but its signature references "AnchorRecord" which is marked as @internal
+    //
+    // (undocumented)
+    locations: Array<AnchorRecord>;
+    // (undocumented)
+    locked: boolean;
+    // (undocumented)
+    timestamp: string;
+    // (undocumented)
+    type: string;
+}
+
+// @public (undocumented)
+export interface LightweightContinuousAnchor extends LightweightAnchor {
+    // (undocumented)
+    clockwise: boolean;
+    // (undocumented)
+    currentFace: Face;
+    // (undocumented)
+    faces: Array<Face>;
+    // (undocumented)
+    isContinuous: true;
+    // (undocumented)
+    isDynamic: false;
+    // (undocumented)
+    lockedAxis: Axis;
+    // (undocumented)
+    lockedFace: Face;
+}
+
+// @public (undocumented)
+export class LightweightFloatingAnchor implements LightweightAnchor {
+    constructor(instance: JsPlumbInstance, element: Element, elementId: string);
+    // (undocumented)
+    cssClass: string;
+    // (undocumented)
+    currentLocation: number;
+    // (undocumented)
+    element: Element;
+    // (undocumented)
+    id: string;
+    // (undocumented)
+    instance: JsPlumbInstance;
+    // (undocumented)
+    isContinuous: false;
+    // (undocumented)
+    isDynamic: false;
+    // (undocumented)
+    isFloating: boolean;
+    // Warning: (ae-incompatible-release-tags) The symbol "locations" is marked as @public, but its signature references "AnchorRecord" which is marked as @internal
+    //
+    // (undocumented)
+    locations: Array<AnchorRecord>;
+    // (undocumented)
+    locked: boolean;
+    // (undocumented)
+    orientation: Orientation;
+    out(): void;
+    over(endpoint: Endpoint): void;
+    // (undocumented)
+    size: Size;
+    // (undocumented)
+    timestamp: string;
+    // (undocumented)
+    type: string;
+}
+
+// @public (undocumented)
+export interface LightweightPerimeterAnchor extends LightweightAnchor {
+    // (undocumented)
+    shape: PerimeterAnchorShapes;
+}
+
+// @public (undocumented)
+export class LightweightRouter<T extends {
+    E: unknown;
+}> implements Router<T, LightweightAnchor> {
+    constructor(instance: JsPlumbInstance);
+    // Warning: (ae-forgotten-export) The symbol "AnchorLists" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    anchorLists: Map<string, AnchorLists>;
+    // Warning: (ae-incompatible-release-tags) The symbol "anchorLocations" is marked as @public, but its signature references "AnchorPlacement" which is marked as @internal
+    //
+    // (undocumented)
+    anchorLocations: Map<string, AnchorPlacement>;
+    // @internal
+    anchorsEqual(a1: LightweightAnchor, a2: LightweightAnchor): boolean;
+    // Warning: (ae-incompatible-release-tags) The symbol "computeAnchorLocation" is marked as @public, but its signature references "AnchorComputeParams" which is marked as @internal
+    // Warning: (ae-incompatible-release-tags) The symbol "computeAnchorLocation" is marked as @public, but its signature references "AnchorPlacement" which is marked as @internal
+    //
+    // (undocumented)
+    computeAnchorLocation(anchor: LightweightAnchor, params: AnchorComputeParams): AnchorPlacement;
+    // (undocumented)
+    computePath(connection: Connection<any>, timestamp: string): void;
+    // (undocumented)
+    getAnchorOrientation(anchor: LightweightAnchor): Orientation;
+    // Warning: (ae-incompatible-release-tags) The symbol "getEndpointLocation" is marked as @public, but its signature references "AnchorComputeParams" which is marked as @internal
+    // Warning: (ae-incompatible-release-tags) The symbol "getEndpointLocation" is marked as @public, but its signature references "AnchorPlacement" which is marked as @internal
+    //
+    // (undocumented)
+    getEndpointLocation(endpoint: Endpoint<any>, params: AnchorComputeParams): AnchorPlacement;
+    // (undocumented)
+    getEndpointOrientation(ep: Endpoint<any>): Orientation;
+    // (undocumented)
+    instance: JsPlumbInstance;
+    // (undocumented)
+    isDynamicAnchor(ep: Endpoint<any>): boolean;
+    // (undocumented)
+    isFloating(ep: Endpoint<any>): boolean;
+    // @internal (undocumented)
+    lock(a: LightweightAnchor): void;
+    // @internal (undocumented)
+    lockCurrentAxis(a: LightweightContinuousAnchor): void;
+    // (undocumented)
+    prepareAnchor(params: AnchorSpec | Array<AnchorSpec>): LightweightAnchor;
+    // (undocumented)
+    redraw(elementId: string, timestamp?: string, offsetToUI?: PointXY): RedrawResult;
+    // (undocumented)
+    reset(): void;
+    // @internal
+    selectAnchorLocation(a: LightweightAnchor, coords: {
+        x: number;
+        y: number;
+    }): boolean;
+    // (undocumented)
+    setAnchor(endpoint: Endpoint<any>, anchor: LightweightAnchor): void;
+    // (undocumented)
+    setAnchorOrientation(anchor: LightweightAnchor, orientation: Orientation): void;
+    // (undocumented)
+    setConnectionAnchors(conn: Connection<any>, anchors: [LightweightAnchor, LightweightAnchor]): void;
+    // @internal (undocumented)
+    setCurrentFace(a: LightweightContinuousAnchor, face: Face, overrideLock?: boolean): void;
+    // @internal (undocumented)
+    unlock(a: LightweightAnchor): void;
+    // @internal (undocumented)
+    unlockCurrentAxis(a: LightweightContinuousAnchor): void;
+}
+
+// @public
+export function lineIntersection(l1: LineXY, l2: LineXY): PointXY | null;
+
+// @public
+export function lineLength(p1: PointXY, p2: PointXY): number;
+
+// @public
+export function lineRectangleIntersection(line: LineXY, r: RectangleXY): Array<PointXY>;
+
+// @public
+export type LineXY = [PointXY, PointXY];
+
+// @public (undocumented)
+export interface ListManagerOptions {
+}
+
+// @public (undocumented)
+export interface ListSpec {
+    // (undocumented)
+    endpoint?: EndpointSpec;
+}
+
+// @public
+export function locationAlongCurveFrom(curve: Curve, location: number, distance: number): number;
+
+// Warning: (ae-internal-missing-underscore) The name "log" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function log(...args: string[]): void;
+
+// @public
+export const logEnabled: boolean;
+
+// @public (undocumented)
+export function makeLightweightAnchorFromSpec(spec: AnchorSpec | Array<AnchorSpec>): LightweightAnchor;
+
+// @public (undocumented)
+export type ManagedElement<E> = {
+    el: jsPlumbElement<E>;
+    viewportElement?: ViewportElement<E>;
+    endpoints?: Array<Endpoint>;
+    connections?: Array<Connection>;
+    rotation?: number;
+    group?: string;
+    data: Record<string, Record<string, any>>;
+};
+
+// @public
+export interface ManageElementParams<E = any> {
+    // (undocumented)
+    el: E;
+}
+
+// Warning: (ae-internal-missing-underscore) The name "map" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function map(obj: any, fn: Function): any[];
+
+// @public (undocumented)
+export function matchesSelector(el: jsPlumbDOMElement, selector: string, ctx?: Element): boolean;
+
+// Warning: (ae-internal-missing-underscore) The name "Merge" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export type Merge<M, N> = Omit_2<M, Extract<keyof M, keyof N>> & N;
+
+// Warning: (ae-internal-missing-underscore) The name "merge" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function merge(a: Record<string, any>, b: Record<string, any>, collations?: Array<string>, overwrites?: Array<string>): any;
+
+// @public
+export function nearestPointOnCurve(point: PointXY, curve: Curve): {
+    point: PointXY;
+    location: number;
+};
+
+// @public
 export function newInstance(defaults?: BrowserJsPlumbDefaults): BrowserJsPlumbInstance;
+
+// @public (undocumented)
+export const NONE = "none";
+
+// @public
+export function normal(p1: PointXY, p2: PointXY): number;
+
+// Warning: (ae-internal-missing-underscore) The name "objectsEqual" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function objectsEqual(a: Record<string, any>, b: Record<string, any>): boolean;
 
 // Warning: (ae-internal-missing-underscore) The name "offsetRelativeToRoot" should be prefixed with an underscore because the declaration is marked as @internal
 //
@@ -1122,8 +4064,261 @@ export function offsetRelativeToRoot(el: Element): PointXY;
 // @public
 export function offsetSize(el: Element): Size;
 
+// @internal
+type Omit_2<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+
+// Warning: (ae-internal-missing-underscore) The name "Omit" should be prefixed with an underscore because the declaration is marked as @internal
+export { Omit_2 as Omit }
+
+// @public
+export class OptimisticEventGenerator extends EventGenerator {
+    // (undocumented)
+    shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
+}
+
+// @public (undocumented)
+export type Orientation = [AnchorOrientationHint, AnchorOrientationHint];
+
+// @public (undocumented)
+export abstract class Overlay extends EventGenerator {
+    constructor(instance: JsPlumbInstance, component: Component, p: OverlayOptions);
+    // (undocumented)
+    attributes: Record<string, string>;
+    // (undocumented)
+    component: Component;
+    // (undocumented)
+    cssClass: string;
+    // (undocumented)
+    events: Record<string, (value: any, event?: any) => any>;
+    // (undocumented)
+    id: string;
+    // (undocumented)
+    instance: JsPlumbInstance;
+    // (undocumented)
+    isVisible(): boolean;
+    // (undocumented)
+    location: number | Array<number>;
+    // (undocumented)
+    setLocation(l: number | string): void;
+    // (undocumented)
+    setVisible(v: boolean): void;
+    // (undocumented)
+    shouldFireEvent(event: string, value: any, originalEvent?: Event): boolean;
+    // (undocumented)
+    abstract type: string;
+    // (undocumented)
+    abstract updateFrom(d: any): void;
+    // (undocumented)
+    visible: boolean;
+}
+
+// @public (undocumented)
+export const OverlayFactory: {
+    get: (instance: JsPlumbInstance, name: string, component: Component, params: any) => Overlay;
+    register: (name: string, overlay: Constructable<Overlay>) => void;
+};
+
+// @public (undocumented)
+export interface OverlayMouseEventParams {
+    // (undocumented)
+    e: Event;
+    // (undocumented)
+    overlay: Overlay;
+}
+
+// @public (undocumented)
+export interface OverlayOptions extends Record<string, any> {
+    // (undocumented)
+    attributes?: Record<string, string>;
+    // (undocumented)
+    cssClass?: string;
+    // (undocumented)
+    events?: Record<string, (value: any, event?: any) => any>;
+    // (undocumented)
+    id?: string;
+    // (undocumented)
+    location?: number | number[];
+}
+
+// @public (undocumented)
+export type OverlaySpec = string | FullOverlaySpec;
+
 // @public (undocumented)
 export function pageLocation(e: Event): PointXY;
+
+// Warning: (ae-internal-missing-underscore) The name "PaintAxis" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export type PaintAxis = "y" | "x";
+
+// Warning: (ae-internal-missing-underscore) The name "PaintGeometry" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export interface PaintGeometry {
+    // (undocumented)
+    anchorOrientation?: string;
+    // (undocumented)
+    endStubX: number;
+    // (undocumented)
+    endStubY: number;
+    // (undocumented)
+    h: number;
+    // (undocumented)
+    isXGreaterThanStubTimes2: boolean;
+    // (undocumented)
+    isYGreaterThanStubTimes2: boolean;
+    // (undocumented)
+    mx: number;
+    // (undocumented)
+    my: number;
+    // (undocumented)
+    opposite: boolean;
+    // (undocumented)
+    orthogonal: boolean;
+    // (undocumented)
+    perpendicular: boolean;
+    // (undocumented)
+    points: [number, number, number, number, number, number, number, number];
+    // (undocumented)
+    segment: number;
+    // (undocumented)
+    so: Orientation;
+    // (undocumented)
+    sourceAxis: PaintAxis;
+    // (undocumented)
+    startStubX: number;
+    // (undocumented)
+    startStubY: number;
+    // (undocumented)
+    stubs: [number, number];
+    // (undocumented)
+    sx: number;
+    // (undocumented)
+    sy: number;
+    // (undocumented)
+    to: Orientation;
+    // (undocumented)
+    tx: number;
+    // (undocumented)
+    ty: number;
+    // (undocumented)
+    w: number;
+    // (undocumented)
+    x: number;
+    // (undocumented)
+    xSpan: number;
+    // (undocumented)
+    y: number;
+    // (undocumented)
+    ySpan: number;
+}
+
+// @public (undocumented)
+export interface PaintStyle {
+    // (undocumented)
+    dashstyle?: string;
+    // (undocumented)
+    fill?: string;
+    // (undocumented)
+    outlineStroke?: string;
+    // (undocumented)
+    outlineWidth?: number;
+    // (undocumented)
+    stroke?: string;
+    // (undocumented)
+    strokeWidth?: number;
+}
+
+// @public
+export interface PerimeterAnchorOptions extends AnchorOptions {
+    // (undocumented)
+    anchorCount?: number;
+    // (undocumented)
+    rotation?: number;
+    // (undocumented)
+    shape: keyof PerimeterAnchorShapes;
+}
+
+// @public
+export enum PerimeterAnchorShapes {
+    // (undocumented)
+    Circle = "Circle",
+    // (undocumented)
+    Diamond = "Diamond",
+    // (undocumented)
+    Ellipse = "Ellipse",
+    // (undocumented)
+    Rectangle = "Rectangle",
+    // (undocumented)
+    Square = "Square",
+    // (undocumented)
+    Triangle = "Triangle"
+}
+
+// @public
+export function perpendicularLineTo(fromPoint: PointXY, toPoint: PointXY, length: number): LineXY;
+
+// @public
+export function perpendicularToPathAt(curve: Curve, location: number, length: number, distance: number): LineXY;
+
+// @public (undocumented)
+export class PlainArrowOverlay extends ArrowOverlay {
+    constructor(instance: JsPlumbInstance, component: Component, p: ArrowOverlayOptions);
+    // (undocumented)
+    instance: JsPlumbInstance;
+    // (undocumented)
+    static type: string;
+    // (undocumented)
+    type: string;
+}
+
+// @public
+export function pointAlongCurveFrom(curve: Curve, location: number, distance: number): PointXY;
+
+// @public
+export function pointAlongPath(curve: Curve, location: number, distance: number): PointOnPath;
+
+// Warning: (ae-internal-missing-underscore) The name "PointNearPath" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export type PointNearPath = {
+    s?: Segment;
+    d: number;
+    x: number;
+    y: number;
+    l: number;
+    x1: number;
+    x2: number;
+    y1: number;
+    y2: number;
+};
+
+// @public
+export function pointOnCurve(curve: Curve, location: number): PointXY;
+
+// @public
+export function pointOnLine(fromPoint: PointXY, toPoint: PointXY, distance: number): PointXY;
+
+// @public (undocumented)
+export type PointOnPath = {
+    point: PointXY;
+    location: number;
+};
+
+// @public
+export interface PointXY {
+    // (undocumented)
+    theta?: number;
+    // (undocumented)
+    x: number;
+    // (undocumented)
+    y: number;
+}
+
+// Warning: (ae-internal-missing-underscore) The name "populate" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function populate(model: any, values: any, functionPrefix?: string, doNotExpandFunctions?: boolean): any;
 
 // @public (undocumented)
 export enum PositioningStrategies {
@@ -1142,19 +4337,253 @@ export type PositioningStrategy = keyof typeof PositioningStrategies;
 export const PROPERTY_POSITION = "position";
 
 // @public (undocumented)
+export type Quadrant = 1 | 2 | 3 | 4;
+
+// @public
+export function quadrant(p1: PointXY, p2: PointXY): Quadrant;
+
+// @public
 export function ready(f: Function): void;
+
+// @public (undocumented)
+export class RectangleEndpoint extends EndpointRepresentation<ComputedRectangleEndpoint> {
+    constructor(endpoint: Endpoint, params?: RectangleEndpointParams);
+    // (undocumented)
+    static _getParams(ep: RectangleEndpoint): Record<string, any>;
+    // (undocumented)
+    height: number;
+    // (undocumented)
+    static type: string;
+    // (undocumented)
+    type: string;
+    // (undocumented)
+    width: number;
+}
+
+// @public (undocumented)
+export const RectangleEndpointHandler: EndpointHandler<RectangleEndpoint, ComputedRectangleEndpoint>;
+
+// @public (undocumented)
+export interface RectangleEndpointParams extends EndpointRepresentationParams {
+    // (undocumented)
+    height?: number;
+    // (undocumented)
+    width?: number;
+}
+
+// @public
+export type RectangleXY = BoundingBox;
+
+// @public (undocumented)
+export interface RedrawResult {
+    // (undocumented)
+    c: Set<Connection>;
+    // (undocumented)
+    e: Set<Endpoint>;
+}
+
+// @public
+export const REDROP_POLICY_ANY = "any";
+
+// @public
+export const REDROP_POLICY_ANY_SOURCE = "anySource";
+
+// @public
+export const REDROP_POLICY_ANY_SOURCE_OR_TARGET = "anySourceOrTarget";
+
+// @public
+export const REDROP_POLICY_ANY_TARGET = "anyTarget";
+
+// @public
+export const REDROP_POLICY_STRICT = "strict";
+
+// @public
+export type RedropPolicy = typeof REDROP_POLICY_STRICT | typeof REDROP_POLICY_ANY | typeof REDROP_POLICY_ANY_SOURCE | typeof REDROP_POLICY_ANY_TARGET | typeof REDROP_POLICY_ANY_SOURCE_OR_TARGET;
 
 // @public (undocumented)
 export function registerEndpointRenderer<C>(name: string, fns: EndpointHelperFunctions<C>): void;
 
+// Warning: (ae-internal-missing-underscore) The name "remove" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function remove<T>(l: Array<T>, v: T): boolean;
+
+// @public (undocumented)
+export const REMOVE_CLASS_ACTION = "remove";
+
 // @public (undocumented)
 export function removeClass(el: Element | NodeListOf<Element>, clazz: string): void;
+
+// @public (undocumented)
+export function _removeTypeCssHelper<E>(component: Component, typeId: string): void;
+
+// Warning: (ae-internal-missing-underscore) The name "removeWithFunction" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function removeWithFunction<T>(a: Array<T>, f: (_a: T) => boolean): boolean;
+
+// Warning: (ae-internal-missing-underscore) The name "replace" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function replace(inObj: any, path: string, value: any): any;
 
 // @public (undocumented)
 export type RevertEventParams = jsPlumbDOMElement;
 
 // @public (undocumented)
 export type RevertFunction = (dragEl: HTMLElement, pos: PointXY) => boolean;
+
+// @public (undocumented)
+export const RIGHT = FaceValues.right;
+
+// Warning: (ae-internal-missing-underscore) The name "rotateAnchorOrientation" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function rotateAnchorOrientation(orientation: [number, number], rotation: any): [number, number];
+
+// Warning: (ae-internal-missing-underscore) The name "RotatedPointXY" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export interface RotatedPointXY extends PointXY {
+    // (undocumented)
+    cr: number;
+    // (undocumented)
+    sr: number;
+}
+
+// Warning: (ae-incompatible-release-tags) The symbol "rotatePoint" is marked as @public, but its signature references "RotatedPointXY" which is marked as @internal
+//
+// @public
+export function rotatePoint(point: PointXY, center: PointXY, rotation: number): RotatedPointXY;
+
+// Warning: (ae-internal-missing-underscore) The name "Rotation" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export interface Rotation {
+    // (undocumented)
+    c: PointXY;
+    // (undocumented)
+    r: number;
+}
+
+// Warning: (ae-internal-missing-underscore) The name "Rotations" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export type Rotations = Array<Rotation>;
+
+// @public (undocumented)
+export interface Router<T extends {
+    E: unknown;
+}, A> {
+    // (undocumented)
+    anchorsEqual(a: A, b: A): boolean;
+    // Warning: (ae-incompatible-release-tags) The symbol "computeAnchorLocation" is marked as @public, but its signature references "AnchorComputeParams" which is marked as @internal
+    // Warning: (ae-incompatible-release-tags) The symbol "computeAnchorLocation" is marked as @public, but its signature references "AnchorPlacement" which is marked as @internal
+    //
+    // (undocumented)
+    computeAnchorLocation(anchor: A, params: AnchorComputeParams): AnchorPlacement;
+    // (undocumented)
+    computePath(connection: Connection, timestamp: string): void;
+    // (undocumented)
+    getAnchorOrientation(anchor: A, endpoint?: Endpoint): Orientation;
+    // Warning: (ae-incompatible-release-tags) The symbol "getEndpointLocation" is marked as @public, but its signature references "AnchorComputeParams" which is marked as @internal
+    // Warning: (ae-incompatible-release-tags) The symbol "getEndpointLocation" is marked as @public, but its signature references "AnchorPlacement" which is marked as @internal
+    //
+    // (undocumented)
+    getEndpointLocation(endpoint: Endpoint<any>, params: AnchorComputeParams): AnchorPlacement;
+    // (undocumented)
+    getEndpointOrientation(endpoint: Endpoint): Orientation;
+    // (undocumented)
+    isDynamicAnchor(ep: Endpoint): boolean;
+    // (undocumented)
+    isFloating(ep: Endpoint): boolean;
+    // (undocumented)
+    lock(a: A): void;
+    // (undocumented)
+    prepareAnchor(params: AnchorSpec | Array<AnchorSpec>): A;
+    // (undocumented)
+    redraw(elementId: string, timestamp?: string, offsetToUI?: PointXY): RedrawResult;
+    // (undocumented)
+    reset(): void;
+    // (undocumented)
+    selectAnchorLocation(a: A, coords: {
+        x: number;
+        y: number;
+    }): boolean;
+    // (undocumented)
+    setAnchor(endpoint: Endpoint, anchor: A): void;
+    // (undocumented)
+    setAnchorOrientation(anchor: A, orientation: Orientation): void;
+    // (undocumented)
+    setConnectionAnchors(conn: Connection, anchors: [A, A]): void;
+    // (undocumented)
+    setCurrentFace(a: LightweightContinuousAnchor, face: Face, overrideLock?: boolean): void;
+    // (undocumented)
+    unlock(a: A): void;
+}
+
+// Warning: (ae-internal-missing-underscore) The name "Segment" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export interface Segment {
+    // (undocumented)
+    boundingBoxIntersection(box: BoundingBox): Array<PointXY>;
+    // (undocumented)
+    boxIntersection(x: number, y: number, w: number, h: number): Array<PointXY>;
+    // (undocumented)
+    extents: Extents;
+    // (undocumented)
+    findClosestPointOnPath(x: number, y: number): PointNearPath;
+    // (undocumented)
+    getLength(): number;
+    // (undocumented)
+    getPath(isFirstSegment: boolean): string;
+    // (undocumented)
+    gradientAtPoint(location: number, absolute?: boolean): number;
+    // (undocumented)
+    lineIntersection(x1: number, y1: number, x2: number, y2: number): Array<PointXY>;
+    // (undocumented)
+    pointAlongPathFrom(location: number, distance: number, absolute?: boolean): PointXY;
+    // (undocumented)
+    pointOnPath(location: number, absolute?: boolean): PointXY;
+    // (undocumented)
+    type: string;
+    // (undocumented)
+    x1: number;
+    // (undocumented)
+    x2: number;
+    // (undocumented)
+    y1: number;
+    // (undocumented)
+    y2: number;
+}
+
+// @public (undocumented)
+export interface SegmentParams {
+    // (undocumented)
+    x1: number;
+    // (undocumented)
+    x2: number;
+    // (undocumented)
+    y1: number;
+    // (undocumented)
+    y2: number;
+}
+
+// @public (undocumented)
+export interface SelectEndpointOptions<E> extends AbstractSelectOptions<E> {
+    // (undocumented)
+    element?: ElementSelectionSpecifier<E>;
+}
+
+// @public (undocumented)
+export type SelectionList = '*' | Array<string>;
+
+// @public (undocumented)
+export interface SelectOptions<E> extends AbstractSelectOptions<E> {
+    // (undocumented)
+    connections?: Array<Connection>;
+}
 
 // @public (undocumented)
 export const SELECTOR_CONNECTOR: string;
@@ -1169,7 +4598,13 @@ export const SELECTOR_GROUP: string;
 export const SELECTOR_GROUP_CONTAINER: string;
 
 // @public (undocumented)
+export const SELECTOR_MANAGED_ELEMENT: string;
+
+// @public (undocumented)
 export const SELECTOR_OVERLAY: string;
+
+// @public (undocumented)
+export const SELECTOR_SCROLLABLE_LIST: string;
 
 // @public (undocumented)
 export function setForceMouseEvents(value: boolean): void;
@@ -1182,6 +4617,173 @@ export type SetPositionFunction = (el: Element, p: PointXY) => void;
 
 // @public (undocumented)
 export type SetSizeFunction = (el: Element, s: Size) => void;
+
+// Warning: (ae-internal-missing-underscore) The name "setToArray" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function setToArray<T>(s: Set<T>): Array<T>;
+
+// @public
+export function sgn(x: number): -1 | 0 | 1;
+
+// @public
+export type SingleAnchorSpec = AnchorId | FullAnchorSpec | ArrayAnchorSpec;
+
+// @public
+export interface Size {
+    // (undocumented)
+    h: number;
+    // (undocumented)
+    w: number;
+}
+
+// @public
+export function snapToGrid(pos: PointXY, grid: Grid, thresholdX?: number, thresholdY?: number): PointXY;
+
+// Warning: (ae-internal-missing-underscore) The name "SortFunction" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export type SortFunction<T> = (a: T, b: T) => number;
+
+// @public (undocumented)
+export const SOURCE = "source";
+
+// @public (undocumented)
+export const SOURCE_INDEX = 0;
+
+// @public
+export interface SourceDefinition extends SourceOrTargetDefinition {
+}
+
+// @public
+export interface SourceOrTargetDefinition {
+    // (undocumented)
+    def: BehaviouralTypeDescriptor;
+    // (undocumented)
+    enabled?: boolean;
+    // (undocumented)
+    endpoint?: Endpoint;
+    // (undocumented)
+    maxConnections?: number;
+    // (undocumented)
+    uniqueEndpoint?: boolean;
+}
+
+// Warning: (ae-incompatible-release-tags) The symbol "StateMachineConnector" is marked as @public, but its signature references "AbstractBezierConnector" which is marked as @internal
+//
+// @public (undocumented)
+export class StateMachineConnector extends AbstractBezierConnector {
+    constructor(connection: Connection, params: StateMachineOptions);
+    // Warning: (ae-incompatible-release-tags) The symbol "_computeBezier" is marked as @public, but its signature references "PaintGeometry" which is marked as @internal
+    // Warning: (ae-incompatible-release-tags) The symbol "_computeBezier" is marked as @public, but its signature references "AnchorPlacement" which is marked as @internal
+    //
+    // (undocumented)
+    _computeBezier(paintInfo: PaintGeometry, params: ConnectorComputeParams, sp: AnchorPlacement, tp: AnchorPlacement, w: number, h: number): void;
+    // (undocumented)
+    connection: Connection;
+    // (undocumented)
+    _controlPoint: PointXY;
+    // (undocumented)
+    static type: string;
+    // (undocumented)
+    type: string;
+}
+
+// @public (undocumented)
+export interface StateMachineOptions extends AbstractBezierOptions {
+}
+
+// @public (undocumented)
+export const STATIC = "static";
+
+// Warning: (ae-incompatible-release-tags) The symbol "StraightConnector" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
+//
+// @public (undocumented)
+export class StraightConnector extends AbstractConnector {
+    // Warning: (ae-incompatible-release-tags) The symbol "_compute" is marked as @public, but its signature references "PaintGeometry" which is marked as @internal
+    //
+    // (undocumented)
+    _compute(paintInfo: PaintGeometry, p: ConnectorComputeParams): void;
+    // (undocumented)
+    getDefaultStubs(): [number, number];
+    // (undocumented)
+    transformGeometry(g: StraightConnectorGeometry, dx: number, dy: number): StraightConnectorGeometry;
+    // (undocumented)
+    static type: string;
+    // (undocumented)
+    type: string;
+}
+
+// @public (undocumented)
+export interface StraightConnectorGeometry {
+    // Warning: (ae-incompatible-release-tags) The symbol "source" is marked as @public, but its signature references "AnchorPlacement" which is marked as @internal
+    //
+    // (undocumented)
+    source: AnchorPlacement;
+    // Warning: (ae-incompatible-release-tags) The symbol "target" is marked as @public, but its signature references "AnchorPlacement" which is marked as @internal
+    //
+    // (undocumented)
+    target: AnchorPlacement;
+}
+
+// Warning: (ae-internal-missing-underscore) The name "StraightSegment" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export class StraightSegment extends AbstractSegment {
+    constructor(params: StraightSegmentParams);
+    boxIntersection(x: number, y: number, w: number, h: number): Array<PointXY>;
+    findClosestPointOnPath(x: number, y: number): PointNearPath;
+    // (undocumented)
+    getGradient(): number;
+    // (undocumented)
+    getLength(): number;
+    // (undocumented)
+    getPath(isFirstSegment: boolean): string;
+    gradientAtPoint(location: number, absolute?: boolean): number;
+    // (undocumented)
+    length: number;
+    lineIntersection(_x1: number, _y1: number, _x2: number, _y2: number): Array<PointXY>;
+    // (undocumented)
+    m: number;
+    // (undocumented)
+    m2: number;
+    pointAlongPathFrom(location: number, distance: number, absolute?: boolean): PointXY;
+    pointOnPath(location: number, absolute?: boolean): PointXY;
+    // (undocumented)
+    static segmentType: string;
+    // (undocumented)
+    type: string;
+}
+
+// @public (undocumented)
+export type StraightSegmentCoordinates = {
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+};
+
+// Warning: (ae-internal-missing-underscore) The name "StraightSegmentParams" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export interface StraightSegmentParams extends SegmentParams {
+}
+
+// @public
+export function subtract(p1: PointXY, p2: PointXY): PointXY;
+
+// Warning: (ae-internal-missing-underscore) The name "suggest" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function suggest(list: Array<any>, item: any, insertAtHead?: boolean): boolean;
+
+// @public (undocumented)
+export enum SupportedEdge {
+    // (undocumented)
+    bottom = 1,
+    // (undocumented)
+    top = 0
+}
 
 // @public (undocumented)
 export const svg: {
@@ -1199,13 +4801,55 @@ export function svgWidthHeightSize(el: Element): Size;
 export function svgXYPosition(el: Element): PointXY;
 
 // @public (undocumented)
+export const TARGET = "target";
+
+// @public (undocumented)
+export const TARGET_INDEX = 1;
+
+// @public
+export interface TargetDefinition extends SourceOrTargetDefinition {
+}
+
+// @public
+export function theta(p1: PointXY, p2: PointXY): number;
+
+// @public (undocumented)
 export function toggleClass(el: Element | NodeListOf<Element>, clazz: string): void;
+
+// @public (undocumented)
+export const TOP = FaceValues.top;
 
 // @public (undocumented)
 export function touchCount(e: Event): number;
 
 // @public (undocumented)
 export function touches(e: any): TouchList;
+
+// Warning: (ae-incompatible-release-tags) The symbol "TranslatedViewportElement" is marked as @public, but its signature references "TranslatedViewportElementBase" which is marked as @internal
+//
+// @public (undocumented)
+export type TranslatedViewportElement<E> = Omit<TranslatedViewportElementBase<E>, "dirty">;
+
+// Warning: (ae-internal-missing-underscore) The name "TranslatedViewportElementBase" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export interface TranslatedViewportElementBase<E> extends ViewportElementBase<E> {
+    // (undocumented)
+    cr: number;
+    // (undocumented)
+    sr: number;
+}
+
+// @public
+export const TRUE = "true";
+
+// @public
+export const TWO_PI: number;
+
+// @public
+export interface TypeDescriptor extends TypeDescriptorBase {
+    overlays?: Array<OverlaySpec>;
+}
 
 // @public (undocumented)
 export interface UIComponent {
@@ -1215,10 +4859,244 @@ export interface UIComponent {
     svg: SVGElement;
 }
 
+// @public (undocumented)
+export class UIGroup<E = any> extends UINode<E> {
+    constructor(instance: JsPlumbInstance, el: E, options: GroupOptions);
+    // (undocumented)
+    add(_el: E, doNotFireEvent?: boolean): void;
+    // (undocumented)
+    addGroup(group: UIGroup<E>): boolean;
+    // (undocumented)
+    anchor: AnchorSpec;
+    // (undocumented)
+    children: Array<UINode<E>>;
+    // (undocumented)
+    collapsed: boolean;
+    // (undocumented)
+    get collapseParent(): UIGroup<E>;
+    // (undocumented)
+    readonly connections: {
+        source: Array<Connection>;
+        target: Array<Connection>;
+        internal: Array<Connection>;
+    };
+    // (undocumented)
+    constrain: boolean;
+    // (undocumented)
+    get contentArea(): any;
+    // (undocumented)
+    dropOverride: boolean;
+    // (undocumented)
+    droppable: boolean;
+    // (undocumented)
+    readonly elId: string;
+    // (undocumented)
+    enabled: boolean;
+    // (undocumented)
+    endpoint: EndpointSpec;
+    // (undocumented)
+    getAnchor(conn: Connection, endpointIndex: number): AnchorSpec;
+    // (undocumented)
+    getEndpoint(conn: Connection, endpointIndex: number): EndpointSpec;
+    // (undocumented)
+    getGroups(): Array<UIGroup<E>>;
+    // (undocumented)
+    getNodes(): Array<UINode<E>>;
+    // (undocumented)
+    ghost: boolean;
+    // (undocumented)
+    id: string;
+    // (undocumented)
+    instance: JsPlumbInstance;
+    // (undocumented)
+    manager: GroupManager<E>;
+    // (undocumented)
+    orphan: boolean;
+    // (undocumented)
+    orphanAll(): Record<string, PointXY>;
+    // (undocumented)
+    overrideDrop(el: any, targetGroup: UIGroup<E>): boolean;
+    // (undocumented)
+    proxied: boolean;
+    // (undocumented)
+    prune: boolean;
+    // (undocumented)
+    remove(el: E, manipulateDOM?: boolean, doNotFireEvent?: boolean, doNotUpdateConnections?: boolean, targetGroup?: UIGroup<E>): void;
+    // (undocumented)
+    removeAll(manipulateDOM?: boolean, doNotFireEvent?: boolean): void;
+    // (undocumented)
+    removeGroup(group: UIGroup<E>): void;
+    // (undocumented)
+    revert: boolean;
+}
+
+// @public (undocumented)
+export class UINode<E> {
+    constructor(instance: JsPlumbInstance, el: E);
+    // (undocumented)
+    el: E;
+    // (undocumented)
+    group: UIGroup<E>;
+    // (undocumented)
+    instance: JsPlumbInstance;
+}
+
+// @public
+export const UNDEFINED = "undefined";
+
+// @public
+export interface UnmanageElementParams<E = any> {
+    // (undocumented)
+    el: E;
+}
+
+// @public (undocumented)
+export function _updateHoverStyle<E>(component: Component): void;
+
+// @public
+export interface UpdateOffsetOptions {
+    // (undocumented)
+    elId?: string;
+    // (undocumented)
+    recalc?: boolean;
+    // (undocumented)
+    timestamp?: string;
+}
+
+// @public (undocumented)
+export type UserDefinedEndpointId = string;
+
+// @public (undocumented)
+export type UUID = string;
+
+// @public
+export function uuid(): string;
+
+// @public
+export class Viewport<T extends {
+    E: unknown;
+}> extends EventGenerator {
+    constructor(instance: JsPlumbInstance<T>);
+    // Warning: (ae-incompatible-release-tags) The symbol "addElement" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
+    addElement(id: string, x: number, y: number, width: number, height: number, rotation: number): ViewportElement<T["E"]>;
+    // (undocumented)
+    _bounds: Record<string, number>;
+    // Warning: (ae-incompatible-release-tags) The symbol "_elementMap" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
+    //
+    // (undocumented)
+    _elementMap: Map<string, ViewportElement<T["E"]>>;
+    // (undocumented)
+    endTransaction(): void;
+    getBoundsHeight(): number;
+    getBoundsWidth(): number;
+    // Warning: (ae-incompatible-release-tags) The symbol "getElements" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
+    getElements(): Map<string, ViewportElement<T["E"]>>;
+    // (undocumented)
+    protected getOffset(el: T["E"]): PointXY;
+    // Warning: (ae-incompatible-release-tags) The symbol "getPosition" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
+    getPosition(id: string): ViewportElement<T["E"]>;
+    // (undocumented)
+    protected getSize(el: T["E"]): Size;
+    getX(): number;
+    getY(): number;
+    // (undocumented)
+    instance: JsPlumbInstance<T>;
+    isEmpty(): boolean;
+    // (undocumented)
+    recomputeBounds(): void;
+    // Warning: (ae-incompatible-release-tags) The symbol "refreshElement" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
+    refreshElement(elId: string, doNotRecalculateBounds?: boolean): ViewportElement<T["E"]>;
+    // Warning: (ae-incompatible-release-tags) The symbol "registerElement" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
+    registerElement(id: string, doNotRecalculateBounds?: boolean): ViewportElement<T["E"]>;
+    remove(id: string): void;
+    reset(): void;
+    // Warning: (ae-incompatible-release-tags) The symbol "rotateElement" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
+    rotateElement(id: string, rotation: number): ViewportElement<T["E"]>;
+    // Warning: (ae-incompatible-release-tags) The symbol "setPosition" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
+    setPosition(id: string, x: number, y: number): ViewportElement<T["E"]>;
+    // Warning: (ae-incompatible-release-tags) The symbol "setSize" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
+    setSize(id: string, w: number, h: number): ViewportElement<T["E"]>;
+    // (undocumented)
+    shouldFireEvent(event: string, value: unknown, originalEvent?: Event): boolean;
+    // (undocumented)
+    _sortedElements: Record<string, Array<[string, number]>>;
+    // (undocumented)
+    startTransaction(): void;
+    // (undocumented)
+    _transformedElementMap: Map<string, TranslatedViewportElement<T["E"]>>;
+    // Warning: (ae-incompatible-release-tags) The symbol "updateElement" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
+    updateElement(id: string, x: number, y: number, width: number, height: number, rotation: number, doNotRecalculateBounds?: boolean): ViewportElement<T["E"]>;
+    // (undocumented)
+    updateElements(entries: Array<{
+        id: string;
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        rotation: number;
+    }>): void;
+}
+
+// Warning: (ae-internal-missing-underscore) The name "ViewportElement" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export interface ViewportElement<E> extends ViewportElementBase<E> {
+    // (undocumented)
+    t: TranslatedViewportElement<E>;
+}
+
+// Warning: (ae-internal-missing-underscore) The name "ViewportElementBase" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export interface ViewportElementBase<E> extends ViewportPosition {
+    // (undocumented)
+    dirty: boolean;
+    // (undocumented)
+    x2: number;
+    // (undocumented)
+    y2: number;
+}
+
+// @public
+export interface ViewportPosition extends PointXY {
+    // (undocumented)
+    c: PointXY;
+    // (undocumented)
+    h: number;
+    // (undocumented)
+    r: number;
+    // (undocumented)
+    w: number;
+}
+
+// @public
+export const WILDCARD = "*";
+
+// Warning: (ae-internal-missing-underscore) The name "wrap" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function wrap(wrappedFunction: Function, newFunction: Function, returnOnThisValue?: any): () => any;
+
+// @public (undocumented)
+export const X_AXIS_FACES: Axis;
+
+// @public (undocumented)
+export const Y_AXIS_FACES: Axis;
+
 // Warnings were encountered during analysis:
 //
-// /Users/simon/programming/jsplumb/jsplumb/dist/browser-ui/types/browser-jsplumb-instance.d.ts:495:9 - (ae-forgotten-export) The symbol "ElementAttributes" needs to be exported by the entry point index.d.ts
-// /Users/simon/programming/jsplumb/jsplumb/dist/browser-ui/types/svg-util.d.ts:17:5 - (ae-forgotten-export) The symbol "_attr" needs to be exported by the entry point index.d.ts
-// /Users/simon/programming/jsplumb/jsplumb/dist/browser-ui/types/svg-util.d.ts:18:5 - (ae-forgotten-export) The symbol "_node" needs to be exported by the entry point index.d.ts
+// /Users/simon/programming/jsplumb/jsplumb/dist/browser-ui/types/browser-ui-renderer/browser-jsplumb-instance.d.ts:506:9 - (ae-forgotten-export) The symbol "ElementAttributes" needs to be exported by the entry point index.d.ts
+// /Users/simon/programming/jsplumb/jsplumb/dist/browser-ui/types/browser-ui-renderer/svg-util.d.ts:17:5 - (ae-forgotten-export) The symbol "_attr" needs to be exported by the entry point index.d.ts
+// /Users/simon/programming/jsplumb/jsplumb/dist/browser-ui/types/browser-ui-renderer/svg-util.d.ts:18:5 - (ae-forgotten-export) The symbol "_node" needs to be exported by the entry point index.d.ts
+// /Users/simon/programming/jsplumb/jsplumb/dist/browser-ui/types/core/connector/abstract-connector.d.ts:26:5 - (ae-incompatible-release-tags) The symbol "sourcePos" is marked as @public, but its signature references "AnchorPlacement" which is marked as @internal
+// /Users/simon/programming/jsplumb/jsplumb/dist/browser-ui/types/core/connector/abstract-connector.d.ts:27:5 - (ae-incompatible-release-tags) The symbol "targetPos" is marked as @public, but its signature references "AnchorPlacement" which is marked as @internal
+// /Users/simon/programming/jsplumb/jsplumb/dist/browser-ui/types/core/connector/abstract-connector.d.ts:31:5 - (ae-incompatible-release-tags) The symbol "sourceInfo" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
+// /Users/simon/programming/jsplumb/jsplumb/dist/browser-ui/types/core/connector/abstract-connector.d.ts:32:5 - (ae-incompatible-release-tags) The symbol "targetInfo" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
+// /Users/simon/programming/jsplumb/jsplumb/dist/browser-ui/types/core/connector/connectors.d.ts:5:5 - (ae-incompatible-release-tags) The symbol "get" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
+// /Users/simon/programming/jsplumb/jsplumb/dist/browser-ui/types/core/connector/connectors.d.ts:6:5 - (ae-incompatible-release-tags) The symbol "register" is marked as @public, but its signature references "AbstractConnector" which is marked as @internal
+// /Users/simon/programming/jsplumb/jsplumb/dist/browser-ui/types/core/core.d.ts:72:5 - (ae-incompatible-release-tags) The symbol "viewportElement" is marked as @public, but its signature references "ViewportElement" which is marked as @internal
+// /Users/simon/programming/jsplumb/jsplumb/dist/browser-ui/types/core/factory/endpoint-factory.d.ts:10:5 - (ae-incompatible-release-tags) The symbol "compute" is marked as @public, but its signature references "AnchorPlacement" which is marked as @internal
+
+// (No @packageDocumentation comment for this package)
 
 ```
