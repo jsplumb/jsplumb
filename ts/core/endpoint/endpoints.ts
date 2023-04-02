@@ -2,10 +2,10 @@ import { JsPlumbInstance } from "../core"
 import {Orientation} from "../factory/anchor-record-factory"
 import {Endpoint} from "./endpoint"
 import {EndpointFactory} from "../factory/endpoint-factory"
-import { Extents } from '@jsplumb/util'
-import {AnchorPlacement, EMPTY_BOUNDS, EndpointRepresentationParams} from "@jsplumb/common"
-
-
+import {EndpointRepresentationParams} from "../../common/endpoint"
+import {AnchorPlacement} from "../../common/anchor"
+import {EMPTY_BOUNDS} from "../../common/abstract-segment"
+import {Extents} from "../../util/util"
 
 /**
  * Superclass for all types of Endpoint. This class is renderer

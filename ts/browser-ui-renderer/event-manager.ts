@@ -1,9 +1,6 @@
 
-import {
-    ATTRIBUTE_TABINDEX,
-} from "@jsplumb/core"
 
-import {forEach, PointXY, removeWithFunction, uuid} from "@jsplumb/util"
+import {forEach, PointXY, removeWithFunction, uuid} from "../util/util"
 
 import { jsPlumbDOMElement} from './element-facade'
 
@@ -22,7 +19,8 @@ import {
     EVENT_TOUCHSTART,
     EVENT_MOUSEMOVE, EVENT_TOUCHMOVE
 } from './constants'
-import {WILDCARD} from "@jsplumb/common"
+import {WILDCARD} from "../common/index"
+import {ATTRIBUTE_TABINDEX} from "../core/constants"
 
 /**
  * Creates a Touch object.

@@ -1,6 +1,3 @@
-import {AbstractSegment, PointNearPath, SegmentParams} from "@jsplumb/common"
-
-import {PointXY} from '@jsplumb/util'
 
 import {
     computeBezierLength,
@@ -11,6 +8,8 @@ import {
     pointAlongCurveFrom,
     pointOnCurve
 } from "./bezier"
+import {PointXY} from "../util/util"
+import {AbstractSegment, PointNearPath, SegmentParams} from "../common/abstract-segment"
 
 export interface BezierSegmentParams extends SegmentParams {
     cp1x:number

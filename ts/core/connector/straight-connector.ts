@@ -1,6 +1,6 @@
 import {AbstractConnector, ConnectorComputeParams, PaintGeometry} from "./abstract-connector"
 import {StraightSegment} from "./straight-segment"
-import {AnchorPlacement} from "@jsplumb/common"
+import {AnchorPlacement} from "../../common/anchor"
 
 export interface StraightConnectorGeometry {
     source:AnchorPlacement

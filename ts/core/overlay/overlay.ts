@@ -1,9 +1,9 @@
 
 import {JsPlumbInstance} from "../core"
 import {Component} from "../component/component"
-import {isString, uuid, EventGenerator} from "@jsplumb/util"
-import {OverlaySpec, FullOverlaySpec, OverlayOptions} from "@jsplumb/common"
-
+import {FullOverlaySpec, OverlayOptions, OverlaySpec} from "../../common/overlay"
+import {EventGenerator} from "../../util/event-generator"
+import {isString, uuid} from "../../util/util"
 
 /**
  * Returns whether or not the given overlay spec is a 'full' overlay spec, ie. has a `type` and some `options`, or is just an overlay name.

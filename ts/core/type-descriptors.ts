@@ -1,8 +1,12 @@
 
-import {PaintStyle, OverlaySpec, ConnectorSpec, EndpointSpec, AnchorSpec} from "@jsplumb/common"
 import {RedropPolicy} from "./source-selector"
 import {Endpoint} from "./endpoint/endpoint"
-import {PointXY} from "@jsplumb/util"
+import {AnchorSpec} from "../common/anchor"
+import {OverlaySpec} from "../common/overlay"
+import {PointXY} from "../util/util"
+import {PaintStyle} from "../common/paint-style"
+import {EndpointSpec} from "../common/endpoint"
+import {ConnectorSpec} from "../common/connector"
 
 /**
  * Base interface for endpoint/connection types, which are registered via `registerConnectionType` and `registerEndpointType`. This interface

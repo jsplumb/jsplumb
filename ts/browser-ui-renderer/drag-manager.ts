@@ -1,9 +1,6 @@
 import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
 import {jsPlumbDOMElement} from './element-facade'
 import {EVENT_REVERT} from './constants'
-import {EVENT_ZOOM, Face} from "@jsplumb/core"
-
-import {BoundingBox, extend, forEach, getWithFunction, PointXY, Size, wrap} from '@jsplumb/util'
 
 import {
     BeforeStartEventParams,
@@ -19,6 +16,8 @@ import {
 } from "./collicat"
 
 import {CLASS_DRAG_SELECTED, DragSelection} from "./drag-selection"
+import {EVENT_ZOOM} from "../core/constants"
+import {BoundingBox, extend, forEach, getWithFunction, PointXY, Size, wrap} from "../util/util"
 
 export const CLASS_DELEGATED_DRAGGABLE = "jtk-delegated-draggable"
 export const CLASS_DRAGGABLE = "jtk-draggable"

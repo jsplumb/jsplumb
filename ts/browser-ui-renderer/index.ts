@@ -1,14 +1,3 @@
-/**
- * This package is a renderer for the jsPlumb Community edition that uses a single SVG element per connection, and can
- * connect HTML/SVG elements in the DOM.  For users of version of jsPlumb prior to 5.x, this package is the equivalent to
- * what used to just be known as "jsPlumb".
- *
- * In actual fact only this renderer exists for the 5.x Community edition, but the code in 5.x is now architected in such a way
- * that alternative renderers could be implemented.
- *
- * @packageDocumentation
- */
-
 import {BrowserJsPlumbDefaults, BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
 
 import * as DotEndpointRenderer from './dot-endpoint-renderer'
@@ -38,10 +27,20 @@ export * from './drag-manager'
 
 export {svg} from './svg-util'
 
+/**
+ * Create a new BrowserJsPlumbInstance, optionally with the given defaults.
+ * @param defaults
+ * @public
+ */
 export function newInstance(defaults?:BrowserJsPlumbDefaults): BrowserJsPlumbInstance {
     return new BrowserJsPlumbInstance(getInstanceIndex(), defaults)
 }
 
+/**
+ * Execute the given function when the DOM is ready, or if the DOM is already ready, execute the given function immediately.
+ * @param f
+ * @public
+ */
 export function ready(f:Function) {
     const _do = function () {
         if (/complete|loaded|interactive/.test(document.readyState) && typeof(document.body) !== "undefined" && document.body != null) {

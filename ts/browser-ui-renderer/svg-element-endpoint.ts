@@ -2,18 +2,10 @@ import {SvgComponent} from "./svg-component"
 import {BrowserJsPlumbInstance, EndpointHelperFunctions} from "./browser-jsplumb-instance"
 
 import {_node, _applyStyles, ELEMENT_SVG} from './svg-util'
-import {
-    ABSOLUTE,
-    ATTRIBUTE_SCOPE_PREFIX,
-    BLOCK,
-    EndpointRepresentation,
-    NONE
-} from "@jsplumb/core"
-
-import { PaintStyle,
-    TRUE } from "@jsplumb/common"
-
-import { extend } from "@jsplumb/util"
+import {EndpointRepresentation} from "../core/endpoint/endpoints"
+import {ABSOLUTE, ATTRIBUTE_SCOPE_PREFIX, BLOCK, NONE} from "../core/constants"
+import {PaintStyle, TRUE} from "../common/index"
+import {extend} from "../util/util"
 
 /**
  * Superclass for endpoint renderers that use an `svg` element wrapped in a `div` in the DOM.

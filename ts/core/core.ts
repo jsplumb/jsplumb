@@ -5,22 +5,6 @@ import {Endpoint} from "./endpoint/endpoint"
 import { DotEndpoint } from './endpoint/dot-endpoint'
 import {convertToFullOverlaySpec} from "./overlay/overlay"
 import {RedrawResult} from "./router/router"
-import {
-    findWithFunction,
-    functionChain,
-    isString,
-    log,
-    removeWithFunction, rotatePoint,
-    uuid,
-    extend,
-    filterList, addToDictionary, forEach, RotatedPointXY,
-    Rotation,
-    Rotations,
-    PointXY,
-    Size,
-    Extents,
-    EventGenerator
-} from "@jsplumb/util"
 
 import {
     UpdateOffsetOptions,
@@ -55,15 +39,7 @@ import { Component } from './component/component'
 import { Overlay } from './overlay/overlay'
 import { LabelOverlay } from './overlay/label-overlay'
 import { AbstractConnector } from './connector/abstract-connector'
-import {
-    PaintStyle,
-    FullOverlaySpec,
-    AnchorLocations,
-    AnchorPlacement,
-    AnchorSpec,
-    EndpointSpec,
-    WILDCARD, DEFAULT, OverlaySpec
-} from '@jsplumb/common'
+
 import {AnchorComputeParams} from "./factory/anchor-record-factory"
 import {
     ATTRIBUTE_MANAGED,
@@ -87,6 +63,23 @@ import {Connectors} from "./connector/connectors"
 
 import {StraightConnector} from "./connector/straight-connector"
 import {ConnectionDragSelector} from "./source-selector"
+import {FullOverlaySpec, OverlaySpec} from "../common/overlay"
+import {AnchorLocations, AnchorPlacement, AnchorSpec} from "../common/anchor"
+import {
+    addToDictionary, extend,
+    Extents,
+    filterList,
+    findWithFunction,
+    forEach,
+    functionChain, isString, log,
+    PointXY, removeWithFunction,
+    RotatedPointXY, rotatePoint, Rotation, Rotations,
+    Size,
+    uuid
+} from "../util/util"
+import {EndpointSpec} from "../common/endpoint"
+import {DEFAULT, PaintStyle, WILDCARD} from "../common/index"
+import {EventGenerator} from "../util/event-generator"
 
 export interface jsPlumbElement<E> {
     _jsPlumbGroup: UIGroup<E>

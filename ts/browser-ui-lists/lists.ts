@@ -1,24 +1,24 @@
-import {jsPlumbDOMElement, BrowserJsPlumbInstance} from "@jsplumb/browser-ui"
-
-import {
-    Endpoint,
-    Connection,
-    EVENT_CONNECTION,
-    EVENT_MANAGE_ELEMENT,
-    EVENT_UNMANAGE_ELEMENT,
-    SELECTOR_MANAGED_ELEMENT,
-    INTERCEPT_BEFORE_DROP,
-    BeforeDropParams,
-    ManageElementParams,
-    UnmanageElementParams,
-    ConnectionEstablishedParams
-} from '@jsplumb/core'
-
-import { AnchorSpec, EndpointSpec } from "@jsplumb/common"
-
-import { extend } from "@jsplumb/util"
 
 import { SupportedEdge, SELECTOR_SCROLLABLE_LIST, EVENT_SCROLL, DEFAULT_LIST_OPTIONS, ATTR_SCROLLABLE_LIST } from'./constants'
+import {AnchorSpec} from "../common/anchor"
+import {Endpoint} from "../core/endpoint/endpoint"
+import {Connection} from "../core/connector/connection-impl"
+import {EndpointSpec} from "../common/endpoint"
+import {jsPlumbDOMElement} from "../browser-ui-renderer/element-facade"
+import {
+    BeforeDropParams,
+    ConnectionEstablishedParams,
+    ManageElementParams,
+    UnmanageElementParams
+} from "../core/callbacks"
+import {
+    EVENT_CONNECTION, EVENT_MANAGE_ELEMENT,
+    EVENT_UNMANAGE_ELEMENT,
+    INTERCEPT_BEFORE_DROP,
+    SELECTOR_MANAGED_ELEMENT
+} from "../core/constants"
+import {extend} from "../util/util"
+import {BrowserJsPlumbInstance} from "../browser-ui-renderer/browser-jsplumb-instance"
 
 export interface ListManagerOptions { }
 

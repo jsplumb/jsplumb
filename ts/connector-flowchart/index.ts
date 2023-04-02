@@ -6,7 +6,8 @@
  */
 
 import {FlowchartConnector} from "./flowchart-connector"
-import {Connectors} from "@jsplumb/core"
+import {Connectors} from "../core/connector/connectors"
+
 
 export * from "./flowchart-connector"
 

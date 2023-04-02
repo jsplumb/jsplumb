@@ -1,4 +1,3 @@
-import { perpendicularLineTo, pointOnLine, PointXY, Size } from '@jsplumb/util'
 
 import {Overlay} from "./overlay"
 import {JsPlumbInstance} from "../core"
@@ -6,7 +5,10 @@ import {JsPlumbInstance} from "../core"
 import {Component} from '../component/component'
 import { OverlayFactory } from '../factory/overlay-factory'
 import {AbstractConnector} from "../connector/abstract-connector"
-import { PaintStyle, ArrowOverlayOptions } from '@jsplumb/common'
+import {ArrowOverlayOptions} from "../../common/overlay"
+import {perpendicularLineTo, pointOnLine} from "../../util/geom"
+import {PointXY, Size} from "../../util/util"
+import {PaintStyle} from "../../common/paint-style"
 
 const DEFAULT_WIDTH = 20
 const DEFAULT_LENGTH = 20

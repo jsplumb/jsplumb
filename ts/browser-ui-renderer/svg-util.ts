@@ -1,7 +1,7 @@
 
 import {createElementNS} from './browser-util'
-import {NONE} from "@jsplumb/core"
-import { forEach } from "@jsplumb/util"
+import {forEach} from "../util/util"
+import {NONE} from "../core/constants"
 
 const svgAttributeMap = {
         "stroke-linejoin": "stroke-linejoin",

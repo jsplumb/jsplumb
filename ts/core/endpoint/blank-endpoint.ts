@@ -2,7 +2,8 @@ import {EndpointRepresentation} from "./endpoints"
 import {Orientation} from "../factory/anchor-record-factory"
 import {Endpoint} from "./endpoint"
 import {EndpointHandler} from "../factory/endpoint-factory"
-import {AnchorPlacement, BlankEndpointParams} from "@jsplumb/common"
+import {BlankEndpointParams} from "../../common/endpoint"
+import {AnchorPlacement} from "../../common/anchor"
 
 export type ComputedBlankEndpoint = [ number, number, number, number  ]
 

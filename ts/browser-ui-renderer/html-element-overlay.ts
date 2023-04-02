@@ -1,9 +1,12 @@
 
 import {createElement} from './browser-util'
 import { jsPlumbDOMElement} from './element-facade'
-import {Component, JsPlumbInstance, Overlay, NONE, ABSOLUTE} from "@jsplumb/core"
 import {ELEMENT_DIV} from "./constants"
-import { Size } from "@jsplumb/util"
+import {Size} from "../util/util"
+import {Overlay} from "../core/overlay/overlay"
+import {JsPlumbInstance} from "../core/core"
+import {Component} from "../core/component/component"
+import {ABSOLUTE, NONE} from "../core/constants"
 
 interface HTMLElementOverlayHolder extends Overlay {
     canvas:jsPlumbDOMElement

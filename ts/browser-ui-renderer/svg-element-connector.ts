@@ -1,11 +1,12 @@
 
-import {ABSOLUTE, AbstractConnector, NONE} from "@jsplumb/core"
-import {extend, Extents} from "@jsplumb/util"
-import { PaintStyle } from "@jsplumb/common"
+import {extend, Extents} from "../util/util"
 
 import {SvgComponent} from "./svg-component"
 import {_appendAtIndex, _applyStyles, _attr, _node, ELEMENT_PATH, ELEMENT_SVG} from './svg-util'
 import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
+import {PaintStyle} from "../common/paint-style"
+import {AbstractConnector} from "../core/connector/abstract-connector"
+import {ABSOLUTE, NONE} from "../core/constants"
 
 
 export function paintSvgConnector(instance:BrowserJsPlumbInstance, connector:AbstractConnector, paintStyle:PaintStyle, extents?:Extents) {

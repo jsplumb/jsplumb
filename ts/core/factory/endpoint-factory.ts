@@ -1,8 +1,8 @@
 import {EndpointRepresentation} from "../endpoint/endpoints"
 import {Endpoint} from "../endpoint/endpoint"
 import {Orientation} from "../factory/anchor-record-factory"
-import {Constructable, log} from "@jsplumb/util"
-import {AnchorPlacement} from "@jsplumb/common"
+import {Constructable, log} from "../../util/util"
+import {AnchorPlacement} from "../../common/anchor"
 
 const endpointMap:Record<string, Constructable<EndpointRepresentation<any>>> = {}
 const endpointComputers:Record<string, EndpointComputeFunction<any>> = {}

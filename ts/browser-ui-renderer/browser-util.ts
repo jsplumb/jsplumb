@@ -1,6 +1,6 @@
 import { jsPlumbDOMElement} from './element-facade'
-import {fastTrim, forEach, isString, log, PointXY, Size} from "@jsplumb/util"
 import { BrowserJsPlumbInstance } from "./browser-jsplumb-instance"
+import {fastTrim, forEach, isString, log, PointXY, Size} from "../util/util"
 
 // These are utility functions for use inside a Browser.
 

@@ -1,6 +1,6 @@
 {
     "name": "@jsplumb/browser-ui",
-    "version": "5.13.7",
+    "version": "6.0.0-RC1",
     "description": "jsPlumb renderer for browsers that connects DOM/SVG elements to each other with individual SVG elements",
     "main": "js/jsplumb.browser-ui.cjs.js",
     "module": "js/jsplumb.browser-ui.es.js",
@@ -9,13 +9,13 @@
         "test": "tests"
     },
     "files": [
-        "browser-ui.d.ts",
+        "**/*.d.ts",
         "js/jsplumb.browser-ui.umd.js",
         "js/jsplumb.browser-ui.cjs.js",
         "js/jsplumb.browser-ui.es.js",
-        "css/jsplumbtoolkit.css"
+        "**/*.css"
     ],
-    "types": "browser-ui.d.ts",
+    "types": "types/index.d.ts",
     "scripts": {},
     "repository": {
         "type": "git",
@@ -29,8 +29,5 @@
         "connectivity"
     ],
     "author": "jsPlumb (hello@jsplumbtoolkit.com)",
-    "license": "(MIT OR GPL-2.0)",
-    "dependencies": {
-        "@jsplumb/core": "5.13.7"
-    }
+    "license": "(MIT OR GPL-2.0)"
 }

@@ -1,7 +1,7 @@
 import {registerEndpointRenderer} from "./browser-jsplumb-instance"
 import { _attr, _node } from './svg-util'
-import { DotEndpoint } from '@jsplumb/core'
-import { PaintStyle } from "@jsplumb/common"
+import {DotEndpoint} from "../core/endpoint/dot-endpoint"
+import {PaintStyle} from "../common/paint-style"
 
 const CIRCLE = "circle"
 

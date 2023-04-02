@@ -1,8 +1,8 @@
-import {Extents , BoundingBox, PointXY} from "@jsplumb/util"
-
 /**
  * @internal
  */
+import {BoundingBox, Extents, PointXY} from "../util/util"
+
 export interface SegmentParams {
     x1:number
     x2:number

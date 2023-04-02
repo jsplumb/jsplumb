@@ -1,6 +1,6 @@
 import {jsPlumbDOMElement} from "./element-facade"
-import {BoundingBox, findWithFunction, forEach, PointXY, Size} from "@jsplumb/util"
 import { BrowserJsPlumbInstance } from "./browser-jsplumb-instance"
+import {PointXY, Size, forEach, findWithFunction, BoundingBox} from "../util/util"
 
 export const CLASS_DRAG_SELECTED = "jtk-drag-selected"
 

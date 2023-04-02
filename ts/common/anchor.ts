@@ -2,7 +2,7 @@
  * Common options for anchors.
  * @public
  */
-import {AnchorOrientationHint} from "@jsplumb/core"
+import {AnchorOrientationHint} from "../core/factory/anchor-record-factory"
 
 export interface AnchorOptions extends Record<string, any> {
     /**

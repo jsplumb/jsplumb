@@ -1,7 +1,7 @@
 import {Overlay} from '../overlay/overlay'
-import { Constructable} from '@jsplumb/util'
 import { JsPlumbInstance } from "../core"
 import {Component} from '../component/component'
+import {Constructable} from "../../util/util"
 const overlayMap:Record<string, Constructable<Overlay>> = {}
 
 export const OverlayFactory = {

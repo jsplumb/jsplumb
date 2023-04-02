@@ -1,8 +1,8 @@
-import {PointXY, Rotations, Size, extend, isNumber, isString, uuid, map} from "@jsplumb/util"
 import { Connection } from "../connector/connection-impl"
 import { Endpoint } from "../endpoint/endpoint"
 import { JsPlumbInstance } from "../core"
-import {AnchorLocations, AnchorSpec, FullAnchorSpec, PerimeterAnchorShapes} from "@jsplumb/common"
+import {extend, isNumber, isString, map, PointXY, Rotations, Size, uuid} from "../../util/util"
+import {AnchorLocations, AnchorSpec, FullAnchorSpec, PerimeterAnchorShapes} from "../../common/anchor"
 
 export type AnchorOrientationHint = -1 | 0 | 1
 export type Orientation = [  AnchorOrientationHint, AnchorOrientationHint ]

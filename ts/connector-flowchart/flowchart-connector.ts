@@ -1,13 +1,13 @@
-import {
-    Connection, AbstractConnector, ConnectorComputeParams, PaintGeometry, StraightSegment, ArcSegment
-} from "@jsplumb/core"
-
-import {ConnectorOptions, Geometry} from "@jsplumb/common"
-
 /**
  * Options for a flowchart connector
  * @public
  */
+import {ConnectorOptions, Geometry} from "../common/connector"
+import {ArcSegment} from "../core/connector/arc-segment"
+import {AbstractConnector, ConnectorComputeParams, PaintGeometry} from "../core/connector/abstract-connector"
+import {Connection} from "../core/connector/connection-impl"
+import {StraightSegment} from "../core/connector/straight-segment"
+
 export interface FlowchartConnectorOptions extends ConnectorOptions {
     /**
      * Always paint stubs at the end of a connector, even if the elements are closer together than the length of the stubs.

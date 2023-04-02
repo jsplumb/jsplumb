@@ -1,53 +1,3 @@
-import {
-    JsPlumbDefaults,
-    TypeDescriptor,
-    JsPlumbInstance,
-    AbstractConnector,
-    Endpoint,
-    Overlay,
-    RedrawResult,
-    ATTRIBUTE_NOT_DRAGGABLE,
-    SELECTOR_MANAGED_ELEMENT,
-    CLASS_OVERLAY,
-    ATTRIBUTE_MANAGED,
-    ABSOLUTE,
-    FIXED,
-    STATIC,
-    isArrowOverlay,
-    isPlainArrowOverlay,
-    LabelOverlay,
-    isLabelOverlay,
-    isDiamondOverlay,
-    Connection,
-    EndpointRepresentation,
-    Component,
-    CustomOverlay,
-    isCustomOverlay,
-    DeleteConnectionOptions,
-    BehaviouralTypeDescriptor,
-    OverlayMouseEventParams,
-    UIGroup,
-    CLASS_CONNECTOR,
-    CLASS_ENDPOINT, ManagedElement, ConnectionDragSelector
-} from '@jsplumb/core'
-
-import {
-    forEach,
-    fromArray,
-    log,
-    isFunction,
-    isString,
-    uuid,
-    PointXY,
-    Size,
-    BoundingBox,
-    Extents, Grid
-} from "@jsplumb/util"
-
-import { TRUE,
-    FALSE,
-    UNDEFINED,
-    PaintStyle} from "@jsplumb/common"
 
 import { _attr,
     _node,
@@ -132,6 +82,45 @@ import {
     EVENT_CONNECTION_CONTEXTMENU, EVENT_ELEMENT_CONTEXTMENU
 } from "./constants"
 import {DragSelection} from "./drag-selection"
+import {AbstractConnector} from "../core/connector/abstract-connector"
+import {Overlay, OverlayMouseEventParams} from "../core/overlay/overlay"
+import {Endpoint} from "../core/endpoint/endpoint"
+import {isArrowOverlay} from "../core/overlay/arrow-overlay"
+import {isDiamondOverlay} from "../core/overlay/diamond-overlay"
+import {isPlainArrowOverlay} from "../core/overlay/plain-arrow-overlay"
+import {EndpointRepresentation} from "../core/endpoint/endpoints"
+import {isLabelOverlay, LabelOverlay} from "../core/overlay/label-overlay"
+import {CustomOverlay, isCustomOverlay} from "../core/overlay/custom-overlay"
+import {Component} from "../core/component/component"
+import {
+    ABSOLUTE,
+    ATTRIBUTE_MANAGED,
+    ATTRIBUTE_NOT_DRAGGABLE, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY,
+    FIXED,
+    SELECTOR_MANAGED_ELEMENT,
+    STATIC
+} from "../core/constants"
+import {Connection} from "../core/connector/connection-impl"
+import {JsPlumbDefaults} from "../core/defaults"
+import {DeleteConnectionOptions, JsPlumbInstance, ManagedElement} from "../core/core"
+import {UIGroup} from "../core/group/group"
+import {RedrawResult} from "../core/router/router"
+import {BehaviouralTypeDescriptor, TypeDescriptor} from "../core/type-descriptors"
+import {ConnectionDragSelector} from "../core/source-selector"
+import {FALSE, PaintStyle, TRUE, UNDEFINED} from "../common/index"
+import {
+    BoundingBox,
+    Extents,
+    forEach,
+    fromArray,
+    Grid,
+    isFunction,
+    isString,
+    log,
+    PointXY,
+    Size,
+    uuid
+} from "../util/util"
 
 export interface UIComponent {
     canvas: HTMLElement
@@ -923,7 +912,6 @@ export class BrowserJsPlumbInstance extends JsPlumbInstance<{E:Element}> {
 
     /*
      * Toggles the draggable state of the given element(s).
-     * el is either an id, or an element object, or a list of ids/element objects.
      * @param el - Element to toggle draggable state for.
      * @public
      */

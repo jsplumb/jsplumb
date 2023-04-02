@@ -1,13 +1,11 @@
-import {
-    BrowserJsPlumbInstance,
-    EVENT_CLICK, EVENT_DBL_CLICK,
-    EVENT_MOUSEDOWN,
-    EVENT_MOUSEMOVE,
-    EVENT_MOUSEUP,
-    EventManager
-} from "@jsplumb/browser-ui"
-import {Connection, Endpoint, Overlay} from "@jsplumb/core"
-import { uuid } from "@jsplumb/util"
+import {EVENT_CLICK, EVENT_DBL_CLICK, EVENT_MOUSEDOWN, EVENT_MOUSEMOVE, EVENT_MOUSEUP} from "../browser-ui-renderer/constants"
+import {EventManager} from "../browser-ui-renderer/event-manager"
+import {Endpoint} from "../core/endpoint/endpoint"
+import {Connection} from "../core/connector/connection-impl"
+import {BrowserJsPlumbInstance} from "../browser-ui-renderer/browser-jsplumb-instance"
+import {Overlay} from "../core/overlay/overlay"
+import {uuid} from "../util/util"
+
 
 function _randomEvent ():any {
     const x = Math.floor(Math.random() * 2000), y = Math.floor(Math.random() * 2000);

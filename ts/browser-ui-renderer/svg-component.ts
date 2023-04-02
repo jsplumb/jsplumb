@@ -1,9 +1,9 @@
-import {PaintStyle} from "@jsplumb/common"
-import {extend, Extents} from "@jsplumb/util"
+import {extend, Extents} from "../util/util"
 
 import { _attr, _pos, _size  } from './svg-util'
 import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
 import {ElementTypes} from "./browser-util"
+import {PaintStyle} from "../common/paint-style"
 
 export class SvgComponent {
 

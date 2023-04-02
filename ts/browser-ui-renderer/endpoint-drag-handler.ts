@@ -20,41 +20,6 @@ import {
     DragStopEventParams, DragEventParams, BeforeStartEventParams
 } from "./collicat"
 
-import {
-    INTERCEPT_BEFORE_DETACH,
-    CHECK_CONDITION,
-    CHECK_DROP_ALLOWED,
-    classList,
-    cls,
-    Connection,
-    Endpoint,
-    EndpointRepresentation,
-    EVENT_MAX_CONNECTIONS,
-    IS_DETACH_ALLOWED,
-    SOURCE,
-    SourceOrTargetDefinition,
-    TARGET,
-    INTERCEPT_BEFORE_DRAG,
-    INTERCEPT_BEFORE_START_DETACH,
-    SELECTOR_MANAGED_ELEMENT,
-    CLASS_ENDPOINT,
-    ATTRIBUTE_SCOPE_PREFIX,
-    InternalEndpointOptions,
-    BehaviouralTypeDescriptor,
-    createFloatingAnchor,
-    LightweightFloatingAnchor,
-    REDROP_POLICY_ANY,
-    ConnectionDragSelector,
-    LightweightAnchor,
-    REDROP_POLICY_STRICT,
-    REDROP_POLICY_ANY_SOURCE,
-    REDROP_POLICY_ANY_TARGET,
-    REDROP_POLICY_ANY_SOURCE_OR_TARGET,
-    CLASS_ENDPOINT_FLOATING
-} from "@jsplumb/core"
-
-import { FALSE,
-    AnchorSpec, EndpointSpec } from "@jsplumb/common"
 
 import {
     getAllWithFunction,
@@ -67,10 +32,42 @@ import {
     extend,
     functionChain,
     each,
-    intersects,
     BoundingBox, isObject
-} from "@jsplumb/util"
+} from "../util/util"
 import {ATTRIBUTE_JTK_ENABLED, ELEMENT_DIV} from "./constants"
+import {Endpoint} from "../core/endpoint/endpoint"
+import {EndpointRepresentation} from "../core/endpoint/endpoints"
+import {EndpointSpec} from "../common/endpoint"
+import {InternalEndpointOptions} from "../core/endpoint/endpoint-options"
+import {createFloatingAnchor, LightweightAnchor, LightweightFloatingAnchor} from "../core/factory/anchor-record-factory"
+import {
+    ATTRIBUTE_SCOPE_PREFIX,
+    CHECK_CONDITION,
+    CHECK_DROP_ALLOWED,
+    CLASS_ENDPOINT,
+    CLASS_ENDPOINT_FLOATING,
+    classList,
+    cls,
+    EVENT_MAX_CONNECTIONS,
+    INTERCEPT_BEFORE_DETACH,
+    INTERCEPT_BEFORE_DRAG,
+    INTERCEPT_BEFORE_START_DETACH,
+    IS_DETACH_ALLOWED,
+    SELECTOR_MANAGED_ELEMENT,
+    SOURCE,
+    TARGET
+} from "../core/constants"
+import {BehaviouralTypeDescriptor, SourceOrTargetDefinition} from "../core/type-descriptors"
+import {
+    ConnectionDragSelector,
+    REDROP_POLICY_ANY,
+    REDROP_POLICY_ANY_SOURCE, REDROP_POLICY_ANY_SOURCE_OR_TARGET, REDROP_POLICY_ANY_TARGET,
+    REDROP_POLICY_STRICT
+} from "../core/source-selector"
+import {AnchorSpec} from "../common/anchor"
+import {Connection} from "../core/connector/connection-impl"
+import {FALSE} from "../common/index"
+import {intersects} from "../util/geom"
 
 function _makeFloatingEndpoint (ep:Endpoint<Element>,
                                 endpoint:EndpointSpec | EndpointRepresentation<any>,

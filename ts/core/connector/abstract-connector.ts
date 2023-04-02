@@ -1,12 +1,14 @@
 
-import {quadrant, log, PointXY, Extents, Constructable} from "@jsplumb/util"
-
 import { Connection} from './connection-impl'
 import { Orientation} from '../factory/anchor-record-factory'
 import { Endpoint} from '../endpoint/endpoint'
 
 import { ViewportElement } from "../viewport"
-import {AnchorPlacement, ConnectorOptions, PaintAxis, EMPTY_BOUNDS, Segment, Connector, Geometry} from "@jsplumb/common"
+import {Connector, ConnectorOptions, Geometry, PaintAxis} from "../../common/connector"
+import {Constructable, Extents, log, PointXY} from "../../util/util"
+import {quadrant} from "../../util/geom"
+import {AnchorPlacement} from "../../common/anchor"
+import {EMPTY_BOUNDS, Segment} from "../../common/abstract-segment"
 
 /**
  * @internal

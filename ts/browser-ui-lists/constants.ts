@@ -1,5 +1,7 @@
-import {AnchorLocations} from "@jsplumb/common"
-import {att, Connection, Endpoint} from "@jsplumb/core"
+import {att} from "../core/constants"
+import {AnchorLocations} from "../common/anchor"
+import {Endpoint} from "../core/endpoint/endpoint"
+import {Connection} from "../core/connector/connection-impl"
 
 export enum SupportedEdge {
     top, bottom

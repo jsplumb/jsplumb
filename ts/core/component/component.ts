@@ -1,4 +1,4 @@
-import {Extents, EventGenerator,clone, extend, isFunction, isString, log, merge, populate, setToArray, uuid, PointXY } from "@jsplumb/util"
+
 
 import { Overlay } from '../overlay/overlay'
 import {ComponentTypeDescriptor} from '../type-descriptors'
@@ -12,10 +12,22 @@ import {
 } from "../overlay/overlay"
 import { LabelOverlay } from "../overlay/label-overlay"
 import { OverlayFactory } from "../factory/overlay-factory"
+import {FullOverlaySpec, LabelOverlayOptions, OverlaySpec} from "../../common/overlay"
+import {EventGenerator} from "../../util/event-generator"
 import {
-    FullOverlaySpec,
-    LabelOverlayOptions,
-    OverlaySpec, PaintStyle } from "@jsplumb/common"
+    clone,
+    extend,
+    Extents,
+    isFunction,
+    isString,
+    log,
+    merge,
+    PointXY,
+    populate,
+    setToArray,
+    uuid
+} from "../../util/util"
+import {PaintStyle} from "../../common/paint-style"
 
 export type ComponentParameters = Record<string, any>
 

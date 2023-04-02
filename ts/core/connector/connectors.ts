@@ -1,6 +1,6 @@
 import {AbstractConnector} from "./abstract-connector"
-import {Constructable} from "@jsplumb/util"
 import {Connection} from "./connection-impl"
+import {Constructable} from "../../util/util"
 
 const connectorMap:Record<string, Constructable<AbstractConnector>> = {}
 

@@ -1,11 +1,4 @@
-import {
-    att,
-    ATTRIBUTE_GROUP,
-    CLASS_CONNECTOR,
-    CLASS_ENDPOINT,
-    CLASS_OVERLAY,
-    cls
-} from "@jsplumb/core"
+import {att, ATTRIBUTE_GROUP, CLASS_CONNECTOR, CLASS_ENDPOINT, CLASS_OVERLAY, cls} from "../core/constants"
 
 export function compoundEvent(stem:string, event:string, subevent?:string) {
     const a = [stem, event]

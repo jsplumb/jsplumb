@@ -6,8 +6,8 @@
  */
 
 import {BezierConnector} from "./bezier-connector"
-import {Connectors} from "@jsplumb/core"
 import {StateMachineConnector} from "./statemachine-connector"
+import {Connectors} from "../core/connector/connectors"
 
 export * from "./bezier"
 export * from "./bezier-segment"

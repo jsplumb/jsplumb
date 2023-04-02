@@ -14,16 +14,6 @@ import {BrowserJsPlumbInstance, DragGroupSpec} from "./browser-jsplumb-instance"
 import { jsPlumbDOMElement} from './element-facade'
 
 import {DragEventParams, Drag, DragStopEventParams, isInsideParent} from "./collicat"
-import {
-    JsPlumbInstance,
-    RedrawResult,
-    UIGroup,
-    SELECTOR_MANAGED_ELEMENT,
-    ATTRIBUTE_NOT_DRAGGABLE,
-    CLASS_OVERLAY, cls, Face
-} from "@jsplumb/core"
-
-import { FALSE } from "@jsplumb/common"
 
 import {
     BoundingBox,
@@ -31,10 +21,15 @@ import {
     forEach,
     getFromSetWithFunction,
     PointXY,
-    Size,
-    intersects
-} from "@jsplumb/util"
+    Size
+} from "../util/util"
 import {DragSelection} from "./drag-selection"
+import {UIGroup} from "../core/group/group"
+import {ATTRIBUTE_NOT_DRAGGABLE, CLASS_OVERLAY, cls, SELECTOR_MANAGED_ELEMENT} from "../core/constants"
+import {intersects} from "../util/geom"
+import {JsPlumbInstance} from "../core/core"
+import {RedrawResult} from "../core/router/router"
+import {FALSE} from "../common/index"
 
 // // TODO would be nice to be able to set a tolerance here. "is half inside parent" etc
 // function isInsideParent(instance:BrowserJsPlumbInstance, _el:HTMLElement, pos:PointXY):boolean {

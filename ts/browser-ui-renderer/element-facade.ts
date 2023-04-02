@@ -1,6 +1,8 @@
-import {Endpoint, jsPlumbElement} from "@jsplumb/core"
+
 import {Drag} from "./collicat"
 import {jsPlumbDOMInformation} from "./browser-jsplumb-instance"
+import {jsPlumbElement} from "../core/core"
+import {Endpoint} from "../core/endpoint/endpoint"
 
 export interface jsPlumbDOMElement extends HTMLElement, jsPlumbElement<Element> {
     _isJsPlumbGroup: boolean

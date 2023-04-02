@@ -2,7 +2,8 @@ import {EndpointRepresentation } from "./endpoints"
 import {Orientation} from "../factory/anchor-record-factory"
 import {Endpoint} from "./endpoint"
 import {EndpointHandler} from "../factory/endpoint-factory"
-import {AnchorPlacement, DotEndpointParams} from "@jsplumb/common"
+import {AnchorPlacement} from "../../common/anchor"
+import {DotEndpointParams} from "../../common/endpoint"
 
 export type ComputedDotEndpoint = [ number, number, number, number, number ]
 

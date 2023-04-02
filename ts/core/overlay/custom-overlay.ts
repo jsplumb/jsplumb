@@ -2,7 +2,7 @@ import {Overlay} from "./overlay"
 import { JsPlumbInstance } from "../core"
 import {Component} from '../component/component'
 import { OverlayFactory } from '../factory/overlay-factory'
-import { OverlayOptions } from "@jsplumb/common"
+import {OverlayOptions} from "../../common/overlay"
 
 /**
  * @public

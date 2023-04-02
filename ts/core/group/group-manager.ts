@@ -8,11 +8,11 @@ import { JsPlumbInstance, jsPlumbElement } from "../core"
 
 import {UIGroup, GroupOptions, UINode} from "./group"
 import * as Constants from "../constants"
-import {PointXY, removeWithFunction, suggest, forEach, isString} from "@jsplumb/util"
-import { WILDCARD } from "@jsplumb/common"
 import {Connection} from "../connector/connection-impl"
 import {ConnectionSelection} from "../selection/connection-selection"
 import {SELECTOR_MANAGED_ELEMENT} from "../constants"
+import {WILDCARD} from "../../common/index"
+import {forEach, isString, PointXY, removeWithFunction, suggest} from "../../util/util"
 
 interface GroupMemberEventParams<E> {
     el:jsPlumbElement<E>,

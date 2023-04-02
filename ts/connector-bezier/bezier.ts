@@ -1,7 +1,7 @@
 /**
  * jsBezier
  *
- * Copyright (c) 2010 - 2021 jsPlumb (hello@jsplumbtoolkit.com)
+ * Copyright (c) 2010 - 2023 jsPlumb (hello@jsplumbtoolkit.com)
  *
  * licensed under the MIT license.
  *
@@ -59,7 +59,8 @@
  *
  *
  */
-import {BoundingBox, LineXY, PointXY, sgn} from "@jsplumb/util"
+
+import {BoundingBox, LineXY, PointXY, sgn} from "../util/util"
 
 export type Curve = Array<PointXY>
 export type PointOnPath = { point:PointXY, location:number }

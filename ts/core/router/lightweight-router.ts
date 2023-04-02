@@ -19,20 +19,21 @@ import {Connection} from "../connector/connection-impl"
 import {JsPlumbInstance} from "../core"
 import * as Constants from "../constants"
 
+import {ViewportElement} from "../viewport"
+import {SOURCE, TARGET} from "../constants"
 import {
     extend,
     findWithFunction,
     forEach,
-    removeWithFunction,
-    RotatedPointXY,
-    rotatePoint,
-    uuid,
-    PointXY, SortFunction, Rotations, Size, lineLength
-} from "@jsplumb/util"
-
-import {ViewportElement} from "../viewport"
-import {AnchorPlacement, AnchorSpec} from "@jsplumb/common"
-import {SOURCE, TARGET} from "../constants"
+    PointXY,
+    removeWithFunction, RotatedPointXY, rotatePoint,
+    Rotations,
+    Size,
+    SortFunction,
+    uuid
+} from "../../util/util"
+import {lineLength} from "../../util/geom"
+import {AnchorPlacement, AnchorSpec} from "../../common/anchor"
 
 
 // -------------------- internal data structures --------------------------------------

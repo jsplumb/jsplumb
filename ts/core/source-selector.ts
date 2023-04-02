@@ -1,5 +1,5 @@
 import {SourceOrTargetDefinition} from "./type-descriptors"
-import {uuid} from "@jsplumb/util"
+import {uuid} from "../util/util"
 
 export class ConnectionDragSelector {
 

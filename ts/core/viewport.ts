@@ -1,5 +1,7 @@
-import {EventGenerator,findWithFunction, getsert, forEach, insertSorted, Size, PointXY} from '@jsplumb/util'
+
 import {JsPlumbInstance} from "./core"
+import {EventGenerator} from "../util/event-generator"
+import {findWithFunction, forEach, getsert, insertSorted, PointXY, Size} from "../util/util"
 
 /**
  * Definition of some element's location and rotation in the viewport.

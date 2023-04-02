@@ -2,7 +2,8 @@ import {EndpointRepresentation} from "./endpoints"
 import {Orientation} from "../factory/anchor-record-factory"
 import {Endpoint} from "./endpoint"
 import {EndpointHandler} from "../factory/endpoint-factory"
-import {AnchorPlacement, RectangleEndpointParams} from "@jsplumb/common"
+import {AnchorPlacement} from "../../common/anchor"
+import {RectangleEndpointParams} from "../../common/endpoint"
 
 export type ComputedRectangleEndpoint = [ number, number, number, number ]
 

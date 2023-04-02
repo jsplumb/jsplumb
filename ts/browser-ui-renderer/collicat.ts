@@ -1,9 +1,11 @@
-import {extend, uuid, PointXY, Size, snapToGrid, Grid, isString} from '@jsplumb/util'
+
 import {addClass, consume, matchesSelector, removeClass, offsetRelativeToRoot} from "./browser-util"
 import {EventManager, pageLocation} from "./event-manager"
 import { jsPlumbDOMElement} from './element-facade'
 import {EVENT_MOUSEUP, EVENT_MOUSEDOWN, EVENT_MOUSEMOVE, EVENT_REVERT} from "./constants"
 import {BrowserJsPlumbInstance} from "./browser-jsplumb-instance"
+import {extend, Grid, isString, PointXY, Size, uuid} from "../util/util"
+import {snapToGrid} from "../util/geom"
 
 function findDelegateElement(parentElement:jsPlumbDOMElement, childElement:jsPlumbDOMElement, selector:string) {
     if (matchesSelector(childElement, selector, parentElement)) {
