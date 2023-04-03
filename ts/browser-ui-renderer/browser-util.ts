@@ -343,3 +343,21 @@ export function getElementType(el:Element):ElementType {
 export function isSVGElement(el:Element):boolean {
     return getElementType(el) === ElementTypes.SVG
 }
+
+/**
+ * Execute the given function when the DOM is ready, or if the DOM is already ready, execute the given function immediately.
+ * @param f
+ * @public
+ */
+export function onDocumentReady(f:Function) {
+    const _do = function () {
+        if (/complete|loaded|interactive/.test(document.readyState) && typeof(document.body) !== "undefined" && document.body != null) {
+            f()
+        }
+        else {
+            setTimeout(_do, 9)
+        }
+    }
+
+    _do()
+}
