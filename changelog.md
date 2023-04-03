@@ -8,10 +8,15 @@ jsPlumb 6.x consists of only one package - `@jsplumb/browser-ui` - which exports
 Since the overwhelming majority of JS/TS development involves bundlers and tree-shakers these days, it seemed a good time to update jsPlumb to sit more nicely in that world.  You can still use jsPlumb as a standalone import, via the UMD bundle, and in that case it's also easier to work with, since there's a single global export - `jsPlumb` on the window object.
 
 
-
 ### BREAKING
 
+Aside from the fact that you'll need to update all your imports to use the single `@jsplumb/browser-ui` package, there were a few minor changes to interface names:
+
 - `newInstance` method removed from `@jsplumb/browser-ui-lists`. Use `new JsPlumbListManager(instance, params)` instead.
+
+- `BeforeStartDetachInterceptor` renamed to `BeforeStartConnectionDetachInterceptor`
+- `BeforeDetachInterceptor` renamed to `BeforeConnectionDetachInterceptor`
+- `BeforeDropInterceptor` renamed to `BeforeConnectionDropInterceptor`
 
 
 ## 5.13.7

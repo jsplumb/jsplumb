@@ -18,12 +18,12 @@ export declare function _updateHoverStyle<E>(component: Component): void;
  * regardless of whether the detach occurred programmatically, or via the mouse.
  * @public
  */
-export declare type BeforeDetachInterceptor = (c: Connection) => boolean;
+export declare type BeforeConnectionDetachInterceptor = (c: Connection) => boolean;
 /**
  * Defines the method signature for the callback to the `beforeDrop` interceptor.
  * @public
  */
-export declare type BeforeDropInterceptor = (params: BeforeDropParams) => boolean;
+export declare type BeforeConnectionDropInterceptor = (params: BeforeDropParams) => boolean;
 /**
  * The parameters passed to a `beforeDrag` interceptor.
  * @public
@@ -38,7 +38,7 @@ export interface BeforeDragParams<E> {
  * The parameters passed to a `beforeStartDetach` interceptor.
  * @public
  */
-export interface BeforeStartDetachParams<E> extends BeforeDragParams<E> {
+export interface BeforeStartConnectionDetachParams<E> extends BeforeDragParams<E> {
 }
 /**
  * Defines the method signature for the callback to the `beforeDrag` interceptor. This method can return boolean `false` to
@@ -51,14 +51,14 @@ export declare type BeforeDragInterceptor<E = any> = (params: BeforeDragParams<E
  * Defines the method signature for the callback to the `beforeStartDetach` interceptor.
  * @public
  */
-export declare type BeforeStartDetachInterceptor<E = any> = (params: BeforeStartDetachParams<E>) => boolean;
+export declare type BeforeStartConnectionDetachInterceptor<E = any> = (params: BeforeStartConnectionDetachParams<E>) => boolean;
 /**
  * @internal
  */
 export interface ComponentOptions {
     parameters?: Record<string, any>;
-    beforeDetach?: BeforeDetachInterceptor;
-    beforeDrop?: BeforeDropInterceptor;
+    beforeDetach?: BeforeConnectionDetachInterceptor;
+    beforeDrop?: BeforeConnectionDropInterceptor;
     hoverClass?: string;
     events?: Record<string, (value: any, event: any) => any>;
     scope?: string;
@@ -113,8 +113,8 @@ export declare abstract class Component extends EventGenerator {
     _typeCache: {};
     cssClass: string;
     hoverClass: string;
-    beforeDetach: BeforeDetachInterceptor;
-    beforeDrop: BeforeDropInterceptor;
+    beforeDetach: BeforeConnectionDetachInterceptor;
+    beforeDrop: BeforeConnectionDropInterceptor;
     protected constructor(instance: JsPlumbInstance, params?: ComponentOptions);
     /**
      * Called internally when the user is trying to disconnect the given connection.

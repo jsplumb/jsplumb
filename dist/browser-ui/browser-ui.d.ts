@@ -574,7 +574,13 @@ declare abstract class Base {
  * regardless of whether the detach occurred programmatically, or via the mouse.
  * @public
  */
-export declare type BeforeDetachInterceptor = (c: Connection) => boolean;
+export declare type BeforeConnectionDetachInterceptor = (c: Connection) => boolean;
+
+/**
+ * Defines the method signature for the callback to the `beforeDrop` interceptor.
+ * @public
+ */
+export declare type BeforeConnectionDropInterceptor = (params: BeforeDropParams) => boolean;
 
 /**
  * Defines the method signature for the callback to the `beforeDrag` interceptor. This method can return boolean `false` to
@@ -596,12 +602,6 @@ export declare interface BeforeDragParams<E> {
 }
 
 /**
- * Defines the method signature for the callback to the `beforeDrop` interceptor.
- * @public
- */
-export declare type BeforeDropInterceptor = (params: BeforeDropParams) => boolean;
-
-/**
  * Definition of the parameters passed to the `beforeDrop` interceptor.
  * @public
  */
@@ -617,13 +617,13 @@ export declare interface BeforeDropParams {
  * Defines the method signature for the callback to the `beforeStartDetach` interceptor.
  * @public
  */
-export declare type BeforeStartDetachInterceptor<E = any> = (params: BeforeStartDetachParams<E>) => boolean;
+export declare type BeforeStartConnectionDetachInterceptor<E = any> = (params: BeforeStartConnectionDetachParams<E>) => boolean;
 
 /**
  * The parameters passed to a `beforeStartDetach` interceptor.
  * @public
  */
-export declare interface BeforeStartDetachParams<E> extends BeforeDragParams<E> {
+export declare interface BeforeStartConnectionDetachParams<E> extends BeforeDragParams<E> {
 }
 
 export declare interface BeforeStartEventParams extends DragStartEventParams {
@@ -1957,8 +1957,8 @@ export declare abstract class Component extends EventGenerator {
     _typeCache: {};
     cssClass: string;
     hoverClass: string;
-    beforeDetach: BeforeDetachInterceptor;
-    beforeDrop: BeforeDropInterceptor;
+    beforeDetach: BeforeConnectionDetachInterceptor;
+    beforeDrop: BeforeConnectionDropInterceptor;
     protected constructor(instance: JsPlumbInstance, params?: ComponentOptions);
     /**
      * Called internally when the user is trying to disconnect the given connection.
@@ -2206,8 +2206,8 @@ export declare abstract class Component extends EventGenerator {
  */
 export declare interface ComponentOptions {
     parameters?: Record<string, any>;
-    beforeDetach?: BeforeDetachInterceptor;
-    beforeDrop?: BeforeDropInterceptor;
+    beforeDetach?: BeforeConnectionDetachInterceptor;
+    beforeDrop?: BeforeConnectionDropInterceptor;
     hoverClass?: string;
     events?: Record<string, (value: any, event: any) => any>;
     scope?: string;
@@ -5969,6 +5969,13 @@ export declare function offsetSize(el: Element): Size;
  */
 declare type Omit_2<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export { Omit_2 as Omit }
+
+/**
+ * Execute the given function when the DOM is ready, or if the DOM is already ready, execute the given function immediately.
+ * @param f
+ * @public
+ */
+export declare function onDocumentReady(f: Function): void;
 
 /**
  * Subclass of EventGenerator with a default implementation of `shouldFireEvent`, which returns true always.

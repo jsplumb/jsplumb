@@ -492,7 +492,10 @@ export type Axis = [Face, Face];
 export type AxisCoefficients = [number, number, number, number];
 
 // @public
-export type BeforeDetachInterceptor = (c: Connection) => boolean;
+export type BeforeConnectionDetachInterceptor = (c: Connection) => boolean;
+
+// @public
+export type BeforeConnectionDropInterceptor = (params: BeforeDropParams) => boolean;
 
 // @public
 export type BeforeDragInterceptor<E = any> = (params: BeforeDragParams<E>) => boolean | Record<string, any>;
@@ -510,9 +513,6 @@ export interface BeforeDragParams<E> {
 }
 
 // @public
-export type BeforeDropInterceptor = (params: BeforeDropParams) => boolean;
-
-// @public
 export interface BeforeDropParams {
     // (undocumented)
     connection: Connection;
@@ -527,10 +527,10 @@ export interface BeforeDropParams {
 }
 
 // @public
-export type BeforeStartDetachInterceptor<E = any> = (params: BeforeStartDetachParams<E>) => boolean;
+export type BeforeStartConnectionDetachInterceptor<E = any> = (params: BeforeStartConnectionDetachParams<E>) => boolean;
 
 // @public
-export interface BeforeStartDetachParams<E> extends BeforeDragParams<E> {
+export interface BeforeStartConnectionDetachParams<E> extends BeforeDragParams<E> {
 }
 
 // @public (undocumented)
@@ -1137,9 +1137,9 @@ export abstract class Component extends EventGenerator {
     // @internal (undocumented)
     applyType(t: any, params?: any): void;
     // (undocumented)
-    beforeDetach: BeforeDetachInterceptor;
+    beforeDetach: BeforeConnectionDetachInterceptor;
     // (undocumented)
-    beforeDrop: BeforeDropInterceptor;
+    beforeDrop: BeforeConnectionDropInterceptor;
     // @internal (undocumented)
     cacheTypeItem(key: string, item: any, typeId: string): void;
     // @internal (undocumented)
@@ -1286,9 +1286,9 @@ export abstract class Component extends EventGenerator {
 // @internal (undocumented)
 export interface ComponentOptions {
     // (undocumented)
-    beforeDetach?: BeforeDetachInterceptor;
+    beforeDetach?: BeforeConnectionDetachInterceptor;
     // (undocumented)
-    beforeDrop?: BeforeDropInterceptor;
+    beforeDrop?: BeforeConnectionDropInterceptor;
     // (undocumented)
     cssClass?: string;
     // (undocumented)
@@ -4069,6 +4069,9 @@ type Omit_2<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
 // Warning: (ae-internal-missing-underscore) The name "Omit" should be prefixed with an underscore because the declaration is marked as @internal
 export { Omit_2 as Omit }
+
+// @public
+export function onDocumentReady(f: Function): void;
 
 // @public
 export class OptimisticEventGenerator extends EventGenerator {

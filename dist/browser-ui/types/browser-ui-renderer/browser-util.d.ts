@@ -75,4 +75,10 @@ export declare enum ElementTypes {
 export declare type ElementType = keyof typeof ElementTypes;
 export declare function getElementType(el: Element): ElementType;
 export declare function isSVGElement(el: Element): boolean;
+/**
+ * Execute the given function when the DOM is ready, or if the DOM is already ready, execute the given function immediately.
+ * @param f
+ * @public
+ */
+export declare function onDocumentReady(f: Function): void;
 //# sourceMappingURL=browser-util.d.ts.map

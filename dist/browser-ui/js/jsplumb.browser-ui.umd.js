@@ -1035,6 +1035,16 @@
   function isSVGElement(el) {
     return getElementType(el) === exports.ElementTypes.SVG;
   }
+  function onDocumentReady(f) {
+    var _do = function _do() {
+      if (/complete|loaded|interactive/.test(document.readyState) && typeof document.body !== "undefined" && document.body != null) {
+        f();
+      } else {
+        setTimeout(_do, 9);
+      }
+    };
+    _do();
+  }
 
   function cls() {
     for (var _len = arguments.length, className = new Array(_len), _key = 0; _key < _len; _key++) {
@@ -13673,25 +13683,6 @@
   register$2();
   register();
   register$1();
-  var _jsPlumbInstanceIndex = 0;
-  function getInstanceIndex() {
-    var i = _jsPlumbInstanceIndex + 1;
-    _jsPlumbInstanceIndex++;
-    return i;
-  }
-  function newInstance(defaults) {
-    return new BrowserJsPlumbInstance(getInstanceIndex(), defaults);
-  }
-  function ready(f) {
-    var _do = function _do() {
-      if (/complete|loaded|interactive/.test(document.readyState) && typeof document.body !== "undefined" && document.body != null) {
-        f();
-      } else {
-        setTimeout(_do, 9);
-      }
-    };
-    _do();
-  }
 
   exports.SupportedEdge = void 0;
   (function (SupportedEdge) {
@@ -15929,6 +15920,26 @@
     return new BrowserUITestSupport(instance, QUnit.ok, QUnit.equal);
   }
 
+  var _jsPlumbInstanceIndex = 0;
+  function getInstanceIndex() {
+    var i = _jsPlumbInstanceIndex + 1;
+    _jsPlumbInstanceIndex++;
+    return i;
+  }
+  function newInstance(defaults) {
+    return new BrowserJsPlumbInstance(getInstanceIndex(), defaults);
+  }
+  function ready(f) {
+    var _do = function _do() {
+      if (/complete|loaded|interactive/.test(document.readyState) && typeof document.body !== "undefined" && document.body != null) {
+        f();
+      } else {
+        setTimeout(_do, 9);
+      }
+    };
+    _do();
+  }
+
   exports.ABSOLUTE = ABSOLUTE;
   exports.ADD_CLASS_ACTION = ADD_CLASS_ACTION;
   exports.ATTRIBUTE_CONTAINER = ATTRIBUTE_CONTAINER;
@@ -16265,6 +16276,7 @@
   exports.objectsEqual = objectsEqual;
   exports.offsetRelativeToRoot = offsetRelativeToRoot;
   exports.offsetSize = offsetSize;
+  exports.onDocumentReady = onDocumentReady;
   exports.pageLocation = pageLocation;
   exports.perpendicularLineTo = perpendicularLineTo;
   exports.perpendicularToPathAt = perpendicularToPathAt;
