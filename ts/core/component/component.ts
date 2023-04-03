@@ -115,13 +115,13 @@ export function  _updateHoverStyle<E> (component:Component) {
  * regardless of whether the detach occurred programmatically, or via the mouse.
  * @public
  */
-export type BeforeDetachInterceptor = (c:Connection) => boolean
+export type BeforeConnectionDetachInterceptor = (c:Connection) => boolean
 
 /**
  * Defines the method signature for the callback to the `beforeDrop` interceptor.
  * @public
  */
-export type BeforeDropInterceptor = (params:BeforeDropParams) => boolean
+export type BeforeConnectionDropInterceptor = (params:BeforeDropParams) => boolean
 
 /**
  * The parameters passed to a `beforeDrag` interceptor.
@@ -138,7 +138,7 @@ export interface BeforeDragParams<E> {
  * The parameters passed to a `beforeStartDetach` interceptor.
  * @public
  */
-export interface BeforeStartDetachParams<E> extends BeforeDragParams<E> {}
+export interface BeforeStartConnectionDetachParams<E> extends BeforeDragParams<E> {}
 
 /**
  * Defines the method signature for the callback to the `beforeDrag` interceptor. This method can return boolean `false` to
@@ -152,15 +152,15 @@ export type BeforeDragInterceptor<E = any> = (params:BeforeDragParams<E>) => boo
  * Defines the method signature for the callback to the `beforeStartDetach` interceptor.
  * @public
  */
-export type BeforeStartDetachInterceptor<E = any> = (params:BeforeStartDetachParams<E>) => boolean
+export type BeforeStartConnectionDetachInterceptor<E = any> = (params:BeforeStartConnectionDetachParams<E>) => boolean
 
 /**
  * @internal
  */
 export interface ComponentOptions {
     parameters?:Record<string, any>
-    beforeDetach?:BeforeDetachInterceptor
-    beforeDrop?:BeforeDropInterceptor
+    beforeDetach?:BeforeConnectionDetachInterceptor
+    beforeDrop?:BeforeConnectionDropInterceptor
     hoverClass?:string
     events?:Record<string, (value:any, event:any) => any>
     scope?:string
@@ -268,8 +268,8 @@ export abstract class Component extends EventGenerator {
 
     cssClass:string
     hoverClass:string
-    beforeDetach:BeforeDetachInterceptor
-    beforeDrop:BeforeDropInterceptor
+    beforeDetach:BeforeConnectionDetachInterceptor
+    beforeDrop:BeforeConnectionDropInterceptor
 
     protected constructor(public instance:JsPlumbInstance, params?:ComponentOptions) {
 
