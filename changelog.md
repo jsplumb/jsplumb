@@ -1,4 +1,18 @@
+## 6.0.2
+
+April 4th 2023
+
+- Fixed issue with Toolkit edition's Vue 3 integration packaging.
+
+## 6.0.1
+
+April 4th 2023
+
+- Added bezier / state machine connectors to Toolkit edition
+
 ## 6.0.0
+
+April 4th 2023
 
 jsPlumb 6.x consists of only one package - `@jsplumb/browser-ui` - which exports everything from the various packages in 5.x. The thinking behind this decision is twofold:
 
