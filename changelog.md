@@ -1,3 +1,9 @@
+## 6.0.3
+
+April 5th 2023
+
+- Toolkit packaging updates for evaluation builds
+
 ## 6.0.2
 
 April 4th 2023
