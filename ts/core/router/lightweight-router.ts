@@ -496,6 +496,10 @@ export class LightweightRouter<T extends {E:unknown}> implements Router<T, Light
 
                 anEndpoint = ep[i]
 
+                if (anEndpoint.visible === false) {
+                    continue;
+                }
+
                 endpointsToPaint.add(anEndpoint)
                 a = anEndpoint._anchor
 
