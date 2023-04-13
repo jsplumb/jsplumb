@@ -10032,6 +10032,9 @@ var LightweightRouter = function () {
             anEndpoint;
         for (var i = 0; i < ep.length; i++) {
           anEndpoint = ep[i];
+          if (anEndpoint.visible === false) {
+            continue;
+          }
           endpointsToPaint.add(anEndpoint);
           a = anEndpoint._anchor;
           if (anEndpoint.connections.length === 0) {

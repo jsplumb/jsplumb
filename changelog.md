@@ -1,3 +1,9 @@
+## 6.0.4
+
+April 14th 2023
+
+- Fixed an issue where endpoints to set to invisible would be repainted under certain revalidation scenarios.
+
 ## 6.0.3
 
 April 5th 2023
