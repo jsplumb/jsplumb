@@ -1,3 +1,9 @@
+## 6.0.5
+
+April 18th 2023
+
+- Internal packaging updates.  No functional change.
+
 ## 6.0.4
 
 April 14th 2023
