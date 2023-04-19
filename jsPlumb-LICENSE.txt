@@ -1,10 +1,10 @@
-All 1.x.x, 2.x.x and 5.x.x versions of jsPlumb Community edition are dual-licensed
+All 1.x.x, 2.x.x, 5.x.x and 6.x.x versions of jsPlumb Community edition are dual-licensed
 under both MIT and GPLv2. You can choose which license - either MIT or GPLv2 - you wish
 to use jsPlumb Community edition under.
 
 				MIT LICENSE
 
-Copyright (c) 2010 - 2022 jsPlumb, http://jsplumbtoolkit.com/
+Copyright (c) 2010 - 2023 jsPlumb, https://jsplumbtoolkit.com/
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
