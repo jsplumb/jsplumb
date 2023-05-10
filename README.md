@@ -40,11 +40,11 @@ For the Community edition the documentation for version 6.x is here:
 
 For the previous versions of jsPlumb, docs are here:
 
-[https://docs.jsplumbtoolkit.com/community-5.x/current/](https://docs.jsplumbtoolkit.com/community-5.x/current/)
+[https://docs.jsplumbtoolkit.com/community/5.x](https://docs.jsplumbtoolkit.com/community/5.x)
 
 and
 
-[https://docs.jsplumbtoolkit.com/community-2.x/current/](https://docs.jsplumbtoolkit.com/community-2.x/current/)
+[https://docs.jsplumbtoolkit.com/community/2.x](https://docs.jsplumbtoolkit.com/community/2.x)
 
 
 ## Issues
