@@ -1,3 +1,9 @@
+## 6.1.0
+
+May 11th 2023
+
+- Bump version to keep in line with Toolkit edition. No functional change.
+
 ## 6.0.5
 
 April 18th 2023
