@@ -1,3 +1,9 @@
+## 6.1.1
+
+May 12th 2023
+
+- Updates to build
+
 ## 6.1.0
 
 May 11th 2023
