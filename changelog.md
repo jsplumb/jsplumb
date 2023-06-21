@@ -1,3 +1,9 @@
+## 6.2.6
+
+June 21st 2023
+
+- Toolkit edition updates
+
 ## 6.2.5
 
 June 20th 2023
