@@ -27,7 +27,7 @@ The single import for 6.x is:
 If you're not using a package manager at all then you can use the UMD that ships in the jsPlumb package.
 
 ```html
-<script src="node_modues/@jsplumb/browser-ui/js/jsplumb-browser-ui.umd.js"></script>
+<script src="node_modules/@jsplumb/browser-ui/js/jsplumb-browser-ui.umd.js"></script>
 ```
 
 ---
